@@ -1,0 +1,7 @@
+lupa
+pyyaml
+types-PyYAML
+
+# dev
+pytest
+pre-commit >=2.9.2
