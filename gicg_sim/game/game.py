@@ -1,28 +1,23 @@
-from typing import List
+from collections import deque
+from typing import MutableSequence
 
-from .card import Card
-from .character import Character
-from .dice import DiceState
-from .summon import SummonToken
-from .supporter import SupporterToken
-
-GAME_SIDE_COUNT = 2
-
-
-class _GameSide:
-    def __init__(self) -> None:
-        self.cards_tile: List[Card] = []
-        self.cards_hand: List[Card] = []
-        self.characters: List[Character] = []
-        self.summons: List[SummonToken] = []
-        self.supporters: List[SupporterToken] = []
-        self.dices: DiceState = DiceState()
+from ..constants.global_ import GAME_SIDE_COUNT
+from ._side import _GameSide
+from .event import BaseEvent
 
 
 class Game:
     def __init__(self) -> None:
-        self.sides = [_GameSide(), _GameSide()]
+        self.sides = [_GameSide() for _ in range(GAME_SIDE_COUNT)]
         self.current_side = 0
+        self.event_queue: MutableSequence[BaseEvent] = deque()
 
-    def get_current_side(self):
+    def get_current_side(self) -> _GameSide:
         return self.sides[self.current_side]
+
+    def player_input(self, operation: str):
+        pass
+
+    def player_use_skill(self, skill: str):
+        character = self.get_current_side().get_active_character()
+        character.use_skill(self.event_queue, skill)

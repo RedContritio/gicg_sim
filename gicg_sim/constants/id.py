@@ -1,0 +1,2 @@
+class CharacterID(int):
+    pass

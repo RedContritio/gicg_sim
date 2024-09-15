@@ -1,4 +1,4 @@
-from ._base import StandaloneToken
+from ._token import StandaloneToken
 
 
 class SummonToken(StandaloneToken):

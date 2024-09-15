@@ -1,0 +1,2 @@
+
+GAME_SIDE_COUNT = 2
