@@ -1,7 +1,7 @@
 repos:
 # Common hooks
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.6.0
     hooks:
     -   id: check-added-large-files
     -   id: check-merge-conflict
@@ -13,7 +13,7 @@ repos:
     -   id: trailing-whitespace
         files: (.*\.(py|bzl|md|rst|c|cc|cxx|cpp|cu|h|hpp|hxx|xpu|kps|cmake|yaml|yml|hook)|BUILD|.*\.BUILD|WORKSPACE|CMakeLists\.txt)$
 -   repo: https://github.com/Lucas-C/pre-commit-hooks.git
-    rev: v1.1.14
+    rev: v1.5.5
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
@@ -21,21 +21,21 @@ repos:
         files: (.*\.(py|bzl)|BUILD|.*\.BUILD|WORKSPACE)$
         args: [--whitespaces-count, '4']
 -   repo: https://github.com/pycqa/isort
-    rev: 5.11.5
+    rev: 5.13.2
     hooks:
     -   id: isort
 -   repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 7.1.1
     hooks:
     -   id: flake8
         args: ["--config=.flake8"]
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.254
+    rev: v0.6.5
     hooks:
     -   id: ruff
         args: [--fix, --exit-non-zero-on-fix, --no-cache]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.950
+    rev: v1.11.2
     hooks:
     -   id: mypy
         verbose: true
