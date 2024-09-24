@@ -10,6 +10,8 @@ class Element(Enum):
     Cryo = "Cryo"        # 冰
     Geo = "Geo"          # 岩
 
+    Undefined = "Undefined"  # 未定义
+
 
 class DiceElement(Enum):
     Pyro = "Pyro"        # 火
@@ -35,8 +37,10 @@ class CostElement(Enum):
 
 
 _element_aux_backward_dict = {v: k for k, v in Element.__members__.items()}
-_dice_element_aux_backward_dict = {v: k for k, v in DiceElement.__members__.items()}
-_cost_element_aux_backward_dict = {v: k for k, v in CostElement.__members__.items()}
+_dice_element_aux_backward_dict = {
+    v: k for k, v in DiceElement.__members__.items()}
+_cost_element_aux_backward_dict = {
+    v: k for k, v in CostElement.__members__.items()}
 
 
 def element2cost(element: Element) -> CostElement:

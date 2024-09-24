@@ -1,10 +1,12 @@
-from typing import MutableSequence
+from typing import List, MutableSequence
 
 from ...constants.element import DamageElement, Element
 from ...constants.id import CharacterID
 from ...constants.target import TargetType
 from ..event._base import BaseEvent
 from ..event.damage import DamageEvent
+from ..skill import BaseSkill
+from ..state import State
 
 
 class Character:
@@ -20,18 +22,19 @@ class Character:
         self.element = element
         self.id = id
 
-    def _make_damage(self, target: TargetType, element: DamageElement, value: int):
+    def _set_skills(self, skills: List[BaseSkill]):
+        self.skills = skills
+
+    def _make_damage(self, target: TargetType,
+                     element: DamageElement, value: int):
         damage_event = DamageEvent(self.id, target, element, value)
         return damage_event
 
-    def normal_attack(self, events: MutableSequence[BaseEvent]):
-        raise NotImplementedError
-
-    def elemental_skill(self, events: MutableSequence[BaseEvent]):
-        raise NotImplementedError
-
-    def elemental_burst(self, events: MutableSequence[BaseEvent]):
-        raise NotImplementedError
-
-    def use_skill(self, events: MutableSequence[BaseEvent], skill):
-        raise NotImplementedError
+    def use_skill(self, state: State,
+                  events: MutableSequence[BaseEvent], skill_name: str) -> None:
+        for skill in self.skills:
+            if skill.name == skill_name:
+                return skill.apply(state, events)
+        raise ValueError(
+            f"Skill {skill_name} not found in character {
+                self.name}")

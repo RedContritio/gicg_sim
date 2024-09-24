@@ -29,6 +29,12 @@ repos:
     hooks:
     -   id: flake8
         args: ["--config=.flake8"]
+-   repo: https://github.com/hhatto/autopep8
+    rev: v2.3.1
+    hooks:
+      - id: autopep8
+        types: [python]
+        args: ["--in-place", "--aggressive", "--max-line-length=80"]
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.6.5
     hooks:

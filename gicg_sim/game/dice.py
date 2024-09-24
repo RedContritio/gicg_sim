@@ -6,7 +6,8 @@ from ..constants.element import DiceElement
 class DiceState:
     __slots__ = ("_data",)
 
-    def __init__(self, init_dict: Optional[Dict[DiceElement, int]] = None) -> None:
+    def __init__(
+            self, init_dict: Optional[Dict[DiceElement, int]] = None) -> None:
         self._data: Dict[DiceElement, int] = {
             DiceElement.Pyro: 0,
             DiceElement.Hydro: 0,

@@ -6,7 +6,8 @@ from .dice import DiceState
 
 
 class Cost:
-    def __init__(self, dices: Mapping[CostElement, int], energy: int | None = None) -> None:
+    def __init__(self, dices: Mapping[CostElement, int],
+                 energy: int | None = None) -> None:
         self.dices: Mapping[CostElement, int] = dices
         self.energy: int | None = energy
 

@@ -1,10 +1,9 @@
-from typing import Dict
 
-from ...constants.element import Element
+from ..cost import Cost
 from ._base import BaseEvent
 
 
 class CostEvent(BaseEvent):
-    def __init__(self) -> None:
+    def __init__(self, cost: Cost) -> None:
         super().__init__()
-        self.dice: Dict[Element, int] = {}
+        self._cost = cost
