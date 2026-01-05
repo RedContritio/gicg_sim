@@ -1,0 +1,15 @@
+# 坎瑞亚人（测试用角色）
+name: Khaenriahn
+element: Undefined
+max_hp: 10
+max_energy: 2
+
+skills:
+  - name: 普通攻击
+    type: normal_attack
+    damage_element: Physical
+    damage_count: 2
+    cost:
+      # 无元素需求，仅需3个任意骰子
+      any_count: 3
+

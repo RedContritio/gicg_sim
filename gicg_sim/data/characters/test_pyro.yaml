@@ -1,0 +1,16 @@
+# 测试用火元素角色
+name: TestPyro
+element: Pyro
+max_hp: 10
+max_energy: 2
+
+skills:
+  - name: 普通攻击
+    type: normal_attack
+    damage_element: Physical
+    damage_count: 2
+    cost:
+      element: Pyro
+      element_count: 1
+      any_count: 2
+

@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from ..constants.element import DiceElement
 
@@ -23,8 +23,39 @@ class DiceState:
             for key, value in init_dict.items():
                 self._data[key] = value
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: DiceElement) -> int:
         return self._data[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: DiceElement, value: int):
         self._data[key] = value
+
+    def total(self) -> int:
+        """返回骰子总数"""
+        return sum(self._data.values())
+
+    def add(self, element: DiceElement, count: int = 1):
+        """添加骰子"""
+        self._data[element] += count
+
+    def remove(self, element: DiceElement, count: int = 1) -> bool:
+        """移除骰子，成功返回True"""
+        if self._data[element] >= count:
+            self._data[element] -= count
+            return True
+        return False
+
+    def clear(self):
+        """清空所有骰子"""
+        for key in self._data:
+            self._data[key] = 0
+
+    def get_non_matching_elements(self, exclude_element: DiceElement) -> List[DiceElement]:
+        """获取所有非指定元素的骰子元素类型"""
+        return [e for e in DiceElement if e != exclude_element and e != DiceElement.Omni]
+
+    def copy(self) -> 'DiceState':
+        """复制骰子状态"""
+        new_state = DiceState()
+        for key, value in self._data.items():
+            new_state[key] = value
+        return new_state
