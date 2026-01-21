@@ -1,0 +1,208 @@
+{
+  "说明": "此文件用于手动填写 action 卡牌中 icon URL 到 cost_type 的映射关系。",
+  "填写说明": [
+    "1. 对于每个 icon_url，在 'cost_type' 字段填写对应的 cost_type 值（字符串格式，如 '11'）",
+    "2. 如果某个 URL 在 role 映射表中已存在，'role_mapping_hint' 会显示可能的对应关系",
+    "3. 填写完成后，运行 normalize_cost_icons.py 时会使用此映射表"
+  ],
+  "mappings": [
+    {
+      "icon_url": "https://fastcdn.mihoyo.com/static-resource-v2/2023/07/10/95ea5f8357e489bccf5fb40a73955d2f_8324535030277572926.png",
+      "cost_type": "秘传",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_330001_旧时庭园.json (cost_type2_icon)",
+        "action_330002_磐岩盟契.json (cost_type2_icon)",
+        "action_330003_愉舞欢游.json (cost_type2_icon)",
+        "action_330004_自由的新风.json (cost_type2_icon)",
+        "action_330005_万家灶火.json (cost_type2_icon)",
+        "action_330006_裁定之时.json (cost_type2_icon)",
+        "action_330007_抗争之日_碎梦之时.json (cost_type2_icon)",
+        "action_330008_旧日鏖战.json (cost_type2_icon)",
+        "action_330009_赦免宣告.json (cost_type2_icon)",
+        "action_330010_归火圣夜巡礼.json (cost_type2_icon)"
+      ],
+      "total_card_count": 12
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/17d89519af925fc46075404a350a3009_6963484975656758763.png",
+      "cost_type": "11",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_211011_唯此一心.json (cost_type1_icon)",
+        "action_211021_猫爪冰摇.json (cost_type1_icon)",
+        "action_211031_冷血之剑.json (cost_type1_icon)",
+        "action_211041_吐纳真定.json (cost_type1_icon)",
+        "action_211051_寒天宣命祝词.json (cost_type1_icon)",
+        "action_211061_战欲涌现.json (cost_type1_icon)",
+        "action_211071_忘玄.json (cost_type1_icon)",
+        "action_211081_起死回骸.json (cost_type1_icon)",
+        "action_211091_归芒携信.json (cost_type1_icon)",
+        "action_211101_以有趣相关为要义.json (cost_type1_icon)"
+      ],
+      "total_card_count": 20
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/3367995a8344bccc77b2d9f794c1bbd2_8252990651657788888.png",
+      "cost_type": "同色",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_221021_苦痛奉还.json (cost_type1_icon)",
+        "action_226022_晦朔千引.json (cost_type1_icon)",
+        "action_311101_魔导绪论.json (cost_type1_icon)",
+        "action_311102_祭礼残章.json (cost_type1_icon)",
+        "action_311103_天空之卷.json (cost_type1_icon)",
+        "action_311104_千夜浮梦.json (cost_type1_icon)",
+        "action_311106_四风原典.json (cost_type1_icon)",
+        "action_311107_图莱杜拉的回忆.json (cost_type1_icon)",
+        "action_311108_万世流涌大典.json (cost_type1_icon)",
+        "action_311109_金流监督.json (cost_type1_icon)"
+      ],
+      "total_card_count": 175
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/36cb5de8667e09ae102d165b89d6e441_7325026828960213916.png",
+      "cost_type": "1",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_211061_战欲涌现.json (cost_type2_icon)",
+        "action_211081_起死回骸.json (cost_type2_icon)",
+        "action_212031_沉没的预言.json (cost_type2_icon)",
+        "action_212051_匣中玉栉.json (cost_type2_icon)",
+        "action_212071_衍溢的汐潮.json (cost_type2_icon)",
+        "action_213031_冒险憧憬.json (cost_type2_icon)",
+        "action_213111_僚佐的才巧.json (cost_type2_icon)",
+        "action_213161_通明庇佑.json (cost_type2_icon)",
+        "action_214071_万千的愿望.json (cost_type2_icon)",
+        "action_214081_神篱之御荫.json (cost_type2_icon)"
+      ],
+      "total_card_count": 23
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/378c2c4f23cdde3eecd6efbc79bddef1_8854854931584623480.png",
+      "cost_type": "17",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_215011_混元熵增论.json (cost_type1_icon)",
+        "action_215021_蒲公英的国土.json (cost_type1_icon)",
+        "action_215031_绪风之拥.json (cost_type1_icon)",
+        "action_215041_降魔_护法夜叉.json (cost_type1_icon)",
+        "action_215051_风物之诗咏.json (cost_type1_icon)",
+        "action_215061_梦迹一风.json (cost_type1_icon)",
+        "action_215071_偷懒的新方法.json (cost_type1_icon)",
+        "action_215081_如影流露的冷刃.json (cost_type1_icon)",
+        "action_215091_妙道合真.json (cost_type1_icon)",
+        "action_215101_知是留云僊.json (cost_type1_icon)"
+      ],
+      "total_card_count": 19
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/37aa06d83b3bc7f7d9ae9fef79d77f03_5019438660898877146.png",
+      "cost_type": "15",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_216011_储之千日_用之一刻.json (cost_type1_icon)",
+        "action_216021_支援就交给我吧.json (cost_type1_icon)",
+        "action_216031_炊金馔玉.json (cost_type1_icon)",
+        "action_216041_神性之陨.json (cost_type1_icon)",
+        "action_216051_荒泷第一.json (cost_type1_icon)",
+        "action_216061_犬奔_疾如风.json (cost_type1_icon)",
+        "action_216071_庄谐并举.json (cost_type1_icon)",
+        "action_216081_不明流通渠道.json (cost_type1_icon)",
+        "action_216091_落染五色.json (cost_type1_icon)",
+        "action_216101_夜域赐礼_团结炉心.json (cost_type1_icon)"
+      ],
+      "total_card_count": 15
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/7187c0cc6441821b895062980ac096c9_3471120075242544179.png",
+      "cost_type": "16",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_217011_飞叶迴斜.json (cost_type1_icon)",
+        "action_217021_眼识殊明.json (cost_type1_icon)",
+        "action_217031_心识蕴藏之种.json (cost_type1_icon)",
+        "action_217041_慈惠仁心.json (cost_type1_icon)",
+        "action_217051_在地为化.json (cost_type1_icon)",
+        "action_217061_正理.json (cost_type1_icon)",
+        "action_217071_沿途百景会心.json (cost_type1_icon)",
+        "action_217081_预算师的技艺.json (cost_type1_icon)",
+        "action_217091_夜域赐礼_索报皆偿.json (cost_type1_icon)",
+        "action_217101_茉洁香迹.json (cost_type1_icon)"
+      ],
+      "total_card_count": 15
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/7aa8c29e9df41e16b1d5c7f1a5dc52f1_4190017608978197408.png",
+      "cost_type": "13",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_213011_流火焦灼.json (cost_type1_icon)",
+        "action_213021_交叉火力.json (cost_type1_icon)",
+        "action_213031_冒险憧憬.json (cost_type1_icon)",
+        "action_213041_一触即发.json (cost_type1_icon)",
+        "action_213051_长野原龙势流星群.json (cost_type1_icon)",
+        "action_213061_砰砰礼物.json (cost_type1_icon)",
+        "action_213071_血之灶火.json (cost_type1_icon)",
+        "action_213081_最终解释权.json (cost_type1_icon)",
+        "action_213091_崇诚之真.json (cost_type1_icon)",
+        "action_213101_完场喝彩.json (cost_type1_icon)"
+      ],
+      "total_card_count": 22
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/adc5e2670aa6dab74edbc9c2155df114_6101502486122046344.png",
+      "cost_type": "10",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_211111_予行恶者以惩惧.json (cost_type2_icon)",
+        "action_212101_古海孑遗的权柄.json (cost_type2_icon)",
+        "action_213081_最终解释权.json (cost_type2_icon)",
+        "action_213121_地狱里摇摆.json (cost_type2_icon)",
+        "action_216051_荒泷第一.json (cost_type2_icon)",
+        "action_311105_盈满之实.json (cost_type1_icon)",
+        "action_311307_森林王器.json (cost_type1_icon)",
+        "action_311310_拾慧铸熔.json (cost_type1_icon)",
+        "action_311507_原木刀.json (cost_type1_icon)",
+        "action_312002_幸运儿银冠.json (cost_type1_icon)"
+      ],
+      "total_card_count": 56
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/bc5ce21badb7be88e4a6a2140c3ef535_5435921419784524630.png",
+      "cost_type": "12",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_212011_光辉的季节.json (cost_type1_icon)",
+        "action_212021_重帘留香.json (cost_type1_icon)",
+        "action_212031_沉没的预言.json (cost_type1_icon)",
+        "action_212041_深渊之灾_凝水盛放.json (cost_type1_icon)",
+        "action_212051_匣中玉栉.json (cost_type1_icon)",
+        "action_212061_镜华风姿.json (cost_type1_icon)",
+        "action_212071_衍溢的汐潮.json (cost_type1_icon)",
+        "action_212081_星天的花雨.json (cost_type1_icon)",
+        "action_212091_猜先有方.json (cost_type1_icon)",
+        "action_212101_古海孑遗的权柄.json (cost_type1_icon)"
+      ],
+      "total_card_count": 21
+    },
+    {
+      "icon_url": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/f7048dd5a016ad50724e4adb302a131e_1105005655883132660.png",
+      "cost_type": "14",
+      "role_mapping_hint": null,
+      "appears_in_cards": [
+        "action_214011_噬星魔鸦.json (cost_type1_icon)",
+        "action_214021_觉醒.json (cost_type1_icon)",
+        "action_214031_抵天雷罚.json (cost_type1_icon)",
+        "action_214041_落羽的裁择.json (cost_type1_icon)",
+        "action_214051_霹雳连霄.json (cost_type1_icon)",
+        "action_214061_我界.json (cost_type1_icon)",
+        "action_214071_万千的愿望.json (cost_type1_icon)",
+        "action_214081_神篱之御荫.json (cost_type1_icon)",
+        "action_214091_脉冲的魔女.json (cost_type1_icon)",
+        "action_214101_酌盈剂虚.json (cost_type1_icon)"
+      ],
+      "total_card_count": 22
+    }
+  ]
+}

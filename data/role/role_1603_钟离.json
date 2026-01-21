@@ -8,12 +8,10 @@
       "skill_costs": [
         {
           "cost_type": "15",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
           "cost_num": "1"
         },
         {
           "cost_type": "10",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
           "cost_num": "2"
         }
       ],
@@ -30,7 +28,6 @@
       "skill_costs": [
         {
           "cost_type": "15",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
           "cost_num": "3"
         }
       ],
@@ -47,7 +44,6 @@
       "skill_costs": [
         {
           "cost_type": "15",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
           "cost_num": "5"
         }
       ],
@@ -64,12 +60,10 @@
       "skill_costs": [
         {
           "cost_type": "15",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
           "cost_num": "3"
         },
         {
           "cost_type": "1",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
           "cost_num": "3"
         }
       ],

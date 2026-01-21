@@ -5,9 +5,7 @@
   "action_type": "装备牌",
   "rank_id": 0,
   "cost_num1": "1",
-  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/17d89519af925fc46075404a350a3009_6963484975656758763.png",
   "cost_num2": "2",
-  "cost_type2_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/adc5e2670aa6dab74edbc9c2155df114_6101502486122046344.png",
   "action_card_tags": [
     "天赋",
     "战斗行动",
@@ -16,5 +14,7 @@
     ""
   ],
   "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/95db801c5f10e56e941943ab397da355.png",
-  "is_special": false
+  "is_special": false,
+  "cost_type1": "11",
+  "cost_type2": "10"
 }
