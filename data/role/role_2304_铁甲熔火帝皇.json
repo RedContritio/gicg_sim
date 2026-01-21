@@ -1,0 +1,87 @@
+{
+  "id": 2304,
+  "name": "铁甲熔火帝皇",
+  "element_type": 303,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4ef5373e27e14926f2fec5ffa0511440.png",
+      "name": "重钳碎击",
+      "id": "23041"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' /><color=#FF9999FF>火元素伤害</color>；如果本角色附属有至少7层<color=#FFFFFFFF>重甲蟹壳</color>，则此伤害+1。\\n然后，本角色附属2层<color=#FFFFFFFF>重甲蟹壳</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/361d4045c98b8161dc44b85609d9aa4e.png",
+      "name": "烈焰燃绽",
+      "id": "23042"
+    },
+    {
+      "skill_text": "本角色<color=#FFFFFFFF>准备技能</color>：<color=#FFFFFFFF>炽烈轰破</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/8a7055b584c4a1d594d1259896782ce9.png",
+      "name": "战阵爆轰",
+      "id": "23043"
+    },
+    {
+      "skill_text": "【被动】<color=#FFFFFFFF>战斗开始时：</color>初始附属5层<color=#FFFFFFFF>重甲蟹壳</color>。\\n<color=#FFFFFFFF>我方执行任意行动后：</color>如果我方场上存在重甲蟹壳以外的<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b1/24bc6b249479a2371a126a0c617ee0ae.png' /><color=#FFFFFFFF>护盾</color>状态或<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b1/24bc6b249479a2371a126a0c617ee0ae.png' /><color=#FFFFFFFF>护盾</color>出战状态，则将其全部移除；每移除1个，就使角色附属2层<color=#FFFFFFFF>重甲蟹壳</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/433f2dca5c7553e9a9c746d90713c490.png",
+      "name": "帝王甲胄",
+      "id": "23044"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "魔物",
+    "",
+    ""
+  ],
+  "hp": "5",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/3a54fdd7a0b8c533e39b63263306f095.png"
+}

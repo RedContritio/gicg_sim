@@ -1,0 +1,76 @@
+{
+  "id": 1205,
+  "name": "珊瑚宫心海",
+  "element_type": 302,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2c014e6053c4f0d032e1d1ff0c6de0e1.png",
+      "name": "水有常形",
+      "id": "12051"
+    },
+    {
+      "skill_text": "本角色<color=#80C0FFFF>附着<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' />水元素</color>，召唤<color=#FFFFFFFF>化海月</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/30ad9fa2126d862feb409c5c1e92e9d5.png",
+      "name": "海月之誓",
+      "id": "12052"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，治疗所有我方角色1点，本角色附属<color=#FFFFFFFF>仪来羽衣</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/149919f4d78ac8a35e39385ff7580a97.png",
+      "name": "海人化羽",
+      "id": "12053"
+    }
+  ],
+  "weapon": "法器",
+  "belongs": [
+    "稻妻",
+    "",
+    ""
+  ],
+  "hp": "12",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/cd49871557917540818fd972de577e45.png"
+}

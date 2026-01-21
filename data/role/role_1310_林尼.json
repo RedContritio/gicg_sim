@@ -1,0 +1,93 @@
+{
+  "id": 1310,
+  "name": "林尼",
+  "element_type": 303,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cc29fde34aa6d42f8e110628a4bf2de2.png",
+      "name": "迫牌易位式",
+      "id": "13101"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' /><color=#FF9999FF>火元素伤害</color>，召唤<color=#FFFFFFFF>怪笑猫猫帽</color>，累积1层<color=#FFFFFFFF>隐具余数</color>。\\n如果本角色生命值至少为6，则对自身造成1点<color=#FFFFFFFF>穿透伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/547d231b112ed7ae38a3e39fe737cdc7.png",
+      "name": "隐具魔术箭",
+      "id": "13102"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' /><color=#FF9999FF>火元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/b434fc765b3e5ce2408fde771944acb3.png",
+      "name": "眩惑光戏法",
+      "id": "13103"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' /><color=#FF9999FF>火元素伤害</color>，召唤<color=#FFFFFFFF>怪笑猫猫帽</color>，累积1层<color=#FFFFFFFF>隐具余数</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2e06fedc3788198154275ee402ce392d.png",
+      "name": "大魔术·灵迹巡游",
+      "id": "13104"
+    }
+  ],
+  "weapon": "弓",
+  "belongs": [
+    "枫丹",
+    "愚人众",
+    "始基力：芒性"
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/9658104fcff9ea806683145a6a4061fc.png"
+}

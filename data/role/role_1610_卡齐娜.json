@@ -1,0 +1,76 @@
+{
+  "id": 1610,
+  "name": "卡齐娜",
+  "element_type": 305,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/0a4af4ecb63b4741aa3e42d18a2a0c21.png",
+      "name": "嵴之啮咬",
+      "id": "16101"
+    },
+    {
+      "skill_text": "自身附属<color=#FFFFFFFF>冲天转转</color>，然后进入<color=#FFFFFFFF>夜魂加持</color>，并获得2点<color=#FFFFFFFF>「夜魂值」</color>。（角色进入<color=#FFFFFFFF>夜魂加持</color>后不可使用此技能）\\n（附属<color=#FFFFFFFF>冲天转转</color>的角色可以使用特技：<color=#FFFFFFFF>转转冲击</color>）",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/06f4b330b99a38aeb73b3ea2ce7e2d99.png",
+      "name": " 出击，冲天转转！",
+      "id": "16102"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/98c267c74a3efdcfed4131a054ff4b82.png' /><color=#FFE699FF>岩元素伤害</color>，生成<color=#FFFFFFFF>超级钻钻领域</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67e335b2/24a0a109ac2a9ee5821e2322ee340568.png",
+      "name": "现在，认真时间！",
+      "id": "16103"
+    }
+  ],
+  "weapon": "长柄武器",
+  "belongs": [
+    "纳塔",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67e33599/c7045bea2928eb62ade6edb98ffa192f.png"
+}

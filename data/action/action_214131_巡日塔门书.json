@@ -1,0 +1,20 @@
+{
+  "id": 214131,
+  "name": "巡日塔门书",
+  "content": "我方<color=#FFFFFFFF>赛索斯</color>获得1点<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png' />充能</color>。\\n我方赛索斯因<color=#FFFFFFFF>黑鸢的密喻</color>扣除<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png' />充能</color>后，获得1点<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png' />充能</color>。（每回合1次）\\n（牌组中包含赛索斯，才能加入牌组）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "1",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/f7048dd5a016ad50724e4adb302a131e_1105005655883132660.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "天赋",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a9497/12e563bddf09935a0f8704549f9c19a4.png",
+  "is_special": false
+}

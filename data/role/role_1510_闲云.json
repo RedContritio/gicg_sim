@@ -1,0 +1,76 @@
+{
+  "id": 1510,
+  "name": "闲云",
+  "element_type": 307,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2c014e6053c4f0d032e1d1ff0c6de0e1.png",
+      "name": "清风散花词",
+      "id": "15101"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，生成<color=#FFFFFFFF>步天梯</color>，本角色附属<color=#FFFFFFFF>闲云冲击波</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/ac0d39543d116c85f087b338eddf8be4.png",
+      "name": "朝起鹤云",
+      "id": "15102"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，治疗所有我方角色1点，生成手牌<color=#FFFFFFFF>竹星</color>。\\n（装备有<color=#FFFFFFFF>竹星</color>的角色可以使用特技：<color=#FFFFFFFF>仙力助推</color>）",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/d88b9594b9772a9a363b2a79a2aa858c.png",
+      "name": "暮集竹星",
+      "id": "15103"
+    }
+  ],
+  "weapon": "法器",
+  "belongs": [
+    "璃月",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/c1d32fbcbb61540baf05ae1c2c074e91.png"
+}

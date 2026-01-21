@@ -1,0 +1,87 @@
+{
+  "id": 2405,
+  "name": "圣骸毒蝎",
+  "element_type": 304,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4ef5373e27e14926f2fec5ffa0511440.png",
+      "name": "蝎爪钳击",
+      "id": "24051"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>。\\n生成1张<color=#FFFFFFFF>噬骸能量块</color>，随机置入我方牌库顶部2张牌之中。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/16876096850e197918b53ee4d164d1c3.png",
+      "name": "蝎尾锥刺",
+      "id": "24052"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>，<color=#FFFFFFFF>舍弃</color>手牌中最多3张<color=#FFFFFFFF>噬骸能量块</color>，在对方场上生成<color=#FFFFFFFF>雷锥陷阱</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/e393b13a11509e8e2d1188b6ef2ccc1b.png",
+      "name": "雷锥散射",
+      "id": "24053"
+    },
+    {
+      "skill_text": "【被动】回合结束时，生成2张<color=#FFFFFFFF>噬骸能量块</color>，随机置入我方牌库顶部10张牌之中。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/c368cd3c02e13b832bdc84594ba6fb28.png",
+      "name": "不朽亡骸·雷",
+      "id": "24054"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "魔物",
+    "圣骸兽",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/f44d3be8e8d500293a4e0a26a627d10c.png"
+}

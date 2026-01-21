@@ -1,0 +1,76 @@
+{
+  "id": 1112,
+  "name": "菲米尼",
+  "element_type": 301,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/bf0237fba9d4ab5b47ea86b90711a765.png",
+      "name": "洑流剑",
+      "id": "11121"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，若角色未附属<color=#FFFFFFFF>佩伊刻计</color>，则使其附属<color=#FFFFFFFF>佩伊刻计</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/aff085a5fecf72d472b83dcb985f0113.png",
+      "name": "浮冰增压",
+      "id": "11122"
+    },
+    {
+      "skill_text": "造成4点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，本角色附属<color=#FFFFFFFF>潜猎模式</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/0acde839fda5862eeae4dbbef67f5bc2.png",
+      "name": "猎影潜袭",
+      "id": "11123"
+    }
+  ],
+  "weapon": "双手剑",
+  "belongs": [
+    "枫丹",
+    "愚人众",
+    "始基力：芒性"
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/2db0a0fd87cd6c1095cccc1b10e6ca34.png"
+}

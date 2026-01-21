@@ -1,0 +1,93 @@
+{
+  "id": 1101,
+  "name": "甘雨",
+  "element_type": 301,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cc29fde34aa6d42f8e110628a4bf2de2.png",
+      "name": "流天射术",
+      "id": "11011"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，生成<color=#FFFFFFFF>冰莲</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/e1bccf40027d042f73a0b8cb7cf97f6a.png",
+      "name": "山泽麟迹",
+      "id": "11012"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，对所有敌方后台角色造成2点<color=#FFFFFFFF>穿透伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "5"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/547d231b112ed7ae38a3e39fe737cdc7.png",
+      "name": "霜华矢",
+      "id": "11013"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，对所有敌方后台角色造成1点<color=#FFFFFFFF>穿透伤害</color>，召唤<color=#FFFFFFFF>冰灵珠</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/b44b64e9e3c9783fd683b8c0d974e3fc.png",
+      "name": "降众天华",
+      "id": "11014"
+    }
+  ],
+  "weapon": "弓",
+  "belongs": [
+    "璃月",
+    "",
+    ""
+  ],
+  "hp": "12",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/671cf4909dbdd97c0d7991ff457756b2.png"
+}

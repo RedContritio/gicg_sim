@@ -1,0 +1,76 @@
+{
+  "id": 1503,
+  "name": "温迪",
+  "element_type": 307,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cc29fde34aa6d42f8e110628a4bf2de2.png",
+      "name": "神代射术",
+      "id": "15031"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，生成<color=#FFFFFFFF>风域</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/a69b632382170129c3323549f9185575.png",
+      "name": "高天之歌",
+      "id": "15032"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，召唤<color=#FFFFFFFF>暴风之眼</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/01c5d5c3e79e981bb2bd11914b961a1f.png",
+      "name": "风神之诗",
+      "id": "15033"
+    }
+  ],
+  "weapon": "弓",
+  "belongs": [
+    "蒙德",
+    "",
+    ""
+  ],
+  "hp": "12",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/3f5724e329be7f185069c29e027f3381.png"
+}

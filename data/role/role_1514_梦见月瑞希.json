@@ -1,0 +1,76 @@
+{
+  "id": 1514,
+  "name": "梦见月瑞希",
+  "element_type": 307,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2c014e6053c4f0d032e1d1ff0c6de0e1.png",
+      "name": "梦我梦心",
+      "id": "15141"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，自身附属<color=#FFFFFFFF>梦浮</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/f42417c93a7900ea72732d5faf8eaf2a.png",
+      "name": "秋沙歌枕巡礼",
+      "id": "15142"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，生成1张<color=#FFFFFFFF>梦见风名物点心</color>，将其置于我方牌组顶部，并召唤<color=#FFFFFFFF>小貘</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/68c0b1b7/cb5f89bbd3589b6841ca97bd50817d98.png",
+      "name": "安乐秘汤疗法",
+      "id": "15143"
+    }
+  ],
+  "weapon": "法器",
+  "belongs": [
+    "稻妻",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/68c0b19c/0ecb360619503d292559f33330b8e5ef.png"
+}

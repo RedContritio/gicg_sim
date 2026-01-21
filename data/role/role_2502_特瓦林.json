@@ -1,0 +1,93 @@
+{
+  "id": 2502,
+  "name": "特瓦林",
+  "element_type": 307,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4ef5373e27e14926f2fec5ffa0511440.png",
+      "name": "裂爪横击",
+      "id": "25021"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，目标角色附属<color=#FFFFFFFF>坍毁</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/6ea35f17b2dd496594b07d150511f2bc.png",
+      "name": "暴风轰击",
+      "id": "25022"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，然后分别<color=#FFFFFFFF>准备技能</color>：<color=#FFFFFFFF>长延涤流</color>和<color=#FFFFFFFF>终幕涤流</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "5"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/8e984cdca5e385c55164f3b736b59419.png",
+      "name": "风龙涤流",
+      "id": "25023"
+    },
+    {
+      "skill_text": "造成5点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/c89ca75b4aef48091d59bf71aaff2b8b.png' /><color=#80FFD7FF>风元素伤害</color>，所有敌方后台角色附属<color=#FFFFFFFF>坍毁</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "17",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/bff8d36c5fdb0df001e05624aa7b7e97.png",
+          "cost_num": "4"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/e2ab2bef40b8fa7939fc4ccb1e1025a6.png",
+      "name": "终天闭幕曲",
+      "id": "25024"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "魔物",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/7544145201328df0dbcb352dca3b11a9.png"
+}

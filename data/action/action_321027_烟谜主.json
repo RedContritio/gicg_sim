@@ -1,0 +1,20 @@
+{
+  "id": 321027,
+  "name": "「烟谜主」",
+  "content": "此牌初始具有4点<color=#FFFFFFFF>灵觉</color>。\\n<color=#FFFFFFFF>我方<color=#FFFFFFFF>挑选</color>后：</color><color=#FFFFFFFF>灵觉</color>-1。\\n<color=#FFFFFFFF>行动阶段开始时：</color>若<color=#FFFFFFFF>灵觉</color>为0，则移除自身，然后从3个随机元素骰费用为2的支援牌中<color=#FFFFFFFF>挑选</color>一个生成。",
+  "action_type": "支援牌",
+  "rank_id": 0,
+  "cost_num1": "0",
+  "cost_type1_icon": "",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "场地",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67e33599/66598a6a93a81b2378a12706a416d525.png",
+  "is_special": false
+}

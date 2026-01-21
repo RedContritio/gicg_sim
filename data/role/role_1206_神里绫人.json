@@ -1,0 +1,76 @@
+{
+  "id": 1206,
+  "name": "神里绫人",
+  "element_type": 302,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/3f016e2d606ca39ea86e24d5245dfa5b.png",
+      "name": "神里流·转",
+      "id": "12061"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，本角色附属<color=#FFFFFFFF>泷廻鉴花</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/960da6075132bfab6cc4edb79d7ad6cf.png",
+      "name": "神里流·镜花",
+      "id": "12062"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，召唤<color=#FFFFFFFF>清净之园囿</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/52aa5b0048692a7f06199516034400f8.png",
+      "name": "神里流·水囿",
+      "id": "12063"
+    }
+  ],
+  "weapon": "单手剑",
+  "belongs": [
+    "稻妻",
+    "",
+    ""
+  ],
+  "hp": "11",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/f03323c9496016cd1aea4a5c886e5103.png"
+}

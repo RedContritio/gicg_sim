@@ -1,0 +1,87 @@
+{
+  "id": 1209,
+  "name": "夜兰",
+  "element_type": 302,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cc29fde34aa6d42f8e110628a4bf2de2.png",
+      "name": "潜形隐曜弓",
+      "id": "12091"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，此角色的<color=#FFFFFFFF>破局</color>层数+2。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/bd20a396eba434af899760843b1f5512.png",
+      "name": "萦络纵命索",
+      "id": "12092"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，生成<color=#FFFFFFFF>玄掷玲珑</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/8d059f503f6033adc5492dead77cd6fc.png",
+      "name": "渊图玲珑骰",
+      "id": "12093"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，初始附属<color=#FFFFFFFF>破局</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/bcc2c0184c63d9e324fec6f415d21e25.png",
+      "name": "破局",
+      "id": "12094"
+    }
+  ],
+  "weapon": "弓",
+  "belongs": [
+    "璃月",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/0ab04b08888d82ade0897e9aaecb5bae.png"
+}

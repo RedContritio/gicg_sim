@@ -1,0 +1,20 @@
+{
+  "id": 331803,
+  "name": "雷与永恒",
+  "content": "将我方所有元素骰转换为<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/8401f5013a7c381edb6cd088b207bb9f.png' />万能元素</color>。\\n（牌组包含至少2个「<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71f/8f3661a6dadf606e1f03245679e6ea29.png' />稻妻」角色，才能加入牌组）",
+  "action_type": "事件牌",
+  "rank_id": 0,
+  "cost_num1": "0",
+  "cost_type1_icon": "",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/ea6c4abc76ba2ad0cbfa5047e96f8dbd.png",
+  "is_special": false
+}

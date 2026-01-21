@@ -1,0 +1,76 @@
+{
+  "id": 1605,
+  "name": "荒泷一斗",
+  "element_type": 305,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/bf0237fba9d4ab5b47ea86b90711a765.png",
+      "name": "喧哗屋传说",
+      "id": "16051"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/98c267c74a3efdcfed4131a054ff4b82.png' /><color=#FFE699FF>岩元素伤害</color>，召唤<color=#FFFFFFFF>阿丑</color>，本角色附属<color=#FFFFFFFF>乱神之怪力</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/740547a25dd4e2a9100c8c053b129a93.png",
+      "name": "魔杀绝技·赤牛发破！",
+      "id": "16052"
+    },
+    {
+      "skill_text": "造成4点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/98c267c74a3efdcfed4131a054ff4b82.png' /><color=#FFE699FF>岩元素伤害</color>，本角色附属<color=#FFFFFFFF>怒目鬼王</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/65c37fdafffd350393323f47e3e33c68.png",
+      "name": "最恶鬼王·一斗轰临！！",
+      "id": "16053"
+    }
+  ],
+  "weapon": "双手剑",
+  "belongs": [
+    "稻妻",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/119e2d54a5dd81c864aa4ded6ff13e11.png"
+}

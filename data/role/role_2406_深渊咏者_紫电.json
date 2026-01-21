@@ -1,0 +1,87 @@
+{
+  "id": 2406,
+  "name": "深渊咏者·紫电",
+  "element_type": 304,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2c014e6053c4f0d032e1d1ff0c6de0e1.png",
+      "name": "渊薮落雷",
+      "id": "24061"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>。\\n如果目标已附着雷元素，则夺取对方1点充能。（如果夺取时此角色充能已满，则改为由下一个充能未满的角色获得充能）",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/fd4e8ea998c0af3771692deb8644c822.png",
+      "name": "秘渊虚霆",
+      "id": "24062"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>。\\n如果目标充能不多于1，造成的伤害+2。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/5e735875541e525edb641833264042d4.png",
+      "name": "狂迸骇雷",
+      "id": "24063"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，初始附属<color=#FFFFFFFF>雷之新生</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/610c5771d70b5f79370e8a717d314ebf.png",
+      "name": "雷之新生",
+      "id": "24064"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "魔物",
+    "",
+    ""
+  ],
+  "hp": "6",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/bc9f88cf181b44bb42af453e077c5948.png"
+}

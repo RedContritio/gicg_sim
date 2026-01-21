@@ -1,0 +1,76 @@
+{
+  "id": 1403,
+  "name": "刻晴",
+  "element_type": 304,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/3f016e2d606ca39ea86e24d5245dfa5b.png",
+      "name": "云来剑法",
+      "id": "14031"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>，生成手牌<color=#FFFFFFFF>雷楔</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/a45e50a1fdfa76666c3fca06fb7ef1cd.png",
+      "name": "星斗归位",
+      "id": "14032"
+    },
+    {
+      "skill_text": "造成4点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>，对所有敌方后台角色造成<color=#FFFFFFFF>3点<color=#FFFFFFFF>穿透伤害</color></color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "4"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/9b7173a823f3ea17f34b6767e2db404e.png",
+      "name": "天街巡游",
+      "id": "14033"
+    }
+  ],
+  "weapon": "单手剑",
+  "belongs": [
+    "璃月",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/3e9a36249d9c7861b859b0d45080ba17.png"
+}

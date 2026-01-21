@@ -1,0 +1,87 @@
+{
+  "id": 2203,
+  "name": "深渊使徒·激流",
+  "element_type": 302,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4ef5373e27e14926f2fec5ffa0511440.png",
+      "name": "波刃锋斩",
+      "id": "22031"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，然后<color=#FFFFFFFF>准备技能</color>：<color=#FFFFFFFF>涟锋旋刃</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/3c067c108e78880e8b02866de2746222.png",
+      "name": "洄涡锋刃",
+      "id": "22032"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>。在对方场上生成<color=#FFFFFFFF>暗流的诅咒</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/69833d6cddfc0597804121d17c282083.png",
+      "name": "激流强震",
+      "id": "22033"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，初始附属<color=#FFFFFFFF>水之新生</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/adfb53225ddd56a019f7efc6ffbe1729.png",
+      "name": "水之新生",
+      "id": "22034"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "魔物",
+    "",
+    ""
+  ],
+  "hp": "6",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/c1ff7cf1498cd90920fd78e61aef69b4.png"
+}

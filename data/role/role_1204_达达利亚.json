@@ -1,0 +1,87 @@
+{
+  "id": 1204,
+  "name": "达达利亚",
+  "element_type": 302,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cc29fde34aa6d42f8e110628a4bf2de2.png",
+      "name": "断雨",
+      "id": "12041"
+    },
+    {
+      "skill_text": "切换为<color=#FFFFFFFF>近战状态</color>，然后造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，并使目标角色附属<color=#FFFFFFFF>断流</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/ce89afd0af9074072e72314ffb428289.png",
+      "name": "魔王武装·狂澜",
+      "id": "12042"
+    },
+    {
+      "skill_text": "依据<color=#FFFFFFFF>达达利亚</color>当前所处的状态，进行不同的攻击：\\n<color=#FFFFFFFF>远程状态·魔弹一闪：</color>造成5点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>，返还2点<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png' />充能</color>，目标角色附属<color=#FFFFFFFF>断流</color>。\\n<color=#FFFFFFFF>近战状态·尽灭水光：</color>造成7点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "12",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/aebd3583ff696429f2e8d83527149ce3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/6e0b97e9ff165ccb1e5fde9509bb2392.png",
+      "name": "极恶技·尽灭闪",
+      "id": "12043"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，初始附属<color=#FFFFFFFF>远程状态</color>。\\n角色所附属的<color=#FFFFFFFF>近战状态</color>效果结束时，重新附属<color=#FFFFFFFF>远程状态</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/52f198c9fc03a4ee729a66f2c1292cc6.png",
+      "name": "遏浪",
+      "id": "12044"
+    }
+  ],
+  "weapon": "弓",
+  "belongs": [
+    "愚人众",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/ceeb1323b11553ccee0c0824465bf555.png"
+}

@@ -1,0 +1,87 @@
+{
+  "id": 1416,
+  "name": "欧洛伦",
+  "element_type": 304,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cc29fde34aa6d42f8e110628a4bf2de2.png",
+      "name": "宿灵闪箭",
+      "id": "14161"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>，生成<color=#FFFFFFFF>宿灵球</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2e33112c8ac4b8d1a04b74836f04acd0.png",
+      "name": "暝色缒索",
+      "id": "14162"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>，召唤<color=#FFFFFFFF>超音灵眼</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "14",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0a7a50d15a7580c4de07a41f87a95787.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce5/a271eaeb2aebfe54ee965b861fad5746.png",
+      "name": "黯声回响",
+      "id": "14163"
+    },
+    {
+      "skill_text": "【被动】<color=#FFFFFFFF>我方触发感电反应后：</color>如果可能，消耗2点<color=#FFFFFFFF>「夜魂值」</color>，造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>。\\n我方造成此技能以外的<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/b357f624efdec0c1cc0cc4f180e07db4.png' /><color=#80C0FFFF>水元素伤害</color>或<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0ff87d31d2858dc563d4a441cdd42f95.png' /><color=#FFACFFFF>雷元素伤害</color>后，自身进入<color=#FFFFFFFF>夜魂加持</color>，并获得1点<color=#FFFFFFFF>「夜魂值」</color>。（每回合1次）",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce5/e33bafa14b8c9c66ed81043c178aa282.png",
+      "name": "夜翳的通感",
+      "id": "14164"
+    }
+  ],
+  "weapon": "弓",
+  "belongs": [
+    "纳塔",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dcbb/b5c814d87bb619b8f0da38e463b26c5b.png"
+}

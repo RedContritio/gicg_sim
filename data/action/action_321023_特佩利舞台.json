@@ -1,0 +1,20 @@
+{
+  "id": 321023,
+  "name": "特佩利舞台",
+  "content": "<color=#FFFFFFFF>我方打出名称不存在于本局最初牌组的牌时：</color>此牌累积1点<color=#FFFFFFFF>「瞩目」</color>。\\n<color=#FFFFFFFF>敌方打出名称不存在于本局最初牌组的牌时：</color>此牌扣除1点<color=#FFFFFFFF>「瞩目」</color>。\\n<color=#FFFFFFFF>行动阶段开始时：</color>如果此牌有至少3点<color=#FFFFFFFF>「瞩目」</color>，则生成1个随机基础元素骰；如果此牌有至少1点<color=#FFFFFFFF>「瞩目」</color>，将1个元素骰转换为<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/8401f5013a7c381edb6cd088b207bb9f.png' />万能元素</color>。",
+  "action_type": "支援牌",
+  "rank_id": 0,
+  "cost_num1": "0",
+  "cost_type1_icon": "",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "场地",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/cee1a64758537d6b8630b07ff45db358.png",
+  "is_special": false
+}

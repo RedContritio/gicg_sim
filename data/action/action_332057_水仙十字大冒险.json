@@ -1,0 +1,20 @@
+{
+  "id": 332057,
+  "name": "水仙十字大冒险",
+  "content": "如果我方存在相同元素类型的角色，则治疗我方受伤最多的角色1点；\\n如果我方存在相同武器类型的角色，抓1张牌；\\n如果我方存在相同所属势力的角色，则<color=#FFFFFFFF><color=#FFFFFFFF>冒险</color></color>1次。",
+  "action_type": "事件牌",
+  "rank_id": 0,
+  "cost_num1": "1",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/3367995a8344bccc77b2d9f794c1bbd2_8252990651657788888.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/692f7dae/fcbf23b0a4c2063e86dc1f5e311c9a67.png",
+  "is_special": false
+}

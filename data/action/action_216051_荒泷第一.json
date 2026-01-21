@@ -1,0 +1,20 @@
+{
+  "id": 216051,
+  "name": "荒泷第一",
+  "content": "<color=#FFFFFFFF>战斗行动</color>：我方出战角色为<color=#FFFFFFFF>荒泷一斗</color>时，装备此牌。\\n荒泷一斗装备此牌后，立刻使用一次<color=#FFD780FF>喧哗屋传说</color>。\\n装备有此牌的荒泷一斗每回合第2次及以后使用<color=#FFFFFFFF>喧哗屋传说</color>时：如果触发<color=#FFFFFFFF>乱神之怪力</color>，伤害额外+1。\\n（牌组中包含荒泷一斗，才能加入牌组）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "1",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/37aa06d83b3bc7f7d9ae9fef79d77f03_5019438660898877146.png",
+  "cost_num2": "2",
+  "cost_type2_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/adc5e2670aa6dab74edbc9c2155df114_6101502486122046344.png",
+  "action_card_tags": [
+    "天赋",
+    "战斗行动",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/b9fc6594478894338e2912bb580ee036.png",
+  "is_special": false
+}

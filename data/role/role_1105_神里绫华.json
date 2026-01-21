@@ -1,0 +1,87 @@
+{
+  "id": 1105,
+  "name": "神里绫华",
+  "element_type": 301,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/3f016e2d606ca39ea86e24d5245dfa5b.png",
+      "name": "神里流·倾",
+      "id": "11051"
+    },
+    {
+      "skill_text": "造成3点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/98cec5e7a89ec041e34182923fa80ed9.png",
+      "name": "神里流·冰华",
+      "id": "11052"
+    },
+    {
+      "skill_text": "造成4点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，召唤<color=#FFFFFFFF>霜见雪关扉</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/cfb007f61b1da7f9def4949ac6e5b9cf.png",
+      "name": "神里流·霜灭",
+      "id": "11053"
+    },
+    {
+      "skill_text": "【被动】此角色被切换为「出战角色」时，附属<color=#FFFFFFFF>冰元素附魔</color>，本回合下次「普通攻击」造成的伤害+1。（每回合2次）。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/b7035529150efc288f6b1017f31ef002.png",
+      "name": "神里流·霰步",
+      "id": "11054"
+    }
+  ],
+  "weapon": "单手剑",
+  "belongs": [
+    "稻妻",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/5fcb87a9db20585e3e43253881421547.png"
+}

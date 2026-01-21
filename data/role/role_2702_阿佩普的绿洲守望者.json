@@ -1,0 +1,87 @@
+{
+  "id": 2702,
+  "name": "阿佩普的绿洲守望者",
+  "element_type": 306,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "16",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/848248aa7c40784633446db172ee4678.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4ef5373e27e14926f2fec5ffa0511440.png",
+      "name": "失乡重击",
+      "id": "27021"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0bfb3be161357095eefb85b88c1267a8.png' /><color=#7EC236FF>草元素伤害</color>，抓1张<color=#FFFFFFFF>唤醒眷属</color>，生成1层<color=#FFFFFFFF>绿洲之滋养</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "16",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/848248aa7c40784633446db172ee4678.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2cf25a7f174df49681d14b18a48d032e.png",
+      "name": "生命流束",
+      "id": "27022"
+    },
+    {
+      "skill_text": "造成4点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0bfb3be161357095eefb85b88c1267a8.png' /><color=#7EC236FF>草元素伤害</color>，抓1张<color=#FFFFFFFF>唤醒眷属</color>，生成2层<color=#FFFFFFFF>绿洲之滋养</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "16",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/848248aa7c40784633446db172ee4678.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/20059b83699bc41f95b070bd7f708efc.png",
+      "name": "终景迸落",
+      "id": "27023"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，生成5张<color=#FFFFFFFF>唤醒眷属</color>，随机放入牌库。我方召唤4个<color=#FFFFFFFF>增殖生命体</color>后，此角色附属<color=#FFFFFFFF>重燃的绿洲之心</color>，并获得1点<color=#FFFFFFFF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b1/24bc6b249479a2371a126a0c617ee0ae.png' /><color=#FFFFFFFF>护盾</color></color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/5bb1d06028743181feeeca08632928fd.png",
+      "name": "增殖感召",
+      "id": "27024"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "魔物",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/5382d216d711e4c2b6e1180fba8e8821.png"
+}

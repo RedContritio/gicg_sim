@@ -1,0 +1,20 @@
+{
+  "id": 223041,
+  "name": "熔火铁甲",
+  "content": "<color=#FFFFFFFF>入场时：</color>对装备有此牌的<color=#FFFFFFFF>铁甲熔火帝皇</color><color=#FF9999FF>附着<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' />火元素</color>。\\n我方除<color=#FFFFFFFF>重甲蟹壳</color>以外的<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b1/24bc6b249479a2371a126a0c617ee0ae.png' /><color=#FFFFFFFF>护盾</color>状态或<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b1/24bc6b249479a2371a126a0c617ee0ae.png' /><color=#FFFFFFFF>护盾</color>出战状态被移除后：装备有此牌的铁甲熔火帝皇附属2层<color=#FFFFFFFF>重甲蟹壳</color>。（每回合1次）\\n（牌组中包含铁甲熔火帝皇，才能加入牌组）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "1",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/7aa8c29e9df41e16b1d5c7f1a5dc52f1_4190017608978197408.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "天赋",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/085bd76e429461014ddc454ade9036a5.png",
+  "is_special": false
+}

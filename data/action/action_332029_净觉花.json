@@ -1,0 +1,20 @@
+{
+  "id": 332029,
+  "name": "净觉花",
+  "content": "选择一张我方支援区的牌，将其弃置。然后，在我方手牌中随机生成2张支援牌。\\n<color=#FFFFFFFF>本回合中，我方下次打出支援牌时：</color>少花费1个元素骰。",
+  "action_type": "事件牌",
+  "rank_id": 0,
+  "cost_num1": "0",
+  "cost_type1_icon": "",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/83ac52fa6f282c5e1900a74a32cf7e33.png",
+  "is_special": false
+}

@@ -1,0 +1,87 @@
+{
+  "id": 2301,
+  "name": "愚人众·火之债务处理人",
+  "element_type": 303,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4ef5373e27e14926f2fec5ffa0511440.png",
+      "name": "突刺",
+      "id": "23011"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' /><color=#FF9999FF>火元素伤害</color>，本角色附属<color=#FFFFFFFF>潜行</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/87a79218028890751fa44b3b8bb5b62d.png",
+      "name": "伺机而动",
+      "id": "23012"
+    },
+    {
+      "skill_text": "造成5点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54e95d5fad102409daf191d692c92adc.png' /><color=#FF9999FF>火元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "13",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/fe4517db495f28fdbcb44607d94640c3.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/c21de8cdcc1ef21f2ee8fd6d7ef35c30.png",
+      "name": "焚毁之锋",
+      "id": "23013"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，初始附属<color=#FFFFFFFF>潜行</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/c43433c7cdc461a4b79ec51fb90d9b52.png",
+      "name": "潜行大师",
+      "id": "23014"
+    }
+  ],
+  "weapon": "其他武器",
+  "belongs": [
+    "愚人众",
+    "",
+    ""
+  ],
+  "hp": "9",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/80f2662703c2b6f67dbe11678aa7433c.png"
+}

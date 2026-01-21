@@ -1,0 +1,87 @@
+{
+  "id": 1114,
+  "name": "茜特菈莉",
+  "element_type": 301,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2c014e6053c4f0d032e1d1ff0c6de0e1.png",
+      "name": "宿灵捕影",
+      "id": "11141"
+    },
+    {
+      "skill_text": "造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>。\\n自身进入<color=#FFFFFFFF>夜魂加持</color>，并获得1点<color=#FFFFFFFF>「夜魂值」</color>；生成1点<color=#FFFFFFFF>白曜护盾</color>和<color=#FFFFFFFF>伊兹帕帕</color>。（角色进入<color=#FFFFFFFF>夜魂加持</color>后不可使用此技能）",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/1816199cac612d3a8d57747e966a90c3.png",
+      "name": "霜昼黑星",
+      "id": "11142"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/924fba80b9137b4e8fdf5871aa22d666.png' /><color=#99FFFFFF>冰元素伤害</color>，对所有敌方后台角色造成1点<color=#FFFFFFFF>穿透伤害</color>。如可能，获得2点<color=#FFFFFFFF>「夜魂值」</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "11",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/412134fa7fc8a73b5e20c177a3ae0046.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6851f3bf/8007954ba099141d5769023008c4fab6.png",
+      "name": "诸曜饬令",
+      "id": "11143"
+    },
+    {
+      "skill_text": "<color=#FFFFFFFF>我方进行<color=#FFFFFFFF>挑选</color>或造成元素反应伤害后：</color>如可能，获得1点<color=#FFFFFFFF>「夜魂值」</color>。（每回合1次）",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6851f3bf/4d871f29e92f5ea1e78a0a6403c0fbab.png",
+      "name": "奥秘传唱",
+      "id": "11144"
+    }
+  ],
+  "weapon": "法器",
+  "belongs": [
+    "纳塔",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6851f39d/d4816b81084129534e36b0f3ca8a2cd8.png"
+}

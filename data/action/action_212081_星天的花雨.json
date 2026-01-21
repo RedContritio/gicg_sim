@@ -1,0 +1,20 @@
+{
+  "id": 212081,
+  "name": "星天的花雨",
+  "content": "<color=#FFFFFFFF>战斗行动</color>：我方出战角色为<color=#FFFFFFFF>妮露</color>时，装备此牌。\\n妮露装备此牌后，立刻使用一次<color=#FFD780FF>七域舞步</color>。\\n装备有此牌的妮露在场时：我方<color=#FFFFFFFF>丰穰之核</color>造成的伤害+1。\\n（牌组中包含妮露，才能加入牌组）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "3",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/bc5ce21badb7be88e4a6a2140c3ef535_5435921419784524630.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "天赋",
+    "战斗行动",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/eedb0bf8c15d918bd6e6beeb380dff8f.png",
+  "is_special": false
+}

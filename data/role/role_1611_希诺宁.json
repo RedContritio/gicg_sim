@@ -1,0 +1,87 @@
+{
+  "id": 1611,
+  "name": "希诺宁",
+  "element_type": 305,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。若自身附属<color=#FFFFFFFF>夜魂加持</color>，则恢复1点<color=#FFFFFFFF>「夜魂值」</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/3f016e2d606ca39ea86e24d5245dfa5b.png",
+      "name": "锐锋攫猎",
+      "id": "16111"
+    },
+    {
+      "skill_text": "本角色附属<color=#FFFFFFFF>刃轮装束</color>，进入<color=#FFFFFFFF>夜魂加持</color>并获得1点<color=#FFFFFFFF>「夜魂值」</color>。（角色进入<color=#FFFFFFFF>夜魂加持</color>后不可使用此技能）\\n（附属<color=#FFFFFFFF>刃轮装束</color>的角色可以使用特技：<color=#FFFFFFFF>高速腾跃</color>）",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/018167e90ad36ab72130372e21559a8a.png",
+      "name": "音火锻淬",
+      "id": "16112"
+    },
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/98c267c74a3efdcfed4131a054ff4b82.png' /><color=#FFE699FF>岩元素伤害</color>，抓1张牌，并且治疗我方受伤最多的角色1点。每层<color=#FFFFFFFF>「源音采样」·岩</color>额外抓1张牌，每层其他属性的<color=#FFFFFFFF>「源音采样」</color>额外治疗1点。",
+      "skill_costs": [
+        {
+          "cost_type": "15",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/680e755181a0b8c29e87d0570815ac29.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b2/697ffc33258a4c99bd0c2b0dbd36bef2.png",
+      "name": "豹烈律动！",
+      "id": "16113"
+    },
+    {
+      "skill_text": "【被动】战斗开始时，初始生成3层<color=#FFFFFFFF>「源音采样」·岩</color>，若我方存在火、水、冰、雷的角色，则将1层<color=#FFFFFFFF>「源音采样」·岩</color>转化为对应元素的<color=#FFFFFFFF>「源音采样」</color>。",
+      "skill_costs": [],
+      "type": [
+        "被动技能",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a94b2/3f0e282e4972afa2fb6620770b18580d.png",
+      "name": "「源音采样」",
+      "id": "16114"
+    }
+  ],
+  "weapon": "单手剑",
+  "belongs": [
+    "纳塔",
+    "",
+    ""
+  ],
+  "hp": "12",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/681a9497/1bcd93318746a99f0404940b0a7b2f2c.png"
+}

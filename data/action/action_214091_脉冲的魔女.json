@@ -1,0 +1,20 @@
+{
+  "id": 214091,
+  "name": "脉冲的魔女",
+  "content": "切换到装备有此牌的<color=#FFFFFFFF>丽莎</color>后：使敌方出战角色附属<color=#FFFFFFFF>引雷</color>。（每回合1次）\\n（牌组中包含丽莎，才能加入牌组）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "1",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/f7048dd5a016ad50724e4adb302a131e_1105005655883132660.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "天赋",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/f1b71b709e2d573ba3ceba4cdcc575b2.png",
+  "is_special": false
+}

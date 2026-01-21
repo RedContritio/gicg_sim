@@ -1,0 +1,20 @@
+{
+  "id": 217011,
+  "name": "飞叶迴斜",
+  "content": "<color=#FFFFFFFF>战斗行动</color>：我方出战角色为<color=#FFFFFFFF>柯莱</color>时，装备此牌。\\n柯莱装备此牌后，立刻使用一次<color=#FFD780FF>拂花偈叶</color>。\\n装备有此牌的柯莱使用了<color=#FFFFFFFF>拂花偈叶</color>的回合中，我方角色的技能引发<color=#7EC236FF><img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0bfb3be161357095eefb85b88c1267a8.png' />草元素相关反应</color>后：造成1点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0bfb3be161357095eefb85b88c1267a8.png' /><color=#7EC236FF>草元素伤害</color>。（每回合1次）\\n（牌组中包含柯莱，才能加入牌组）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "3",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/7187c0cc6441821b895062980ac096c9_3471120075242544179.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "天赋",
+    "战斗行动",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/6ea609f9690805cc182cf7c609df8bf3.png",
+  "is_special": false
+}

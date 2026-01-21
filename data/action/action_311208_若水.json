@@ -1,0 +1,20 @@
+{
+  "id": 311208,
+  "name": "若水",
+  "content": "<color=#FFFFFFFF>所附属角色生命值至少为11时：</color>造成的伤害+2。\\n<color=#FFFFFFFF>入场时：</color>所附属角色获得1点最大生命值。\\n（<color=#FFFFFFFF>「<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71f/9b142cbc6e2e5e472ff1c37a78d7dd77.png' />弓」角色</color>才能装备。角色最多装备1件「<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71f/49acb071b0d634ded17cb788d9f520ed.png' />武器」）",
+  "action_type": "装备牌",
+  "rank_id": 0,
+  "cost_num1": "2",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/3367995a8344bccc77b2d9f794c1bbd2_8252990651657788888.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "武器",
+    "弓",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/68c0b19c/de1ff2a2297669bb11a62f6728d54701.png",
+  "is_special": false
+}

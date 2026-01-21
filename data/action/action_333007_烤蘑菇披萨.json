@@ -1,0 +1,20 @@
+{
+  "id": 333007,
+  "name": "烤蘑菇披萨",
+  "content": "治疗目标角色1点，两回合内结束阶段再治疗此角色1点。\\n（每回合每个角色最多食用1次「<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71f/e25f04745615df9e779831a1c1354e38.png' />料理」）",
+  "action_type": "事件牌",
+  "rank_id": 0,
+  "cost_num1": "1",
+  "cost_type1_icon": "https://webstatic.mihoyo.com/upload/static-resource/2023/01/17/3367995a8344bccc77b2d9f794c1bbd2_8252990651657788888.png",
+  "cost_num2": "0",
+  "cost_type2_icon": "",
+  "action_card_tags": [
+    "料理",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/58b8b23cab2b13d30e52784fc2532684.png",
+  "is_special": false
+}

@@ -1,0 +1,76 @@
+{
+  "id": 1707,
+  "name": "绮良良",
+  "element_type": 306,
+  "role_skill_infos": [
+    {
+      "skill_text": "造成2点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/e1430a8775eb864ed0617b7ef516e608.png' /><color=#FFFFFFFF>物理伤害</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "16",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/848248aa7c40784633446db172ee4678.png",
+          "cost_num": "1"
+        },
+        {
+          "cost_type": "10",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/39de35b178b080a090ac95622bbbf0df.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "普通攻击",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/3f016e2d606ca39ea86e24d5245dfa5b.png",
+      "name": "箱纸切削术",
+      "id": "17071"
+    },
+    {
+      "skill_text": "生成<color=#FFFFFFFF>猫箱急件</color>和<color=#FFFFFFFF>安全运输护盾</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "16",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/848248aa7c40784633446db172ee4678.png",
+          "cost_num": "3"
+        }
+      ],
+      "type": [
+        "元素战技",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/33f8a10c410b87e049edfe9a233bfd86.png",
+      "name": "呜喵町飞足",
+      "id": "17072"
+    },
+    {
+      "skill_text": "造成4点<img src='https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/0bfb3be161357095eefb85b88c1267a8.png' /><color=#7EC236FF>草元素伤害</color>，在敌方场上生成<color=#FFFFFFFF>猫草豆蔻</color>。",
+      "skill_costs": [
+        {
+          "cost_type": "16",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/848248aa7c40784633446db172ee4678.png",
+          "cost_num": "3"
+        },
+        {
+          "cost_type": "1",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f719/54f12c0eadb091b3d564408471387021.png",
+          "cost_num": "2"
+        }
+      ],
+      "type": [
+        "元素爆发",
+        ""
+      ],
+      "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/e8b5bb0de7189fbfb118a633cbf4be16.png",
+      "name": "秘法·惊喜特派",
+      "id": "17073"
+    }
+  ],
+  "weapon": "单手剑",
+  "belongs": [
+    "稻妻",
+    "",
+    ""
+  ],
+  "hp": "10",
+  "resource": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6fc/754d32188ecf33ee596a64a28d183814.png"
+}
