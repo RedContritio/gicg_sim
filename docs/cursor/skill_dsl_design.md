@@ -55,8 +55,8 @@
   - `source`：伤害来源实体（通常是角色/召唤物）
   - `target`：受伤实体（通常是角色）
   - `damage.amount`：可变（hook 可改）
-  - `damage.element`：`physical | pyro | hydro | cryo | electro | dendro | anemo | geo`
-  - `damage.is_piercing`：是否穿透伤害
+  - `damage.type`：`physical | elemental | piercing`
+  - `damage.element`：当且仅当 `damage.type == elemental` 时有效：`pyro | hydro | cryo | electro | dendro | anemo | geo`
   - `damage.is_reaction`：是否由元素反应产生/放大（由引擎定义）
   - `skill.type`：若该伤害来自技能，则填同上；否则为 `null`
   - `reaction.type`：若有，填 `vaporize | melt | overload | ...`；否则 `null`
@@ -68,7 +68,7 @@
 
 > 约定：**“回合结束自动清理”**在实现里统一落到 `round_end`（或你引擎里的等价时点）事件做批量清理。
 
-### 过滤词（Filter Term）的含义（解决“下一次火伤/物伤/爆发/战技 +X”）
+### 过滤词（Filter Term）的含义（解决“下一次火伤/物伤/穿透/爆发/战技 +X”）
 
 `hook on damage <term...>` 的 `<term...>` 是一组**并且（AND）**条件；每个 term 只对应**一个**明确字段判断，不要自然语言歧义：
 
@@ -76,17 +76,19 @@
   - `normal_attack`：`ctx.skill.type == normal_attack`
   - `elemental_skill`：`ctx.skill.type == elemental_skill`
   - `elemental_burst`：`ctx.skill.type == elemental_burst`
-- **伤害元素类**
-  - `pyro/hydro/.../geo/anemo/dendro/electro/cryo`：`ctx.damage.element == <element>`
-  - `physical`：`ctx.damage.element == physical`
+- **伤害类型/元素类（穿透与物理并列为基础伤害类型）**
+  - `physical`：`ctx.damage.type == physical`
+  - `piercing`：`ctx.damage.type == piercing`
+  - `pyro/hydro/.../geo/anemo/dendro/electro/cryo`：`ctx.damage.type == elemental AND ctx.damage.element == <element>`
 - **伤害性质类**
-  - `piercing`：`ctx.damage.is_piercing == true`
   - `reaction`：`ctx.damage.is_reaction == true`（且可进一步加 `reaction_type`）
   - `reaction:<type>`：`ctx.reaction.type == <type>`（例如 `reaction:melt`）
 
 示例：  
 `hook on damage elemental_burst pyro` 等价于：
-`ctx.skill.type == elemental_burst AND ctx.damage.element == pyro`
+`ctx.skill.type == elemental_burst AND ctx.damage.type == elemental AND ctx.damage.element == pyro`
+
+> 约定：`piercing`（穿透伤害）不参与元素反应；因此 `reaction*` 相关过滤词通常只会与 `damage.type == elemental` 同时成立（由引擎保证/校验）。
 
 ### Token 的作用域（Scope）与生命周期（TTL）
 
