@@ -1,0 +1,13 @@
+# 角色元数据 - 迪奥娜
+# 对应 data/role/role_1102_迪奥娜.json
+id: "1102"
+name: "迪奥娜"
+element: "cryo"
+weapon: "弓"
+hp: 12
+belongs: ["蒙德"]
+skill_ids:
+  - "11021"  # 猎人射术
+  - "11022"  # 猫爪冻冻
+  - "11023"  # 最烈特调
+skill_dsl_file: "diona.dsl"

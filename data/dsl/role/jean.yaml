@@ -1,0 +1,13 @@
+# 角色元数据 - 琴
+# 对应 data/role/role_1502_琴.json
+id: "1502"
+name: "琴"
+element: "anemo"
+weapon: "单手剑"
+hp: 12
+belongs: ["蒙德"]
+skill_ids:
+  - "15021"  # 西风剑术
+  - "15022"  # 风压剑
+  - "15023"  # 蒲公英之风
+skill_dsl_file: "jean.dsl"

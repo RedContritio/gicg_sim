@@ -1,0 +1,15 @@
+# 角色元数据 - 魔偶剑鬼（双属性示例：风 + 冰）
+# 对应 data/role/role_2501_魔偶剑鬼.json
+id: "2501"
+name: "魔偶剑鬼"
+element: "anemo"
+element_alt: "cryo"
+weapon: "其他武器"
+hp: 10
+belongs: ["魔物"]
+skill_ids:
+  - "25011"  # 一文字
+  - "25012"  # 孤风刀势
+  - "25013"  # 霜驰影突
+  - "25014"  # 机巧伪天狗抄
+skill_dsl_file: "maguu_kenki.dsl"

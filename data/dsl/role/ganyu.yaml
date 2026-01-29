@@ -1,0 +1,14 @@
+# 角色元数据 - 甘雨
+# 对应 data/role/role_1101_甘雨.json
+id: "1101"
+name: "甘雨"
+element: "cryo"
+weapon: "弓"
+hp: 12
+belongs: ["璃月"]
+skill_ids:
+  - "11011"  # 流天射术
+  - "11012"  # 山泽麟迹
+  - "11013"  # 霜华矢
+  - "11014"  # 降众天华
+skill_dsl_file: "ganyu.dsl"
