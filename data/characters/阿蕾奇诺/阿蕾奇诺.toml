@@ -1,0 +1,40 @@
+# 阿蕾奇诺（仆人）角色定义
+id = "arlecchino"
+name = "阿蕾奇诺"
+max_hp = 10
+max_energy = 3
+element = "Pyro"
+
+[[skills]]
+id = "normal_attack"
+name = "斩首之邀"
+type = "NormalAttack"
+script = "普攻-斩首之邀.lua"
+
+[[skills.cost]]
+type = "Any"
+count = 2
+
+[[skills]]
+id = "elemental_skill"
+name = "万相化灰"
+type = "ElementalSkill"
+script = "元素战技-万相化灰.lua"
+
+[[skills.cost]]
+type = "Pyro"
+count = 3
+
+[[skills]]
+id = "elemental_burst"
+name = "厄月将升"
+type = "ElementalBurst"
+script = "元素爆发-厄月将升.lua"
+
+[[skills.cost]]
+type = "Pyro"
+count = 3
+
+[[skills.cost]]
+type = "Any"
+count = 2

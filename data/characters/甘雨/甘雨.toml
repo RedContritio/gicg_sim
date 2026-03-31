@@ -1,0 +1,40 @@
+# 甘雨角色定义
+id = "ganyu"
+name = "甘雨"
+max_hp = 10
+max_energy = 3
+element = "Cryo"
+
+[[skills]]
+id = "normal_attack"
+name = "流天射术"
+type = "NormalAttack"
+script = "普攻-流天射术.lua"
+
+[[skills.cost]]
+type = "Any"
+count = 2
+
+[[skills]]
+id = "elemental_skill"
+name = "山泽麟迹"
+type = "ElementalSkill"
+script = "元素战技-山泽麟迹.lua"
+
+[[skills.cost]]
+type = "Cryo"
+count = 3
+
+[[skills]]
+id = "elemental_burst"
+name = "降众天华"
+type = "ElementalBurst"
+script = "元素爆发-降众天华.lua"
+
+[[skills.cost]]
+type = "Cryo"
+count = 3
+
+[[skills.cost]]
+type = "Any"
+count = 2

@@ -1,0 +1,26 @@
+# 菲谢尔角色定义
+id = "fischl"
+name = "菲谢尔"
+max_hp = 10
+max_energy = 3
+element = "Electro"
+
+[[skills]]
+id = "normal_attack"
+name = "罪灭之矢"
+type = "NormalAttack"
+script = "普攻-罪灭之矢.lua"
+
+[[skills.cost]]
+type = "Any"
+count = 2
+
+[[skills]]
+id = "elemental_skill"
+name = "夜巡影翼"
+type = "ElementalSkill"
+script = "元素战技-夜巡影翼.lua"
+
+[[skills.cost]]
+type = "Electro"
+count = 3

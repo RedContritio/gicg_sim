@@ -1,0 +1,10 @@
+# 碌碌无为 - 什么也不会发生的卡牌
+id = "wuluwuwei"
+name = "碌碌无为"
+type = "Event"  # 事件卡
+script = "wuluwuwei"
+description = "消耗1个任意骰子，什么也不会发生。"
+
+[[cost]]
+type = "Any"
+count = 1

@@ -1,0 +1,40 @@
+# 迪卢克角色定义
+id = "diluc"
+name = "迪卢克"
+max_hp = 10
+max_energy = 3
+element = "Pyro"
+
+[[skills]]
+id = "normal_attack"
+name = "淬炼之剑"
+type = "NormalAttack"
+script = "普攻-淬炼之剑.lua"
+
+[[skills.cost]]
+type = "Any"
+count = 2
+
+[[skills]]
+id = "elemental_skill"
+name = "逆焰之刃"
+type = "ElementalSkill"
+script = "元素战技-逆焰之刃.lua"
+
+[[skills.cost]]
+type = "Pyro"
+count = 3
+
+[[skills]]
+id = "elemental_burst"
+name = "黎明"
+type = "ElementalBurst"
+script = "元素爆发-黎明.lua"
+
+[[skills.cost]]
+type = "Pyro"
+count = 3
+
+[[skills.cost]]
+type = "Any"
+count = 2
