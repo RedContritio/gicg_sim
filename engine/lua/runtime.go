@@ -157,6 +157,10 @@ func (r *Runtime) registerAPI() {
 	r.L.SetGlobal("SCOPE_SKILL_UNIQUE", lua.LNumber(0))
 	r.L.SetGlobal("SCOPE_CHAR_SHARED", lua.LNumber(1))
 	r.L.SetGlobal("SCOPE_SIDE_SHARED", lua.LNumber(2))
+	
+	// Aura API
+	r.L.Register("has_aura", r.hasAura)
+	r.L.Register("apply_aura", r.applyAura)
 }
 
 // create_counter(name, default, max, scope) -> Counter
@@ -254,11 +258,110 @@ func (r *Runtime) damage(L *lua.LState) int {
 	}
 	
 	source := currentSide.GetActiveCharacter()
-	dmg := core.NewDamageInfo(amount, element, source, target)
+	
+	// 处理元素反应
+	finalAmount, finalElement := r.applyElementalReaction(target, amount, element)
+	
+	dmg := core.NewDamageInfo(finalAmount, finalElement, source, target)
 	
 	r.game.DealDamage(*dmg)
 	
 	return 0
+}
+
+// applyElementalReaction 应用元素反应
+// 返回最终伤害值和元素类型
+func (r *Runtime) applyElementalReaction(target *core.Character, amount int, element core.Element) (int, core.Element) {
+	// 物理伤害不参与元素反应
+	if element == core.Physical || element == core.Piercing {
+		return amount, element
+	}
+	
+	finalAmount := amount
+	
+	// 检查目标身上的元素附着，触发反应
+	// 蒸发：火+水 或 水+火，伤害*2
+	if element == core.Pyro && target.HasAura(core.Hydro) {
+		// 火打水（蒸发）
+		finalAmount = amount * 2
+		target.RemoveAura(core.Hydro) // 消耗水附着
+		fmt.Printf("💧🔥 蒸发！伤害 %d -> %d\n", amount, finalAmount)
+	} else if element == core.Hydro && target.HasAura(core.Pyro) {
+		// 水打火（蒸发）
+		finalAmount = amount * 2
+		target.RemoveAura(core.Pyro) // 消耗火附着
+		fmt.Printf("🔥💧 蒸发！伤害 %d -> %d\n", amount, finalAmount)
+	}
+	
+	// 融化：火+冰 或 冰+火
+	if element == core.Pyro && target.HasAura(core.Cryo) {
+		// 火打冰（融化），伤害*2
+		finalAmount = amount * 2
+		target.RemoveAura(core.Cryo)
+		fmt.Printf("❄️🔥 融化！伤害 %d -> %d\n", amount, finalAmount)
+	} else if element == core.Cryo && target.HasAura(core.Pyro) {
+		// 冰打火（融化），伤害*1.5
+		finalAmount = amount * 3 / 2
+		target.RemoveAura(core.Pyro)
+		fmt.Printf("🔥❄️ 融化！伤害 %d -> %d\n", amount, finalAmount)
+	}
+	
+	// 超导：冰+雷，伤害+1，附加物理伤害
+	if (element == core.Cryo && target.HasAura(core.Electro)) ||
+	   (element == core.Electro && target.HasAura(core.Cryo)) {
+		finalAmount = amount + 1
+		if element == core.Cryo {
+			target.RemoveAura(core.Electro)
+		} else {
+			target.RemoveAura(core.Cryo)
+		}
+		fmt.Printf("⚡❄️ 超导！伤害 %d -> %d\n", amount, finalAmount)
+		// TODO: 附加1点物理穿透伤害给所有敌人
+	}
+	
+	// 超载：火+雷，伤害+2
+	if (element == core.Pyro && target.HasAura(core.Electro)) ||
+	   (element == core.Electro && target.HasAura(core.Pyro)) {
+		finalAmount = amount + 2
+		if element == core.Pyro {
+			target.RemoveAura(core.Electro)
+		} else {
+			target.RemoveAura(core.Pyro)
+		}
+		fmt.Printf("⚡🔥 超载！伤害 %d -> %d\n", amount, finalAmount)
+		// TODO: 强制切换目标角色
+	}
+	
+	// 感电：水+雷，伤害+1，附加穿透伤害
+	if (element == core.Hydro && target.HasAura(core.Electro)) ||
+	   (element == core.Electro && target.HasAura(core.Hydro)) {
+		finalAmount = amount + 1
+		if element == core.Hydro {
+			target.RemoveAura(core.Electro)
+		} else {
+			target.RemoveAura(core.Hydro)
+		}
+		fmt.Printf("⚡💧 感电！伤害 %d -> %d\n", amount, finalAmount)
+		// TODO: 对后台敌人造成1点穿透伤害
+	}
+	
+	// 冻结：水+冰
+	if (element == core.Hydro && target.HasAura(core.Cryo)) ||
+	   (element == core.Cryo && target.HasAura(core.Hydro)) {
+		target.RemoveAura(core.Hydro)
+		target.RemoveAura(core.Cryo)
+		// 添加冻元素附着
+		target.AddAura(core.Cryo, 1) // 冻元素持续1回合
+		fmt.Printf("❄️💧 冻结！\n")
+		// TODO: 冻结状态下无法行动，碎冰造成额外伤害
+	}
+	
+	// 如果没有发生反应，给目标添加元素附着
+	if finalAmount == amount {
+		target.AddAura(element, 2) // 元素附着持续2回合
+	}
+	
+	return finalAmount, element
 }
 
 // heal(target_type, amount)
@@ -427,6 +530,59 @@ func (r *Runtime) canAfford(L *lua.LState) int {
 	
 	L.Push(lua.LBool(result))
 	return 1
+}
+
+// has_aura(target_type, element) -> bool
+func (r *Runtime) hasAura(L *lua.LState) int {
+	targetType := L.ToInt(1)
+	element := core.Element(L.ToInt(2))
+	
+	currentSide := r.game.GetCurrentSide()
+	enemySide := r.game.GetEnemySide()
+	
+	var target *core.Character
+	switch targetType {
+	case 0: // SELF
+		target = currentSide.GetActiveCharacter()
+	case 2: // ACTIVE_ENEMY
+		target = enemySide.GetActiveCharacter()
+	default:
+		target = enemySide.GetActiveCharacter()
+	}
+	
+	if target == nil {
+		L.Push(lua.LBool(false))
+		return 1
+	}
+	
+	L.Push(lua.LBool(target.HasAura(element)))
+	return 1
+}
+
+// apply_aura(target_type, element, duration)
+func (r *Runtime) applyAura(L *lua.LState) int {
+	targetType := L.ToInt(1)
+	element := core.Element(L.ToInt(2))
+	duration := L.ToInt(3)
+	
+	currentSide := r.game.GetCurrentSide()
+	enemySide := r.game.GetEnemySide()
+	
+	var target *core.Character
+	switch targetType {
+	case 0: // SELF
+		target = currentSide.GetActiveCharacter()
+	case 2: // ACTIVE_ENEMY
+		target = enemySide.GetActiveCharacter()
+	default:
+		target = enemySide.GetActiveCharacter()
+	}
+	
+	if target != nil {
+		target.AddAura(element, duration)
+	}
+	
+	return 0
 }
 
 // ExecuteScript 执行脚本

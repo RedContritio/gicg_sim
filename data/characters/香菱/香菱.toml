@@ -1,0 +1,40 @@
+# 香菱角色定义
+id = "xiangling"
+name = "香菱"
+max_hp = 10
+max_energy = 3
+element = "Pyro"
+
+[[skills]]
+id = "normal_attack"
+name = "白案功夫"
+type = "NormalAttack"
+script = "普攻-白案功夫.lua"
+
+[[skills.cost]]
+type = "Any"
+count = 2
+
+[[skills]]
+id = "elemental_skill"
+name = "锅巴出击"
+type = "ElementalSkill"
+script = "元素战技-锅巴出击.lua"
+
+[[skills.cost]]
+type = "Pyro"
+count = 3
+
+[[skills]]
+id = "elemental_burst"
+name = "旋火轮"
+type = "ElementalBurst"
+script = "元素爆发-旋火轮.lua"
+
+[[skills.cost]]
+type = "Pyro"
+count = 3
+
+[[skills.cost]]
+type = "Any"
+count = 2
