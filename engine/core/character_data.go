@@ -84,7 +84,7 @@ type CharacterDataLoader struct {
 func NewCharacterDataLoader(dataDir string) *CharacterDataLoader {
 	if dataDir == "" {
 		// 默认路径：项目根目录/data
-		dataDir = "/home/redcontritio/gicg_sim/data"
+		dataDir = GetDataDir()
 	}
 	loader := &CharacterDataLoader{
 		dataDir:     dataDir,

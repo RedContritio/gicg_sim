@@ -78,6 +78,21 @@ func (r *Runtime) registerAPIV2() {
 	r.L.Register("get_counter", r.getCounterV2)
 	r.L.Register("set_counter", r.setCounterV2)
 	r.L.Register("modify_counter", r.modifyCounterV2)
+	
+	// 角色状态查询
+	r.L.Register("get_hp", r.getHPV2)
+	r.L.Register("get_max_hp", r.getMaxHPV2)
+	r.L.Register("get_energy", r.getEnergyV2)
+	r.L.Register("get_max_energy", r.getMaxEnergyV2)
+	r.L.Register("is_alive", r.isAliveV2)
+	r.L.Register("get_active_char", r.getActiveCharV2)
+	
+	// 能量操作
+	r.L.Register("add_energy", r.addEnergyV2)
+	r.L.Register("consume_energy", r.consumeEnergyV2)
+	
+	// 切换角色
+	r.L.Register("switch_character", r.switchCharacterV2)
 }
 
 // damage(amount, element=PHYSICAL, target=ENEMY_ACTIVE)
@@ -94,19 +109,38 @@ func (r *Runtime) damageV2(L *lua.LState) int {
 		targetType = L.ToInt(3)
 	}
 	
-	// 获取目标角色
-	target := r.resolveTarget(targetType)
-	if target == nil {
-		return 0
+	source := r.game.GetCurrentSide().GetActiveCharacter()
+	
+	switch targetType {
+	case 3: // ALL_ENEMIES
+		enemySide := r.game.GetEnemySide()
+		for _, char := range enemySide.Characters {
+			if char != nil && char.IsAlive() {
+				r.dealDamageToTarget(amount, element, source, char)
+			}
+		}
+	case 4: // ALL_ALLIES
+		currentSide := r.game.GetCurrentSide()
+		for _, char := range currentSide.Characters {
+			if char != nil && char.IsAlive() {
+				r.dealDamageToTarget(amount, element, source, char)
+			}
+		}
+	default:
+		target := r.resolveTarget(targetType)
+		if target != nil {
+			r.dealDamageToTarget(amount, element, source, target)
+		}
 	}
 	
-	source := r.game.GetCurrentSide().GetActiveCharacter()
+	return 0
+}
+
+// dealDamageToTarget 对单个目标造成伤害并触发 mod
+func (r *Runtime) dealDamageToTarget(amount int, element core.Element, source, target *core.Character) {
 	dmg := core.NewDamageInfo(amount, element, source, target)
-	
-	// 设置当前伤害（供 mod 使用）
 	r.currentDamage = dmg
 	
-	// 触发 damage_calc mod
 	ctx := &core.ModContext{
 		Game:       r.game,
 		Side:       r.game.GetCurrentSide(),
@@ -115,7 +149,6 @@ func (r *Runtime) damageV2(L *lua.LState) int {
 		DamageInfo: dmg,
 	}
 	
-	// 触发双方的 damage_calc mod
 	currentSide := r.game.GetCurrentSide()
 	enemySide := r.game.GetEnemySide()
 	
@@ -124,11 +157,8 @@ func (r *Runtime) damageV2(L *lua.LState) int {
 		enemySide.Mods.Trigger(core.EventDamageCalc, ctx)
 	}
 	
-	// 使用可能被 mod 修改后的伤害值
 	r.game.DealDamage(*dmg)
 	r.currentDamage = nil
-	
-	return 0
 }
 
 // heal(amount, target=SELF)
@@ -225,7 +255,7 @@ func (r *Runtime) removeAuraV2(L *lua.LState) int {
 	
 	targetType := 1 // ENEMY_ACTIVE
 	if L.GetTop() >= 2 {
-		targetType = L.ToInt(3)
+		targetType = L.ToInt(2)
 	}
 	
 	target := r.resolveTarget(targetType)
@@ -275,8 +305,11 @@ func (r *Runtime) createCounterV2(L *lua.LState) int {
 		charIdx = activeChar.CharIndex
 	}
 	
-	// 获取脚本名称（简化处理，使用计数器名作为脚本名）
-	scriptName := name
+	// 获取脚本名称（优先使用当前执行的脚本名）
+	scriptName := r.currentScriptName
+	if scriptName == "" {
+		scriptName = name
+	}
 	
 	// 获取或创建计数器
 	counter, err := currentSide.ScopedCounters.GetOrCreate(scope, sideIdx, charIdx, scriptName, name, initial)
@@ -591,4 +624,143 @@ func (r *Runtime) removeAuraFromCharV2(L *lua.LState) int {
 	}
 	
 	return 0
+}
+
+// get_hp(target=ENEMY_ACTIVE) -> int
+func (r *Runtime) getHPV2(L *lua.LState) int {
+	targetType := 1
+	if L.GetTop() >= 1 {
+		targetType = L.ToInt(1)
+	}
+	target := r.resolveTarget(targetType)
+	if target == nil {
+		L.Push(lua.LNumber(0))
+		return 1
+	}
+	L.Push(lua.LNumber(target.HP))
+	return 1
+}
+
+// get_max_hp(target=ENEMY_ACTIVE) -> int
+func (r *Runtime) getMaxHPV2(L *lua.LState) int {
+	targetType := 1
+	if L.GetTop() >= 1 {
+		targetType = L.ToInt(1)
+	}
+	target := r.resolveTarget(targetType)
+	if target == nil {
+		L.Push(lua.LNumber(0))
+		return 1
+	}
+	L.Push(lua.LNumber(target.MaxHP))
+	return 1
+}
+
+// get_energy(target=ENEMY_ACTIVE) -> int
+func (r *Runtime) getEnergyV2(L *lua.LState) int {
+	targetType := 1
+	if L.GetTop() >= 1 {
+		targetType = L.ToInt(1)
+	}
+	target := r.resolveTarget(targetType)
+	if target == nil {
+		L.Push(lua.LNumber(0))
+		return 1
+	}
+	L.Push(lua.LNumber(target.Energy))
+	return 1
+}
+
+// get_max_energy(target=ENEMY_ACTIVE) -> int
+func (r *Runtime) getMaxEnergyV2(L *lua.LState) int {
+	targetType := 1
+	if L.GetTop() >= 1 {
+		targetType = L.ToInt(1)
+	}
+	target := r.resolveTarget(targetType)
+	if target == nil {
+		L.Push(lua.LNumber(0))
+		return 1
+	}
+	L.Push(lua.LNumber(target.MaxEnergy))
+	return 1
+}
+
+// is_alive(target=ENEMY_ACTIVE) -> bool
+func (r *Runtime) isAliveV2(L *lua.LState) int {
+	targetType := 1
+	if L.GetTop() >= 1 {
+		targetType = L.ToInt(1)
+	}
+	target := r.resolveTarget(targetType)
+	if target == nil {
+		L.Push(lua.LBool(false))
+		return 1
+	}
+	L.Push(lua.LBool(target.IsAlive()))
+	return 1
+}
+
+// get_active_char(side=SELF) -> string
+func (r *Runtime) getActiveCharV2(L *lua.LState) int {
+	sideIdx := 0 // SELF
+	if L.GetTop() >= 1 {
+		sideIdx = L.ToInt(1)
+	}
+	var side *core.Side
+	if sideIdx == 0 {
+		side = r.game.GetCurrentSide()
+	} else {
+		side = r.game.GetEnemySide()
+	}
+	activeChar := side.GetActiveCharacter()
+	if activeChar == nil {
+		L.Push(lua.LNil)
+		return 1
+	}
+	L.Push(lua.LString(activeChar.ID))
+	return 1
+}
+
+// add_energy(amount, target=SELF)
+func (r *Runtime) addEnergyV2(L *lua.LState) int {
+	amount := L.CheckInt(1)
+	targetType := 0
+	if L.GetTop() >= 2 {
+		targetType = L.ToInt(2)
+	}
+	target := r.resolveTarget(targetType)
+	if target != nil {
+		target.Energy += amount
+		if target.Energy > target.MaxEnergy {
+			target.Energy = target.MaxEnergy
+		}
+	}
+	return 0
+}
+
+// consume_energy(amount, target=SELF) -> bool
+func (r *Runtime) consumeEnergyV2(L *lua.LState) int {
+	amount := L.CheckInt(1)
+	targetType := 0
+	if L.GetTop() >= 2 {
+		targetType = L.ToInt(2)
+	}
+	target := r.resolveTarget(targetType)
+	if target == nil || target.Energy < amount {
+		L.Push(lua.LBool(false))
+		return 1
+	}
+	target.Energy -= amount
+	L.Push(lua.LBool(true))
+	return 1
+}
+
+// switch_character(char_idx) -> bool
+func (r *Runtime) switchCharacterV2(L *lua.LState) int {
+	charIdx := L.CheckInt(1)
+	side := r.game.GetCurrentSide()
+	result := side.SwitchCharacter(charIdx)
+	L.Push(lua.LBool(result))
+	return 1
 }

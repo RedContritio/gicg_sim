@@ -165,6 +165,6 @@ func (cl *CardDataLoader) Get(cardID string) (*CardDefinition, bool) {
 var GlobalCardLoader *CardDataLoader
 
 func init() {
-	// 使用绝对路径
-	GlobalCardLoader = NewCardDataLoader("/home/redcontritio/gicg_sim/data/action")
+	// 使用自动查找的项目路径
+	GlobalCardLoader = NewCardDataLoader(filepath.Join(GetDataDir(), "action"))
 }

@@ -185,7 +185,7 @@ func (g *GameState) applyDamage(dmg *DamageInfo) {
 
 // SkillScriptRuntime 技能脚本运行时接口
 type SkillScriptRuntime interface {
-	ExecuteSkillScript(script string) error
+	ExecuteSkillScript(script string, scriptName string) error
 	CallSkillFunction(name string) error
 }
 
@@ -493,9 +493,9 @@ func (g *GameState) SwitchCharacter(charIdx int) bool {
 	return true
 }
 
-// SkillScriptRuntime 技能脚本运行时接口
+// SkillRuntime 技能运行时接口
 type SkillRuntime interface {
-	ExecuteSkillScript(script string) error
+	ExecuteSkillScript(script string, scriptName string) error
 	CallSkillFunction(name string) error
 }
 
@@ -544,7 +544,7 @@ func (g *GameState) ExecuteSkill(charIdx int, skillID string, runtime SkillRunti
 			scriptContent, err := os.ReadFile(scriptPath)
 			if err == nil {
 				// 执行技能脚本（定义 on_xxx 函数）
-				runtime.ExecuteSkillScript(string(scriptContent))
+				runtime.ExecuteSkillScript(string(scriptContent), skillDef.Script)
 				
 				// 调用技能函数
 				funcName := "on_" + skillID
@@ -598,7 +598,7 @@ func (g *GameState) PlayCard(cardIndex int, runtime interface {
 	// 加载并执行卡牌脚本（如果卡牌有脚本）
 	if runtime != nil && cardDef.Script != "" {
 		// 读取行动卡脚本（从子目录加载）
-		scriptPath := fmt.Sprintf("/home/redcontritio/gicg_sim/data/action/%s/action.lua", cardDef.Script)
+		scriptPath := filepath.Join(GetDataDir(), "action", cardDef.Script, "action.lua")
 		scriptContent, err := os.ReadFile(scriptPath)
 		if err == nil {
 			// 执行脚本，定义卡牌效果函数
