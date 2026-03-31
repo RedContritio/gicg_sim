@@ -7,10 +7,11 @@ type Side struct {
 	Characters [3]*Character
 	ActiveIdx  int
 	
-	Counters *CounterManager
-	Mods     *ModManager
-	Dices    *DiceManager  // 骰子管理器
-	Deck     *Deck         // 牌堆管理器
+	Counters       *CounterManager
+	ScopedCounters *ScopedCounterManager  // 带作用域的计数器
+	Mods           *ModManager
+	Dices          *DiceManager  // 骰子管理器
+	Deck           *Deck         // 牌堆管理器
 	
 	// 手牌
 	Hand       []string  // 手牌列表（卡牌ID）
@@ -28,6 +29,7 @@ func NewSide(index int) *Side {
 	}
 	
 	side.Counters = NewCounterManager(side)
+	side.ScopedCounters = NewScopedCounterManager()
 	side.Mods = NewModManager(side)
 	side.Dices = NewDiceManager(side)
 	side.Deck = NewDeck(side)

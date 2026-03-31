@@ -11,10 +11,13 @@ function elemental_reaction_handler()
         return
     end
     
-    local target = dmg.target
+    local target = dmg.target_id
     local amount = dmg.amount
     local element = dmg.element
     local final_amount = amount
+    
+    -- 如果没有目标ID，直接返回
+    if not target then return end
     
     -- 检查目标是否有元素附着
     -- 蒸发：火+水 或 水+火，伤害*2

@@ -552,18 +552,21 @@ func TestLuaDiceAPI(t *testing.T) {
 	}
 
 	script := `
-		-- 检查 can_afford
-		local canAfford3Electro = can_afford({[ELECTRO]=3})
-		local canAfford5Electro = can_afford({[ELECTRO]=5})
-		local canAfford2Pyro = can_afford({[PYRO]=2})
+		-- 检查 can_afford_dice (新API: can_afford_dice(amount, element))
+		local canAfford3Electro = can_afford_dice(3, ELECTRO)
+		local canAfford5Electro = can_afford_dice(5, ELECTRO)
+		local canAfford2Pyro = can_afford_dice(2, PYRO)
 		
-		-- 检查 get_dice_count
+		-- 检查 get_dice_count (新API: get_dice_count(element))
 		local electroCount = get_dice_count(ELECTRO)
 		local pyroCount = get_dice_count(PYRO)
-		local totalCount = get_dice_count(-1)  -- -1 表示总数
+		local totalCount = get_dice_count(ANY)  -- ANY 表示总数
 		
-		-- 消耗骰子
-		local consumeResult = consume_dice({[ELECTRO]=2, [PYRO]=1})
+		-- 消耗骰子 (新API: consume_dice(amount, element))
+		-- 先消耗2个雷，再消耗1个火
+		local consumeResult1 = consume_dice(2, ELECTRO)
+		local consumeResult2 = consume_dice(1, PYRO)
+		local consumeResult = consumeResult1 and consumeResult2
 		
 		-- 消耗后再次检查
 		local electroAfter = get_dice_count(ELECTRO)

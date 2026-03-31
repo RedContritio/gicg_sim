@@ -129,65 +129,8 @@ const (
 
 // registerAPI 注册 API
 func (r *Runtime) registerAPI() {
-	// Counter API
-	r.L.Register("create_counter", r.createCounter)
-	
-	// Damage API
-	r.L.Register("damage", r.damage)
-	r.L.Register("heal", r.heal)
-	
-	// Mod API
-	r.L.Register("attach_mod", r.attachMod)
-	
-	// Dice API
-	r.L.Register("consume_dice", r.consumeDice)
-	r.L.Register("get_dice_count", r.getDiceCount)
-	r.L.Register("can_afford", r.canAfford)
-	
-	// Target constants
-	r.L.SetGlobal("SELF", lua.LNumber(0))
-	r.L.SetGlobal("TARGET", lua.LNumber(1))
-	r.L.SetGlobal("ACTIVE_ENEMY", lua.LNumber(2))
-	r.L.SetGlobal("ALL_ENEMIES", lua.LNumber(3))
-	r.L.SetGlobal("BACK_ENEMIES", lua.LNumber(4))
-	r.L.SetGlobal("ALL_ALLIES", lua.LNumber(5))
-	
-	// Element constants
-	r.L.SetGlobal("PYRO", lua.LNumber(core.Pyro))
-	r.L.SetGlobal("HYDRO", lua.LNumber(core.Hydro))
-	r.L.SetGlobal("CRYO", lua.LNumber(core.Cryo))
-	r.L.SetGlobal("ELECTRO", lua.LNumber(core.Electro))
-	r.L.SetGlobal("ANEMO", lua.LNumber(core.Anemo))
-	r.L.SetGlobal("GEO", lua.LNumber(core.Geo))
-	r.L.SetGlobal("DENDRO", lua.LNumber(core.Dendro))
-	r.L.SetGlobal("PHYSICAL", lua.LNumber(core.Physical))
-	r.L.SetGlobal("PIERCING", lua.LNumber(core.Piercing))
-	
-	// Dice type constants
-	r.L.SetGlobal("DICE_PYRO", lua.LNumber(core.DicePyro))
-	r.L.SetGlobal("DICE_HYDRO", lua.LNumber(core.DiceHydro))
-	r.L.SetGlobal("DICE_CRYO", lua.LNumber(core.DiceCryo))
-	r.L.SetGlobal("DICE_ELECTRO", lua.LNumber(core.DiceElectro))
-	r.L.SetGlobal("DICE_ANEMO", lua.LNumber(core.DiceAnemo))
-	r.L.SetGlobal("DICE_GEO", lua.LNumber(core.DiceGeo))
-	r.L.SetGlobal("DICE_DENDRO", lua.LNumber(core.DiceDendro))
-	r.L.SetGlobal("DICE_OMNI", lua.LNumber(core.DiceOmni))
-	
-	// Counter scope constants
-	r.L.SetGlobal("SCOPE_SKILL_UNIQUE", lua.LNumber(0))
-	r.L.SetGlobal("SCOPE_CHAR_SHARED", lua.LNumber(1))
-	r.L.SetGlobal("SCOPE_SIDE_SHARED", lua.LNumber(2))
-	
-	// Aura API
-	r.L.Register("has_aura", r.hasAura)
-	r.L.Register("apply_aura", r.applyAura)
-	
-	// System API (for damage_calc mod)
-	r.L.Register("get_current_damage", r.getCurrentDamage)
-	r.L.Register("set_damage_amount", r.setDamageAmount)
-	r.L.Register("has_aura_on_char", r.hasAuraOnChar)
-	r.L.Register("apply_aura_to_char", r.applyAuraToChar)
-	r.L.Register("remove_aura_from_char", r.removeAuraFromChar)
+	// 使用新的 API V2
+	r.registerAPIV2()
 }
 
 // create_counter(name, default, max, scope) -> Counter
