@@ -1,0 +1,8 @@
+third_party/
+tools/
+rl_mvp_v3.txt
+.claude/
+*.o
+*.a
+*.so
+*.dylib
