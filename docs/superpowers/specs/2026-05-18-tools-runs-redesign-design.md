@@ -357,7 +357,7 @@ I9-I23 全部 close by design 或显式 fix。
 
 ### 重写文件
 
-- `tools/runs/schema.py` — 简化字段(11 个),strict status enum
+- `tools/runs/schema.py` — 简化字段(10 个),strict status enum
 - `tools/runs/list.py` — 扫新位置(`artifacts/*/metadata.toml`)
 - `tools/runs/show.py` — 接受 shorthand NNN
 - `tools/runs/sync.py` — 改 include pattern
