@@ -89,7 +89,13 @@ def main(argv: list | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        run_meta = runs_schema.load_file(meta_path)
+        try:
+            run_meta = runs_schema.load_file(meta_path)
+        except ValueError as e:
+            # schema.load_file now enforces M7 filename invariant + schema validation;
+            # any ValueError here = corrupted metadata.
+            print(f'[tools.run] run {args.run_id} metadata corrupted: {e}', file=sys.stderr)
+            return 2
         try:
             artifacts_timestamp_utc = _metadata_timestamp_to_dir_prefix(run_meta.timestamp)
         except ValueError as e:
