@@ -318,3 +318,42 @@ def test_run_accepts_run_id_after_register_with_cfg_run_label_override(tmp_path,
     # MUST NOT fail at the drift-guard check. Verify stderr lacks the drift hint.
     err = capsys.readouterr().err
     assert 'cfg drift' not in err
+
+
+def test_run_auto_injects_run_label_override_from_metadata(tmp_path, capsys):
+    """HIGH 1 (round-5): if register used --cfg-run-label-override, tools.run
+    --run-id must auto-inject `meta.run_label=<snapshot>` so train uses the
+    override value (and artifacts dir reflects it), not cfg's literal field.
+    Pre-fix, Phase 2 register override only changed metadata, train still
+    used cfg.meta.run_label → artifacts_dir & cfg_run_label永久不一致."""
+    from tools.runs import register
+
+    cfg = tmp_path / 's994_cfg.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "az_smoke"\n[paradigm.dmc]\n',
+        encoding='utf-8',
+    )
+    register.register(
+        run_id='s994',
+        cfg_file=str(cfg),
+        cfg_run_label_override='s994_run',
+        root=tmp_path,
+        host='h',
+        git_commit='abc',
+    )
+
+    import tools.runs.schema as runs_schema
+
+    original_runs_dir = runs_schema.runs_dir
+    runs_schema.runs_dir = lambda root=None: original_runs_dir(tmp_path) if root is None else original_runs_dir(root)
+    try:
+        try:
+            tools_run.main([str(cfg), '--run-id', 's994'])
+        except Exception:
+            pass  # cfg too minimal — load_cfg raises; irrelevant
+    finally:
+        runs_schema.runs_dir = original_runs_dir
+    err = capsys.readouterr().err
+    # Auto-injected override message must appear (proving the integration step
+    # between Phase 2's snapshot mechanism and Phase 3's train-time apply).
+    assert "auto-applied --override meta.run_label='s994_run'" in err

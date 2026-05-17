@@ -106,7 +106,7 @@ def main(argv: list | None = None) -> int:
         # legitimately differ from cfg via `register --cfg-run-label-override`
         # (Phase 2 AD4). Checksum subsumes run_label edits anyway — run_label
         # is part of the cfg → part of canonical JSON → part of checksum.
-        from tools.runs.register import _cfg_checksum
+        from tools.runs.register import _cfg_checksum, _extract_run_label
 
         current_checksum = _cfg_checksum(cfg_path)
         if current_checksum != run_meta.cfg_checksum:
@@ -118,6 +118,22 @@ def main(argv: list | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
+
+        # Apply --cfg-run-label-override propagation: if metadata.cfg_run_label
+        # differs from cfg.meta.run_label (i.e. user used register
+        # --cfg-run-label-override), auto-inject the snapshot value as a
+        # train-time override so artifacts_dir reflects register-time intent,
+        # not the cfg's literal field.
+        extracted_run_label = _extract_run_label(cfg_path)
+        if extracted_run_label != run_meta.cfg_run_label:
+            # If user already passed --override meta.run_label=, the earlier
+            # conflict-check exited; reaching here means we're the only injector.
+            args.override.append(f'meta.run_label={run_meta.cfg_run_label}')
+            print(
+                f'[tools.run] auto-applied --override meta.run_label={run_meta.cfg_run_label!r} '
+                f'from register-time --cfg-run-label-override snapshot',
+                file=sys.stderr,
+            )
 
         try:
             artifacts_timestamp_utc = _metadata_timestamp_to_dir_prefix(run_meta.timestamp)
@@ -157,6 +173,7 @@ def main(argv: list | None = None) -> int:
     resume_path = Path(args.resume) if args.resume else None
 
     auto_status = 'done'
+    auto_complete_failed = False
     final_state = None
     try:
         final_state = run_pipeline(
@@ -205,6 +222,7 @@ def main(argv: list | None = None) -> int:
                     f'metadata may be stale, run `tools.runs.complete --run-id {args.run_id} --status {auto_status} --artifacts-dir <path>` manually',
                     file=sys.stderr,
                 )
+                auto_complete_failed = True
 
     print(
         f'[tools.run] final: step={final_state.step} '
@@ -213,7 +231,8 @@ def main(argv: list | None = None) -> int:
         f'train_steps={final_state.train_steps} '
         f'wall_s={final_state.wall_seconds:.1f}'
     )
-    return 0
+    # Non-zero exit if metadata link was not closed — CI/cron must detect.
+    return 3 if auto_complete_failed else 0
 
 
 if __name__ == '__main__':
