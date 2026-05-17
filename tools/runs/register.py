@@ -156,6 +156,7 @@ def register(
     label: str | None = None,
     type_: str | None = None,
     paradigm: str | None = None,
+    cfg_run_label_override: str | None = None,
     description: str = '',
     root: Path | None = None,
     now: datetime.datetime | None = None,
@@ -187,6 +188,10 @@ def register(
         raise ValueError(
             f'cfg {cfg_file} has no `meta.run_label` field; required (artifacts dir suffix per CheckpointManager)'
         )
+    if cfg_run_label_override is not None:
+        if not cfg_run_label_override:
+            raise ValueError('--cfg-run-label-override must be non-empty')
+        cfg_run_label = cfg_run_label_override
 
     # cfg_file: normalize to repo-relative; `root` doubles as repo_root
     # in tests (cfg lives under tmp_path), defaults to cwd in production
@@ -243,6 +248,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--label', default=None, help='slug label; defaults to run_id')
     ap.add_argument('--type', default=None, dest='type_', choices=['r', 's'])
     ap.add_argument('--paradigm', default=None, choices=sorted(schema.PARADIGMS))
+    ap.add_argument(
+        '--cfg-run-label-override',
+        default=None,
+        dest='cfg_run_label_override',
+        help='override cfg.meta.run_label in the metadata snapshot (matches what train will run with via --override)',
+    )
     ap.add_argument('--description', default='', help='free-form description')
     ap.add_argument('--root', default=None, help='override repo root (testing only)')
     args = ap.parse_args(argv)
@@ -253,6 +264,7 @@ def main(argv: list[str] | None = None) -> int:
             label=args.label,
             type_=args.type_,
             paradigm=args.paradigm,
+            cfg_run_label_override=args.cfg_run_label_override,
             description=args.description,
             root=Path(args.root) if args.root else None,
         )

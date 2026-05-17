@@ -394,3 +394,21 @@ def test_register_rejects_nan_in_cfg(tmp_path):
             host='h',
             git_commit='abc',
         )
+
+
+def test_register_cfg_run_label_override(tmp_path, cfg_file):
+    """Allow register to override cfg.meta.run_label snapshot so the
+    metadata matches what user will train with via `tools.run --override
+    meta.run_label=...` (AD4)."""
+    meta = register.register(
+        run_id='r013',
+        cfg_file=str(cfg_file),
+        cfg_run_label_override='r013_first_real',
+        root=tmp_path,
+        now=_fixed_now(),
+        host='h',
+        git_commit='abc',
+    )
+    assert meta.cfg_run_label == 'r013_first_real'
+    # cfg file itself unchanged
+    assert 'az_smoke' in cfg_file.read_text()
