@@ -84,7 +84,7 @@ def _cfg_checksum(cfg_path: Path) -> str:
     cfgs with identical text but different parents produce different
     checksums — leaf-only hashing would defeat reproducibility-pin."""
     merged = _resolve_cfg(cfg_path)
-    canonical = json.dumps(merged, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
+    canonical = json.dumps(merged, sort_keys=True, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
     h = hashlib.sha256(canonical.encode('utf-8')).hexdigest()
     return f'sha256:{h}'
 

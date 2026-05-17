@@ -375,3 +375,22 @@ def test_register_checksum_includes_extends_chain(tmp_path, extends_cfg_pair):
     # Run labels resolve from the respective parents (deep-merge):
     assert meta_a.cfg_run_label == 'from_parent_a'
     assert meta_b.cfg_run_label == 'from_parent_b'
+
+
+def test_register_rejects_nan_in_cfg(tmp_path):
+    """C1 strict canonical: NaN in cfg must raise (not silently
+    accepted into a stable-but-invalid checksum)."""
+    p = tmp_path / 'r013.toml'
+    p.write_text(
+        '[meta]\nparadigm = "az"\nrun_label = "x"\n[paradigm.az]\nthr = nan\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='[Nn][Aa][Nn]|allow_nan|Out of range'):
+        register.register(
+            run_id='r013',
+            cfg_file=str(p),
+            root=tmp_path,
+            now=_fixed_now(),
+            host='h',
+            git_commit='abc',
+        )
