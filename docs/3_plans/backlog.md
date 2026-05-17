@@ -68,6 +68,9 @@
 | I16 | `tools.runs.sync` regex 拒绝 IPv6 `[::1]` | `_REMOTE_RE = ^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:.+/$` 不接 `[`/`]`,rsync 支持 `user@[::1]:/p/`。Fix:扩 regex 加 IPv6 bracket form,或 doc 说"用 IPv4 / hostname" | 4 | idea (round-3 review 2026-05-18) |
 | I17 | `tools.runs.register` 文件写入 TOCTOU | `out_path.exists()` check + `save_file` 写非原子,两 concurrent register 同 id 都过 check,第二 clobber 第一。生产可能性低(sequential CLI)但无 atomic guard。Fix:`open(O_EXCL)` 或 file lock | 4 | idea (round-3 review 2026-05-18) |
 | I18 | `tools.run --run-id` × `--override " meta.run_label=x"` 前导空格 bypass | conflict check `o.startswith('meta.run_label=')`,有 leading space 时漏。当前 loader override-parser 也漏(key 含空格不匹配 cfg field),净 silent no-op,但若 loader 修了 strip 这个就成真 bypass。Fix:`o.strip().startswith(...)` | 4 | idea (round-3 review 2026-05-18) |
+| I19 | `tools.run --run-id` extends 链 resolve 重复(perf) | drift guard 调 `_cfg_checksum` → `_resolve_cfg` → `load_with_extends`(1 次)。然后 `load_cfg(cfg_path, ...)` 又 resolve 一次(2 次)。总计 2 次 extends-chain 解析,小 cfg 微秒级,大 extends 链可能 visible。Fix:tools.run 先 resolve 一次,把 dict 传给 _cfg_checksum + load_cfg shared(load_cfg 需新 signature 接 pre-resolved dict) | 4 | idea (round-4 review 2026-05-18) |
+| I20 | `tools.run --run-id` drift guard 阻塞 equivalence-preserving cfg 编辑 | user 加 comment / reorder TOML keys (实际语义不变) → canonical JSON sort_keys 容忍,但加 `[paradigm.dmc.unused_field] = 0` (forward-compat 字段) → checksum 变 → exit 2 强制 re-register。Fix:加 `--allow-cfg-drift` opt-out flag,或允许 cfg 加 unused field(需要 schema layer 区分 "semantic-equivalent" vs "real edit") | 4 | idea (round-4 review 2026-05-18) |
+| I21 | `tools.run --run-id` 跨模块 import register internals | `from tools.runs.register import _cfg_checksum` — `_`-prefix 是 internal 约定,跨模块导入脆弱(同问 `_load_with_extends` 被 promote 的 Phase 1 ST-1)。register refactor 时 silent break tools.run。Fix:promote 为公开 API(`cfg_checksum` / `extract_run_label`),或在 schema 模块中暴露 helper | 4 | idea (round-4 review 2026-05-18) |
 
 ## 测试 / 文档
 
