@@ -155,10 +155,15 @@ def main(argv: list | None = None) -> int:
 
             from tools.runs.complete import complete_from_train
 
-            artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
-            actual_dir = artifacts_root / CheckpointManager.compute_dir_name(
-                artifacts_timestamp_utc, cfg.meta.run_label
-            )
+            if args.resume:
+                # CheckpointManager.init_artifacts_dir(resume_from=...) returns
+                # Path(resume_from).parent — synthesize-from-formula would diverge.
+                actual_dir = Path(args.resume).parent
+            else:
+                artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
+                actual_dir = artifacts_root / CheckpointManager.compute_dir_name(
+                    artifacts_timestamp_utc, cfg.meta.run_label
+                )
             wall = final_state.wall_seconds if final_state is not None else None
             complete_from_train(
                 run_id=args.run_id,
