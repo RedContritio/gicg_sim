@@ -56,8 +56,7 @@ def _validate_remote(remote: str) -> None:
     contain ``:`` but are local."""
     if not _REMOTE_RE.match(remote):
         raise ValueError(
-            f'remote {remote!r} must be of form user@host:path/ '
-            f'(user@host + colon + path + trailing slash)'
+            f'remote {remote!r} must be of form user@host:path/ (user@host + colon + path + trailing slash)'
         )
 
 

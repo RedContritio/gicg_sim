@@ -259,8 +259,7 @@ def load_file(path: Path) -> RunMetadata:
     meta = loads(path.read_text(encoding='utf-8'))
     if meta.run_id != path.stem:
         raise ValueError(
-            f'metadata at {path} has run_id={meta.run_id!r} != filename stem {path.stem!r} '
-            f'(file mislabeled)'
+            f'metadata at {path} has run_id={meta.run_id!r} != filename stem {path.stem!r} (file mislabeled)'
         )
     return meta
 
