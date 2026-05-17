@@ -51,6 +51,17 @@ def main(argv: list | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.run_id:
+        conflicting = [o for o in args.override if o.startswith('meta.run_label=')]
+        if conflicting:
+            print(
+                '[tools.run] --override meta.run_label=... conflicts with --run-id '
+                '(metadata.cfg_run_label snapshot already taken at register time). '
+                'Re-register with `--cfg-run-label-override <slug>` or drop --run-id.',
+                file=sys.stderr,
+            )
+            return 2
+
     cfg_path = Path(args.config)
     if not cfg_path.exists():
         print(f'[tools.run] config not found: {cfg_path}', file=sys.stderr)
