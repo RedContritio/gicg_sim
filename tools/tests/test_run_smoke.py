@@ -62,3 +62,18 @@ def test_run_accepts_run_label_override_alone_without_conflict_check(tmp_path, c
         pass  # downstream cfg validation may raise — irrelevant
     err = capsys.readouterr().err
     assert 'conflicts with --run-id' not in err
+
+
+def test_metadata_timestamp_to_dir_prefix_uses_utc_always():
+    """HIGH 1: dir-name prefix must be UTC (cross-host consistent),
+    NOT local tz — otherwise register on host A (UTC+8) + train on
+    host B (UTC-5) yield different dir prefixes for the same run."""
+    from tools.run import _metadata_timestamp_to_dir_prefix
+
+    # UTC iso → UTC strftime
+    assert _metadata_timestamp_to_dir_prefix('2026-05-17T18:44:21+00:00') == '202605171844'
+    # Non-UTC iso (e.g. registered on UTC+8 host) → still UTC strftime
+    # 18:44 +08:00 = 10:44 UTC
+    assert _metadata_timestamp_to_dir_prefix('2026-05-17T18:44:21+08:00') == '202605171044'
+    # UTC-5 → 23:44 UTC
+    assert _metadata_timestamp_to_dir_prefix('2026-05-17T18:44:21-05:00') == '202605172344'

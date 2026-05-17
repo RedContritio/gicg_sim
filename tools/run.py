@@ -31,6 +31,16 @@ from training.core.pipeline import run_pipeline
 from training.paradigms import resolve as resolve_paradigm
 
 
+def _metadata_timestamp_to_dir_prefix(ts: str) -> str:
+    """Convert RunMetadata.timestamp (iso8601 with TZ) to artifacts
+    dir prefix in `%Y%m%d%H%M` UTC form. UTC chosen so the dir prefix
+    is identical on every host that picks up the same metadata —
+    `.astimezone()` (per-host local) would defeat the single-source
+    intent under cross-tz dev/CI."""
+    dt = datetime.datetime.fromisoformat(ts)
+    return dt.astimezone(datetime.timezone.utc).strftime('%Y%m%d%H%M')
+
+
 def main(argv: list | None = None) -> int:
     parser = argparse.ArgumentParser(prog='tools.run', description=__doc__)
     parser.add_argument('config', type=str, help='path to TOML cfg')
@@ -81,12 +91,11 @@ def main(argv: list | None = None) -> int:
             return 2
         run_meta = runs_schema.load_file(meta_path)
         try:
-            dt = datetime.datetime.fromisoformat(run_meta.timestamp)
+            artifacts_timestamp_local = _metadata_timestamp_to_dir_prefix(run_meta.timestamp)
         except ValueError as e:
             print(f'[tools.run] run {args.run_id} timestamp malformed: {e}', file=sys.stderr)
             return 2
-        artifacts_timestamp_local = dt.astimezone().strftime('%Y%m%d%H%M')
-        print(f'[tools.run] linked to run {args.run_id} (artifacts ts={artifacts_timestamp_local} local)')
+        print(f'[tools.run] linked to run {args.run_id} (artifacts ts={artifacts_timestamp_local} UTC)')
 
     print(f'[tools.run] loading cfg: {cfg_path}')
     cfg = load_cfg(cfg_path, overrides=list(args.override))
