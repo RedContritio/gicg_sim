@@ -28,6 +28,7 @@ doesn't fail on missing destination.
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -46,13 +47,18 @@ RSYNC_FLAGS = (
 )
 
 
+_REMOTE_RE = re.compile(r'^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:.+/$')
+
+
 def _validate_remote(remote: str) -> None:
-    """Remote must be ``<user>@<host>:<path>/`` (path ends with /)."""
-    if ':' not in remote:
-        raise ValueError(f'remote {remote!r} must be of form <user>@<host>:<path>/ (missing colon)')
-    _, _, path = remote.partition(':')
-    if not path.endswith('/'):
-        raise ValueError(f'remote path {path!r} must end with "/" (rsync would otherwise nest, not merge)')
+    """Remote must be ``<user>@<host>:<path>/`` (path ends with /).
+    ``:`` alone is not sufficient — macOS paths like ``/Volumes/X:/foo/``
+    contain ``:`` but are local."""
+    if not _REMOTE_RE.match(remote):
+        raise ValueError(
+            f'remote {remote!r} must be of form user@host:path/ '
+            f'(user@host + colon + path + trailing slash)'
+        )
 
 
 def build_command(direction: str, remote: str, root: Path | None = None) -> list[str]:

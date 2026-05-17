@@ -52,7 +52,7 @@ def test_build_command_pull_shape(tmp_path):
 def test_build_command_hardcoded_flags(tmp_path):
     """Spec T4 + risk R6: include/exclude flags MUST be present
     verbatim and SHALL NOT be user-overridable."""
-    cmd = sync.build_command('push', 'h:/p/', root=tmp_path)
+    cmd = sync.build_command('push', 'dev@h:/p/', root=tmp_path)
     assert '-av' in cmd
     assert '--update' in cmd
     assert '--include=artifacts/' in cmd
@@ -63,17 +63,31 @@ def test_build_command_hardcoded_flags(tmp_path):
 
 def test_build_command_rejects_bad_direction(tmp_path):
     with pytest.raises(ValueError):
-        sync.build_command('sideways', 'h:/p/', root=tmp_path)
+        sync.build_command('sideways', 'dev@h:/p/', root=tmp_path)
 
 
 def test_build_command_rejects_no_colon():
-    with pytest.raises(ValueError, match='colon'):
+    with pytest.raises(ValueError, match='user@host'):
         sync.build_command('push', 'no-colon-remote')
 
 
 def test_build_command_rejects_path_without_trailing_slash():
-    with pytest.raises(ValueError, match='end with'):
+    with pytest.raises(ValueError, match='user@host'):
         sync.build_command('push', 'dev@host:/d/gicg_dev')
+
+
+def test_validate_remote_rejects_macos_local_path_with_colon():
+    """MED 4: `/Volumes/X:/foo/` (macOS) contains `:` but is a local
+    path, not <user>@<host>:<path>. Must reject."""
+    with pytest.raises(ValueError, match='user@host'):
+        sync.build_command('push', '/Volumes/X:/foo/')
+
+
+def test_validate_remote_rejects_bare_host_colon_path():
+    """A `host:path/` form without `user@` is technically legal SSH
+    syntax but our policy requires user@host (cross-host audit trail)."""
+    with pytest.raises(ValueError, match='user@host'):
+        sync.build_command('push', 'somehost:/repo/')
 
 
 def test_sync_pull_invokes_rsync_with_expected_argv(tmp_path):
@@ -165,7 +179,7 @@ def test_sync_cli_main_error_bad_remote(tmp_path, capsys):
 def test_sync_never_includes_checkpoints_or_replays(tmp_path):
     """Risk R6 regression guard: ckpt + replays MUST NOT leak into the
     rsync argv."""
-    cmd = sync.build_command('push', 'h:/p/', root=tmp_path)
+    cmd = sync.build_command('push', 'dev@h:/p/', root=tmp_path)
     joined = ' '.join(cmd)
     assert 'checkpoints' not in joined
     assert 'replays' not in joined
