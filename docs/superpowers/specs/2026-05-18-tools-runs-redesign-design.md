@@ -101,7 +101,7 @@ artifacts/<YYYYMMDDHHMM>_<NNNNNN>_<cfg.meta.run_label>/
 
 ## Schema
 
-### metadata.toml 字段(9 个,精简到必需)
+### metadata.toml 字段(10 个,精简到必需)
 
 ```toml
 run_id = "000069"                           # 6 位 zero-pad
@@ -111,6 +111,7 @@ git_commit = "2c20de8..."
 host = "Mac-mini.local"
 status = "done"                              # enum {running, done, failed, killed};strict transitions
 artifacts_dir = "artifacts/202605180355_000069_dmc_smoke_full"
+wall_seconds = 84.3                          # last attempt elapsed(resume 覆盖);running 期间为 0
 exit_code = 0
 notes = ""                                   # free-form
 ```
@@ -121,7 +122,7 @@ notes = ""                                   # free-form
 - `label`(冗余 with run_id)
 - `cfg_checksum`(替代:cfg_resolved.toml 是 truth)
 - `cfg_run_label`(替代:cfg_resolved.toml 已含 meta.run_label)
-- `summary` / `wall_seconds`(audit 信息派生自 artifacts dir 文件 mtime — cfg_resolved.toml 到 latest.pt 间隔即 train 耗时)
+- `summary`(`wall_seconds` 直接顶层)
 - `result.gauntlet` / `result.training`(放 artifacts dir 独立文件,不进 metadata)
 - `paradigm`(从 cfg_resolved.toml `meta.paradigm` 派生,list/show 实时读)
 
@@ -310,7 +311,7 @@ I9-I23 全部 close by design 或显式 fix。
 - **C-4**:allocator 锁内完成 glob + mkdir(O_EXCL 撞名 retry)
 - **H-1**:跨机 sync 改单源主从(不支持双向 push)
 - **H-2**:state machine 简化 — 只 `running` 非终态;`done`/`failed`/`killed` 全终态
-- **H-3**:drop `wall_seconds` 字段(派生自 cfg_resolved.toml → latest.pt 文件 mtime 间隔)
+- **H-3**:保留 `wall_seconds` 字段,语义 = **last attempt elapsed seconds**(resume 触发时被新 attempt 值覆盖,不累计;running 期间为 0)
 - **H-4**:mark 接受 done/failed/killed 三种 target(收尾 running 死状态)
 - **H-5**:O_EXCL retry +1 处理 macOS case-insensitive FS
 - **H-6**:lifecycle step 1 立即 `read_bytes()` 捕获 leaf cfg
