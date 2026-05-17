@@ -3,8 +3,11 @@
 Dataclass-based schema + strict validator + minimal hand-rolled TOML
 emitter (depend only on stdlib ``tomllib`` for read).
 
-Layout: top-level scalars + nested ``[summary]`` / ``[notes]``;
-``[result.gauntlet]`` and ``[result.training]`` are optional.
+Layout: top-level scalars (incl. ``cfg_run_label`` — snapshot of
+``cfg.meta.run_label`` at register time — and ``artifacts_dir`` —
+repo-relative path to the artifacts dir, backfilled by ``complete``
+or train driver after the run finishes) + nested ``[summary]`` /
+``[notes]``; ``[result.gauntlet]`` and ``[result.training]`` optional.
 """
 
 from __future__ import annotations
