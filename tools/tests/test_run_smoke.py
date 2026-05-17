@@ -241,8 +241,11 @@ def test_run_rejects_cfg_drift_checksum(tmp_path, capsys):
     assert 'checksum' in err
 
 
-def test_run_rejects_cfg_drift_run_label(tmp_path, capsys):
-    """HIGH 2: same drift guard for cfg.meta.run_label."""
+def test_run_rejects_cfg_drift_when_run_label_changes(tmp_path, capsys):
+    """HIGH 2: editing cfg.meta.run_label changes the cfg's content →
+    checksum changes → drift check fires (via the generic checksum path,
+    since dedicated run_label check was removed in round-4 to remain
+    compatible with `register --cfg-run-label-override`)."""
     from tools.runs import register
 
     cfg = tmp_path / 's996_cfg.toml'
@@ -257,7 +260,8 @@ def test_run_rejects_cfg_drift_run_label(tmp_path, capsys):
         host='h',
         git_commit='abc',
     )
-    # Edit cfg's run_label only (same logical structure but different label).
+    # Edit cfg's run_label only — checksum changes because run_label is
+    # part of the merged cfg → part of canonical JSON.
     cfg.write_text(
         '[meta]\nparadigm = "dmc"\nrun_label = "label_v2"\n[paradigm.dmc]\n',
         encoding='utf-8',
@@ -274,4 +278,43 @@ def test_run_rejects_cfg_drift_run_label(tmp_path, capsys):
     assert rc == 2
     err = capsys.readouterr().err
     assert 'cfg drift' in err
-    assert 'run_label' in err
+    assert 'checksum' in err
+
+
+def test_run_accepts_run_id_after_register_with_cfg_run_label_override(tmp_path, capsys):
+    """Round-4 H2-fix invariant: H2 drift guard MUST be compatible with
+    `register --cfg-run-label-override`. Override changes metadata.cfg_run_label
+    but NOT the cfg file (so checksum stays same). Pre-fix, the dedicated
+    run_label drift check incorrectly fired ALWAYS in this scenario."""
+    from pathlib import Path
+
+    from tools.runs import register
+
+    cfg = tmp_path / 's995_cfg.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "az_smoke"\n[paradigm.dmc]\n',
+        encoding='utf-8',
+    )
+    register.register(
+        run_id='s995',
+        cfg_file=str(cfg),
+        cfg_run_label_override='s995_real',
+        root=tmp_path,
+        host='h',
+        git_commit='abc',
+    )
+
+    import tools.runs.schema as runs_schema
+
+    original_runs_dir = runs_schema.runs_dir
+    runs_schema.runs_dir = lambda root=None: original_runs_dir(tmp_path) if root is None else original_runs_dir(root)
+    try:
+        try:
+            tools_run.main([str(cfg), '--run-id', 's995'])
+        except Exception:
+            pass  # cfg too minimal — load_cfg later raises; irrelevant
+    finally:
+        runs_schema.runs_dir = original_runs_dir
+    # MUST NOT fail at the drift-guard check. Verify stderr lacks the drift hint.
+    err = capsys.readouterr().err
+    assert 'cfg drift' not in err

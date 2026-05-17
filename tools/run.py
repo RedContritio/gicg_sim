@@ -99,27 +99,22 @@ def main(argv: list | None = None) -> int:
 
         # Guard cfg drift between register-time snapshot and current cfg file.
         # If user edits cfg after register, --run-id would silently train on the
-        # mutated cfg while metadata.cfg_checksum / cfg_run_label still point at
-        # the old snapshot — defeats C2's "register = pin truth" intent.
-        # Check run_label first for the more specific error message (since
-        # changing run_label also changes checksum, the generic checksum check
-        # would otherwise swallow the more actionable error).
-        from tools.runs.register import _cfg_checksum, _extract_run_label
+        # mutated cfg while metadata.cfg_checksum still points at the old
+        # snapshot — defeats C2's "register = pin truth" intent.
+        #
+        # Only checksum is compared (NOT cfg_run_label), because run_label can
+        # legitimately differ from cfg via `register --cfg-run-label-override`
+        # (Phase 2 AD4). Checksum subsumes run_label edits anyway — run_label
+        # is part of the cfg → part of canonical JSON → part of checksum.
+        from tools.runs.register import _cfg_checksum
 
-        current_run_label = _extract_run_label(cfg_path)
-        if current_run_label != run_meta.cfg_run_label:
-            print(
-                f'[tools.run] cfg drift: {cfg_path} meta.run_label={current_run_label!r} '
-                f'!= register-time {run_meta.cfg_run_label!r}. Re-register with '
-                f'--cfg-run-label-override or revert cfg.',
-                file=sys.stderr,
-            )
-            return 2
         current_checksum = _cfg_checksum(cfg_path)
         if current_checksum != run_meta.cfg_checksum:
             print(
                 f'[tools.run] cfg drift: {cfg_path} checksum={current_checksum} '
-                f'!= register-time {run_meta.cfg_checksum}. Re-register or revert cfg.',
+                f'!= register-time {run_meta.cfg_checksum}. '
+                f'Either revert cfg, or delete artifacts/runs/{args.run_id}.toml '
+                f'and re-register.',
                 file=sys.stderr,
             )
             return 2
@@ -179,26 +174,37 @@ def main(argv: list | None = None) -> int:
         raise
     finally:
         if args.run_id:
-            from training.core.checkpoint import CheckpointManager
+            # Wrap auto-complete in try/except so a metadata-write failure
+            # (disk-full / _normalize_repo_relative rejecting an out-of-tree
+            # resume parent / schema validate error) does NOT replace the
+            # in-flight train exception per Python finally semantics.
+            try:
+                from training.core.checkpoint import CheckpointManager
 
-            from tools.runs.complete import complete_from_train
+                from tools.runs.complete import complete_from_train
 
-            if args.resume:
-                # CheckpointManager.init_artifacts_dir(resume_from=...) returns
-                # Path(resume_from).parent — synthesize-from-formula would diverge.
-                actual_dir = Path(args.resume).parent
-            else:
-                artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
-                actual_dir = artifacts_root / CheckpointManager.compute_dir_name(
-                    artifacts_timestamp_utc, cfg.meta.run_label
+                if args.resume:
+                    # CheckpointManager.init_artifacts_dir(resume_from=...) returns
+                    # Path(resume_from).parent — synthesize-from-formula would diverge.
+                    actual_dir = Path(args.resume).parent
+                else:
+                    artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
+                    actual_dir = artifacts_root / CheckpointManager.compute_dir_name(
+                        artifacts_timestamp_utc, cfg.meta.run_label
+                    )
+                wall = final_state.wall_seconds if final_state is not None else None
+                complete_from_train(
+                    run_id=args.run_id,
+                    artifacts_dir=actual_dir,
+                    status=auto_status,
+                    wall_seconds=wall,
                 )
-            wall = final_state.wall_seconds if final_state is not None else None
-            complete_from_train(
-                run_id=args.run_id,
-                artifacts_dir=actual_dir,
-                status=auto_status,
-                wall_seconds=wall,
-            )
+            except Exception as e:  # noqa: BLE001 — must swallow to preserve train exception
+                print(
+                    f'[tools.run] auto-complete failed for run {args.run_id}: {e}; '
+                    f'metadata may be stale, run `tools.runs.complete --run-id {args.run_id} --status {auto_status} --artifacts-dir <path>` manually',
+                    file=sys.stderr,
+                )
 
     print(
         f'[tools.run] final: step={final_state.step} '
