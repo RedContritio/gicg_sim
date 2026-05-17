@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+from pathlib import Path
 
 import pytest
 
@@ -11,17 +12,28 @@ from tools.runs import register, schema
 
 @pytest.fixture
 def cfg_file(tmp_path):
-    """A minimal valid cfg TOML with top-level paradigm."""
+    """A minimal valid cfg TOML with [meta] paradigm + run_label and a
+    [paradigm.<X>] section namespace (mirrors real cfg shape post
+    cfg-toml-restructure-paradigm-scoped)."""
     p = tmp_path / 'r013.toml'
-    p.write_text('paradigm = "az"\nversion = "1.0.0"\n', encoding='utf-8')
+    p.write_text(
+        '[meta]\nparadigm = "az"\nrun_label = "az_smoke"\nversion = "1.0.0"\n\n[paradigm.az]\nfoo = "bar"\n',
+        encoding='utf-8',
+    )
     return p
 
 
 @pytest.fixture
 def cfg_file_no_paradigm(tmp_path):
-    """A cfg TOML without the top-level paradigm field."""
+    """A cfg TOML with [meta] but missing the paradigm field, plus a
+    [paradigm.<X>] section namespace — verifies the namespace dict at
+    top-level `paradigm` is not mistaken for the missing meta field.
+    run_label present so paradigm-missing path is the only failure."""
     p = tmp_path / 'broken.toml'
-    p.write_text('version = "1.0.0"\n', encoding='utf-8')
+    p.write_text(
+        '[meta]\nseed = 42\nrun_label = "broken_smoke"\n\n[paradigm.az]\nfoo = "bar"\n',
+        encoding='utf-8',
+    )
     return p
 
 
@@ -231,3 +243,135 @@ def test_register_auto_injects_real_git_commit_or_unknown(tmp_path, cfg_file):
         host='h',
     )
     assert meta.git_commit  # nonempty
+
+
+# --- production-shape fixtures + tests (类 3 L9 / C2 / C1 / H3) ---
+
+
+@pytest.fixture
+def cfg_file_no_run_label(tmp_path):
+    """Cfg with [meta] paradigm but no run_label — register must reject
+    (run_label is required as artifacts dir suffix)."""
+    p = tmp_path / 'no_label.toml'
+    p.write_text(
+        '[meta]\nparadigm = "az"\n\n[paradigm.az]\nfoo = "bar"\n',
+        encoding='utf-8',
+    )
+    return p
+
+
+@pytest.fixture
+def extends_cfg_pair(tmp_path):
+    """Two leaf cfgs with identical text but DIFFERENT parents (via
+    meta.extends). Used to verify cfg_checksum follows the merged
+    effective cfg, not the leaf bytes alone (C1)."""
+    parent_a = tmp_path / 'parent_a.toml'
+    parent_a.write_text(
+        '[meta]\nparadigm = "az"\nrun_label = "from_parent_a"\n\n[paradigm.az]\nfoo = "bar_a"\n',
+        encoding='utf-8',
+    )
+    parent_b = tmp_path / 'parent_b.toml'
+    parent_b.write_text(
+        '[meta]\nparadigm = "az"\nrun_label = "from_parent_b"\n\n[paradigm.az]\nfoo = "bar_b"\n',
+        encoding='utf-8',
+    )
+    leaf_a = tmp_path / 'leaf_a.toml'
+    leaf_a.write_text('[meta]\nextends = "parent_a.toml"\n', encoding='utf-8')
+    leaf_b = tmp_path / 'leaf_b.toml'
+    leaf_b.write_text('[meta]\nextends = "parent_b.toml"\n', encoding='utf-8')
+    return leaf_a, leaf_b
+
+
+def test_register_snapshots_cfg_run_label(tmp_path, cfg_file):
+    """metadata.cfg_run_label must mirror cfg.meta.run_label at
+    register time (used by `show`/`sync` to reconstruct artifacts dir)."""
+    meta = register.register(
+        run_id='r013',
+        cfg_file=str(cfg_file),
+        root=tmp_path,
+        now=_fixed_now(),
+        host='h',
+        git_commit='abc',
+    )
+    assert meta.cfg_run_label == 'az_smoke'
+
+
+def test_register_stores_repo_relative_cfg_file(tmp_path, cfg_file):
+    """metadata.cfg_file must be relative to repo_root (=root in tests).
+    Absolute paths leak across hosts under sync."""
+    meta = register.register(
+        run_id='r013',
+        cfg_file=str(cfg_file),
+        root=tmp_path,
+        now=_fixed_now(),
+        host='h',
+        git_commit='abc',
+    )
+    assert meta.cfg_file == 'r013.toml'
+    assert not Path(meta.cfg_file).is_absolute()
+
+
+def test_register_rejects_no_run_label(tmp_path, cfg_file_no_run_label):
+    """cfg without meta.run_label must raise (required schema field)."""
+    with pytest.raises(ValueError, match='run_label'):
+        register.register(
+            run_id='r013',
+            cfg_file=str(cfg_file_no_run_label),
+            root=tmp_path,
+            now=_fixed_now(),
+            host='h',
+            git_commit='abc',
+        )
+
+
+def test_register_rejects_cfg_outside_repo_root(tmp_path):
+    """cfg path outside repo_root must raise (cross-host portability)."""
+    other_root = tmp_path / 'elsewhere'
+    other_root.mkdir()
+    foreign_cfg = other_root / 'foreign.toml'
+    foreign_cfg.write_text(
+        '[meta]\nparadigm = "az"\nrun_label = "foreign"\n',
+        encoding='utf-8',
+    )
+    repo_root = tmp_path / 'repo'
+    repo_root.mkdir()
+    with pytest.raises(ValueError, match='outside repo root'):
+        register.register(
+            run_id='r013',
+            cfg_file=str(foreign_cfg),
+            root=repo_root,
+            now=_fixed_now(),
+            host='h',
+            git_commit='abc',
+        )
+
+
+def test_register_checksum_includes_extends_chain(tmp_path, extends_cfg_pair):
+    """Two leaf cfgs with identical text (only differ in extends target)
+    must produce DIFFERENT cfg_checksum — leaf-only hashing would
+    silently equate them and defeat reproducibility-pin (C1)."""
+    leaf_a, leaf_b = extends_cfg_pair
+    # Leaf bytes identical except extends filename:
+    assert leaf_a.read_text() != leaf_b.read_text()  # extends targets differ
+    # But fixture intent is: leaf only differs in extends target;
+    # checksum diff comes from PARENT content divergence, not leaf bytes.
+    meta_a = register.register(
+        run_id='r013',
+        cfg_file=str(leaf_a),
+        root=tmp_path,
+        now=_fixed_now(),
+        host='h',
+        git_commit='abc',
+    )
+    meta_b = register.register(
+        run_id='r014',
+        cfg_file=str(leaf_b),
+        root=tmp_path,
+        now=_fixed_now(),
+        host='h',
+        git_commit='abc',
+    )
+    assert meta_a.cfg_checksum != meta_b.cfg_checksum
+    # Run labels resolve from the respective parents (deep-merge):
+    assert meta_a.cfg_run_label == 'from_parent_a'
+    assert meta_b.cfg_run_label == 'from_parent_b'

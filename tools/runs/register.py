@@ -1,12 +1,21 @@
 """``tools.runs.register`` — create a run metadata record (status=pending).
 
-Auto-injects ``git_commit`` (from ``git rev-parse HEAD``, falling back to
-``'unknown'``), ``host`` (``socket.gethostname()``), ``cfg_checksum``
-(sha256 of cfg file bytes), and ``timestamp`` (iso8601 UTC).
+Auto-injects ``git_commit`` (from ``git rev-parse HEAD``, falling back
+to ``'unknown'``), ``host`` (``socket.gethostname()``), ``cfg_checksum``
+(sha256 of the *merged effective* cfg post ``meta.extends`` resolution
+— canonical JSON form, see ``_cfg_checksum``), and ``timestamp``
+(iso8601 UTC).
 
-The ``--paradigm`` flag is required only when the cfg TOML does not
-contain a top-level ``paradigm`` field (i.e. cfg is malformed or
-legacy). On normal cfg, paradigm is auto-extracted.
+``--paradigm`` and ``cfg.meta.run_label`` are required:
+- ``meta.paradigm`` auto-extracted from cfg; ``--paradigm`` is the CLI
+  override / fallback when [meta] table or its paradigm field is absent.
+- ``meta.run_label`` MUST be present in the cfg (used as the artifacts
+  dir suffix by ``CheckpointManager.init_artifacts_dir``). Snapshot
+  stored in ``RunMetadata.cfg_run_label`` so post-train ``show`` /
+  ``sync`` can reconstruct the dir name.
+
+``cfg_file`` is stored repo-relative (cross-host portability); paths
+outside the repo root are rejected.
 
 CLI:
 
@@ -16,7 +25,9 @@ CLI:
 
 Exits 1 with stderr message on:
 - missing cfg file
-- cfg missing top-level ``paradigm`` and no ``--paradigm`` override
+- cfg missing ``meta.paradigm`` and no ``--paradigm`` override
+- cfg missing ``meta.run_label``
+- cfg_file path outside repo root
 - run already registered (file exists; rerun would clobber)
 - schema validation failure
 """
@@ -26,6 +37,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import hashlib
+import json
 import re
 import socket
 import subprocess
@@ -33,6 +45,7 @@ import sys
 from pathlib import Path
 
 from tools.runs import schema
+from training.core.config.loader import _load_with_extends
 
 _LABEL_NNN_RE = re.compile(r'^([rs])(\d{3})_')
 
@@ -52,29 +65,69 @@ def _git_commit() -> str:
         return 'unknown'
 
 
+def _resolve_cfg(cfg_path: Path) -> dict:
+    """Resolve cfg's ``meta.extends`` chain via the canonical loader.
+    Raises ValueError on malformed TOML; FileNotFoundError propagates
+    when an extends target is missing (caller intent: surface broken
+    inheritance, don't silently fall back to leaf-only)."""
+    try:
+        return _load_with_extends(cfg_path)
+    except FileNotFoundError:
+        raise
+    except Exception as e:
+        raise ValueError(f'cfg {cfg_path} is not valid TOML or extends chain broken: {e}') from e
+
+
 def _cfg_checksum(cfg_path: Path) -> str:
-    """sha256:<hex> of the cfg file bytes."""
-    h = hashlib.sha256(cfg_path.read_bytes()).hexdigest()
+    """sha256:<hex> of the merged effective cfg post extends-chain
+    resolution, serialized as canonical JSON (sort_keys=True). Two leaf
+    cfgs with identical text but different parents produce different
+    checksums — leaf-only hashing would defeat reproducibility-pin."""
+    merged = _resolve_cfg(cfg_path)
+    canonical = json.dumps(merged, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
+    h = hashlib.sha256(canonical.encode('utf-8')).hexdigest()
     return f'sha256:{h}'
 
 
-def _extract_paradigm(cfg_path: Path) -> str | None:
-    """Try to extract top-level ``paradigm`` from a TOML cfg. Return
-    None if cfg parses but the field is absent."""
-    if sys.version_info >= (3, 11):
-        import tomllib
-    else:
-        import tomli as tomllib  # type: ignore
-    try:
-        data = tomllib.loads(cfg_path.read_text(encoding='utf-8'))
-    except Exception as e:
-        raise ValueError(f'cfg {cfg_path} is not valid TOML: {e}') from e
-    p = data.get('paradigm')
-    if p is None:
+def _extract_meta_field(cfg_path: Path, field_name: str) -> str | None:
+    """Extract ``meta.<field_name>`` (string) from a resolved cfg.
+    Returns None if [meta] table or the field is absent; raises
+    ValueError if the field is present but not a string."""
+    merged = _resolve_cfg(cfg_path)
+    meta = merged.get('meta')
+    if not isinstance(meta, dict):
         return None
-    if not isinstance(p, str):
-        raise ValueError(f'cfg {cfg_path} top-level paradigm must be a string, got {type(p).__name__}')
-    return p
+    v = meta.get(field_name)
+    if v is None:
+        return None
+    if not isinstance(v, str):
+        raise ValueError(f'cfg {cfg_path} meta.{field_name} must be a string, got {type(v).__name__}')
+    return v
+
+
+def _extract_paradigm(cfg_path: Path) -> str | None:
+    return _extract_meta_field(cfg_path, 'paradigm')
+
+
+def _extract_run_label(cfg_path: Path) -> str | None:
+    return _extract_meta_field(cfg_path, 'run_label')
+
+
+def _normalize_repo_relative(p: Path, repo_root: Path, *, label: str = 'path') -> str:
+    """Return repo-relative path string. Reject paths outside repo root
+    (cross-host metadata sync needs portable references; absolute paths
+    on dev machine are meaningless on the receiver). ``label`` appears
+    in the error message (e.g. 'cfg_file', 'artifacts_dir')."""
+    abs_p = p.resolve()
+    abs_repo = repo_root.resolve()
+    try:
+        rel = abs_p.relative_to(abs_repo)
+    except ValueError as e:
+        raise ValueError(
+            f'{label} {p} resolves to {abs_p} which is outside repo root {abs_repo}; '
+            f'pass a repo-relative path or run from repo root'
+        ) from e
+    return str(rel)
 
 
 def _infer_label(run_id: str) -> str:
@@ -112,13 +165,27 @@ def register(
     if not cfg_path.exists():
         raise FileNotFoundError(f'cfg file not found: {cfg_file}')
 
-    # paradigm: --paradigm override > cfg top-level > error
+    # paradigm: --paradigm override > cfg meta.paradigm > error
     extracted = _extract_paradigm(cfg_path)
     chosen_paradigm = paradigm or extracted
     if chosen_paradigm is None:
         raise ValueError(
-            f'cfg {cfg_file} has no top-level `paradigm` field; pass --paradigm explicitly (one of az|bc|cfr|dmc|ppo)'
+            f'cfg {cfg_file} has no `meta.paradigm` field; pass --paradigm explicitly (one of az|bc|cfr|dmc|ppo)'
         )
+
+    # cfg.meta.run_label is required — snapshotted into metadata so
+    # post-train `show` / `sync` can reconstruct the artifacts dir.
+    cfg_run_label = _extract_run_label(cfg_path)
+    if not cfg_run_label:
+        raise ValueError(
+            f'cfg {cfg_file} has no `meta.run_label` field; required (artifacts dir suffix per CheckpointManager)'
+        )
+
+    # cfg_file: normalize to repo-relative; `root` doubles as repo_root
+    # in tests (cfg lives under tmp_path), defaults to cwd in production
+    # (per CLAUDE.md "All commands run from repo root").
+    repo_root = root if root is not None else Path.cwd()
+    cfg_file_rel = _normalize_repo_relative(cfg_path, repo_root, label='cfg_file')
 
     inferred_type = _infer_type_from_run_id(run_id)
     chosen_type = type_ or inferred_type
@@ -143,8 +210,9 @@ def register(
         type=chosen_type,
         timestamp=ts,
         paradigm=chosen_paradigm,
-        cfg_file=str(cfg_path),
+        cfg_file=cfg_file_rel,
         cfg_checksum=_cfg_checksum(cfg_path),
+        cfg_run_label=cfg_run_label,
         git_commit=commit,
         host=host_name,
         status='pending',

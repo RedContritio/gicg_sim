@@ -14,7 +14,7 @@ from tools.runs import complete, register, schema
 def registered_run(tmp_path):
     """A pre-registered r013 record on disk under tmp_path."""
     cfg = tmp_path / 'r013.toml'
-    cfg.write_text('paradigm = "az"\n', encoding='utf-8')
+    cfg.write_text('[meta]\nparadigm = "az"\nrun_label = "r013_test"\n', encoding='utf-8')
     register.register(
         run_id='r013',
         cfg_file=str(cfg),

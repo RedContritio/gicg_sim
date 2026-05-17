@@ -11,7 +11,7 @@ from tools.runs import complete, register, schema, show
 
 def _register(root, *, run_id='r013', paradigm='az', description=''):
     cfg = root / f'{run_id}_cfg.toml'
-    cfg.write_text(f'paradigm = "{paradigm}"\n', encoding='utf-8')
+    cfg.write_text(f'[meta]\nparadigm = "{paradigm}"\nrun_label = "{run_id}_test"\n', encoding='utf-8')
     return register.register(
         run_id=run_id,
         cfg_file=str(cfg),
@@ -132,3 +132,16 @@ def test_render_function_no_optional_blocks(tmp_path):
     assert '[result.gauntlet]' not in human
     assert '[result.training]' not in human
     assert '[notes]' not in human
+
+
+def test_show_rejects_mislabeled_file(tmp_path, capsys):
+    """M7 invariant: file at runs/<run_id>.toml whose internal run_id
+    differs must error (corruption signal, not a query miss)."""
+    _register(tmp_path, run_id='r013')
+    # Rename file so internal run_id (r013) != filename stem (r014)
+    rd = schema.runs_dir(tmp_path)
+    (rd / 'r013.toml').rename(rd / 'r014.toml')
+    rc = show.main(['r014', '--root', str(tmp_path)])
+    assert rc == 1
+    captured = capsys.readouterr()
+    assert 'mislabeled' in captured.err

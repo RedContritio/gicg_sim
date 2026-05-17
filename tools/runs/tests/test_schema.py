@@ -24,6 +24,7 @@ def _minimal_meta(**overrides) -> schema.RunMetadata:
         paradigm='az',
         cfg_file='configs/az/runs/r013.toml',
         cfg_checksum='sha256:' + 'a' * 64,
+        cfg_run_label='r013_test',
         git_commit='abc123def456',
         host='test-host',
         status='pending',

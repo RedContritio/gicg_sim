@@ -2,7 +2,13 @@
 
 Loads ``artifacts/runs/<run_id>.toml``, updates ``status`` + optional
 ``summary.wall`` / ``notes.text`` + optional ``result.gauntlet`` block
-from a gauntlet-result JSON.
+from a gauntlet-result JSON + optional ``artifacts_dir`` backfill.
+
+``--artifacts-dir`` lets the train driver (or the user) link the run
+to the actual on-disk artifacts dir produced by
+``CheckpointManager.init_artifacts_dir``. Without this link, ``show``
+cannot answer "where are the ckpts for r013" and cross-host ``sync``
+loses the metadata→ckpts mapping.
 
 The gauntlet JSON is expected to have shape::
 
@@ -19,6 +25,7 @@ CLI:
 
     .venv/bin/python -m tools.runs.complete \\
         --run-id r013 --status done \\
+        [--artifacts-dir artifacts/202605180143_s001_dmc_smoke_full] \\
         [--gauntlet-json artifacts/.../gauntlet.json] \\
         [--wall 16.3min] [--notes 'final loss 1.045'] \\
         [--final-loss 1.045] [--n-games 400]
@@ -26,6 +33,7 @@ CLI:
 Exits 1 with stderr on:
 - run record not found
 - gauntlet JSON malformed / missing
+- artifacts_dir path outside repo root
 - status not in enum
 """
 
@@ -37,6 +45,7 @@ import sys
 from pathlib import Path
 
 from tools.runs import schema
+from tools.runs.register import _normalize_repo_relative
 
 
 def _load_gauntlet_json(path: Path) -> schema.GauntletResult:
@@ -74,6 +83,7 @@ def complete(
     notes: str | None = None,
     final_loss: float | None = None,
     n_games: int | None = None,
+    artifacts_dir: str | None = None,
     root: Path | None = None,
 ) -> schema.RunMetadata:
     """Programmatic entry. Read run toml, mutate, write back."""
@@ -93,6 +103,10 @@ def complete(
         meta.summary.wall = wall
     if notes is not None:
         meta.notes.text = notes
+
+    if artifacts_dir is not None:
+        repo_root = root if root is not None else Path.cwd()
+        meta.artifacts_dir = _normalize_repo_relative(Path(artifacts_dir), repo_root, label='artifacts_dir')
 
     if gauntlet_json is not None:
         meta.result.gauntlet = _load_gauntlet_json(Path(gauntlet_json))
@@ -119,6 +133,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--notes', default=None)
     ap.add_argument('--final-loss', default=None, type=float)
     ap.add_argument('--n-games', default=None, type=int, dest='n_games')
+    ap.add_argument(
+        '--artifacts-dir',
+        default=None,
+        dest='artifacts_dir',
+        help='repo-relative path to artifacts dir produced by CheckpointManager (e.g. artifacts/202605180143_s001_dmc_smoke_full)',
+    )
     ap.add_argument('--root', default=None, help='override repo root (testing only)')
     args = ap.parse_args(argv)
     try:
@@ -130,6 +150,7 @@ def main(argv: list[str] | None = None) -> int:
             notes=args.notes,
             final_loss=args.final_loss,
             n_games=args.n_games,
+            artifacts_dir=args.artifacts_dir,
             root=Path(args.root) if args.root else None,
         )
     except (ValueError, FileNotFoundError) as e:

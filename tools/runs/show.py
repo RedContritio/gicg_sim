@@ -36,6 +36,10 @@ def render(meta: schema.RunMetadata, toml_only: bool = False) -> str:
     lines.append(f'git_commit   : {meta.git_commit}')
     lines.append(f'cfg_file     : {meta.cfg_file}')
     lines.append(f'cfg_checksum : {meta.cfg_checksum}')
+    lines.append(f'cfg_run_label: {meta.cfg_run_label}')
+    lines.append(
+        f'artifacts_dir: {meta.artifacts_dir or "(unset — run `complete --artifacts-dir <path>` after train)"}'
+    )
     lines.append('')
     lines.append(f'[summary] wall={meta.summary.wall or "-"}')
     if meta.summary.description:
@@ -78,6 +82,15 @@ def main(argv: list[str] | None = None) -> int:
         meta = schema.load_file(path)
     except (ValueError, OSError) as e:
         print(f'tools.runs.show: failed to read {path}: {e}', file=sys.stderr)
+        return 1
+    # M7 invariant: filename stem must match internal run_id; a hand-
+    # edited or copy-paste mislabeled file is corruption, not a query miss.
+    if meta.run_id != args.run_id:
+        print(
+            f'tools.runs.show: file {path} internal run_id={meta.run_id!r} '
+            f'!= requested {args.run_id!r}; file mislabeled',
+            file=sys.stderr,
+        )
         return 1
     sys.stdout.write(render(meta, toml_only=args.toml_only))
     return 0

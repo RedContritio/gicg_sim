@@ -68,9 +68,11 @@ class RunMetadata:
     paradigm: str
     cfg_file: str
     cfg_checksum: str
+    cfg_run_label: str
     git_commit: str
     host: str
     status: str
+    artifacts_dir: str = ''
     summary: Summary = field(default_factory=Summary)
     result: Result = field(default_factory=Result)
     notes: Notes = field(default_factory=Notes)
@@ -97,6 +99,8 @@ def validate(meta: RunMetadata) -> None:
         raise ValueError('cfg_file is required (non-empty)')
     if not SHA256_RE.match(meta.cfg_checksum):
         raise ValueError(f'cfg_checksum {meta.cfg_checksum!r} must match sha256:<64 hex chars>')
+    if not meta.cfg_run_label:
+        raise ValueError('cfg_run_label is required (non-empty; cfg.meta.run_label snapshot at register time)')
     if not meta.git_commit:
         raise ValueError("git_commit is required (use 'unknown' if unavailable)")
     if not meta.host:
@@ -114,9 +118,11 @@ def _to_plain_dict(meta: RunMetadata) -> dict[str, Any]:
         'paradigm': meta.paradigm,
         'cfg_file': meta.cfg_file,
         'cfg_checksum': meta.cfg_checksum,
+        'cfg_run_label': meta.cfg_run_label,
         'git_commit': meta.git_commit,
         'host': meta.host,
         'status': meta.status,
+        'artifacts_dir': meta.artifacts_dir,
         'summary': asdict(meta.summary),
         'notes': asdict(meta.notes),
     }
@@ -143,6 +149,7 @@ def from_dict(d: dict[str, Any]) -> RunMetadata:
         'paradigm',
         'cfg_file',
         'cfg_checksum',
+        'cfg_run_label',
         'git_commit',
         'host',
         'status',
@@ -177,9 +184,11 @@ def from_dict(d: dict[str, Any]) -> RunMetadata:
         paradigm=str(d['paradigm']),
         cfg_file=str(d['cfg_file']),
         cfg_checksum=str(d['cfg_checksum']),
+        cfg_run_label=str(d['cfg_run_label']),
         git_commit=str(d['git_commit']),
         host=str(d['host']),
         status=str(d['status']),
+        artifacts_dir=str(d.get('artifacts_dir', '')),
         summary=Summary(
             wall=str(summary_d.get('wall', '')),
             description=str(summary_d.get('description', '')),

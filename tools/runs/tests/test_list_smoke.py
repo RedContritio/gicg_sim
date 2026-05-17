@@ -12,7 +12,7 @@ from tools.runs import register
 
 def _register(root, *, run_id, paradigm='az', description='', type_=None):
     cfg = root / f'{run_id}_cfg.toml'
-    cfg.write_text(f'paradigm = "{paradigm}"\n', encoding='utf-8')
+    cfg.write_text(f'[meta]\nparadigm = "{paradigm}"\nrun_label = "{run_id}_test"\n', encoding='utf-8')
     return register.register(
         run_id=run_id,
         cfg_file=str(cfg),
@@ -122,3 +122,18 @@ def test_render_table_first_sentence_only(tmp_path):
     table = list_cmd.render_table([meta])
     assert 'First sentence' in table
     assert 'Second sentence' not in table
+
+
+def test_list_skips_mislabeled_file(tmp_path, capsys):
+    """M7 invariant: filename stem must equal metadata.run_id; mislabeled
+    files are skipped with a stderr warning (not silently included)."""
+    from tools.runs import schema as runs_schema
+
+    _register(tmp_path, run_id='r013')
+    rd = runs_schema.runs_dir(tmp_path)
+    (rd / 'r013.toml').rename(rd / 'r014.toml')
+    records = list_cmd._collect(tmp_path, None)
+    assert records == []
+    captured = capsys.readouterr()
+    assert 'r014.toml' in captured.err
+    assert "metadata.run_id 'r013'" in captured.err
