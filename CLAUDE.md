@@ -146,6 +146,11 @@ Workflow:
     --artifacts-dir artifacts/<actual_dir>
 ```
 
+Note: smoke_full / direct `run_pipeline()` callers don't run through `--run-id` —
+their artifacts dirs use local `datetime.now()` (not UTC), and they don't write
+back to any metadata. M5 timestamp single-sourcing applies only to the
+`register → train --run-id → auto-complete` production flow above.
+
 `run-id` 必须 `<r|s><NNN>`(`r` 生产 / `s` smoke or bench)。Pre-redesign runs(r001-r012 + s001-s068)live in `docs/5_history/runs_pre_redesign_2026_05_17.md`,不在 live index。
 
 ## Architecture

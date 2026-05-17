@@ -21,6 +21,15 @@ This module owns the 3 subprocess helpers used by 5 paradigm
 REUSE FIRST per D-601 revision: zero new ckpt save/load/dispatch
 logic. Full subprocess调用 production ``tools.run`` driver +
 ``training/core/checkpoint.py::CheckpointManager``.
+
+Scope caveat (M5 single-sourced timestamp):
+smoke_full tests subprocess-invoke `tools.run` WITHOUT `--run-id` (no
+register/complete round-trip — tmp_path artifacts dir is throwaway).
+The dir prefix therefore uses `datetime.now()` local, NOT a metadata-
+sourced UTC timestamp. This is intentional — there's no cross-host
+metadata consumer for these dirs, so single-sourcing has no value
+here. Production runs use `tools.run --run-id <id>` and get the
+UTC-strftime single-source path.
 """
 
 from __future__ import annotations
