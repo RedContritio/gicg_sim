@@ -96,6 +96,34 @@ def main(argv: list | None = None) -> int:
             # any ValueError here = corrupted metadata.
             print(f'[tools.run] run {args.run_id} metadata corrupted: {e}', file=sys.stderr)
             return 2
+
+        # Guard cfg drift between register-time snapshot and current cfg file.
+        # If user edits cfg after register, --run-id would silently train on the
+        # mutated cfg while metadata.cfg_checksum / cfg_run_label still point at
+        # the old snapshot — defeats C2's "register = pin truth" intent.
+        # Check run_label first for the more specific error message (since
+        # changing run_label also changes checksum, the generic checksum check
+        # would otherwise swallow the more actionable error).
+        from tools.runs.register import _cfg_checksum, _extract_run_label
+
+        current_run_label = _extract_run_label(cfg_path)
+        if current_run_label != run_meta.cfg_run_label:
+            print(
+                f'[tools.run] cfg drift: {cfg_path} meta.run_label={current_run_label!r} '
+                f'!= register-time {run_meta.cfg_run_label!r}. Re-register with '
+                f'--cfg-run-label-override or revert cfg.',
+                file=sys.stderr,
+            )
+            return 2
+        current_checksum = _cfg_checksum(cfg_path)
+        if current_checksum != run_meta.cfg_checksum:
+            print(
+                f'[tools.run] cfg drift: {cfg_path} checksum={current_checksum} '
+                f'!= register-time {run_meta.cfg_checksum}. Re-register or revert cfg.',
+                file=sys.stderr,
+            )
+            return 2
+
         try:
             artifacts_timestamp_utc = _metadata_timestamp_to_dir_prefix(run_meta.timestamp)
         except ValueError as e:

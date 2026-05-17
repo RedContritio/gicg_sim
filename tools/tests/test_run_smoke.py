@@ -198,3 +198,80 @@ def test_run_auto_completes_status_failed_on_error(tmp_path, monkeypatch):
     assert meta.status == 'failed'
     assert meta.artifacts_dir.startswith('artifacts/')
     assert not Path(meta.artifacts_dir).is_absolute()
+
+
+def test_run_rejects_cfg_drift_checksum(tmp_path, capsys):
+    """HIGH 2 (round-3 review): register pins cfg_checksum;tools.run --run-id
+    must reject if user edited cfg between register and train (silent drift
+    would defeat C2 snapshot intent)."""
+    from pathlib import Path
+
+    from tools.runs import register
+
+    cfg = tmp_path / 's997_cfg.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "drift_test"\n[paradigm.dmc]\n',
+        encoding='utf-8',
+    )
+    register.register(
+        run_id='s997',
+        cfg_file=str(cfg),
+        root=tmp_path,
+        host='h',
+        git_commit='abc',
+    )
+    # Edit cfg AFTER register (add a trivial line) → checksum changes.
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "drift_test"\n[paradigm.dmc]\nepsilon = 0.1\n',
+        encoding='utf-8',
+    )
+
+    # Monkeypatch runs_dir to point at tmp_path so tools.run finds s997.
+    import tools.runs.schema as runs_schema
+
+    original_runs_dir = runs_schema.runs_dir
+    runs_schema.runs_dir = lambda root=None: original_runs_dir(tmp_path) if root is None else original_runs_dir(root)
+    try:
+        rc = tools_run.main([str(cfg), '--run-id', 's997'])
+    finally:
+        runs_schema.runs_dir = original_runs_dir
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert 'cfg drift' in err
+    assert 'checksum' in err
+
+
+def test_run_rejects_cfg_drift_run_label(tmp_path, capsys):
+    """HIGH 2: same drift guard for cfg.meta.run_label."""
+    from tools.runs import register
+
+    cfg = tmp_path / 's996_cfg.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "label_v1"\n[paradigm.dmc]\n',
+        encoding='utf-8',
+    )
+    register.register(
+        run_id='s996',
+        cfg_file=str(cfg),
+        root=tmp_path,
+        host='h',
+        git_commit='abc',
+    )
+    # Edit cfg's run_label only (same logical structure but different label).
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "label_v2"\n[paradigm.dmc]\n',
+        encoding='utf-8',
+    )
+
+    import tools.runs.schema as runs_schema
+
+    original_runs_dir = runs_schema.runs_dir
+    runs_schema.runs_dir = lambda root=None: original_runs_dir(tmp_path) if root is None else original_runs_dir(root)
+    try:
+        rc = tools_run.main([str(cfg), '--run-id', 's996'])
+    finally:
+        runs_schema.runs_dir = original_runs_dir
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert 'cfg drift' in err
+    assert 'run_label' in err
