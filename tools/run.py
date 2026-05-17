@@ -127,16 +127,35 @@ def main(argv: list | None = None) -> int:
 
     resume_path = Path(args.resume) if args.resume else None
 
-    final_state = run_pipeline(
-        cfg,
-        paradigm,
-        env_factory=env_factory,
-        opp_pool=opp_pool,
-        eval_server=None,  # P4: wire EvalServer when async + remote inference lands
-        resume_from=resume_path,
-        max_steps=args.max_steps,
-        artifacts_timestamp_local=artifacts_timestamp_local,
-    )
+    auto_status = 'done'
+    final_state = None
+    try:
+        final_state = run_pipeline(
+            cfg,
+            paradigm,
+            env_factory=env_factory,
+            opp_pool=opp_pool,
+            eval_server=None,  # P4: wire EvalServer when async + remote inference lands
+            resume_from=resume_path,
+            max_steps=args.max_steps,
+            artifacts_timestamp_local=artifacts_timestamp_local,
+        )
+    except BaseException:
+        auto_status = 'failed'
+        raise
+    finally:
+        if args.run_id:
+            from tools.runs.complete import complete_from_train
+
+            artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
+            actual_dir = artifacts_root / f'{artifacts_timestamp_local}_{cfg.meta.run_label}'
+            wall = final_state.wall_seconds if final_state is not None else None
+            complete_from_train(
+                run_id=args.run_id,
+                artifacts_dir=actual_dir,
+                status=auto_status,
+                wall_seconds=wall,
+            )
 
     print(
         f'[tools.run] final: step={final_state.step} '

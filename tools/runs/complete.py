@@ -124,6 +124,35 @@ def complete(
     return meta
 
 
+def complete_from_train(
+    run_id: str,
+    artifacts_dir: Path,
+    status: str,
+    *,
+    wall_seconds: float | None = None,
+    final_summary: str | None = None,
+    root: Path | None = None,
+) -> None:
+    """Driver-side auto-complete after train finishes (success or
+    failure). Idempotent; if no metadata file (user bypassed
+    `register`), silently no-op."""
+    path = schema.run_path(run_id, root=root)
+    if not path.exists():
+        return  # user skipped register; nothing to update
+    repo_root = root if root is not None else Path.cwd()
+    artifacts_dir_rel = _normalize_repo_relative(artifacts_dir, repo_root, label='artifacts_dir')
+    meta = schema.load_file(path)
+    if status not in schema.STATUSES:
+        raise ValueError(f'status {status!r} must be one of {sorted(schema.STATUSES)}')
+    meta.status = status
+    meta.artifacts_dir = artifacts_dir_rel
+    if wall_seconds is not None:
+        meta.summary.wall = f'{wall_seconds:.1f}s'
+    if final_summary:
+        meta.notes.text = (meta.notes.text + '\n' + final_summary).strip()
+    schema.save_file(meta, path)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--run-id', required=True)

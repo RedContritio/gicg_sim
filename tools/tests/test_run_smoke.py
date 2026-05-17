@@ -77,3 +77,59 @@ def test_metadata_timestamp_to_dir_prefix_uses_utc_always():
     assert _metadata_timestamp_to_dir_prefix('2026-05-17T18:44:21+08:00') == '202605171044'
     # UTC-5 → 23:44 UTC
     assert _metadata_timestamp_to_dir_prefix('2026-05-17T18:44:21-05:00') == '202605172344'
+
+
+def test_run_auto_completes_artifacts_dir_on_success(tmp_path, monkeypatch):
+    """M3 / C2 闭环: --run-id + successful train must update
+    metadata.artifacts_dir + status='done' WITHOUT user manually
+    invoking `tools.runs.complete --artifacts-dir`."""
+    from pathlib import Path
+
+    from tools.runs import register, schema
+
+    # Locate repo root (worktree-compatible) to absolute-path `data_dir`
+    # and the cfg file — test does monkeypatch.chdir(tmp_path) so the
+    # default relative `data_dir = "data"` would resolve under tmp_path
+    # and miss the actual data tree.
+    here = Path(__file__).resolve()
+    repo_root = next(p for p in here.parents if (p / 'gicg_engine').is_dir() and (p / 'tools').is_dir())
+    data_dir_abs = repo_root / 'data'
+
+    cfg = tmp_path / 's999_cfg.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "auto_complete_smoke"\n'
+        'seed = 42\ndevice = "cpu"\n'
+        '[pipeline]\nmode = "serial"\nnum_actors = 1\n'
+        '[scenario]\nteam_0 = ["赤蝶"]\nteam_1 = ["墨客"]\nteam_size = 1\n'
+        'max_rounds = 5\ndeck_padding = { card = "碌碌无为", target_size = 15 }\n'
+        'pool = ["v_legacy", "test_basic"]\n'
+        f'data_dir = "{data_dir_abs}"\n'
+        '[paradigm.dmc]\nversion = "1.0.0"\nparadigm = "dmc"\n'
+        'epsilon = 0.05\ngamma = 1.0\nlr = 1e-4\nweight_decay = 0.0\n'
+        'batch_size = 16\nmax_grad_norm = 5.0\nbuffer_cap = 1000\n'
+        'max_game_steps = 30\ntotal_frames = 100\ntrain_ratio = 4\n'
+        'eval_interval_episodes = 30\neval_n_scenarios = 8\n'
+        'eval_baselines = ["F1-D2"]\n'
+        '[paradigm.dmc.agent]\nd_model = 32\nn_cross_layers = 1\ndropout = 0.0\n'
+        '[paradigm.dmc.opponent_mix]\nrandom = 1.0\nf1d2 = 0.0\nf1d4 = 0.0\n'
+        'historical = 0.0\nring_size = 5\n'
+        '[checkpoint]\nsave_every = 500\nkeep_last_n = 1\n'
+        f'artifacts_root = "{tmp_path}/artifacts"\n',
+        encoding='utf-8',
+    )
+    register.register(
+        run_id='s999',
+        cfg_file=str(cfg),
+        root=tmp_path,
+        host='test-host',
+        git_commit='deadbeef',
+    )
+
+    monkeypatch.chdir(tmp_path)
+    rc = tools_run.main([str(cfg), '--run-id', 's999', '--max-steps', '3'])
+    assert rc == 0
+
+    meta = schema.load_file(schema.run_path('s999', root=tmp_path))
+    assert meta.status == 'done'
+    assert meta.artifacts_dir.startswith('artifacts/')
+    assert (tmp_path / meta.artifacts_dir / 'latest.pt').exists()
