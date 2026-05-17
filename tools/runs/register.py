@@ -134,7 +134,10 @@ def _normalize_repo_relative(p: Path, repo_root: Path, *, label: str = 'path') -
             f'{label} {p} resolves to {abs_p} which is outside repo root {abs_repo}; '
             f'pass a repo-relative path or run from repo root'
         ) from e
-    return str(rel)
+    # Forward slashes always — metadata gets sync'd cross-host (Windows GPU
+    # box per MEMORY); `str(rel)` on Windows produces backslashes that the
+    # macOS / Linux receiver cannot resolve.
+    return rel.as_posix()
 
 
 def _infer_label(run_id: str) -> str:

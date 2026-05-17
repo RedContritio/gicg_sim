@@ -311,6 +311,30 @@ def test_register_stores_repo_relative_cfg_file(tmp_path, cfg_file):
     assert not Path(meta.cfg_file).is_absolute()
 
 
+def test_register_cfg_file_uses_posix_separators(tmp_path):
+    """MED 3 (round-3 review): cross-host metadata sync (e.g. Windows GPU
+    box → macOS receiver) requires forward-slash paths; `str(rel)` on
+    Windows would emit backslashes the receiver cannot resolve. Lock the
+    posix-form invariant."""
+    sub = tmp_path / 'configs' / 'dmc'
+    sub.mkdir(parents=True)
+    cfg = sub / 'r013.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "x"\n[paradigm.dmc]\n',
+        encoding='utf-8',
+    )
+    meta = register.register(
+        run_id='r013',
+        cfg_file=str(cfg),
+        root=tmp_path,
+        now=_fixed_now(),
+        host='h',
+        git_commit='abc',
+    )
+    assert '\\' not in meta.cfg_file
+    assert meta.cfg_file == 'configs/dmc/r013.toml'
+
+
 def test_register_rejects_no_run_label(tmp_path, cfg_file_no_run_label):
     """cfg without meta.run_label must raise (required schema field)."""
     with pytest.raises(ValueError, match='run_label'):
