@@ -77,7 +77,7 @@ def main(argv: list | None = None) -> int:
         print(f'[tools.run] config not found: {cfg_path}', file=sys.stderr)
         return 2
 
-    artifacts_timestamp_local: str | None = None
+    artifacts_timestamp_utc: str | None = None
     if args.run_id:
         from tools.runs import schema as runs_schema
 
@@ -91,11 +91,11 @@ def main(argv: list | None = None) -> int:
             return 2
         run_meta = runs_schema.load_file(meta_path)
         try:
-            artifacts_timestamp_local = _metadata_timestamp_to_dir_prefix(run_meta.timestamp)
+            artifacts_timestamp_utc = _metadata_timestamp_to_dir_prefix(run_meta.timestamp)
         except ValueError as e:
             print(f'[tools.run] run {args.run_id} timestamp malformed: {e}', file=sys.stderr)
             return 2
-        print(f'[tools.run] linked to run {args.run_id} (artifacts ts={artifacts_timestamp_local} UTC)')
+        print(f'[tools.run] linked to run {args.run_id} (artifacts ts={artifacts_timestamp_utc} UTC)')
 
     print(f'[tools.run] loading cfg: {cfg_path}')
     cfg = load_cfg(cfg_path, overrides=list(args.override))
@@ -138,17 +138,21 @@ def main(argv: list | None = None) -> int:
             eval_server=None,  # P4: wire EvalServer when async + remote inference lands
             resume_from=resume_path,
             max_steps=args.max_steps,
-            artifacts_timestamp_local=artifacts_timestamp_local,
+            artifacts_timestamp_utc=artifacts_timestamp_utc,
         )
     except BaseException:
         auto_status = 'failed'
         raise
     finally:
         if args.run_id:
+            from training.core.checkpoint import CheckpointManager
+
             from tools.runs.complete import complete_from_train
 
             artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
-            actual_dir = artifacts_root / f'{artifacts_timestamp_local}_{cfg.meta.run_label}'
+            actual_dir = artifacts_root / CheckpointManager.compute_dir_name(
+                artifacts_timestamp_utc, cfg.meta.run_label
+            )
             wall = final_state.wall_seconds if final_state is not None else None
             complete_from_train(
                 run_id=args.run_id,

@@ -36,7 +36,7 @@ def run_pipeline(
     resume_from: Optional[Path] = None,
     train_provider: Any = None,
     max_steps: Optional[int] = None,
-    artifacts_timestamp_local: Optional[str] = None,
+    artifacts_timestamp_utc: Optional[str] = None,
 ) -> PipelineState:
     """Main driver loop.
 
@@ -51,7 +51,7 @@ def run_pipeline(
         train_provider: NetworkProvider used during train-time forward
             (collector's own provider may differ in async mode).
         max_steps: cap state.step for tests (None = unlimited).
-        artifacts_timestamp_local: optional `%Y%m%d%H%M` prefix for the
+        artifacts_timestamp_utc: optional `%Y%m%d%H%M` prefix for the
             artifacts dir; defaults to ``datetime.now()`` inside
             CheckpointManager. Pass through from ``tools.run --run-id``
             (derived from RunMetadata.timestamp) to single-source the
@@ -68,7 +68,7 @@ def run_pipeline(
     ckpt_mgr = CheckpointManager(cfg, network, optimizer, buffer)
     artifacts_dir = ckpt_mgr.init_artifacts_dir(
         resume_from=resume_from,
-        timestamp_local=artifacts_timestamp_local,
+        timestamp_utc=artifacts_timestamp_utc,
     )
     ckpt_mgr.save_cfg_snapshot()
     logger = MetricsLogger(artifacts_dir)

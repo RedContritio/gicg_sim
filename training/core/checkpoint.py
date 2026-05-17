@@ -37,29 +37,39 @@ class CheckpointManager:
         self.buffer = buffer
         self.artifacts_dir: Optional[Path] = None
 
+    @staticmethod
+    def compute_dir_name(ts: str, run_label: str) -> str:
+        """Canonical artifacts-dir basename: `<ts>_<run_label>`. Single
+        source of truth so callers (driver auto-complete, sync, etc.)
+        don't manually re-implement the formula and silently drift if
+        the convention changes."""
+        return f'{ts}_{run_label}'
+
     def init_artifacts_dir(
         self,
         resume_from: Optional[Path] = None,
         *,
-        timestamp_local: Optional[str] = None,
+        timestamp_utc: Optional[str] = None,
     ) -> Path:
         """Materialize the artifacts dir.
 
-        ``timestamp_local`` (`%Y%m%d%H%M`): if provided, used verbatim as
-        the dir-name prefix; defaults to ``datetime.now().strftime``.
+        ``timestamp_utc`` (`%Y%m%d%H%M`): if provided, used verbatim as
+        the dir-name prefix; defaults to ``datetime.now().strftime``
+        (local tz — only used in the no-metadata fallback path).
         Pass an injected value (typically derived from
-        ``RunMetadata.timestamp`` via ``tools.run --run-id``) to make
-        the dir-name timestamp identical to the register-time UTC
-        timestamp — single-sourced, sync-safe across machines."""
+        ``RunMetadata.timestamp`` via ``tools.run --run-id``,
+        converted to UTC strftime) to make the dir-name timestamp
+        identical to the register-time UTC timestamp — single-sourced,
+        sync-safe across machines."""
         if resume_from is not None:
             d = Path(resume_from).parent
             if not (d / 'metrics.jsonl').exists():
                 raise FileNotFoundError(f'CheckpointManager: resume {resume_from} missing sibling metrics.jsonl')
             self.artifacts_dir = d
             return d
-        ts = timestamp_local or datetime.now().strftime('%Y%m%d%H%M')
+        ts = timestamp_utc or datetime.now().strftime('%Y%m%d%H%M')
         root = Path(getattr(self.cfg.checkpoint, 'artifacts_root', 'artifacts'))
-        d = root / f'{ts}_{self.cfg.meta.run_label}'
+        d = root / self.compute_dir_name(ts, self.cfg.meta.run_label)
         d.mkdir(parents=True, exist_ok=True)
         self.artifacts_dir = d
         return d
