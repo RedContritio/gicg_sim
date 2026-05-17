@@ -26,18 +26,24 @@
 废 `tools.runs.register` + `tools.runs.complete`,合并入新 `tools.runs.train`:
 
 ```
-tools.runs.train [--resume <ckpt>] [--max-steps N] [--override k=v] <cfg>
+tools.runs.train [--resume <ckpt>] [--override k=v] <cfg>
   │
-  ├── 1. resolve cfg(load extends + apply --override → merged dict)
-  ├── 2. allocate next NNN via `O_EXCL` lock(并发安全)
-  ├── 3. create artifacts dir + write cfg_resolved.toml + cfg_leaf.toml
-  ├── 4. write metadata.toml(status='running')
-  ├── 5. run train(catch all exceptions)
-  ├── 6. update metadata.toml(status='done'/'failed' + wall_seconds + exit_code)
-  └── 7. exit 0 (done) / nonzero (failed)
+  ├── 1. capture leaf cfg bytes (read_bytes 立即,防 cfg edit race)
+  ├── 2. resolve cfg(load extends + apply --override → merged dict)
+  ├── 3. acquire allocator lock (artifacts/.run_id_lock,O_EXCL create)
+  ├──    ├── glob `artifacts/<ts>_<6digit>_*` → max NNN
+  ├──    ├── mkdir `artifacts/<ts>_<NNN>_<label>` (O_EXCL,撞名 retry +1)
+  ├──    └── release lock
+  ├── 4. write cfg_leaf.toml (from step 1 bytes) + cfg_resolved.toml
+  ├── 5. write metadata.toml(status='running')
+  ├── 6. run train(catch all exceptions)
+  ├── 7. update metadata.toml(status='done'/'failed' + exit_code)
+  └── 8. exit 0 (done) / nonzero (failed / setup error / metadata stale)
 ```
 
-**Atomic 保证**:cfg / NNN / timestamp / artifacts_dir 在 step 1-4 一次性 capture,中间不允许其他工具介入修改。中间状态('running' metadata)只在 train 运行期间存在。
+**Atomic 保证**:cfg bytes 在 step 1 立即 capture;NNN 分配 + dir 创建在同一锁临界区(step 3);metadata 写在中间状态('running')只在 train 运行期间存在;step 6/7 用 atomic rename (temp + rename) 保证写不破坏现有 metadata。
+
+**关于 --max-steps**:废除该 flag。test 需 cap 通过 cfg fixture 调 `paradigm.total_frames`。生产 train 由 cfg.total_frames 决定停止。
 
 ### Per-run 完全 self-contained
 
@@ -65,41 +71,47 @@ artifacts/<YYYYMMDDHHMM>_<NNNNNN>_<cfg.meta.run_label>/
 
 | 命令 | 作用 |
 |---|---|
-| `tools.runs.train [--resume <ckpt>] [--max-steps N] [--override k=v] <cfg>` | 主入口(atomic 全 lifecycle) |
+| `tools.runs.train [--resume <ckpt>] [--override k=v] <cfg>` | 主入口(atomic 全 lifecycle)|
 | `tools.runs.list` | 表格视图扫所有 run |
 | `tools.runs.show <NNN>` | 详细 dump(接受 shorthand "69" / "069" / "000069") |
-| `tools.runs.sync push\|pull <user@host:path/>` | 跨机 sync metadata + cfg backup(NOT ckpts/) |
-| `tools.runs.mark <NNN> --status killed [--notes ...]` | 罕见:外部 kill 后手动 fix status |
+| `tools.runs.sync push\|pull <user@host:path/>` | 跨机 sync metadata + cfg backup(NOT ckpts/);**单源主从**:推荐一台 authoritative,其他 pull-only |
+| `tools.runs.mark <NNN> --status {done\|failed\|killed} [--notes ...]` | running 状态手动转 done/failed/killed |
 
 **移除**:`tools.runs.register`(被 train 吸收)、`tools.runs.complete`(被 train 自动闭环吸收)
 
 ### Resume 语义
 
-`tools.runs.train --resume artifacts/<dir>/ckpts/ckpt_N.pt <cfg>`:
-1. 从 ckpt 路径 parent 推断 artifacts_dir = `artifacts/<dir>/`
-2. 读 `<dir>/metadata.toml`,找到 run_id
-3. 继续写**同一**metadata,不分配新 NNN
-4. status 改回 'running' → train → 'done'/'failed'
+`tools.runs.train --resume artifacts/<dir>/ckpts/ckpt_N.pt <cfg>` 仍接 cfg + 可选 `--override`:
+1. 从 ckpt 路径 grandparent (`.parent.parent`) 推断 artifacts_dir = `artifacts/<dir>/`(因 ckpts/ 子目录)
+2. 校验 `<dir>/metadata.toml` 存在且 `<dir>/ckpts/` 是直接子目录 → 否则 raise("resume needs registered run; <ckpt parent> 不是合法 artifacts dir")
+3. 读 metadata,得 run_id 不变
+4. **resume 重 resolve cfg + apply --override**(允许 cfg 漂移,这是 design 决策):
+   - 写 `cfg_resolved_v<N>.toml`(N = 现存 cfg_resolved 数 + 1,首次 N=1 即 `cfg_resolved.toml`)
+   - 同时写 `cfg_leaf_v<N>.toml`(若 N>1)
+5. status 改回 'running' → train → 'done'/'failed'
+6. metadata 字段不重置(timestamp 是首次 start;status 重新转移)
 
-若 ckpt parent dir 没 metadata → error("resume 需要 registered run;not found")
+**版本化 cfg backup 原因**:resume 允许 cfg 改动(不强制 bytes-exact),为审计 reproducibility 多次 resume 留每次的 cfg snapshot 序列。
+
+### 跨机 sync 单源主从约定
+
+设计假设:一台 host 是 authoritative(通常 dev box 或 GPU box),其他 host 仅 pull。**不支持双向 push**;若需要,user 手动 resolve NNN 冲突。理由:NNN 单 host allocator 不可能跨 host 协调,简化 trumps 多主灵活性。文档 / `tools.runs.sync` --help 明确这一约定。
 
 ---
 
 ## Schema
 
-### metadata.toml 字段(11 个)
+### metadata.toml 字段(9 个,精简到必需)
 
 ```toml
 run_id = "000069"                           # 6 位 zero-pad
-timestamp = "2026-05-18T03:55:21+00:00"     # UTC iso, train start
+timestamp = "2026-05-18T03:55:21+00:00"     # UTC iso, 首次 train start (resume 不重置)
 cfg_file = "configs/dmc/smoke_full.toml"    # repo-relative leaf path(human ref only;truth 在 cfg_resolved.toml)
 git_commit = "2c20de8..."
 host = "Mac-mini.local"
-status = "done"                              # enum {running, done, failed, killed}
+status = "done"                              # enum {running, done, failed, killed};strict transitions
 artifacts_dir = "artifacts/202605180355_000069_dmc_smoke_full"
-wall_seconds = 84.3
 exit_code = 0
-paradigm = "dmc"
 notes = ""                                   # free-form
 ```
 
@@ -109,8 +121,9 @@ notes = ""                                   # free-form
 - `label`(冗余 with run_id)
 - `cfg_checksum`(替代:cfg_resolved.toml 是 truth)
 - `cfg_run_label`(替代:cfg_resolved.toml 已含 meta.run_label)
-- `summary`(flatten 为顶层 `wall_seconds`)
+- `summary` / `wall_seconds`(audit 信息派生自 artifacts dir 文件 mtime — cfg_resolved.toml 到 latest.pt 间隔即 train 耗时)
 - `result.gauntlet` / `result.training`(放 artifacts dir 独立文件,不进 metadata)
+- `paradigm`(从 cfg_resolved.toml `meta.paradigm` 派生,list/show 实时读)
 
 ### Status 状态机(strict)
 
@@ -123,22 +136,24 @@ notes = ""                                   # free-form
   ├── train raise → status='failed' + exit_code∈{1,2}
   └── 外部 SIGTERM/SIGKILL → metadata 留 'running'(死状态)
         │
-        └── user: tools.runs.mark <NNN> --status killed [--notes ...]
+        └── user: tools.runs.mark <NNN> --status {done|failed|killed} [--notes ...]
 ```
 
 Strict transitions(违反 raise):
-- 'running' → 'done' / 'failed'(by train)
-- 'running' / 'failed' / 'killed' → 'killed'(by mark,仅 user 显式)
-- 'done' → 不允许任何转移(终态)
+- `running` → `done` / `failed`(自动,by train)
+- `running` → `done` / `failed` / `killed`(手动,by mark — 仅 user 显式收尾死 running)
+- `done` / `failed` / `killed` → **任何**:不允许(全部终态,mark 也拒)
+
+**only `running` 是非终态**。Mark 仅在 running 状态有效;终态 run 若要重跑,新 NNN 重 train。
 
 ### Exit codes
 
 | Code | 含义 |
 |---|---|
-| 0 | train done + metadata closed |
+| 0 | train done + metadata closed cleanly |
 | 1 | train ran but failed mid-way(metadata=failed) |
 | 2 | cfg / setup error(metadata=failed,train 未启动) |
-| 3 | train done but auto-complete metadata 失败(metadata 可能 stale,需手动 mark) |
+| 3 | train done but final metadata write 失败(metadata 保留 'running' 状态,user 需 `tools.runs.mark <NNN> --status done` 手动收尾) |
 
 ---
 
@@ -147,9 +162,11 @@ Strict transitions(违反 raise):
 ### run-id allocator
 
 - 文件锁:open `artifacts/.run_id_lock`(`O_EXCL` create)
-- 临界区:glob `artifacts/<ts>_<6digit>_*` 找 max NNN → max+1
-- 若 lock 已存在:retry up to 10 次,每次 sleep random(0,50)ms
+- 临界区(必须 全部 在锁内完成):
+  1. glob `artifacts/<ts>_<6digit>_*` 找 max NNN
+  2. mkdir `artifacts/<ts>_<NNN+1>_<label>`(`O_EXCL`,撞名 retry NNN+2 重 mkdir 直到成功 — 防 macOS case-insensitive FS / sync 留遗 stale dir)
 - 释放锁:删除 lock file
+- 若 lock acquire 失败(他 process 持有):retry up to 10 次,每次 sleep random(0,50)ms;超时 raise `'unable to acquire run-id lock'`
 
 ### metadata 写
 
@@ -265,23 +282,42 @@ per `feedback_no_compat_fallback`(用户决策 2026-05-05),不留兼容 fallback
 
 | Backlog | 新设计如何 close |
 |---|---|
-| I9 sync 跨机重名 clobber | mtime-tie fail 不 clobber(同前修) |
-| I10 sync nested dir support | dir 命名标准化,no nested concern |
-| I11 complete 状态机 guard | strict transitions 直接 design 入 |
+| I9 sync 跨机重名 clobber | 单源主从约定,不存在跨机并发 register |
+| I10 sync nested dir support | dir 命名标准化,无 nested concern |
+| I11 complete 状态机 guard | strict transitions 直接 design 入 + mark 仅 running 可转 |
 | I12 sync subdir silent zero | dir 自动 walk parents 找 repo root |
 | I13 gauntlet `n` key collision | result 不进 metadata(放 gauntlet.json 独立文件) |
 | I14 finally exception mask | already-fixed in round-4 |
 | I15 final_summary dead param | 不存在新 helper |
 | I16 sync IPv6 reject | regex 扩 IPv6 bracket form(可选) |
-| I17 register TOCTOU | run-id allocator 文件锁 + O_EXCL |
-| I18 whitespace override bypass | 不再有 --run-id × --override 冲突(无 register step) |
-| I19 extends resolve 重复 | resolve 一次 cache(可选) |
-| I20 equivalence-preserving edit blocked | 无 drift guard(cfg_resolved 是 truth) |
+| I17 register TOCTOU | allocator atomic lock(glob + mkdir 同一锁内)|
+| I18 whitespace override bypass | 不再有 --run-id × --override 冲突(无 register step)|
+| I19 extends resolve 重复 | resolve 一次 in train step 2(无 drift guard 重复调用)|
+| I20 equivalence-preserving edit blocked | 无 drift guard(cfg_resolved 是 truth);resume 允许重 resolve + versioning |
 | I21 underscore import | helpers 设计为 public API |
-| I22 drift msg incomplete | 无 drift msg(无 drift guard) |
+| I22 drift msg incomplete | 无 drift msg(无 drift guard)|
 | I23 BaseException 不对称 | finally 内 BaseException 同步处理 |
 
 I9-I23 全部 close by design 或显式 fix。
+
+## Reviewer-found design 修正(round-5 brainstorming review)
+
+第 1 版 spec 经 adversarial review 发现 4 CRITICAL + 7 HIGH 同型 emergent bug 风险。本版应用如下修订:
+
+- **C-1**:废除 `--max-steps` flag(test cap 走 cfg fixture)
+- **C-2**:resume 重 resolve cfg + override,版本化写 `cfg_resolved_v<N>.toml`
+- **C-3**:ckpt → artifacts_dir 用 `.parent.parent`(因 ckpts/ 子目录)
+- **C-4**:allocator 锁内完成 glob + mkdir(O_EXCL 撞名 retry)
+- **H-1**:跨机 sync 改单源主从(不支持双向 push)
+- **H-2**:state machine 简化 — 只 `running` 非终态;`done`/`failed`/`killed` 全终态
+- **H-3**:drop `wall_seconds` 字段(派生自 cfg_resolved.toml → latest.pt 文件 mtime 间隔)
+- **H-4**:mark 接受 done/failed/killed 三种 target(收尾 running 死状态)
+- **H-5**:O_EXCL retry +1 处理 macOS case-insensitive FS
+- **H-6**:lifecycle step 1 立即 `read_bytes()` 捕获 leaf cfg
+- **H-7**:`ckpts/` 含所有 .pt(naming prefix 区分 train vs gauntlet)
+- **M-5**:drop `paradigm` 字段(派生自 cfg_resolved.meta.paradigm)
+- **M-6**:phase 1+2 同 PR ship(避免 schema 不兼容窗口)
+- **L-1**:`tools/run.py` 删除(不留 shim)
 
 ---
 
@@ -333,8 +369,22 @@ I9-I23 全部 close by design 或显式 fix。
 
 ## 实施 phase 拆分(供 writing-plans 参考)
 
-phase 1: schema 重写 + dir 结构改造(checkpoint.py + 测试 fixture)
-phase 2: tools.runs.train 新写 + list/show 扫新位置
-phase 3: tools.runs.mark 新建 + tools.runs.sync include pattern 改
-phase 4: 删除 register.py / complete.py / tools/run.py(或改 shim)
+phase 1+2 **必须同 PR ship**(避免 schema 不兼容窗口):
+- schema 重写 + dir 结构改造(checkpoint.py — ckpts/ 子目录)
+- tools.runs.train 新写(含 allocator atomic lock + cfg_resolved versioning + 状态机)
+- list/show 扫新位置
+
+phase 3: tools.runs.mark 新建(running → done/failed/killed)+ tools.runs.sync include pattern 改 + 单源主从文档
+
+phase 4(可独立 PR): 删除 tools/runs/register.py + tools/runs/complete.py + tools/run.py(都 by design 完全替代,不留 shim)
+
 phase 5: CLAUDE.md + smoke_full template + 全测验证
+
+### ckpts/ 内 naming convention
+
+`ckpts/` 含**所有** `.pt`:
+- `ckpts/ckpt_<step>.pt` — train ckpt
+- `ckpts/gauntlet_g<g>.pt` — gauntlet eval intermediate(若 paradigm 产)
+- `ckpts/latest.pt` — last train ckpt 副本
+
+naming prefix 区分,grep/sync 走通配。
