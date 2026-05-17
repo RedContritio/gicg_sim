@@ -51,8 +51,6 @@ Two smoke tiers — default `smoke` (≤ 60s/paradigm) + opt-in `smoke_full` (5-
 # Default `pytest` (no marker) excludes smoke_full via addopts -m "not smoke_full"
 ```
 
-NB:smoke_full 4/5 paradigm 当前 skip due to 4 个 pre-existing production bugs(per memory `project_smoke_full_discovered_bugs_2026_05_17`),DMC PASS。
-
 ## Running Python scripts
 
 **Always invoke Python code as modules from repo root** — never `python path/to/file.py`.
@@ -72,31 +70,6 @@ Python's `-m` mode sets `sys.path[0]` to cwd, so imports like `from gicg_env imp
 # Ckpt inspection (post 2026-05-17 self-describing schema):
 .venv/bin/python -m tools.ckpt.info <path>.pt                            # paradigm/cfg/git_commit/state_dict 元数据
 ```
-
-## Container workflow (RL training)
-
-Long-running RL training runs in containers (eval daemon + train one-shot)
-to bound memory + CPU within the Docker Desktop VM (9 CPU / 18 GB), so a
-single bad run can't OOM the host. Host-native pytest / Edit / git stay
-the same.
-
-```bash
-tools/dc.sh build eval                         # first time: ~5-10min
-tools/dc.sh up -d eval                         # eval daemon (DSL cache 复用)
-tools/dc.sh run --rm train python -m tools.dataset.gen_bc configs/...
-tools/dc.sh run --rm train python -m tools.run configs/...
-tools/dc.sh down                               # cleanup
-```
-
-`tools/dc.sh` wraps `docker compose` with an anonymous DOCKER_CONFIG so
-public-image pulls work in keychain-locked sessions (Claude Code).
-Interactive shells with unlocked keychain can use `docker compose`
-directly.
-
-Image rebuild needed when Go engine or `requirements.txt` changes; source
-code is bind-mounted (`./:/app:rw`) so Python edits flow through. Eval
-service socket lives in named volume `eval_socket` (NOT host bind mount —
-Unix sockets don't survive macOS-Linux VM boundary).
 
 ## Pre-commit hooks (enforced on staged files)
 
