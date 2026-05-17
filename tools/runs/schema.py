@@ -253,7 +253,16 @@ def loads(text: str) -> RunMetadata:
 
 
 def load_file(path: Path) -> RunMetadata:
-    return loads(path.read_text(encoding='utf-8'))
+    """Load + validate. Also enforces M7 filename invariant:
+    `path.stem` MUST equal `meta.run_id` (a hand-rename or copy-paste
+    mislabel is corruption, not a legitimate query miss)."""
+    meta = loads(path.read_text(encoding='utf-8'))
+    if meta.run_id != path.stem:
+        raise ValueError(
+            f'metadata at {path} has run_id={meta.run_id!r} != filename stem {path.stem!r} '
+            f'(file mislabeled)'
+        )
+    return meta
 
 
 def save_file(meta: RunMetadata, path: Path) -> None:

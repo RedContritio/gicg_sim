@@ -83,15 +83,6 @@ def main(argv: list[str] | None = None) -> int:
     except (ValueError, OSError) as e:
         print(f'tools.runs.show: failed to read {path}: {e}', file=sys.stderr)
         return 1
-    # M7 invariant: filename stem must match internal run_id; a hand-
-    # edited or copy-paste mislabeled file is corruption, not a query miss.
-    if meta.run_id != args.run_id:
-        print(
-            f'tools.runs.show: file {path} internal run_id={meta.run_id!r} '
-            f'!= requested {args.run_id!r}; file mislabeled',
-            file=sys.stderr,
-        )
-        return 1
     sys.stdout.write(render(meta, toml_only=args.toml_only))
     return 0
 

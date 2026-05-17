@@ -58,14 +58,6 @@ def _collect(root: Path | None, type_filter: str | None) -> list[schema.RunMetad
         except (ValueError, OSError) as e:
             print(f'tools.runs.list: skipping {p.name}: {e}', file=sys.stderr)
             continue
-        # M7 invariant: filename stem must equal internal run_id; otherwise
-        # `show <run_id>` opens a different file than `list` reports.
-        if p.stem != meta.run_id:
-            print(
-                f'tools.runs.list: skipping {p.name}: filename stem {p.stem!r} != metadata.run_id {meta.run_id!r}',
-                file=sys.stderr,
-            )
-            continue
         if type_filter is not None and meta.type != type_filter:
             continue
         records.append(meta)

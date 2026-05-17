@@ -136,4 +136,5 @@ def test_list_skips_mislabeled_file(tmp_path, capsys):
     assert records == []
     captured = capsys.readouterr()
     assert 'r014.toml' in captured.err
-    assert "metadata.run_id 'r013'" in captured.err
+    assert 'mislabeled' in captured.err
+    assert 'r013' in captured.err
