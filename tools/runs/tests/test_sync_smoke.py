@@ -4,6 +4,7 @@ which exercise the real binary + ssh)."""
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -286,7 +287,7 @@ def test_rsync_live_via_ssh_localhost(tmp_path):
 
     rc = sync.sync(
         direction='push',
-        remote=f'localhost:{dst}/',
+        remote=f'dev@localhost:{dst}/',
         root=src,
     )
     assert rc == 0
@@ -302,8 +303,6 @@ def test_rsync_update_tie_mtime_keeps_dst(tmp_path):
     rsync version, our T4 cross-host conflict policy needs revisit."""
     if shutil.which('rsync') is None:
         pytest.skip('rsync not on PATH')
-
-    import os
 
     src = tmp_path / 'src'
     (src / 'artifacts/runs').mkdir(parents=True)
