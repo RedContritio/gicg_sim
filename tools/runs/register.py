@@ -45,7 +45,7 @@ import sys
 from pathlib import Path
 
 from tools.runs import schema
-from training.core.config.loader import _load_with_extends
+from training.core.config.loader import load_with_extends
 
 _LABEL_NNN_RE = re.compile(r'^([rs])(\d{3})_')
 
@@ -71,7 +71,7 @@ def _resolve_cfg(cfg_path: Path) -> dict:
     when an extends target is missing (caller intent: surface broken
     inheritance, don't silently fall back to leaf-only)."""
     try:
-        return _load_with_extends(cfg_path)
+        return load_with_extends(cfg_path)
     except FileNotFoundError:
         raise
     except Exception as e:

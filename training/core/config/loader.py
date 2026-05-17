@@ -92,7 +92,7 @@ def _deep_merge(base: dict, override: dict) -> dict:
     return out
 
 
-def _load_with_extends(path: Path, depth: int = 0) -> dict:
+def load_with_extends(path: Path, depth: int = 0) -> dict:
     """Recursively resolve ``meta.extends`` chain. Deep merge child over
     parent; placement R6 sync checked per merge step."""
     if depth > MAX_EXTENDS_DEPTH:
@@ -106,7 +106,7 @@ def _load_with_extends(path: Path, depth: int = 0) -> dict:
     extends_path = (path.parent / extends).resolve()
     if not extends_path.exists():
         raise FileNotFoundError(f'config: meta.extends={extends!r} resolved to {extends_path} but file missing')
-    parent = _load_with_extends(extends_path, depth + 1)
+    parent = load_with_extends(extends_path, depth + 1)
 
     # R6 placement sync check before merge.
     for inf_path in ('pipeline.inference', 'eval.inference'):
@@ -263,7 +263,7 @@ def load_cfg(path: str | Path, overrides: Optional[list] = None) -> TrainingConf
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f'config: cfg file {p} not found')
-    raw = _load_with_extends(p)
+    raw = load_with_extends(p)
     if overrides:
         raw = _apply_overrides(raw, list(overrides))
     resolved = resolve_inheritance(raw)
@@ -282,3 +282,8 @@ def load_cfg(path: str | Path, overrides: Optional[list] = None) -> TrainingConf
     paradigm_flat = load_paradigm_cfg(resolved, paradigm)
     validator(paradigm_flat)
     return _build_dataclass(resolved, paradigm_flat)
+
+
+# Backward-compat alias for the underscore-prefixed name (legacy
+# internal use). Remove after grep confirms no callers remain.
+_load_with_extends = load_with_extends
