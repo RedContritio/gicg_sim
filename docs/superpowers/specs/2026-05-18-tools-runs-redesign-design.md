@@ -31,17 +31,24 @@ tools.runs.train [--resume <ckpt>] [--override k=v] <cfg>
   ├── 1. capture leaf cfg bytes (read_bytes 立即,防 cfg edit race)
   ├── 2. resolve cfg(load extends + apply --override → merged dict)
   ├── 3. acquire allocator lock (artifacts/.run_id_lock,O_EXCL create)
-  ├──    ├── glob `artifacts/<ts>_<6digit>_*` → max NNN
-  ├──    ├── mkdir `artifacts/<ts>_<NNN>_<label>` (O_EXCL,撞名 retry +1)
+  ├──    ├── loop:
+  ├──    │     ├── glob `artifacts/<ts>_<6digit>_*` → max NNN(每次 retry 都 re-glob)
+  ├──    │     ├── target = max + 1
+  ├──    │     └── mkdir `artifacts/<ts>_<target>_<label>` (O_EXCL);成功 break,EEXIST 重 loop
   ├──    └── release lock
   ├── 4. write cfg_leaf.toml (from step 1 bytes) + cfg_resolved.toml
   ├── 5. write metadata.toml(status='running')
   ├── 6. run train(catch all exceptions)
-  ├── 7. update metadata.toml(status='done'/'failed' + exit_code)
+  ├── 7. **read metadata.status before overwrite**(若已非 'running' 则保留,log warn);否则 update status='done'/'failed' + wall_seconds + exit_code
   └── 8. exit 0 (done) / nonzero (failed / setup error / metadata stale)
 ```
 
-**Atomic 保证**:cfg bytes 在 step 1 立即 capture;NNN 分配 + dir 创建在同一锁临界区(step 3);metadata 写在中间状态('running')只在 train 运行期间存在;step 6/7 用 atomic rename (temp + rename) 保证写不破坏现有 metadata。
+**Atomic 保证**:
+- cfg bytes 在 step 1 立即 capture
+- NNN 分配 + dir 创建在同一锁临界区(step 3),retry 必须 re-glob(防 inter-process NNN 跳号 silent 冲突)
+- metadata 写在中间状态('running')只在 train 运行期间存在
+- step 6/7 用 atomic rename(temp + rename)保证写不破坏现有 metadata
+- step 7 **read-and-compare before write**:若 user `mark` 在 train running 期间收尾(误判 hang),mark 把 status 转 killed/done/failed;train step 7 检测到非 'running' 不覆盖,log warn `'metadata externally marked, train output discarded'`,exit 0
 
 **关于 --max-steps**:废除该 flag。test 需 cap 通过 cfg fixture 调 `paradigm.total_frames`。生产 train 由 cfg.total_frames 决定停止。
 
@@ -86,8 +93,10 @@ artifacts/<YYYYMMDDHHMM>_<NNNNNN>_<cfg.meta.run_label>/
 2. 校验 `<dir>/metadata.toml` 存在且 `<dir>/ckpts/` 是直接子目录 → 否则 raise("resume needs registered run; <ckpt parent> 不是合法 artifacts dir")
 3. 读 metadata,得 run_id 不变
 4. **resume 重 resolve cfg + apply --override**(允许 cfg 漂移,这是 design 决策):
-   - 写 `cfg_resolved_v<N>.toml`(N = 现存 cfg_resolved 数 + 1,首次 N=1 即 `cfg_resolved.toml`)
-   - 同时写 `cfg_leaf_v<N>.toml`(若 N>1)
+   - 文件命名:**首版固定 `cfg_resolved.toml`(无后缀)**,后续 resume 写 `cfg_resolved_v2.toml` / `v3.toml` / ...
+   - N 算法(避免跳号):glob `cfg_resolved*.toml`,若仅 `cfg_resolved.toml` 一个则下一版 N=2;若已有 vN max,下一版 = max+1
+   - 同步写 `cfg_leaf.toml`(首版)或 `cfg_leaf_v<N>.toml`(后续)
+   - **truth 定义**:**最高版** `cfg_resolved_v<N>.toml` 是 current truth(`cfg_resolved.toml` 是 v1);历史版作 audit trail。`tools.runs.show` 列全部 v 系列
 5. status 改回 'running' → train → 'done'/'failed'
 6. metadata 字段不重置(timestamp 是首次 start;status 重新转移)
 
@@ -163,9 +172,15 @@ Strict transitions(违反 raise):
 ### run-id allocator
 
 - 文件锁:open `artifacts/.run_id_lock`(`O_EXCL` create)
-- 临界区(必须 全部 在锁内完成):
-  1. glob `artifacts/<ts>_<6digit>_*` 找 max NNN
-  2. mkdir `artifacts/<ts>_<NNN+1>_<label>`(`O_EXCL`,撞名 retry NNN+2 重 mkdir 直到成功 — 防 macOS case-insensitive FS / sync 留遗 stale dir)
+- 临界区(必须全部在锁内完成):**retry loop**(防 NNN 跳号 + macOS case-insensitive FS + sync stale dir):
+  ```
+  loop:
+    max = glob_max_NNN()                              # 每次 retry 都 re-glob
+    target = max + 1
+    try mkdir `artifacts/<ts>_<target>_<label>` (O_EXCL)
+    if success: break
+    if EEXIST: continue                                # 他 process / sync stale / case collide
+  ```
 - 释放锁:删除 lock file
 - 若 lock acquire 失败(他 process 持有):retry up to 10 次,每次 sleep random(0,50)ms;超时 raise `'unable to acquire run-id lock'`
 
