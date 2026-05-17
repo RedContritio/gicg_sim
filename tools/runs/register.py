@@ -117,7 +117,14 @@ def _normalize_repo_relative(p: Path, repo_root: Path, *, label: str = 'path') -
     """Return repo-relative path string. Reject paths outside repo root
     (cross-host metadata sync needs portable references; absolute paths
     on dev machine are meaningless on the receiver). ``label`` appears
-    in the error message (e.g. 'cfg_file', 'artifacts_dir')."""
+    in the error message (e.g. 'cfg_file', 'artifacts_dir').
+
+    Symlink behavior: uses ``Path.resolve()`` which follows symlinks.
+    A repo-internal symlink targeting an external path (e.g.
+    ``configs/x.toml`` → ``/external/x.toml``) resolves to its target
+    and is rejected as outside repo root. If you need to register a
+    cfg via symlink, copy it into the repo first (so the symlink lives
+    nowhere)."""
     abs_p = p.resolve()
     abs_repo = repo_root.resolve()
     try:
