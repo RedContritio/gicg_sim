@@ -127,14 +127,26 @@ Bypass individual checks with ``SKIP_LINE_LIMIT_HOOK=1`` / ``SKIP_RUFF_HOOK=1`` 
 
 ## Artifacts
 
-Every child of `artifacts/` must be named `YYYYMMDDHHMM_<label>/`. Generate the timestamp at launch:
+Every child of `artifacts/` is named `YYYYMMDDHHMM_<cfg.meta.run_label>/`,生成 by `CheckpointManager.init_artifacts_dir`。`run_label` 是 cfg 模板里的人友好 slug(如 `az_smoke` / `dmc_smoke_full`),不强制嵌 run-id 前缀 —— **`run-id ↔ artifacts dir` 关联 通过 `RunMetadata.artifacts_dir` 字段**,不通过 dir-name 约定。
+
+Workflow:
 
 ```bash
-ts=$(date +%Y%m%d%H%M)
-outdir=artifacts/${ts}_az_smoke
+# 1. 选 next NNN(每 type 独立递增)
+.venv/bin/python -m tools.runs.list
+
+# 2. register(自动 snapshot cfg.meta.run_label 入 metadata.cfg_run_label)
+.venv/bin/python -m tools.runs.register --run-id s069 --cfg <path>
+
+# 3. train(--run-id 让 ckpt dir timestamp 与 register 单源)
+.venv/bin/python -m tools.run <cfg> --run-id s069
+
+# 4. complete(--artifacts-dir 写 metadata.artifacts_dir,闭合关联)
+.venv/bin/python -m tools.runs.complete --run-id s069 --status done \
+    --artifacts-dir artifacts/<actual_dir>
 ```
 
-`<label>` must follow `<type><NNN>_<slug>` where type is `r` (production run) or `s` (smoke / bench). Pick the next NNN via `python -m tools.runs.list` (largest existing NNN per type + 1) and register the run before launching via `python -m tools.runs.register --run-id <id> --cfg <path>` (see `tools/runs/`). No spaces, no slashes in label. Pre-redesign runs (r001-r012 + s001-s068) live in `docs/5_history/runs_pre_redesign_2026_05_17.md` and are no longer in the live index.
+`run-id` 必须 `<r|s><NNN>`(`r` 生产 / `s` smoke or bench)。Pre-redesign runs(r001-r012 + s001-s068)live in `docs/5_history/runs_pre_redesign_2026_05_17.md`,不在 live index。
 
 ## Architecture
 

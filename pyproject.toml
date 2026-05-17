@@ -23,8 +23,14 @@ quote-style = 'single'
 # train + ≥ 2 ckpt save + standalone resume-from-ckpt verify. Default
 # pytest collection EXCLUDES this tier via `addopts = -m "not smoke_full"`
 # (~5-8 min per paradigm wall; opt-in via `pytest -m smoke_full` 大版本前跑)。
+#
+# `integration` — live external-tool tests (rsync, ssh) that exercise
+# real subprocess paths instead of mocks. Skip-by-prereq inside the test
+# body; also excluded from default collection (some envs lack rsync/sshd
+# entirely + ssh probes add 1-2s wall). Opt-in via `pytest -m integration`.
 markers = [
     'smoke: paradigm e2e smoke (≤ 60s wall, real train + eval probe)',
     'smoke_full: paradigm full smoke (≤ 15min wall, 100+ step driver train + ckpt save/load verify)',
+    'integration: live external-tool tests (rsync/ssh) — opt-in only',
 ]
-addopts = "-m 'not smoke_full'"
+addopts = "-m 'not smoke_full and not integration'"

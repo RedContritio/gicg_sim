@@ -58,6 +58,9 @@
 | I6 | **[BUG] OS-MCCFR 非收敛** | B1 review 验证在 Kuhn Poker 上 OS 不收敛。两处 bug 按 Lanctot 2013 Def.4 修复:① `reach_q_full` → per-decision `reach_q_prefix`(commit `e05b713`)② 非采样 regret 用 σ(a*) 而非 σ(a)(commit `54f6c35`)。测试:Kuhn OS 50K iter 收敛 Nash 家族(P1(J)=0.263, P2(Q)|bet=0.394 ≈ 1/3,etc)。 | 1 | **done** (2026-04-23) |
 | I7 | MCTS snapshot/restore 期间 event log 累积 | r007 replay diagnostic 显示 ckpt_g01200 vs mcts_100 对局的 YAML replay 达 1M 行 / 22908 次 "round 10" 标头 — MCTSPlayer 在 rollout 时 env.step() 写到 game log,env.restore() 只恢复 state 不截日志。修复 commit `b125ef6`:`env.log_suspend()/resume()` 开关,MCTS/AZ player 的 select_action 包一层。r007 replay 1M → 438 行(正常 10 round)。副产物:长 gauntlet 加速 | 1 | **done** (2026-04-22) |
 | I8 | Cost icon OCR + 直方图自动判定 | 增量 raw 录入时(新版本卡引入新 cost icon hash),自动判 cost type 不依赖人工。机制:OCR 中心数字(template match 0-5,字体大易识别)+ 扣中心区取环形主色直方图(白浅描边=same,深灰实心=any,7 元素色=specific)。当前 38 hash 已人工判定(2026-04-28 PM),保存在 `data/cost_icons/_judgement.yaml`,可作 ground truth 校准 OCR 模型。等出现新 hash 再做。 | 4 | idea |
+| I9 | `tools.runs.sync` 跨机重名冲突安全 (类 2 H4) | rsync `--update` 跨机重名 silently clobber by mtime,无冲突报告。两个 dev 同时 register `r013`,后 push 的覆盖先的(且不报)。修法:sync 前 fetch 远端 metadata,mtime tie + content diff 时 fail;或按 host namespace metadata 路径(`artifacts/runs/<host>/<id>.toml`)。需要先决策 namespace 策略 | 3 | idea (audit `tools/runs/` 2026-05-18) |
+| I10 | `tools.runs.sync` 不处理 nested artifacts/runs/<sub>/ (类 2 L8) | rsync include pattern 只匹配 `artifacts/runs/*.toml`,如果 user 误把 metadata 落到子目录(如 `artifacts/runs/host_a/r013.toml`),sync silently 丢。修法:rsync include 加 `artifacts/runs/**/*.toml` + 验证;或 schema 强制 file 必须 flat at runs_dir 顶层(reject sub) | 4 | idea (audit `tools/runs/` 2026-05-18) |
+| I11 | `tools.runs.complete` 状态机 guard (类 2 L11) | 当前 `complete --status` 允许任意转移 done→failed→done,`--final-loss` 覆写无 audit trail。修法:reject status 降级(done 后只允许加 notes,不允许改 status),或前值入 `notes.text` 追加。需决策"是否允许 re-complete" | 4 | idea (audit `tools/runs/` 2026-05-18) |
 
 ## 测试 / 文档
 
