@@ -282,8 +282,3 @@ def load_cfg(path: str | Path, overrides: Optional[list] = None) -> TrainingConf
     paradigm_flat = load_paradigm_cfg(resolved, paradigm)
     validator(paradigm_flat)
     return _build_dataclass(resolved, paradigm_flat)
-
-
-# Backward-compat alias for the underscore-prefixed name (legacy
-# internal use). Remove after grep confirms no callers remain.
-_load_with_extends = load_with_extends
