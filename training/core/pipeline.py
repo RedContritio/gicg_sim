@@ -36,6 +36,7 @@ def run_pipeline(
     resume_from: Optional[Path] = None,
     train_provider: Any = None,
     max_steps: Optional[int] = None,
+    artifacts_timestamp_local: Optional[str] = None,
 ) -> PipelineState:
     """Main driver loop.
 
@@ -50,6 +51,11 @@ def run_pipeline(
         train_provider: NetworkProvider used during train-time forward
             (collector's own provider may differ in async mode).
         max_steps: cap state.step for tests (None = unlimited).
+        artifacts_timestamp_local: optional `%Y%m%d%H%M` prefix for the
+            artifacts dir; defaults to ``datetime.now()`` inside
+            CheckpointManager. Pass through from ``tools.run --run-id``
+            (derived from RunMetadata.timestamp) to single-source the
+            timestamp across register + ckpt dir.
     Returns:
         final PipelineState (also persisted by CheckpointManager).
     """
@@ -60,7 +66,10 @@ def run_pipeline(
     collector = paradigm.make_collector(cfg, env_factory, network, opp_pool)
 
     ckpt_mgr = CheckpointManager(cfg, network, optimizer, buffer)
-    artifacts_dir = ckpt_mgr.init_artifacts_dir(resume_from=resume_from)
+    artifacts_dir = ckpt_mgr.init_artifacts_dir(
+        resume_from=resume_from,
+        timestamp_local=artifacts_timestamp_local,
+    )
     ckpt_mgr.save_cfg_snapshot()
     logger = MetricsLogger(artifacts_dir)
     nan_guard = NaNGuard(artifacts_dir)

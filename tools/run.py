@@ -10,11 +10,18 @@ tools/ppo_launch.py, tools/run_cfr.py — all archive-removed
 CLI:
     python -m tools.run configs/dmc_stage3_smoke_v2.toml
     python -m tools.run configs/x.toml --override paradigm.epsilon=0.1
+    python -m tools.run configs/x.toml --run-id s001   # link to registered run
+
+When ``--run-id`` is given the registered ``RunMetadata.timestamp`` is
+converted to local ``%Y%m%d%H%M`` and used as the artifacts-dir prefix
+— single-sourced timestamp across register + ckpt dir (otherwise the
+two are independent now() calls that may straddle e.g. midnight UTC).
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime
 import sys
 from pathlib import Path
 
@@ -35,12 +42,40 @@ def main(argv: list | None = None) -> int:
     )
     parser.add_argument('--resume', type=str, default=None, help='resume from ckpt path')
     parser.add_argument('--max-steps', type=int, default=None, help='cap on driver iter count (tests)')
+    parser.add_argument(
+        '--run-id',
+        type=str,
+        default=None,
+        dest='run_id',
+        help='registered run id (e.g. s001) — links train to RunMetadata, single-sourcing timestamp',
+    )
     args = parser.parse_args(argv)
 
     cfg_path = Path(args.config)
     if not cfg_path.exists():
         print(f'[tools.run] config not found: {cfg_path}', file=sys.stderr)
         return 2
+
+    artifacts_timestamp_local: str | None = None
+    if args.run_id:
+        from tools.runs import schema as runs_schema
+
+        meta_path = runs_schema.run_path(args.run_id)
+        if not meta_path.exists():
+            print(
+                f'[tools.run] run {args.run_id} not registered (no {meta_path}); '
+                f'register first via `tools.runs.register --run-id {args.run_id} --cfg {cfg_path}`',
+                file=sys.stderr,
+            )
+            return 2
+        run_meta = runs_schema.load_file(meta_path)
+        try:
+            dt = datetime.datetime.fromisoformat(run_meta.timestamp)
+        except ValueError as e:
+            print(f'[tools.run] run {args.run_id} timestamp malformed: {e}', file=sys.stderr)
+            return 2
+        artifacts_timestamp_local = dt.astimezone().strftime('%Y%m%d%H%M')
+        print(f'[tools.run] linked to run {args.run_id} (artifacts ts={artifacts_timestamp_local} local)')
 
     print(f'[tools.run] loading cfg: {cfg_path}')
     cfg = load_cfg(cfg_path, overrides=list(args.override))
@@ -80,6 +115,7 @@ def main(argv: list | None = None) -> int:
         eval_server=None,  # P4: wire EvalServer when async + remote inference lands
         resume_from=resume_path,
         max_steps=args.max_steps,
+        artifacts_timestamp_local=artifacts_timestamp_local,
     )
 
     print(
