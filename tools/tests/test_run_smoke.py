@@ -132,4 +132,69 @@ def test_run_auto_completes_artifacts_dir_on_success(tmp_path, monkeypatch):
     meta = schema.load_file(schema.run_path('s999', root=tmp_path))
     assert meta.status == 'done'
     assert meta.artifacts_dir.startswith('artifacts/')
+    # H3 invariant: artifacts_dir must be repo-relative (cross-host portability)
+    assert not Path(meta.artifacts_dir).is_absolute()
     assert (tmp_path / meta.artifacts_dir / 'latest.pt').exists()
+
+
+def test_run_auto_completes_status_failed_on_error(tmp_path, monkeypatch):
+    """M3 / C2 闭环 failure path: --run-id + train exception must still
+    update metadata.status='failed' via the finally block before the
+    exception re-raises. Covers the `except BaseException: auto_status =
+    'failed'; raise` branch left uncovered by the success-path test."""
+    from pathlib import Path
+
+    from tools.runs import register, schema
+
+    here = Path(__file__).resolve()
+    repo_root = next(p for p in here.parents if (p / 'gicg_engine').is_dir() and (p / 'tools').is_dir())
+    data_dir_abs = repo_root / 'data'
+
+    cfg = tmp_path / 's998_cfg.toml'
+    cfg.write_text(
+        '[meta]\nparadigm = "dmc"\nrun_label = "fail_smoke"\n'
+        'seed = 42\ndevice = "cpu"\n'
+        '[pipeline]\nmode = "serial"\nnum_actors = 1\n'
+        '[scenario]\nteam_0 = ["赤蝶"]\nteam_1 = ["墨客"]\nteam_size = 1\n'
+        'max_rounds = 5\ndeck_padding = { card = "碌碌无为", target_size = 15 }\n'
+        'pool = ["v_legacy", "test_basic"]\n'
+        f'data_dir = "{data_dir_abs}"\n'
+        '[paradigm.dmc]\nversion = "1.0.0"\nparadigm = "dmc"\n'
+        'epsilon = 0.05\ngamma = 1.0\nlr = 1e-4\nweight_decay = 0.0\n'
+        'batch_size = 16\nmax_grad_norm = 5.0\nbuffer_cap = 1000\n'
+        'max_game_steps = 30\ntotal_frames = 100\ntrain_ratio = 4\n'
+        'eval_interval_episodes = 30\neval_n_scenarios = 8\n'
+        'eval_baselines = ["F1-D2"]\n'
+        '[paradigm.dmc.agent]\nd_model = 32\nn_cross_layers = 1\ndropout = 0.0\n'
+        '[paradigm.dmc.opponent_mix]\nrandom = 1.0\nf1d2 = 0.0\nf1d4 = 0.0\n'
+        'historical = 0.0\nring_size = 5\n'
+        '[checkpoint]\nsave_every = 500\nkeep_last_n = 1\n'
+        f'artifacts_root = "{tmp_path}/artifacts"\n',
+        encoding='utf-8',
+    )
+    register.register(
+        run_id='s998',
+        cfg_file=str(cfg),
+        root=tmp_path,
+        host='test-host',
+        git_commit='deadbeef',
+    )
+
+    # Force run_pipeline to raise — finally block must still auto-complete.
+    import tools.run as tools_run_mod
+
+    def _explode(*a, **kw):
+        raise RuntimeError('synthetic-train-failure')
+
+    monkeypatch.setattr(tools_run_mod, 'run_pipeline', _explode)
+    monkeypatch.chdir(tmp_path)
+
+    import pytest
+
+    with pytest.raises(RuntimeError, match='synthetic-train-failure'):
+        tools_run.main([str(cfg), '--run-id', 's998', '--max-steps', '3'])
+
+    meta = schema.load_file(schema.run_path('s998', root=tmp_path))
+    assert meta.status == 'failed'
+    assert meta.artifacts_dir.startswith('artifacts/')
+    assert not Path(meta.artifacts_dir).is_absolute()
