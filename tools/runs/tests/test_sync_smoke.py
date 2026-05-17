@@ -279,3 +279,30 @@ def test_rsync_live_via_ssh_localhost(tmp_path):
     assert (dst / 'artifacts/runs/r013.toml').exists()
     # ckpt MUST NOT have leaked across SSH
     assert not (dst / 'artifacts/x_ckpts').exists()
+
+
+@pytest.mark.integration
+def test_rsync_update_tie_mtime_keeps_dst(tmp_path):
+    """L5: rsync `--update` flag — equal mtime tie → dst content
+    preserved (rsync default). If this behavior flips in a future
+    rsync version, our T4 cross-host conflict policy needs revisit."""
+    if shutil.which('rsync') is None:
+        pytest.skip('rsync not on PATH')
+
+    import os
+
+    src = tmp_path / 'src'
+    (src / 'artifacts/runs').mkdir(parents=True)
+    (src / 'artifacts/runs/r013.toml').write_text('src-bytes\n')
+    dst = tmp_path / 'dst'
+    (dst / 'artifacts/runs').mkdir(parents=True)
+    (dst / 'artifacts/runs/r013.toml').write_text('dst-bytes\n')
+
+    fixed_mtime = 1700000000.0
+    os.utime(src / 'artifacts/runs/r013.toml', (fixed_mtime, fixed_mtime))
+    os.utime(dst / 'artifacts/runs/r013.toml', (fixed_mtime, fixed_mtime))
+
+    cmd = ['rsync', *sync.RSYNC_FLAGS, f'{src}/', f'{dst}/']
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    assert result.returncode == 0, result.stderr
+    assert (dst / 'artifacts/runs/r013.toml').read_text() == 'dst-bytes\n'
