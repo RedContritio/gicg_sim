@@ -1,0 +1,82 @@
+---
+last_updated: 2026-04-26
+status: LIVE
+---
+
+# Glossary — 术语速查
+
+> 跨 docs / memory / commit message 的高频术语。新人遇到不认识的词来这查。
+
+## 项目阶段
+
+| 词 | 含义 |
+|---|---|
+| **PPO pre-AZ era** | r001 之前的老 PPO 训练栈,phase{0-5} 课程,2026-04-14 前。归档在 `5_history/eras/ppo_pre_az/` |
+| **AZ era** | 2026-04-14 PPO→AZ 迁移决策后,r001-r008 + C1 系列 |
+| **Curriculum era** | 2026-04-24 paradigm pivot 后,RL Curriculum 5-stage 路线 |
+
+## Run 命名
+
+| 词 | 含义 |
+|---|---|
+| **r001 ... rNNN** | production-style training run,multi-hundred games + arena + gauntlet |
+| **s001 ... sNNN** | short validation / smoke / bench / ablation run |
+| **artifacts/YYYYMMDDHHMM_\<label\>/** | 所有 run 输出位置,label = `<type><NNN>_<slug>` |
+| **registry** | `python -m tools.runs.list` CLI(post `core-network-generic-promotion` 2026-05-17 取代手维护 `4_runs/registry.md`);per-run metadata `artifacts/runs/<id>.toml`(gitignored);pre-redesign archive: `5_history/runs_pre_redesign_2026_05_17.md` |
+
+## 训练栈
+
+| 词 | 含义 |
+|---|---|
+| **AZ** | AlphaZero 风格,IS-MCTS + 共享主干网络,在 `training/az/` |
+| **CFR** | Deep CFR,在 `training/cfr/`,r008 失败后冻结 |
+| **PPO (Curriculum era)** | Stage 0-3 用的 PPO,在 `training/ppo/`,BC warm-start 优先 |
+| **BC** | Behavior Cloning warm-start,F1-D2 teacher 数据 |
+| **framework** | `training/framework/`,算法无关基础 (obs / step / matchup / inference) |
+
+## Curriculum
+
+| 词 | 含义 |
+|---|---|
+| **Stage 0** | 1v1 mirror + 无卡 + 无反应 + 定骰 + 完全可观测 + 稠密 reward |
+| **Stage 1** | + 骰子随机 |
+| **Stage 2** | + partial observability |
+| **Stage 3** | + 卡牌 (closure 中) |
+| **Stage 4** | + 元素反应 |
+| **Stage 5** | + team_size=2,full game |
+
+## Scenario
+
+| 词 | 含义 |
+|---|---|
+| **F1-D{N}** | F1 baseline,depth N greedy minimax (D1=1-ply, D2=2-ply, D3=3-ply) |
+| **F1-D2 dice_greedy** | 当前 strongest hand-crafted baseline,vs mcts_200 = 0.90 |
+| **mcts_{N}** | random rollout MCTS,N rollouts/decision |
+| **random_1v1 / random_team** | char_pool=5, team_size=1/2 random sample per game |
+
+## 网络结构 (AZ)
+
+| 词 | 含义 |
+|---|---|
+| **structural sid** | 每局固定 sid 0..65 (HP/energy/alive/active × chars + dice + alive_count),不 shuffle |
+| **机制性 sid** | shuffle (shields, buffs, summons, attachments, DSL counter),反 ID 原则 |
+| **struct_readout** | 直接从 66 维 structural values gather,绕过 cross-attn pool 零空间 |
+| **C18 定理** | pool 后 state_vec 是置换不变统计量 → loss 对 cross-attn 内部分布零梯度 |
+| **lambda (value_mix)** | MCTS leaf eval 中 net_value 与 rollout_value 混合系数 |
+
+## Lever (Stage 3 ablation)
+
+| 词 | 含义 | 测得效应 |
+|---|---|---|
+| **BC warm-start** | F1-D2 teacher 蒸馏给 PPO 网络 init | +0.24 dominant |
+| **partial obs** | 隐藏对手 dice/hand | +0.13 (1-card 下) |
+| **F1-D3 teacher** | 用 D3 而非 D2 做 teacher | +0.10 (masked-only) |
+| **PPO oscillation** | 训练曲线在 wr [0.18, 0.42] 抖动 | ±0.10-0.15 noise |
+
+## 命令
+
+| 词 | 含义 |
+|---|---|
+| **eval_service** | 全局 socket-based gauntlet evaluator,fixed path,跑 run 前必启 |
+| **gauntlet** | vs N-tier baseline 的 win rate 评估 (random / F1-D1/D2/D3 / mcts_50/100/200) |
+| **arena** | self-play 中新旧 ckpt 对战决定是否替换 (AZ-only) |

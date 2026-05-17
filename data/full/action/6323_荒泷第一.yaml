@@ -1,0 +1,83 @@
+id: 6323
+name: 荒泷第一
+parent_class: action
+desc: 荒泷第一
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  岩: 1
+  无色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/04/11/12109492/46588f6b5a254be9e797cc0cfe050dc7_1759052077545466771.png
+header_img_url: ''
+version: '1688714780'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 1
+raw_life_bg: 7
+raw_energy: 2
+raw_energy_bg: 10
+effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+  pre-wrap;&quot;>战斗行动：</p><p style=&quot;white-space: pre-wrap;&quot;>我方执行了一次战斗行动后，会轮到对方行动。</p><p
+  style=&quot;white-space: pre-wrap;&quot;>打出具有此规则的手牌是一个战斗行动，而非快速行动。</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>荒泷一斗</strong>时，装备此牌。</p><p>荒泷一斗装备此牌后，立刻使用一次<strong><u>喧哗屋传说</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>喧哗屋传说：</p><p
+  style=&quot;white-space: pre-wrap;&quot;>普通攻击</p><p style=&quot;white-space: pre-wrap;&quot;>造成2点<strong>物理伤害</strong>。</p>"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的荒泷一斗每回合第2次及以后使用<strong>喧哗屋传说</strong>时：如果触发<strong><u>乱神之怪力</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>乱神之怪力：</p><p
+  style=&quot;white-space: pre-wrap;&quot;>状态</p><p style=&quot;white-space: pre-wrap;&quot;><strong>所附属角色进行重击时：</strong>造成的伤害+1。如果<strong>可用次数</strong>至少为2，则还会使本技能少花费1个<strong>无色元素</strong>。</p><p
+  style=&quot;white-space: pre-wrap;&quot;><strong>可用次数：1</strong>（可叠加，最多叠加到3次）</p><blockquote><p
+  style=&quot;white-space: pre-wrap;&quot;><strong>重击</strong></p><p style=&quot;white-space:
+  pre-wrap;&quot;>我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。</p></blockquote>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>，伤害额外+1。</p><p>（牌组中包含荒泷一斗，才能加入牌组）</p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为荒泷一斗时，装备此牌。
+
+  荒泷一斗装备此牌后，立刻使用一次喧哗屋传说喧哗屋传说：
+
+  普通攻击
+
+  造成2点物理伤害。" class="wiki-note-text">。
+
+  装备有此牌的荒泷一斗每回合第2次及以后使用喧哗屋传说时：如果触发乱神之怪力乱神之怪力：
+
+  状态
+
+  所附属角色进行重击时：造成的伤害+1。如果可用次数至少为2，则还会使本技能少花费1个无色元素。
+
+  可用次数：1（可叠加，最多叠加到3次）
+
+  重击
+
+  我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。" class="wiki-note-text">，伤害额外+1。
+
+  （牌组中包含荒泷一斗，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 喧哗屋传说
+- 乱神之怪力
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  喧哗屋传说: 普通攻击造成2点物理伤害。
+  乱神之怪力: 状态所附属角色进行重击时：造成的伤害+1。如果可用次数至少为2，则还会使本技能少花费1个无色元素。可用次数：1（可叠加，最多叠加到3次）重击我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/03/28/12109492/2593ff944f9f2068cb0e676923bd69e2_2212269407237502406.png
+duration: 可用次数1
+requires_char: 荒泷一斗
+deck_constraint: 牌组中包含荒泷一斗，才能加入牌组
+is_combat_action: true
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2023/04/11/12109492/46588f6b5a254be9e797cc0cfe050dc7_8733062928845037185.png
+flavor_html: <p><strong>荒泷一斗·荒泷第一</strong></p><p>无论如何，先在气势方面占据上风总没错。</p>
+flavor_text: '荒泷一斗·荒泷第一
+
+  无论如何，先在气势方面占据上风总没错。'
+_raw_path: data/raw/action/6323_荒泷第一.json

@@ -1,0 +1,49 @@
+id: 507636
+name: 天蛇船
+parent_class: action
+desc: 天蛇船卡牌
+sub_class: 支援牌
+tags: &id001
+- 场地
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/fe103e0d884968a8748b0fc93fba9ed4_8168217962066060315.png
+header_img_url: ''
+version: '1768194311'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 冒险效果生成
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>冒险经历增加时：</strong>将1个元素骰转换为<strong><u>万能元素</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;万能元素：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;万能元素可以视为任何类型的元素，来支付各种费用。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>冒险经历达到2时：</strong>抓1张牌。</p><p><strong>冒险经历达到4时：</strong>我方出战角色附属2层<strong><u>战斗计划</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗计划：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;所附属角色下次使用技能少花费1个元素骰。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>冒险经历达到6时：</strong>弃置敌方场上1个随机召唤物，召唤<strong><em>回天的圣主</em></strong>然后弃置此牌。</p>
+effect_text: '冒险经历增加时：将1个元素骰转换为万能元素。
+
+  冒险经历达到2时：抓1张牌。
+
+  冒险经历达到4时：我方出战角色附属2层战斗计划。
+
+  冒险经历达到6时：弃置敌方场上1个随机召唤物，召唤回天的圣主然后弃置此牌。'
+term_refs:
+- 万能元素
+- 战斗计划
+terms:
+  万能元素: 万能元素可以视为任何类型的元素，来支付各种费用。
+  战斗计划: 状态所附属角色下次使用技能少花费1个元素骰。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/7a8c85830ce44927460008304d7f73ed_1575674051075975119.png
+generated_by: 冒险效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/fe103e0d884968a8748b0fc93fba9ed4_2144437725451546476.png
+flavor_html: <p></p>
+flavor_text: ''
+_raw_path: data/raw/action/507636_天蛇船.json

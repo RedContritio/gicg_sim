@@ -1,0 +1,296 @@
+id: 5374
+name: 重云
+title: 雪融有踪·重云
+parent_class: character
+desc: 重云卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/5192016de21d9f10eb851387bdf2ef39_7120598137698198121.png
+header_img_url: ''
+version: '1777427864'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 双手剑
+  阵营: &id001
+  - 璃月
+  充能:
+  - 3点
+  获取方式:
+  - 角色邀请·友好对局
+element: 冰
+weapon: 双手剑
+faction: *id001
+hp: 10
+energy: 3
+acquire: 角色邀请·友好对局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/5192016de21d9f10eb851387bdf2ef39_3201745536478119133.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/16/12109492/a3982fe6cb877e2695af097b888853a2_2186037936029279515.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 灭邪四式
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/26/12109492/fc4695c7947675242718788122db81d3_1060477429606820068.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 重华叠霜
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/26/12109492/90fe50a43ea7905773df4433d385e4d9_8501818730448316824.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145,
+    213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong><u>重华叠霜领域</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;重华叠霜领域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方单手剑、双手剑或长柄武器角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;持续回合：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每回合结束阶段，&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;-1；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，生成重华叠霜领域冰元素伤害。持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  - 重华叠霜领域
+- name: 云开星落
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/26/12109492/0bddb45b9d91fb892ddaf2e8eb1e04a8_1565971516954358022.png
+  effect_html: '<p>造成7点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145,
+    213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成7点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  energy_req: 3
+summons: []
+talent:
+  name: 吐纳真定
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/06f283da39baa2e65703e7e8e9003224_306943355752724906.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>重云</strong>时，装备此牌。</p><p>重云装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>重华叠霜</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;重华叠霜：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，生成&lt;strong&gt;重华叠霜领域&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;重华叠霜领域&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方单手剑、双手剑或长柄武器角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的重云生成的<strong><u>重华叠霜领域</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;重华叠霜领域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方单手剑、双手剑或长柄武器角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>获得以下效果：</p><p>使我方单手剑、双手剑或长柄武器角色的<strong>普通攻击</strong>伤害+1。</p><p>（牌组中包含重云，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为重云时，装备此牌。
+
+    重云装备此牌后，立刻使用一次重华叠霜冰元素伤害，生成重华叠霜领域。
+
+    重华叠霜领域
+
+    我方单手剑、双手剑或长柄武器角色造成的物理伤害变为冰元素伤害。
+
+    持续回合：2
+
+    物理伤害：
+
+    物理伤害不会附着元素，也不会发生元素反应。
+
+    冰元素伤害：
+
+    附着冰元素，可发生元素反应:
+
+    融化：本伤害+2
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    持续回合：
+
+    每回合结束阶段，持续回合-1；
+
+    持续回合耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的重云生成的重华叠霜领域冰元素伤害。
+
+    持续回合：2
+
+    物理伤害：
+
+    物理伤害不会附着元素，也不会发生元素反应。
+
+    冰元素伤害：
+
+    附着冰元素，可发生元素反应:
+
+    融化：本伤害+2
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    持续回合：
+
+    每回合结束阶段，持续回合-1；
+
+    持续回合耗尽后，立刻弃置此牌。" class="wiki-note-text">获得以下效果：
+
+    使我方单手剑、双手剑或长柄武器角色的普通攻击伤害+1。
+
+    （牌组中包含重云，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 重华叠霜
+  - 重华叠霜领域
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含重云，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '3'
+  skills:
+  - name: 重华叠霜
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/90fe50a43ea7905773df4433d385e4d9_7885408876885553381.png
+    effect_html: '<html><head></head><body><p>造成<strong><span style="color: rgb(145,
+      213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color:
+      rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong><u>重华叠霜领域</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;重华叠霜领域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。我方造成的&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;伤害+1。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color:
+      rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+    effect_text: 造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">，生成重华叠霜领域冰元素伤害。我方造成的冰元素伤害伤害+1。持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。"
+      class="wiki-note-text">。
+    term_refs:
+    - 冰元素伤害
+    - 重华叠霜领域
+  - name: 云开星落
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/0bddb45b9d91fb892ddaf2e8eb1e04a8_7305265516539399804.png
+    effect_html: '<html><head></head><body><p>造成2倍攻击力的<strong><span style="color:
+      rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color:
+      rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+    effect_text: 造成2倍攻击力的冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。
+    term_refs:
+    - 冰元素伤害
+    energy_req: 2
+flavor_html: '<p style="white-space: pre-wrap;"><strong>雪融有踪·重云</strong></p><p style="white-space:
+  pre-wrap;">「夏天啊，你还是悄悄过去吧…」</p>'
+flavor_text: '雪融有踪·重云
+
+  「夏天啊，你还是悄悄过去吧…」'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  重华叠霜领域: 出战状态我方单手剑、双手剑或长柄武器角色造成的物理伤害变为冰元素伤害。持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  重华叠霜: 元素战技造成3点冰元素伤害，生成重华叠霜领域。重华叠霜领域我方单手剑、双手剑或长柄武器角色造成的物理伤害变为冰元素伤害。持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/5374_重云.json

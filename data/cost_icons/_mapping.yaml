@@ -1,0 +1,1712 @@
+00cce35b579cabd6b829eaa5cd1aed42:
+- id: '500047'
+  name: 脉冲的魔女
+  cleansed: false
+- id: '501393'
+  name: 亡雷凝蓄
+  cleansed: false
+- id: '502910'
+  name: 侵雷重闪
+  cleansed: false
+- id: '505325'
+  name: 巡日塔门书
+  cleansed: false
+- id: '506922'
+  name: 正义英雄的凯旋
+  cleansed: false
+- id: '507632'
+  name: 林雾间的行迹
+  cleansed: false
+- id: '508029'
+  name: 循环整流引擎
+  cleansed: false
+- id: '5392'
+  name: 元素共鸣_强能之雷
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"雷": 1}'
+0ab78ee1386d42288358972c012a3bb1:
+- id: '505314'
+  name: 突角龙
+  cleansed: false
+- id: '507394'
+  name: 重铸圣剑
+  cleansed: false
+0c6b6c65320c8ee0b093d8be1dc0b26d:
+- id: '5384'
+  name: 唯此一心
+  cleansed: false
+1d41d441b6edfeabafcb784ffb077bbe:
+- id: '501147'
+  name: 割舍软弱之心
+  cleansed: false
+1f62890b9c61a77c430040e743443cef:
+- id: '501392'
+  name: 亡风啸卷
+  cleansed: false
+- id: '505469'
+  name: 子弹的戏法
+  cleansed: false
+- id: '506918'
+  name: 温敷战术包扎
+  cleansed: false
+- id: '5394'
+  name: 元素共鸣_迅捷之风
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"风": 1}'
+2593ff944f9f2068cb0e676923bd69e2:
+- id: '504776'
+  name: 夜域赐礼_团结炉心
+  cleansed: false
+- id: '507392'
+  name: _曾如磐石抵挡黑水奔流__
+  cleansed: false
+- id: '5396'
+  name: 元素共鸣_坚定之岩
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"岩": 1}'
+- id: '6323'
+  name: 荒泷第一
+  cleansed: false
+2a2a6e4f1cfd2931ae0f9588e1543f3d:
+- id: '504782'
+  name: 以极限之名
+  cleansed: false
+- id: '508016'
+  name: 霜月之坊
+  cleansed: false
+- id: '5401'
+  name: 护法之誓
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"same": 4}'
+3d51302253f619d80c73559c5d38f3df:
+- id: '500019'
+  name: 最终解释权
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '501146'
+  name: 熔火铁甲
+  cleansed: false
+- id: '501396'
+  name: 地狱里摇摆
+  cleansed: false
+- id: '504517'
+  name: 所有的仇与债皆由我偿_
+  cleansed: false
+- id: '505464'
+  name: _人之名_解放
+  cleansed: false
+- id: '506157'
+  name: 罔极盛怒
+  cleansed: false
+- id: '5390'
+  name: 元素共鸣_热诚之火
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"火": 1}'
+- id: '5502'
+  name: 长野原龙势流星群
+  cleansed: false
+44762d10de05f76e79b27ed8ee3fce50:
+- id: '500998'
+  name: 古海孑遗的权柄
+  cleansed: false
+- id: '501145'
+  name: 暗流涌动
+  cleansed: false
+- id: '503958'
+  name: 夜域赐礼_波涛顶底
+  cleansed: false
+- id: '507624'
+  name: 亡水溢流
+  cleansed: false
+- id: '5388'
+  name: 元素共鸣_愈疗之水
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"水": 1}'
+506f4f7255247960513492c9767d0743:
+- id: '500189'
+  name: 崇诚之真
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 4}'
+- id: '5385'
+  name: 冒险憧憬
+  cleansed: false
+5fd9633462b60065636434992f1d9625:
+- id: '500455'
+  name: 归芒携信
+  cleansed: false
+- id: '500993'
+  name: 以有趣相关为要义
+  cleansed: false
+- id: '501559'
+  name: 冰雅刺剑
+  cleansed: false
+- id: '502091'
+  name: 梦晓与决意之刻
+  cleansed: false
+- id: '503434'
+  name: 代行裁判
+  cleansed: false
+- id: '508027'
+  name: 依随的策援
+  cleansed: false
+- id: '5444'
+  name: 吐纳真定
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"冰": 3}'
+- id: '5497'
+  name: 猫爪冰摇
+  cleansed: false
+- id: '5498'
+  name: 冷血之剑
+  cleansed: false
+- id: '6171'
+  name: 战欲涌现
+  cleansed: false
+- id: '6580'
+  name: 忘玄
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '6622'
+  name: 冰萤寒光
+  cleansed: false
+6f082f91ed13b1f5b4f82206ebd332a9:
+- id: '500301'
+  name: 酌盈剂虚
+  cleansed: false
+- id: '500461'
+  name: 悲号回唱
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '500995'
+  name: 雷萤浮闪
+  cleansed: false
+- id: '506155'
+  name: _沃陆之邦_的训教
+  cleansed: false
+- id: '508025'
+  name: 超导祝佑_电冲
+  cleansed: false
+- id: '5503'
+  name: 落羽的裁择
+  cleansed: false
+- id: '5504'
+  name: 噬星魔鸦
+  cleansed: false
+- id: '5505'
+  name: 抵天雷罚
+  cleansed: false
+- id: '5506'
+  name: 觉醒
+  cleansed: false
+- id: '5583'
+  name: 雷楔
+  cleansed: false
+- id: '5874'
+  name: 霹雳连霄
+  cleansed: false
+- id: '6169'
+  name: 我界
+  cleansed: false
+- id: '6577'
+  name: 神篱之御荫
+  cleansed: false
+- id: '6578'
+  name: 万千的愿望
+  cleansed: false
+7125244844988d521622982000b3675c:
+- id: '500020'
+  name: 风物之诗咏
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '500439'
+  name: 毁裂风涡
+  cleansed: false
+- id: '500443'
+  name: 如影流露的冷刃
+  cleansed: false
+- id: '500676'
+  name: 偷懒的新方法
+  cleansed: false
+- id: '501142'
+  name: 妙道合真
+  cleansed: false
+- id: '502092'
+  name: 知是留云僊
+  cleansed: false
+- id: '505466'
+  name: 追影弹
+  cleansed: false
+- id: '505692'
+  name: 舞袂翩兮扬玉霓
+  cleansed: false
+- id: '505694'
+  name: 奇想天开捕物帐
+  cleansed: false
+- id: '506156'
+  name: 缠忆君影梦相见
+  cleansed: false
+- id: '5381'
+  name: 机巧神通
+  cleansed: false
+- id: '5507'
+  name: 混元熵增论
+  cleansed: false
+- id: '6575'
+  name: 降魔_护法夜叉
+  cleansed: false
+- id: '6576'
+  name: 绪风之拥
+  cleansed: false
+71fc6f5fba3de4fef6925cd22d2fdf5b:
+- id: '500041'
+  name: 神性之陨
+  cleansed: false
+- id: '500441'
+  name: 犬奔_疾如风
+  cleansed: false
+- id: '501402'
+  name: 庄谐并举
+  cleansed: false
+- id: '501548'
+  name: 不明流通渠道
+  cleansed: false
+- id: '503433'
+  name: 异兽侵蚀
+  cleansed: false
+- id: '5510'
+  name: 储之千日_用之一刻
+  cleansed: false
+- id: '5511'
+  name: 支援就交给我吧
+  cleansed: false
+72f3f6e39cc91339339bf02e0539e5d3:
+- id: '500190'
+  name: 梦迹一风
+  cleansed: false
+- id: '5508'
+  name: 蒲公英的国土
+  cleansed: false
+75a15409ce9b0506a1e1a8fa7f5c0368:
+- id: '505463'
+  name: 五重天的寒雨
+  cleansed: false
+- id: '5499'
+  name: 寒天宣命祝词
+  cleansed: false
+7a8c85830ce44927460008304d7f73ed:
+- id: '500024'
+  name: 磐岩盟契
+  cleansed: false
+- id: '500025'
+  name: 旧时庭园
+  cleansed: false
+- id: '500026'
+  name: 大梦的曲调
+  cleansed: false
+- id: '500043'
+  name: 藏锋何处
+  cleansed: false
+- id: '500044'
+  name: 愉舞欢游
+  cleansed: false
+- id: '500046'
+  name: 黄金屋
+  cleansed: false
+- id: '500187'
+  name: 拳力斗技_
+  cleansed: false
+- id: '500198'
+  name: 自由的新风
+  cleansed: false
+- id: '500298'
+  name: 万家灶火
+  cleansed: false
+- id: '500299'
+  name: 琴音之诗
+  cleansed: false
+- id: '500434'
+  name: 灵光明烁之心
+  cleansed: false
+- id: '500444'
+  name: 化种匣
+  cleansed: false
+- id: '500446'
+  name: 浮烁的四叶印
+  cleansed: false
+- id: '500447'
+  name: 野猪公主
+  cleansed: false
+- id: '500448'
+  name: 坍陷与契机
+  cleansed: false
+- id: '500449'
+  name: 玛梅赫
+  cleansed: false
+- id: '500454'
+  name: 浮溯之珏
+  cleansed: false
+- id: '500458'
+  name: 裁定之时
+  cleansed: false
+- id: '500668'
+  name: 净觉花
+  cleansed: false
+- id: '500685'
+  name: 明珠固化
+  cleansed: false
+- id: '500999'
+  name: 抗争之日_碎梦之时
+  cleansed: false
+- id: '501004'
+  name: 黄金剧团的奖赏
+  cleansed: false
+- id: '501150'
+  name: 白手套和渔夫
+  cleansed: false
+- id: '501152'
+  name: 紫晶的花冠
+  cleansed: false
+- id: '501387'
+  name: 噬骸能量块
+  cleansed: false
+- id: '501401'
+  name: 圣俗杂座
+  cleansed: false
+- id: '501409'
+  name: 亚瑟先生
+  cleansed: false
+- id: '501411'
+  name: 禁忌知识
+  cleansed: false
+- id: '501412'
+  name: 旧日鏖战
+  cleansed: false
+- id: '501416'
+  name: _清洁工作_
+  cleansed: false
+- id: '501417'
+  name: 太郎丸的存款
+  cleansed: false
+- id: '501549'
+  name: 卢蒂妮的声援
+  cleansed: false
+- id: '501550'
+  name: 托皮娅的声援
+  cleansed: false
+- id: '501551'
+  name: 芙佳的声援
+  cleansed: false
+- id: '501552'
+  name: 希洛娜的声援
+  cleansed: false
+- id: '501553'
+  name: 柯莎的声援
+  cleansed: false
+- id: '501554'
+  name: 洛梅的声援
+  cleansed: false
+- id: '501556'
+  name: 瑟琳的声援
+  cleansed: false
+- id: '501563'
+  name: 噔噔_
+  cleansed: false
+- id: '501565'
+  name: _看到那小子挣钱__
+  cleansed: false
+- id: '501566'
+  name: 角斗士的凯旋
+  cleansed: false
+- id: '501568'
+  name: 海底宝藏
+  cleansed: false
+- id: '502070'
+  name: 龙伙伴的聚餐
+  cleansed: false
+- id: '502072'
+  name: 异色猎刀鳐
+  cleansed: false
+- id: '502900'
+  name: 水泡史莱姆
+  cleansed: false
+- id: '502901'
+  name: 厄灵_炎之魔蝎
+  cleansed: false
+- id: '502902'
+  name: 厄灵_草之灵蛇
+  cleansed: false
+- id: '502903'
+  name: 竹星
+  cleansed: false
+- id: '502907'
+  name: 特佩利舞台
+  cleansed: false
+- id: '502913'
+  name: 龙龙饼干
+  sub_class: 事件牌
+  tags:
+  - 料理
+  cost: '{"any": 0}'
+- id: '503407'
+  name: 强劲冲浪拍档_
+  cleansed: false
+- id: '503426'
+  name: _悬木人_
+  cleansed: false
+- id: '503429'
+  name: 激愈水球_小
+  cleansed: false
+- id: '503430'
+  name: 激愈水球_中
+  cleansed: false
+- id: '503431'
+  name: 激愈水球_大
+  cleansed: false
+- id: '503954'
+  name: 燃素充盈
+  cleansed: false
+- id: '503955'
+  name: 归火圣夜巡礼
+  cleansed: false
+- id: '503962'
+  name: 咬咬鲨鱼
+  cleansed: false
+- id: '503967'
+  name: 斗争之火
+  cleansed: false
+- id: '504518'
+  name: _花羽会_
+  cleansed: false
+- id: '504781'
+  name: _烟谜主_
+  cleansed: false
+- id: '505346'
+  name: 昔日宗室之仪
+  cleansed: false
+- id: '505476'
+  name: 健身的成果
+  cleansed: false
+- id: '505682'
+  name: 失冕的宝冠
+  cleansed: false
+- id: '505686'
+  name: 异想零落的圆舞
+  cleansed: false
+- id: '506158'
+  name: 宗室面具
+  cleansed: false
+- id: '506163'
+  name: _魔女M的祝福_
+  cleansed: false
+- id: '506164'
+  name: 旁白的注脚
+  cleansed: false
+- id: '506917'
+  name: 沉玉谷
+  sub_class: 支援牌
+  tags:
+  - 场地
+  cost: '{"any": 0}'
+- id: '506920'
+  name: 咔库库
+  cleansed: false
+- id: '506929'
+  name: 沉玉茶露
+  cleansed: false
+- id: '507366'
+  name: _沙中遗事_
+  cleansed: false
+- id: '507388'
+  name: 雾凇秋分
+  cleansed: false
+- id: '507389'
+  name: 鎏金殿堂
+  cleansed: false
+- id: '507393'
+  name: 自体自身之塔
+  cleansed: false
+- id: '507630'
+  name: _穿越晨霭的冒险_
+  cleansed: false
+- id: '507634'
+  name: 虚境裂隙
+  cleansed: false
+- id: '507636'
+  name: 天蛇船
+  cleansed: false
+- id: '508014'
+  name: 银月之庭
+  cleansed: false
+- id: '508015'
+  name: 汐印石
+  cleansed: false
+- id: '508019'
+  name: 天才的改造法
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"any": 0}'
+- id: '5377'
+  name: 元素共鸣_交织之冰
+  cleansed: false
+- id: '5387'
+  name: 元素共鸣_交织之水
+  cleansed: false
+- id: '5389'
+  name: 元素共鸣_交织之火
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"any": 0}'
+- id: '5391'
+  name: 元素共鸣_交织之雷
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"any": 0}'
+- id: '5393'
+  name: 元素共鸣_交织之风
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"any": 0}'
+- id: '5395'
+  name: 元素共鸣_交织之岩
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"any": 0}'
+- id: '5397'
+  name: 元素共鸣_交织之草
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"any": 0}'
+- id: '5399'
+  name: 诸武精通
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"any": 0}'
+- id: '5449'
+  name: 提米
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 0}'
+- id: '5455'
+  name: 立本
+  cleansed: false
+- id: '5456'
+  name: 常九爷
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 0}'
+- id: '5462'
+  name: 骑士团图书馆
+  cleansed: false
+- id: '5475'
+  name: 甜甜花酿鸡
+  cleansed: false
+- id: '5479'
+  name: 绝云锅巴
+  cleansed: false
+- id: '5484'
+  name: 群玉阁
+  cleansed: false
+- id: '5485'
+  name: 神宝迁宫祝词
+  cleansed: false
+- id: '5487'
+  name: 交给我吧_
+  cleansed: false
+- id: '5488'
+  name: 换班时间
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"any": 0}'
+- id: '5490'
+  name: 本大爷还没有输_
+  cleansed: false
+- id: '5491'
+  name: 北地烟熏鸡
+  cleansed: false
+- id: '5530'
+  name: 一掷乾坤
+  cleansed: false
+- id: '6590'
+  name: 风与自由
+  cleansed: false
+- id: '6592'
+  name: 雷与永恒
+  cleansed: false
+- id: '6600'
+  name: 鲸井小弟
+  cleansed: false
+- id: '6601'
+  name: 花散里
+  cleansed: false
+- id: '6603'
+  name: 桓那兰那
+  sub_class: 支援牌
+  tags:
+  - 场地
+  cost: '{"any": 0}'
+8c5a4f348a3a8017500c15e9cd0c5c15:
+- id: '500023'
+  name: 老章
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"same": 1}'
+- id: '500068'
+  name: 塞塔蕾
+  cleansed: false
+- id: '500188'
+  name: 海祇之冠
+  cleansed: false
+- id: '500197'
+  name: 化城郭
+  cleansed: false
+- id: '500199'
+  name: 弥生七月
+  cleansed: false
+- id: '500296'
+  name: 沙王的投影
+  cleansed: false
+- id: '500427'
+  name: 湖中垂柳
+  cleansed: false
+- id: '500435'
+  name: 花海甘露之光
+  cleansed: false
+- id: '500450'
+  name: 欧庇克莱歌剧院
+  cleansed: false
+- id: '500452'
+  name: 留念镜
+  cleansed: false
+- id: '500680'
+  name: 婕德
+  cleansed: false
+- id: '500681'
+  name: 机关铸成之链
+  cleansed: false
+- id: '500683'
+  name: 西尔弗和迈勒斯
+  cleansed: false
+- id: '501001'
+  name: 梅洛彼得堡
+  cleansed: false
+- id: '501005'
+  name: 可控性去危害化式定向爆破
+  cleansed: false
+- id: '501155'
+  name: 清籁岛
+  cleansed: false
+- id: '501388'
+  name: 赤王陵
+  cleansed: false
+- id: '501408'
+  name: 苦舍桓
+  cleansed: false
+- id: '501410'
+  name: 中央实验室遗址
+  cleansed: false
+- id: '501546'
+  name: 夏诺蒂拉的声援
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"same": 1}'
+- id: '501555'
+  name: 希露艾的声援
+  cleansed: false
+- id: '501560'
+  name: 裂晶弹片
+  cleansed: false
+- id: '502069'
+  name: 阿伽娅
+  cleansed: false
+- id: '502071'
+  name: 赦免宣告
+  cleansed: false
+- id: '502073'
+  name: 匿叶龙
+  cleansed: false
+- id: '502904'
+  name: 指挥的礼帽
+  cleansed: false
+- id: '503406'
+  name: 宝石闪闪
+  cleansed: false
+- id: '503435'
+  name: 纯水流华
+  cleansed: false
+- id: '503436'
+  name: 少女易逝的芳颜
+  cleansed: false
+- id: '503952'
+  name: 魔战士的羽面
+  cleansed: false
+- id: '503953'
+  name: 咚咚嘭嘭
+  cleansed: false
+- id: '503957'
+  name: 绒翼龙
+  cleansed: false
+- id: '504519'
+  name: 小嵴锋龙_发现宝藏_
+  cleansed: false
+- id: '504520'
+  name: 温泉时光
+  cleansed: false
+- id: '504783'
+  name: 奇瑰之汤
+  cleansed: false
+- id: '505310'
+  name: 困困冥想术
+  cleansed: false
+- id: '505460'
+  name: 驰轮车_疾驰
+  sub_class: 装备牌
+  tags:
+  - 特技
+  cost: '{"same": 1}'
+- id: '505470'
+  name: 为_死_而战
+  cleansed: false
+- id: '505471'
+  name: 火与战争
+  cleansed: false
+- id: '505473'
+  name: 诸圣的礼冠
+  cleansed: false
+- id: '505477'
+  name: 丰稔之赐
+  cleansed: false
+- id: '505679'
+  name: 积木小人
+  cleansed: false
+- id: '505684'
+  name: 很棒_哥们_
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"same": 1}'
+- id: '505685'
+  name: 收获时间
+  cleansed: false
+- id: '505687'
+  name: 折纸飞鼠
+  cleansed: false
+- id: '505690'
+  name: 折纸胖胖鼠
+  cleansed: false
+- id: '505727'
+  name: 跳跳纸蛙
+  cleansed: false
+- id: '506925'
+  name: 恶龙的单片镜
+  cleansed: false
+- id: '506928'
+  name: 祀珑在昔_灵锦歆诚
+  cleansed: false
+- id: '507367'
+  name: 水仙十字大冒险
+  cleansed: false
+- id: '507386'
+  name: 一捧绿野
+  cleansed: false
+- id: '507395'
+  name: 木质玩具剑
+  cleansed: false
+- id: '507625'
+  name: 祭星者之望
+  cleansed: false
+- id: '507629'
+  name: 破碎之海
+  cleansed: false
+- id: '508017'
+  name: 那夏镇
+  cleansed: false
+- id: '508020'
+  name: 叮铃哐啷军团
+  cleansed: false
+- id: '5421'
+  name: 冒险家头带
+  cleansed: false
+- id: '5423'
+  name: 游医的方巾
+  cleansed: false
+- id: '5424'
+  name: 赌徒的耳环
+  cleansed: false
+- id: '5447'
+  name: 便携营养袋
+  sub_class: 支援牌
+  tags:
+  - 道具
+  cost: '{"any": 1}'
+  cost_unsure: true
+- id: '5450'
+  name: 凯瑟琳
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 1}'
+  cost_unsure: true
+- id: '5453'
+  name: 卯师傅
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 1}'
+  cost_unsure: true
+- id: '5476'
+  name: 兽肉薄荷卷
+  cleansed: false
+- id: '5477'
+  name: 莲花酥
+  cleansed: false
+- id: '5478'
+  name: 烤蘑菇披萨
+  cleansed: false
+- id: '5481'
+  name: 运筹帷幄
+  cleansed: false
+- id: '5483'
+  name: 刘苏
+  cleansed: false
+- id: '5486'
+  name: 快快缝补术
+  cleansed: false
+- id: '5489'
+  name: 鹤归之时
+  cleansed: false
+- id: '5492'
+  name: 白垩之术
+  cleansed: false
+- id: '5529'
+  name: 蒙德土豆饼
+  sub_class: 事件牌
+  tags:
+  - 料理
+  cost: '{"same": 1}'
+- id: '6173'
+  name: 华饰之兜
+  cleansed: false
+- id: '6584'
+  name: 重攻击
+  cleansed: false
+- id: '6587'
+  name: 刺身拼盘
+  cleansed: false
+- id: '6593'
+  name: 草与智慧
+  cleansed: false
+- id: '6595'
+  name: 寻宝仙灵
+  cleansed: false
+- id: '6598'
+  name: 迪娜泽黛
+  cleansed: false
+9862fdb9b4581f82b1f8a1c75a9e7f57:
+- id: '501404'
+  name: 无光鲸噬
+  cleansed: false
+- id: '5509'
+  name: 百川奔流
+  cleansed: false
+9c612b3f541dda9cefb89db8c07479bc:
+- id: '505324'
+  name: 丛山锻火驰行
+  cleansed: false
+9dc26bb7f9bfeba59916eb9864e2c7c4:
+- id: '504780'
+  name: 浪船
+  cleansed: false
+9e7207494a4fdb10df19179ec836623b:
+- id: '500297'
+  name: 风龙废墟
+  cleansed: false
+- id: '500437'
+  name: 晦朔千引
+  cleansed: false
+- id: '500451'
+  name: 来歆余响
+  cleansed: false
+- id: '500669'
+  name: 松茸酿肉卷
+  cleansed: false
+- id: '501149'
+  name: 海中寻宝
+  cleansed: false
+- id: '501153'
+  name: 公义的酬报
+  cleansed: false
+- id: '501406'
+  name: 乐园遗落之花
+  cleansed: false
+- id: '501418'
+  name: 竭泽
+  cleansed: false
+- id: '501419'
+  name: 金流监督
+  cleansed: false
+- id: '501420'
+  name: 静水流涌之辉
+  cleansed: false
+- id: '501422'
+  name: 黄金剧团
+  cleansed: false
+- id: '501561'
+  name: _究极霸王超级魔剑_
+  cleansed: false
+- id: '501562'
+  name: 勘探钻机
+  cleansed: false
+- id: '502068'
+  name: 圣火竞技场
+  cleansed: false
+- id: '502089'
+  name: 鳍游龙
+  cleansed: false
+- id: '502905'
+  name: 嵴锋龙
+  cleansed: false
+- id: '502912'
+  name: 镀金旅团的茶歇
+  cleansed: false
+- id: '502914'
+  name: 便携动力锯
+  cleansed: false
+- id: '503405'
+  name: 暝视龙
+  cleansed: false
+- id: '503956'
+  name: _流泉之众_
+  cleansed: false
+- id: '505467'
+  name: 呀_呀_
+  cleansed: false
+- id: '505472'
+  name: 船坞长剑
+  cleansed: false
+- id: '505681'
+  name: 星轨王城
+  cleansed: false
+- id: '506160'
+  name: 未竟的遐思
+  cleansed: false
+- id: '506161'
+  name: 谐律异想断章
+  cleansed: false
+- id: '506162'
+  name: _邪龙_的苏醒
+  cleansed: false
+- id: '506168'
+  name: 若水
+  cleansed: false
+- id: '506924'
+  name: 不灭月华
+  cleansed: false
+- id: '506927'
+  name: 冒险家协会
+  cleansed: false
+- id: '507364'
+  name: 水仙之梦
+  cleansed: false
+- id: '507368'
+  name: 拯救世界的计划
+  cleansed: false
+- id: '508018'
+  name: 月矩力试验设计局
+  cleansed: false
+- id: '508021'
+  name: 元素幻变_蒸发祝佑
+  cleansed: false
+- id: '508022'
+  name: 元素幻变_超导祝佑
+  cleansed: false
+- id: '5400'
+  name: 深渊的呼唤
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"same": 2}'
+- id: '5406'
+  name: 魔导绪论
+  sub_class: 装备牌
+  tags:
+  - 武器
+  cost: '{"same": 2}'
+- id: '5409'
+  name: 鸦羽弓
+  sub_class: 装备牌
+  tags:
+  - 武器
+  - 弓
+  cost: '{"same": 2}'
+- id: '5412'
+  name: 白铁大剑
+  cleansed: false
+- id: '5415'
+  name: 白缨枪
+  cleansed: false
+- id: '5418'
+  name: 旅行剑
+  cleansed: false
+- id: '5428'
+  name: 冰风迷途的勇士
+  cleansed: false
+- id: '5430'
+  name: 沉沦之心
+  cleansed: false
+- id: '5432'
+  name: 炽烈的炎之魔女
+  cleansed: false
+- id: '5434'
+  name: 如雷的盛怒
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5436'
+  name: 翠绿之影
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5438'
+  name: 悠古的磐岩
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5440'
+  name: 深林的记忆
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5451'
+  name: 蒂玛乌斯
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 2}'
+  cost_unsure: true
+- id: '5452'
+  name: 瓦格纳
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 2}'
+  cost_unsure: true
+- id: '5454'
+  name: 阿圆
+  cleansed: false
+- id: '5457'
+  name: 艾琳
+  cleansed: false
+- id: '5459'
+  name: 西风大教堂
+  cleansed: false
+- id: '5460'
+  name: 璃月港口
+  cleansed: false
+- id: '5463'
+  name: 望舒客栈
+  cleansed: false
+- id: '6172'
+  name: 将帅兜鍪
+  cleansed: false
+- id: '6325'
+  name: 鸣神大社
+  cleansed: false
+- id: '6586'
+  name: 提瓦特煎蛋
+  cleansed: false
+- id: '6596'
+  name: 红羽团扇
+  cleansed: false
+- id: '6597'
+  name: 拉娜
+  cleansed: false
+- id: '6602'
+  name: 镇守之森
+  cleansed: false
+- id: '6604'
+  name: 须弥城
+  cleansed: false
+- id: '6605'
+  name: 珊瑚宫
+  cleansed: false
+- id: '6606'
+  name: 天守阁
+  cleansed: false
+- id: '6607'
+  name: 愚人众的阴谋
+  cleansed: false
+- id: '6611'
+  name: 绝缘之旗印
+  cleansed: false
+- id: '6684'
+  name: 永远的友谊
+  cleansed: false
+a27c6121d910fcdd598fb02da9a01cfe:
+- id: '500442'
+  name: 完场喝彩
+  cleansed: false
+- id: '500456'
+  name: 魔蝎烈祸
+  cleansed: false
+- id: '500675'
+  name: 僚佐的才巧
+  cleansed: false
+- id: '507391'
+  name: 通明庇佑
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '508028'
+  name: _焰主之祝_
+  cleansed: false
+- id: '5443'
+  name: 悉数讨回
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"火": 3}'
+- id: '5445'
+  name: 流火焦灼
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"火": 3}'
+- id: '5501'
+  name: 交叉火力
+  cleansed: false
+- id: '5873'
+  name: 砰砰礼物
+  cleansed: false
+- id: '6579'
+  name: 一触即发
+  cleansed: false
+aefd74af2edecabe9d1bfa0df9f3b464:
+- id: '500042'
+  name: 起死回骸
+  cleansed: false
+- id: '507390'
+  name: 虹彩缤纷的甜点茶话
+  cleansed: false
+b4616033b92a7b60cf181962ee633e14:
+- id: '500300'
+  name: 在地为化
+  cleansed: false
+- id: '6324'
+  name: 眼识殊明
+  cleansed: false
+b68c9ea46a14544092af66afe031b541:
+- id: '500191'
+  name: 慈惠仁心
+  cleansed: false
+- id: '500440'
+  name: 正理
+  cleansed: false
+- id: '501003'
+  name: 沿途百景会心
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '501403'
+  name: 预算师的技艺
+  cleansed: false
+- id: '502911'
+  name: 灵蛇旋嘶
+  cleansed: false
+- id: '5379'
+  name: 孢子增殖
+  cleansed: false
+- id: '5441'
+  name: 飞叶迴斜
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"草": 3}'
+- id: '6623'
+  name: 心识蕴藏之种
+  cleansed: false
+bcc66ffd5b7bea190c27be86d18d1fa6:
+- id: '500045'
+  name: 王下近侍
+  cleansed: false
+- id: '500196'
+  name: 贯月矢
+  cleansed: false
+- id: '500423'
+  name: 图莱杜拉的回忆
+  cleansed: false
+- id: '500424'
+  name: 四风原典
+  cleansed: false
+- id: '500436'
+  name: 苇海信标
+  cleansed: false
+- id: '500438'
+  name: 苦痛奉还
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '500453'
+  name: 饰金之梦
+  cleansed: false
+- id: '500459'
+  name: 和璞鸢
+  cleansed: false
+- id: '500465'
+  name: 裁叶萃光
+  cleansed: false
+- id: '501002'
+  name: 万世流涌大典
+  cleansed: false
+- id: '501415'
+  name: 幻戏倒计时_3
+  cleansed: false
+- id: '5407'
+  name: 祭礼残章
+  sub_class: 装备牌
+  tags:
+  - 武器
+  cost: '{"same": 3}'
+- id: '5408'
+  name: 天空之卷
+  sub_class: 装备牌
+  tags:
+  - 武器
+  - 法器
+  cost: '{"same": 3}'
+- id: '5410'
+  name: 祭礼弓
+  sub_class: 装备牌
+  tags:
+  - 武器
+  - 弓
+  cost: '{"same": 3}'
+- id: '5411'
+  name: 天空之翼
+  sub_class: 装备牌
+  tags:
+  - 武器
+  - 弓
+  cost: '{"same": 3}'
+- id: '5413'
+  name: 祭礼大剑
+  cleansed: false
+- id: '5414'
+  name: 狼的末路
+  sub_class: 装备牌
+  tags:
+  - 武器
+  - 双手剑
+  cost: '{"same": 3}'
+- id: '5416'
+  name: 千岩长枪
+  cleansed: false
+- id: '5417'
+  name: 天空之脊
+  cleansed: false
+- id: '5419'
+  name: 祭礼剑
+  cleansed: false
+- id: '5420'
+  name: 风鹰剑
+  cleansed: false
+- id: '5448'
+  name: 派蒙
+  sub_class: 支援牌
+  tags:
+  - 伙伴
+  cost: '{"any": 3}'
+  cost_unsure: true
+- id: '6326'
+  name: 西风剑
+  cleansed: false
+- id: '6583'
+  name: 下落斩
+  cleansed: false
+- id: '6585'
+  name: 温妮莎传奇
+  cleansed: false
+- id: '6610'
+  name: 千岩牢固
+  cleansed: false
+- id: '6612'
+  name: 天空之刃
+  cleansed: false
+- id: '6613'
+  name: 天空之傲
+  cleansed: false
+- id: '6614'
+  name: 薙草之稻光
+  cleansed: false
+- id: '6615'
+  name: 贯虹之槊
+  cleansed: false
+- id: '6616'
+  name: 钟剑
+  cleansed: false
+- id: '6617'
+  name: 终末嗟叹之诗
+  cleansed: false
+- id: '6618'
+  name: 阿莫斯之弓
+  cleansed: false
+- id: '6619'
+  name: 千夜浮梦
+  cleansed: false
+c8600cf471b4c41a92ad00c68a3c6611:
+- id: '501557'
+  name: 超量装药弹头
+  cleansed: false
+- id: '501564'
+  name: 尖兵协同战法
+  cleansed: false
+- id: '508024'
+  name: 蒸发祝佑_炽燃
+  cleansed: false
+- id: '6582'
+  name: 血之灶火
+  cleansed: false
+- id: '6621'
+  name: 烬火重燃
+  cleansed: false
+c8cb2fc927a3610843641a8b8ce0f9f5:
+- id: '506921'
+  name: 汇流
+  cleansed: false
+- id: '508023'
+  name: 蒸发祝佑_狂浪
+  cleansed: false
+cd47a0303526982ab0cee71941c43a41:
+- id: '502908'
+  name: 落染五色
+  cleansed: false
+- id: '5380'
+  name: 重铸_岩盔
+  cleansed: false
+d08c736ffd58960cac4e7033dd69a0a3:
+- id: '500021'
+  name: 衍溢的汐潮
+  cleansed: false
+- id: '500302'
+  name: 星天的花雨
+  cleansed: false
+- id: '500464'
+  name: 猜先有方
+  cleansed: false
+- id: '501400'
+  name: _诸君听我颂_共举爱之杯__
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 3}'
+- id: '502093'
+  name: 轻盈水沫
+  cleansed: false
+- id: '503432'
+  name: 应当有适当的休憩
+  cleansed: false
+- id: '5382'
+  name: 镜锢之笼
+  cleansed: false
+- id: '5442'
+  name: 沉没的预言
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"水": 3}'
+- id: '5496'
+  name: 光辉的季节
+  cleansed: false
+- id: '5500'
+  name: 重帘留香
+  cleansed: false
+- id: '6170'
+  name: 匣中玉栉
+  cleansed: false
+- id: '6322'
+  name: 镜华风姿
+  cleansed: false
+- id: '6581'
+  name: 深渊之灾_凝水盛放
+  cleansed: false
+d759a7fcaf78046125db81764c333589:
+- id: '503959'
+  name: 破夜的明焰
+  sub_class: 装备牌
+  tags:
+  - 天赋
+  cost: '{"same": 2}'
+- id: '6620'
+  name: 汲能棱晶
+  cleansed: false
+e27d1a031f8206bce971972b7935b75b:
+- id: '501385'
+  name: 唤醒眷属
+  cleansed: false
+- id: '501386'
+  name: 万千子嗣
+  cleansed: false
+- id: '504778'
+  name: 茉洁香迹
+  cleansed: false
+e915ac0c0582312eb32eedb810dd4d28:
+- id: '504514'
+  name: 索报皆偿
+  cleansed: false
+- id: '505693'
+  name: 饕噬尽吞
+  cleansed: false
+- id: '5398'
+  name: 元素共鸣_蔓生之草
+  sub_class: 事件牌
+  tags:
+  - 元素共鸣
+  cost: '{"草": 1}'
+ecc31f3f06099f1d86e608a1b712e7c6:
+- id: '500678'
+  name: 严霜棱晶
+  cleansed: false
+- id: '501398'
+  name: 予行恶者以惩惧
+  cleansed: false
+- id: '507633'
+  name: 湮远
+  cleansed: false
+- id: '508026'
+  name: 超导祝佑_极寒
+  cleansed: false
+- id: '5386'
+  name: 元素共鸣_粉碎之冰
+  cleansed: false
+f21fd5a782dead6518d879c718eea643:
+- id: '500022'
+  name: 盈满之实
+  cleansed: false
+- id: '500295'
+  name: 海染砗磲
+  cleansed: false
+- id: '500679'
+  name: 原木刀
+  cleansed: false
+- id: '501000'
+  name: 流明石触媒
+  cleansed: false
+- id: '501407'
+  name: 逐影猎人
+  cleansed: false
+- id: '501421'
+  name: 森林王器
+  cleansed: false
+- id: '505311'
+  name: 纵声欢唱
+  cleansed: false
+- id: '505315'
+  name: _沃陆之邦_
+  cleansed: false
+- id: '505462'
+  name: 驰轮车_跃升
+  cleansed: false
+- id: '505474'
+  name: 烬城勇者绘卷
+  cleansed: false
+- id: '505475'
+  name: 飞行队出击_
+  cleansed: false
+- id: '506926'
+  name: 昔日宗室之仪
+  cleansed: false
+- id: '5461'
+  name: 晨曦酒庄
+  cleansed: false
+- id: '6591'
+  name: 岩与契约
+  cleansed: false
+- id: '6608'
+  name: 辰砂往生录
+  cleansed: false
+- id: '6625'
+  name: 追忆之注连
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 3}'
+f5dd60d41187c41067aa90014d9c54c2:
+- id: '500445'
+  name: 炸鱼薯条
+  cleansed: false
+- id: '500682'
+  name: 老兵的容颜
+  cleansed: false
+- id: '501148'
+  name: 缤纷马卡龙
+  cleansed: false
+- id: '501151'
+  name: 太郎丸
+  cleansed: false
+- id: '501413'
+  name: 水与正义
+  cleansed: false
+- id: '501567'
+  name: 瑟琳
+  cleansed: false
+- id: '501629'
+  name: 薇尔妲的声援
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"same": 2}'
+- id: '505461'
+  name: 驰轮车_涉渡
+  cleansed: false
+- id: '505678'
+  name: 森林的祝福
+  cleansed: false
+- id: '505680'
+  name: 预言女神的礼物
+  cleansed: false
+- id: '505683'
+  name: 墨色酒馆
+  cleansed: false
+- id: '506165'
+  name: _狂欢节奏_
+  cleansed: false
+- id: '507387'
+  name: 白浪拂沙
+  cleansed: false
+- id: '507626'
+  name: 拾慧铸熔
+  cleansed: false
+- id: '507627'
+  name: 被浸染的缨盔
+  cleansed: false
+- id: '507628'
+  name: 玻娜与_绿松石_
+  cleansed: false
+- id: '5402'
+  name: 送你一程
+  sub_class: 事件牌
+  tags:
+  - 其他标签
+  cost: '{"any": 2}'
+- id: '5422'
+  name: 幸运儿银冠
+  cleansed: false
+- id: '5425'
+  name: 教官的帽子
+  cleansed: false
+- id: '5426'
+  name: 流放者头冠
+  cleansed: false
+- id: '5427'
+  name: 破冰踏雪的回音
+  cleansed: false
+- id: '5429'
+  name: 酒渍船帽
+  cleansed: false
+- id: '5431'
+  name: 焦灼的魔女帽
+  cleansed: false
+- id: '5433'
+  name: 唤雷的头冠
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5435'
+  name: 翠绿的猎人之冠
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5437'
+  name: 不动玄石之相
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5439'
+  name: 月桂的宝冠
+  sub_class: 装备牌
+  tags:
+  - 圣遗物
+  cost: '{"same": 2}'
+- id: '5446'
+  name: 参量质变仪
+  sub_class: 支援牌
+  tags:
+  - 道具
+  cost: '{"any": 2}'
+  cost_unsure: true
+- id: '5458'
+  name: 田铁嘴
+  cleansed: false
+- id: '5474'
+  name: 仙跳墙
+  cleansed: false
+- id: '5480'
+  name: 最好的伙伴_
+  cleansed: false
+- id: '5482'
+  name: 星天之兆
+  cleansed: false
+- id: '6588'
+  name: 唐杜尔烤鸡
+  cleansed: false
+- id: '6589'
+  name: 黄油蟹蟹
+  cleansed: false
+- id: '6599'
+  name: 旭东
+  cleansed: false
+- id: '6609'
+  name: 虺雷之姿
+  cleansed: false
+- id: '6626'
+  name: 无常之面
+  cleansed: false
+f821d769cd4d342230aa440489eae3a7:
+- id: '6574'
+  name: 炊金馔玉
+  cleansed: false

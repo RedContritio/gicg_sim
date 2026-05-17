@@ -1,0 +1,320 @@
+{
+  "id": "505468",
+  "name": "恰斯卡",
+  "desc": "恰斯卡卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/8a7080b824a2cc2bebb4dc696f354ec0_2707692483835933781.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"巡宇翦定·恰斯卡\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/8a7080b824a2cc2bebb4dc696f354ec0_1125758293638464105.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/7596a8548cda6f592983fa444ef38965_5401775396739222857.gif\",\"life\":10,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"风元素\"]},{\"key\":\"武器：\",\"value\":[\"弓\"]},{\"key\":\"阵营：\",\"value\":[\"纳塔\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"角色邀请·友好对局\"]}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"迷羽流击\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/0dead2638b0630496bff64160211d2bf_5453250127264431636.png\",\"life\":1,\"life_bg\":3,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1694067287681_0\"},{\"tab_name\":\"灵缰追影\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/a17eb41be64eca6dd82798d28c726016_647712972431004942.png\",\"life\":3,\"life_bg\":3,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">造成1点</span><strong><span style=\\\"color: rgb(54, 207, 201)\\\"><u>风元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，抓1张牌。<br>本角色附属</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>灵枪·仪式杖</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;灵枪·仪式杖：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：多重瞄准。&lt;br&gt;此牌被弃置时，所附属角色结束&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;br&gt;（角色最多装备1个「特技」）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，进入</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>夜魂加持</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，并获得2点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">「夜魂值」</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。（角色进入</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>夜魂加持</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">后不可使用此技能）（附属</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>灵枪·仪式杖</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;灵枪·仪式杖：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：多重瞄准。&lt;br&gt;此牌被弃置时，所附属角色结束&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;br&gt;（角色最多装备1个「特技」）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">的角色可以使用特技：</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>多重瞄准</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;多重瞄准：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;消耗1点&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，造成1点&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(19, 194, 194)&quot;&gt;风元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，然后随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;3张原本元素骰费用&lt;/span&gt;最高的手牌。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">）<br></span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">我方接下来2次「切换角色」时：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">抓1张牌。</span></p>\"]},\"tab_id\":\"1750095131171_1\"},{\"tab_name\":\"索魂命袭\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/37086ae15e5cd7d9beafd2a1e8f3e715_9061455789109395645.png\",\"life\":3,\"life_bg\":3,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">造成1</span>点<strong><span style=\\\"color: rgb(54, 207, 201)\\\"><u>风元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，对敌方所有后台角色造成1点穿透伤害，并抓3张牌。</span></p>\"]},\"tab_id\":\"1750095417233_2\"},{\"tab_name\":\"追影弹\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/b9d46ecac92d7c3463f2f8a36a986623_8667629559957280935.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">对局开始时，将6枚</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>追影弹</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;追影弹：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：3&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;加入手牌时：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;若我方出战角色为火/水/雷/冰，则将此牌转化为对应元素。&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出或从手牌中舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌时：优先对敌方出战角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(19, 194, 194)&quot;&gt;风元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，然后将一张追影&lt;/span&gt;弹随机放进牌库。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">随机放置进牌库。</span></p>\"]},\"tab_id\":\"1750095536490_3\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"多重瞄准\",\"skill_type\":\"特技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/6ff110643c36e30384bde2805a97ca01_5779765981432713193.png\",\"life\":2,\"life_bg\":3,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"特技效果\",\"value\":[\"<html><head></head><body><p><span style=\\\"color: rgb(0, 0, 0)\\\">消耗1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">「夜魂值」</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">，造成1点</span><strong><span style=\\\"color: rgb(54, 207, 201)\\\"><u>风元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;风元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，然后随机</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>舍弃</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">3张当前元素骰费用</span>最高的手牌。</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>巡宇翦定·恰斯卡</strong></p><p>风花铿锵，飞羽凌空。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"\",\"common_img\":\"\",\"gold_img\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"充能：\",\"value\":[]},{\"key\":\"攻击：\",\"value\":[]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815714102_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815724349_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p></p>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1775975364",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "七圣召唤",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "七圣召唤",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "6788a4ddaecf0d9ae89df66c",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/17/258999284/de066277f1f3120586b5e9c93c7fdb59_6179880726108751430.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/风元素\\\",\\\"武器/弓\\\",\\\"阵营/纳塔\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

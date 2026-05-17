@@ -1,0 +1,131 @@
+{
+  "id": "500548",
+  "name": "攻坚特化型机关·芒",
+  "desc": "攻坚特化型机关·芒卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/d74ff2760f05cc38e7ac757ce46ce954_377947631673533715.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"攻坚特化型机关·芒\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/d74ff2760f05cc38e7ac757ce46ce954_3688685333367175372.png\",\"gold_img\":\"\",\"life\":10,\"life_bg\":11,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"元素：\",\"value\":[\"火元素\"]},{\"key\":\"武器：\",\"value\":[\"其他武器\"]},{\"key\":\"阵营：\",\"value\":[\"魔物\"]},{\"key\":\"充能：\",\"value\":[\"2\"]},{\"key\":\"获取方式：\",\"value\":[\"无\"]}],\"repeated\":false}",
+          "style": ""
+        }
+      ],
+      "id": "2808",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"近距格斗\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/a94ec4a1d2734feca4bdd106c5c31615_1428636012808355574.png\",\"life\":1,\"life_bg\":4,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917631352_0\"},{\"tab_name\":\"多重钝击\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/b2e59230fd90012db6a034933e4aacad_7546041997919897584.png\",\"life\":3,\"life_bg\":4,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成1点<strong><span style=\\\"color: rgb(207, 19, 34)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;火元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，并<strong><u>准备技能</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;准备技能：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;有些技能无法被直接使用，而是需要一定次数的行动轮来进行&lt;strong&gt;准备&lt;/strong&gt;。&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;轮到一位牌手行动时，如果该牌手的「出战角色」正在&lt;strong&gt;准备&lt;/strong&gt;技能，则跳过该牌手的行动；如果技能已经完成&lt;strong&gt;准备&lt;/strong&gt;，角色将会在此时直接使用此技能。（此类需要&lt;strong&gt;准备&lt;/strong&gt;的技能，无法触发「使用技能后」效果。）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;只有「出战角色」才能&lt;strong&gt;准备&lt;/strong&gt;技能；如果正在&lt;strong&gt;准备&lt;/strong&gt;技能的「出战角色」被切换到后台，技能的&lt;strong&gt;准备&lt;/strong&gt;就会被打断。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>：<strong><u>超速旋击</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;超速旋击：&lt;/p&gt;&lt;p&gt;元素战技&lt;/p&gt;&lt;p&gt;（需准备1个行动轮）&lt;/p&gt;&lt;p&gt;造成1点&lt;strong&gt;物理伤害&lt;/strong&gt;，此角色额外获得1点充能。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p><p>造成1点的火元素伤害，并准备技能：</p>\"]},\"tab_id\":\"1703917634542_1\"},{\"tab_name\":\"冲刺打击\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/2cd9777f25023cec8e8fa1a24c293c7a_587664125873346616.png\",\"life\":3,\"life_bg\":4,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成5点<strong><span style=\\\"color: rgb(207, 19, 34)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;火元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917635167_2\"},{\"tab_name\":\"能源特征：芒性\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/4ae633299dfbc032574042600ae4cd90_6537007057988374783.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><strong>受到具有「始基力：荒性」的角色造成的伤害后：</strong>此角色转换为<strong>「<u>失能形态</u>」</strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;失能形态：&lt;/p&gt;&lt;p&gt;具有「能源特征：荒性」或「能源特征：芒性」的「发条机关」在受到具有相反性质「始基力」的伤害后，会发生荒芒湮灭效应，并转换为「失能形态」。&lt;/p&gt;&lt;p&gt;「发条机关」处于「失能形态」时无法使用原本的技能，只能使用「失能形态」的技能。「失能形态」下的技能不会造成元素伤害，只能造成物理伤害。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，并且直到本回合结束前<strong>无法使用技能</strong>。</p>\"]},\"tab_id\":\"1703921584259_3\"}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "2809",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1761713001",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "260",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "1193",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "2808",
+                "pos": "left"
+              },
+              {
+                "id": "2809",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": true,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "235",
+      "name": "魔物牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "魔物牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"/ys/obc/channel/map/231/235?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "658fc6e8bd1aa1568a8dea62",
+  "ext": {
+    "fe_ext": "{\"c_235\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/de066277f1f3120586b5e9c93c7fdb59_8169462897185990306.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

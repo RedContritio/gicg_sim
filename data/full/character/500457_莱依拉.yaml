@@ -1,0 +1,368 @@
+id: 500457
+name: 莱依拉
+title: 绮思晚星·莱依拉
+parent_class: character
+desc: 莱依拉卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/94b1677048ddaa84ab735bb8f90c209d_4627029311576611759.png
+header_img_url: ''
+version: '1777427881'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 单手剑
+  阵营: &id001
+  - 须弥
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 冰
+weapon: 单手剑
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/94b1677048ddaa84ab735bb8f90c209d_3451890112016676238.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/1877ec9418ea468edda4126518eaf42c_7784123156224507388.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/de066277f1f3120586b5e9c93c7fdb59_3759497806747964070.png
+skills:
+- name: 熠辉轨度剑
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/b5ebc228f47c5f250990118953db65bd_4652597656997315266.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 垂裳端凝之夜
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/752935b8ac76b044a14e788b146542d9_8202062186002160885.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">生成</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>安眠帷幕护盾</u></span></strong><span data-type="详情" data-name="<p><strong>安眠帷幕护盾：</strong></p><p>出战状态</p><p>提供2点<strong>护盾</strong>，保护我方出战角色。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">和</span><strong><span style="color: rgb(0, 0, 0)"><u>飞星</u></span></strong><span
+    data-type="详情" data-name="<p><strong>飞星：</strong></p><p>出战状态</p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>我方角色使用技能后：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>累积1枚</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「晚星」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。如果</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>「晚星」</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>已有至少4枚，则消耗4枚</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>「晚星」</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>，造成1点</span><strong><span style=&quot;color: rgb(145, 213,
+    255)&quot;>冰元素伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。（生成此出战状态的技能，也会触发此效果）<br></span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>重复生成此出战状态时：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>累积2枚</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「晚星」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 生成安眠帷幕护盾和飞星我方角色使用技能后：累积1枚「晚星」。如果「晚星」已有至少4枚，则消耗4枚「晚星」，造成1点冰元素伤害。（生成此出战状态的技能，也会触发此效果）重复生成此出战状态时：累积2枚「晚星」。"
+    class="wiki-note-text">。
+  term_refs:
+  - 安眠帷幕护盾
+  - 飞星
+- name: 星流摇床之梦
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/e419e8855adc7d838639a2dacb3be165_5717426653880544475.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>，召唤<strong><em>饰梦天球</em></strong>。</p>'
+  effect_text: 造成3点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，召唤饰梦天球。
+  term_refs:
+  - 冰元素伤害
+  energy_req: 2
+summons:
+- name: 饰梦天球
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/12/258999284/1b86f1cb97411b77d51cc22bb5622ff7_2462971599599504312.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(145, 213,
+    255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+    pre-wrap;&quot;>冰元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。如果</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>飞星</u></span></strong><span data-type="详情" data-name="<p><strong>飞星：</strong></p><p>出战状态</p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>我方角色使用技能后：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>累积1枚</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「晚星」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。如果</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>「晚星」</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>已有至少4枚，则消耗4枚</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>「晚星」</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>，造成1点</span><strong><span style=&quot;color: rgb(145, 213,
+    255)&quot;>冰元素伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。（生成此出战状态的技能，也会触发此效果）<br></span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>重复生成此出战状态时：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>累积2枚</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「晚星」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">在场，则使其累积1枚</span><strong><span
+    style="color: rgb(0, 0, 0)">「晚星」</span></strong><span style="color: rgb(0, 0,
+    0)">。<br></span><strong><u>可用次数</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>可用次数：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>此牌效果触发后，会消耗1次可用次数；</p><p style=&quot;white-space: pre-wrap;&quot;>可用次数耗尽后，立刻弃置此牌。</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：2</span></p>'
+  effect_text: 结束阶段：造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。如果飞星我方角色使用技能后：累积1枚「晚星」。如果「晚星」已有至少4枚，则消耗4枚「晚星」，造成1点冰元素伤害。（生成此出战状态的技能，也会触发此效果）重复生成此出战状态时：累积2枚「晚星」。"
+    class="wiki-note-text">在场，则使其累积1枚「晚星」。可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">：2
+  term_refs:
+  - 冰元素伤害
+  - 飞星
+  - 可用次数
+talent:
+  name: 归芒携信
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/bf34b0aa7f7664582ddb7eacaf1bd9ca_7610315320855489321.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">莱依拉</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br>莱依拉装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>垂裳端凝之夜</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;垂裳端凝之夜：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素战技&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;安眠帷幕护盾&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;和&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;飞星&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>装备有此牌的莱依拉在场时，每当</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>飞星</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;飞星：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方角色使用技能后：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;累积1枚&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「晚星」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。如果&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「晚星」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;已有至少4枚，则消耗4枚&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「晚星」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（生成此出战状态的技能，也会触发此效果）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;重复生成此出战状态时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;累积2枚&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「晚星」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">造成伤害，就抓1张牌。<br>（牌组中包含莱依拉，才能加入牌组）</span></p>'
+  effect_text: '战斗行动：我方出战角色为莱依拉时，装备此牌。
+
+    莱依拉装备此牌后，立刻使用一次垂裳端凝之夜垂裳端凝之夜：
+
+    元素战技
+
+    生成安眠帷幕护盾和飞星。" class="wiki-note-text">。
+
+    装备有此牌的莱依拉在场时，每当飞星我方角色使用技能后：累积1枚「晚星」。如果「晚星」已有至少4枚，则消耗4枚「晚星」，造成1点冰元素伤害。（生成此出战状态的技能，也会触发此效果）
+
+    重复生成此出战状态时：累积2枚「晚星」。" class="wiki-note-text">造成伤害，就抓1张牌。
+
+    （牌组中包含莱依拉，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 垂裳端凝之夜
+  - 飞星
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含莱依拉，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 15
+  energy: 2
+  attr:
+    元素:
+    - 冰元素
+    武器:
+    - 单手剑
+    阵营:
+    - 须弥
+    充能:
+    - 2点
+  skills:
+  - name: 垂裳端凝之夜
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/752935b8ac76b044a14e788b146542d9_6519893997001430488.png
+    effect_html: '<html><head></head><body><p>造成<strong><span style="color: rgb(145,
+      213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color:
+      rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成3层<strong><u>护盾</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;护盾：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每层抵消1点此角色受到的伤害。（可叠加，没有上限）&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>和<strong><u>飞星</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;飞星：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色使用技能后：&lt;/strong&gt;累积1枚&lt;strong&gt;「晚星」&lt;/strong&gt;。如果&lt;strong&gt;「晚星」&lt;/strong&gt;已有至少5枚，则消耗5枚&lt;strong&gt;「晚星」&lt;/strong&gt;，造成2点&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，并使后续此效果的伤害+2。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color:
+      rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。为其积累1枚<strong>「晚星」</strong>。</p></body></html>'
+    effect_text: 造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">，生成3层护盾和飞星冰元素伤害，并使后续此效果的伤害+2。冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。为其积累1枚「晚星」。
+    term_refs:
+    - 冰元素伤害
+    - 护盾
+    - 飞星
+  - name: 星流摇床之梦
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/e419e8855adc7d838639a2dacb3be165_5816419922036090472.png
+    effect_html: '<html><head></head><body><p>造成<strong><span style="color: rgb(145,
+      213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color:
+      rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0,
+      0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>饰梦天球</em></strong>。</p></body></html>'
+    effect_text: 造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">，召唤饰梦天球。
+    term_refs:
+    - 冰元素伤害
+    energy_req: 2
+  summons:
+  - name: 饰梦天球
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/1b86f1cb97411b77d51cc22bb5622ff7_5571509278255385635.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+      style="color: rgb(0, 0, 0)">造成4点</span><strong><span style="color: rgb(145,
+      213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&quot;color:
+      rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。如果<strong>飞星</strong>在场，则使其积累2枚<strong>「晚星」</strong><span
+      style="color: rgb(0, 0, 0)">。</span></p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;此牌效果触&lt;/strong&gt;发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">：2</span></p>'
+    effect_text: 结束阶段：造成4点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。如果飞星在场，则使其积累2枚「晚星」。可用次数：2
+    term_refs:
+    - 冰元素伤害
+    - 可用次数
+flavor_html: <p><strong>绮思晚星·莱依拉</strong></p><p>夜沉星移，月笼梦行。</p>
+flavor_text: '绮思晚星·莱依拉
+
+  夜沉星移，月笼梦行。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  安眠帷幕护盾: 出战状态提供2点护盾，保护我方出战角色。
+  飞星: 出战状态我方角色使用技能后：累积1枚「晚星」。如果「晚星」已有至少4枚，则消耗4枚「晚星」，造成1点冰元素伤害。（生成此出战状态的技能，也会触发此效果）重复生成此出战状态时：累积2枚「晚星」。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  垂裳端凝之夜: 元素战技生成安眠帷幕护盾和飞星。
+_raw_path: data/raw/character/500457_莱依拉.json

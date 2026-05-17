@@ -1,0 +1,387 @@
+{
+  "id": "508012",
+  "name": "伊涅芙",
+  "desc": "伊涅芙卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/383e910b7c4f8afbecd33aae64f83f83_1649031403804845678.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"伊涅芙\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/383e910b7c4f8afbecd33aae64f83f83_1492533290277562328.png\",\"gold_img\":\"\",\"life\":10,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"雷元素\"]},{\"key\":\"武器：\",\"value\":[\"长柄武器\"]},{\"key\":\"阵营：\",\"value\":[\"挪德卡莱\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"角色邀请·友好对局\"]}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"除尘旋刃\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/42a17dadbab7ddd2c401c36dc0759a76_5996546819864782075.png\",\"life\":1,\"life_bg\":5,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>造成2点<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>物理伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}},{\"tab_name\":\"涤净模式·稳态载频\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/d5e9e4c887176cfeb314b9bb6db22a55_5325643536553566871.png\",\"life\":3,\"life_bg\":5,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>生成2点<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>护盾</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;为我方出战角色提供1点护盾&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;。（可叠加，没有上限）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，召唤<strong><em>薇尔琪塔</em></strong>。</p></body></html>\"]}},{\"tab_name\":\"至高律令·全域扫灭\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/039b55c9cc622899e554c30d65cc80b7_8830435731277881166.png\",\"life\":3,\"life_bg\":5,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>造成4点<strong><span style=\\\"color: rgb(114, 46, 209)\\\"><u>雷元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，召唤<strong><em>薇尔琪塔</em></strong>。</p></body></html>\"]}},{\"tab_name\":\"月兆祝赐·象拟中继\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/f147a4e227a2b03d776bf87717a9f9a0_1564233371995092023.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>【被动】本局游戏中，敌方受到感电反应时，改为月感电<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;月感电&lt;/p&gt;&lt;p&gt;规则解释&lt;/p&gt;&lt;p&gt;生成回合结束时造成2点&lt;strong&gt;&lt;span style=&#34;color: rgb(114, 46, 209)&#34;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;的[&lt;strong&gt;&lt;em&gt;雷暴云&lt;/em&gt;&lt;/strong&gt;]。（可用次数1，可叠加，没有上限）&lt;/p&gt;&lt;p&gt;[&lt;strong&gt;&lt;em&gt;雷暴云&lt;/em&gt;&lt;/strong&gt;]入场或可用次数增加时，赋予敌方随机1张手牌[电击]。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;电击&lt;/p&gt;&lt;p&gt;附着效果状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;如果此牌在手牌中，则对我方生命值最高角色造成等同于自身层数的&lt;strong&gt;穿透伤害&lt;/strong&gt;。（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>反应。</p><p>自身在场，敌方行动牌被赋予电击时：额外赋予不可调和<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;不可调和&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;附着效果状态&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;此牌无法进行调和。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>状态。</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"薇尔琪塔\",\"skill_type\":\"召唤物\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/27cd7d32d8108332a19ea56241928e4a_1680338304291637262.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"召唤物效果\",\"value\":[\"<html><head></head><body><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">结束阶段：</span></strong>造成1点<strong><span style=\\\"color: rgb(114, 46, 209)\\\"><u>雷元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>可用次数</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>：3</p></body></html>\"]}},{\"tab_name\":\"雷暴云\",\"skill_type\":\"召唤物\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/05b4b00e37213ee98813a4be67352327_4154918409935579035.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"召唤物效果\",\"value\":[\"<html><head></head><body><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">结束阶段：</span></strong>造成2点<strong><span style=\\\"color: rgb(114, 46, 209)\\\"><u>雷元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>可用次数</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>：1（可叠加，没有上限）</p><p><strong>自身入场或可用次数增加时：</strong>赋予敌方随机1张手牌电击<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;电击&lt;/p&gt;&lt;p&gt;附着效果状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;如果此牌在手牌中，则对我方生命值最高角色造成等同于自身层数的&lt;strong&gt;穿透伤害&lt;/strong&gt;。（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>伊涅芙</strong></p><p>白铁锻身，赤心铸魂。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"\",\"common_img\":\"\",\"gold_img\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"充能：\",\"value\":[]},{\"key\":\"攻击：\",\"value\":[]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p></p>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"循环整流引擎\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/423a164b96316f0d67f8d05af17d64fd_1815306506111236525.png\",\"life\":1,\"life_bg\":5,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<html><head></head><body><p><strong>快速行动：</strong>装备给我方的<strong>伊涅芙</strong>。</p><p>赋予敌方随机1张手牌电击<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;电击&lt;/p&gt;&lt;p&gt;附着效果状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;如果此牌在手牌中，则对我方生命值最高角色造成等同于自身层数的&lt;strong&gt;穿透伤害&lt;/strong&gt;。（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，然后重复1次。</p><p>我方触发月感电反应后：赋予敌方随机1张手牌费用增加<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;费用增加&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;附着效果状态&lt;/p&gt;&lt;p style=&#34;text-align: start&#34;&gt;每层使打出此卡牌多花费1个元素骰。（可叠加，没有上限)&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p><p>（牌组中包含伊涅芙，才能加入牌组）</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1772070550",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "七圣召唤",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "七圣召唤",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "自行巧局",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/de066277f1f3120586b5e9c93c7fdb59_8671162971657656926.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/雷元素\\\",\\\"武器/长柄武器\\\",\\\"阵营/挪德卡莱\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

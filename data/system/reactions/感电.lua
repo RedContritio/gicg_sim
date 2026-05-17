@@ -1,12 +1,14 @@
-local attached_electro = get_counter("attached_electro", Scope.PerChar)
-local attached_water   = get_counter("attached_water",   Scope.PerChar)
+local 雷元素附着 = get_counter("雷元素附着", Scope.PerChar)
+local attached_water   = get_counter("水元素附着",   Scope.PerChar)
+
+local R_ELECTRO_CHARGED = declare_reaction("ElectroCharged")  -- ADR-0019 §B.3
 
 on_reaction_damage(function(ctx)
   local tp, tc = ctx.target_player, ctx.target_char
   local triggered = false
 
-  if ctx.element == Element.Water and attached_electro:get_at(tp, tc) > 0 then
-    attached_electro:set_at(tp, tc, 0)
+  if ctx.element == Element.Water and 雷元素附着:get_at(tp, tc) > 0 then
+    雷元素附着:set_at(tp, tc, 0)
     triggered = true
   elseif ctx.element == Element.Electro and attached_water:get_at(tp, tc) > 0 then
     attached_water:set_at(tp, tc, 0)
@@ -15,8 +17,9 @@ on_reaction_damage(function(ctx)
 
   if triggered then
     ctx.element = Element.None
+    set_reaction_kind(R_ELECTRO_CHARGED)
     defer_fn(function()
-      deal_damage(Target.EnemyAll, Element.None, 1, { penetrate = true, source = Source.Reaction })
+      deal_damage(Target.EnemyAll, Element.Piercing, 1, { source = Source.Reaction })
     end)
   end
 end)

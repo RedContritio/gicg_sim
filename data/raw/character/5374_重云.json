@@ -1,0 +1,387 @@
+{
+  "id": "5374",
+  "name": "重云",
+  "desc": "重云卡牌",
+  "icon_url": "https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/5192016de21d9f10eb851387bdf2ef39_7120598137698198121.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"name\":\"雪融有踪·重云\",\"common_img\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/5192016de21d9f10eb851387bdf2ef39_3201745536478119133.png\",\"gold_img\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/12/16/12109492/a3982fe6cb877e2695af097b888853a2_2186037936029279515.gif\",\"life\":10,\"life_bg\":11,\"energy\":3,\"energy_bg\":8,\"attr\":[{\"key\":\"元素\",\"value\":[\"：冰元素\"]},{\"key\":\"武器\",\"value\":[\"：双手剑\"]},{\"key\":\"阵营\",\"value\":[\"：璃月\"]},{\"key\":\"充能\",\"value\":[\"：3点\"]},{\"key\":\"获取方式\",\"value\":[\"：角色邀请·友好对局\"]}]}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"灭邪四式\",\"skill_type\":\"普通攻击\",\"icon\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/11/26/12109492/fc4695c7947675242718788122db81d3_1060477429606820068.png\",\"life\":1,\"life_bg\":1,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1756442793003_0\"},{\"tab_name\":\"重华叠霜\",\"skill_type\":\"元素战技\",\"icon\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/11/26/12109492/90fe50a43ea7905773df4433d385e4d9_8501818730448316824.png\",\"life\":3,\"life_bg\":1,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成3点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，生成<strong><u>重华叠霜领域</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;重华叠霜领域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方单手剑、双手剑或长柄武器角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;持续回合：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每回合结束阶段，&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;-1；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1756442793003_1\"},{\"tab_name\":\"云开星落\",\"skill_type\":\"元素爆发\",\"icon\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/11/26/12109492/0bddb45b9d91fb892ddaf2e8eb1e04a8_1565971516954358022.png\",\"life\":3,\"life_bg\":1,\"energy\":3,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成7点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1756442793003_2\"}]}",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1731947287685_0\"}]}",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p style=\\\"white-space: pre-wrap;\\\"><strong>雪融有踪·重云</strong></p><p style=\\\"white-space: pre-wrap;\\\">「夏天啊，你还是悄悄过去吧…」</p>\",\"switch\":false,\"is_show_switch\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"雪融有踪·重云\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/5192016de21d9f10eb851387bdf2ef39_5358391806225999135.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/a3982fe6cb877e2695af097b888853a2_2282753035944819299.gif\",\"life\":8,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"攻击：\",\"value\":[\"3\"]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"重华叠霜\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/90fe50a43ea7905773df4433d385e4d9_7885408876885553381.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>造成<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，生成<strong><u>重华叠霜领域</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;重华叠霜领域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span style=&#34;color: rgb(145, 213, 255)&#34;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。我方造成的&lt;strong&gt;&lt;span style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;伤害+1。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}},{\"tab_name\":\"云开星落\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/0bddb45b9d91fb892ddaf2e8eb1e04a8_7305265516539399804.png\",\"life\":2,\"life_bg\":8,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>造成2倍攻击力的<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(250, 219, 20)&#34;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815724349_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\" style=\\\"text-align: center\\\">自行巧局</h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"天赋牌\",\"layout_\":\"banner\",\"list\":[{\"tab_name\":\"吐纳真定\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/06f283da39baa2e65703e7e8e9003224_306943355752724906.png\",\"life\":3,\"life_bg\":1,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<p><strong><u>战斗行动</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>：我方出战角色为<strong>重云</strong>时，装备此牌。</p><p>重云装备此牌后，立刻使用一次<strong><span style=\\\"color: rgb(212, 177, 6)\\\"><u>重华叠霜</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;重华叠霜：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，生成&lt;strong&gt;重华叠霜领域&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;重华叠霜领域&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方单手剑、双手剑或长柄武器角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p><p>装备有此牌的重云生成的<strong><u>重华叠霜领域</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;重华叠霜领域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方单手剑、双手剑或长柄武器角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>获得以下效果：</p><p>使我方单手剑、双手剑或长柄武器角色的<strong>普通攻击</strong>伤害+1。</p><p>（牌组中包含重云，才能加入牌组）</p>\"]},\"tab_id\":\"1759479143814_0\"}],\"baseInfoSwitchDisabled\":false,\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1777427864",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "七圣召唤",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "自行巧局",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/冰元素\\\",\\\"武器/双手剑\\\",\\\"阵营/璃月\\\",\\\"特殊模式/自行巧局\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

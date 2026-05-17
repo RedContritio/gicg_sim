@@ -1,0 +1,192 @@
+id: 500432
+name: 「女士」
+title: 第八执行官·「女士」
+parent_class: character
+desc: 「女士」卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/f5904898779c5de0fd9cf2f207f5d2f8_38534359530046403.png
+header_img_url: ''
+version: '1760346459'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 愚人众
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 冰
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/f5904898779c5de0fd9cf2f207f5d2f8_1917054016449064269.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/5506d7ad0fc7b6779df2bfc44b7ec3c5_1330846794340000982.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/de066277f1f3120586b5e9c93c7fdb59_2650001316129803453.png
+skills:
+- name: 霜锋霰舞
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/86ff2dcfaf79e215791b65d7f6a0100a_1847629313695154438.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;>融化：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;>超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+- name: 凛冽之刺
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/fcd147fbb1603eebf7574496af8424df_6173017475342647286.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;>融化：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;>超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，目标角色附属</span><strong><span style="color: rgb(0, 0, 0)"><u>严寒</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>严寒：</span></strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>结束阶段：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>对附属角色造成1点</span><strong><span
+    style=&quot;color: rgb(145, 213, 255)&quot;>冰元素伤害</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>。</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>：1</span></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>所附属角色被附属</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>炽热</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>时，移除此效果。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，目标角色附属严寒严寒：状态结束阶段：对附属角色造成1点冰元素伤害。可用次数：1所附属角色被附属炽热时，移除此效果。"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  - 严寒
+- name: 红莲冰茧
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/ed3c25462958e78b9156b668a319bc7a_1717048070002778416.png
+  effect_html: '<p>造成4点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;>融化：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;>超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，治疗本角色2点。移除</span><strong><span style="color: rgb(0, 0, 0)"><u>冰封的炽炎魔女</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>冰封的炽炎魔女：</span></strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>行动阶段开始时：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>如果所附属角色生命值不多于4，则移除此效果。</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>所附属角色被击倒时：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>移除此效果，使角色</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>免于被击倒</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>，并治疗该角色到1点生命值。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>此效果被移除时：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>所附属角色转换为</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「焚尽的炽炎魔女」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>形态。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，本角色永久转换为</span><strong><span
+    style="color: rgb(0, 0, 0)">「焚尽的炽炎魔女」</span></strong><span style="color: rgb(0,
+    0, 0)">形态。</span></p>'
+  effect_text: 造成4点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，治疗本角色2点。移除冰封的炽炎魔女冰封的炽炎魔女：状态行动阶段开始时：如果所附属角色生命值不多于4，则移除此效果。所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到1点生命值。此效果被移除时：所附属角色转换为「焚尽的炽炎魔女」形态。"
+    class="wiki-note-text">，本角色永久转换为「焚尽的炽炎魔女」形态。
+  term_refs:
+  - 冰元素伤害
+  - 冰封的炽炎魔女
+  energy_req: 2
+summons: []
+talent:
+  name: 苦痛奉还
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    同色: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/b053865b60ec217331ea86ff7fb8789c_3335982790617877052.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">我方出战角色为</span><strong><span style="color:
+    rgb(0, 0, 0)">「女士」</span></strong><span style="color: rgb(0, 0, 0)">时，才能打出：入场时，生成3个</span><strong><span
+    style="color: rgb(0, 0, 0)">「女士」</span></strong><span style="color: rgb(0, 0,
+    0)">当前元素类型的元素骰。<br>角色受到至少为3点的伤害时：抵消1点伤害，然后根据「女士」的形态对敌方出战角色附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>严寒</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;严寒：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;对附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被附属&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;炽热&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;时，移除此效果。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">或</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>炽热</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;炽热：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;对所附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被附属&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;严寒&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;时，移除此效果&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含「女士」，才能加入牌组）</span></p>'
+  effect_text: '我方出战角色为「女士」时，才能打出：入场时，生成3个「女士」当前元素类型的元素骰。
+
+    角色受到至少为3点的伤害时：抵消1点伤害，然后根据「女士」的形态对敌方出战角色附属严寒结束阶段：对附属角色造成1点冰元素伤害。
+
+    可用次数：1
+
+    所附属角色被附属炽热时，移除此效果。" class="wiki-note-text">或炽热炽热：
+
+    状态
+
+    结束阶段：对所附属角色造成1点火元素伤害。
+
+    可用次数：1
+
+    所附属角色被附属严寒时，移除此效果" class="wiki-note-text">。（每回合1次）
+
+    （牌组中包含「女士」，才能加入牌组）'
+  term_refs:
+  - 严寒
+  - 炽热
+  deck_constraint: 牌组中包含「女士」，才能加入牌组
+flavor_html: <p><strong>第八执行官·「女士」</strong></p><p>瞳仁中倒映着破晓的赤红，她最后展开烈焰之翼向黎明飞去。</p><p>「但那并不是曙光，亲爱的罗莎琳。那是焚尽一切的火海。」</p><p>但这也没什么所谓。因为她心中明白，自己早已被烈火吞没。</p>
+flavor_text: '第八执行官·「女士」
+
+  瞳仁中倒映着破晓的赤红，她最后展开烈焰之翼向黎明飞去。
+
+  「但那并不是曙光，亲爱的罗莎琳。那是焚尽一切的火海。」
+
+  但这也没什么所谓。因为她心中明白，自己早已被烈火吞没。'
+terms:
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  严寒: 状态结束阶段：对附属角色造成1点冰元素伤害。可用次数：1所附属角色被附属炽热时，移除此效果。
+  冰封的炽炎魔女: 状态行动阶段开始时：如果所附属角色生命值不多于4，则移除此效果。所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到1点生命值。此效果被移除时：所附属角色转换为「焚尽的炽炎魔女」形态。
+  炽热: 状态结束阶段：对所附属角色造成1点火元素伤害。可用次数：1所附属角色被附属严寒时，移除此效果
+_raw_path: data/raw/character/500432__女士_.json

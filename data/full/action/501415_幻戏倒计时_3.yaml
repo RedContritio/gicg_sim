@@ -1,0 +1,55 @@
+id: 501415
+name: 幻戏倒计时：3
+parent_class: action
+desc: 幻戏倒计时：3卡牌；别称：幻戏，倒计时
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '3'
+cost:
+  同色: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/9c032dc20cdd269e79296d893806b112_6984839959914845407.png
+header_img_url: ''
+version: '1717554545'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">将我方所有元素骰转换为</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>万能元素</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;万能元素：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;万能元素可以视为任何类型的元素，来支付各种费用。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，抓4张牌。</span></p><p><strong><span style="color: rgb(0, 0, 0)">此牌在手牌或牌库中被<u>舍弃</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">后：将1张元素骰费用比此牌少1个的「幻戏倒计时」放置到你的牌库顶。</span></p>'
+effect_text: '将我方所有元素骰转换为万能元素万能元素：
+
+  万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">，抓4张牌。
+
+  此牌在手牌或牌库中被舍弃舍弃：
+
+  通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">后：将1张元素骰费用比此牌少1个的「幻戏倒计时」放置到你的牌库顶。'
+term_refs:
+- 万能元素
+- 舍弃
+terms:
+  万能元素: 万能元素可以视为任何类型的元素，来支付各种费用。
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/bcc66ffd5b7bea190c27be86d18d1fa6_1549622573786783408.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/9c032dc20cdd269e79296d893806b112_7139893433421022691.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/f587af6dcb9ac738a07c7ad4fec7c158_6480308725704003967.gif
+flavor_html: <p><strong>幻戏倒计时</strong></p><p>「想看魔术吗？来吧，跟着我一起念——三、二、一！」</p>
+flavor_text: '幻戏倒计时
+
+  「想看魔术吗？来吧，跟着我一起念——三、二、一！」'
+_raw_path: data/raw/action/501415_幻戏倒计时_3.json

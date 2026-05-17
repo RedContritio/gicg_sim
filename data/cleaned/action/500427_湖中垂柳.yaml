@@ -1,0 +1,36 @@
+id: 500427
+name: 湖中垂柳
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '结束阶段：如果我方手牌数量不多于2，则抓2张牌。
+
+  可用次数：2'
+term_refs:
+- 可用次数
+terms:
+  可用次数: 此牌效果触发后，会消耗1次可用次数;可用次数耗尽后,立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/288180982/8c5a4f348a3a8017500c15e9cd0c5c15_5940467667201012903.png
+duration: 可用次数2
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/15/258999284/3e8a5c300c5c01f7fedaac87bd641d92_296932138041166470.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/15/258999284/1d0c6d0ebab50501f8f793d938360b42_6615494129994931531.gif
+flavor_text: '湖中垂柳
+
+  在古时，湖中的垂柳是受到敬畏的。一切水脉在伊黎耶汇合，而垂柳随着水脉的甜与苦而繁茂或衰败。'

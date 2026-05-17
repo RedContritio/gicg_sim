@@ -1,0 +1,65 @@
+id: 500998
+name: 古海孑遗的权柄
+parent_class: action
+desc: 古海孑遗的权柄卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  水: 1
+  无色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/d419604605c1acde00b841ecf8c82864_2390740257921305545.png
+header_img_url: ''
+version: '1710295476'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 1
+raw_life_bg: 6
+raw_energy: 2
+raw_energy_bg: 10
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong><span style="color:
+  rgb(0, 0, 0)">：</span></strong><span style="color: rgb(0, 0, 0)">我方出战角色为</span><strong><span
+  style="color: rgb(0, 0, 0)">那维莱特</span></strong><span style="color: rgb(0, 0, 0)">时，装备此牌。<br>那维莱特装备此牌后，立刻使用一次</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>如水从平</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;如水从平：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;普通攻击&lt;/p&gt;&lt;p&gt;造成1点&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>我方角色引发</span><strong><span style="color: rgb(24, 144, 255)">水元素相关反应</span></strong><span
+  style="color: rgb(0, 0, 0)">后：装备有此牌的那维莱特接下来2次造成的伤害+1。<br>（牌组中包含那维莱特，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为那维莱特时，装备此牌。
+
+  那维莱特装备此牌后，立刻使用一次如水从平水元素伤害。" class="wiki-note-text">。
+
+  我方角色引发水元素相关反应后：装备有此牌的那维莱特接下来2次造成的伤害+1。
+
+  （牌组中包含那维莱特，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 如水从平
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  如水从平: 普通攻击造成1点水元素伤害。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/44762d10de05f76e79b27ed8ee3fce50_5377258144332800965.png
+requires_char: 那维莱特
+deck_constraint: 牌组中包含那维莱特，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/d419604605c1acde00b841ecf8c82864_58733338663118408.png
+flavor_html: <p><strong>那维莱特·古海孑遗的权柄</strong></p><p>「潮水啊，我已归来。」</p>
+flavor_text: '那维莱特·古海孑遗的权柄
+
+  「潮水啊，我已归来。」'
+_raw_path: data/raw/action/500998_古海孑遗的权柄.json

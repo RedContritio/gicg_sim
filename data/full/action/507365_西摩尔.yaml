@@ -1,0 +1,54 @@
+id: 507365
+name: 西摩尔
+parent_class: action
+desc: 西摩尔卡牌
+sub_class: 支援牌
+tags: &id001
+- 伙伴
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/3e08ff75ad19c325f12d3f7bfdaf40a2_8367236550795590961.png
+header_img_url: ''
+version: '1764728616'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">入场时：</span></strong><span
+  style="color: rgb(0, 0, 0)">复制对方牌组顶的1张牌加入我方手牌。<br></span><strong><span style="color:
+  rgb(0, 0, 0)">我方打出名称不存在于本局最初牌组的牌时：<u>冒险</u></span></strong><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;冒险：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;从冒险地点中&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;挑选&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;1个生成。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">1次。 （每回合1次，最多生效2次）</span></p>'
+effect_text: '入场时：复制对方牌组顶的1张牌加入我方手牌。
+
+  我方打出名称不存在于本局最初牌组的牌时：冒险冒险：
+
+  从冒险地点中挑选1个生成。
+
+  如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。" class="wiki-note-text">1次。 （每回合1次，最多生效2次）'
+term_refs:
+- 冒险
+terms:
+  冒险: 从冒险地点中挑选1个生成。如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。
+cost_bg_icon_url: ''
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/3e08ff75ad19c325f12d3f7bfdaf40a2_8383436046919550983.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/e7ce8465e45f25bedbbb835e9c790d31_4665953475239725468.gif
+flavor_html: <p><strong>西摩尔</strong></p><p>「欢迎回来，小姐。 您今天也是一如既往的温柔可爱、光彩照人呢。 」</p>
+flavor_text: '西摩尔
+
+  「欢迎回来，小姐。 您今天也是一如既往的温柔可爱、光彩照人呢。 」'
+_raw_path: data/raw/action/507365_西摩尔.json

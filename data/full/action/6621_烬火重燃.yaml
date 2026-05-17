@@ -1,0 +1,67 @@
+id: 6621
+name: 烬火重燃
+parent_class: action
+desc: 深渊咏者·渊火天赋牌 烬火重燃
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '2'
+cost:
+  火: 2
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/c065153c09a84ed9d7c358c8cc61171f_6071835508615010817.png
+header_img_url: ''
+version: '1733301568'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 4
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong>入场时：</strong>如果装备有此牌的<strong>深渊咏者·渊火</strong>已触发过<strong><u>火之新生</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;火之新生：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到4点生命值。此效果触发后，角色造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(245, 34, 45)&quot;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>，就立刻弃置此牌，为角色附属<strong><u>渊火加护</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;渊火加护：&lt;/p&gt;&lt;p&gt;为所附属角色提供2点护盾。此护盾耗尽前，所附属角色造成1点&lt;strong&gt;&lt;u&gt;穿透伤害&lt;/u&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的深渊咏者·渊火触发<strong><u>火之新生</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;火之新生：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到4点生命值。此效果触发后，角色造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(245, 34, 45)&quot;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>时：弃置此牌，为角色附属<strong><u>渊火加护</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;渊火加护：&lt;/p&gt;&lt;p&gt;为所附属角色提供2点护盾。此护盾耗尽前，所附属角色造成1点&lt;strong&gt;&lt;u&gt;穿透伤害&lt;/u&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含深渊咏者·渊火，才能加入牌组）</p>'
+effect_text: '入场时：如果装备有此牌的深渊咏者·渊火已触发过火之新生所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的火元素伤害+1。"
+  class="wiki-note-text">，就立刻弃置此牌，为角色附属渊火加护。
+
+  装备有此牌的深渊咏者·渊火触发火之新生所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的火元素伤害+1。" class="wiki-note-text">时：弃置此牌，为角色附属渊火加护。
+
+  （牌组中包含深渊咏者·渊火，才能加入牌组）'
+term_refs:
+- 火之新生
+- 渊火加护
+terms:
+  火之新生: 状态所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的火元素伤害+1。
+  渊火加护: 为所附属角色提供2点护盾。此护盾耗尽前，所附属角色造成1点穿透伤害
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/c8600cf471b4c41a92ad00c68a3c6611_4418322347565983398.png
+requires_char: 深渊咏者·渊火
+deck_constraint: 牌组中包含深渊咏者·渊火，才能加入牌组
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/c065153c09a84ed9d7c358c8cc61171f_8734243408282507546.png
+flavor_html: <p><strong>深渊咏者 · 烬火重燃</strong></p><p>递播恩典之路，并非一路平顺。</p>
+flavor_text: '深渊咏者 · 烬火重燃
+
+  递播恩典之路，并非一路平顺。'
+_raw_path: data/raw/action/6621_烬火重燃.json

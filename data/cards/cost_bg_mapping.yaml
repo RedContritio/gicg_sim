@@ -1,0 +1,29 @@
+# cost slot bg 编号 → cost kind 映射(从 _judgement.yaml 反推 + 491 action raw 扫描验证 + 118 character variant skill 验证)。
+#
+# raw skill / action / talent 的 cost 用两个 slot 表示:
+#   slot1 = (life, life_bg)
+#   slot2 = (energy, energy_bg)
+#
+# 两个 slot 共享同一 bg 编号空间(实际数据证实):
+#   - life_bg=8 在 character variant 中表示能量需求(layout A:life=能量数,energy=0)
+#   - energy_bg=8 在 character standard / talent / action 中也表示能量需求(layout B)
+#   - 'energy_req' kind 不进 cost dict(单独输出 energy_req 字段)
+#
+# 仅 character base 的 (life=HP, energy=能量上限) 不走此映射(语义不同,不算 cost,
+#  parser 特例处理)。
+
+bg_kind:
+  0: ~              # 空槽位(对应 n 也应=0)
+  1: 冰
+  2: 草
+  3: 风
+  4: 火
+  5: 雷
+  6: 水
+  7: 岩
+  8: 能量需求       # life_bg=8 / energy_bg=8 都是;不进 cost dict 而进 energy_req
+  9: 同色
+  10: 无色
+  13: ~             # 0-cost 视觉变体(observed 12 张同色 0,n 也=0)
+  # 12: 暂不放入。仅 1 张样本(王下近侍)虽三源一致 = 同色 3,但样本量不足以判 12 是否
+  # 永远=同色;留 raise,未来再现时 user 看更多样本判断

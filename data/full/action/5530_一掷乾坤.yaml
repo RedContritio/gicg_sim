@@ -1,0 +1,38 @@
+id: 5530
+name: 一掷乾坤
+parent_class: action
+desc: 一掷乾坤
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/524d3e5c5e6f3fad28a931abd9c7bb92_2495658906309226331.png
+header_img_url: ''
+version: '1687837126'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 牌手手册奖励获取
+  标签: *id001
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">选择任意元素骰重投，可<strong>重投</strong>2次。</p>'
+effect_text: 选择任意元素骰重投，可重投2次。
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/28/12109492/7a8c85830ce44927460008304d7f73ed_2579848960549568186.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/524d3e5c5e6f3fad28a931abd9c7bb92_4949675047355464622.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/0e8f7a7c3005303116e2f076b510ebae_6797208194930521980.gif
+flavor_html: '<p style="white-space: pre-wrap;"><strong>一掷乾坤</strong></p><p style="white-space:
+  pre-wrap;">骰子掷下之前，无人知晓自己的命运。</p>'
+flavor_text: '一掷乾坤
+
+  骰子掷下之前，无人知晓自己的命运。'
+_raw_path: data/raw/action/5530_一掷乾坤.json

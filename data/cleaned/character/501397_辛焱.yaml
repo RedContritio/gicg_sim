@@ -1,0 +1,110 @@
+id: 501397
+name: 辛焱
+title: 燥热旋律·辛焱
+parent_class: character
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 双手剑
+  阵营:
+  - 璃月
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 火
+weapon: 双手剑
+faction:
+- 璃月
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/03/258999284/2538459953fb12e38da66416bd1db19a_2302423233068754101.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/03/258999284/b8071a4e65f8a7ff946ef6b74195db5d_1232380759198073102.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/03/258999284/de066277f1f3120586b5e9c93c7fdb59_4915449215344705620.png
+skills:
+- name: 炎舞
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 热情拂扫
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  effect_text: 造成2点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）"
+    class="wiki-note-text">，随机舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">1张原本元素骰费用最高的手牌，生成热情护盾热情护盾：出战状态为我方出战角色提供2点护盾。"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  - 舍弃
+  - 热情护盾
+- name: 叛逆刮弦
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 3
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">，对所有敌方后台角色造成2点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">；舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">我方所有手牌，生成氛围烈焰我方宣布结束时：如果我方的手牌数量不多于1，则造成1点火元素伤害。可用次数：2"
+    class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+  - 穿透伤害
+  - 舍弃
+  - 氛围烈焰
+  energy_req: 2
+summons: []
+talent:
+  name: 地狱里摇摆
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为辛焱时，装备此牌。
+
+    辛焱装备此牌后，立刻使用一次炎舞。
+
+    装备有此牌的辛焱使用技能时：如果我方手牌数量不多于1，则造成的伤害+2。（每回合1次）
+
+    （牌组中包含辛焱，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 炎舞
+  deck_constraint: 牌组中包含辛焱，才能加入牌组
+flavor_text: '燥热旋律·辛焱
+
+  摇滚时间到！'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+  热情护盾: 出战状态为我方出战角色提供2点护盾。
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  氛围烈焰: 出战状态我方宣布结束时：如果我方的手牌数量不多于1，则造成1点火元素伤害。可用次数：2
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  炎舞: 普通攻击造成2点物理伤害。

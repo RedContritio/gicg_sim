@@ -1,0 +1,35 @@
+id: 5430
+name: 沉沦之心
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个水元素。（每回合1次）
+
+  投掷阶段：2个元素骰初始总是投出水元素。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/9e7207494a4fdb10df19179ec836623b_3790901157069964656.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/b415a4b00134ee115f7abd0518623f4f_2049230176320242762.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/1a1f609a26b9a419539d14e78041b8c5_2326356919098585192.gif
+flavor_text: '浪舟残想·沉沦之心
+
+  「⋯因一切死皆是枉死，耽溺过往之人没有救赎。」'

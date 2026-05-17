@@ -1,0 +1,45 @@
+id: 500424
+name: 四风原典
+parent_class: action
+desc: 四风原典卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/c2774faa0cd618dddb0b7a641eede205_2498628382493963300.png
+header_img_url: ''
+version: '1703045797'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">此牌每有1点「伤害加成」，角色造成的伤害+1</span></strong><span
+  style="color: rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+  style="color: rgb(0, 0, 0)">此牌累积1点「伤害加成」。（最多累积到2点）<br>（</span><strong><span style="color:
+  rgb(0, 0, 0)">「法器」角色</span></strong><span style="color: rgb(0, 0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '此牌每有1点「伤害加成」，角色造成的伤害+1。
+
+  结束阶段：此牌累积1点「伤害加成」。（最多累积到2点）
+
+  （「法器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/bcc66ffd5b7bea190c27be86d18d1fa6_5633331665564486102.png
+weapon_type: 法器
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/c2774faa0cd618dddb0b7a641eede205_6906642161037931045.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/947521e542e1bd4f0c994a3e98335b52_7368438520800471251.gif
+flavor_html: <p><strong>无边际的眷顾·四风原典</strong></p><p>「闻见花香时，听见树涛沙沙时，便是我在唱自由的歌，风的歌。」</p>
+flavor_text: '无边际的眷顾·四风原典
+
+  「闻见花香时，听见树涛沙沙时，便是我在唱自由的歌，风的歌。」'
+_raw_path: data/raw/action/500424_四风原典.json

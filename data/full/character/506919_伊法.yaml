@@ -1,0 +1,235 @@
+id: 506919
+name: 伊法
+title: 蔚风引灵·伊法
+parent_class: character
+desc: 伊法卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/e3d934fc0300c7e7cf28202538c171ee_4583866190538680159.png
+header_img_url: ''
+version: '1761109287'
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 纳塔
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 风
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/e3d934fc0300c7e7cf28202538c171ee_9058086577125861662.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/df0af9967314b2193425cbd7f28c5e08_8494847197243335596.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/de066277f1f3120586b5e9c93c7fdb59_7787133056960130795.png
+skills:
+- name: 祛风妙仪
+  type: 普通攻击
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/efa17ee475d867bbddf3792363705cf4_5624824579077078623.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color:
+    rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+- name: 空天疾护
+  type: 元素战技
+  raw_life: 2
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/b2d1b7b516530565e722ded4abf10751_7101356055499665736.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color:
+    rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，自身进入</span><strong><span style="color: rgb(0, 0, 0)"><u>夜魂加持</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">获得2点</span><strong><span style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span
+    style="color: rgb(0, 0, 0)">，并附属</span><strong><span style="color: rgb(0, 0, 0)"><u>咔库库</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;咔库库：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;装备牌&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技：援护射击&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;所附属角色&lt;strong&gt;「夜魂值」&lt;/strong&gt;为0时，弃置此牌；此牌被弃置时，所附属角色结束&lt;strong&gt;夜魂加持&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。（角色进入</span><strong><span style="color: rgb(0, 0, 0)">夜魂加持</span></strong><span
+    style="color: rgb(0, 0, 0)">后不可使用此技能）</span></p><p><span style="color: rgb(0,
+    0, 0)">（附属</span><strong><span style="color: rgb(0, 0, 0)">咔库库</span></strong><span
+    style="color: rgb(0, 0, 0)">的角色可以使用特技：</span><strong><span style="color: rgb(0,
+    0, 0)"><u>援护射击</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;援护射击：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;费用：2&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;消耗1点&lt;strong&gt;「夜魂值」&lt;/strong&gt;，对上一个敌方角色&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(54, 207, 201)&quot;&gt;&lt;u&gt;风元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    data-type=&quot;详情&quot; data-name=&quot;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;&quot; class=&quot;wiki-note-text&quot;&gt;&lt;sup
+    class=&quot;wiki-sup&quot;&gt;[详情]&lt;/sup&gt;&lt;/span&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;，并治疗我方受伤最多的角色2点。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">）</span></p>'
+  effect_text: 造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，自身进入夜魂加持夜魂加持：所附属角色可累积「夜魂值」。（最多累积到2点）持续回合：2" class="wiki-note-text">获得2点「夜魂值」，并附属咔库库。（角色进入夜魂加持后不可使用此技能）（附属咔库库的角色可以使用特技：援护射击造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，并治疗我方受伤最多的角色2点。" class="wiki-note-text">）
+  term_refs:
+  - 风元素伤害
+  - 夜魂加持
+  - 咔库库
+  - 援护射击
+- name: 复合镇静域
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/0179cb3d8dc090c33ea8dcb1f2f23367_6900272809255141821.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span style="color:
+    rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，治疗我方受伤最多的角色2点。如果此技能引发了</span><strong><span style="color: rgb(19,
+    194, 194)"><u>风元素相关反应</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;风元素相关反应：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点冰元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（水）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点水元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（火）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点火元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点雷元素伤害。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，则敌方出战角色附属对应元素的</span><strong><span style="color: rgb(0, 0, 0)"><u>镇静标记</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;镇静标记：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所在阵营选择行动前：&lt;/span&gt;&lt;/strong&gt;对所附属的角色造成2点对应元素伤害，可用次数1。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，治疗我方受伤最多的角色2点。如果此技能引发了风元素相关反应风元素相关反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害。扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害。扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害。扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害。"
+    class="wiki-note-text">，则敌方出战角色附属对应元素的镇静标记镇静标记：状态所在阵营选择行动前：对所附属的角色造成2点对应元素伤害，可用次数1。"
+    class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+  - 风元素相关反应
+  - 镇静标记
+  energy_req: 2
+summons:
+- name: 援护射击
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/55ad4a6dc1a4a33f2e72500b9603371d_8733074424400146705.png
+  raw_life: 2
+  raw_energy: 0
+  effect_html: '<p>消耗1点<strong>「夜魂值」</strong>，对上一个敌方角色<span style="color: rgb(0, 0,
+    0)">造成1点</span><strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，并治疗我方受伤最多的角色2点。</span></p>'
+  effect_text: 消耗1点「夜魂值」，对上一个敌方角色造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，并治疗我方受伤最多的角色2点。
+  term_refs:
+  - 风元素伤害
+talent:
+  name: 温敷战术包扎
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 1
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/775d537c80b16d221072fd4d4f86bbda_8282534129670081266.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>快速行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0, 0)">伊法</span></strong><span
+    style="color: rgb(0, 0, 0)">，治疗我方受伤最多的角色1点。<br>装备有此牌的伊法在场时，我方触发</span><strong><span
+    style="color: rgb(19, 194, 194)"><u>风元素相关反应</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;风元素相关反应：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点冰元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（水）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点水元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（火）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点火元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点雷元素伤害。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">或感电反应后，治疗我方受伤最多的角色1点。（每回合2次）<br>（牌组中包含伊法，才能加入牌组）</span></p>'
+  effect_text: '快速行动快速行动：
+
+    执行了一次快速行动后，我方可以继续进行其他行动。
+
+    只有执行了一次战斗行动后，才会轮到对方行动。" class="wiki-note-text">：装备给我方的伊法，治疗我方受伤最多的角色1点。
+
+    装备有此牌的伊法在场时，我方触发风元素相关反应风元素相关反应：
+
+    扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害。
+
+    扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害。
+
+    扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害。
+
+    扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害。" class="wiki-note-text">或感电反应后，治疗我方受伤最多的角色1点。（每回合2次）
+
+    （牌组中包含伊法，才能加入牌组）'
+  term_refs:
+  - 快速行动
+  - 风元素相关反应
+  deck_constraint: 牌组中包含伊法，才能加入牌组
+flavor_html: '<p><strong>蔚风引灵·伊法</strong></p><p><span style="color: rgb(0, 0, 0)">急救如急袭。</span></p>'
+flavor_text: '蔚风引灵·伊法
+
+  急救如急袭。'
+terms:
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害
+  夜魂加持: 所附属角色可累积「夜魂值」。（最多累积到2点）持续回合：2
+  咔库库: 装备牌特技：援护射击所附属角色「夜魂值」为0时，弃置此牌；此牌被弃置时，所附属角色结束夜魂加持。
+  援护射击: 特技费用：2消耗1点「夜魂值」，对上一个敌方角色造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，并治疗我方受伤最多的角色2点。
+  风元素相关反应: 扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害。扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害。扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害。扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害。
+  镇静标记: 状态所在阵营选择行动前：对所附属的角色造成2点对应元素伤害，可用次数1。
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+_raw_path: data/raw/character/506919_伊法.json

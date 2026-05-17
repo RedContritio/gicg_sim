@@ -1,0 +1,50 @@
+id: 501392
+name: 亡风啸卷
+parent_class: action
+sub_class: 装备牌
+tags:
+- 天赋
+cost_text: '1'
+cost:
+  风: 1
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 天赋
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 3
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '入场时：生成1张噬骸能量块噬骸能量块：
+
+  事件牌
+
+  费用：0
+
+  随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">，置入我方手牌。
+
+  装备有此牌的圣骸飞蛇在场，我方打出噬骸能量块噬骸能量块：
+
+  事件牌
+
+  费用：0
+
+  随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">后：本回合中，我方下次切换角色后生成1个出战角色类型的元素骰。
+
+  （牌组中包含圣骸飞蛇，才能加入牌组）'
+term_refs:
+- 噬骸能量块
+terms:
+  噬骸能量块: 事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/1f62890b9c61a77c430040e743443cef_182210151938163624.png
+requires_char: 圣骸飞蛇
+deck_constraint: 牌组中包含圣骸飞蛇，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/fe1743d31d026423617324d6c74ff0af_8502180086842896297.png
+flavor_text: '圣骸飞蛇·亡风啸卷
+
+  即使获得了操使元素的异能，圣骸兽自身也无法将体内不朽的亡骸彻底消化，而是与其力量融合异变···'

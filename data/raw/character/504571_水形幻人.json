@@ -1,0 +1,387 @@
+{
+  "id": "504571",
+  "name": "水形幻人",
+  "desc": "水形幻人卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/cfce24fb92c3cd65a134d031e45c3c7e_2496553020708451023.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"苏醒的生命·水形幻人\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/0216f62a3d64b105cabc5ea80c4e3819_9208952187097720286.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/abae5073748f4e769b5a6c5fdcb3dc79_1464747908109997314.gif\",\"life\":10,\"life_bg\":11,\"energy\":3,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"水元素\"]},{\"key\":\"武器：\",\"value\":[\"其他武器\"]},{\"key\":\"阵营：\",\"value\":[\"魔物\"]},{\"key\":\"充能：\",\"value\":[\"3点\"]},{\"key\":\"获取方式：\",\"value\":[\"酒馆挑战·友好对局\"]}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"涌浪\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/f04392db22f72a639a113d2edc1d92ad_5274338065107927719.png\",\"life\":1,\"life_bg\":6,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p><span style=\\\"color: rgb(0, 0, 0)\\\">造成1点</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}},{\"tab_name\":\"汛波\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/def43673b9ab24e997dc05bfaed0c41f_6460874372753487667.png\",\"life\":3,\"life_bg\":6,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p><span style=\\\"color: rgb(0, 0, 0)\\\">造成2点</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，随机触发我方1个「召唤物」的「结束阶段」效果。如果自身生命值不低于2，则自身受到1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>穿透伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效&lt;/span&gt;果抵消。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p></body></html>\"]}},{\"tab_name\":\"洪啸\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/2f9df765e37a12df49709ea337f815a0_1921835653620442794.png\",\"life\":3,\"life_bg\":6,\"energy\":3,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p><span style=\\\"color: rgb(0, 0, 0)\\\">造成4点</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，触发我方所有「召唤物」的「结束阶段」效果。</span></p></body></html>\"]}},{\"tab_name\":\"分流\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/04527aa814e29d5f801efff742695576_8625775376586066698.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">自身生命值不低于3，我方半幻人以外的「召唤物」离场时：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">自身受到2点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>穿透伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效&lt;/span&gt;果抵消。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，召唤1个独立的</span><strong><em><span style=\\\"color: rgb(0, 0, 0)\\\">半幻人</span></em></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。（每回合1次）</span></p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"半幻人\",\"skill_type\":\"召唤物\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/1906bcb36b9dc5833a487e1107e7c6b2_809703029653444517.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"召唤物效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">结束阶段：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">造成1点</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">此卡牌被弃置时：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">治疗我方</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">水形幻人</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">2点。</span></p><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>可用次数</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">：2</span></strong></p>\"]},\"tab_id\":\"1694067334491_0\"}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>苏醒的生命·水形幻人</strong></p><p>由无数的水滴凝聚成的，初具人形的魔物。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"水形幻人\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/cfce24fb92c3cd65a134d031e45c3c7e_1246322450152656880.png\",\"gold_img\":\"\",\"life\":8,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"攻击：\",\"value\":[\"2\"]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"骇浪迸发\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/362697ff461d5773544badb35bd245f7_3823821307725764770.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成<strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，本角色受到2点<strong><u>穿透伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。 &lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，我方随机召唤物可用次数+1，然后触发我方随机召唤物的回合结束效果1次。</p>\"]},\"tab_id\":\"1730815714102_0\"},{\"tab_name\":\"怒涛投枪\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/477abb4fa28319f79a5f57d9011c0ac2_4492259579431062896.png\",\"life\":0,\"life_bg\":0,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成<strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。我方全体召唤物造成的伤害和治疗+4，然后立刻触发其回合结束效果1次。</p>\"]},\"tab_id\":\"1739250585273_1\"},{\"tab_name\":\"水形聚引\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/fe627a2d9638fcda8d50eda7c699d5bc_3022155964015169660.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>我方召唤物离场时，此角色最大生命值<strong><u>整局</u></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;整局：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;直到整轮对局结束前，此效果持续生效。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>+1。</p>\"]},\"tab_id\":\"1739250651343_2\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815724349_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\" style=\\\"text-align: center\\\">自行巧局</h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"天赋牌\",\"layout_\":\"banner\",\"list\":[{\"tab_name\":\"汇流\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/3280d5cf9ecdd8f5df379683bdf4c417_8018905969453195305.png\",\"life\":2,\"life_bg\":6,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>快速行动</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：装备给我方的</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">水形幻人</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">，使其附属</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>元素生命·水</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素生命·水：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色总是附着&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并且免疫&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。（角色总是附着</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\">水元素</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">，并且免疫</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>持续回合</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;每回合结束阶段，&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;-1；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：2）<br>装备有此牌的水形幻人在场时，我方宣布结束后，如果所附属角色生命值不低于3，则所附属角色受到2点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>穿透伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，召唤1个独立的</span><strong><em><span style=\\\"color: rgb(0, 0, 0)\\\">半幻人</span></em></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。<br>（牌组中包含水形幻人，才能加入牌组）</span></p>\"]},\"tab_id\":\"1759479143814_0\"}],\"baseInfoSwitchDisabled\":false,\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1771988122",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "七圣召唤",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "七圣召唤",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "自行巧局",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/de066277f1f3120586b5e9c93c7fdb59_8900312345192360477.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/水元素\\\",\\\"武器/其他武器\\\",\\\"阵营/魔物\\\",\\\"特殊模式/自行巧局\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

@@ -1,0 +1,24 @@
+# Go-backend smoke — identical to smoke.toml but routes MCTS through
+# gicg_mcts (cgo). Used to validate the migration end-to-end before
+# flipping production runs to backend="go". See
+# docs/2_decisions/adr-0004-is_mcts_migration.md.
+
+base = "random_1v1"
+run_label = "smoke_go"
+
+n_games = 50
+n_workers = 4
+batch_size = 64
+games_per_arena = 0
+games_per_gauntlet = 0
+checkpoint_every_n_games = 25
+
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+
+[train]
+delta_aux_coef = 1.0
+
+[meta]
+paradigm = "az"

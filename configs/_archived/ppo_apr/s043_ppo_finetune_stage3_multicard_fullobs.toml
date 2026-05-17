@@ -1,0 +1,34 @@
+# s043: PPO fine-tune from s042 BC (multi-card full-obs).
+#
+# P2.3 extension: tests whether removing partial obs in multi-card env
+# also recovers vs F1-D2. Compare s043 against:
+#   - s023/24/25 (multi-card masked, mean F1-D2=0.073)
+#   - s033/39/40 (1-card full-obs, mean F1-D2=0.344)
+# If s043 vs F1-D2 ≥ 0.30, partial obs alone is dominant in multi-card too.
+
+run_label = "s043_ppo_finetune_stage3_multicard_fullobs"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_iterations = 500
+eval_every = 25
+n_eval_games = 64
+lr = 1e-4
+entropy_coef = 0.003
+value_coef = 0.1
+seed = 0
+
+obs_mask = []
+card_pool = ["测试卡_增幅", "测试卡_碎片"]
+
+rollout_opponent = "F1-D1,F1-D2"
+init_ckpt = "artifacts/202604252018_s042_bc_pretrain_stage3_multicard_fullobs/final.pt"
+
+[reward_shaping]
+terminal_win = 10.0
+terminal_loss = 10.0
+
+[meta]
+paradigm = "ppo"

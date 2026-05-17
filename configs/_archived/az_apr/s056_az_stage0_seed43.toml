@@ -1,0 +1,30 @@
+# s056: AZ Stage 0 baseline multi-seed (seed=43)。
+# 复制 s055 spec,只 override seed,加固 s055 marginal (vs random 0.875)
+# 的 multi-seed 不确定性。配合 s057 (seed=44) → n=3 mean±std。
+
+base = "fixed_1v1"
+run_label = "s056_az_stage0_seed43"
+seed = 43
+
+n_games = 200
+batch_size = 64
+games_per_arena = 50
+arena_games = 20
+games_per_gauntlet = 200
+gauntlet_games_per_opponent = 16
+
+[scenario]
+team_0 = ["测试角色D"]
+team_1 = ["测试角色D"]
+card_pool = []
+max_rounds = 3
+fix_dice = [2, 2, 2, 2, 0, 0, 0, 0]
+
+[mcts]
+n_rollouts = 100
+lambda_anneal_games = 200
+lambda_end = 0.5
+backend = "go"
+
+[meta]
+paradigm = "az"

@@ -1,0 +1,387 @@
+{
+  "id": "505465",
+  "name": "茜特菈莉",
+  "desc": "茜特菈莉卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/1328319efbaf428574bec761c1cfe636_8456394165788411665.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"白星黑曜·茜特菈莉\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/1328319efbaf428574bec761c1cfe636_8215594796556604414.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/f871959853d2177d4ca78b2397a491ff_7692582444148444867.gif\",\"life\":10,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"冰元素\"]},{\"key\":\"武器：\",\"value\":[\"法器\"]},{\"key\":\"阵营：\",\"value\":[\"纳塔\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"角色邀请·友好对局\"]}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"宿灵捕影\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/73d35252aa1f8e2b93cbda8a3918b252_5424517023389138701.png\",\"life\":1,\"life_bg\":1,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成1点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1694067287681_0\"},{\"tab_name\":\"霜昼黑星\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/b1d0e25e76b566167390330c5effc80e_4161361711767872548.png\",\"life\":3,\"life_bg\":1,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">造成</span>1点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。<br>自身进入</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>夜魂加持</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，并获得1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">「夜魂值」</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">；生成1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>白曜护盾</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;白曜护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;为我方出战角色提供1点护盾&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（可叠加）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">和</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>伊兹帕帕</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;伊兹帕帕：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方角色受到伤害后：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;减少1点&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;茜特菈莉&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;的&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，生成1层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;白曜护盾&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;当&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;茜特菈莉&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;获得&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;并使自身&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;等于2时，优先对敌方出战角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。（角色进入</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>夜魂加持</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">后不可使用此技能）</span></p>\"]},\"tab_id\":\"1750183446030_1\"},{\"tab_name\":\"诸曜饬令\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/30e9d35220a7ae49e3f079842780de9e_7909253825080492582.png\",\"life\":3,\"life_bg\":1,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">造成</span>2点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，对所有敌方后台角色造成1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>穿透伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。如可能，获得2点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">「夜魂值」</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p>\"]},\"tab_id\":\"1750183620145_2\"},{\"tab_name\":\"奥秘传唱\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/cad27b0e9146d4f1a743d5ae8a154aa2_6166204071621235420.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">我方进行<u>挑选</u></span><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;挑选：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;从特定的多张牌中选择1张执行效果。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">或造成元素反应伤害后</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">：如可能，获得1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">「夜魂值」</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。（每回合1次）</span></p>\"]},\"tab_id\":\"1750183699757_3\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1694067334491_0\"}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">白星黑曜·茜特菈莉</span></strong></p><p>谜烟流彩，曜石映心。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"\",\"common_img\":\"\",\"gold_img\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"充能：\",\"value\":[]},{\"key\":\"攻击：\",\"value\":[]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815714102_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815724349_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p></p>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"天赋牌\",\"layout_\":\"banner\",\"list\":[{\"tab_name\":\"五重天的寒雨\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/9ec020d270379d7f6e94952812af12e3_7927037335870628899.png\",\"life\":2,\"life_bg\":1,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\">敌方受到冻结或融化反应伤害后：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">我方下2次造成的</span><strong><span style=\\\"color: rgb(24, 144, 255)\\\"><u>水元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;绽放&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">和</span><strong><span style=\\\"color: rgb(245, 34, 45)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成回合结束时造成1点火元素伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;]（可用次数&lt;/span&gt;1，最多叠加到2）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">+1，并使</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">茜特菈莉</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">获得1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">「夜魂值」</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。（每回合1次）<br>（牌组中包含茜特菈莉，才能加入牌组）</span></p>\"]},\"tab_id\":\"1759479143814_0\"}],\"baseInfoSwitchDisabled\":false,\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1764728807",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "七圣召唤",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "七圣召唤",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/de066277f1f3120586b5e9c93c7fdb59_978684382425484827.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/冰元素\\\",\\\"武器/法器\\\",\\\"阵营/纳塔\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

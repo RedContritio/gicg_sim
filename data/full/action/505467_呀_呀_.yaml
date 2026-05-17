@@ -1,0 +1,113 @@
+id: 505467
+name: 呀！呀！
+parent_class: action
+desc: 呀！呀！卡牌
+sub_class: 装备牌
+tags: &id001
+- 特技
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/5c419d53dba2e426fbe77e1371119e0b_2671066942209802852.png
+header_img_url: ''
+version: '1750212741'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">此卡牌入场时：</span></strong><span
+  style="color: rgb(0, 0, 0)">创建</span><strong><span style="color: rgb(0, 0, 0)"><u>呀——！</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;呀——！：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方打出特技牌时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;若本局游戏我方累计打出了6张&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技牌&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，我方出战角色获得3点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;护盾&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，然后造成3点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;物理伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（</span><strong><span
+  style="color: rgb(0, 0, 0)">我方打出特技牌时：</span></strong><span style="color: rgb(0,
+  0, 0)">若本局游戏我方累计打出了6张</span><strong><span style="color: rgb(0, 0, 0)">特技牌</span></strong><span
+  style="color: rgb(0, 0, 0)">，我方出战角色获得3点</span><strong><span style="color: rgb(0,
+  0, 0)"><u>护盾</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，然后造成3点</span><strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">）<br></span><strong><span
+  style="color: rgb(0, 0, 0)"><u>特技</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：</span><strong><span style="color: rgb(0, 0, 0)"><u>呀！呀！</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;呀！呀！：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;费用：2&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;从牌库中抓1张&lt;strong&gt;特技牌&lt;/strong&gt;，下次我方打出&lt;strong&gt;特技牌&lt;/strong&gt;少花费2个元素骰。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)"><br></span><strong><span style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：2<br>（角色最多装备1个「特技」）</span></p>'
+effect_text: '此卡牌入场时：创建呀——！出战状态
+
+  我方打出特技牌时：若本局游戏我方累计打出了6张特技牌，我方出战角色获得3点护盾，然后造成3点物理伤害。" class="wiki-note-text">。（我方打出特技牌时：若本局游戏我方累计打出了6张特技牌，我方出战角色获得3点护盾护盾：
+
+  此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。" class="wiki-note-text">，然后造成3点物理伤害物理伤害：
+
+  物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">）
+
+  特技特技：
+
+  出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。
+
+  使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。
+
+  角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。" class="wiki-note-text">：呀！呀！
+
+  可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2
+
+  （角色最多装备1个「特技」）'
+term_refs:
+- 呀——！
+- 护盾
+- 物理伤害
+- 特技
+- 呀！呀！
+- 可用次数
+terms:
+  呀——！: 出战状态我方打出特技牌时：若本局游戏我方累计打出了6张特技牌，我方出战角色获得3点护盾，然后造成3点物理伤害。
+  护盾: 此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  特技: 出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。
+  呀！呀！: 特技费用：2从牌库中抓1张特技牌，下次我方打出特技牌少花费2个元素骰。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/9e7207494a4fdb10df19179ec836623b_7017883876111842297.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/5c419d53dba2e426fbe77e1371119e0b_6168980388855550066.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/9702f1e7546ff5e6bee64fdd2760ff42_7450107959875167656.gif
+flavor_html: <p>呀！呀！</p><p>「在纳塔邂逅，第二好的伙伴。」</p>
+flavor_text: '呀！呀！
+
+  「在纳塔邂逅，第二好的伙伴。」'
+_raw_path: data/raw/action/505467_呀_呀_.json

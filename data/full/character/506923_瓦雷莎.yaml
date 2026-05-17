@@ -1,0 +1,233 @@
+id: 506923
+name: 瓦雷莎
+title: 悠暇豪劲·瓦雷莎
+parent_class: character
+desc: 瓦雷莎卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/0fed0793b4e875fe8972179809f9dde7_1214404339120157828.png
+header_img_url: ''
+version: '1764728865'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 纳塔
+  充能:
+  - '3'
+  获取方式:
+  - 角色邀请·友好对局
+element: 雷
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 3
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/0fed0793b4e875fe8972179809f9dde7_8861262489076230447.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/3c7639c383a5cfe8a10762bef85591f3_2974633597163641887.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/de066277f1f3120586b5e9c93c7fdb59_4244268026324804686.png
+skills:
+- name: 角力搏摔
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/d722239f52ee768bd299605d3f792dcd_7882605247422500741.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color:
+    rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span><strong><span style="color: rgb(0, 0, 0)">此次技能为下落攻击</span></strong><span
+    style="color: rgb(0, 0, 0)">时：造成的伤害+1，自身进入</span><strong><span style="color: rgb(0,
+    0, 0)"><u>夜魂加持</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂值为0时，退出&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，并获得1点</span><strong><span
+    style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span style="color: rgb(0, 0,
+    0)">。</span></p>'
+  effect_text: 造成1点雷元素伤害。此次技能为下落攻击时：造成的伤害+1，自身进入夜魂加持夜魂加持：所附属角色可累积「夜魂值」。（最多累积到2点）夜魂值为0时，退出夜魂加持。"
+    class="wiki-note-text">，并获得1点「夜魂值」。
+  term_refs:
+  - 雷元素伤害
+  - 夜魂加持
+- name: 夜虹逐跃
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/839e11eebc9df599f89df322364261d1_7154275250751623092.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span style="color:
+    rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，自身附属</span><strong><span style="color: rgb(0, 0, 0)"><u>突驰烈进</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;突驰烈进：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方下次行动前，将所附属角色切换为出战角色。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，进入</span><strong><span style="color: rgb(0, 0, 0)"><u>夜魂加持</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;夜魂值为0时，退出&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">，并获得1点</span><strong><span style="color: rgb(0, 0,
+    0)">「夜魂值」</span></strong><span style="color: rgb(0, 0, 0)">，然后我方切换到下一个角色。</span></p>'
+  effect_text: 造成2点雷元素伤害，自身附属突驰烈进，进入夜魂加持夜魂加持：所附属角色可累积「夜魂值」。（最多累积到2点）夜魂值为0时，退出夜魂加持。"
+    class="wiki-note-text">，并获得1点「夜魂值」，然后我方切换到下一个角色。
+  term_refs:
+  - 雷元素伤害
+  - 突驰烈进
+  - 夜魂加持
+- name: 闪烈降临！
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/7028abae2ff6172ce29f8a6a6660e833_2206190065272515264.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成3点</span><strong><span style="color:
+    rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，自身附属</span><strong><span style="color: rgb(0, 0, 0)"><u>极限驱动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;极限驱动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;瓦雷莎&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;切换为「出战角色」后：&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;准备技能：闪烈降临·大火山崩落。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;闪烈降临·大火山崩落&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素爆发&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成3点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，此技能视为&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;下落攻击&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;/blockquote&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成3点雷元素伤害，自身附属极限驱动极限驱动：状态瓦雷莎切换为「出战角色」后：准备技能：闪烈降临·大火山崩落。可用次数：1闪烈降临·大火山崩落元素爆发造成3点雷元素伤害，此技能视为下落攻击。"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 极限驱动
+  energy_req: 3
+- name: 连势，三重腾跃！
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/120e7d4a50cb1fe0f77f7d9a4c1c0dac_2932626368172569270.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">【被动】</span><strong><span style="color:
+    rgb(0, 0, 0)">瓦雷莎</span></strong><span style="color: rgb(0, 0, 0)">使用技能后：如果自身</span><strong><span
+    style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span style="color: rgb(0, 0,
+    0)">等于2，则消耗2点</span><strong><span style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span
+    style="color: rgb(0, 0, 0)">，自身附属</span><strong><span style="color: rgb(0, 0,
+    0)"><u>极限驱动</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;极限驱动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;瓦雷莎&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;切换为「出战角色」后：&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;准备技能：闪烈降临·大火山崩落。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;闪烈降临·大火山崩落&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素爆发&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成3点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，此技能视为&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;下落攻击&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;/blockquote&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 【被动】瓦雷莎使用技能后：如果自身「夜魂值」等于2，则消耗2点「夜魂值」，自身附属极限驱动极限驱动：状态瓦雷莎切换为「出战角色」后：准备技能：闪烈降临·大火山崩落。可用次数：1闪烈降临·大火山崩落元素爆发造成3点雷元素伤害，此技能视为下落攻击。"
+    class="wiki-note-text">。
+  term_refs:
+  - 极限驱动
+summons: []
+talent:
+  name: 正义英雄的凯旋
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 1
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/1383d6710957d9fd50914d36ffec2c59_359509518189630669.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>快速行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0, 0)">瓦雷莎</span></strong><span
+    style="color: rgb(0, 0, 0)">。<br>瓦雷莎触发</span><strong><span style="color: rgb(0,
+    0, 0)"><u>连势，三重腾跃！</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;连势，三重腾跃！：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;被动技能&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;【被动】&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;瓦雷莎使用技能后：如果自身「夜魂值」等于2，则消耗2点「夜魂值」，自身附属&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;极限驱动&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">后：获得1点</span><strong><span style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br>装备有此牌的瓦雷莎的「元素爆发」造成的伤害+1。<br>（牌组中包含瓦雷莎，才能加入牌组）</span></p>'
+  effect_text: '快速行动快速行动：
+
+    执行了一次快速行动后，我方可以继续进行其他行动。
+
+    只有执行了一次战斗行动后，才会轮到对方行动。" class="wiki-note-text">：装备给我方的瓦雷莎。
+
+    瓦雷莎触发连势，三重腾跃！连势，三重腾跃！：
+
+    被动技能
+
+    【被动】瓦雷莎使用技能后：如果自身「夜魂值」等于2，则消耗2点「夜魂值」，自身附属极限驱动。" class="wiki-note-text">后：获得1点充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+    装备有此牌的瓦雷莎的「元素爆发」造成的伤害+1。
+
+    （牌组中包含瓦雷莎，才能加入牌组）'
+  term_refs:
+  - 快速行动
+  - 连势，三重腾跃！
+  - 充能
+  deck_constraint: 牌组中包含瓦雷莎，才能加入牌组
+flavor_html: <p><strong>悠暇豪劲·瓦雷莎</strong></p><p>谨守恬安，豪勇锐进。</p>
+flavor_text: '悠暇豪劲·瓦雷莎
+
+  谨守恬安，豪勇锐进。'
+terms:
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  夜魂加持: 所附属角色可累积「夜魂值」。（最多累积到2点）夜魂值为0时，退出夜魂加持。
+  突驰烈进: 状态我方下次行动前，将所附属角色切换为出战角色。
+  极限驱动: 状态瓦雷莎切换为「出战角色」后：准备技能：闪烈降临·大火山崩落。可用次数：1闪烈降临·大火山崩落元素爆发造成3点雷元素伤害，此技能视为下落攻击。
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+  连势，三重腾跃！: 被动技能【被动】瓦雷莎使用技能后：如果自身「夜魂值」等于2，则消耗2点「夜魂值」，自身附属极限驱动。
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+_raw_path: data/raw/character/506923_瓦雷莎.json

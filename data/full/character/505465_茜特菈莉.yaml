@@ -1,0 +1,258 @@
+id: 505465
+name: 茜特菈莉
+title: 白星黑曜·茜特菈莉
+parent_class: character
+desc: 茜特菈莉卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/1328319efbaf428574bec761c1cfe636_8456394165788411665.png
+header_img_url: ''
+version: '1764728807'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 纳塔
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 冰
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/1328319efbaf428574bec761c1cfe636_8215594796556604414.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/f871959853d2177d4ca78b2397a491ff_7692582444148444867.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/de066277f1f3120586b5e9c93c7fdb59_978684382425484827.png
+skills:
+- name: 宿灵捕影
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/73d35252aa1f8e2b93cbda8a3918b252_5424517023389138701.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+- name: 霜昼黑星
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/b1d0e25e76b566167390330c5effc80e_4161361711767872548.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成</span>1点<strong><span style="color:
+    rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>自身进入</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>夜魂加持</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，并获得1点</span><strong><span style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span
+    style="color: rgb(0, 0, 0)">；生成1点</span><strong><span style="color: rgb(0, 0,
+    0)"><u>白曜护盾</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;白曜护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;为我方出战角色提供1点护盾&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（可叠加）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">和</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>伊兹帕帕</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;伊兹帕帕：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方角色受到伤害后：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;减少1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;茜特菈莉&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，生成1层&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;白曜护盾&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;当&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;茜特菈莉&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;获得&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;并使自身&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;等于2时，优先对敌方出战角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。（角色进入</span><strong><span style="color: rgb(0, 0, 0)"><u>夜魂加持</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">后不可使用此技能）</span></p>'
+  effect_text: 造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。自身进入夜魂加持夜魂加持：所附属角色可累积「夜魂值」。（最多累积到2点）持续回合：2" class="wiki-note-text">，并获得1点「夜魂值」；生成1点白曜护盾白曜护盾：出战状态为我方出战角色提供1点护盾。（可叠加）"
+    class="wiki-note-text">和伊兹帕帕伊兹帕帕：出战状态我方角色受到伤害后：减少1点茜特菈莉的「夜魂值」，生成1层白曜护盾。当茜特菈莉获得「夜魂值」并使自身「夜魂值」等于2时，优先对敌方出战角色造成1点冰元素伤害。持续回合：2"
+    class="wiki-note-text">。（角色进入夜魂加持夜魂加持：所附属角色可累积「夜魂值」。（最多累积到2点）持续回合：2" class="wiki-note-text">后不可使用此技能）
+  term_refs:
+  - 冰元素伤害
+  - 夜魂加持
+  - 白曜护盾
+  - 伊兹帕帕
+- name: 诸曜饬令
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/30e9d35220a7ae49e3f079842780de9e_7909253825080492582.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成</span>2点<strong><span style="color:
+    rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，对所有敌方后台角色造成1点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。如可能，获得2点</span><strong><span style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span
+    style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，对所有敌方后台角色造成1点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">。如可能，获得2点「夜魂值」。
+  term_refs:
+  - 冰元素伤害
+  - 穿透伤害
+  energy_req: 2
+- name: 奥秘传唱
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/cad27b0e9146d4f1a743d5ae8a154aa2_6166204071621235420.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">我方进行<u>挑选</u></span><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;挑选：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;从特定的多张牌中选择1张执行效果。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">或造成元素反应伤害后</span></strong><span
+    style="color: rgb(0, 0, 0)">：如可能，获得1点</span><strong><span style="color: rgb(0,
+    0, 0)">「夜魂值」</span></strong><span style="color: rgb(0, 0, 0)">。（每回合1次）</span></p>'
+  effect_text: 我方进行挑选挑选：从特定的多张牌中选择1张执行效果。" class="wiki-note-text">或造成元素反应伤害后：如可能，获得1点「夜魂值」。（每回合1次）
+  term_refs:
+  - 挑选
+summons: []
+talent:
+  name: 五重天的寒雨
+  type: 装备牌
+  raw_life: 2
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/9ec020d270379d7f6e94952812af12e3_7927037335870628899.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">敌方受到冻结或融化反应伤害后：</span></strong><span
+    style="color: rgb(0, 0, 0)">我方下2次造成的</span><strong><span style="color: rgb(24,
+    144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;绽放&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">和</span><strong><span
+    style="color: rgb(245, 34, 45)"><u>火元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成回合结束时造成1点火元素伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;]（可用次数&lt;/span&gt;1，最多叠加到2）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">+1，并使</span><strong><span style="color: rgb(0, 0, 0)">茜特菈莉</span></strong><span
+    style="color: rgb(0, 0, 0)">获得1点</span><strong><span style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span
+    style="color: rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含茜特菈莉，才能加入牌组）</span></p>'
+  effect_text: '敌方受到冻结或融化反应伤害后：我方下2次造成的水元素伤害水元素伤害：
+
+    附着水元素，可发生元素反应：
+
+    蒸发：本伤害+2
+
+    感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]" class="wiki-note-text">和火元素伤害火元素伤害：
+
+    附着火元素，可发生元素反应：
+
+    融化：本伤害+2
+
+    蒸发：本伤害+2
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）" class="wiki-note-text">+1，并使茜特菈莉获得1点「夜魂值」。（每回合1次）
+
+    （牌组中包含茜特菈莉，才能加入牌组）'
+  term_refs:
+  - 水元素伤害
+  - 火元素伤害
+  deck_constraint: 牌组中包含茜特菈莉，才能加入牌组
+flavor_html: '<p><strong><span style="color: rgb(0, 0, 0)">白星黑曜·茜特菈莉</span></strong></p><p>谜烟流彩，曜石映心。</p>'
+flavor_text: '白星黑曜·茜特菈莉
+
+  谜烟流彩，曜石映心。'
+terms:
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  夜魂加持: 所附属角色可累积「夜魂值」。（最多累积到2点）持续回合：2
+  白曜护盾: 出战状态为我方出战角色提供1点护盾。（可叠加）
+  伊兹帕帕: 出战状态我方角色受到伤害后：减少1点茜特菈莉的「夜魂值」，生成1层白曜护盾。当茜特菈莉获得「夜魂值」并使自身「夜魂值」等于2时，优先对敌方出战角色造成1点冰元素伤害。持续回合：2
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  挑选: 从特定的多张牌中选择1张执行效果。
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）
+_raw_path: data/raw/character/505465_茜特菈莉.json

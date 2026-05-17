@@ -1,0 +1,307 @@
+id: 6563
+name: 钟离
+title: 尘世闲游·钟离
+parent_class: character
+desc: 钟离卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/025bfe8320c376254bec54a9507ad33a_2988032692147445450.png
+header_img_url: ''
+version: '1771295574'
+attr:
+  元素:
+  - 岩元素
+  武器:
+  - 长柄武器
+  阵营: &id001
+  - 璃月
+  充能:
+  - 3点
+  获得方式:
+  - 角色邀请·友好对局
+element: 岩
+weapon: 长柄武器
+faction: *id001
+hp: 12
+energy: 3
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/025bfe8320c376254bec54a9507ad33a_604601120081367211.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/77a606db66f5a7c8978a2e467bffac0f_5456279955788042656.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/1542ad39ad316c7953a462c2cc4250a8_5211210548616576169.png
+skills:
+- name: 岩雨
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    岩: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/0cd68ecb1a011d94e2b4be1b99ac3302_5930120050090609954.png
+  effect_html: '<html><head></head><body><p>造成2点<strong><span style="color: rgb(0,
+    0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 地心
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/71af9d46cf47c0b17aabf4805341cfb2_8343080343050934571.png
+  effect_html: '<html><head></head><body><p>造成1点<strong><span style="color: rgb(212,
+    177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 107, 8)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>岩脊</em></strong>。</p></body></html>'
+  effect_text: 造成1点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，召唤岩脊。
+  term_refs:
+  - 岩元素伤害
+- name: 地心·磐礴
+  type: 元素战技
+  raw_life: 5
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 5
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/d89ebbeba3f31335d3ccf495fa29adf6_1138994566223638735.png
+  effect_html: '<html><head></head><body><p>造成3点<strong><span style="color: rgb(212,
+    177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>岩脊</em></strong>，生成<strong><u>玉璋护盾</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;玉璋护盾：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;为我方出战角色提供&lt;strong&gt;2点&lt;u&gt;护盾&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成3点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，召唤岩脊，生成玉璋护盾。
+  term_refs:
+  - 岩元素伤害
+  - 玉璋护盾
+- name: 天星
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/03c6245c3468e7d518e1292ac0f22c5a_8147918389515243613.png
+  effect_html: '<html><head></head><body><p>造成4点<strong><span style="color: rgb(212,
+    177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，目标角色附属<strong><u>石化</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;石化：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色无法使用技能&lt;/strong&gt;。（持续到回合结束）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成4点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，目标角色附属石化。
+  term_refs:
+  - 岩元素伤害
+  - 石化
+  energy_req: 3
+summons:
+- name: 岩脊
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/17/183046623/251c5e32d6cbdfb4c4d0e14e7088ab67_7008401766526335309.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<html><head></head><body><p><strong>结束阶段：</strong>造成1点<strong><span
+    style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：2</strong></p></body></html>'
+  effect_text: 结束阶段：造成1点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">。可用次数：2
+  term_refs:
+  - 岩元素伤害
+  - 可用次数
+talent:
+  name: 炊金馔玉
+  type: 装备牌
+  raw_life: 5
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 5
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/1742e240e25035ec13155e7975f7fe3e_154362894297806273.png
+  effect_html: '<html><head></head><body><p><strong><u>战斗行动</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>钟离</strong>时，装备此牌。</p><p>钟离装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>地心·磐礴</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;地心·磐礴：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成1点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 177, 6)&#34;&gt;&lt;u&gt;岩元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，召唤&lt;strong&gt;岩脊&lt;/strong&gt;，生成&lt;strong&gt;玉璋护盾&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;岩脊&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;造成1点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 177, 6)&#34;&gt;&lt;u&gt;岩元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;玉璋护盾&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;为我方出战角色提供&lt;strong&gt;2点&lt;u&gt;护盾&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;护盾：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><span style="color:
+    rgb(0, 0, 0)">装备有此牌的钟离生命值至少为7时，钟离造成的伤害和我方召唤物造成的</span><strong><span style="color:
+    rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>+1。（每回合3次）</p><p>（牌组中包含钟离，才能加入牌组）</p></body></html>'
+  effect_text: '战斗行动：我方出战角色为钟离时，装备此牌。
+
+    钟离装备此牌后，立刻使用一次地心·磐礴岩元素伤害，召唤岩脊，生成玉璋护盾。
+
+    岩脊
+
+    结束阶段：造成1点岩元素伤害。
+
+    可用次数：2
+
+    玉璋护盾
+
+    为我方出战角色提供2点护盾。
+
+    护盾：
+
+    此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+
+    岩元素伤害：
+
+    和已附着的元素发生元素反应：
+
+    结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的钟离生命值至少为7时，钟离造成的伤害和我方召唤物造成的岩元素伤害岩元素伤害：
+
+    和已附着的元素发生元素反应：
+
+    结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。" class="wiki-note-text">+1。（每回合3次）
+
+    （牌组中包含钟离，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 地心·磐礴
+  - 岩元素伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含钟离，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 10
+  energy: 3
+  attr:
+    充能:
+    - 3点
+    攻击:
+    - '3'
+  skills:
+  - name: 地心·磐礴
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/d89ebbeba3f31335d3ccf495fa29adf6_36474546654600043.png
+    effect_html: '<p>造成<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+      style="color: rgb(255, 169, 64)"><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(212, 177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span></span>，生成4层<strong><u>护盾</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;护盾：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;为我方出战角色提供&lt;strong&gt;1点&lt;u&gt;护盾&lt;/u&gt;&lt;/strong&gt;。(可叠加，没有上限）
+      &lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成岩元素伤害岩元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。结晶（冰）：生成3点护盾。结晶（火）：生成3点护盾。结晶（水）：生成3点护盾。结晶（雷）：生成3点护盾。"
+      class="wiki-note-text">，生成4层护盾。
+    term_refs:
+    - 岩元素伤害
+    - 护盾
+  - name: 天星
+    type: 元素爆发
+    raw_life: 3
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/03c6245c3468e7d518e1292ac0f22c5a_5143647045507639300.png
+    effect_html: '<p>造成<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+      style="color: rgb(255, 169, 64)"><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(212, 107, 8)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span></span>，目标角色附属2回合的<strong><u>石化</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;石化：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色无法使用技能&lt;/strong&gt;。（持续到下个回合结束）&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成岩元素伤害岩元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。结晶（冰）：生成3点护盾。结晶（火）：生成3点护盾。结晶（水）：生成3点护盾。结晶（雷）：生成3点护盾。"
+      class="wiki-note-text">，目标角色附属2回合的石化。
+    term_refs:
+    - 岩元素伤害
+    - 石化
+    energy_req: 3
+  - name: 地心
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/71af9d46cf47c0b17aabf4805341cfb2_6871078363191764338.png
+    effect_html: <p>【被动】<strong>战斗开始时：</strong>基于自身生命力的1/10，召唤可用次数为3的<strong><em>岩脊</em></strong>。</p>
+    effect_text: 【被动】战斗开始时：基于自身生命力的1/10，召唤可用次数为3的岩脊。
+    term_refs: []
+  summons:
+  - name: 岩脊
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/251c5e32d6cbdfb4c4d0e14e7088ab67_1572733563462513276.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong>结束阶段：</strong>造成<strong><span style="color: rgb(212,
+      177, 6)"><u>岩元素伤害</u></span></strong><span style="color: rgb(255, 169, 64)"><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(212, 177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点护盾。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span></span>。（受钟离生命值强化）</p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：3</strong></p>'
+    effect_text: 结束阶段：造成岩元素伤害岩元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。结晶（冰）：生成3点护盾。结晶（火）：生成3点护盾。结晶（水）：生成3点护盾。结晶（雷）：生成3点护盾。"
+      class="wiki-note-text">。（受钟离生命值强化）可用次数：3
+    term_refs:
+    - 岩元素伤害
+    - 可用次数
+flavor_html: <p><strong>尘世闲游·钟离</strong></p><p>韬玉之石，可明八荒；灿若天星，纵横无双。</p>
+flavor_text: '尘世闲游·钟离
+
+  韬玉之石，可明八荒；灿若天星，纵横无双。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  岩元素伤害: 和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+  玉璋护盾: 出战状态为我方出战角色提供2点护盾。护盾：此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+  石化: 状态角色无法使用技能。（持续到回合结束）
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  地心·磐礴: 元素战技造成1点岩元素伤害，召唤岩脊，生成玉璋护盾。岩脊结束阶段：造成1点岩元素伤害。可用次数：2玉璋护盾为我方出战角色提供2点护盾。护盾：此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/6563_钟离.json

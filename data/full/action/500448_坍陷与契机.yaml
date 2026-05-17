@@ -1,0 +1,38 @@
+id: 500448
+name: 坍陷与契机
+parent_class: action
+desc: 坍陷与契机卡牌
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/312a021086d348d6e7fed96949b68b64_3073605160945076031.png
+header_img_url: ''
+version: '1721182925'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">我方至少剩余8个元素骰，且对方未宣布结束时，才能打出：</span></strong><span
+  style="color: rgb(0, 0, 0)">本回合中，双方牌手进行「切换角色」行动时需要额外花费1个元素骰。</span></p>'
+effect_text: 我方至少剩余8个元素骰，且对方未宣布结束时，才能打出：本回合中，双方牌手进行「切换角色」行动时需要额外花费1个元素骰。
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/16/258999284/7a8c85830ce44927460008304d7f73ed_916259211290937306.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/312a021086d348d6e7fed96949b68b64_469348099361246418.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/d0afac08f7c69a6a3f102ae9c77529e9_4821234042576477015.gif
+flavor_html: <p><strong>坍陷与契机</strong></p><p>坠入陷坑的意外，亦是揭露尘封往事的契机。</p>
+flavor_text: '坍陷与契机
+
+  坠入陷坑的意外，亦是揭露尘封往事的契机。'
+_raw_path: data/raw/action/500448_坍陷与契机.json

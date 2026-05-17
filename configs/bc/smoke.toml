@@ -1,0 +1,53 @@
+# BC smoke cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
+#
+# Minimum viable BC pre-train (~3min Mac CPU) for pipeline alive verify.
+# Single epoch + tiny batch. Dataset SHALL be supplied via override.
+#
+# Hybrid TOML structure (N6): [shape] omitted — factory default + per-agent
+# override (CC-305).
+
+[meta]
+seed = 42
+paradigm = "bc"
+run_label = "bc_smoke"
+device = "cpu"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["赤蝶"]
+team_size = 1
+max_rounds = 5
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy", "test_basic"]
+data_dir = "data"
+
+# [shape] omitted — smoke uses factory default + per-agent override below.
+
+[paradigm.bc]
+version = "1.0.0"
+paradigm = "bc"
+# Set via CLI override.
+dataset_path = ""
+held_out_frac = 0.1
+loss_kind = "ce"
+value_coef = 0.0
+lr = 1e-4
+weight_decay = 0.0
+batch_size = 8
+grad_clip = 1.0
+n_epochs = 1
+buffer_cap = 1000
+
+[paradigm.bc.agent]
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+
+[checkpoint]
+save_every = 1000
+keep_last_n = 1
+artifacts_root = "artifacts"

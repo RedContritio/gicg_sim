@@ -1,0 +1,52 @@
+id: 5490
+name: 本大爷还没有输！
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 其他标签
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '本回合有我方角色被击倒，才能打出:
+
+  生成1个万能元素万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">，我方当前出战角色获得1个充能角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+  （每回合中，最多只能打出1张「本大爷还没有输！」。）'
+term_refs: []
+terms:
+  万能元素: 可以视为任何类型的元素，来支付各种费用。
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/28/12109492/7a8c85830ce44927460008304d7f73ed_2579848960549568186.png
+duration: 持续本回合
+variants:
+- mode: 标准
+  effect_text: '本回合有我方角色被击倒，才能打出:
+
+    生成1个万能元素万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">，我方当前出战角色获得1个充能角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+    （每回合中，最多只能打出1张「本大爷还没有输！」。）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/a1ae1067afcf9899a958c166b7b32fa0_5448401054983399180.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/dc9c6989890b78572ebf8d0293e2e8ad_5452354074813358594.gif
+jiqiao: true
+flavor_text: '本大爷还没有输！
+
+  荒泷可以输但绝不认输名副其实男子汉一斗，永远可以再来一局。'

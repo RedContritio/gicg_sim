@@ -1,0 +1,45 @@
+# s064: AZ Stage 3 baseline 1-card (seed=42)。**curriculum 核心 milestone**。
+#
+# 与 PPO Stage 3 1-card masked (s028-s030) 同 spec:
+# Stage 2 spec + card_pool=["测试卡_碎片"] (1 card,与 PPO 1-card 对照)。
+#
+# 决定性实验:**判 "PPO Stage 3 失败是 algo 问题 vs stage 真硬"**。
+#
+# PPO 1-card masked F1-D2 ceiling (n=3): 0.214 ± 0.095
+# PPO 1-card fullobs F1-D2 ceiling (n=3, BEST single lever): 0.344 ± 0.062
+# PPO Stricter PASS (≥0.40): 物理不可达 (Stage 3 closure 决策)
+#
+# AZ 判据:
+#   vs F1-D2 ≥ 0.40 → AZ 突破 PPO ceiling,验证 search-based 路线 → 推 Stage 4
+#   vs F1-D2 0.20-0.40 → AZ 在 ceiling 边缘,与 PPO 同水平,需 algo 升级
+#                        (BC / dense reward / longer training)
+#   vs F1-D2 < 0.20 → AZ 在卡牌 stage 不如 PPO,search 在卡组合空间 ROI 低
+#
+# Multi-seed n=3 配套 s065 (seed=43) + s066 (seed=44)。
+
+base = "fixed_1v1"
+run_label = "s064_az_stage3_1card"
+seed = 42
+
+n_games = 200
+batch_size = 64
+games_per_arena = 50
+arena_games = 20
+games_per_gauntlet = 200
+gauntlet_games_per_opponent = 16
+
+[scenario]
+team_0 = ["测试角色D"]
+team_1 = ["测试角色D"]
+card_pool = ["测试卡_碎片"]
+max_rounds = 3
+obs_mask = ["enemy_dice"]
+
+[mcts]
+n_rollouts = 100
+lambda_anneal_games = 200
+lambda_end = 0.5
+backend = "go"
+
+[meta]
+paradigm = "az"

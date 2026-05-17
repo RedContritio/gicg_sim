@@ -1,0 +1,35 @@
+id: 502071
+name: 赦免宣告
+parent_class: action
+sub_class: 事件牌
+tags:
+- 秘传
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 秘传
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 13
+effect_text: '治疗目标角色2点。
+
+  目标角色免疫冻结、眩晕、石化等无法使用技能的效果，并且该角色为「出战角色」时不会因效果而切换,持续2个回合。
+
+  （整局游戏只能打出一张「秘传」卡牌；这张牌一定在你的起始手牌中）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_9009671311564566332.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/76e84615db9526436d399c79aaa9d47a_2755116418615718064.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/ab2fdfe54043fbd89025852b8921e0e1_2794264115633881979.gif
+flavor_text: '赦免宣告
+
+  「并非是托喻或者修辞，枫丹每一个人都是罪人。而末日与审判终会落到每一个枫丹人头上。」'

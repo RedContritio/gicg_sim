@@ -1,0 +1,44 @@
+id: 6606
+name: 天守阁
+parent_class: action
+desc: 天守阁卡牌
+sub_class: 支援牌
+tags: &id001
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a6f2b064d7711e30c742b802770bef71_1371250870768907842.png
+header_img_url: ''
+version: '1687837107'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;"><strong>行动阶段开始时：</strong>如果我方的元素骰包含5种不同的元素，则生成1个<strong><u>万能元素</u></strong><span
+  data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;万能元素：&lt;/p&gt;&lt;p
+  style=&#34;white-space: pre-wrap;&#34;&gt;万能元素可以视为任何类型的元素，来支付各种费用。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>。</p>'
+effect_text: '行动阶段开始时：如果我方的元素骰包含5种不同的元素，则生成1个万能元素万能元素：
+
+  万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">。'
+term_refs:
+- 万能元素
+terms:
+  万能元素: 万能元素可以视为任何类型的元素，来支付各种费用。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/03/28/12109492/9e7207494a4fdb10df19179ec836623b_7668191877635272533.png
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a6f2b064d7711e30c742b802770bef71_3841942586663095539.png
+flavor_html: '<p style="white-space: pre-wrap;"><strong>千手百眼·天下人间</strong></p><p style="white-space:
+  pre-wrap;">「仅由此身，为这天下人间代行永恒。」</p>'
+flavor_text: '千手百眼·天下人间
+
+  「仅由此身，为这天下人间代行永恒。」'
+_raw_path: data/raw/action/6606_天守阁.json

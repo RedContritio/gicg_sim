@@ -1,0 +1,131 @@
+{
+  "id": "500550",
+  "name": "遗迹龙兽·地巡",
+  "desc": "遗迹龙兽·地巡卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/4a4d912c76bc7abe3e195f130c90ac98_1739372448252040269.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"遗迹龙兽·地巡\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/4a4d912c76bc7abe3e195f130c90ac98_7606994468006912036.png\",\"gold_img\":\"\",\"life\":10,\"life_bg\":11,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"元素：\",\"value\":[\"物理\"]},{\"key\":\"武器：\",\"value\":[\"其他武器\"]},{\"key\":\"阵营：\",\"value\":[\"魔物\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"无\"]}],\"repeated\":false}",
+          "style": ""
+        }
+      ],
+      "id": "2808",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"近程驱逐\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/a94ec4a1d2734feca4bdd106c5c31615_9011454882671843337.png\",\"life\":3,\"life_bg\":10,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917631352_0\"},{\"tab_name\":\"突进冲击\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/b2fda2ec290768ea9e405facab97a97a_8628556408550606909.png\",\"life\":3,\"life_bg\":9,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成3点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917634542_1\"},{\"tab_name\":\"能量洪流\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/023be053bfb0fadeb291bf4398920dc1_5162817623000661394.png\",\"life\":3,\"life_bg\":9,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成5点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>；如果此角色已吸收元素能量，则释放所吸收的元素，使此伤害+1，并改为造成所吸收元素的伤害。</p>\"]},\"tab_id\":\"1703917635167_2\"},{\"tab_name\":\"标准外甲\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/dbddbb16c35624080180f85991beb9d3_6860886042628550153.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>【被动】此角色受到的<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>减半。（向上取整）</p>\"]},\"tab_id\":\"1703919389243_3\"},{\"tab_name\":\"元素汲取\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/f415d49d880afe1ec92bad1cef366a6b_6582474008512497529.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>【被动】<strong>未吸收元素的状态下，角色受到元素伤害时：</strong>吸收此元素的能量。角色受到已吸收元素的伤害时，伤害值减半。（向上取整）</p>\"]},\"tab_id\":\"1703920873500_4\"}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "2809",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1704176927",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "260",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "1193",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "2808",
+                "pos": "left"
+              },
+              {
+                "id": "2809",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": true,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "235",
+      "name": "魔物牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "魔物牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"/ys/obc/channel/map/231/235?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "658fba891d44a2e8d7dd8e72",
+  "ext": {
+    "fe_ext": "{\"c_235\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/de066277f1f3120586b5e9c93c7fdb59_8851612229488322670.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

@@ -1,0 +1,50 @@
+id: 6593
+name: 草与智慧
+parent_class: action
+desc: 草与智慧
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/23/1694811/1c656067801c6beb53803faefedd0a47_1024175061545101305.png
+header_img_url: ''
+version: '1778216513'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p>抓1张牌。然后，选择任意手牌替换。</p><p>（牌组包含至少2个「须弥」角色，才能加入牌组）</p>
+effect_text: '抓1张牌。然后，选择任意手牌替换。
+
+  （牌组包含至少2个「须弥」角色，才能加入牌组）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/23/1694811/8c5a4f348a3a8017500c15e9cd0c5c15_3989723419185135203.png
+deck_constraint: 牌组包含至少2个「须弥」角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_html: <p>抓1张牌。然后，选择任意手牌替换。</p><p>（牌组包含至少2个「须弥」角色，才能加入牌组）</p>
+  effect_text: '抓1张牌。然后，选择任意手牌替换。
+
+    （牌组包含至少2个「须弥」角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/23/1694811/1c656067801c6beb53803faefedd0a47_7333316108362576471.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/09/26/258999284/48ee0a59d2321b613b405fcc46938fdc_8536143264827019739.gif
+jiqiao: true
+flavor_html: <p><strong>诸灵欢悦之智</strong></p><p>「大家的欢舞里蕴藏着宇宙的一切。『生命』一直都是目的，『智慧』才是手段。」</p>
+flavor_text: '诸灵欢悦之智
+
+  「大家的欢舞里蕴藏着宇宙的一切。『生命』一直都是目的，『智慧』才是手段。」'
+_raw_path: data/raw/action/6593_草与智慧.json

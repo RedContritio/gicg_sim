@@ -1,0 +1,89 @@
+id: 501446
+name: 歼灭特化型机关·芒
+title: 歼灭特化型机关·芒
+parent_class: monster
+attr:
+  元素:
+  - 雷
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  充能:
+  - '2'
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction:
+- 魔物
+hp: 10
+energy: 2
+acquire: 无
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/d834cb419f91e22e646af07006d01312_5169679059506514085.png
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/de066277f1f3120586b5e9c93c7fdb59_6233050645597627412.png
+skills:
+- name: 军刺直击
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 霆电掠袭
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  effect_text: 造成3点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下3次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+- name: 腾跃霆击
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  effect_text: 造成5点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下3次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  energy_req: 2
+- name: 支援单位·芒
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】战斗开始时，初始生成机关·区域警戒型·芒水元素伤害。受到具有「始基力：荒性」的角色造成的伤害后：移除此效果。" class="wiki-note-text">。
+  term_refs:
+  - 机关·区域警戒型·芒
+- name: 能源特征：芒性
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 受到具有「始基力：荒性」的角色造成的伤害后：此角色转换为「失能形态」，并且直到本回合结束前无法使用技能。
+  term_refs:
+  - 失能形态
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下3次草/雷伤害+1的[激化领域]
+  机关·区域警戒型·芒: 出战状态敌方打出3张行动牌后：造成1点水元素伤害。受到具有「始基力：荒性」的角色造成的伤害后：移除此效果。

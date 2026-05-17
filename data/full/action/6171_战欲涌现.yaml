@@ -1,0 +1,63 @@
+id: 6171
+name: 战欲涌现
+parent_class: action
+desc: 战欲涌现
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  冰: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/02/27/12109492/54bfba5d0eb40f38a0b679808dbf3941_2349866452311715194.png
+header_img_url: ''
+version: '1688714787'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 1
+raw_energy: 2
+raw_energy_bg: 8
+effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+  pre-wrap;&quot;>战斗行动：</p><p style=&quot;white-space: pre-wrap;&quot;>我方执行了一次战斗行动后，会轮到对方行动。</p><p
+  style=&quot;white-space: pre-wrap;&quot;>打出具有此规则的手牌是一个战斗行动，而非快速行动。</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>优菈</strong>时，装备此牌。</p><p>优菈装备此牌后，立刻使用一次<strong><u>凝浪之光剑</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>造成2点<strong><span
+  style=&quot;color:rgba(145,213,255,1)&quot;>冰元素伤害</span></strong>，召唤<strong><em>光降之剑</em></strong>。</p>"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的优菈使用<strong><u>冰潮的涡旋</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>造成2点<strong><span
+  style=&quot;color:rgba(145,213,255,1)&quot;>冰元素伤害</span></strong>，如果本角色未附属<strong>冷酷之心</strong>，则使其附属<strong>冷酷之心</strong>。</p>"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>时，会额外为<strong><em>光降之剑</em></strong>累积1点「能量层数」。</p><p>（牌组中包含优菈，才能加入牌组）</p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为优菈时，装备此牌。
+
+  优菈装备此牌后，立刻使用一次凝浪之光剑造成2点冰元素伤害，召唤光降之剑。" class="wiki-note-text">。
+
+  装备有此牌的优菈使用冰潮的涡旋造成2点冰元素伤害，如果本角色未附属冷酷之心，则使其附属冷酷之心。" class="wiki-note-text">时，会额外为光降之剑累积1点「能量层数」。
+
+  （牌组中包含优菈，才能加入牌组）'
+term_refs:
+- 战斗行动
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  凝浪之光剑: 造成2点冰元素伤害，召唤光降之剑。
+  冰潮的涡旋: 造成2点冰元素伤害，如果本角色未附属冷酷之心，则使其附属冷酷之心。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/02/04/12109492/5fd9633462b60065636434992f1d9625_744828402311259346.png
+energy_req: 2
+requires_char: 优菈
+deck_constraint: 牌组中包含优菈，才能加入牌组
+is_combat_action: true
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2023/02/27/12109492/54bfba5d0eb40f38a0b679808dbf3941_5181344457570733816.png
+flavor_html: <p><strong>优菈·战欲涌现</strong></p><p>冰浪怒涛，断绝深仇。</p>
+flavor_text: '优菈·战欲涌现
+
+  冰浪怒涛，断绝深仇。'
+_raw_path: data/raw/action/6171_战欲涌现.json

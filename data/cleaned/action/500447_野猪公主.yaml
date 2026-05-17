@@ -1,0 +1,34 @@
+id: 500447
+name: 野猪公主
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 其他标签
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '本回合中，我方每有一张装备在角色身上的「装备牌」被弃置时：获得1个万能元素。（最多获得2个）
+
+  （角色被击倒时弃置装备牌，或者覆盖装备「武器」「圣遗物」或「特技」，都可以触发此效果）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/7a8c85830ce44927460008304d7f73ed_6017605429947411933.png
+duration: 持续本回合
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/7721cfea320d981f2daa537b95bb7bc1_3900294074977500858.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/dfef2e660b37ffce43200e2274bb8791_7353398257525702769.gif
+flavor_text: '野猪公主
+
+  久远的传说中，野猪的王国富足快乐。王国的小公主带着智慧的狐狸与长寿的乌龟，踏上了前往北方的道路，打算让不幸的小狼变回原来的那个好孩子…'

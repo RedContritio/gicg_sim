@@ -1,0 +1,248 @@
+id: 501405
+name: 吞星之鲸
+title: 深秘异兽·吞星之鲸
+parent_class: character
+desc: 吞星之鲸卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/17c1739ef970603be767fa88764fc44f_8330263260570462518.png
+header_img_url: ''
+version: '1775179005'
+attr:
+  元素:
+  - 水元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 水
+weapon: 其他武器
+faction: *id001
+hp: 6
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/17c1739ef970603be767fa88764fc44f_4845015785088476307.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/d5e9759b59a2d9508433b3dbb13511a4_263823666809648644.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/c9cbea5b3b0d08c7ab614357fd3a4ad4_6615888918366258715.png
+skills:
+- name: 碎涛旋跃
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    水: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/52c75cdc2bfe940c74ce53c016e70485_4708616829420828919.png
+  effect_html: '<html><head></head><body><p>造成2点<strong><span style="color: rgb(0,
+    0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 迸落星雨
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/942e3d28310f4395ee7e3f1580268db8_512199522496433076.png
+  effect_html: '<html><head></head><body><p>造成1点<strong><span style="color: rgb(24,
+    144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，此角色每有3点</span><strong><span style="color: rgb(0, 0, 0)">无尽食欲</span></strong><span
+    style="color: rgb(0, 0, 0)">提供的额外最大生命，此伤害+1（最多+3）。然后</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>舍弃</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">1张当前元素骰费用最高的手牌。</span></p></body></html>'
+  effect_text: 造成1点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">，此角色每有3点无尽食欲提供的额外最大生命，此伤害+1（最多+3）。然后舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。"
+    class="wiki-note-text">1张当前元素骰费用最高的手牌。
+  term_refs:
+  - 水元素伤害
+  - 舍弃
+- name: 横噬鲸吞
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/4a25287ec5707c0cbcdfa997c1621224_1686936517736141335.png
+  effect_html: '<html><head></head><body><p>造成1点<strong><span style="color: rgb(24,
+    144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，对敌方所有后台角色造成1点</span><strong><span style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0,
+    0, 0)&#34;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。召唤</span><strong><em><span style="color: rgb(0, 0, 0)">黑色幻影</span></em></strong><span
+    style="color: rgb(0, 0, 0)">。</span></p></body></html>'
+  effect_text: 造成1点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">，对敌方所有后台角色造成1点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">。召唤黑色幻影。
+  term_refs:
+  - 水元素伤害
+  - 穿透伤害
+  energy_req: 2
+- name: 无尽食欲
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/66b604a5c6cc6b3ca21c5bee7bee28a5_2353476581760344471.png
+  effect_html: '<html><head></head><body><p><span style="color: rgb(0, 0, 0)">【被动】战斗开始时，生成</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>深噬之域</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;深噬之域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;我方从手牌中&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;或&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;调和&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;的卡牌，会被吞噬。&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;每吞噬3张牌：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;吞星之鲸在回合结束时获得1点额外最大生命；如果其中存在当前元素骰费用值相同的牌，则额外获得1点；如果3张均相同，再额外获得1点。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p></body></html>'
+  effect_text: 【被动】战斗开始时，生成深噬之域我方从手牌中舍弃或调和的卡牌，会被吞噬。每吞噬3张牌：吞星之鲸在回合结束时获得1点额外最大生命；如果其中存在当前元素骰费用值相同的牌，则额外获得1点；如果3张均相同，再额外获得1点。"
+    class="wiki-note-text">。
+  term_refs:
+  - 深噬之域
+summons:
+- name: 黑色幻影
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/71d21daf1689d58b7b86691b894a1d2c_6622906347878958966.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+    0)">入场时：</span></strong><span style="color: rgb(0, 0, 0)">获得我方已吞噬卡牌中最高当前元素骰费用值的「攻击力」，获得该费用的已吞噬卡牌数量的</span><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;可用次数：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;此牌效果触发后，会消耗1次可用次数；&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;可用次数耗尽后，立刻弃置此牌。&lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">。<br/></span><strong><span style="color: rgb(0, 0,
+    0)">结束阶段：</span></strong><span style="color: rgb(0, 0, 0)">造成此牌「攻击力」值的</span><strong><span
+    style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;雷元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br/></span><strong><span style="color: rgb(0, 0, 0)">我方出战角色受到伤害时：</span></strong><span
+    style="color: rgb(0, 0, 0)">抵消1点伤害，然后此牌</span><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;可用次数：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;此牌效果触发后，会消耗1次可用次数；&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;可用次数耗尽后，立刻弃置此牌。&lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">-2。</span></p></body></html>'
+  effect_text: 入场时：获得我方已吞噬卡牌中最高当前元素骰费用值的「攻击力」，获得该费用的已吞噬卡牌数量的可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">。结束阶段：造成此牌「攻击力」值的雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。我方出战角色受到伤害时：抵消1点伤害，然后此牌可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">-2。
+  term_refs:
+  - 可用次数
+  - 雷元素伤害
+talent:
+  name: 无光鲸噬
+  type: 装备牌
+  raw_life: 4
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 4
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/6c8ce9408dc45b74242f45fb45c2e5d0_2531847241658288056.png
+  effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+    0)"><u>战斗行动</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">吞星之鲸</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。</span></p><p><span style="color: rgb(0, 0,
+    0)">吞星之鲸装备此牌后，立刻使用一次</span><strong><span style="color: rgb(0, 0, 0)"><u>迸落星雨</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;迸落星雨：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素战技&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(24, 144, 255)&#34;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;，此角色每有3点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;无尽食欲&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;提供的额外最大生命，此伤害+1（最多+4）。然后&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;1张原本元素骰费用最高的手牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><span style="color: rgb(0, 0, 0)">装备有此牌的吞星之鲸使用</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>迸落星雨</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;迸落星雨：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;元素战技&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(24, 144, 255)&#34;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;，此角色每有3点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;无尽食欲&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;提供的额外最大生命，此伤害+1（最多+4）。然后&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;1张原本元素骰费用最高的手牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong><span style="color:
+    rgb(0, 0, 0)"><u>舍弃</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">1张手牌后：治疗此角色，其数值等同于所舍弃手牌的当前元素骰费用。（每回合1次）</span></p><p><span style="color:
+    rgb(0, 0, 0)">（牌组中包含吞星之鲸，才能加入牌组）</span></p></body></html>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为吞星之鲸时，装备此牌。
+
+    吞星之鲸装备此牌后，立刻使用一次迸落星雨元素战技
+
+    造成1点水元素伤害，此角色每有3点无尽食欲提供的额外最大生命，此伤害+1（最多+4）。然后舍弃1张原本元素骰费用最高的手牌。" class="wiki-note-text">。
+
+    装备有此牌的吞星之鲸使用迸落星雨元素战技
+
+    造成1点水元素伤害，此角色每有3点无尽食欲提供的额外最大生命，此伤害+1（最多+4）。然后舍弃1张原本元素骰费用最高的手牌。" class="wiki-note-text">舍弃舍弃：
+
+    通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">1张手牌后：治疗此角色，其数值等同于所舍弃手牌的当前元素骰费用。（每回合1次）
+
+    （牌组中包含吞星之鲸，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 迸落星雨
+  - 舍弃
+  deck_constraint: 牌组中包含吞星之鲸，才能加入牌组
+flavor_html: <p><strong>深秘异兽·吞星之鲸</strong></p><p>在最魔幻的故事里或是最疯癫的诳语中，宇宙深处真正的星辰或许也如提瓦特一般充满了生机，而宇宙本身就如同海洋。</p><p>或许宇宙渗入提瓦特的过程从未停止；也许更高的意志为它划定了边界是为了保护这个世界。</p>
+flavor_text: '深秘异兽·吞星之鲸
+
+  在最魔幻的故事里或是最疯癫的诳语中，宇宙深处真正的星辰或许也如提瓦特一般充满了生机，而宇宙本身就如同海洋。
+
+  或许宇宙渗入提瓦特的过程从未停止；也许更高的意志为它划定了边界是为了保护这个世界。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  深噬之域: 状态我方从手牌中舍弃或调和的卡牌，会被吞噬。每吞噬3张牌：吞星之鲸在回合结束时获得1点额外最大生命；如果其中存在当前元素骰费用值相同的牌，则额外获得1点；如果3张均相同，再额外获得1点。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  迸落星雨: 元素战技造成1点水元素伤害，此角色每有3点无尽食欲提供的额外最大生命，此伤害+1（最多+4）。然后舍弃1张原本元素骰费用最高的手牌。
+_raw_path: data/raw/character/501405_吞星之鲸.json

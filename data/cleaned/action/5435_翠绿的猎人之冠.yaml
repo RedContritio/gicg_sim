@@ -1,0 +1,33 @@
+id: 5435
+name: 翠绿的猎人之冠
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个风元素。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/f5dd60d41187c41067aa90014d9c54c2_4574950617697217081.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/ab97ddfef51292e8032722be4b90033c_4334232169479597641.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/8436a3891c3bcb321cc2d0878c8db3b8_778894426758397310.gif
+flavor_text: '青翠之风·翠绿的猎人之冠
+
+  「无人能为最杰出的猎人加冕，因为高于她的只有地与天。」'

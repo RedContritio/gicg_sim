@@ -1,0 +1,212 @@
+id: 507644
+name: 丝柯克
+title: 虚渊暗星·丝柯克
+parent_class: character
+desc: 丝柯克卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/13/258999284/e876c8bd08739db31aac07eeff631d01_2869047505113760240.png
+header_img_url: ''
+version: '1768280563'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 单手剑
+  阵营: &id001
+  - 寰宇劫灭
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 冰
+weapon: 单手剑
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/e876c8bd08739db31aac07eeff631d01_8894187797783727925.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/0f0594de8ae795dcfe3fda3cac982c73_2428897837129495865.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+skills:
+- name: 极恶技·断
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/ad2b29c8f1e9d461d4c29d94b69da6f5_6792763368221891986.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 极恶技·闪
+  type: 元素战技
+  raw_life: 2
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/404a493d3b7964a708c6cd5eab69343c_1955116646191902022.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">获得2点</span><strong><span style="color:
+    rgb(0, 0, 0)">蛇之狡谋</span></strong><span style="color: rgb(0, 0, 0)">，生成手牌</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>诸武相授</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;诸武相授：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;丝柯克&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;附属&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;七相一闪&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并且下次造成的伤害+1。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;回合开始或我方执行切换后：舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌，获得1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;蛇之狡谋&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）</span></p>'
+  effect_text: 获得2点蛇之狡谋，生成手牌诸武相授诸武相授：事件牌费用：0我方丝柯克附属七相一闪，并且下次造成的伤害+1。回合开始或我方执行切换后：舍弃此牌，获得1点蛇之狡谋。"
+    class="wiki-note-text">。（每回合1次）
+  term_refs:
+  - 诸武相授
+- name: 极恶技·灭
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/e886b8ebfa2d73c7dbfc49fa09841135_2622571023137656584.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">消耗所有</span><strong><span style="color:
+    rgb(0, 0, 0)">蛇之狡谋</span></strong><span style="color: rgb(0, 0, 0)">，造成等同于消耗</span><strong><span
+    style="color: rgb(0, 0, 0)">蛇之狡谋</span></strong><span style="color: rgb(0, 0,
+    0)">数量的</span><strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，对后台角色造成2点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，如果消耗了7点</span><strong><span style="color: rgb(0, 0, 0)">蛇之狡谋</span></strong><span
+    style="color: rgb(0, 0, 0)">，则改为对后台角色造成3点</span><strong><span style="color: rgb(0,
+    0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 消耗所有蛇之狡谋，造成等同于消耗蛇之狡谋数量的冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，对后台角色造成2点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。" class="wiki-note-text">，如果消耗了7点蛇之狡谋，则改为对后台角色造成3点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  - 穿透伤害
+  energy_req: 2
+- name: 理外之理
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/a2b8fba62b565fe8974be882752896d1_2070236635156012985.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">【被动】丝柯克无法获得充能，改为可以积累</span><strong><span
+    style="color: rgb(0, 0, 0)">蛇之狡谋</span></strong><span style="color: rgb(0, 0,
+    0)">，最多7点。</span></p><p><strong><span style="color: rgb(0, 0, 0)">我方触发冻结/冰扩散/超导/冰结晶反应后：</span></strong><span
+    style="color: rgb(0, 0, 0)">生成手牌</span><strong><span style="color: rgb(0, 0, 0)"><u>虚境裂隙</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;虚境裂隙：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;1张原本元素骰费用为3的手牌，我方&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;丝柯克&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;获得2点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;蛇之狡谋&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合3次）</span></p>'
+  effect_text: 【被动】丝柯克无法获得充能，改为可以积累蛇之狡谋，最多7点。我方触发冻结/冰扩散/超导/冰结晶反应后：生成手牌虚境裂隙虚境裂隙：事件牌费用：0舍弃1张原本元素骰费用为3的手牌，我方丝柯克获得2点蛇之狡谋。"
+    class="wiki-note-text">。（每回合3次）
+  term_refs:
+  - 虚境裂隙
+summons: []
+talent:
+  name: 湮远
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 1
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/25f0da057b1480e86eeb2ed92241e6e7_2741636345616485001.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">快速行动</span></strong><span
+    style="color: rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0,
+    0)">丝柯克</span></strong><span style="color: rgb(0, 0, 0)">。<br></span><strong><span
+    style="color: rgb(0, 0, 0)">装备有此牌的丝柯克在场，我方打出或舍弃<u>虚境裂隙</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;虚境裂隙：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;1张原本元素骰费用为3的手牌，我方&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;丝柯克&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;获得2点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;蛇之狡谋&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">时：对敌方出战角色造成1点</span><strong><span
+    style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;冰元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含丝柯克，才能加入牌组）</span></p>'
+  effect_text: '快速行动：装备给我方的丝柯克。
+
+    装备有此牌的丝柯克在场，我方打出或舍弃虚境裂隙虚境裂隙：
+
+    事件牌
+
+    费用：0
+
+    舍弃1张原本元素骰费用为3的手牌，我方丝柯克获得2点蛇之狡谋。" class="wiki-note-text">时：对敌方出战角色造成1点冰元素伤害冰元素伤害：
+
+    附着冰元素，可发生元素反应:
+
+    融化：本伤害+2
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    " class="wiki-note-text">。（每回合1次）
+
+    （牌组中包含丝柯克，才能加入牌组）'
+  term_refs:
+  - 虚境裂隙
+  - 冰元素伤害
+  sub_type: 快速行动
+  deck_constraint: 牌组中包含丝柯克，才能加入牌组
+flavor_html: <p><strong>虚渊暗星·丝柯克</strong></p><p>星海默然，覆灭无声。</p>
+flavor_text: '虚渊暗星·丝柯克
+
+  星海默然，覆灭无声。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  诸武相授: 事件牌费用：0我方丝柯克附属七相一闪，并且下次造成的伤害+1。回合开始或我方执行切换后：舍弃此牌，获得1点蛇之狡谋。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  虚境裂隙: 事件牌费用：0舍弃1张原本元素骰费用为3的手牌，我方丝柯克获得2点蛇之狡谋。
+_raw_path: data/raw/character/507644_丝柯克.json

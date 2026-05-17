@@ -1,0 +1,247 @@
+{
+  "id": "501149",
+  "name": "海中寻宝",
+  "desc": "海中寻宝卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/40001dfa11a6aa20be3de16e0c89d598_2751987763941606165.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"海中寻宝\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/40001dfa11a6aa20be3de16e0c89d598_3587066228917552605.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/4e23a00e691cffa04351fb30134bf365_6348769076769241516.gif\",\"life\":2,\"life_bg\":9,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"类型：\",\"value\":[\"事件牌\"]},{\"key\":\"标签：\",\"value\":[\"其他标签\"]},{\"key\":\"获取：\",\"value\":[\"卡牌商店购买\"]},{\"key\":\"花费：\",\"value\":[\"2\"]}]}",
+          "style": ""
+        }
+      ],
+      "id": "1",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "效果描述",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">生成6张</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>海底宝藏</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;海底宝藏：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;事件牌&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;费用：&lt;/strong&gt;0&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;生成1个随机基础元素骰，治疗我方出战角色1点。（每个角色每回合最多受到1次来自本效果的治疗）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，随机地置入我方牌库中。</span></p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "2",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>海中寻宝</strong></p><p>苍晶螺，幽光星星，偶尔还有隐藏在贝壳中的宝箱···</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "3",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\" style=\\\"text-align: center\\\">自行巧局</h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6632",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "强力支援",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p></p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "6633",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "效果描述",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p>进行<strong>挑选</strong>时，可能会挑选到强力的海底宝藏。</p><p>我方每回合额外获得1次刷新机会。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "6634",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1755483448",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "1",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "1",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "1",
+                "pos": "left"
+              },
+              {
+                "id": "2",
+                "pos": "right"
+              },
+              {
+                "id": "3",
+                "pos": "right"
+              },
+              {
+                "id": "6632",
+                "pos": "right"
+              },
+              {
+                "id": "6633",
+                "pos": "right"
+              },
+              {
+                "id": "6634",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "234",
+      "name": "行动牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "行动牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"类型\\\",\\\"children\\\":[{\\\"label\\\":\\\"装备牌\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"事件牌\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"支援牌\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"标签\\\",\\\"children\\\":[{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣遗物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"天赋\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"料理\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"道具\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"伙伴\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"场地\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"元素共鸣\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"元素幻变\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"秘传\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"特技\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他标签\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"花费\\\",\\\"children\\\":[{\\\"label\\\":\\\"花费0\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费1\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费2\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费3\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费4\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费5\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费6\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他花费\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/234?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "673be79a1b2d5d5556bcd8f2",
+  "ext": {
+    "fe_ext": "{\"c_234\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2024/04/30/258999284/9e7207494a4fdb10df19179ec836623b_540841476051582874.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"类型/事件牌\\\",\\\"标签/其他标签\\\",\\\"花费/花费2\\\",\\\"特殊模式/自行巧局\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

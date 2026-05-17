@@ -1,5 +1,7 @@
-local attached_ice     = get_counter("attached_ice",     Scope.PerChar)
-local attached_electro = get_counter("attached_electro", Scope.PerChar)
+local attached_ice     = get_counter("冰元素附着",     Scope.PerChar)
+local 雷元素附着 = get_counter("雷元素附着", Scope.PerChar)
+
+local R_SUPERCONDUCT = declare_reaction("Superconduct")  -- ADR-0019 §B.3
 
 on_reaction_damage(function(ctx)
   local tp, tc = ctx.target_player, ctx.target_char
@@ -8,15 +10,16 @@ on_reaction_damage(function(ctx)
   if ctx.element == Element.Electro and attached_ice:get_at(tp, tc) > 0 then
     attached_ice:set_at(tp, tc, 0)
     triggered = true
-  elseif ctx.element == Element.Ice and attached_electro:get_at(tp, tc) > 0 then
-    attached_electro:set_at(tp, tc, 0)
+  elseif ctx.element == Element.Ice and 雷元素附着:get_at(tp, tc) > 0 then
+    雷元素附着:set_at(tp, tc, 0)
     triggered = true
   end
 
   if triggered then
     ctx.element = Element.None
+    set_reaction_kind(R_SUPERCONDUCT)
     defer_fn(function()
-      deal_damage(Target.EnemyAll, Element.None, 1, { penetrate = true, source = Source.Reaction })
+      deal_damage(Target.EnemyAll, Element.Piercing, 1, { source = Source.Reaction })
     end)
   end
 end)

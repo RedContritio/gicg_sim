@@ -1,0 +1,39 @@
+id: 5456
+name: 常九爷
+parent_class: action
+sub_class: 支援牌
+tags:
+- 伙伴
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 伙伴
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '双方角色使用技能后：如果造成了物理伤害物理伤害不会附着元素，也不会发生元素反应。
+
+  " class="wiki-note-text">、穿透伤害穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+
+  " class="wiki-note-text">或引发了元素反应，此牌累积1个「灵感」。
+
+  如果此牌已累积3个「灵感」，弃置此牌：抓2张牌。'
+term_refs: []
+terms:
+  物理伤害: 不会附着元素，也不会发生元素反应。
+  穿透伤害: 无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/7a8c85830ce44927460008304d7f73ed_4408529502307669717.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/df918cc6348b04d9f287c9b2f429c35c_3314024126441715103.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/a3576e7ab0cda0177fe7bd6124cf5193_2234637985761791569.gif
+flavor_text: '失意墨客·常九爷
+
+  「未曾清贫难成人，尚有书卷伴吾身！」'

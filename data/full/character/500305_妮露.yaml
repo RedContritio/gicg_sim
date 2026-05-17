@@ -1,0 +1,234 @@
+id: 500305
+name: 妮露
+title: 莲光落舞筵·妮露
+parent_class: character
+desc: 莲光落舞筵·妮露卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/c204ab1e33aa03f8b8936c5730408063_4585039183190438044.png
+header_img_url: ''
+version: '1761100378'
+attr:
+  元素:
+  - 水元素
+  武器:
+  - 单手剑
+  阵营: &id001
+  - 须弥
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 水
+weapon: 单手剑
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/c204ab1e33aa03f8b8936c5730408063_855558974512689147.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/e9ff95b6959a749651157193da649426_6928467479832110885.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/de066277f1f3120586b5e9c93c7fdb59_6076950378654318474.png
+skills:
+- name: 弦月舞步
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    水: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/6a3bbe87049b84ecaa3a5e3f0574057b_1995360428192638726.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 七域舞步
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/dda23813ac8a901419da3fcfe5fdcdd3_1625330009471386599.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24,
+    144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，如果队伍中包含<strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素角色</u></span></strong>和<strong><span style="color:
+    rgb(82, 196, 26)"><u>草元素角色</u></span></strong>且不包含其他元素的角色，就生成<strong><u>金杯的丰馈</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;金杯的丰馈&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;敌方角色受到绽放反应时：&lt;/strong&gt;我方不再生成&lt;strong&gt;草原核&lt;/strong&gt;，而是改为召唤&lt;strong&gt;&lt;em&gt;丰穰之核&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]"
+    class="wiki-note-text">，如果队伍中包含水元素角色和草元素角色且不包含其他元素的角色，就生成金杯的丰馈。
+  term_refs:
+  - 水元素伤害
+  - 金杯的丰馈
+- name: 浮莲舞步·远梦聆泉
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/04/258999284/d90ebd60eb4eb78a42d0f2f95cab33fc_4581262526420283887.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24,
+    144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，目标及下一个角色附属<strong><u>永世流沔</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;永世流沔&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段&lt;/strong&gt;：对所附属角色造成2点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：1&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]"
+    class="wiki-note-text">，目标及下一个角色附属永世流沔水元素伤害。可用次数：1水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">。
+  term_refs:
+  - 水元素伤害
+  - 永世流沔
+  energy_req: 2
+summons:
+- name: 丰壤之核
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/08/258999284/865915f8734cdc641df43198eb728497_5603461429712047360.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>造成2点<strong><span style="color: rgb(82, 196,
+    26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>我方宣布结束时</strong>：如果此牌的可用次数至少为2，则造成2点<strong><span
+    style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（需消耗可用次数）</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：</strong>1（可叠加，最多叠加到3次）</p><p></p>'
+  effect_text: 结束阶段：造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">。我方宣布结束时：如果此牌的可用次数至少为2，则造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">。（需消耗可用次数）可用次数：1（可叠加，最多叠加到3次）
+  term_refs:
+  - 草元素伤害
+  - 可用次数
+talent:
+  name: 星天的花雨
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/8cc9e5054277fa7e344648ac99671e7d_7024038156668339521.png
+  effect_html: <p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：</strong>我方出战角色为<strong><u>妮露</u></strong>时，装备此牌。</p><p>妮露装备此牌后，立刻使用一次<strong><u>七域舞步</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;七域舞步：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;元素战技&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;水元素伤害&lt;/strong&gt;，如果队伍中包含&lt;strong&gt;水元素角色&lt;/strong&gt;和&lt;strong&gt;草元素角色&lt;/strong&gt;且不包含其他元素的角色，就生成&lt;strong&gt;金杯的丰馈&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的妮露在场时：我方<strong><em>丰壤之核</em></strong>造成的伤害+1。</p><p>（牌组中包含妮露，才能加入牌组）</p>
+  effect_text: '战斗行动：我方出战角色为妮露时，装备此牌。
+
+    妮露装备此牌后，立刻使用一次七域舞步。
+
+    装备有此牌的妮露在场时：我方丰壤之核造成的伤害+1。
+
+    （牌组中包含妮露，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 七域舞步
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含妮露，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 10
+  energy: 3
+  attr:
+    充能:
+    - 3点
+    攻击:
+    - '2'
+  skills:
+  - name: 弦月舞步
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/6a3bbe87049b84ecaa3a5e3f0574057b_4335744848293308716.png
+    effect_html: '<p>造成<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成物理伤害。
+    term_refs:
+    - 物理伤害
+  - name: 浮莲舞步 · 远梦聆泉
+    type: 元素爆发
+    raw_life: 3
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/d90ebd60eb4eb78a42d0f2f95cab33fc_8403363872144021193.png
+    effect_html: '<p>对敌方全体造成<strong><span style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 对敌方全体造成水元素伤害水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">。
+    term_refs:
+    - 水元素伤害
+    energy_req: 3
+  - name: 七域舞步
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/dda23813ac8a901419da3fcfe5fdcdd3_7770050280197527219.png
+    effect_html: '<p>【被动】<strong>战斗开始时</strong>，如果队伍中包含<strong><span style="color:
+      rgb(24, 144, 255)">水元素角色</span></strong>和<strong><span style="color: rgb(82,
+      196, 26)">草元素角色</span></strong>，且不包含其他元素的角色，就附属<strong><u>金杯的丰馈</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;金杯的丰馈：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;元素精通&lt;/u&gt;&lt;/strong&gt;+1。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;行动后&lt;/strong&gt;：随机2个敌方受到1点&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;元素精通：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每点元素精通使得敌方受到的元素反应中&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。否则，攻击力+2，附属<strong><u>水元素附魔</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;水元素附魔：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色造成的物理伤害变为&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。
+      &lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24,
+      144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 【被动】战斗开始时，如果队伍中包含水元素角色和草元素角色，且不包含其他元素的角色，就附属金杯的丰馈水元素伤害。元素精通：每点元素精通使得敌方受到的元素反应中特定效果提升1倍。水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">。否则，攻击力+2，附属水元素附魔水元素伤害。 水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">。
+    term_refs:
+    - 金杯的丰馈
+    - 水元素附魔
+flavor_html: <p><strong>莲光落舞筵·妮露</strong></p><p>莲步轻舞，出尘醉梦</p>
+flavor_text: '莲光落舞筵·妮露
+
+  莲步轻舞，出尘醉梦'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+  金杯的丰馈: 出战状态敌方角色受到绽放反应时：我方不再生成草原核，而是改为召唤丰穰之核。
+  永世流沔: 状态结束阶段：对所附属角色造成2点水元素伤害。可用次数：1水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  七域舞步: 元素战技造成3点水元素伤害，如果队伍中包含水元素角色和草元素角色且不包含其他元素的角色，就生成金杯的丰馈。
+_raw_path: data/raw/character/500305_妮露.json

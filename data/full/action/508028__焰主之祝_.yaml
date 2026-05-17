@@ -1,0 +1,65 @@
+id: 508028
+name: 「焰主之祝」
+parent_class: action
+desc: 「焰主之祝」卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  火: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/22fa99041f45edbc6ca1e993dff5b20d_272149022650595326.png
+header_img_url: ''
+version: '1771986963'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 4
+raw_energy: 2
+raw_energy_bg: 8
+effect_html: '<html><head></head><body><p><strong>战斗行动：</strong>我方出战角色为<strong>金焰绒翼龙暴君</strong>时，装备此牌。</p><p><strong>金焰绒翼龙暴君</strong>装备此牌后，立刻使用一次<strong>金焰爆轰</strong>。</p><p>我方金焰形态<span
+  data-type="详情" data-name="&lt;p&gt;金焰形态&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;结束阶段：如果所附属角色为出战角色，则造成1点火元素伤害，对所有敌方后台角色造成1点穿透伤害。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>触发时，额外<strong><span
+  style="color: rgb(0, 0, 0)"><u>舍弃</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&#34;color: rgb(0, 0, 0)&#34;&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>1张随机手牌，金焰形态<span data-type="详情"
+  data-name="&lt;p&gt;金焰形态&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;结束阶段：如果所附属角色为出战角色，则造成1点火元素伤害，对所有敌方后台角色造成1点穿透伤害。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>造成的伤害额外提高，其数值等同于所<strong><span
+  style="color: rgb(0, 0, 0)"><u>舍弃</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&#34;color: rgb(0, 0, 0)&#34;&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>手牌的当前元素骰费用<span data-type="详情"
+  data-name="&lt;p&gt;当前元素骰费用&lt;/p&gt;&lt;p&gt;规则解释&lt;/p&gt;&lt;p&gt;行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。&lt;/p&gt;&lt;p&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含金焰绒翼龙暴君，才能加入牌组）</p></body></html>'
+effect_text: '战斗行动：我方出战角色为金焰绒翼龙暴君时，装备此牌。
+
+  金焰绒翼龙暴君装备此牌后，立刻使用一次金焰爆轰。
+
+  我方金焰形态触发时，额外舍弃舍弃：
+
+  通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">1张随机手牌，金焰形态造成的伤害额外提高，其数值等同于所舍弃舍弃：
+
+  通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">手牌的当前元素骰费用。
+
+  （牌组中包含金焰绒翼龙暴君，才能加入牌组）'
+term_refs:
+- 金焰形态状态结束阶段
+- 舍弃
+terms:
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/a27c6121d910fcdd598fb02da9a01cfe_1175915633258683786.png
+energy_req: 2
+requires_char: 金焰绒翼龙暴君
+deck_constraint: 牌组中包含金焰绒翼龙暴君，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/22fa99041f45edbc6ca1e993dff5b20d_2174297160903554864.png
+flavor_html: <p></p>
+flavor_text: ''
+_raw_path: data/raw/action/508028__焰主之祝_.json

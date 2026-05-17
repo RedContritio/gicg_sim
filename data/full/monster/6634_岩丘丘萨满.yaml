@@ -1,0 +1,102 @@
+id: 6634
+name: 岩丘丘萨满
+title: 岩丘丘萨满
+parent_class: monster
+desc: 岩丘丘萨满卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e4a82f15ee4fe4912ac01b83b2ff76cb_5496761709411562096.png
+header_img_url: ''
+version: '1694074777'
+attr:
+  元素:
+  - 岩元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 岩
+weapon: 其他武器
+faction: *id001
+hp: 4
+energy: 2
+acquire: 无
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e4a82f15ee4fe4912ac01b83b2ff76cb_4967487848615899334.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_2277854255596634786.png
+skills:
+- name: 杖击
+  type: 普通攻击
+  raw_life: 2
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/03e9e5156cb9ba4e033d60fd5541a6b5_4461351370344497998.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成1点<strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 唤石之咒
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/1dbad54b64ad68e9c635ad248a9864ab_3654015890100036802.png
+  effect_html: '<p style="white-space: pre-wrap;">造成1点<strong><span style="color:rgba(212,177,6,1)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;岩元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong><u>岩土台座</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;岩土台座：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;出战状态&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;我方出战中的「丘丘人」角色受到伤害时：&lt;/strong&gt;抵消1点伤害。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;可用次数：2&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，生成岩土台座岩土台座：出战状态我方出战中的「丘丘人」角色受到伤害时：抵消1点伤害。可用次数：2" class="wiki-note-text">。
+  term_refs:
+  - 岩元素伤害
+  - 岩土台座
+- name: 碎岩震波
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/ccf7b5a8597e4739dadbb803c7f11768_6865301545640505836.png
+  effect_html: '<p style="white-space: pre-wrap;">造成5点<strong><span style="color:rgba(212,177,6,1)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;岩元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成5点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">。
+  term_refs:
+  - 岩元素伤害
+  energy_req: 2
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  岩元素伤害: 和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+  岩土台座: 出战状态我方出战中的「丘丘人」角色受到伤害时：抵消1点伤害。可用次数：2
+_raw_path: data/raw/monster/6634_岩丘丘萨满.json

@@ -1,0 +1,296 @@
+id: 7019
+name: 七七
+title: 冻冻回魂夜·七七
+parent_class: character
+desc: 七七卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/08/12/258999284/e94e3710ff2819e5f5fd6ddf51a90910_3879029393179491610.png
+header_img_url: ''
+version: '1771468174'
+attr:
+  元素:
+  - 冰元素
+  阵营: &id001
+  - 璃月
+  武器:
+  - 单手剑
+  充能:
+  - 3点
+  获取方式:
+  - 角色邀请·友好对局
+element: 冰
+weapon: 单手剑
+faction: *id001
+hp: 10
+energy: 3
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/08/12/258999284/e94e3710ff2819e5f5fd6ddf51a90910_7928049319389729133.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/1e7975ceeccbb6c41d110258e3c9d5a9_2038750764889232492.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/08/12/258999284/de066277f1f3120586b5e9c93c7fdb59_6825529607368033047.png
+skills:
+- name: 云来古剑法
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/08/12/258999284/85bd12d21e4421258ed6f170f1908cd4_3314152622384750907.jpg
+  effect_html: '<p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 仙法·寒病鬼差
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/08/12/258999284/8ef482a027dfd52ec96e07ce452c38ce_2112371814644076808.jpg
+  effect_html: <p>召唤<strong><em>寒病鬼差</em></strong>。</p>
+  effect_text: 召唤寒病鬼差。
+  term_refs: []
+- name: 仙法·救苦度厄
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/08/12/258999284/fbf260ac04da9e7eafa3967cd9bed42c_824806426983130530.jpg
+  effect_html: '<p>造成3点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145,
+    213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong><span
+    style="color: rgb(0, 0, 0)"><u>度厄真符</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;度厄真符：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色使用技能后：&lt;/strong&gt;如果该角色生命值未满，则治疗该角色2点。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：3&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，生成度厄真符。
+  term_refs:
+  - 冰元素伤害
+  - 度厄真符
+  energy_req: 3
+summons:
+- name: 寒病鬼差
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/971b05c02dd20b662457e953c3c1ce93_649635310290460212.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段</strong>：造成1点<strong><span style="color: rgb(145,
+    213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(27, 27, 27)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：3</strong></p><p><strong>此召唤物在场时，七七使用「普通攻击」后：</strong>治疗受伤最多的我方角色1点；每回合一次：再治疗我方出战角色1点。</p>'
+  effect_text: 结束阶段：造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。可用次数此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3此召唤物在场时，七七使用「普通攻击」后：治疗受伤最多的我方角色1点；每回合一次：再治疗我方出战角色1点。
+  term_refs:
+  - 冰元素伤害
+  - 可用次数
+talent:
+  name: 起死回骸
+  type: 装备牌
+  raw_life: 4
+  raw_life_bg: 1
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    冰: 4
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/d5ef496771a846af08ec05fff036bf17_3613133520291167519.png
+  effect_html: '<html><head></head><body><p><strong><u>战斗行动</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(27, 27, 27)&#34;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(27, 27, 27)&#34;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(27, 27, 27)&#34;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>七七</strong>时，装备此牌。</p><p><strong>七七</strong>装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>仙法·救苦度厄</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;仙法·救苦度厄：&lt;br&gt;元素爆发&lt;/strong&gt;&lt;br&gt;造成3点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(145, 213, 255)&#34;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，生成&lt;strong&gt;度厄真符&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;度厄真符&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色使用技能后：&lt;/strong&gt;如果该角色生命值未满，则治疗该角色2点。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：3&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;元素爆发：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(145, 213, 255)&#34;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的七七使用<strong>仙法·救苦度厄</strong>时，复苏我方所有倒下的角色，并治疗其2点。（整场牌局限制2次）</p><p>（牌组中包含七七，才能加入牌组）</p></body></html>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为七七时，装备此牌。
+
+    七七装备此牌后，立刻使用一次仙法·救苦度厄冰元素伤害，生成度厄真符。
+
+    度厄真符
+
+    我方角色使用技能后：如果该角色生命值未满，则治疗该角色2点。
+
+    可用次数：3
+
+    元素爆发：
+
+    角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。
+
+    冰元素伤害：
+
+    附着冰元素，可发生元素反应:
+
+    融化：本伤害+2
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的七七使用仙法·救苦度厄时，复苏我方所有倒下的角色，并治疗其2点。（整场牌局限制2次）
+
+    （牌组中包含七七，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 仙法·救苦度厄
+  energy_req: 3
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含七七，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '3'
+  skills:
+  - name: 云来古剑法
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/85bd12d21e4421258ed6f170f1908cd4_6718475740830873258.jpg
+    effect_html: '<p>造成<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+    term_refs:
+    - 物理伤害
+  - name: 仙法 · 救苦度厄
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/fbf260ac04da9e7eafa3967cd9bed42c_8132501580388159389.jpg
+    effect_html: '<p>造成<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&quot;color:
+      rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成治疗3点的<strong><u>度厄真符</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;度厄真符：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色使用技能后：&lt;/strong&gt;治疗我方受伤最多的角色。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;:
+      2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;持续回合：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每回合结束阶段，&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;-1；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">，生成治疗3点的度厄真符。
+    term_refs:
+    - 冰元素伤害
+    - 度厄真符
+    energy_req: 2
+  - name: 仙法 · 寒病鬼差
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/8ef482a027dfd52ec96e07ce452c38ce_6302813563567314817.jpg
+    effect_html: <p>战斗开始时：基于自身攻击力召唤<strong><em>寒病鬼差</em></strong>。</p>
+    effect_text: 战斗开始时：基于自身攻击力召唤寒病鬼差。
+    term_refs: []
+  summons:
+  - name: 寒病鬼差
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/f9ea7576630eb5a8c46aae9ea8f61c7b_3877423924524281420.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong>结束阶段</strong>：造成<strong><span style="color: rgb(145,
+      213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&quot;color:
+      rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(27, 27, 27)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：3</strong></p><p><strong>七七行动后：</strong>基于自身攻击力治疗受伤最多的我方角色。</p>'
+    effect_text: 结束阶段：造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。可用次数此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3七七行动后：基于自身攻击力治疗受伤最多的我方角色。
+    term_refs:
+    - 冰元素伤害
+flavor_html: <p><strong>冻冻回魂夜·七七</strong></p><p>流转不息，生生不绝。</p>
+flavor_text: '冻冻回魂夜·七七
+
+  流转不息，生生不绝。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  度厄真符: 出战状态我方角色使用技能后：如果该角色生命值未满，则治疗该角色2点。可用次数：3可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  仙法·救苦度厄: 元素爆发造成3点冰元素伤害，生成度厄真符。度厄真符我方角色使用技能后：如果该角色生命值未满，则治疗该角色2点。可用次数：3元素爆发：角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/7019_七七.json

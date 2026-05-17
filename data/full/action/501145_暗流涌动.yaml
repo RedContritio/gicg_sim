@@ -1,0 +1,113 @@
+id: 501145
+name: 暗流涌动
+parent_class: action
+desc: 暗流涌动卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  水: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/1dc62c9d9244cd9d63b6f01253ca9533_8733394660093396236.png
+header_img_url: ''
+version: '1713924550'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 6
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">入场时：</span></strong><span
+  style="color: rgb(0, 0, 0)">如果装备有此牌的</span><strong><span style="color: rgb(0, 0,
+  0)">深渊使徒·激流</span></strong><span style="color: rgb(0, 0, 0)">已触发过</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>水之新生</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;水之新生：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到4点生命值。此效果触发后，角色造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;变为&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，且&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，则在对方场上生成</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>暗流的诅咒</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;暗流的诅咒：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所在阵营的角色使用元素战技或元素爆发时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;需要多花费1个元素骰。&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>装备有此牌的深渊使徒·激流被击倒或触发</span><strong><span style="color: rgb(0,
+  0, 0)"><u>水之新生</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;水之新生：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到4点生命值。此效果触发后，角色造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;变为&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，且&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">时：在对方场上生成</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>暗流的诅咒</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;暗流的诅咒：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所在阵营的角色使用元素战技或元素爆发时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;需要多花费1个元素骰。&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>（牌组中包含深渊使徒·激流，才能加入牌组）</span></p>'
+effect_text: '入场时：如果装备有此牌的深渊使徒·激流已触发过水之新生水之新生：
+
+  状态
+
+  所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的物理伤害变为水元素伤害，且水元素伤害+1。" class="wiki-note-text">，则在对方场上生成暗流的诅咒暗流的诅咒：
+
+  出战状态
+
+  所在阵营的角色使用元素战技或元素爆发时：需要多花费1个元素骰。
+
+  可用次数：2" class="wiki-note-text">。
+
+  装备有此牌的深渊使徒·激流被击倒或触发水之新生水之新生：
+
+  状态
+
+  所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的物理伤害变为水元素伤害，且水元素伤害+1。" class="wiki-note-text">时：在对方场上生成暗流的诅咒暗流的诅咒：
+
+  出战状态
+
+  所在阵营的角色使用元素战技或元素爆发时：需要多花费1个元素骰。
+
+  可用次数：2" class="wiki-note-text">。
+
+  （牌组中包含深渊使徒·激流，才能加入牌组）'
+term_refs:
+- 水之新生
+- 暗流的诅咒
+terms:
+  水之新生: 状态所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的物理伤害变为水元素伤害，且水元素伤害+1。
+  暗流的诅咒: 出战状态所在阵营的角色使用元素战技或元素爆发时：需要多花费1个元素骰。可用次数：2
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/44762d10de05f76e79b27ed8ee3fce50_744139189486896893.png
+duration: 可用次数2
+requires_char: 深渊使徒·激流
+deck_constraint: 牌组中包含深渊使徒·激流，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/1dc62c9d9244cd9d63b6f01253ca9533_7942036787353741713.png
+flavor_html: <p><strong>深渊使徒·暗流涌动</strong></p><p>「毁灭，不可阻挡！」</p>
+flavor_text: '深渊使徒·暗流涌动
+
+  「毁灭，不可阻挡！」'
+_raw_path: data/raw/action/501145_暗流涌动.json

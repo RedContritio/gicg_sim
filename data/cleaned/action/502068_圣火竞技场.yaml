@@ -1,0 +1,37 @@
+id: 502068
+name: 圣火竞技场
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '我方使用技能或特技后：此牌累积1点「角逐之焰」。
+
+  「角逐之焰」达到2时：生成1个随机基础元素骰。
+
+  达到4时：治疗我方出战角色2点。
+
+  达到6时：弃置此牌，使当前的我方出战角色在2回合内造成的伤害+1。'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/9e7207494a4fdb10df19179ec836623b_1895586021123591542.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/1b4eb98d6fba0e8a0746a356a5d3f34c_7076497852083287608.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/da4d2ad265485ab2eba683346ef27236_373161721995849934.gif
+flavor_text: '圣火竞技场
+
+  「将荣耀与胜利献给纳塔！」'

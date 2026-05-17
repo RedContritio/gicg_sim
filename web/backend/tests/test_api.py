@@ -1,0 +1,355 @@
+"""Backend API smoke tests — just enough to catch "route doesn't
+register" / "response shape changed" regressions."""
+
+import os
+from pathlib import Path
+
+from fastapi.testclient import TestClient
+
+from web.backend.app import create_app
+
+
+def test_health_endpoint():
+    client = TestClient(create_app())
+    r = client.get('/api/health')
+    assert r.status_code == 200
+    body = r.json()
+    assert body['ok'] is True
+    assert 'replay_count' in body
+
+
+def test_chars_endpoint():
+    client = TestClient(create_app())
+    r = client.get('/api/data/chars')
+    assert r.status_code == 200
+    chars = r.json()['chars']
+    # Known chars in data/characters/ as of this revision — bumping
+    # this list when chars are added is the correct maintenance move.
+    for expected in ('赤蝶', '墨客', '猫咪', '刻师傅', '天星'):
+        assert expected in chars, f'missing {expected} in /api/data/chars'
+
+
+def test_cards_endpoint():
+    client = TestClient(create_app())
+    r = client.get('/api/data/cards')
+    assert r.status_code == 200
+    cards = r.json()['cards']
+    assert len(cards) > 0
+    # Spot-check a few canonical cards.
+    assert '碌碌无为' in cards
+
+
+def test_checkpoints_endpoint():
+    client = TestClient(create_app())
+    r = client.get('/api/checkpoints')
+    assert r.status_code == 200
+    ckpts = r.json()['checkpoints']
+    assert isinstance(ckpts, list)
+    for c in ckpts:
+        assert 'path' in c
+        assert 'label' in c
+        assert 'kind' in c
+        assert c['kind'] in ('main', 'partial', 'failed', 'pool', 'legacy', 'other')
+    # mtime-sorted: first entry's mtime should be ≥ last's.
+    if len(ckpts) >= 2:
+        assert ckpts[0]['mtime'] >= ckpts[-1]['mtime']
+
+
+def test_replays_list():
+    client = TestClient(create_app())
+    r = client.get('/api/replays')
+    assert r.status_code == 200
+    body = r.json()
+    assert 'replays' in body
+    for entry in body['replays']:
+        assert 'rel_path' in entry
+        assert 'session_id' in entry
+        assert 'scenario' in entry
+
+
+def test_replay_detail_404_for_bad_path():
+    client = TestClient(create_app())
+    r = client.get('/api/replay/does_not_exist.yaml')
+    assert r.status_code == 404
+
+
+def test_replay_detail_rewinds_real_replay():
+    """Full rewind path: list → pick a go_tests fixture → request
+    step=0 and step=mid → verify real view + metadata comes back."""
+    client = TestClient(create_app())
+    listing = client.get('/api/replays').json()['replays']
+    # Prefer a stable go_tests fixture so this test is deterministic.
+    target = None
+    for entry in listing:
+        if 'go_tests' in entry['rel_path']:
+            target = entry['rel_path']
+            break
+    if target is None:
+        import pytest
+
+        pytest.skip('no go_tests replay available')
+
+    r0 = client.get(f'/api/replay/{target}?step=0')
+    assert r0.status_code == 200, r0.text
+    body = r0.json()
+    assert body['view'] is not None
+    assert body['total_steps'] > 0
+    assert body['agent'] is None
+    assert len(body['teams']) == 2
+
+    mid = body['total_steps'] // 2
+    rm = client.get(f'/api/replay/{target}?step={mid}')
+    assert rm.status_code == 200, rm.text
+    body_mid = rm.json()
+    assert body_mid['step'] == mid
+    assert body_mid['view'] is not None
+    for pv in body_mid['view']['players']:
+        for cv in pv['chars']:
+            assert 0 <= cv['hp'] <= cv['hp_max']
+
+
+def test_replay_detail_step_out_of_range():
+    client = TestClient(create_app())
+    listing = client.get('/api/replays').json()['replays']
+    target = next(
+        (e['rel_path'] for e in listing if 'go_tests' in e['rel_path']),
+        None,
+    )
+    if target is None:
+        import pytest
+
+        pytest.skip('no go_tests replay available')
+    r = client.get(f'/api/replay/{target}?step=999999')
+    assert r.status_code == 400
+
+
+def test_replays_refresh():
+    client = TestClient(create_app())
+    r = client.post('/api/replays/refresh')
+    assert r.status_code == 200
+    assert 'count' in r.json()
+
+
+def test_root_placeholder_when_no_frontend():
+    client = TestClient(create_app())
+    r = client.get('/')
+    # Either a JSON placeholder (no dist) or a static HTML (dist built).
+    assert r.status_code == 200
+
+
+class TestLiveWebSocket:
+    def test_mcts_pure_opponent_new_and_action(self):
+        """Start a game against pure-MCTS, receive state, play one
+        human action, verify round-trip and labeled legal actions.
+        Seed is pinned so the human is always owed the first decision
+        (F3 — previously this test only exercised the action branch
+        opportunistically, passing silently when current_player != 0)."""
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['赤蝶'],
+                    'card_pool': ['碌碌无为'],
+                    'opponent': {'type': 'mcts_pure', 'n_simulations': 10},
+                    'seed': 1,  # seed=1 → P0 is owed first action
+                }
+            )
+            state = ws.receive_json()
+            assert state['type'] == 'state'
+            assert state['view'] is not None
+            assert state['human_player'] == 0
+            # Actions carry index + kind + kind_name + name + slot
+            assert len(state['legal_actions']) > 0
+            for act in state['legal_actions']:
+                assert isinstance(act['index'], int)
+                assert isinstance(act['kind'], int)
+                assert act['kind_name'] in (
+                    'Skill',
+                    'Card',
+                    'Switch',
+                    'EndTurn',
+                    'Tune',
+                )
+                assert isinstance(act['name'], str)
+                assert isinstance(act['slot'], int)
+                # Card/Switch/Tune actions carry a real slot index;
+                # Skill and EndTurn don't.
+                if act['kind_name'] in ('Card', 'Switch', 'Tune'):
+                    assert act['slot'] >= 0
+                else:
+                    assert act['slot'] == -1
+
+            # Always exercise the action path (test F3 fix).
+            assert not state['done']
+            assert state['current_player'] == 0
+            ws.send_json({'type': 'action', 'index': state['legal_actions'][0]['index']})
+            state2 = ws.receive_json()
+            assert state2['type'] == 'state'
+
+    def test_random_opponent_works(self):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'opponent': {'type': 'random'},
+                }
+            )
+            state = ws.receive_json()
+            assert state['type'] == 'state'
+
+    def test_missing_opponent_returns_error(self):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                }
+            )
+            resp = ws.receive_json()
+            assert resp['type'] == 'error'
+            assert 'opponent' in resp['message']
+
+    def test_unknown_opponent_type_returns_error(self):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'opponent': {'type': 'bogus'},
+                }
+            )
+            resp = ws.receive_json()
+            assert resp['type'] == 'error'
+            assert 'unknown' in resp['message'].lower() or 'player type' in resp['message']
+
+    def test_missing_az_ckpt_returns_error(self):
+        """az opponent without existing ckpt: error surfaces from the
+        loader at 'new' time, not later."""
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'opponent': {'type': 'az', 'ckpt': '/nonexistent/ckpt.pt'},
+                }
+            )
+            resp = ws.receive_json()
+            assert resp['type'] == 'error'
+
+    def test_ckpt_outside_artifacts_rejected(self):
+        """B1: ckpt paths outside artifacts/ must be rejected without
+        leaking filesystem details in the error message."""
+        import tempfile, os
+
+        # Create a real file outside artifacts/ — simulating an attacker
+        # probing /tmp or user home.
+        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
+            bogus_path = f.name
+        try:
+            client = TestClient(create_app())
+            with client.websocket_connect('/ws/live') as ws:
+                ws.send_json(
+                    {
+                        'type': 'new',
+                        'team_0': ['赤蝶'],
+                        'team_1': ['墨客'],
+                        'opponent': {'type': 'az', 'ckpt': bogus_path},
+                    }
+                )
+                resp = ws.receive_json()
+                assert resp['type'] == 'error'
+                # Error should say "not in artifacts" — not reveal
+                # whether the path exists.
+                assert 'artifacts' in resp['message']
+                # Shouldn't leak the absolute path
+                assert bogus_path not in resp['message']
+        finally:
+            os.unlink(bogus_path)
+
+    def test_cfr_ckpt_opponent_in_artifacts_works(self, tmp_path):
+        """F4: end-to-end CFR ckpt live play. Save a CFR ckpt under
+        artifacts/, start a WS game, verify the round-trip."""
+        import torch
+        import shutil
+        from training.cfr.network import CFRNetConfig, CFRStrategyNet
+
+        # Save under artifacts/ so the path whitelist accepts it
+        artifacts_dir = Path('artifacts') / f'test_cfr_live_{os.getpid()}'
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+        ckpt_path = artifacts_dir / 'cfr.pt'
+        try:
+            torch.manual_seed(0)
+            net = CFRStrategyNet(
+                CFRNetConfig(
+                    n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
+                    n_hooks=900,
+                    max_tokens_per_hook=120,
+                    max_actions=2048,
+                    d_model=8,
+                    n_cross_layers=1,
+                    dropout=0.0,
+                )
+            )
+            net.save(str(ckpt_path))
+
+            client = TestClient(create_app())
+            with client.websocket_connect('/ws/live') as ws:
+                ws.send_json(
+                    {
+                        'type': 'new',
+                        'team_0': ['赤蝶'],
+                        'team_1': ['墨客'],
+                        'opponent': {
+                            'type': 'cfr',
+                            'ckpt': str(ckpt_path),
+                            'n_simulations': 0,
+                        },
+                        'seed': 1,
+                    }
+                )
+                state = ws.receive_json()
+                assert state['type'] == 'state', state
+                assert state['view'] is not None
+                assert len(state['legal_actions']) > 0
+        finally:
+            shutil.rmtree(artifacts_dir, ignore_errors=True)
+
+    def test_human_player_can_be_side_1(self):
+        """Human plays as P1; AI auto-advances P0's opening moves."""
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'opponent': {'type': 'random'},
+                    'human_player': 1,
+                }
+            )
+            state = ws.receive_json()
+            assert state['type'] == 'state'
+            assert state['human_player'] == 1
+            # When human = P1, server advances P0 (AI) turns automatically
+            # so human either sees P1's turn or a terminal state.
+            if not state['done']:
+                assert state['current_player'] == 1
+
+    def test_action_before_new_returns_error(self):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json({'type': 'action', 'index': 0})
+            resp = ws.receive_json()
+            assert resp['type'] == 'error'
+            assert 'no active session' in resp['message']

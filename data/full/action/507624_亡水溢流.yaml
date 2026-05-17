@@ -1,0 +1,80 @@
+id: 507624
+name: 亡水溢流
+parent_class: action
+desc: 亡水溢流卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  水: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/d379b7969a4837e36670611756e23e38_7092598047725644043.png
+header_img_url: ''
+version: '1768186774'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 6
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">快速行动</span></strong><span
+  style="color: rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0,
+  0)">圣骸角鳄</span></strong><span style="color: rgb(0, 0, 0)">。<br></span><strong><span
+  style="color: rgb(0, 0, 0)">入场时：</span></strong><span style="color: rgb(0, 0, 0)">生成手牌</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>噬骸能量块</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;噬骸能量块：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>装备有此牌的圣骸角鳄在场时，我方使用</span><strong><span style="color: rgb(0, 0,
+  0)"><u>噬骸能量块</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;噬骸能量块：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">后，治疗我方受伤最多的角色1点。<br>（牌组中包含圣骸角鳄，才能加入牌组）</span></p>'
+effect_text: '快速行动：装备给我方的圣骸角鳄。
+
+  入场时：生成手牌噬骸能量块噬骸能量块：
+
+  事件牌
+
+  费用：0
+
+  随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">。
+
+  装备有此牌的圣骸角鳄在场时，我方使用噬骸能量块噬骸能量块：
+
+  事件牌
+
+  费用：0
+
+  随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">后，治疗我方受伤最多的角色1点。
+
+  （牌组中包含圣骸角鳄，才能加入牌组）'
+term_refs:
+- 噬骸能量块
+terms:
+  噬骸能量块: 事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/44762d10de05f76e79b27ed8ee3fce50_4206477220353858774.png
+requires_char: 圣骸角鳄
+deck_constraint: 牌组中包含圣骸角鳄，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/d379b7969a4837e36670611756e23e38_7494165190112208048.png
+flavor_html: <p><strong>圣骸角鳄·亡水溢流</strong></p><p>「吞噬、融合，再搜索下一个不朽的亡骸——圣骸兽们不断重复着这一进化的循环。然而它们并不知晓，这一循环似乎并无尽头…」</p>
+flavor_text: '圣骸角鳄·亡水溢流
+
+  「吞噬、融合，再搜索下一个不朽的亡骸——圣骸兽们不断重复着这一进化的循环。然而它们并不知晓，这一循环似乎并无尽头…」'
+_raw_path: data/raw/action/507624_亡水溢流.json

@@ -1,0 +1,243 @@
+id: 6556
+name: 达达利亚
+title: 「公子」· 达达利亚
+parent_class: character
+desc: 达达利亚卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a892e95a4bfde50980ebda3eb93e0ea3_5382720689342320986.png
+header_img_url: ''
+version: '1768356163'
+attr:
+  元素:
+  - 水元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 愚人众
+  充能:
+  - 3点
+  获得方式:
+  - 角色邀请·友好对局
+element: 水
+weapon: 弓
+faction: *id001
+hp: 10
+energy: 3
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a892e95a4bfde50980ebda3eb93e0ea3_7272571451164412234.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/65ef910cf3be5d5d0a8601eb61087381_6290656451209292152.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/03/28/12109492/de066277f1f3120586b5e9c93c7fdb59_2339243663814651293.png
+skills:
+- name: 断雨
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    水: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/14/183046623/949d07ba4f72b33b739fb0ed413a7fa2_3832338097464634522.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 魔王武装·狂澜
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/393b86b2158acd396af9fe09f9cd887c_8219782349327935117.png
+  effect_html: '<p>切换为<strong><u>近战状态</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;近战状态：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;转换为&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色进行&lt;u&gt;重击&lt;/u&gt;后：&lt;/strong&gt;目标角色附属&lt;strong&gt;&lt;u&gt;断流&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;角色对附属有&lt;strong&gt;断流&lt;/strong&gt;的角色造成的伤害+1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色对已附属有断流的角色使用技能后：&lt;/strong&gt;对下一个敌方后台角色造成1点&lt;strong&gt;&lt;u&gt;穿透伤害&lt;/u&gt;&lt;/strong&gt;。（每回合至多2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;重击&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;断流&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，然后造成2点<strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，并使目标角色附属<strong><u>断流</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;断流：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 切换为近战状态水元素伤害。角色进行重击后：目标角色附属断流。角色对附属有断流的角色造成的伤害+1；角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]重击我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。断流所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">，然后造成2点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]"
+    class="wiki-note-text">，并使目标角色附属断流。
+  term_refs:
+  - 近战状态
+  - 水元素伤害
+  - 断流
+- name: 极恶技·尽灭闪
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/de5fd6fc3f4530233cba1774deea0706_8854785564582245062.png
+  effect_html: '<p>依据<strong>达达利亚</strong>当前所处的状态，进行不同的攻击：</p><p><strong>远程状态·魔弹一闪：</strong>造成5点<strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，返还2点<strong><u>充能</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;充能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，目标角色附属<strong><u>断流</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;断流：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>近战状态·尽灭水光：</strong>造成7点<strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 依据达达利亚当前所处的状态，进行不同的攻击：远程状态·魔弹一闪：造成5点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]"
+    class="wiki-note-text">，返还2点充能，目标角色附属断流。近战状态·尽灭水光：造成7点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]"
+    class="wiki-note-text">。
+  term_refs:
+  - 水元素伤害
+  - 充能
+  - 断流
+  energy_req: 3
+- name: 遏浪
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/b32057264f488d0df6429a135d5ce3e5_4144919367463512201.png
+  effect_html: '<p>【被动】战斗开始时，初始附属<strong><u>远程状态</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;远程状态：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色进行&lt;u&gt;重击&lt;/u&gt;后：&lt;/strong&gt;目标角色附属&lt;strong&gt;&lt;u&gt;断流&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;重击&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;断流&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>角色所附属的<strong><u>近战状态</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;近战状态：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;转换为&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色进行&lt;u&gt;重击&lt;/u&gt;后：&lt;/strong&gt;目标角色附属&lt;strong&gt;&lt;u&gt;断流&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;角色对附属有&lt;strong&gt;断流&lt;/strong&gt;的角色造成的伤害+1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色对已附属有断流的角色使用技能后：&lt;/strong&gt;对下一个敌方后台角色造成1点&lt;strong&gt;&lt;u&gt;穿透伤害&lt;/u&gt;&lt;/strong&gt;。（每回合至多2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;重击&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;断流&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>效果结束时，重新附属<strong>远程状态</strong>。</p>'
+  effect_text: 【被动】战斗开始时，初始附属远程状态。角色所附属的近战状态水元素伤害。角色进行重击后：目标角色附属断流。角色对附属有断流的角色造成的伤害+1；角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]重击我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。断流所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">效果结束时，重新附属远程状态。
+  term_refs:
+  - 远程状态
+  - 近战状态
+summons: []
+talent:
+  name: 深渊之灾·凝水盛放
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/e56754de22dbaf1cfb84ce85af588d21_2481291823775414611.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>达达利亚</strong>时，装备此牌。</p><p>达达利亚装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>魔王武装·狂澜</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;魔王武装·狂澜：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;切换为&lt;strong&gt;&lt;u&gt;近战状态&lt;/u&gt;&lt;/strong&gt;，然后造成2点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;近战状态：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;转换为&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色进行&lt;u&gt;重击&lt;/u&gt;后：&lt;/strong&gt;目标角色附属&lt;strong&gt;&lt;u&gt;断流&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;角色对附属有&lt;strong&gt;断流&lt;/strong&gt;的角色造成的伤害+1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;角色对已附属有断流的角色使用技能后：&lt;/strong&gt;对下一个敌方后台角色造成1点&lt;strong&gt;&lt;u&gt;穿透伤害&lt;/u&gt;&lt;/strong&gt;。（每回合至多2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;断流：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;重击&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;断流&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>结束阶段：</strong>装备有此牌的达达利亚在场时，敌方出战角色附属有<strong><u>断流</u></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;断流：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;状态&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;持续回合：2&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，则对其造成1点<strong><u>穿透伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;穿透伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含达达利亚，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为达达利亚时，装备此牌。
+
+    达达利亚装备此牌后，立刻使用一次魔王武装·狂澜水元素伤害。
+
+    近战状态：
+
+    状态
+
+    角色造成的物理伤害转换为水元素伤害。
+
+    角色进行重击后：目标角色附属断流。
+
+    角色对附属有断流的角色造成的伤害+1；
+
+    角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）
+
+    持续回合：2
+
+    断流：
+
+    状态
+
+    所附属角色被击倒后：对所在阵营的出战角色附属「断流」。
+
+    （处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）
+
+    物理伤害：
+
+    物理伤害不会附着元素，也不会发生元素反应。
+
+    水元素伤害：
+
+    附着水元素，可发生元素反应：
+
+    蒸发：本伤害+2
+
+    感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+
+    重击
+
+    我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。
+
+    断流
+
+    所附属角色被击倒后：对所在阵营的出战角色附属「断流」。
+
+    （处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）
+
+    穿透伤害：
+
+    穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+
+    持续回合：
+
+    每回合结束阶段，持续回合-1；
+
+    持续回合耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    结束阶段：装备有此牌的达达利亚在场时，敌方出战角色附属有断流断流：
+
+    状态
+
+    所附属角色被击倒后：对所在阵营的出战角色附属「断流」。
+
+    （处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）
+
+    持续回合：2" class="wiki-note-text">，则对其造成1点穿透伤害穿透伤害：
+
+    穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。" class="wiki-note-text">。
+
+    （牌组中包含达达利亚，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 魔王武装·狂澜
+  - 断流
+  - 穿透伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含达达利亚，才能加入牌组
+flavor_html: <p><strong>「公子」·达达利亚</strong></p><p>牌局亦为战场，能者方可争先。</p>
+flavor_text: '「公子」·达达利亚
+
+  牌局亦为战场，能者方可争先。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  近战状态: 状态角色造成的物理伤害转换为水元素伤害。角色进行重击后：目标角色附属断流。角色对附属有断流的角色造成的伤害+1；角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）持续回合：2物理伤害：物理伤害不会附着元素，也不会发生元素反应。水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]重击我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。断流所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+  断流: 状态所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）持续回合：2
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+  远程状态: 状态所附属角色进行重击后：目标角色附属断流。重击我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。断流所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  魔王武装·狂澜: 元素战技切换为近战状态，然后造成2点水元素伤害。近战状态：状态角色造成的物理伤害转换为水元素伤害。角色进行重击后：目标角色附属断流。角色对附属有断流的角色造成的伤害+1；角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）持续回合：2断流：状态所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）物理伤害：物理伤害不会附着元素，也不会发生元素反应。水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]重击我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。断流所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+_raw_path: data/raw/character/6556_达达利亚.json

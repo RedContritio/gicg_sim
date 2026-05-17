@@ -1,0 +1,56 @@
+id: 5426
+name: 流放者头冠
+parent_class: action
+desc: 流放者头冠
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/dd30c7290b9379c5a1a91e0bb5d881c3_5725038669836900112.png
+header_img_url: ''
+version: '1755483869'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p>角色使用元素爆发后：所有后台我方角色获得1点<strong><u>充能</u></strong><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;充能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（每回合1次）</p><p>（角色最多装备1件「圣遗物」）</p>
+effect_text: '角色使用元素爆发后：所有后台我方角色获得1点充能。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 充能
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/f5dd60d41187c41067aa90014d9c54c2_8472844006407902456.png
+variants:
+- mode: 标准
+  effect_html: <p>角色使用元素爆发后：所有后台我方角色获得1点<strong><u>充能</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;充能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（每回合1次）</p><p>（角色最多装备1件「圣遗物」）</p>
+  effect_text: '角色使用元素爆发后：所有后台我方角色获得1点充能。（每回合1次）
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/dd30c7290b9379c5a1a91e0bb5d881c3_4746512653382401326.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/7ec9424866f24564fc7b00d8e652514f_3647373597133630003.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>贵胄之裔·流放者头冠</strong></p><p
+  style="white-space: pre-wrap;">「祸哉，那白银堆砌的大殿，你的冠冕何以被血淹没？」</p>'
+flavor_text: '贵胄之裔·流放者头冠
+
+  「祸哉，那白银堆砌的大殿，你的冠冕何以被血淹没？」'
+_raw_path: data/raw/action/5426_流放者头冠.json

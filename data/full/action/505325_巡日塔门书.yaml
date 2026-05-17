@@ -1,0 +1,86 @@
+id: 505325
+name: 巡日塔门书
+parent_class: action
+desc: 巡日塔门书卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  雷: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/c76d4ed584fd2bbc82310df761039167_4313340191222350479.png
+header_img_url: ''
+version: '1746583922'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 5
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">我方</span><strong><span style="color:
+  rgb(0, 0, 0)">赛索斯</span></strong><span style="color: rgb(0, 0, 0)">获得1点</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>我方赛索斯因</span><strong><span style="color: rgb(0, 0, 0)"><u>黑鸢的密喻</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;黑鸢的密喻：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;被动技能&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;自身「普通攻击」不会获得&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;自身「普通攻击」后：如可能，消耗全部&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，对生命值最低的敌方造成等额+1的&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">扣除</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">后，获得1点</span><strong><span style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含赛索斯，才能加入牌组）</span></p>'
+effect_text: '我方赛索斯获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+  我方赛索斯因黑鸢的密喻自身「普通攻击」不会获得充能。
+
+  自身「普通攻击」后：如可能，消耗全部充能，对生命值最低的敌方造成等额+1的穿透伤害。" class="wiki-note-text">扣除充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">后，获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。（每回合1次）
+
+  （牌组中包含赛索斯，才能加入牌组）'
+term_refs:
+- 充能
+- 黑鸢的密喻
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+  黑鸢的密喻: 被动技能自身「普通攻击」不会获得充能。自身「普通攻击」后：如可能，消耗全部充能，对生命值最低的敌方造成等额+1的穿透伤害。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/00cce35b579cabd6b829eaa5cd1aed42_2337756511783310544.png
+requires_char: 赛索斯
+deck_constraint: 牌组中包含赛索斯，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/c76d4ed584fd2bbc82310df761039167_284204024608898385.png
+flavor_html: <p><strong>赛索斯·巡日塔门书</strong></p><p>「阿赫玛尔的遗荣！」</p>
+flavor_text: '赛索斯·巡日塔门书
+
+  「阿赫玛尔的遗荣！」'
+_raw_path: data/raw/action/505325_巡日塔门书.json

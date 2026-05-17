@@ -1,0 +1,38 @@
+# s070 — v_phase2 凯亚 mirror minimal pool 可学性 cheap probe (1 seed)。
+#
+# v_phase2 简化版机制 (23 项 deferred,见 docs/3_plans/v_phase2_deferred.md):
+#   - 凯亚 ↔ 凯亚 mirror, HP 10, 元素冰, 单手剑
+#   - card_pool 6 张代表卡 (装备 旅行剑/魔导绪论, 事件 甜甜花酿鸡/蒙德土豆饼,
+#     支援 派蒙/鸣神大社) — 卡牌简化版 (talent/复杂条件全 deferred)
+#   - 战技伤害基础正常, 没有 status/summon (简化)
+#
+# 目的: v_phase2 池上首个 RL 可学性数据点。看 vs random / mcts_pure / F1 baseline
+# 趋势。预期: vs random ≥ 0.85 → 池可学,推 s071/072 multi-seed;
+# plateau ≈ s064-066 1-card mirror 水平 (vs F1-D2 ~0.1) → mirror Nash 锁未破,
+# 后续推 asymmetric (类似 s068) 或 deferred 机制补齐。
+
+base = "fixed_1v1"
+run_label = "s070_v_phase2_kaeya_minimal"
+seed = 42
+
+n_games = 200
+n_workers = 4
+batch_size = 256
+games_per_arena = 0
+games_per_gauntlet = 200
+gauntlet_games_per_opponent = 16
+checkpoint_every_n_games = 100
+
+[scenario]
+team_0 = ["凯亚"]
+team_1 = ["凯亚"]
+card_pool = ["旅行剑", "魔导绪论", "甜甜花酿鸡", "蒙德土豆饼", "派蒙", "鸣神大社"]
+pool = ["v_phase2"]
+max_rounds = 15
+
+[mcts]
+n_rollouts = 100
+parallel_rollouts = 2
+
+[meta]
+paradigm = "az"

@@ -1,0 +1,65 @@
+id: 5459
+name: 西风大教堂
+parent_class: action
+desc: 西风大教堂
+sub_class: 支援牌
+tags: &id001
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/e47492f5cf0d78f285c20ac6b38c8ed3_5642129970809736301.png
+header_img_url: ''
+version: '1732241379'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">结束阶段：治疗我方出战角色2点。<br/><strong><u>可用次数</u></strong><span
+  data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;此牌效果触发后，会消耗1次可用次数；&lt;/p&gt;&lt;p
+  style=&#34;white-space: pre-wrap;&#34;&gt;可用次数耗尽后，立刻弃置此牌。&lt;/p&gt;&lt;p style=&#34;white-space:
+  pre-wrap; min-height: 1.5em;&#34;&gt;&lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：2</p>'
+effect_text: '结束阶段：治疗我方出战角色2点。
+
+  可用次数此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。
+
+  " class="wiki-note-text">：2'
+term_refs: []
+terms:
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/30/158741257/9e7207494a4fdb10df19179ec836623b_3268541664488199907.png
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">结束阶段：治疗我方出战角色2点。<br/><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;此牌效果触发后，会消耗1次可用次数；&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;可用次数耗尽后，立刻弃置此牌。&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap; min-height: 1.5em;&#34;&gt;&lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：2</p>'
+  effect_text: '结束阶段：治疗我方出战角色2点。
+
+    可用次数此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。
+
+    " class="wiki-note-text">：2'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/e47492f5cf0d78f285c20ac6b38c8ed3_3106670065972617819.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/11/30/158741257/3bf764901576163b5e8f617800d91fb0_4938570395287061673.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>虔心之人聚于此</strong></p><p style="white-space:
+  pre-wrap;">「若向风真诚倾诉，那话语总有一日能吹拂至神明的耳畔。」</p>'
+flavor_text: '虔心之人聚于此
+
+  「若向风真诚倾诉，那话语总有一日能吹拂至神明的耳畔。」'
+_raw_path: data/raw/action/5459_西风大教堂.json

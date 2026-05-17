@@ -1,0 +1,112 @@
+id: 6581
+name: 深渊之灾·凝水盛放
+parent_class: action
+desc: 达达利亚天赋牌 深渊之灾·凝水盛放
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  水: 3
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e56754de22dbaf1cfb84ce85af588d21_2024087259938063891.png
+header_img_url: ''
+version: '1718844771'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 6
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;战斗行动：&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>达达利亚</strong>时，装备此牌。</p><p>达达利亚装备此牌后，立刻使用一次<strong><u>魔王武装·狂澜</u></strong><span
+  data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;魔王武装·狂澜：&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;元素战技&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;切换为&lt;strong&gt;&lt;u&gt;近战状态&lt;/u&gt;&lt;/strong&gt;，然后造成2点&lt;strong&gt;&lt;span
+  style=&quot;color:rgba(24,144,255,1)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;近战状态&lt;/strong&gt;&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;状态&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;角色造成的&lt;strong&gt;物理伤害&lt;/strong&gt;转换为&lt;strong&gt;&lt;span
+  style=&quot;color:rgba(24,144,255,1)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;角色进行重击后：&lt;/strong&gt;目标角色附属&lt;strong&gt;断流&lt;/strong&gt;。&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;角色对附属有&lt;strong&gt;断流&lt;/strong&gt;的角色造成的伤害+1；&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;角色对已附属有断流的角色使用技能后：&lt;/strong&gt;对下一个敌方后台角色造成1点&lt;strong&gt;穿透伤害&lt;/strong&gt;。（每回合至多2次）&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;持续回合：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>结束阶段：</strong>装备有此牌的达达利亚在场时，敌方出战角色附属有<strong><u>断流</u></strong><span
+  data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;断流：&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;状态&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;&lt;strong&gt;所附属角色被击倒后：&lt;/strong&gt;对所在阵营的出战角色附属「断流」。&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;（处于&lt;strong&gt;「近战状态」&lt;/strong&gt;的&lt;strong&gt;达达利亚&lt;/strong&gt;攻击所附属角色时，会造成额外伤害。）&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;持续回合：2&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，则对其造成1点<strong><u>穿透伤害</u></strong><span
+  data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;穿透伤害：&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含达达利亚，才能加入牌组）</p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为达达利亚时，装备此牌。
+
+  达达利亚装备此牌后，立刻使用一次魔王武装·狂澜魔王武装·狂澜：
+
+  元素战技
+
+  切换为近战状态，然后造成2点水元素伤害。
+
+  近战状态
+
+  状态
+
+  角色造成的物理伤害转换为水元素伤害。
+
+  角色进行重击后：目标角色附属断流。
+
+  角色对附属有断流的角色造成的伤害+1；
+
+  角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）
+
+  持续回合：2" class="wiki-note-text">。
+
+  结束阶段：装备有此牌的达达利亚在场时，敌方出战角色附属有断流断流：
+
+  状态
+
+  所附属角色被击倒后：对所在阵营的出战角色附属「断流」。
+
+  （处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）
+
+  持续回合：2" class="wiki-note-text">，则对其造成1点穿透伤害穿透伤害：
+
+  穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。" class="wiki-note-text">。
+
+  （牌组中包含达达利亚，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 魔王武装·狂澜
+- 断流
+- 穿透伤害
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  魔王武装·狂澜: 元素战技切换为近战状态，然后造成2点水元素伤害。近战状态状态角色造成的物理伤害转换为水元素伤害。角色进行重击后：目标角色附属断流。角色对附属有断流的角色造成的伤害+1；角色对已附属有断流的角色使用技能后：对下一个敌方后台角色造成1点穿透伤害。（每回合至多2次）持续回合：2
+  断流: 状态所附属角色被击倒后：对所在阵营的出战角色附属「断流」。（处于「近战状态」的达达利亚攻击所附属角色时，会造成额外伤害。）持续回合：2
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/01/288180982/d08c736ffd58960cac4e7033dd69a0a3_1558570043945228279.png
+duration: 持续2回合
+requires_char: 达达利亚
+deck_constraint: 牌组中包含达达利亚，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e56754de22dbaf1cfb84ce85af588d21_7106803920286784988.png
+flavor_html: <p><strong>达达利亚 · 凝水盛放</strong></p><p>一次鲁莽但精确的攻击。</p>
+flavor_text: '达达利亚 · 凝水盛放
+
+  一次鲁莽但精确的攻击。'
+_raw_path: data/raw/action/6581_深渊之灾_凝水盛放.json

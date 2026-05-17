@@ -1,0 +1,37 @@
+id: 6599
+name: 旭东
+parent_class: action
+desc: 旭东卡牌
+sub_class: 支援牌
+tags: &id001
+- 伙伴
+cost_text: '2'
+cost:
+  无色: 2
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a23ea3b4f3cb6b2df59b912bb418f5b8_8844996335480734130.png
+header_img_url: ''
+version: '1687837115'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;"><strong>打出「料理」事件牌时：</strong>少花费2个元素骰。（每回合1次）</p>'
+effect_text: 打出「料理」事件牌时：少花费2个元素骰。（每回合1次）
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/01/06/12109492/f5dd60d41187c41067aa90014d9c54c2_912165367495108876.png
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a23ea3b4f3cb6b2df59b912bb418f5b8_1362269257088452771.png
+flavor_html: '<p style="white-space: pre-wrap;"><strong>吃饱再说·旭东</strong></p><p style="white-space:
+  pre-wrap;">「有问题？哎呀，吃饱再说也不迟。」</p>'
+flavor_text: '吃饱再说·旭东
+
+  「有问题？哎呀，吃饱再说也不迟。」'
+_raw_path: data/raw/action/6599_旭东.json

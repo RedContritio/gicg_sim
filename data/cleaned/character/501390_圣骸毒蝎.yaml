@@ -1,0 +1,178 @@
+id: 501390
+name: 圣骸毒蝎
+title: 圣骸毒蝎
+parent_class: character
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  - 圣骸兽
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 雷
+weapon: 其他武器
+faction:
+- 魔物
+- 圣骸兽
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/379deb8c564c0af89f544ff6bab049d2_839388424690765015.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/d8210b9ee4b67dfd3fc4e2eb19a8d035_9013854650190548090.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/de066277f1f3120586b5e9c93c7fdb59_1472063996646162877.png
+skills:
+- name: 蝎爪钳击
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 蝎尾锥刺
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  effect_text: 造成3点雷元素伤害。生成1张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">，随机置入我方牌库顶部2张牌之中。
+  term_refs:
+  - 雷元素伤害
+  - 噬骸能量块
+- name: 雷锥散射
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  effect_text: 造成3点雷元素伤害，舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">手牌中最多3张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">，在对方场上生成雷锥陷阱雷锥陷阱：出战状态所在阵营的角色使用技能后：对所在阵营的出战角色造成2点雷元素伤害。可用次数：初始为创建时所弃置的噬骸能量块张数。（最多叠加到3）"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 舍弃
+  - 噬骸能量块
+  - 雷锥陷阱
+  energy_req: 2
+- name: 不朽亡骸·雷
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】回合结束时，生成2张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">，随机置入我方牌库顶部10张牌之中。
+  term_refs:
+  - 噬骸能量块
+summons: []
+talent:
+  name: 亡雷凝蓄
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 1
+  effect_text: '入场时：生成1张噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">，置入我方手牌。
+
+    装备有此牌的圣骸毒蝎在场，我方打出噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">后：抓1张牌，然后生成1张噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">，随机置入我方牌库中。
+
+    （牌组中包含圣骸毒蝎，才能加入牌组）'
+  term_refs:
+  - 噬骸能量块
+  deck_constraint: 牌组中包含圣骸毒蝎，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '4'
+  skills:
+  - name: 蝎尾毒刺
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 造成雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。
+    term_refs:
+    - 雷元素伤害
+  - name: 雷锥散射
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 造成雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">，舍弃手牌中全部噬骸能量块噬骸能量块：费用：0事件牌选一个我方角色+2攻击力。被舍弃时：我方全体圣骸兽+1攻击力。"
+      class="wiki-note-text">，每舍弃一张，生成1层雷锥陷阱雷元素伤害。可用次数：1（可叠加，没有上限）雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+      class="wiki-note-text">。
+    term_refs:
+    - 雷元素伤害
+    - 舍弃
+    - 噬骸能量块
+    - 雷锥陷阱
+    energy_req: 2
+  - name: 不朽亡骸 · 雷
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 【被动】此角色突破后，获得1张噬骸能量块噬骸能量块：费用：0事件牌选一个我方角色+2攻击力。被舍弃时：我方全体圣骸兽+1攻击力。"
+      class="wiki-note-text">。
+    term_refs:
+    - 噬骸能量块
+flavor_text: '亡骸遗毒·圣骸毒蝎
+
+  因为啃噬伟大的生命体，而扭曲异变的毒蝎，操纵着险恶的轰雷。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  噬骸能量块: 事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+  雷锥陷阱: 出战状态所在阵营的角色使用技能后：对所在阵营的出战角色造成2点雷元素伤害。可用次数：初始为创建时所弃置的噬骸能量块张数。（最多叠加到3）

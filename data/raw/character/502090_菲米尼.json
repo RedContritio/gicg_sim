@@ -1,0 +1,387 @@
+{
+  "id": "502090",
+  "name": "菲米尼",
+  "desc": "菲米尼卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/edc282bd8955faa88895b23c4061a2f5_2301203435965777916.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"潜怀遐梦·菲米尼\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/edc282bd8955faa88895b23c4061a2f5_7931855952099336084.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/33a59c42acdd2624078100f8a11160c9_6586216208495352325.gif\",\"life\":10,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"冰元素\"]},{\"key\":\"武器：\",\"value\":[\"双手剑\"]},{\"key\":\"阵营：\",\"value\":[\"枫丹，愚人众\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"角色邀请·友好对局\"]},{\"key\":\"始基力：\",\"value\":[\"芒性\"]}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"洑流剑\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/8fbe2d2ee135f932387d96e8e14e4e89_4016057964635067622.png\",\"life\":1,\"life_bg\":1,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>物理伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1694067287681_0\"},{\"tab_name\":\"浮冰增压\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/631401634edd0a641a42a09722d82f09_6491825398627675961.png\",\"life\":3,\"life_bg\":1,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space: pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，若角色未附属</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>佩伊刻计</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>佩伊刻计：</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>我方每抓1张牌后：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>此牌累积1层</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>所附属角色使用浮冰增压时：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>如果</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>物理伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，则使其附属</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>佩伊刻计</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>佩伊刻计：</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>我方每抓1张牌后：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>此牌累积1层</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>所附属角色使用浮冰增压时：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>如果</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>物理伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p>\"]},\"tab_id\":\"1724754263264_1\"},{\"tab_name\":\"猎影潜袭\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/4c548a11ba631ee6ccf70282d8af1718_5268158437550047138.png\",\"life\":3,\"life_bg\":1,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成4点<strong><span style=\\\"color: rgb(145, 213, 255)\\\"><u>冰元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space: pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，本角色附属</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>潜猎模式</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong>潜猎模式：</strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>我方抓3张牌后：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>提供1点</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>，保护所附属角色。（可叠加，最多叠加至2点）。</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>所附属角色使用普通攻击或元素战技后：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>将原本元素骰费用最高的至多2张手牌置于牌库底，然后抓等量的牌。</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>持续回合：2</span></strong></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p>\"]},\"tab_id\":\"1724754264396_2\"}]}",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1694067334491_0\"}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>潜怀遐梦·菲米尼</strong></p><p>繁星丽天，孤怀寒芒。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"\",\"common_img\":\"\",\"gold_img\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"充能：\",\"value\":[]},{\"key\":\"攻击：\",\"value\":[]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815714102_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815724349_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\" style=\\\"text-align: center\\\">自行巧局</h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"天赋牌\",\"layout_\":\"banner\",\"list\":[{\"tab_name\":\"梦晓与决意之刻\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/64216fa8f7b8b6af5888be62b1e5446f_6921916432401636157.png\",\"life\":3,\"life_bg\":1,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>战斗行动</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;br&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(255, 255, 255)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：我方出战角色为</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">菲米尼</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">时，装备此牌。<br>菲米尼装备此牌后，立刻使用一次</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>浮冰增压</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;浮冰增压：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成2点&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，若角色未附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;佩伊刻计&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，则使其附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;佩伊刻计&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。<br>装备有此牌的菲米尼使用技能后，抓1张牌。（每回合至多触发2次）<br>（牌组中包含菲米尼，才能加入牌组）</span></p>\"]},\"tab_id\":\"1759479143814_0\"}],\"baseInfoSwitchDisabled\":false,\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1760346499",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "自行巧局",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/de066277f1f3120586b5e9c93c7fdb59_4745789385360420178.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/冰元素\\\",\\\"武器/双手剑\\\",\\\"阵营/枫丹\\\",\\\"阵营/愚人众\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

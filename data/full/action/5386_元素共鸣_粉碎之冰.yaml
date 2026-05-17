@@ -1,0 +1,51 @@
+id: 5386
+name: 元素共鸣：粉碎之冰
+parent_class: action
+desc: 元素共鸣：粉碎之冰
+sub_class: 事件牌
+tags: &id001
+- 元素共鸣
+cost_text: '1'
+cost:
+  冰: 1
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75833613/4bbbf27e898aeace567039c5c2bb2a7c_3340825528541775020.png
+header_img_url: ''
+version: '1755483635'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 1
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">本回合中，我方当前出战角色下一次造成的伤害+2。</p><p style="white-space:
+  pre-wrap;">（牌组包含至少2个冰元素角色，才能加入牌组）</p>'
+effect_text: '本回合中，我方当前出战角色下一次造成的伤害+2。
+
+  （牌组包含至少2个冰元素角色，才能加入牌组）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75833613/ecc31f3f06099f1d86e608a1b712e7c6_1301289293049356275.png
+duration: 持续本回合
+deck_constraint: 牌组包含至少2个冰元素角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">本回合中，我方当前出战角色下一次造成的伤害+2。</p><p style="white-space:
+    pre-wrap;">（牌组包含至少2个冰元素角色，才能加入牌组）</p>'
+  effect_text: '本回合中，我方当前出战角色下一次造成的伤害+2。
+
+    （牌组包含至少2个冰元素角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75833613/4bbbf27e898aeace567039c5c2bb2a7c_4533106343661611310.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75833613/742e443d2769dc9cb4cabc4504855a1b_1034791038979729669.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;">霜华绽放，唯此一心。</p>'
+flavor_text: 霜华绽放，唯此一心。
+_raw_path: data/raw/action/5386_元素共鸣_粉碎之冰.json

@@ -1,0 +1,112 @@
+id: 5600
+name: 愚人众先遣队·风拳前锋军
+title: 愚人众先遣队·风拳前锋军
+parent_class: monster
+desc: 愚人众先遣队·风拳前锋军卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/0d41d37e629212927a4e7a5b3499ff99_3516708032887717035.png
+header_img_url: ''
+version: '1694074777'
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 愚人众
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 风
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/0d41d37e629212927a4e7a5b3499ff99_3435222307820216948.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/de066277f1f3120586b5e9c93c7fdb59_7676225378702826798.png
+skills:
+- name: 疾风刺拳
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    风: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/03e9e5156cb9ba4e033d60fd5541a6b5_4461351370344497998.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成2点<strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 聚风蓄力
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/1011394b0642b2f885fa364370229aed_7054557888119534968.jpg
+  effect_html: '<p style="white-space: pre-wrap;">本角色附属<strong><u>聚风屏障</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;聚风屏障：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;状态&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;本角色将在下次行动时，直接使用技能：&lt;strong&gt;逆风奉还拳&lt;/strong&gt;。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;准备逆风奉还拳期间：&lt;/strong&gt;提供2点&lt;strong&gt;护盾&lt;/strong&gt;，保护所附属角色；如果所附属角色受到了&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(24,144,255,1)&#34;&gt;水&lt;/span&gt;&lt;/strong&gt;/&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(207,19,34,1)&#34;&gt;火&lt;/span&gt;&lt;/strong&gt;/&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(145,213,255,1)&#34;&gt;冰&lt;/span&gt;&lt;/strong&gt;/&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(146,84,222,1)&#34;&gt;雷&lt;/span&gt;&lt;/strong&gt;元素伤害，就使所准备的逆风奉还拳造成的伤害+1，并且转换为对应的元素类型。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>并准备技能：<strong><u>逆风奉还拳</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;逆风奉还拳：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;元素战技&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;（需准备1个行动轮）&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;造成2点&lt;strong&gt;物理伤害&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 本角色附属聚风屏障聚风屏障：状态本角色将在下次行动时，直接使用技能：逆风奉还拳。准备逆风奉还拳期间：提供2点护盾，保护所附属角色；如果所附属角色受到了水/火/冰/雷元素伤害，就使所准备的逆风奉还拳造成的伤害+1，并且转换为对应的元素类型。"
+    class="wiki-note-text">并准备技能：逆风奉还拳逆风奉还拳：元素战技（需准备1个行动轮）造成2点物理伤害。" class="wiki-note-text">。
+  term_refs:
+  - 聚风屏障
+  - 逆风奉还拳
+- name: 激风鼓动
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/a9c1283cbdc48ff1b2652aa6c4e1342d_5071605134595551733.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成5点<strong><span style="color:rgba(54,207,201,1)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;风元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;扩散（冰）&lt;/strong&gt;：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;扩散（水）&lt;/strong&gt;：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;扩散（火）&lt;/strong&gt;：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;扩散（雷）&lt;/strong&gt;：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，我方[愚人众]角色获得1点<strong><u>充能</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;充能：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成5点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，我方[愚人众]角色获得1点充能充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。"
+    class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+  - 充能
+  energy_req: 2
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  聚风屏障: 状态本角色将在下次行动时，直接使用技能：逆风奉还拳。准备逆风奉还拳期间：提供2点护盾，保护所附属角色；如果所附属角色受到了水/火/冰/雷元素伤害，就使所准备的逆风奉还拳造成的伤害+1，并且转换为对应的元素类型。
+  逆风奉还拳: 元素战技（需准备1个行动轮）造成2点物理伤害。
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+_raw_path: data/raw/monster/5600_愚人众先遣队_风拳前锋军.json

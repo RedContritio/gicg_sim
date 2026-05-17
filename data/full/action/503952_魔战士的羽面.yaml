@@ -1,0 +1,43 @@
+id: 503952
+name: 魔战士的羽面
+parent_class: action
+desc: 魔战士的羽面卡牌
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/12/31/258999284/7a6508ce85f6e89913c30f37d158150e_2367984513601461203.png
+header_img_url: ''
+version: '1771988058'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">附属角色使用特技后：</span></strong><span
+  style="color: rgb(0, 0, 0)">获得1点充能。（每回合1次）</span></p><p><span style="color: rgb(0,
+  0, 0)">（角色最多装备1件「圣遗物」）</span></p>'
+effect_text: '附属角色使用特技后：获得1点充能。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/8c5a4f348a3a8017500c15e9cd0c5c15_6061175648012803600.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/12/31/258999284/7a6508ce85f6e89913c30f37d158150e_142786359709140614.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/12/31/258999284/e59599f4e6412b6494a1e6657fadcf9c_6051444754309489425.gif
+flavor_html: <p><strong>勇士标志·魔战士的羽面</strong></p><p>「…总是有人要背负起责任，而那些强大之人理应背负的更多。</p><p>在目睹了真正的战争之后，他才第一次感到了命运的重任…」</p>
+flavor_text: '勇士标志·魔战士的羽面
+
+  「…总是有人要背负起责任，而那些强大之人理应背负的更多。
+
+  在目睹了真正的战争之后，他才第一次感到了命运的重任…」'
+_raw_path: data/raw/action/503952_魔战士的羽面.json

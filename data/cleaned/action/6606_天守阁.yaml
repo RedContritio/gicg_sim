@@ -1,0 +1,34 @@
+id: 6606
+name: 天守阁
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '行动阶段开始时：如果我方的元素骰包含5种不同的元素，则生成1个万能元素万能元素：
+
+  万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">。'
+term_refs:
+- 万能元素
+terms:
+  万能元素: 万能元素可以视为任何类型的元素，来支付各种费用。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/03/28/12109492/9e7207494a4fdb10df19179ec836623b_7668191877635272533.png
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a6f2b064d7711e30c742b802770bef71_3841942586663095539.png
+flavor_text: '千手百眼·天下人间
+
+  「仅由此身，为这天下人间代行永恒。」'

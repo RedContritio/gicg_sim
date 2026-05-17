@@ -1,0 +1,41 @@
+id: 5421
+name: 冒险家头带
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色使用「普通攻击」后：治疗自身1点。（每回合至多3次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/8c5a4f348a3a8017500c15e9cd0c5c15_6693083071807829189.png
+variants:
+- mode: 标准
+  effect_text: '角色使用「普通攻击」后：治疗自身1点。（每回合至多3次）
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/c2617ba94c31d82bd4af6df8e74aac91_9153734667209458384.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/dc530052a94138caafcf1f7ba431357c_4245568754018809677.gif
+jiqiao: true
+flavor_text: '蹊衢索途·冒险家头带
+
+  「星穹与深渊掩藏的一切缄秘，正等待这弱小的凡人去猎取。」'

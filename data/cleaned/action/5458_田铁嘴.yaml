@@ -1,0 +1,43 @@
+id: 5458
+name: 田铁嘴
+parent_class: action
+sub_class: 支援牌
+tags:
+- 伙伴
+cost_text: '2'
+cost:
+  无色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 伙伴
+  获取:
+  - 卡牌商店购买、完成挑战目标
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '结束阶段:我方一名充能未满的角色获得1点充能角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+
+  " class="wiki-note-text">。(出战角色优先）
+
+  可用次数此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。
+
+  " class="wiki-note-text">：2'
+term_refs: []
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/01/06/12109492/f5dd60d41187c41067aa90014d9c54c2_912165367495108876.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/163adc79a3050ea18fc75293e76f1a13_607175307652592237.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/24573649a71434b26d6ab42b7f3f4c41_8078761257855304646.gif
+flavor_text: '书接上回·田铁嘴
+
+  「我来给您掰扯掰扯这个道理，您来听听原汁原味的评书！」'

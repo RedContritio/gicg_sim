@@ -1,0 +1,72 @@
+id: 502073
+name: 匿叶龙
+parent_class: action
+desc: 匿叶龙卡牌
+sub_class: 装备牌
+tags: &id001
+- 特技
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/287e61466a4267642dd2a744082cd968_6604180367865416357.png
+header_img_url: ''
+version: '1775975145'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>特技</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;特技：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。&lt;/p&gt;&lt;p&gt;使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。&lt;/p&gt;&lt;p&gt;角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：</span><strong><span style="color: rgb(0, 0, 0)"><u>钩物巧技</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;钩物巧技：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;花费：&lt;/strong&gt;2点&lt;/p&gt;&lt;p&gt;造成1点&lt;strong&gt;物理伤害&lt;/strong&gt;，窃取1张原本元素骰费用最高的对方手牌，然后对手抓1张牌。&lt;/p&gt;&lt;p&gt;如果我方手牌数不多于2，此特技少花费1个元素骰。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)"><br></span><strong><span style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：2<br>（角色最多装备1个「特技」）</span></p>'
+effect_text: '特技特技：
+
+  出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。
+
+  使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。
+
+  角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。" class="wiki-note-text">：钩物巧技
+
+  可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2
+
+  （角色最多装备1个「特技」）'
+term_refs:
+- 特技
+- 钩物巧技
+- 可用次数
+terms:
+  特技: 出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。
+  钩物巧技: 特技花费：2点造成1点物理伤害，窃取1张原本元素骰费用最高的对方手牌，然后对手抓1张牌。如果我方手牌数不多于2，此特技少花费1个元素骰。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/24/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_739754271654765559.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/287e61466a4267642dd2a744082cd968_4105284594778183841.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/a85b1cb159e529bfe1e512d706df50ac_3908184195775734097.gif
+flavor_html: <p><strong>匿叶龙·钩物巧技</strong></p><p>善于卷住重物，拉拽自身迅捷移动的匿叶龙，也有着远远取用物件的妙招···</p>
+flavor_text: '匿叶龙·钩物巧技
+
+  善于卷住重物，拉拽自身迅捷移动的匿叶龙，也有着远远取用物件的妙招···'
+_raw_path: data/raw/action/502073_匿叶龙.json

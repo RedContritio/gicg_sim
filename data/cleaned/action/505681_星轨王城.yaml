@@ -1,0 +1,62 @@
+id: 505681
+name: 星轨王城
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '入场时：生成手牌积木小人积木小人：
+
+  事件牌
+
+  费用：1
+
+  召唤积木小人。
+
+  （积木小人：结束阶段：造成1点物理伤害。可用次数：2）" class="wiki-note-text">。
+
+  我方角色使用「元素战技」后：下次打出积木小人积木小人：
+
+  事件牌
+
+  费用：1
+
+  召唤积木小人。
+
+  （积木小人：结束阶段：造成1点物理伤害。可用次数：2）" class="wiki-note-text">少花费1个元素骰。（不可叠加）
+
+  我方角色使用「元素爆发」后：下次打出的积木小人积木小人：
+
+  事件牌
+
+  费用：1
+
+  召唤积木小人。
+
+  （积木小人：结束阶段：造成1点物理伤害。可用次数：2）" class="wiki-note-text">效果量+1。（不可叠加）'
+term_refs:
+- 积木小人
+terms:
+  积木小人: 事件牌费用：1召唤积木小人。（积木小人：结束阶段：造成1点物理伤害。可用次数：2）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/26/258999284/9e7207494a4fdb10df19179ec836623b_5859988981050109835.png
+duration: 可用次数2
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/26/258999284/f721ecf8a6bec7cf87a07f7669d5a583_8349369588870331854.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/26/258999284/92e9f07731a9149df425f729d30833b9_7207222420027587500.gif
+flavor_text: '星轨王城
+
+  「群杰举目眺云霄，悬车衔灯琼城绕。」'

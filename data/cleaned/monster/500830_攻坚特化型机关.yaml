@@ -1,0 +1,64 @@
+id: 500830
+name: 攻坚特化型机关
+title: 攻坚特化型机关
+parent_class: monster
+attr:
+  元素:
+  - 物理
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  充能:
+  - '2'
+  获取方式:
+  - 无
+element: ''
+weapon: 其他武器
+faction:
+- 魔物
+hp: 10
+energy: 2
+acquire: 无
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/02/183046623/292074ba2cfc456926acb0891d2a97c3_5198100599717468742.png
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/30/183046623/de066277f1f3120586b5e9c93c7fdb59_8169462897185990306.png
+skills:
+- name: 攻势盾击
+  type: 普通攻击
+  raw_life: 2
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 2
+  effect_text: 造成1点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 多重钝击
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    同色: 3
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 冲跃钝击
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    同色: 3
+  effect_text: 造成4点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+  energy_req: 2
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。

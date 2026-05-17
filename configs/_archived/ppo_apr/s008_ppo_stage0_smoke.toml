@@ -1,0 +1,25 @@
+# s008: first PPO Stage 0 smoke (curriculum validation kernel).
+#
+# Minimum viable RL pipeline test per docs/3_plans/curriculum/plan.md
+# — 1v1 mirror 测试角色D, fix_dice=[2F,2I,2W,2E], no cards, max_rounds=3.
+#
+# Result (2026-04-24 22:53, wall=90.3s):
+#   random=1.000, F1-D1=1.000, F1-D2=0.875, F1-D3=0.781
+#   Go/No-go PASS; argmax learned "Tune×5→重击×2" sequencing.
+#
+# Stage 0's env-shape variation from the base preset is fix_dice
+# (pinned deterministic roll); runtime-shape overrides (n_iterations,
+# eval cadence) below tune this particular smoke run. Every Stage N
+# lives here as explicit overrides, not as a Python preset function.
+
+base = "default"
+run_label = "s008_ppo_stage0_smoke"
+
+fix_dice = [2, 2, 2, 2, 0, 0, 0, 0]  # Stage 0 determinism
+
+n_iterations = 500
+eval_every = 25
+n_eval_games = 16
+
+[meta]
+paradigm = "ppo"

@@ -1,0 +1,66 @@
+id: 501003
+name: 沿途百景会心
+parent_class: action
+desc: 沿途百景会心卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  草: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/d00693f2246c912c56900d481e37104a_1655833334663500981.png
+header_img_url: ''
+version: '1710295436'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 2
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：</strong><span
+  style="color: rgb(0, 0, 0)">我方出战角色为</span><strong><span style="color: rgb(0, 0,
+  0)">绮良良</span></strong><span style="color: rgb(0, 0, 0)">时，装备此牌。</span></p><p><span
+  style="color: rgb(0, 0, 0)">绮良良装备此牌后，立刻使用一次</span><strong><span style="color: rgb(0,
+  0, 0)"><u>呜喵町飞足</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;呜喵町飞足：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;元素战技&lt;/p&gt;&lt;p&gt;生成&lt;strong&gt;&lt;u&gt;猫箱急件&lt;/u&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;u&gt;安全运输护盾&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。</span></p><p><span style="color: rgb(0, 0, 0)">装备有此牌的</span><strong><span
+  style="color: rgb(0, 0, 0)">绮良良</span></strong><span style="color: rgb(0, 0, 0)">为出战角色，我方进行「切换角色」行动时：少花费1个元素骰。（每回合1次）</span></p><p><span
+  style="color: rgb(0, 0, 0)">（牌组中包含绮良良，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为绮良良时，装备此牌。
+
+  绮良良装备此牌后，立刻使用一次呜喵町飞足。
+
+  装备有此牌的绮良良为出战角色，我方进行「切换角色」行动时：少花费1个元素骰。（每回合1次）
+
+  （牌组中包含绮良良，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 呜喵町飞足
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  呜喵町飞足: 元素战技生成猫箱急件和安全运输护盾。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/b68c9ea46a14544092af66afe031b541_3247352100286851727.png
+requires_char: 绮良良
+deck_constraint: 牌组中包含绮良良，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/d00693f2246c912c56900d481e37104a_1436874897141676884.png
+flavor_html: '<p><strong><span style="color: rgb(0, 0, 0)">绮良良·沿途百景会心</span></strong></p><p><span
+  style="color: rgb(0, 0, 0)">「记得好评~」</span></p>'
+flavor_text: '绮良良·沿途百景会心
+
+  「记得好评~」'
+_raw_path: data/raw/action/501003_沿途百景会心.json

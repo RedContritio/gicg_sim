@@ -1,0 +1,56 @@
+id: 500443
+name: 如影流露的冷刃
+parent_class: action
+sub_class: 装备牌
+tags:
+- 天赋
+cost_text: '3'
+cost:
+  风: 3
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 天赋
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 3
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为琳妮特时，装备此牌。
+
+  琳妮特装备此牌后，立刻使用一次谜影障身法谜影障身法：
+
+  元素战技
+
+  造成3点风元素伤害，本回合第一次使用此技能、且自身生命值不多于8时治疗自身2点，但是附属攻袭余威。" class="wiki-note-text">。
+
+  装备有此牌的琳妮特每回合第二次使用谜影障身法谜影障身法：
+
+  元素战技
+
+  造成3点风元素伤害，本回合第一次使用此技能、且自身生命值不多于8时治疗自身2点，但是附属攻袭余威。" class="wiki-note-text">时：伤害+2，并强制敌方切换到前一个角色。
+
+  （牌组中包含琳妮特，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 谜影障身法
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  谜影障身法: 元素战技造成3点风元素伤害，本回合第一次使用此技能、且自身生命值不多于8时治疗自身2点，但是附属攻袭余威。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/7125244844988d521622982000b3675c_1472137467382495489.png
+duration: 持续本回合
+requires_char: 琳妮特
+deck_constraint: 牌组中包含琳妮特，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/09214e6eaeb5399f4f1dd78e7a9fcf66_5441065129648025265.png
+flavor_text: '琳妮特·如影流露的冷刃
+
+  「一点把戏。」'

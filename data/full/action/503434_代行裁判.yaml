@@ -1,0 +1,99 @@
+id: 503434
+name: 代行裁判
+parent_class: action
+desc: 代行裁判卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  冰: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/17/258999284/bd4108a18f1959114c7437640fd7e25f_8355752513561366236.png
+header_img_url: ''
+version: '1735699840'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 1
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">罗莎莉亚</span></strong><span
+  style="color: rgb(0, 0, 0)">时，装备此牌。</span></p><p><span style="color: rgb(0, 0, 0)">罗莎莉亚装备此牌后，立刻使用一次</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>噬罪的告解</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;噬罪的告解：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，生成1层&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;洞察破绽&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（触发洞察破绽的效果时，会生成&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;强攻破绽&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p><p><span
+  style="color: rgb(0, 0, 0)">装备有此牌的罗莎莉亚在场时：使用</span><strong><span style="color: rgb(0,
+  0, 0)"><u>噬罪的告解</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;噬罪的告解：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，生成1层&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;洞察破绽&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（触发洞察破绽的效果时，会生成&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;强攻破绽&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，或我方生成</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>强攻破绽</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;强攻破绽：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方造成技能伤害时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此状态，使本次伤害加倍。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">后，在手牌中生成1张</span><strong><span style="color: rgb(0, 0, 0)"><u>换班时间</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;换班时间：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;事件牌&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;费用：&lt;/strong&gt;0&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方下次执行「切换角色」行动时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;少花费1个元素骰。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）</span></p><p><span
+  style="color: rgb(0, 0, 0)">（牌组中包含罗莎莉亚，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为罗莎莉亚时，装备此牌。
+
+  罗莎莉亚装备此牌后，立刻使用一次噬罪的告解造成1点冰元素伤害，生成1层洞察破绽。（触发洞察破绽的效果时，会生成强攻破绽。）" class="wiki-note-text">。
+
+  装备有此牌的罗莎莉亚在场时：使用噬罪的告解造成1点冰元素伤害，生成1层洞察破绽。（触发洞察破绽的效果时，会生成强攻破绽。）" class="wiki-note-text">，或我方生成强攻破绽强攻破绽：
+
+  出战状态
+
+  我方造成技能伤害时：移除此状态，使本次伤害加倍。" class="wiki-note-text">后，在手牌中生成1张换班时间我方下次执行「切换角色」行动时：少花费1个元素骰。"
+  class="wiki-note-text">。（每回合1次）
+
+  （牌组中包含罗莎莉亚，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 噬罪的告解
+- 强攻破绽
+- 换班时间
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  噬罪的告解: 元素战技造成1点冰元素伤害，生成1层洞察破绽。（触发洞察破绽的效果时，会生成强攻破绽。）
+  强攻破绽: 出战状态我方造成技能伤害时：移除此状态，使本次伤害加倍。
+  换班时间: 事件牌费用：0我方下次执行「切换角色」行动时：少花费1个元素骰。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/17/258999284/5fd9633462b60065636434992f1d9625_3023820283919302549.png
+requires_char: 罗莎莉亚
+deck_constraint: 牌组中包含罗莎莉亚，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/17/258999284/bd4108a18f1959114c7437640fd7e25f_8622667424074363979.png
+flavor_html: <p><strong>罗莎莉亚·代行裁判</strong></p><p>「晚安了···」</p>
+flavor_text: '罗莎莉亚·代行裁判
+
+  「晚安了···」'
+_raw_path: data/raw/action/503434_代行裁判.json

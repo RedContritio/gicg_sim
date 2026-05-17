@@ -1,0 +1,41 @@
+id: 5436
+name: 翠绿之影
+parent_class: action
+desc: 翠绿之影
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/b95596e3e5648849048417635b619e2e_2329852964215208759.png
+header_img_url: ''
+version: '1710295832'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>对角色打出「天赋」或角色使用技能时：</strong>少花费1个风元素。（每回合1次）</p><p><strong>投掷阶段：</strong>2个元素骰初始总是投出风元素。</p><p>（角色最多装备1件「圣遗物」）</p>
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个风元素。（每回合1次）
+
+  投掷阶段：2个元素骰初始总是投出风元素。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/9e7207494a4fdb10df19179ec836623b_6259287549912676109.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/b95596e3e5648849048417635b619e2e_6430546791422615500.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/3f1c6dafb1a64b7705e3c5f13359cf24_1192461298589747036.gif
+flavor_html: <p><strong>碎叶之梦·翠绿之影</strong></p><p>「终有一日⋯在无边无际的猎场中，我们将再度相逢。」</p>
+flavor_text: '碎叶之梦·翠绿之影
+
+  「终有一日⋯在无边无际的猎场中，我们将再度相逢。」'
+_raw_path: data/raw/action/5436_翠绿之影.json

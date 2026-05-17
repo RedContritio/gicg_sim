@@ -1,0 +1,30 @@
+# s037: 1-card BC pretrain with HARD target loss (P2.1 ablation).
+#
+# Reuses s026 dataset (same as s027). Only diff vs s027 is hard_target=true.
+# Tests "soft target collapse on tied set" hypothesis. If BC vs F1-D2
+# improves, soft target was the issue; if not, soft target is fine.
+
+run_label = "s037_bc_pretrain_stage3_1card_hardtarget"
+
+dataset = "artifacts/202604251133_s026_bc_data_gen_stage3_1card/dataset.npz"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_epochs = 60
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 1000
+
+hard_target = true
+
+[meta]
+paradigm = "bc"

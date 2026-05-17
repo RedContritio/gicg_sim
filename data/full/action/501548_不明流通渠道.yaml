@@ -1,0 +1,94 @@
+id: 501548
+name: 不明流通渠道
+parent_class: action
+desc: 不明流通渠道卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  岩: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/ff75f3060780eb4e510f0f60c336dcb6_8867382732623918591.png
+header_img_url: ''
+version: '1721183054'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 7
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">娜维娅</span></strong><span
+  style="color: rgb(0, 0, 0)">时，装备此牌。<br>娜维娅装备此牌后，立刻使用一次</span><strong><span style="color:
+  rgb(0, 0, 0)"><u>典仪式晶火</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;典仪式晶火：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素战技&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成3点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(212, 177, 6)&quot;&gt;岩元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，本角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;岩元素附魔&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;；从手牌中&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;至多5张&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;裂晶弹片&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，每&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;1张都使此伤害+1并抓1张牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>装备有此牌的娜维娅使用技能后：抓2张</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>裂晶弹片</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;裂晶弹片：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;花费：1&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;对敌方「出战角色」造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;物理伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，抓1张牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含娜维娅，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为娜维娅时，装备此牌。
+
+  娜维娅装备此牌后，立刻使用一次典仪式晶火典仪式晶火：
+
+  元素战技
+
+  造成3点岩元素伤害，本角色附属岩元素附魔；从手牌中舍弃至多5张裂晶弹片，每舍弃1张都使此伤害+1并抓1张牌。" class="wiki-note-text">。
+
+  装备有此牌的娜维娅使用技能后：抓2张裂晶弹片裂晶弹片：
+
+  事件牌
+
+  花费：1
+
+  对敌方「出战角色」造成1点物理伤害，抓1张牌。" class="wiki-note-text">。（每回合1次）
+
+  （牌组中包含娜维娅，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 典仪式晶火
+- 裂晶弹片
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  典仪式晶火: 元素战技造成3点岩元素伤害，本角色附属岩元素附魔；从手牌中舍弃至多5张裂晶弹片，每舍弃1张都使此伤害+1并抓1张牌。
+  裂晶弹片: 事件牌花费：1对敌方「出战角色」造成1点物理伤害，抓1张牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/71fc6f5fba3de4fef6925cd22d2fdf5b_5314137432282237479.png
+requires_char: 娜维娅
+deck_constraint: 牌组中包含娜维娅，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/ff75f3060780eb4e510f0f60c336dcb6_6404286710698044326.png
+flavor_html: <p><strong>娜维娅·不明流通渠道</strong></p><p>「哪来的？！」</p>
+flavor_text: '娜维娅·不明流通渠道
+
+  「哪来的？！」'
+_raw_path: data/raw/action/501548_不明流通渠道.json

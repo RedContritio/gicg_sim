@@ -1,0 +1,32 @@
+id: 501385
+name: 唤醒眷属
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '2'
+cost:
+  草: 2
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 其他标签
+  获取:
+  - 阿佩普的绿洲守望者被动技能生成
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 2
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '打出此牌或舍弃舍弃：
+
+  通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">此牌时：召唤一个独立的增殖生命体。'
+term_refs:
+- 舍弃
+terms:
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/e27d1a031f8206bce971972b7935b75b_1291106584776319272.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/5c6f5f310243aea5eff849b26dd80269_5016592096671426026.png
+flavor_text: ''

@@ -1,0 +1,33 @@
+id: 5425
+name: 教官的帽子
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色引发元素反应后：生成1个此角色元素类型的元素骰。（每回合至多3次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/f5dd60d41187c41067aa90014d9c54c2_2210214230212116291.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/66b3c1346a589e0dea45a58cd4d65c5a_3513743616827517581.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/096c814a134ef3357fb7e6f3d329ac2e_8432539929029450915.gif
+flavor_text: '事预则立·教官的帽子
+
+  「我没有作为将校指挥军旅的能力，除当兵外也不胜任别的什么工作，不如让我来教小伙子们吃点苦头，好让他们在战场上能多活几分钟。」'

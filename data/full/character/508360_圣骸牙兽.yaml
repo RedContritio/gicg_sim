@@ -1,0 +1,199 @@
+id: 508360
+name: 圣骸牙兽
+title: 圣骸牙兽
+parent_class: character
+desc: 圣骸牙兽
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/38583a92c69536525928a01c89c9c256_8534293826803764088.png
+header_img_url: ''
+version: '1775707977'
+attr:
+  元素:
+  - 草
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物、圣骸兽
+  充能:
+  - '2'
+  获取方式:
+  - 酒馆挑战获取
+element: 草
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战获取
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/38583a92c69536525928a01c89c9c256_8070851558250435843.png
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/de066277f1f3120586b5e9c93c7fdb59_2903332922125281684.png
+skills:
+- name: 利爪猛击
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    草: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/81587b7bb5667b6623d89c00c8757f15_2121287805570758943.png
+  effect_html: <html><head></head><body><p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 掠能绿波
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/e1d38bec07cfa5ce84fad8d3530e025f_1101470830853027438.png
+  effect_html: '<html><head></head><body><p>造成2点<strong><span style="color: rgb(82,
+    196, 26)">草元素伤害</span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，从牌组中抓1张<strong><span
+    style="color: rgb(0, 0, 0)"><u>噬骸能量块</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;噬骸能量块：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;舍弃&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;1张&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;当前元素骰费用&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;当前元素骰费用&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;行动牌被赋予&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用增加&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;和&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用降低&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;时，当前元素骰费用会对应变化。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">，从牌组中抓1张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张当前元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。当前元素骰费用行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。（打出时少花费元素骰的效果不会影响此费用）"
+    class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  - 噬骸能量块
+- name: 横生厄蔓
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/9b29dc1cff1a46e02f657f5eb4a8bf31_4123768422811973345.png
+  effect_html: '<html><head></head><body><p>造成4点<strong><span style="color: rgb(82,
+    196, 26)">草元素伤害</span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，如果手牌中存在<strong><span
+    style="color: rgb(0, 0, 0)"><u>噬骸能量块</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;噬骸能量块：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;舍弃&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;1张&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;当前元素骰费用&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;当前元素骰费用&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;行动牌被赋予&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用增加&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;和&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用降低&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;时，当前元素骰费用会对应变化。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，则<strong><u>舍弃</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;舍弃：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>1张并准备技能<strong><u>催萌腐草</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;催萌腐草：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;元素爆发&lt;/u&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成2点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;&lt;u&gt;草元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;元素爆发：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成4点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">，如果手牌中存在噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张当前元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。当前元素骰费用行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。（打出时少花费元素骰的效果不会影响此费用）"
+    class="wiki-note-text">，则舍弃1张并准备技能催萌腐草草元素伤害。元素爆发：角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  - 噬骸能量块
+  - 舍弃
+  - 催萌腐草
+  energy_req: 2
+- name: 亡骸饥渴
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/1594a979d127d201365885fcb11e6605_3699164519647751207.png
+  effect_html: '<html><head></head><body><p>【被动】战斗开始时，生成2张<strong><span style="color:
+    rgb(0, 0, 0)"><u>噬骸能量块</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;噬骸能量块：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;舍弃&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;1张&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;当前元素骰费用&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;当前元素骰费用&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;行动牌被赋予&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用增加&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;和&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用降低&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;时，当前元素骰费用会对应变化。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>放入牌组底。我方每回合可以额外打出1张<strong>噬骸能量块</strong>。</p></body></html>'
+  effect_text: 【被动】战斗开始时，生成2张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张当前元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。当前元素骰费用行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。（打出时少花费元素骰的效果不会影响此费用）"
+    class="wiki-note-text">放入牌组底。我方每回合可以额外打出1张噬骸能量块。
+  term_refs:
+  - 噬骸能量块
+summons: []
+talent:
+  name: 亡草蔽日
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 1
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/a4db74c92acff5c8d52ca0ab8c129c3d_8183030549388515742.png
+  effect_html: '<html><head></head><body><p><strong><u>快速行动</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;只有执行了一次战斗行动后，才会轮到对方行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：装备给我方的<strong>圣骸牙兽</strong>。</p><p><strong>我方打出或<u>舍弃</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;舍弃：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong><span style="color:
+    rgb(0, 0, 0)"><u>噬骸能量块</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;噬骸能量块：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;随机&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;舍弃&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;1张&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;&lt;u&gt;当前元素骰费用&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;当前元素骰费用&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;行动牌被赋予&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用增加&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;和&lt;/span&gt;&lt;strong&gt;&lt;span&gt;费用降低&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;时，当前元素骰费用会对应变化。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>时：</strong>抓1张牌。（每回合1次）</p><p>（牌组中包含圣骸牙兽，才能加入牌组）</p></body></html>'
+  effect_text: '快速行动：装备给我方的圣骸牙兽。
+
+    我方打出或舍弃噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张当前元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）
+
+    舍弃：
+
+    通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+
+    当前元素骰费用
+
+    行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。
+
+    （打出时少花费元素骰的效果不会影响此费用）" class="wiki-note-text">时：抓1张牌。（每回合1次）
+
+    （牌组中包含圣骸牙兽，才能加入牌组）'
+  term_refs:
+  - 快速行动
+  - 舍弃
+  - 噬骸能量块
+  sub_type: 快速行动
+  deck_constraint: 牌组中包含圣骸牙兽，才能加入牌组
+flavor_html: <p>因为啃噬伟大的生命体，而扭曲异变的掠食者。驱使着狂乱的蔓草之力。</p>
+flavor_text: 因为啃噬伟大的生命体，而扭曲异变的掠食者。驱使着狂乱的蔓草之力。
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  噬骸能量块: 事件牌费用：0随机舍弃1张当前元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。当前元素骰费用行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。（打出时少花费元素骰的效果不会影响此费用）
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+  催萌腐草: 元素爆发造成2点草元素伤害。元素爆发：角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+_raw_path: data/raw/character/508360_圣骸牙兽.json

@@ -1,0 +1,387 @@
+{
+  "id": "508013",
+  "name": "金焰绒翼龙暴君",
+  "desc": "金焰绒翼龙暴君卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/3c81f7679978b506a4f564ff8c65e374_6554219806463920145.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"金焰绒翼龙暴君\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/3c81f7679978b506a4f564ff8c65e374_1316728194635485749.png\",\"gold_img\":\"\",\"life\":11,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"火元素\"]},{\"key\":\"武器：\",\"value\":[\"其它武器\"]},{\"key\":\"阵营：\",\"value\":[\"魔物\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"酒馆挑战·友好对局\"]}],\"repeated\":true,\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"翼斩\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/c73a769a641f6798bb027303db4856ac_9155667668533565638.png\",\"life\":1,\"life_bg\":4,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>造成2点<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>物理伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}},{\"tab_name\":\"升腾炽风\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/6b0596cdcd0525f2d0b60045e7a15803_5605616860627063235.png\",\"life\":3,\"life_bg\":4,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p><span style=\\\"color: rgb(0, 0, 0)\\\">造成2点</span><strong><span style=\\\"color: rgb(245, 34, 45)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+1，生成回合结束时造成1点火元素伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;]（可用次数1，最多叠加到2）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，生成飞旋<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;飞旋&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;自身下次受到的伤害-1。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}},{\"tab_name\":\"金焰爆轰\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/8f0b4016fab01793e2a5b1ab69eb1f42_6537823244984634876.png\",\"life\":3,\"life_bg\":4,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>造成3点<strong><span style=\\\"color: rgb(245, 34, 45)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;融化&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;：本伤害+1，生成回合结束时造成1点火元素伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;]（可用次数1，最多叠加到2）&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，对所有敌方后台角色造成1点<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>穿透伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，自身附属1层金焰形态<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;金焰形态&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;结束阶段：如果所附属角色为出战角色，则造成1点火元素伤害，对所有敌方后台角色造成1点穿透伤害。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}},{\"tab_name\":\"古老者的血脉\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/c22a44612144c3abf0c6c27b56d3bb0f_4784423027843795323.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<html><head></head><body><p>【被动】<strong>偶数行动阶段开始时：</strong>自身附属1层金焰形态<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;金焰形态&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;结束阶段：如果所附属角色为出战角色，则造成1点火元素伤害，对所有敌方后台角色造成1点穿透伤害。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>金焰绒翼龙暴君</strong></p><p>因承受了如今龙众的身躯无法驭使的伟力，而拥有超然形体的异种绒翼龙。</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"\",\"common_img\":\"\",\"gold_img\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"充能：\",\"value\":[]},{\"key\":\"攻击：\",\"value\":[]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p></p>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"list\":[{\"tab_name\":\"「焰主之祝」\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/22fa99041f45edbc6ca1e993dff5b20d_6530151909061782350.png\",\"life\":3,\"life_bg\":4,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<html><head></head><body><p><strong>战斗行动：</strong>我方出战角色为<strong>金焰绒翼龙暴君</strong>时，装备此牌。</p><p><strong>金焰绒翼龙暴君</strong>装备此牌后，立刻使用一次<strong>金焰爆轰</strong>。</p><p>我方金焰形态<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;金焰形态&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;结束阶段：如果所附属角色为出战角色，则造成1点火元素伤害，对所有敌方后台角色造成1点穿透伤害。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>触发时，额外<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>舍弃</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>1张随机手牌，金焰形态<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;金焰形态&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;结束阶段：如果所附属角色为出战角色，则造成1点火元素伤害，对所有敌方后台角色造成1点穿透伤害。&lt;/p&gt;&lt;p&gt;可用次数：1（可叠加，没有上限）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>造成的伤害额外提高，其数值等同于所<strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>舍弃</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: rgb(0, 0, 0)&#34;&gt;通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>手牌的当前元素骰费用<span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;当前元素骰费用&lt;/p&gt;&lt;p&gt;规则解释&lt;/p&gt;&lt;p&gt;行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。&lt;/p&gt;&lt;p&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p><p>（牌组中包含金焰绒翼龙暴君，才能加入牌组）</p></body></html>\"]}}]}\n",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1772001778",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "七圣召唤",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "七圣召唤",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "自行巧局",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/49a9a8b4dc723948d68d714d22bd41a5_3101300862575642198.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/edead91d5017cdae403abbeb7e8b493c_535486296243337469.png\"],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/火元素\\\",\\\"武器/其他武器\\\",\\\"阵营/魔物\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

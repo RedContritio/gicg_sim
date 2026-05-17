@@ -1,0 +1,228 @@
+id: 5359
+name: 凝光
+title: 掩月天权·凝光
+parent_class: character
+desc: 凝光卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/6105ce8dd57dfd2efbea4d4e9bc99a7f_8256168788529926363.png
+header_img_url: ''
+version: '1769998855'
+attr:
+  元素:
+  - 岩元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 璃月
+  充能:
+  - 3点
+  获取方式:
+  - 角色邀请·友好对局
+element: 岩
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 3
+acquire: 角色邀请·友好对局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/6105ce8dd57dfd2efbea4d4e9bc99a7f_3316973407293091241.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/7e8cc721157627dddcd9003ff20d8340_7477220191403048276.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 千金掷
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    岩: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/54dd31a9c0a4417ca4b5463532d7f5e8_7531221484579442607.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(212,
+    177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">。
+  term_refs:
+  - 岩元素伤害
+- name: 璇玑屏
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/e16efaaa1d7a4e0e50c2df84b5870ea3_8679057305261038668.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(212,
+    177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong><u>璇玑屏</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;璇玑屏：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方出战角色受到至少为2的伤害时：&lt;/strong&gt;抵消1点伤害。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，生成璇玑屏。
+  term_refs:
+  - 岩元素伤害
+  - 璇玑屏
+- name: 天权崩玉
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    岩: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/2930a6e689cea53607ab586a8cde8c97_8943298426488751810.png
+  effect_html: '<p>造成6点<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(212,
+    177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>；如果<strong><u>璇玑屏</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;璇玑屏：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方出战角色受到至少为2的伤害时：&lt;/strong&gt;抵消1点伤害。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>在场，就使此伤害+2。</p>'
+  effect_text: 造成6点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">；如果璇玑屏在场，就使此伤害+2。
+  term_refs:
+  - 岩元素伤害
+  - 璇玑屏
+  energy_req: 3
+summons: []
+talent:
+  name: 储之千日，用之一刻
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/8b72e98d01d978567eac5b3ad09d7ec1_4863765821166060686.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>凝光</strong>时，装备此牌。</p><p>凝光装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 107, 8)"><u>璇玑屏</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;璇玑屏：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成2点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(212, 177, 6)&quot;&gt;&lt;u&gt;岩元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，生成&lt;strong&gt;璇玑屏&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;璇玑屏：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方出战角色受到至少为2的伤害时：&lt;/strong&gt;抵消1点伤害。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(212, 177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的凝光在场时，<strong><u>璇玑屏</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;璇玑屏：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方出战角色受到至少为2的伤害时：&lt;/strong&gt;抵消1点伤害。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>会使我方造成的<strong><span
+    style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(212, 177, 6)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>+1。</p><p>（牌组中包含凝光，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为凝光时，装备此牌。
+
+    凝光装备此牌后，立刻使用一次璇玑屏岩元素伤害，生成璇玑屏。
+
+    璇玑屏：
+
+    我方出战角色受到至少为2的伤害时：抵消1点伤害。
+
+    可用次数：2
+
+    岩元素伤害：
+
+    和已附着的元素发生元素反应：
+
+    结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的凝光在场时，璇玑屏会使我方造成的岩元素伤害岩元素伤害：
+
+    和已附着的元素发生元素反应：
+
+    结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+    结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。" class="wiki-note-text">+1。
+
+    （牌组中包含凝光，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 璇玑屏
+  - 岩元素伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含凝光，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - '2'
+    攻击:
+    - '3'
+  skills:
+  - name: 璇玑屏
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/e16efaaa1d7a4e0e50c2df84b5870ea3_5115218729757465545.png
+    effect_html: '<html><head></head><body><p>造成<strong><span style="color: rgb(212,
+      177, 6)"><u>岩元素伤害</u></span></strong><span style="color: rgb(255, 169, 64)"><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color:
+      rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span></span>，生成2层璇玑屏。</p></body></html>'
+    effect_text: 造成岩元素伤害岩元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。结晶（冰）：生成3点护盾。结晶（火）：生成3点护盾。结晶（水）：生成3点护盾。结晶（雷）：生成3点护盾。"
+      class="wiki-note-text">，生成2层璇玑屏。
+    term_refs:
+    - 岩元素伤害
+  - name: 天权崩玉
+    type: 元素爆发
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 2
+    raw_energy_bg: 8
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/2930a6e689cea53607ab586a8cde8c97_2877099165909320822.png
+    effect_html: '<html><head></head><body><p>对随机敌方角色造成3倍攻击力的<strong><span style="color:
+      rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span style="color: rgb(255, 169,
+      64)"><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color:
+      rgb(212, 177, 6)&#34;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span></span>，如果我方场上存在<strong>护盾</strong>，则自身获得1点<strong><u>充能</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;充能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+    effect_text: 对随机敌方角色造成3倍攻击力的岩元素伤害岩元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。结晶（冰）：生成3点护盾。结晶（火）：生成3点护盾。结晶（水）：生成3点护盾。结晶（雷）：生成3点护盾。"
+      class="wiki-note-text">，如果我方场上存在护盾，则自身获得1点充能。
+    term_refs:
+    - 岩元素伤害
+    - 充能
+    energy_req: 2
+flavor_html: '<p style="white-space: pre-wrap;"><strong>掩月天权·凝光</strong></p><p style="white-space:
+  pre-wrap;">她保守着一个最大的秘密，那就是自己保守着璃月港的许多秘密。</p>'
+flavor_text: '掩月天权·凝光
+
+  她保守着一个最大的秘密，那就是自己保守着璃月港的许多秘密。'
+terms:
+  岩元素伤害: 和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+  璇玑屏: 元素战技造成2点岩元素伤害，生成璇玑屏。璇玑屏：我方出战角色受到至少为2的伤害时：抵消1点伤害。可用次数：2岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+_raw_path: data/raw/character/5359_凝光.json

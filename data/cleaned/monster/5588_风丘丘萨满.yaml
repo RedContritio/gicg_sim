@@ -1,0 +1,77 @@
+id: 5588
+name: 风丘丘萨满
+title: 风丘丘萨满
+parent_class: monster
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 风
+weapon: 其他武器
+faction:
+- 魔物/丘丘人
+hp: 4
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/9bc8ac368d30794e0daa3559cf7b89fe_5502997143632992073.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_8408251298095773348.png
+skills:
+- name: 杖击
+  type: 普通攻击
+  raw_life: 2
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 2
+  effect_text: 造成1点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 祈风术
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  effect_text: 造成2点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，召唤旋风。
+  term_refs:
+  - 风元素伤害
+- name: 风波冲击
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  effect_text: 造成5点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+  energy_req: 2
+summons:
+- name: 旋风
+  type: 召唤物
+  raw_life: 0
+  raw_energy: 0
+  effect_text: 结束阶段：造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">。可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2
+  term_refs:
+  - 风元素伤害
+  - 可用次数
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。

@@ -1,0 +1,311 @@
+id: 501414
+name: 莱欧斯利
+title: 寂罪的密使·莱欧斯利
+parent_class: character
+desc: 莱欧斯利卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/064e881b99d30a1ce455d16a11768a24_719883838149752699.png
+header_img_url: ''
+version: '1760346488'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 枫丹
+  充能:
+  - 3点
+  获取方式:
+  - 角色邀请·友好对局
+  始基力:
+  - 荒性
+element: 冰
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 3
+acquire: 角色邀请·友好对局
+始基力: 荒性
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/064e881b99d30a1ce455d16a11768a24_8173906534678189661.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/e2484106aa6c566a5cab3f65f666d862_7615143463388573007.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/de066277f1f3120586b5e9c93c7fdb59_5621250396640669739.png
+skills:
+- name: 迅烈倾霜拳
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/562369ec0c89a723c243a623ff8e6008_1343028187246509483.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+- name: 冰牙突驰
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/2996ceb349568c064073978f3c45f419_3333678689971567936.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，本角色附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>寒烈的惩裁</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>寒烈的惩裁：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>角色进行普通攻击时：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>如果角色生命至少为6，则此技能少花费1个</span><strong><span style=&quot;color: rgb(145,
+    213, 255)&quot;>冰元素</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>，伤害+1，且对自身造成1点</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>穿透伤害</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>。<br>如果角色生命不多于5，则使此伤害+1，并且技能结算后治疗角色2点。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：2</span></strong></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，本角色附属寒烈的惩裁寒烈的惩裁：状态角色进行普通攻击时：如果角色生命至少为6，则此技能少花费1个冰元素，伤害+1，且对自身造成1点穿透伤害。如果角色生命不多于5，则使此伤害+1，并且技能结算后治疗角色2点。可用次数：2"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  - 寒烈的惩裁
+- name: 黑金狼噬
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/1156bc48af506ea88c321bfc3e0de56a_8959649322241374469.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，生成</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>余威冰锥</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>余威冰锥：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>出战状态</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>我方选择行动前：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>造成2点</span><strong><span style=&quot;color: rgb(145, 213, 255)&quot;>冰元素伤害</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。<br></span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>可用次数：1</span></strong></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0,
+    0, 0)">本角色在本回合中受到伤害或治疗每累计到2次时：</span></strong><span style="color: rgb(0, 0, 0)">此技能少花费1个元素骰（最多少花费2个）。</span></p>'
+  effect_text: 造成2点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，生成余威冰锥余威冰锥：出战状态我方选择行动前：造成2点冰元素伤害。可用次数：1" class="wiki-note-text">。本角色在本回合中受到伤害或治疗每累计到2次时：此技能少花费1个元素骰（最多少花费2个）。
+  term_refs:
+  - 冰元素伤害
+  - 余威冰锥
+  energy_req: 3
+summons: []
+talent:
+  name: 予行恶者以惩惧
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/ba5051d7c24ad430dcd83d95e4a6bf42_6006108220774306864.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">莱欧斯利</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。</span></p><p><strong><span style="color: rgb(0,
+    0, 0)">莱欧斯利</span></strong><span style="color: rgb(0, 0, 0)">装备此牌后，立刻使用一次</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>迅烈倾霜拳</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;迅烈倾霜拳：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;普通攻击&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p><p><span
+    style="color: rgb(0, 0, 0)">装备有此牌的</span><strong><span style="color: rgb(0, 0,
+    0)">莱欧斯利</span></strong><span style="color: rgb(0, 0, 0)">受到伤害或治疗后，此牌累积1点</span><strong><span
+    style="color: rgb(0, 0, 0)">「惩戒计数」</span></strong><span style="color: rgb(0, 0,
+    0)">。</span></p><p><span style="color: rgb(0, 0, 0)">装备有此牌的</span><strong><span
+    style="color: rgb(0, 0, 0)">莱欧斯利</span></strong><span style="color: rgb(0, 0,
+    0)">使用技能时：如果已有3点</span><strong><span style="color: rgb(0, 0, 0)">「惩戒计数」</span></strong><span
+    style="color: rgb(0, 0, 0)">，则消耗3点使此技能伤害+1。</span></p><p><span style="color: rgb(0,
+    0, 0)">（牌组中包含莱欧斯利，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为莱欧斯利时，装备此牌。
+
+    莱欧斯利装备此牌后，立刻使用一次迅烈倾霜拳迅烈倾霜拳：
+
+    普通攻击
+
+    造成1点冰元素伤害。" class="wiki-note-text">。
+
+    装备有此牌的莱欧斯利受到伤害或治疗后，此牌累积1点「惩戒计数」。
+
+    装备有此牌的莱欧斯利使用技能时：如果已有3点「惩戒计数」，则消耗3点使此技能伤害+1。
+
+    （牌组中包含莱欧斯利，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 迅烈倾霜拳
+  deck_constraint: 牌组中包含莱欧斯利，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '2'
+  skills:
+  - name: 迅烈倾霜拳
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/562369ec0c89a723c243a623ff8e6008_2583798046946209606.png
+    effect_html: '<p>造成<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&quot;color:
+      rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。生命值过半时，受到1点<strong><u>穿透伤害</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。否则，治疗自身3点。</p>'
+    effect_text: 造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。生命值过半时，受到1点穿透伤害。否则，治疗自身3点。
+    term_refs:
+    - 冰元素伤害
+    - 穿透伤害
+  - name: 黑金狼噬
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/1156bc48af506ea88c321bfc3e0de56a_7152796141497561061.png
+    effect_html: '<p>对随机敌人造成<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&quot;color:
+      rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。随后再对随机敌人造成3次3点<strong><span
+      style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145, 213,
+      255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着冰元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;所有敌方角色附属&lt;/span&gt;&lt;span style=&quot;color:
+      rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+      0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;：目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 对随机敌人造成冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。随后再对随机敌人造成3次3点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应每点元素精通使特定效果提升1倍。融化：本伤害翻倍，每8点元素精通额外翻1倍超导：所有敌方角色附属1层冻伤冻结：目标附属4层冻伤"
+      class="wiki-note-text">。
+    term_refs:
+    - 冰元素伤害
+    energy_req: 2
+  - name: 自行：额外行动
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/6f74270fa354c14b59cc2e5b8364d474_3100140633924875584.png
+    effect_html: <p>每回合<strong><u>额外行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;额外行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色不会因为额外行动而获得充能。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>1次。</p>
+    effect_text: 每回合额外行动1次。
+    term_refs:
+    - 额外行动
+flavor_html: <p><strong>寂罪的密使·莱欧斯利</strong></p><p>罪囚于斯，深水无漪。</p>
+flavor_text: '寂罪的密使·莱欧斯利
+
+  罪囚于斯，深水无漪。'
+terms:
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  寒烈的惩裁: 状态角色进行普通攻击时：如果角色生命至少为6，则此技能少花费1个冰元素，伤害+1，且对自身造成1点穿透伤害。如果角色生命不多于5，则使此伤害+1，并且技能结算后治疗角色2点。可用次数：2
+  余威冰锥: 出战状态我方选择行动前：造成2点冰元素伤害。可用次数：1
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  迅烈倾霜拳: 普通攻击造成1点冰元素伤害。
+_raw_path: data/raw/character/501414_莱欧斯利.json

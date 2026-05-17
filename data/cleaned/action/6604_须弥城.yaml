@@ -1,0 +1,36 @@
+id: 6604
+name: 须弥城
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: 我方打出「天赋」或我方角色使用技能时：如果我方元素骰数量不多于手牌数量，则少花费1个元素骰。（每回合1次）
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/03/28/12109492/9e7207494a4fdb10df19179ec836623b_7668191877635272533.png
+variants:
+- mode: 标准
+  effect_text: 我方打出「天赋」或我方角色使用技能时：如果我方元素骰数量不多于手牌数量，则少花费1个元素骰。（每回合1次）
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a659c38687c72bdd6244b9ef3c28390b_972040861793737387.png
+jiqiao: true
+flavor_text: '一切智慧具足之城
+
+  在繁枝茂叶的圣树之下，学城的贤者们已遍计所有的知识。'

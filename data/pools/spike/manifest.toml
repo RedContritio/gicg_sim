@@ -1,0 +1,14 @@
+# Spike pool — ADR-0012 验证用,3 张代表卡(希诺宁 / 歼灭机关 / 驰轮车·疾驰)
+# 验证 engine 扩展(invoke_skill_silent / Preparing / draw_card / add_dice)
+# + DSL 表达能力。继承 v_legacy 以复用碌碌无为 filler。
+
+[version]
+id      = "spike"
+parent  = "v_legacy"
+desc    = "ADR-0012 spike: prepare-skill + specialty + 资源 builtin 验证"
+
+[cards]
+remove  = []
+
+[characters]
+remove  = []

@@ -1,0 +1,69 @@
+id: 501317
+name: 雷丘丘萨满
+title: 雷丘丘萨满
+parent_class: monster
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction:
+- 魔物/丘丘人
+hp: 4
+energy: 2
+acquire: 无
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/05/13/183046623/ddcb1fdc0be85ae21a8f7d89c0084291_5272234993581989188.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_2277854255596634786.png
+skills:
+- name: 法杖敲击
+  type: 普通攻击
+  raw_life: 2
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 2
+  effect_text: 造成1点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 轰雷图腾
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  effect_text: 造成2点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下3次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">，在敌方场上生成生成唤雷法杖雷元素伤害。可用次数：2" class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 唤雷法杖
+- name: 落雷术
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  effect_text: 造成5点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下3次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  energy_req: 2
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下3次草/雷伤害+1的[激化领域]
+  唤雷法杖: 出战状态所在阵营宣布结束后：对所在阵营的出战角色造成1点雷元素伤害。可用次数：2

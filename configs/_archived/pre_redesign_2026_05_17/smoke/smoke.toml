@@ -1,0 +1,22 @@
+# General-purpose smoke — 50g c1_random with the shipped architecture
+# (sid pinning + struct_readout + aux loss). Use for quick catch-any-crash
+# runs when iterating on engine/network changes.
+
+base = "random_1v1"
+run_label = "smoke"
+
+n_games = 50
+n_workers = 4
+batch_size = 64
+games_per_arena = 0
+games_per_gauntlet = 0
+checkpoint_every_n_games = 25
+
+[mcts]
+parallel_rollouts = 4
+
+[train]
+delta_aux_coef = 1.0
+
+[meta]
+paradigm = "az"

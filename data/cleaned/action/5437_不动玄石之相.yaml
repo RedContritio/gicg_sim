@@ -1,0 +1,33 @@
+id: 5437
+name: 不动玄石之相
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个岩元素。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/f5dd60d41187c41067aa90014d9c54c2_662915712384124540.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/886a90f766bcecf0e8812513b7075638_4384014060532931593.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/9537ebad9dd9b2d238bfa27faa14a3ac_8927900323487787265.gif
+flavor_text: '玄岩嵯峨·不动玄石之相
+
+  「臧否分明，从无失准。」'

@@ -1,0 +1,186 @@
+id: 500462
+name: 雷音权现
+title: 弥留之恨·雷音权现
+parent_class: character
+desc: 雷音权现卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/7577bb07bad6418da34d16e788e56dc7_771132676585449565.png
+header_img_url: ''
+version: '1761100107'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 雷
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/7577bb07bad6418da34d16e788e56dc7_5139467133099341814.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/c37137b76db5a62086c29832336939ad_8663484128463252464.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/de066277f1f3120586b5e9c93c7fdb59_6042994622238158063.png
+skills:
+- name: 轰霆翼斩
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/86ff2dcfaf79e215791b65d7f6a0100a_6958978101205360521.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p><strong>雷元素伤害：</strong></p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点雷元素伤害。
+  term_refs:
+  - 雷元素伤害
+- name: 雷墙倾轧
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/ca84fd08636d380d57da96f9a37e9e7f_7121937516609130674.png
+  effect_html: '<p>对附属有<strong><u>雷鸣探知</u></strong><span data-type="详情" data-name="<p><strong>雷鸣探知：</strong></p><p>状态</p><p><strong>所附属角色受到雷音权现及其召唤物造成的伤害时：</strong>移除此状态，使此伤害+1。</p><p>（同一方场上最多存在一个此状态。雷音权现的部分技能，会以所附属角色为目标。）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>的敌方角色造成3点<strong><span
+    style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情"
+    data-name="<p><strong>雷元素伤害：</strong></p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（如果敌方不存在符合条件的角色，则改为对出战角色造成伤害）</p>'
+  effect_text: 对附属有雷鸣探知的敌方角色造成3点雷元素伤害。（如果敌方不存在符合条件的角色，则改为对出战角色造成伤害）
+  term_refs:
+  - 雷鸣探知
+  - 雷元素伤害
+- name: 轰雷禁锢
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/eb2b0fb434298a92925563a640f462a9_5945618352718846846.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p><strong>雷元素伤害：</strong></p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>轰雷禁锢</em></strong>。</p>'
+  effect_text: 造成2点雷元素伤害，召唤轰雷禁锢。
+  term_refs:
+  - 雷元素伤害
+  energy_req: 2
+- name: 雷霆探知
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/eb1d94ce0af17b97f756f8c126a5863a_674902409578889354.png
+  effect_html: <p>【被动】战斗开始时，在敌方场上生成<strong><u>雷霆探针</u></strong><span data-type="详情"
+    data-name="<p><strong>雷霆探针：</strong></p><p>出战状态</p><p>所在阵营角色使用技能后：对所在阵营出战角色附属<strong>雷霆探知</strong>。（每回合1次）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 【被动】战斗开始时，在敌方场上生成雷霆探针。
+  term_refs:
+  - 雷霆探针
+summons:
+- name: 轰雷禁锢
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/05/258999284/552ec062eef427f9a1986f92ee19c716_8843394885297317371.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>对附属有<strong><u>雷鸣探知</u></strong><span data-type="详情"
+    data-name="<p><strong>雷鸣探知：</strong></p><p>状态</p><p><strong>此状态存在期间，可以触发1次：</strong>所附属角色受到雷音权现及其召唤物造成的伤害+1。</p><p>（同一方场上最多存在一个此状态。雷音权现的部分技能，会以所附属角色为目标。）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>的敌方角色造成3点<strong><span
+    style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情"
+    data-name="<p style=&quot;white-space: pre-wrap;&quot;>雷元素伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>附着雷元素，可发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（如果敌方不存在符合条件角色，则改为对出战角色造成伤害）</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>可用次数：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>此牌效果触发后，会消耗1次可用次数；</p><p style=&quot;white-space:
+    pre-wrap;&quot;>可用次数耗尽后，立刻弃置此牌。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：1</strong></p>'
+  effect_text: 结束阶段：对附属有雷鸣探知的敌方角色造成3点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。（如果敌方不存在符合条件角色，则改为对出战角色造成伤害）可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">：1
+  term_refs:
+  - 雷鸣探知
+  - 雷元素伤害
+  - 可用次数
+talent:
+  name: 悲号回唱
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/2dd249ed58e8390841360d901bb0908d_6163542617592373016.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;战斗行动：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：我方出战角色为</span><strong><span
+    style="color: rgb(0, 0, 0)">雷音权现</span></strong><span style="color: rgb(0, 0,
+    0)">时，装备此牌。</span></p><p><span style="color: rgb(0, 0, 0)">雷音权现装备此牌后，立刻使用一次</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>雷墙倾轧</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;雷墙倾轧：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素战技&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;对附属有&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;雷鸣探知&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;的敌方色造成3点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;（如果敌方不存在符合条件的角色，则改为对出战角色造成伤害）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p>装备有此牌的<strong><u>雷音权现</u></strong>在场，附属有<strong><u>雷鸣探知</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷鸣探知：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色受到雷音权现及其召唤物造成的伤害时：&lt;/strong&gt;移除此状态，使此伤害+1。&lt;/p&gt;&lt;p&gt;（同一方场上最多存在一个此状态。雷音权现的部分技能，会以所附属角色为目标。）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>的敌方角色受到伤害时:我方抓1张牌。（每回合1次）</p><p>（牌组中包含雷音权现，才能加入牌组）</p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为雷音权现时，装备此牌。
+
+    雷音权现装备此牌后，立刻使用一次雷墙倾轧雷墙倾轧：
+
+    元素战技
+
+    对附属有雷鸣探知的敌方色造成3点雷元素伤害。
+
+    （如果敌方不存在符合条件的角色，则改为对出战角色造成伤害）" class="wiki-note-text">。
+
+    装备有此牌的雷音权现在场，附属有雷鸣探知的敌方角色受到伤害时:我方抓1张牌。（每回合1次）
+
+    （牌组中包含雷音权现，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 雷墙倾轧
+  - 雷鸣探知
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含雷音权现，才能加入牌组
+flavor_html: <p><strong>弥留之恨·雷音权现</strong></p><p>只要土地中的怨恨不消，那雷鸣也不会断绝吧。</p><p></p>
+flavor_text: '弥留之恨·雷音权现
+
+  只要土地中的怨恨不消，那雷鸣也不会断绝吧。'
+terms:
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  雷鸣探知: 状态此状态存在期间，可以触发1次：所附属角色受到雷音权现及其召唤物造成的伤害+1。（同一方场上最多存在一个此状态。雷音权现的部分技能，会以所附属角色为目标。）
+  雷霆探针: 出战状态所在阵营角色使用技能后：对所在阵营出战角色附属雷霆探知。（每回合1次）
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  雷墙倾轧: 元素战技对附属有雷鸣探知的敌方色造成3点雷元素伤害。（如果敌方不存在符合条件的角色，则改为对出战角色造成伤害）
+_raw_path: data/raw/character/500462_雷音权现.json

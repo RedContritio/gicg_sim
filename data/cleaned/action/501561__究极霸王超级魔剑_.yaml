@@ -1,0 +1,38 @@
+id: 501561
+name: 「究极霸王超级魔剑」
+parent_class: action
+sub_class: 装备牌
+tags:
+- 武器
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 武器
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '此牌会记录本局游戏中你打出过的名称不存在于本局最初牌组中的不同名的行动牌数量，称为「声援」。
+
+  如果此牌的「声援」至少为2/4/9，则角色造成的伤害+1/2/3。
+
+  （「双手剑」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/9e7207494a4fdb10df19179ec836623b_6312644579494706091.png
+weapon_type: 双手剑
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/21e68f35af52025a6088ca7aec78ef8f_7867921157902864538.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/ab892756383ed00401a21e1b70ad37f5_2649556033097864555.gif
+flavor_text: '加油·「究极霸王超级魔剑」
+
+  「···才不是什么便宜纸板大剑呢！那个、这个···呃···这可是过去曾经战胜螃蟹大帝的···究极霸王超级魔剑！」
+
+  经过短暂的商议，各位美露莘一致决定，将这柄曾经在过去的映影中大放异彩的，海沫村最强大的剑送给究极无敌的勇者，作为友谊的纪念。'

@@ -1,0 +1,57 @@
+id: 5410
+name: 祭礼弓
+parent_class: action
+desc: 祭礼弓
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/4adb0666f4e171943739e4baa0863b48_5457536750893996771.png
+header_img_url: ''
+version: '1746758869'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+  pre-wrap;">角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）</p><p style="white-space: pre-wrap;">（「弓」角色才能装备。角色最多装备1件「武器」）</p>'
+effect_text: '角色造成的伤害+1。
+
+  角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）
+
+  （「弓」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/bcc66ffd5b7bea190c27be86d18d1fa6_4252069660342348325.png
+weapon_type: 弓
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+    pre-wrap;">角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）</p><p style="white-space: pre-wrap;">（「弓」角色才能装备。角色最多装备1件「武器」）</p>'
+  effect_text: '角色造成的伤害+1。
+
+    角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）
+
+    （「弓」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/4adb0666f4e171943739e4baa0863b48_1918666656424679479.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/861655493c9aebebccf18c1b038fdfda_279705254708092340.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>气定神闲·祭礼弓</strong></p><p style="white-space:
+  pre-wrap;">经历漫长岁月的猎弓，上面的仪式性装饰依然清晰可见。</p>'
+flavor_text: '气定神闲·祭礼弓
+
+  经历漫长岁月的猎弓，上面的仪式性装饰依然清晰可见。'
+_raw_path: data/raw/action/5410_祭礼弓.json

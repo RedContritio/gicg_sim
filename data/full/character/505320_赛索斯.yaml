@@ -1,0 +1,305 @@
+id: 505320
+name: 赛索斯
+title: 衡明知度·赛索斯
+parent_class: character
+desc: 赛索斯卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/f34d34b3dd6e957234e879f1349f7e36_123222053662027837.png
+header_img_url: ''
+version: '1763605900'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 须弥
+  充能:
+  - 4点
+  获取方式:
+  - 猫尾酒馆 · 友好对局
+element: 雷
+weapon: 弓
+faction: *id001
+hp: 10
+energy: 4
+acquire: 猫尾酒馆 · 友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/f34d34b3dd6e957234e879f1349f7e36_4599716883224681823.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/29/258999284/83e6097cceca0e25c3651e275fa77c1f_4587762239900994046.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/12/288180982/de066277f1f3120586b5e9c93c7fdb59_7214707376398149850.png
+skills:
+- name: 王家苇箭术
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/a289c92f1bea8ddad257dd0bb45a7f0e_5557653429161965495.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p><strong>物理伤害</strong>：</p><p>物理伤害不会附着元素，也不会发生元素反应。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 古仪·鸣砂掣雷
+  type: 元素战技
+  raw_life: 2
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/4bf73369fa5d88135d922835143cd6af_1465120113594108114.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">敌方出战角色</span><strong><span style="color:
+    rgb(114, 46, 209)"><u>附着雷元素</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>附着雷元素：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>不通过伤害附着雷元素时，发生的元素反应会忽略伤害效果：</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>超载</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>：目标强制切换到下一个角色</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>超导</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>：没有效果</span></p><p><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>感电</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>：没有效果</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>原激化</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>：生成使下2次草元素或雷元素伤害+1的[</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>激化领域</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>]</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，我方切换到下一个角色。自身附属</span><strong><span style="color: rgb(0, 0, 0)"><u>轰雷凝集</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>轰雷凝集：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>我方角色引发雷元素相关反应</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>后:所附属角色获得1点</span><strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>充能</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：1</span></strong></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 敌方出战角色附着雷元素附着雷元素：不通过伤害附着雷元素时，发生的元素反应会忽略伤害效果：超载：目标强制切换到下一个角色超导：没有效果感电：没有效果原激化：生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">，我方切换到下一个角色。自身附属轰雷凝集轰雷凝集：我方角色引发雷元素相关反应后:所附属角色获得1点充能。可用次数：1"
+    class="wiki-note-text">。
+  term_refs:
+  - 附着雷元素
+  - 轰雷凝集
+- name: 秘仪·瞑光贯影
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 4
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/beeb23fb35fe9eb3733358e0bab70841_6737855537393504262.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成3点</span><strong><span style="color:
+    rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="<p><strong>雷元素伤害</strong>：</p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，自身附属</span><strong><span style="color: rgb(0, 0, 0)"><u>寂想瞑影</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>寂想瞑影：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>所附属角色使用普通攻击时：</span></strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>造成的</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>物理伤害</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>变为</span><strong><span style=&quot;color:
+    rgb(114, 46, 209)&quot;>雷元素伤害</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>，伤害+1，少花费1个</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>无色元素</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>，并且对敌方生命值最低的角色造成1点</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>穿透伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。<br></span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>持续回合：2</span></strong></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成3点雷元素伤害，自身附属寂想瞑影寂想瞑影：状态所附属角色使用普通攻击时：造成的物理伤害变为雷元素伤害，伤害+1，少花费1个无色元素，并且对敌方生命值最低的角色造成1点穿透伤害。持续回合：2"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 寂想瞑影
+  energy_req: 4
+- name: 黑鸢的密喻
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/37808a6df83732f6825ccd12210ca4a3_9041641115482655982.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">自身「普通攻击」不会获得</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>充能：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>角色使用「元素爆发」时，需要消耗充能。</span></p><p><span style=&quot;color: rgb(0,
+    0, 0)&quot;>角色使用「元素战技」或「普通攻击」后，会获得1点充能。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>自身「普通攻击」后：如可能，消耗全部</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>充能：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>角色使用「元素爆发」时，需要消耗充能。</span></p><p><span style=&quot;color: rgb(0,
+    0, 0)&quot;>角色使用「元素战技」或「普通攻击」后，会获得1点充能。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，对生命值最低的敌方造成等额+1的</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>穿透伤害：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 自身「普通攻击」不会获得充能充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。自身「普通攻击」后：如可能，消耗全部充能充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。"
+    class="wiki-note-text">，对生命值最低的敌方造成等额+1的穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">。
+  term_refs:
+  - 充能
+  - 穿透伤害
+summons: []
+talent:
+  name: 巡日塔门书
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 1
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/c76d4ed584fd2bbc82310df761039167_8093719066408174460.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">我方</span><strong><span style="color:
+    rgb(0, 0, 0)">赛索斯</span></strong><span style="color: rgb(0, 0, 0)">获得1点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br>我方赛索斯因</span><strong><span style="color: rgb(0, 0, 0)"><u>黑鸢的密喻</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;黑鸢的密喻：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;被动技能&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;自身「普通攻击」不会获得&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;自身「普通攻击」后：如可能，消耗全部&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，对生命值最低的敌方造成等额+1的&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">扣除</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">后，获得1点</span><strong><span style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含赛索斯，才能加入牌组）</span></p>'
+  effect_text: '我方赛索斯获得1点充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+    我方赛索斯因黑鸢的密喻自身「普通攻击」不会获得充能。
+
+    自身「普通攻击」后：如可能，消耗全部充能，对生命值最低的敌方造成等额+1的穿透伤害。" class="wiki-note-text">扣除充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">后，获得1点充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。（每回合1次）
+
+    （牌组中包含赛索斯，才能加入牌组）'
+  term_refs:
+  - 充能
+  - 黑鸢的密喻
+  deck_constraint: 牌组中包含赛索斯，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  skills:
+  - name: 王家苇箭术
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/a289c92f1bea8ddad257dd0bb45a7f0e_3516098288846428729.png
+    effect_html: <p>造成<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+    effect_text: 造成物理伤害。
+    term_refs:
+    - 物理伤害
+  - name: 秘仪·瞑光贯影
+    type: 元素爆发
+    raw_life: 4
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/4bf73369fa5d88135d922835143cd6af_1763116391784172395.png
+    effect_html: '<p>造成<strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，自身附属<strong><u>寂想瞑影</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;寂想瞑影：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;所附属角色获得+1&lt;strong&gt;&lt;u&gt;额外行动&lt;/u&gt;&lt;/strong&gt;次数。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色「普通攻击」后：&lt;/strong&gt;对敌方生命值最低的角色造成5点&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;持续回合&lt;/u&gt;:
+      2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;额外行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色不会因为额外行动而获得充能。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载：&lt;/strong&gt;伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，目标切换到上个角色，他们交换位置并受到&lt;strong&gt;1&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;所有敌方角色附属&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;层&lt;strong&gt;冻伤&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电：&lt;/strong&gt;所有敌方角色受到&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化：&lt;/strong&gt;生成2层[&lt;strong&gt;激化领域&lt;/strong&gt;]，最多叠加&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;层&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;持续回合：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每回合结束阶段，&lt;strong&gt;持续回合&lt;/strong&gt;-1；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;持续回合&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: '造成雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">，自身附属寂想瞑影雷元素伤害。持续回合: 2额外行动：角色不会因为额外行动而获得充能。雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层持续回合：每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。"
+      class="wiki-note-text">。'
+    term_refs:
+    - 雷元素伤害
+    - 寂想瞑影
+    energy_req: 4
+  - name: 黑鸢的密喻
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/37808a6df83732f6825ccd12210ca4a3_880516256526512783.png
+    effect_html: '<p><strong>我方触发<span style="color: rgb(114, 46, 209)"><u>雷元素相关反应</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(146, 84, 222)&quot;&gt;雷元素相关反应：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，目标切换到上一个角色，他们交换位置并受到1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：所有敌方角色附属&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;层&lt;strong&gt;冻伤&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：所有敌方角色受到&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：生成2层[激化领域]，最多叠加&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;层&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：生成&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;3&lt;/span&gt;&lt;/strong&gt;点护盾&lt;/p&gt;&lt;p&gt;&lt;strong&gt;扩散（雷）&lt;/strong&gt;：伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，对目标以外的所有敌方角色造成1点雷元素伤害&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>后：</strong>自身获得1点<strong><span
+      style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;br&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>结束阶段：</strong>消耗自身全部<strong><span
+      style="color: rgb(0, 0, 0)"><u>充能</u></span></strong>， 对敌方生命值最低的角色造成消耗<strong><span
+      style="color: rgb(0, 0, 0)"><u>充能</u></span></strong>数量2倍的<strong><span style="color:
+      rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载：&lt;/strong&gt;伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，目标切换到上个角色，他们交换位置并受到&lt;strong&gt;1&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;所有敌方角色附属&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;层&lt;strong&gt;冻伤&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电：&lt;/strong&gt;所有敌方角色受到&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化：&lt;/strong&gt;生成2层[&lt;strong&gt;激化领域&lt;/strong&gt;]，最多叠加&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;层&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 我方触发雷元素相关反应雷元素相关反应：超载：伤害+1，目标切换到上一个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层结晶（雷）：生成3点护盾扩散（雷）：伤害+1，对目标以外的所有敌方角色造成1点雷元素伤害"
+      class="wiki-note-text">后：自身获得1点充能充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。"
+      class="wiki-note-text">。结束阶段：消耗自身全部充能， 对敌方生命值最低的角色造成消耗充能数量2倍的雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。
+    term_refs:
+    - 雷元素相关反应
+    - 充能
+    - 雷元素伤害
+flavor_html: <p><strong>衡明知度·赛索斯</strong></p><p>沙海来客，慧心慧业。</p>
+flavor_text: '衡明知度·赛索斯
+
+  沙海来客，慧心慧业。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  附着雷元素: 不通过伤害附着雷元素时，发生的元素反应会忽略伤害效果：超载：目标强制切换到下一个角色超导：没有效果感电：没有效果原激化：生成使下2次草元素或雷元素伤害+1的[激化领域]
+  轰雷凝集: 我方角色引发雷元素相关反应后:所附属角色获得1点充能。可用次数：1
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  寂想瞑影: 状态所附属角色使用普通攻击时：造成的物理伤害变为雷元素伤害，伤害+1，少花费1个无色元素，并且对敌方生命值最低的角色造成1点穿透伤害。持续回合：2
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  黑鸢的密喻: 被动技能自身「普通攻击」不会获得充能。自身「普通攻击」后：如可能，消耗全部充能，对生命值最低的敌方造成等额+1的穿透伤害。
+_raw_path: data/raw/character/505320_赛索斯.json

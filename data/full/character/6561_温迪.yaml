@@ -1,0 +1,260 @@
+id: 6561
+name: 温迪
+title: 风色诗人·温迪
+parent_class: character
+desc: 温迪卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/b8d0f177c157908bbe1ef65774d5a4e5_3540568009560672050.png
+header_img_url: ''
+version: '1769664019'
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 蒙德
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 风
+weapon: 弓
+faction: *id001
+hp: 12
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/b8d0f177c157908bbe1ef65774d5a4e5_6672388573788855956.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/b91ea3d68e589b716faeca07538c23a9_8366162320011624683.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/1542ad39ad316c7953a462c2cc4250a8_9042117821767420584.png
+skills:
+- name: 神代射术
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    风: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/949d07ba4f72b33b739fb0ed413a7fa2_5967980755956548360.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 高天之歌
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/73d15303525e2658bf60d8336109d92e_404486790465744082.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(54,
+    207, 201)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（冰）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（水）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（火）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（雷）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong>风域</strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;风域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方执行「切换角色」行动时：&lt;/strong&gt;少花费1个元素骰。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害"
+    class="wiki-note-text">，生成风域。
+  term_refs:
+  - 风元素伤害
+  - 风域
+- name: 风神之诗
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/3e4ec3f94bfd2547b1431d8fa2cd2889_8125698290989309719.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(54,
+    207, 201)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（冰）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（水）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（火）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（雷）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>暴风之眼</em></strong>。</p>'
+  effect_text: 造成2点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害"
+    class="wiki-note-text">，召唤暴风之眼。
+  term_refs:
+  - 风元素伤害
+  energy_req: 2
+summons:
+- name: 暴风之眼
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/17/183046623/b0b8a8e9a43548bc39fceba101ea0ab6_1760632395524982528.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>造成2点<strong><span style="color: rgb(54, 207,
+    201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(54, 207, 201)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（冰）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（水）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（火）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（雷）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，对方切换到<strong><u>距离我方出战角色最近的角色</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;距离我方出战角色最近的角色：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;对方场上距离我方出战角色「最近」的角色，指的是位置与我方出战角色最接近的敌方角色。&lt;/p&gt;&lt;p&gt;如果存在多个位置最接近的角色，则其中靠前的角色被视为「最近」。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：2</strong></p><p><strong>我方角色或召唤物引发扩散反应后：</strong>转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）</p>'
+  effect_text: 结束阶段：造成2点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害"
+    class="wiki-note-text">，对方切换到距离我方出战角色最近的角色。可用次数：2我方角色或召唤物引发扩散反应后：转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）
+  term_refs:
+  - 风元素伤害
+  - 距离我方出战角色最近的角色
+  - 可用次数
+talent:
+  name: 绪风之拥
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/f46cfa06d1b3ebe29fe8ed2c986b4586_5424294510362454542.png
+  effect_html: '<html><head></head><body><p><strong><u>战斗行动</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>温迪</strong>时，装备此牌。</p><p>温迪装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>高天之歌</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;高天之歌：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成2点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(54, 207, 201)&#34;&gt;&lt;u&gt;风元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，生成&lt;strong&gt;风域。&lt;/strong&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;风域&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方执行「切换角色」行动时：&lt;/strong&gt;少花费1个元素骰。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(54, 207, 201)&#34;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（冰）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（水）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（火）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（雷）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的温迪生成的<strong>风域</strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;风域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方执行「切换角色」行动时：&lt;/strong&gt;少花费1个元素骰。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>触发后，会使本回合中我方角色下次<strong>「普通攻击」</strong>少花费1个<strong><u>无色元素</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;无色元素：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;可以用任意类型的元素骰子组合，来支付此费用。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含温迪，才能加入牌组）</p></body></html>'
+  effect_text: '战斗行动：我方出战角色为温迪时，装备此牌。
+
+    温迪装备此牌后，立刻使用一次高天之歌风元素伤害，生成风域。
+
+    风域
+
+    我方执行「切换角色」行动时：少花费1个元素骰。
+
+    可用次数：2
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。
+
+    风元素伤害：
+
+    和已附着的元素发生元素反应：
+
+    扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害
+
+    扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害
+
+    扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害
+
+    扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害" class="wiki-note-text">。
+
+    装备有此牌的温迪生成的风域触发后，会使本回合中我方角色下次「普通攻击」少花费1个无色元素。
+
+    （牌组中包含温迪，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 高天之歌
+  - 风域
+  - 无色元素
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含温迪，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 12
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '3'
+  skills:
+  - name: 高天之歌
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/73d15303525e2658bf60d8336109d92e_7885579187862871621.png
+    effect_html: '<p>造成<strong><span style="color: rgb(19, 194, 194)"><u>风元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(19, 194, 194)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(冰)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(水)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(火)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(雷)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong>风域</strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;风域：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方执行&lt;u&gt;蓄力&lt;/u&gt;后：&lt;/strong&gt;获得1次&lt;strong&gt;&lt;u&gt;额外行动&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蓄力：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;完成对应次数的蓄力行动后，才能释放对应技能。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;额外行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色不会因为额外行动而获得充能。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成风元素伤害风元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。扩散(冰)：伤害+1，对目标以外的所有敌方角色造成1点冰元素伤害扩散(水)：伤害+1，对目标以外的所有敌方角色造成1点水元素伤害扩散(火)：伤害+1，对目标以外的所有敌方角色造成1点火元素伤害扩散(雷)：伤害+1，对目标以外的所有敌方角色造成1点雷元素伤害"
+      class="wiki-note-text">，生成风域。
+    term_refs:
+    - 风元素伤害
+    - 风域
+  - name: 风神之诗
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/3e4ec3f94bfd2547b1431d8fa2cd2889_4991956736433178554.png
+    effect_html: '<p>造成<strong><span style="color: rgb(19, 194, 194)"><u>风元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(19, 194, 194)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(冰)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(水)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(火)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(雷)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，打乱敌方顺序，基于自身攻击力召唤可用次数2的<strong><em>暴风之眼</em></strong>。</p>'
+    effect_text: 造成风元素伤害风元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。扩散(冰)：伤害+1，对目标以外的所有敌方角色造成1点冰元素伤害扩散(水)：伤害+1，对目标以外的所有敌方角色造成1点水元素伤害扩散(火)：伤害+1，对目标以外的所有敌方角色造成1点火元素伤害扩散(雷)：伤害+1，对目标以外的所有敌方角色造成1点雷元素伤害"
+      class="wiki-note-text">，打乱敌方顺序，基于自身攻击力召唤可用次数2的暴风之眼。
+    term_refs:
+    - 风元素伤害
+    energy_req: 2
+  summons:
+  - name: 暴风之眼
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/b0b8a8e9a43548bc39fceba101ea0ab6_7495840102648989303.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong>我方阵营「切换角色」时及结束阶段：</strong>造成<strong><span style="color:
+      rgb(19, 194, 194)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(19, 194, 194)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(冰)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(水)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(火)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散(雷)：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;span&gt;，对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，对方切换到上一个角色。</p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：2</strong></p><p><strong>我方角色或召唤物引发扩散反应后：</strong>转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）</p>'
+    effect_text: 我方阵营「切换角色」时及结束阶段：造成风元素伤害风元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。扩散(冰)：伤害+1，对目标以外的所有敌方角色造成1点冰元素伤害扩散(水)：伤害+1，对目标以外的所有敌方角色造成1点水元素伤害扩散(火)：伤害+1，对目标以外的所有敌方角色造成1点火元素伤害扩散(雷)：伤害+1，对目标以外的所有敌方角色造成1点雷元素伤害"
+      class="wiki-note-text">，对方切换到上一个角色。可用次数：2我方角色或召唤物引发扩散反应后：转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）
+    term_refs:
+    - 风元素伤害
+    - 可用次数
+flavor_html: <p><strong>风色诗人·温迪</strong></p><p>「四季轮转，四风从不止息。」</p><p>「当然啦，功劳也不是它们的，主要是我的。」</p><p>「要是没有吟游诗人，谁去把这些传唱？」</p>
+flavor_text: '风色诗人·温迪
+
+  「四季轮转，四风从不止息。」
+
+  「当然啦，功劳也不是它们的，主要是我的。」
+
+  「要是没有吟游诗人，谁去把这些传唱？」'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害
+  距离我方出战角色最近的角色: 对方场上距离我方出战角色「最近」的角色，指的是位置与我方出战角色最接近的敌方角色。如果存在多个位置最接近的角色，则其中靠前的角色被视为「最近」。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  高天之歌: 元素战技造成2点风元素伤害，生成风域。风域我方执行「切换角色」行动时：少花费1个元素骰。可用次数：2可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害
+  无色元素: 可以用任意类型的元素骰子组合，来支付此费用。
+_raw_path: data/raw/character/6561_温迪.json

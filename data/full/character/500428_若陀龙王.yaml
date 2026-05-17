@@ -1,0 +1,235 @@
+id: 500428
+name: 若陀龙王
+title: 古岩龙祖·若陀龙王
+parent_class: character
+desc: 若陀龙王卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/521fdaa2d51e93166ccbf2a91a1047aa_2643103348244869704.png
+header_img_url: ''
+version: '1761099956'
+attr:
+  元素:
+  - 岩元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 岩
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/521fdaa2d51e93166ccbf2a91a1047aa_2809827424052136166.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/54451bfe36678c1e4ae0146b2af6c0d1_1506129926223417789.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/de066277f1f3120586b5e9c93c7fdb59_6518520629863086927.png
+skills:
+- name: 碎岩冲撞
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    岩: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/3fc09347f9190951a7773d52b1bc7181_3551351384188137135.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 磅礴之气
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/b49c1863d6b6a61ec13501c27d8204bf_1566255463657696734.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(212, 107, 8)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(212,
+    107, 8)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，如果发生了结晶反应，则角色</span><strong><span style="color: rgb(0, 0, 0)"><u>汲取对应元素的力量</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;汲取对应元素的力量：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;若陀龙王可以汲取&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素的力量。（同时只能汲取其中一种）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;若陀龙王已汲取上述元素的力量时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;根据所汲取的元素类型，获得技能&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;霜刺破袭&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;洪流重斥&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;炽焰重斥&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;霆雷破袭&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>如果本技能中角色未汲取元素的力量，则附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>磐岩百相·元素凝晶</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;磐岩百相·元素凝晶：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色受到&lt;/span&gt;&lt;span style=&quot;color:
+    rgb(145, 213, 255)&quot;&gt;冰&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(24, 144, 255)&quot;&gt;水&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(245, 34, 45)&quot;&gt;火&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(114, 46, 209)&quot;&gt;雷&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0,
+    0)&quot;&gt;元素伤害后：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;如果角色当前未汲取该元素的力量，则移除此状态，然后角色&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;&lt;u&gt;汲取对应元素的力量&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;汲取对应元素的力量：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;若陀龙王可以汲取&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素的力量。（同时只能汲取其中一种）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;若陀龙王已汲取上述元素的力量时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;根据所汲取的元素类型，获得技能&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;霜刺破袭&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;洪流重斥&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;炽焰重斥&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;霆雷破袭&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成3点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，如果发生了结晶反应，则角色汲取对应元素的力量汲取对应元素的力量：若陀龙王可以汲取冰/水/火/雷元素的力量。（同时只能汲取其中一种）若陀龙王已汲取上述元素的力量时：根据所汲取的元素类型，获得技能霜刺破袭/洪流重斥/炽焰重斥/霆雷破袭。"
+    class="wiki-note-text">。如果本技能中角色未汲取元素的力量，则附属磐岩百相·元素凝晶磐岩百相·元素凝晶：状态角色受到冰/水/火/雷元素伤害后：如果角色当前未汲取该元素的力量，则移除此状态，然后角色汲取对应元素的力量。汲取对应元素的力量：若陀龙王可以汲取冰/水/火/雷元素的力量。（同时只能汲取其中一种）若陀龙王已汲取上述元素的力量时：根据所汲取的元素类型，获得技能霜刺破袭/洪流重斥/炽焰重斥/霆雷破袭。"
+    class="wiki-note-text">。
+  term_refs:
+  - 岩元素伤害
+  - 汲取对应元素的力量
+  - 磐岩百相·元素凝晶
+- name: 山崩毁阵
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/eeb2325a52556c0f9259eb3d47807c45_994928579787374692.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成4点</span><strong><span style="color:
+    rgb(212, 107, 8)"><u>岩元素伤害</u></span></strong><span style="color: rgb(0, 0, 0)"><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(212,
+    107, 8)&quot;&gt;岩元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（水）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（火）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;结晶（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，每汲取过一种元素此伤害+1。</span></p>'
+  effect_text: 造成4点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，每汲取过一种元素此伤害+1。
+  term_refs:
+  - 岩元素伤害
+  energy_req: 2
+- name: 磐岩百相
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/19/258999284/3c29d28a60d100687cf9968a3a278e4d_5040009350976601315.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">【被动】战斗开始时，初始附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>磐岩百相·元素汲取</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;磐岩百相·元素汲取：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色可以汲取&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素的力量，然后根据所汲取的元素类型，获得技能&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;霜刺破袭&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;洪流重斥&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;炽焰重斥&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;霆雷破袭&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（角色同时只能汲取一种元素，此状态会记录角色已汲取过的元素类型数量）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色汲取了一种和当前不同的元素后：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;生成1个所汲取元素类型的元素骰。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 【被动】战斗开始时，初始附属磐岩百相·元素汲取磐岩百相·元素汲取：状态角色可以汲取冰/水/火/雷元素的力量，然后根据所汲取的元素类型，获得技能霜刺破袭/洪流重斥/炽焰重斥/霆雷破袭。（角色同时只能汲取一种元素，此状态会记录角色已汲取过的元素类型数量）角色汲取了一种和当前不同的元素后：生成1个所汲取元素类型的元素骰。"
+    class="wiki-note-text">。
+  term_refs:
+  - 磐岩百相·元素汲取
+summons: []
+talent:
+  name: 晦朔千引
+  type: 装备牌
+  raw_life: 2
+  raw_life_bg: 9
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    同色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/5fd09f6cb9ecdc308105a2965989fdec_8926245029319639381.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">若陀龙王</span></strong><span
+    style="color: rgb(0, 0, 0)">时，对该角色打出。使若陀龙王附属</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>磐岩百相·元素凝晶</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;磐岩百相·元素凝晶：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色受到&lt;/span&gt;&lt;span style=&quot;color:
+    rgb(145, 213, 255)&quot;&gt;冰&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0,
+    0)&quot;&gt;/&lt;/span&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;/&lt;/span&gt;&lt;span style=&quot;color:
+    rgb(245, 34, 45)&quot;&gt;火&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0,
+    0)&quot;&gt;/&lt;/span&gt;&lt;span style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素伤害后：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;如果角色当前未汲取该元素的力量，则移除此状态，然后角色&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;汲取对应元素的力量&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，然后生成每种我方角色所具有的元素类型的元素骰各1个。<br>（牌组中包含若陀龙王，才能加入牌组）</span></p>'
+  effect_text: '战斗行动：我方出战角色为若陀龙王时，对该角色打出。使若陀龙王附属磐岩百相·元素凝晶磐岩百相·元素凝晶：
+
+    状态
+
+    角色受到冰/水/火/雷元素伤害后：如果角色当前未汲取该元素的力量，则移除此状态，然后角色汲取对应元素的力量。" class="wiki-note-text">，然后生成每种我方角色所具有的元素类型的元素骰各1个。
+
+    （牌组中包含若陀龙王，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 磐岩百相·元素凝晶
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含若陀龙王，才能加入牌组
+flavor_html: <p><strong>古岩龙祖·若陀龙王</strong></p><p>枷锁的隐隐震响与龙祖低沉的怒吼，同记忆一般在山峦间回荡。</p>
+flavor_text: '古岩龙祖·若陀龙王
+
+  枷锁的隐隐震响与龙祖低沉的怒吼，同记忆一般在山峦间回荡。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  岩元素伤害: 和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+  汲取对应元素的力量: 若陀龙王可以汲取冰/水/火/雷元素的力量。（同时只能汲取其中一种）若陀龙王已汲取上述元素的力量时：根据所汲取的元素类型，获得技能霜刺破袭/洪流重斥/炽焰重斥/霆雷破袭。
+  磐岩百相·元素凝晶: 状态角色受到冰/水/火/雷元素伤害后：如果角色当前未汲取该元素的力量，则移除此状态，然后角色汲取对应元素的力量。汲取对应元素的力量：若陀龙王可以汲取冰/水/火/雷元素的力量。（同时只能汲取其中一种）若陀龙王已汲取上述元素的力量时：根据所汲取的元素类型，获得技能霜刺破袭/洪流重斥/炽焰重斥/霆雷破袭。
+  磐岩百相·元素汲取: 状态角色可以汲取冰/水/火/雷元素的力量，然后根据所汲取的元素类型，获得技能霜刺破袭/洪流重斥/炽焰重斥/霆雷破袭。（角色同时只能汲取一种元素，此状态会记录角色已汲取过的元素类型数量）角色汲取了一种和当前不同的元素后：生成1个所汲取元素类型的元素骰。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+_raw_path: data/raw/character/500428_若陀龙王.json

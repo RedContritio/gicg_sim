@@ -1,0 +1,22 @@
+# r009 BC ep=0 ckpt 7-baseline gauntlet (Phase 4 quality gate).
+#
+# epoch_0.pt = 训练 1 epoch 后,hold-out hard_match=0.526
+# (>PPO BC ceiling 0.387,>Phase 4 gate 0.50).
+#
+# 期望 vs F1-D2 在 0.50 附近(教师 self-play 同水平),
+# 直接突破 PPO Stage 3 ceiling 0.34。
+
+socket = "/var/run/gicg/eval.sock"
+ckpt = "artifacts/202604270918_r009_bc_pretrain_stage3/epoch_0.pt"
+out_dir = "artifacts/202604270918_r009_bc_pretrain_stage3"
+
+teams = ["测试角色D"]
+card_pool = ["测试卡_碎片"]
+max_rounds = 3
+obs_mask = ["enemy_dice"]
+fix_dice = "none"
+games_per_cell = 8  # n=16 per matchup with swap_sides
+seed = 0
+
+[meta]
+paradigm = "bc"

@@ -1,0 +1,94 @@
+id: 508357
+name: 天才之为构造之责任
+parent_class: action
+desc: 天才之为构造之责任
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  水: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/be2e26f9fedcd9f7641d94b885688034_7095518496120805530.png
+header_img_url: ''
+version: '1775704069'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆挑战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 6
+raw_energy: 2
+raw_energy_bg: 8
+effect_html: '<html><head></head><body><p><strong><u>战斗行动</u></strong><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>爱诺</strong>时，装备此牌。</p><p>爱诺装备此牌后，立刻使用一次<strong><span
+  style="color: rgb(212, 177, 6)"><u>精密水冷仪</u></span></strong><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;精密水冷仪：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素爆发&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成2点&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(24, 144, 255)&#34;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，召唤冷静一下鸭。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;冷静一下鸭&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;造成2点&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(24, 144, 255)&#34;&gt;&lt;u&gt;水元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;元素爆发：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(24, 144, 255)&#34;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p&gt;&lt;strong&gt;月感电：&lt;/strong&gt;生成回合结束时造成2点雷元素伤害的[&lt;strong&gt;雷暴云&lt;/strong&gt;]。（可用次数1，可叠加，没有上限，入场或可用次数增加时，赋予敌方随机1张手牌[&lt;strong&gt;电击&lt;/strong&gt;]）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong>装备有此卡牌的爱诺在场时，我方触发感电、月感电、绽放及月绽放反应时：</strong>该次伤害+2，并且赋予我方<strong><u>当前元素骰费用</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;当前元素骰费用&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;行动牌被赋予&lt;strong&gt;费用增加&lt;/strong&gt;和&lt;strong&gt;费用降低&lt;/strong&gt;时，当前元素骰费用会对应变化。&lt;/p&gt;&lt;p&gt;（打出时少花费元素骰的效果不会影响此费用）&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>最高的1张手牌<strong><u>赋能</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;赋能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌费用改为花费对应数量的任意元素骰。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;调和此牌时：&lt;/strong&gt;转换的元素类型改为&lt;strong&gt;万能元素&lt;/strong&gt;。
+  &lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（每回合1次）</p><p>（牌组中包含爱诺，才能加入牌组）</p></body></html>'
+effect_text: '战斗行动：我方出战角色为爱诺时，装备此牌。
+
+  爱诺装备此牌后，立刻使用一次精密水冷仪水元素伤害，召唤冷静一下鸭。
+
+  冷静一下鸭
+
+  结束阶段：造成2点水元素伤害。
+
+  可用次数：2
+
+  元素爆发：
+
+  角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。
+
+  水元素伤害：
+
+  附着水元素，可发生元素反应：
+
+  蒸发：本伤害+2
+
+  感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+  冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+  绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+
+  月感电：生成回合结束时造成2点雷元素伤害的[雷暴云]。（可用次数1，可叠加，没有上限，入场或可用次数增加时，赋予敌方随机1张手牌[电击]）
+
+  可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+  装备有此卡牌的爱诺在场时，我方触发感电、月感电、绽放及月绽放反应时：该次伤害+2，并且赋予我方当前元素骰费用最高的1张手牌赋能。（每回合1次）
+
+  （牌组中包含爱诺，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 精密水冷仪
+- 赋能
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  精密水冷仪: 元素爆发造成2点水元素伤害，召唤冷静一下鸭。冷静一下鸭结束阶段：造成2点水元素伤害。可用次数：2元素爆发：角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]月感电：生成回合结束时造成2点雷元素伤害的[雷暴云]。（可用次数1，可叠加，没有上限，入场或可用次数增加时，赋予敌方随机1张手牌[电击]）可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  当前元素骰费用: 行动牌被赋予费用增加和费用降低时，当前元素骰费用会对应变化。（打出时少花费元素骰的效果不会影响此费用）
+  赋能: 此牌费用改为花费对应数量的任意元素骰。调和此牌时：转换的元素类型改为万能元素。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/d08c736ffd58960cac4e7033dd69a0a3_5000620888739440950.png
+energy_req: 2
+duration: 可用次数2
+requires_char: 爱诺
+deck_constraint: 牌组中包含爱诺，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/09/80663279/be2e26f9fedcd9f7641d94b885688034_4719055711681842693.png
+flavor_html: <p></p>
+flavor_text: ''
+_raw_path: data/raw/action/508357_天才之为构造之责任.json

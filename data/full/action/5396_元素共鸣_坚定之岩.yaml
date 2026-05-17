@@ -1,0 +1,64 @@
+id: 5396
+name: 元素共鸣：坚定之岩
+parent_class: action
+desc: 元素共鸣：坚定之岩
+sub_class: 事件牌
+tags: &id001
+- 元素共鸣
+cost_text: '1'
+cost:
+  岩: 1
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/504be5406c58bbc3e269ceb8780eaa54_9131936239236910366.png
+header_img_url: ''
+version: '1755483623'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 7
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p>为我方出战角色提供3点<strong><u>护盾</u></strong><span data-type="详情" data-name="&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;护盾&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组包含至少2个岩元素角色，才能加入牌组）</p>'
+effect_text: '为我方出战角色提供3点护盾护盾
+
+  此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+
+  " class="wiki-note-text">。
+
+  （牌组包含至少2个岩元素角色，才能加入牌组）'
+term_refs: []
+terms:
+  护盾: 此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/2593ff944f9f2068cb0e676923bd69e2_2661263938816544587.png
+deck_constraint: 牌组包含至少2个岩元素角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_html: '<p>为我方出战角色提供3点<strong><u>护盾</u></strong><span data-type="详情" data-name="&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;护盾&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap; min-height: 1.5em;&quot;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p><p>（牌组包含至少2个岩元素角色，才能加入牌组）</p>'
+  effect_text: '为我方出战角色提供3点护盾护盾
+
+    此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+
+    " class="wiki-note-text">。
+
+    （牌组包含至少2个岩元素角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/504be5406c58bbc3e269ceb8780eaa54_8358329092517997158.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/4a59f2e0aa0d8d3589ce055e853e5d0f_7219522558375624199.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;">山骞不崩，磐石为镇。</p>'
+flavor_text: 山骞不崩，磐石为镇。
+_raw_path: data/raw/action/5396_元素共鸣_坚定之岩.json

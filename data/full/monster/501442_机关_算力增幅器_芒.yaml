@@ -1,0 +1,113 @@
+id: 501442
+name: 机关·算力增幅器·芒
+title: 机关·算力增幅器·芒
+parent_class: monster
+desc: 机关·算力增幅器·芒卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/083a4c79806a6f84aa15160cfb4f1cd6_5079945996241290527.png
+header_img_url: ''
+version: '1717725704'
+attr:
+  元素:
+  - 物理
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - '1'
+  获取方式:
+  - 无
+element: ''
+weapon: 其他武器
+faction: *id001
+hp: 4
+energy: 1
+acquire: 无
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/083a4c79806a6f84aa15160cfb4f1cd6_5239029768189078677.png
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/e0715828c8478435f762c411a2ea63de_6296704219407557477.png
+skills:
+- name: 冲撞
+  type: 普通攻击
+  raw_life: 3
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/03e9e5156cb9ba4e033d60fd5541a6b5_5381923137129824956.jpg
+  effect_html: '<p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 能量增幅·芒
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    同色: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/bd728981a7dd2c27a3c6a129463bf0d7_2387491045460558722.png
+  effect_html: '<p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，本角色附属<strong><u>能量强化·芒</u></strong><span
+    data-type="详情" data-name="<p>能量强化·芒：</p><p>状态</p><p>所附属角色的机体修复·芒触发时，提供的治疗量+1。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">，本角色附属能量强化·芒。
+  term_refs:
+  - 物理伤害
+  - 能量强化·芒
+- name: 能量爆轰·芒
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 1
+  raw_energy_bg: 8
+  cost:
+    同色: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/3a67c947c7fe772eecb290511c651d68_8669445285272126710.png
+  effect_html: '<p>造成3点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，本角色附属<strong><u>能量强化·芒</u></strong><span
+    data-type="详情" data-name="<p>能量强化·芒：</p><p>状态</p><p>所附属角色的机体修复·芒触发时，提供的治疗量+1。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">，本角色附属能量强化·芒。
+  term_refs:
+  - 物理伤害
+  - 能量强化·芒
+  energy_req: 1
+- name: 机体修复·芒
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/991111dd0a4b3fe3bac6ba6916790837_1255119562594684085.png
+  effect_html: <p><strong>我方角色使用技能后：</strong>治疗我方受伤害最多的角色1点。</p>
+  effect_text: 我方角色使用技能后：治疗我方受伤害最多的角色1点。
+  term_refs: []
+- name: 能源特征：芒性
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/07/183046623/4ae633299dfbc032574042600ae4cd90_6625212858174112587.png
+  effect_html: <p><strong>受到具有「始基力：荒性」的角色造成的伤害后：</strong>此角色转换为<strong>「<u>失能形态</u>」</strong><span
+    data-type="详情" data-name="<p>失能形态：</p><p>具有「能源特征：荒性」或「能源特征：芒性」的「发条机关」在受到具有相反性质「始基力」的伤害后，会发生荒芒湮灭效应，并转换为「失能形态」。</p><p>「发条机关」处于「失能形态」时无法使用原本的技能，只能使用「失能形态」的技能。「失能形态」下的技能不会造成元素伤害，只能造成物理伤害。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，并且直到本回合结束前<strong>无法使用技能</strong>。</p>
+  effect_text: 受到具有「始基力：荒性」的角色造成的伤害后：此角色转换为「失能形态」，并且直到本回合结束前无法使用技能。
+  term_refs:
+  - 失能形态
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  能量强化·芒: 状态所附属角色的机体修复·芒触发时，提供的治疗量+1。
+_raw_path: data/raw/monster/501442_机关_算力增幅器_芒.json

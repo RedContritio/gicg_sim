@@ -1,0 +1,43 @@
+id: 506926
+name: 昔日宗室之仪
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '3'
+cost:
+  无色: 3
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 圣遗物
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '入场时：使所附属角色获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+  所附属角色使用「元素爆发」后：我方角色下3次造成的伤害+1。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 充能
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/f21fd5a782dead6518d879c718eea643_2393604034741014077.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/405efd1f1e1709be215ce7373607a9ec_2139476310287217630.gif
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/405efd1f1e1709be215ce7373607a9ec_4018251749920265432.gif
+flavor_text: '过往年岁·昔日宗室之仪
+
+  「这不仅仅是因为他们拥有天生高贵的血脉，也因为他们坚守美德，抱持着原则与尊重。
+
+  后来，纵欲缩短了贵族的寿命，退化了他们以华美自矜的容颜。」'

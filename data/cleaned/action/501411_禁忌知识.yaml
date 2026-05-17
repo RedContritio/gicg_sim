@@ -1,0 +1,31 @@
+id: 501411
+name: 禁忌知识
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 其他标签
+  获取:
+  - 赤王陵效果生成
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '无法使用此牌进行元素调和，且每回合最多只能打出1张「禁忌知识」。
+
+  对我方出战角色造成1点穿透伤害，抓1张牌。'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/7a8c85830ce44927460008304d7f73ed_3992236721324540435.png
+generated_by: 赤王陵效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/fe20720734d5041d50cf6eab08689916_4005807733738928635.png
+flavor_text: ''

@@ -1,0 +1,29 @@
+# s019: BC pretrain on Stage 2 data (s018).
+#
+# Same arch + hparams as s016d (the Stage 1 config that reached 73%
+# soft_match). Comparison vs s016d is meaningful: same teacher, same
+# net, only difference is obs (Stage 1 full vs Stage 2 enemy_dice
+# masked). A drop in soft_match quantifies the information loss.
+
+run_label = "s019_bc_pretrain_stage2"
+
+dataset = "artifacts/202604250559_s018_bc_data_gen_stage2/dataset.npz"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_epochs = 60
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 1000
+
+[meta]
+paradigm = "bc"

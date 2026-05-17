@@ -1,0 +1,40 @@
+id: 5446
+name: 参量质变仪
+parent_class: action
+desc: 参量质变仪
+sub_class: 支援牌
+tags: &id001
+- 道具
+cost_text: '2'
+cost:
+  无色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/380f0bb73ffac88a2e8b60a1069a8246_3779576916894165131.png
+header_img_url: ''
+version: '1687837114'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">双方角色使用技能后：如果造成了元素伤害，此牌累积1个「质变进度」。当此牌已累积3个「质变进度」时，弃置此牌：生成3个不同的基础元素骰子。</p>'
+effect_text: 双方角色使用技能后：如果造成了元素伤害，此牌累积1个「质变进度」。当此牌已累积3个「质变进度」时，弃置此牌：生成3个不同的基础元素骰子。
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/f5dd60d41187c41067aa90014d9c54c2_3615016131455183462.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/380f0bb73ffac88a2e8b60a1069a8246_8648617594447635466.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/27f80a7e2eff06f4498f01f4b17b0759_3518570170727012608.gif
+flavor_html: '<p style="white-space: pre-wrap;"><strong>恒态轮转·参量质变</strong></p><p style="white-space:
+  pre-wrap;">「普遍而言，地上地下的一切都在循环，记忆与元素在地脉中恒常奔涌。」</p><p style="white-space: pre-wrap;">「或许，古早的文明正试图触达…从尘土到瑰宝的轮转法则。」</p>'
+flavor_text: '恒态轮转·参量质变
+
+  「普遍而言，地上地下的一切都在循环，记忆与元素在地脉中恒常奔涌。」
+
+  「或许，古早的文明正试图触达…从尘土到瑰宝的轮转法则。」'
+_raw_path: data/raw/action/5446_参量质变仪.json

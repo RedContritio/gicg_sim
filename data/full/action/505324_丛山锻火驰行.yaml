@@ -1,0 +1,97 @@
+id: 505324
+name: 丛山锻火驰行
+parent_class: action
+desc: 丛山锻火驰行卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '2'
+cost:
+  岩: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/948de7cc9342fabe613ec2ab1a4c7fd8_8053426705978558040.png
+header_img_url: ''
+version: '1746583917'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 7
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">希诺宁</span></strong><span
+  style="color: rgb(0, 0, 0)">时，装备此牌。<br>希诺宁装备此牌后，立刻使用一次</span><strong><span style="color:
+  rgb(0, 0, 0)"><u>音火锻淬</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;音火锻淬：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素战技&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;本角色附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;刃轮装束&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，进入&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;并获得1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（角色进入&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;后不可使用此技能）&lt;br&gt;（附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;刃轮装束&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;的角色可以使用特技：&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;高速腾跃&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br></span><strong><span
+  style="color: rgb(0, 0, 0)">装备有此牌的希诺宁</span></strong><span style="color: rgb(0,
+  0, 0)">在场时：切换至希诺宁或由希诺宁切换至其他角色时，若目标处于</span><strong><span style="color: rgb(0, 0,
+  0)"><u>夜魂加持</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多累积到2点）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">状态，则回复1点夜魂值。（每回合2次）<br>（牌组中包含希诺宁，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为希诺宁时，装备此牌。
+
+  希诺宁装备此牌后，立刻使用一次音火锻淬音火锻淬：
+
+  元素战技
+
+  本角色附属刃轮装束，进入夜魂加持并获得1点「夜魂值」。（角色进入夜魂加持后不可使用此技能）
+
+  （附属刃轮装束的角色可以使用特技：高速腾跃）" class="wiki-note-text">。
+
+  装备有此牌的希诺宁在场时：切换至希诺宁或由希诺宁切换至其他角色时，若目标处于夜魂加持夜魂加持：
+
+  状态
+
+  所附属角色可累积「夜魂值」。（最多累积到2点）" class="wiki-note-text">状态，则回复1点夜魂值。（每回合2次）
+
+  （牌组中包含希诺宁，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 音火锻淬
+- 夜魂加持
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  音火锻淬: 元素战技本角色附属刃轮装束，进入夜魂加持并获得1点「夜魂值」。（角色进入夜魂加持后不可使用此技能）（附属刃轮装束的角色可以使用特技：高速腾跃）
+  夜魂加持: 状态所附属角色可累积「夜魂值」。（最多累积到2点）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/9c612b3f541dda9cefb89db8c07479bc_6080451600180081045.png
+requires_char: 希诺宁
+deck_constraint: 牌组中包含希诺宁，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/948de7cc9342fabe613ec2ab1a4c7fd8_3345062314156566314.png
+flavor_html: <p><strong>希诺宁·丛山锻火驰行</strong></p><p>「沸腾吧，山之血！」</p>
+flavor_text: '希诺宁·丛山锻火驰行
+
+  「沸腾吧，山之血！」'
+_raw_path: data/raw/action/505324_丛山锻火驰行.json

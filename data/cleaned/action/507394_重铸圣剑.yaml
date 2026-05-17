@@ -1,0 +1,31 @@
+id: 507394
+name: 重铸圣剑
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '4'
+cost:
+  无色: 4
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 其他标签
+  获取:
+  - 自体自身之塔效果生成
+  花费:
+  - '4'
+raw_life: 4
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: 治疗目标角色12点，使其获得效果：重击后：造成5点该角色元素类型的伤害。
+term_refs:
+- 重击
+terms:
+  重击: 我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/0ab78ee1386d42288358972c012a3bb1_8676105782260820870.png
+generated_by: 自体自身之塔效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/06104e44e99e64730577181faff351db_4825720484924612570.png
+flavor_text: ''

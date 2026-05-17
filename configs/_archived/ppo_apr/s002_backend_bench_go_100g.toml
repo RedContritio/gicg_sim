@@ -1,0 +1,23 @@
+# s002: Phase A Go — backend comparison vs s001 (Python).
+# Identical config to s001 except [mcts.backend]. Judged jointly
+# with s001 on wall_s + loss alignment + g100 gauntlet.
+
+base = "random_1v1"
+run_label = "s002_backend_bench_go_100g"
+
+n_games = 100
+n_workers = 4
+batch_size = 64
+games_per_arena = 50
+games_per_gauntlet = 100
+checkpoint_every_n_games = 100
+
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+
+[train]
+delta_aux_coef = 1.0
+
+[meta]
+paradigm = "az"

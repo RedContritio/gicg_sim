@@ -1,0 +1,41 @@
+id: 5453
+name: 卯师傅
+parent_class: action
+sub_class: 支援牌
+tags:
+- 伙伴
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 伙伴
+  获取:
+  - 卡牌商店购买、完成挑战目标
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '打出「料理」事件牌后：生成1个随机基础元素骰。(每回合1次）
+
+  打出「料理」事件牌后：从牌组中随机抽取1张「料理」事件牌。(整场牌局限制1次）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/8c5a4f348a3a8017500c15e9cd0c5c15_3514256343513118939.png
+variants:
+- mode: 标准
+  effect_text: '打出「料理」事件牌后：生成1个随机基础元素骰。(每回合1次）
+
+    打出「料理」事件牌后：从牌组中随机抽取1张「料理」事件牌。(整场牌局限制1次）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/430ad3710929867f9a4da3cb40812181_3109488257851299648.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/ce3c288afdaf46566d9f34fb527429cf_7101287134197780922.gif
+jiqiao: true
+flavor_text: '灵光入味·卯师傅
+
+  「用最大众的食材，最普适的口味，最精湛的手艺，做出最最好吃的料理！」'

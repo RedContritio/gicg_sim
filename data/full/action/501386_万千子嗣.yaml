@@ -1,0 +1,60 @@
+id: 501386
+name: 万千子嗣
+parent_class: action
+desc: 万千子嗣卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '2'
+cost:
+  草: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/37bdaf8745b1264fdac723555ba2938b_6897286726804605830.png
+header_img_url: ''
+version: '1726193062'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 2
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">入场时：</span></strong><span
+  style="color: rgb(0, 0, 0)">生成4张</span><strong><span style="color: rgb(0, 0, 0)"><u>唤醒眷属</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;唤醒眷属：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;事件牌&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;花费：&lt;/strong&gt;2个&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出此牌或舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌时：召唤一个独立的增殖生命体。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，随机置入我方牌库。<br>装备有此牌的</span><strong>阿佩普的绿洲守望者</strong><span style="color:
+  rgb(0, 0, 0)">在场时：我方</span><strong><em><span style="color: rgb(0, 0, 0)">增殖生命体</span></em></strong><span
+  style="color: rgb(0, 0, 0)">造成的伤害+1。<br>（牌组中包含</span>阿佩普的绿洲守望者<span style="color:
+  rgb(0, 0, 0)">，才能加入牌组）</span></p>'
+effect_text: '入场时：生成4张唤醒眷属草元素
+
+  打出此牌或舍弃此牌时：召唤一个独立的增殖生命体。" class="wiki-note-text">，随机置入我方牌库。
+
+  装备有此牌的阿佩普的绿洲守望者在场时：我方增殖生命体造成的伤害+1。
+
+  （牌组中包含阿佩普的绿洲守望者，才能加入牌组）'
+term_refs:
+- 唤醒眷属
+terms:
+  唤醒眷属: 事件牌花费：2个草元素打出此牌或舍弃此牌时：召唤一个独立的增殖生命体。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/e27d1a031f8206bce971972b7935b75b_17773347055008671.png
+requires_char: 阿佩普的绿洲守望者
+deck_constraint: 牌组中包含阿佩普的绿洲守望者，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/37bdaf8745b1264fdac723555ba2938b_177410860486747187.png
+flavor_html: <p><strong>阿佩普的绿洲守望者·万千子嗣</strong></p><p>阿佩普曾与诸多子嗣一同在芳草之海、百尺巨木与千里之藤蔓中，如游鱼穿行于水。直到最终草木枯萎化为尘埃，如同砂砾般渺小的诸多生灵在它原本的土地上建立起脆弱的城国。</p><p>阿佩普曾与诸多子嗣一同令沙海如沸水般翻腾，将城楼如落叶般吹散。直到新的沙海之王与失去故土的王相互和解，从此日光之下的沙丘都属于人与神，而龙的绿洲留在龙的心中。</p><p>阿佩普曾与诸多子嗣一同分享进化的知识，因为流水不腐，而朽木必定倾倒。直到最终它践行了与沙之王的约定得到了终极的智慧，从此它只能看见终末的风景，漫无边际的末日···</p>
+flavor_text: '阿佩普的绿洲守望者·万千子嗣
+
+  阿佩普曾与诸多子嗣一同在芳草之海、百尺巨木与千里之藤蔓中，如游鱼穿行于水。直到最终草木枯萎化为尘埃，如同砂砾般渺小的诸多生灵在它原本的土地上建立起脆弱的城国。
+
+  阿佩普曾与诸多子嗣一同令沙海如沸水般翻腾，将城楼如落叶般吹散。直到新的沙海之王与失去故土的王相互和解，从此日光之下的沙丘都属于人与神，而龙的绿洲留在龙的心中。
+
+  阿佩普曾与诸多子嗣一同分享进化的知识，因为流水不腐，而朽木必定倾倒。直到最终它践行了与沙之王的约定得到了终极的智慧，从此它只能看见终末的风景，漫无边际的末日···'
+_raw_path: data/raw/action/501386_万千子嗣.json

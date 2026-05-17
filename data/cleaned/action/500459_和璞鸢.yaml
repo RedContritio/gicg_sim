@@ -1,0 +1,36 @@
+id: 500459
+name: 和璞鸢
+parent_class: action
+sub_class: 装备牌
+tags:
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 武器
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色造成的伤害+1。
+
+  角色使用技能后：直到回合结束前，此牌所提供的伤害加成值额外+1。（最多累积到+2）
+
+  （「长柄武器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/15/258999284/bcc66ffd5b7bea190c27be86d18d1fa6_84626017477067652.png
+weapon_type: 长柄武器
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/15/258999284/972e1ba2e544111bc0069697539b707e_7547101337974467153.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/15/258999284/96a4378bba16260f26063d91cf1770e2_2319052852884801952.gif
+flavor_text: '昭理的鸢之枪·和璞鸢
+
+  「石鸟甫一造成，便挣脱了万物桎梏的大地盘旋登上高空，如烈日投出的长枪般，直插大洋中心魔兽与岩鲸激斗的战场，巨兽应声被钉入了黑暗的海沟，不复浮出。从此璃月的人们便摆脱了海中巨兽的咆哮。」'

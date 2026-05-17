@@ -1,0 +1,75 @@
+id: 5596
+name: 野伏·机巧番
+title: 野伏·机巧番
+parent_class: monster
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营: []
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction: []
+hp: 6
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/7792edf0034d35aae5938ce4e836a4b0_5375361506321920474.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/5d274d7316b4a9b3b6df26a62225993e_8722245116574723246.png
+skills:
+- name: 连续斩
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 机工雷弩
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  effect_text: 造成3点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+- name: 居合·纳刀
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    同色: 3
+  effect_text: 本角色准备技能：居合·前居合·前：元素爆发（需准备2个行动轮）造成6点物理伤害。" class="wiki-note-text">。
+  term_refs:
+  - 居合·前
+  energy_req: 2
+- name: 残心
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】结束阶段：如果此角色是「出战角色」，就获得1点充能。
+  term_refs: []
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  居合·前: 元素爆发（需准备2个行动轮）造成6点物理伤害。

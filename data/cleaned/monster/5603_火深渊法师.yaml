@@ -1,0 +1,80 @@
+id: 5603
+name: 火深渊法师
+title: 火深渊法师
+parent_class: monster
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  充能:
+  - 3点
+  获取方式:
+  - 无
+element: 火
+weapon: 其他武器
+faction:
+- 魔物
+hp: 4
+energy: 3
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/ad5b817bc9ed686037586730792a5bb6_1165889669483049513.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_512767394389614395.png
+skills:
+- name: 炎波
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  effect_text: 造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 灼面的祭法
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 熔焰地涌之仪
+  type: 元素爆发
+  raw_life: 4
+  raw_life_bg: 4
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    火: 4
+  effect_text: 造成7点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  energy_req: 3
+- name: 火元素护罩
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】战斗开始时，初始附属火元素护罩火元素护罩：状态所附属角色免疫所有伤害。此状态提供2次火元素附着（可被元素反应消耗）：耗尽后移除此状态，并使所附属角色直到本回合结束前无法使用技能。"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素护罩
+summons: []
+flavor_text: ''
+terms:
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  火元素护罩: 状态所附属角色免疫所有伤害。此状态提供2次火元素附着（可被元素反应消耗）：耗尽后移除此状态，并使所附属角色直到本回合结束前无法使用技能。

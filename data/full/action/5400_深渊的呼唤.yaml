@@ -1,0 +1,82 @@
+id: 5400
+name: 深渊的呼唤
+parent_class: action
+desc: 深渊的呼唤
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/011610bb3aedb5dddfa1db1322c0fd60_5161560712474039452.png
+header_img_url: ''
+version: '1755483498'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">召唤一个<strong><u>随机「丘丘人」召唤物</u></strong><span
+  data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;随机「丘丘人」召唤物：&lt;/p&gt;&lt;p
+  style=&#34;white-space: pre-wrap;&#34;&gt;可能出现的「丘丘人」召唤物共有4种： &lt;/p&gt;&lt;p style=&#34;white-space:
+  pre-wrap;&#34;&gt;&lt;strong&gt;冰箭丘丘人&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+  style=&#34;color:rgba(145,213,255,1)&#34;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。&lt;/p&gt;&lt;p
+  style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;水丘丘萨满&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+  style=&#34;color:rgba(24,144,255,1)&#34;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。
+  &lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冲锋丘丘人&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+  style=&#34;color:rgba(207,19,34,1)&#34;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。
+  &lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;雷箭丘丘人&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+  style=&#34;color:rgba(146,84,222,1)&#34;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。&lt;/p&gt;&lt;p
+  style=&#34;white-space: pre-wrap; min-height: 1.5em;&#34;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>！
+
+  （牌组包含至少2个「魔物」角色，才能加入牌组）</p>'
+effect_text: "召唤一个随机「丘丘人」召唤物随机「丘丘人」召唤物：\n可能出现的「丘丘人」召唤物共有4种： \n冰箭丘丘人：结束阶段造成1点冰元素伤害，可用次数2。\n\
+  水丘丘萨满：结束阶段造成1点水元素伤害，可用次数2。 \n冲锋丘丘人：结束阶段造成1点火元素伤害，可用次数2。 \n雷箭丘丘人：结束阶段造成1点雷元素伤害，可用次数2。\n\
+  \" class=\"wiki-note-text\">！\n（牌组包含至少2个「魔物」角色，才能加入牌组）"
+term_refs:
+- 随机「丘丘人」召唤物
+terms:
+  随机「丘丘人」召唤物: 可能出现的「丘丘人」召唤物共有4种： 冰箭丘丘人：结束阶段造成1点冰元素伤害，可用次数2。水丘丘萨满：结束阶段造成1点水元素伤害，可用次数2。
+    冲锋丘丘人：结束阶段造成1点火元素伤害，可用次数2。 雷箭丘丘人：结束阶段造成1点雷元素伤害，可用次数2。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/9e7207494a4fdb10df19179ec836623b_79246082551201705.png
+deck_constraint: 牌组包含至少2个「魔物」角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">召唤一个<strong><u>随机「丘丘人」召唤物</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;随机「丘丘人」召唤物：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;可能出现的「丘丘人」召唤物共有4种： &lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;冰箭丘丘人&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(145,213,255,1)&#34;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;水丘丘萨满&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(24,144,255,1)&#34;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。
+    &lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冲锋丘丘人&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(207,19,34,1)&#34;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。
+    &lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;雷箭丘丘人&lt;/strong&gt;：结束阶段造成1点&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(146,84,222,1)&#34;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;，可用次数2。&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap; min-height: 1.5em;&#34;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>！
+
+    （牌组包含至少2个「魔物」角色，才能加入牌组）</p>'
+  effect_text: "召唤一个随机「丘丘人」召唤物随机「丘丘人」召唤物：\n可能出现的「丘丘人」召唤物共有4种： \n冰箭丘丘人：结束阶段造成1点冰元素伤害，可用次数2。\n\
+    水丘丘萨满：结束阶段造成1点水元素伤害，可用次数2。 \n冲锋丘丘人：结束阶段造成1点火元素伤害，可用次数2。 \n雷箭丘丘人：结束阶段造成1点雷元素伤害，可用次数2。\n\
+    \" class=\"wiki-note-text\">！\n（牌组包含至少2个「魔物」角色，才能加入牌组）"
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/011610bb3aedb5dddfa1db1322c0fd60_7383120485374723900.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/e96f143b86ee068a61ebfabb6b300d02_6672140815624102690.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>深渊的呼唤</strong></p><p style="white-space:
+  pre-wrap;">「Yaya ika！」</p>'
+flavor_text: '深渊的呼唤
+
+  「Yaya ika！」'
+_raw_path: data/raw/action/5400_深渊的呼唤.json

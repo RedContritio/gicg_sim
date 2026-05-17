@@ -1,0 +1,62 @@
+id: 501420
+name: 静水流涌之辉
+parent_class: action
+desc: 静水流涌之辉卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/a8120413a92889b479523234f19020e6_2107692568916398801.gif
+header_img_url: ''
+version: '1717554646'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">我方角色受到伤害或治疗后：</span></strong><span
+  style="color: rgb(0, 0, 0)">此牌累积1点</span><strong><span style="color: rgb(0, 0, 0)">「湖光」</span></strong><span
+  style="color: rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0, 0,
+  0)">角色进行普通攻击时：</span></strong><span style="color: rgb(0, 0, 0)">如果已有12点</span><strong><span
+  style="color: rgb(0, 0, 0)">「湖光」</span></strong><span style="color: rgb(0, 0, 0)">，则消耗12点，使此技能少花费2个</span><span><strong><span
+  style="color: rgb(0, 0, 0)"><u>无色元素</u></span></strong></span><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;无色元素：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;可以用任意类型的元素骰子组合，来支付此类费用。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">且造成的伤害+1，并且治疗所附属角色1点（每回合1次）。</span></p><p><span style="color: rgb(0,
+  0, 0)">（</span><strong><span style="color: rgb(0, 0, 0)">「单手剑」角色</span></strong><span
+  style="color: rgb(0, 0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '我方角色受到伤害或治疗后：此牌累积1点「湖光」。
+
+  角色进行普通攻击时：如果已有12点「湖光」，则消耗12点，使此技能少花费2个无色元素无色元素：
+
+  可以用任意类型的元素骰子组合，来支付此类费用。" class="wiki-note-text">且造成的伤害+1，并且治疗所附属角色1点（每回合1次）。
+
+  （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+term_refs:
+- 无色元素
+terms:
+  无色元素: 可以用任意类型的元素骰子组合，来支付此类费用。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/9e7207494a4fdb10df19179ec836623b_2935094107826476543.png
+weapon_type: 单手剑
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/92753a699957dc63318f06ab506d7e41_8008667568462089258.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/a8120413a92889b479523234f19020e6_3183166788954717577.gif
+flavor_html: <p><strong>湖光的朝与暮·静水流涌之辉</strong></p><p>「···在澄澈如湖光的晨曦中，殷切而痛苦的话语打动了众水之主，</p><p>于是仁慈的神向人子允诺了她的请求，又祝福她离去的前路。</p><p>正如神所知晓，对无私者而言，唯有公义的裁决意味着宽赦。</p><p>或许正是如此，那高贵的决意，便也染就了所谓命运的底色。」</p>
+flavor_text: '湖光的朝与暮·静水流涌之辉
+
+  「···在澄澈如湖光的晨曦中，殷切而痛苦的话语打动了众水之主，
+
+  于是仁慈的神向人子允诺了她的请求，又祝福她离去的前路。
+
+  正如神所知晓，对无私者而言，唯有公义的裁决意味着宽赦。
+
+  或许正是如此，那高贵的决意，便也染就了所谓命运的底色。」'
+_raw_path: data/raw/action/501420_静水流涌之辉.json

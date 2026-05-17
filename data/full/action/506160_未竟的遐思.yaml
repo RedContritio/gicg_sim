@@ -1,0 +1,41 @@
+id: 506160
+name: 未竟的遐思
+parent_class: action
+desc: 未竟的遐思卡牌
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/77ccf2b24659135fed595253ac237ba3_3758606855362664855.png
+header_img_url: ''
+version: '1757473212'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">我方</span><span><strong><em><span
+  style="color: rgb(0, 0, 0)">燃烧烈焰</span></em></strong></span><span style="color:
+  rgb(0, 0, 0)">以及造成的燃烧反应伤害+1。（每回合2次）</span></p><p><span style="color: rgb(0, 0, 0)">（角色最多装备1件「圣遗物」）</span></p>'
+effect_text: '我方燃烧烈焰以及造成的燃烧反应伤害+1。（每回合2次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/9e7207494a4fdb10df19179ec836623b_7662284171630309976.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/77ccf2b24659135fed595253ac237ba3_4546566910297666745.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/55581d9f8fbe15a2468f0fd320476891_82641267741766899.gif
+flavor_html: <p><strong>英杰余晖·未竟的遐思</strong></p><p>「莫辜负他们仍愿将视线投以炽热焰光的眼睛。」</p>
+flavor_text: '英杰余晖·未竟的遐思
+
+  「莫辜负他们仍愿将视线投以炽热焰光的眼睛。」'
+_raw_path: data/raw/action/506160_未竟的遐思.json

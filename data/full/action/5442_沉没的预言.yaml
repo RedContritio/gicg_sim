@@ -1,0 +1,88 @@
+id: 5442
+name: 沉没的预言
+parent_class: action
+desc: 沉没的预言
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  水: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/b3047b5bb33042d52efd49fe6966a25b_3574354225091217182.png
+header_img_url: ''
+version: '1704939907'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '3'
+  - 3点充能
+raw_life: 3
+raw_life_bg: 6
+raw_energy: 3
+raw_energy_bg: 8
+effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;战斗行动：&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>莫娜</strong>时，装备此牌。</p><p>莫娜装备此牌后，立刻使用一次<strong><u>星命定轨</u></strong><span
+  data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;星命定轨：&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;造成4点&lt;strong&gt;&lt;span style=&quot;color:rgba(24,144,255,1)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;，生成&lt;strong&gt;泡影&lt;/strong&gt;。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的莫娜出战期间，我方引发的<strong><span
+  style="color: rgb(24, 144, 255)"><u>水元素相关反应</u></span></strong><span data-type="详情"
+  data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;水元素相关反应：&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;蒸发：本伤害+2&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>伤害额外+2。</p><p>（牌组中包含莫娜，才能加入牌组）</p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为莫娜时，装备此牌。
+
+  莫娜装备此牌后，立刻使用一次星命定轨星命定轨：
+
+  造成4点水元素伤害，生成泡影。" class="wiki-note-text">。
+
+  装备有此牌的莫娜出战期间，我方引发的水元素相关反应水元素相关反应：
+
+  蒸发：本伤害+2
+
+  感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+  冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+  绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]
+
+  结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+  扩散（水）：对目标以外的所有敌方角色造成1点水伤害" class="wiki-note-text">伤害额外+2。
+
+  （牌组中包含莫娜，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 星命定轨
+- 水元素相关反应
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  星命定轨: 造成4点水元素伤害，生成泡影。
+  水元素相关反应: 蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。扩散（水）：对目标以外的所有敌方角色造成1点水伤害
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/d08c736ffd58960cac4e7033dd69a0a3_6925838067818340559.png
+energy_req: 3
+requires_char: 莫娜
+deck_constraint: 牌组中包含莫娜，才能加入牌组
+is_combat_action: true
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/b3047b5bb33042d52efd49fe6966a25b_5642914492950931923.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/7d9977084681aa8e817fd3afe4ad2653_484329307127049939.gif
+flavor_html: <p><strong>莫娜·沉没的预言</strong></p><p>「嗨！应该出那一张！」「好吧，你就是不听我的。」</p>
+flavor_text: '莫娜·沉没的预言
+
+  「嗨！应该出那一张！」「好吧，你就是不听我的。」'
+_raw_path: data/raw/action/5442_沉没的预言.json

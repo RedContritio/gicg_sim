@@ -1,0 +1,53 @@
+id: 5392
+name: 元素共鸣：强能之雷
+parent_class: action
+sub_class: 事件牌
+tags:
+- 元素共鸣
+cost_text: '1'
+cost:
+  雷: 1
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 元素共鸣
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 5
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '我方出战角色和下一名充能未满的角色获得1点充能充能
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+
+  " class="wiki-note-text">。
+
+  （牌组包含至少2个雷元素角色，才能加入牌组）'
+term_refs: []
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/00cce35b579cabd6b829eaa5cd1aed42_6888028889914053515.png
+deck_constraint: 牌组包含至少2个雷元素角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_text: '我方出战角色和下一名充能未满的角色获得1点充能充能
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+
+    " class="wiki-note-text">。
+
+    （牌组包含至少2个雷元素角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/24c0eec5aa696696abeacd2a9ab2e443_2548840222933909920.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/81281c2f8c598e65a7f340a36c2e7015_1346019779362905977.gif
+jiqiao: true
+flavor_text: 雷霆迅起，威重万钧。

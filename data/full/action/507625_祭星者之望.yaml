@@ -1,0 +1,45 @@
+id: 507625
+name: 祭星者之望
+parent_class: action
+desc: 祭星者之望卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/7701448c0d01e03a627bf446cf90db2e_6137858075862725849.png
+header_img_url: ''
+version: '1768186894'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">我方每回合首次打出名称不属于初始牌组的牌时：</span></strong><span
+  style="color: rgb(0, 0, 0)">少花费1个元素骰，所附属角色下次造成的伤害+1。（可叠加，最多叠加到2）</span></p><p><span
+  style="color: rgb(0, 0, 0)">（</span><strong><span style="color: rgb(0, 0, 0)">「法器」角色</span></strong><span
+  style="color: rgb(0, 0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '我方每回合首次打出名称不属于初始牌组的牌时：少花费1个元素骰，所附属角色下次造成的伤害+1。（可叠加，最多叠加到2）
+
+  （「法器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_8599607150307855326.png
+weapon_type: 法器
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/7701448c0d01e03a627bf446cf90db2e_2504575026789785900.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/ba0c2b335baabd3e1b3ee42bbaceecc9_6804175459726226611.gif
+flavor_html: <p><strong>奉予风阳的禋祀·祭星者之望</strong></p><p>「我会永远注视着你，只属于我一人的英雄，我会如丝弦萦系在你的肩畔」</p><p>「直至你我的灵魂在幽邃的安宁中永世交缠，即使死亡也无法将我们分离」</p>
+flavor_text: '奉予风阳的禋祀·祭星者之望
+
+  「我会永远注视着你，只属于我一人的英雄，我会如丝弦萦系在你的肩畔」
+
+  「直至你我的灵魂在幽邃的安宁中永世交缠，即使死亡也无法将我们分离」'
+_raw_path: data/raw/action/507625_祭星者之望.json

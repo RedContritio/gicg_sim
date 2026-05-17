@@ -1,0 +1,49 @@
+# r007: 1500g 长程 scaling run,对齐真 slow_anneal 全长(λ 跑到 0.8 终点)。
+#
+# 依据 r006 (0.40) vs r005A (0.45) 结果,include_char_skill_refs=true
+# 确认有帮助(+0.05 方向),r007 保留 on。r005A 是 400g,λ 只跑到 ~0.27;
+# r007 让 λ 跑完整 1500g anneal schedule,测 scaling 收益。
+#
+# 对比基线:r001 slow no-K 5d 400g = 0.55(pre char_skill_refs)。
+# r007 相当于 r005A 的 400g → 1500g 延长。
+#
+# 预期判断:
+#   r007 ≥ 0.60:1500g scaling 明显超越所有 400g run,推荐生产默认
+#   r007 ≈ 0.50-0.60:scaling 有改进但非戏剧性
+#   r007 < 0.50:长 run 没优势,400g 已到 saturation(意味 C 方案之类
+#                非时长改进是下一步)
+
+base = "random_1v1"
+run_label = "r007_slow_1500g"
+
+n_games = 1500
+n_workers = 4
+batch_size = 64
+games_per_arena = 100
+games_per_gauntlet = 500
+checkpoint_every_n_games = 200
+
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+# lambda_anneal_games 省略 → 默认 slow 1500(跑满)
+# expand_union_k 已从代码移除
+
+[train]
+delta_aux_coef = 1.0
+
+[scenario]
+team_size = 2
+disjoint_teams = true
+
+[obs]
+# 和 r005A 一致:char_skill_refs on,所有 shuffle on
+# 由 r006=0.40 vs r005A=0.45 结果确认:include_char_skill_refs=true 更优
+include_char_skill_refs = true
+shuffle_counters = true
+shuffle_hooks = true
+shuffle_cards = true
+shuffle_skill_slots = true
+
+[meta]
+paradigm = "az"

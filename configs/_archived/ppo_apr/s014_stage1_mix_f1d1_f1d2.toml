@@ -1,0 +1,34 @@
+# s014: Stage 1 (随机骰) + mixed F1-D1 & F1-D2 opponent rollout.
+#
+# Fixes opponent-overfit observed in s013: 2000-iter vs F1-D1 alone
+# learned to "trade blows" (F1-D1 never Tunes), so agent never saw
+# Tune-heavy play style and failed 0/16 vs F1-D2. Mixing F1-D2
+# (who does Tune×5→重击×2 combos) into rollouts should expose
+# agent to both styles in training distribution.
+#
+# Go/No-go: wr ≥ 0.40 vs F1-D2 (eval) per curriculum plan Stage 1.
+
+base = "default"
+run_label = "s014_stage1_mix_f1d1_f1d2"
+
+n_iterations = 2000
+eval_every = 50
+n_eval_games = 16
+log_every = 40  # print progress ~every ~12s
+
+# Breakthrough config from s011 diagnosis + s012/s013 verification:
+#   - terminal 60→10: value target stays in learnable [-25,+25] range
+#   - value_coef 0.5→0.1: trunk gradient not dominated by value MSE
+value_coef = 0.1
+
+# s012 showed 100% fixed opponent breaks self-play collapse. s013
+# showed 100% F1-D1 overfit. Comma-split spec = uniform random pick
+# per game (see rollout.py collect_rollout).
+rollout_opponent = "F1-D1,F1-D2"
+
+[reward_shaping]
+terminal_win = 10.0
+terminal_loss = 10.0
+
+[meta]
+paradigm = "ppo"

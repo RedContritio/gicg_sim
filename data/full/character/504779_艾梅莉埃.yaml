@@ -1,0 +1,351 @@
+id: 504779
+name: 艾梅莉埃
+title: 千缕之踪·艾梅莉埃
+parent_class: character
+desc: 艾梅莉埃卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/641497fd6142bac67bd7839cd2564160_6048625086998179862.png
+header_img_url: ''
+version: '1769998851'
+attr:
+  元素:
+  - 草元素
+  武器:
+  - 长柄武器
+  阵营: &id001
+  - 枫丹
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+  始基力:
+  - 芒性
+element: 草
+weapon: 长柄武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+始基力: 芒性
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/641497fd6142bac67bd7839cd2564160_7223090451532824757.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/0ebf9a5604df84ebe6c7dad3f1bf2c85_8890948558632538409.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/de066277f1f3120586b5e9c93c7fdb59_8753731363448206825.png
+skills:
+- name: 逐影枪术·改
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    草: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/06f2312bdfbac7929a1065fed103f0f8_3001629245905741387.png
+  effect_html: '<p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 撷萃调香
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/56c8c6c62ed792d56ccbbeaaf9aa9779_3263971776553896947.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">召唤</span><strong><em><span style="color:
+    rgb(0, 0, 0)">柔灯之匣·一阶</span></em></strong><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 召唤柔灯之匣·一阶。
+  term_refs: []
+- name: 香氛演绎
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/1e918eff70dc3167325c4bee79c84959_6163012173343249974.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>草元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着草元素，可发生元素反应：</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>绽放</strong>：本伤害+1，生成使下次火/雷伤害＋2的[<strong>草原核</strong>]</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。召唤</span><strong><em><span style="color: rgb(0, 0, 0)">柔灯之匣·三阶</span></em></strong><span
+    style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成1点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。召唤柔灯之匣·三阶。
+  term_refs:
+  - 草元素伤害
+  energy_req: 2
+- name: 余薰
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/04/02/258999284/2b47dfb2f0f53f7825987f3e0a061c78_4865928257217890237.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">我方</span><em><span style="color:
+    rgb(0, 0, 0)">燃烧烈焰</span></em></strong><span style="color: rgb(0, 0, 0)">入场时：下次双方角色使用技能后，触发一次</span><strong><em><span
+    style="color: rgb(0, 0, 0)">燃烧烈焰</span></em></strong><span style="color: rgb(0,
+    0, 0)">的回合结束效果。（每回合2次）</span></p>'
+  effect_text: 我方燃烧烈焰入场时：下次双方角色使用技能后，触发一次燃烧烈焰的回合结束效果。（每回合2次）
+  term_refs: []
+summons:
+- name: 柔灯之匣·一阶
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/4832db511e57a4673f91cfab4ec6e260_2114320537892261405.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(82, 196,
+    26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+    pre-wrap;&quot;>草元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着草元素，可发生元素反应：</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>绽放</strong>：本伤害+1，生成使下次火/雷伤害＋2的[<strong>草原核</strong>]</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0, 0, 0)">我方造成燃烧反应伤害后：</span></strong><span
+    style="color: rgb(0, 0, 0)">此牌升级为</span><strong><em><span style="color: rgb(0,
+    0, 0)">柔灯之匣·二阶</span></em></strong><span style="color: rgb(0, 0, 0)">。</span></p><p><strong><span
+    style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>此牌效果触发后，会消耗1次</span><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>;</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>耗尽后，立刻弃置此牌。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">：3（可叠加，最多叠加到6次）</span></p>'
+  effect_text: 结束阶段：造成1点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。我方造成燃烧反应伤害后：此牌升级为柔灯之匣·二阶。可用次数可用次数：此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">：3（可叠加，最多叠加到6次）
+  term_refs:
+  - 草元素伤害
+  - 可用次数
+- name: 柔灯之匣·二阶
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/02806cab25353aa6b35f89c675e517c6_3569134135175708486.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成2点</span><strong><span style="color: rgb(82, 196,
+    26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+    pre-wrap;&quot;>草元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着草元素，可发生元素反应：</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>绽放</strong>：本伤害+1，生成使下次火/雷伤害＋2的[<strong>草原核</strong>]</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>此牌效果触发后，会消耗1次</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>;</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>耗尽后，立刻弃置此牌。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">：3（可叠加，最多叠加到6次）</span></p>'
+  effect_text: 结束阶段：造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。可用次数可用次数：此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3（可叠加，最多叠加到6次）
+  term_refs:
+  - 草元素伤害
+  - 可用次数
+- name: 柔灯之匣·三阶
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/eacf5e3609a63656b348ed0972016239_7375246412914411207.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">对敌方全体造成1点</span><strong><span style="color: rgb(82,
+    196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+    pre-wrap;&quot;>草元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着草元素，可发生元素反应：</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>绽放</strong>：本伤害+1，生成使下次火/雷伤害＋2的[<strong>草原核</strong>]</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>此牌效果触发后，会消耗1次</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>;</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>耗尽后，立刻弃置此牌。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">：1</span></p>'
+  effect_text: 结束阶段：对敌方全体造成1点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。可用次数可用次数：此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：1
+  term_refs:
+  - 草元素伤害
+  - 可用次数
+talent:
+  name: 茉洁香迹
+  type: 装备牌
+  raw_life: 2
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/6417278fc4d517b03f1373a6579cf9f2_5331852007642613045.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">所附属角色造成的</span><strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">变为</span><strong><span
+    style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;草元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><span style="color: rgb(0, 0, 0)">装备有此牌的艾梅莉埃</span><strong><span
+    style="color: rgb(0, 0, 0)">普通攻击</span></strong><span style="color: rgb(0, 0,
+    0)">后：我方最高等级的</span><strong><em><span style="color: rgb(0, 0, 0)">「柔灯之匣」</span></em></strong><span
+    style="color: rgb(0, 0, 0)">立刻行动1次。（每回合1次）</span></p><p><span style="color: rgb(0,
+    0, 0)">（牌组中包含艾梅莉埃，才能加入牌组）</span></p>'
+  effect_text: '所附属角色造成的物理伤害物理伤害：
+
+    物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">变为草元素伤害草元素伤害：
+
+    附着草元素，可发生元素反应：
+
+    绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+
+    原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]" class="wiki-note-text">。
+
+    装备有此牌的艾梅莉埃普通攻击后：我方最高等级的「柔灯之匣」立刻行动1次。（每回合1次）
+
+    （牌组中包含艾梅莉埃，才能加入牌组）'
+  term_refs:
+  - 物理伤害
+  - 草元素伤害
+  deck_constraint: 牌组中包含艾梅莉埃，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  skills:
+  - name: 逐影枪术·改
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/06f2312bdfbac7929a1065fed103f0f8_3076806155409228766.png
+    effect_html: '<html><head></head><body><p>造成<strong><span style="color: rgb(0,
+      0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+    effect_text: 造成物理伤害。
+    term_refs:
+    - 物理伤害
+  - name: 香氛演绎
+    type: 元素爆发
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 2
+    raw_energy_bg: 8
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/1e918eff70dc3167325c4bee79c84959_4735554156089097000.png
+    effect_html: '<html><head></head><body><p>造成<strong><span style="color: rgb(82,
+      196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤柔灯之匣·三阶。</p></body></html>'
+    effect_text: 造成草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">，召唤柔灯之匣·三阶。
+    term_refs:
+    - 草元素伤害
+    energy_req: 2
+  - name: 撷萃调香
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/56c8c6c62ed792d56ccbbeaaf9aa9779_4932649754889301376.png
+    effect_html: <p>【被动】<strong>战斗开始时：</strong>召唤可用次数为4的<strong><em>柔灯之匣·一阶</em></strong>。我方累计触发12次燃烧反应后，改为召唤可用次数为4的<strong><em>柔灯之匣·二阶</em></strong>。</p>
+    effect_text: 【被动】战斗开始时：召唤可用次数为4的柔灯之匣·一阶。我方累计触发12次燃烧反应后，改为召唤可用次数为4的柔灯之匣·二阶。
+    term_refs: []
+  summons:
+  - name: 柔灯之匣·一阶
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/4832db511e57a4673f91cfab4ec6e260_7688044270616877684.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+      0)">结束阶段：</span></strong><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span
+      style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">。</span></p></body></html>'
+    effect_text: 结束阶段：造成1点草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。
+    term_refs:
+    - 草元素伤害
+  - name: 柔灯之匣·二阶
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/02806cab25353aa6b35f89c675e517c6_5124003025349850116.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+      0)">结束阶段：</span></strong><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span
+      style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">。</span></p><p><strong>我方造成燃烧反应伤害后：</strong>此卡牌立刻行动一次。</p></body></html>'
+    effect_text: 结束阶段：造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。我方造成燃烧反应伤害后：此卡牌立刻行动一次。
+    term_refs:
+    - 草元素伤害
+  - name: 柔灯之匣·三阶
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/31/80663279/eacf5e3609a63656b348ed0972016239_8470745268686431924.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+      0)">结束阶段：</span></strong><span style="color: rgb(0, 0, 0)">对敌方全体造成3点</span><strong><span
+      style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(250, 219, 20)&#34;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color:
+      rgb(0, 0, 0)&#34;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+      style=&#34;color: rgb(0, 0, 0)&#34;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+      class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：1</span></p></body></html>'
+    effect_text: 结束阶段：对敌方全体造成3点草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。可用次数可用次数：此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：1
+    term_refs:
+    - 草元素伤害
+    - 可用次数
+flavor_html: <p><strong>千缕之踪·艾梅莉埃</strong></p><p>如香消，如雾散。</p>
+flavor_text: '千缕之踪·艾梅莉埃
+
+  如香消，如雾散。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  可用次数: 此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/504779_艾梅莉埃.json

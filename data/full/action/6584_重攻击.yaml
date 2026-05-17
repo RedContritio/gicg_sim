@@ -1,0 +1,66 @@
+id: 6584
+name: 重攻击
+parent_class: action
+desc: 重攻击
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/20/1694811/563473c5f59960d334e2105c1571a982_416424961172302332.png
+header_img_url: ''
+version: '1746758309'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">本回合中，当前我方出战角色下次<strong>「普通攻击」</strong>造成的伤害+1。</p><p
+  style="white-space: pre-wrap;"><strong>此次「普通攻击」为<u>重击</u></strong><span data-type="详情"
+  data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;重击：&lt;/p&gt;&lt;p style=&#34;white-space:
+  pre-wrap;&#34;&gt;我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>  <strong>时：</strong>伤害额外+1。</p>'
+effect_text: '本回合中，当前我方出战角色下次「普通攻击」造成的伤害+1。
+
+  此次「普通攻击」为重击重击：
+
+  我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。" class="wiki-note-text">  时：伤害额外+1。'
+term_refs:
+- 重击
+terms:
+  重击: 我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/11/1694811/8c5a4f348a3a8017500c15e9cd0c5c15_4106262986638034157.png
+duration: 持续本回合
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">本回合中，当前我方出战角色下次<strong>「普通攻击」</strong>造成的伤害+1。</p><p
+    style="white-space: pre-wrap;"><strong>此次「普通攻击」为<u>重击</u></strong><span data-type="详情"
+    data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;重击：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>  <strong>时：</strong>伤害额外+1。</p>'
+  effect_text: '本回合中，当前我方出战角色下次「普通攻击」造成的伤害+1。
+
+    此次「普通攻击」为重击重击：
+
+    我方行动开始前，如果元素骰总数为偶数，则进行的「普通攻击」将被视为「重击」。" class="wiki-note-text">  时：伤害额外+1。'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/20/1694811/563473c5f59960d334e2105c1571a982_2028527927557315162.png
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>劈石破岩法</strong></p><p style="white-space:
+  pre-wrap;">对某些力气不是那么大的人来说···</p><p style="white-space: pre-wrap;">最好把「劈石破岩」仅仅看为「一个比喻」。</p>'
+flavor_text: '劈石破岩法
+
+  对某些力气不是那么大的人来说···
+
+  最好把「劈石破岩」仅仅看为「一个比喻」。'
+_raw_path: data/raw/action/6584_重攻击.json

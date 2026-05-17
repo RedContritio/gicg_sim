@@ -1,0 +1,89 @@
+id: 5585
+name: 海乱鬼·雷腾
+title: 海乱鬼·雷腾
+parent_class: monster
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营:
+  - 海乱鬼
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction:
+- 海乱鬼
+hp: 10
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/f3ff8418570df76394aa85d047707444_5889351625264424282.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/de066277f1f3120586b5e9c93c7fdb59_4261932999276385833.png
+skills:
+- name: 三位切
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 鲤跃斩
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 居合·纳刀
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  effect_text: 本角色准备技能：居合·霆息居合·霆息：元素爆发（需准备2个行动轮）造成6点物理伤害。" class="wiki-note-text">。
+  term_refs:
+  - 居合·霆息
+  energy_req: 2
+- name: 惟神召符·煌
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】战斗开始时，初始附属惟神召符·煌惟神召符·煌：状态角色造成的物理伤害变为雷元素伤害可用次数：3" class="wiki-note-text">。
+  term_refs:
+  - 惟神召符·煌
+- name: 绝境狂乱
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】我方其他海乱鬼被击倒时，此角色附属绝境狂乱绝境狂乱：状态行动阶段开始时：如果所附属角色正在出战，就移除此状态，以治疗该角色3点，并使其重新附属惟神召符·煌。"
+    class="wiki-note-text">。
+  term_refs:
+  - 绝境狂乱
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  居合·霆息: 元素爆发（需准备2个行动轮）造成6点物理伤害。
+  惟神召符·煌: 状态角色造成的物理伤害变为雷元素伤害可用次数：3
+  绝境狂乱: 状态行动阶段开始时：如果所附属角色正在出战，就移除此状态，以治疗该角色3点，并使其重新附属惟神召符·煌。

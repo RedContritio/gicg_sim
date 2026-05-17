@@ -1,0 +1,69 @@
+id: 5586
+name: 草丘丘萨满
+title: 草丘丘萨满
+parent_class: monster
+attr:
+  元素:
+  - 草元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 草
+weapon: 其他武器
+faction:
+- 魔物/丘丘人
+hp: 4
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/dbc7d2af3cc12fa23f0ea7c1331ed28b_2842397367168190225.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_2277854255596634786.png
+skills:
+- name: 杖击
+  type: 普通攻击
+  raw_life: 2
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 2
+  effect_text: 造成1点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 毒藤蔓生
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  effect_text: 造成1点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">，在对方场上生成藤蔓藤蔓：出战状态我方切换角色后：对切换到的角色造成1点草元素伤害。可用次数：2" class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  - 藤蔓
+- name: 草之域
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    草: 3
+  effect_text: 造成5点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  energy_req: 2
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  藤蔓: 出战状态我方切换角色后：对切换到的角色造成1点草元素伤害。可用次数：2

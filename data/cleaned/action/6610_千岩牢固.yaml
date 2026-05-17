@@ -1,0 +1,62 @@
+id: 6610
+name: 千岩牢固
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '3'
+cost:
+  同色: 3
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '行动阶段开始时：为角色附属「重嶂不移重嶂不移：
+
+  状态
+
+  提供2点护盾，保护该角色。" class="wiki-note-text">」。（提供2点护盾护盾：
+
+  此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。" class="wiki-note-text">，保护该角色。）
+
+  角色受到伤害后：如果所附属角色为「出战角色」，则生成1个此角色元素类型的元素骰。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 重嶂不移
+- 护盾
+terms:
+  重嶂不移: 状态提供2点护盾，保护该角色。
+  护盾: 此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/bcc66ffd5b7bea190c27be86d18d1fa6_5084366307951715610.png
+variants:
+- mode: 标准
+  effect_text: '行动阶段开始时：为角色附属「重嶂不移重嶂不移：
+
+    状态
+
+    提供2点护盾，保护该角色。" class="wiki-note-text">」。（提供2点护盾护盾：
+
+    此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。" class="wiki-note-text">，保护该角色。）
+
+    角色受到伤害后：如果所附属角色为「出战角色」，则生成1个此角色元素类型的元素骰。（每回合1次）
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/6b1e8983b34f821da73f7a93076a501e_3915605735095366427.png
+jiqiao: true
+flavor_text: '千岩牢固·将帅兜鍪
+
+  「⋯为了保障难民的安全撤离，不辜负岩主的目光，
+
+  头戴兜鍪的首领们率先向深渊刺出了手中的长枪。」'

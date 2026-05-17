@@ -1,4 +1,4 @@
-local frozen = get_counter("frozen", Scope.PerChar)
+local frozen = get_counter("冻结", Scope.PerChar)
 
 on_action_check(function(ctx)
   if ctx.action_kind ~= ActionKind.Skill then return end

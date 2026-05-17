@@ -1,0 +1,42 @@
+id: 6583
+name: 下落斩
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '3'
+cost:
+  同色: 3
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 其他标签
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '战斗行动我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：切换到目标角色，然后该角色进行「普通攻击」。'
+term_refs: []
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/11/1694811/bcc66ffd5b7bea190c27be86d18d1fa6_9124324405592967216.png
+is_combat_action: true
+variants:
+- mode: 标准
+  effect_text: '战斗行动我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：切换到目标角色，然后该角色进行「普通攻击」。'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/20/1694811/a3aa3a8c13499a0c999fc765c4a0623d_2838069371786460200.png
+jiqiao: true
+flavor_text: '坠空急袭法
+
+  「⋯不要半途打开风之翼啊！要被发现了！」'

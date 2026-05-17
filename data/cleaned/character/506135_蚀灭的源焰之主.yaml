@@ -1,0 +1,121 @@
+id: 506135
+name: 蚀灭的源焰之主
+title: 受塑的已死之龙·蚀灭的源焰之主
+parent_class: character
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 火
+weapon: 其他武器
+faction:
+- 魔物
+hp: 11
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/09/258999284/4cc93e07a691d8192164e1ac424ad054_4947694412306522143.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/09/258999284/7131f946f1deccd753d11511ce29e09b_2335791314107263201.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/49a9a8b4dc723948d68d714d22bd41a5_840360032150170800.png
+skills:
+- name: 虚界玄爪
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 蚀灭火羽
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）"
+    class="wiki-note-text">，我方舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">牌组顶部1张牌。
+  term_refs:
+  - 火元素伤害
+  - 舍弃
+- name: 斫劫源焰
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 3
+  effect_text: 造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）"
+    class="wiki-note-text">，对所有敌方后台角色造成1点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">。双方舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">牌组顶部3张牌，自身附属1层忿恨忿恨：状态每层使所附属角色造成的伤害和「元素爆发」造成的穿透伤害+1。（可叠加，没有上限）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  - 穿透伤害
+  - 舍弃
+  - 忿恨
+  energy_req: 2
+- name: 忿恨
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】我方每舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">6张卡牌，自身附属1层忿恨忿恨：状态每层使所附属角色造成的伤害和「元素爆发」造成的穿透伤害+1。（可叠加，没有上限）"
+    class="wiki-note-text">。
+  term_refs:
+  - 舍弃
+  - 忿恨
+summons: []
+talent:
+  name: 罔极盛怒
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 1
+  effect_text: '快速行动快速行动：
+
+    执行了一次快速行动后，我方可以继续进行其他行动。
+
+    只有执行了一次战斗行动后，才会轮到对方行动。" class="wiki-note-text">：装备给我方的蚀灭的源焰之主。
+
+    敌方打出名称不存在于本局最初牌组的牌时：所附属角色获得1点充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">，下次造成的伤害+1。（每回合1次）
+
+    （牌组中包含蚀灭的源焰之主，才能加入牌组）'
+  term_refs:
+  - 快速行动
+  - 充能
+  deck_constraint: 牌组中包含蚀灭的源焰之主，才能加入牌组
+flavor_text: '受塑的已死之龙·蚀灭的源焰之主
+
+  被称为深渊浮灭主亦被称为「古斯托特」的虚界魔物，拥有侵蚀地脉之中的回忆并将之凝聚为实体的如同灾厄的权能。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  忿恨: 状态每层使所附属角色造成的伤害和「元素爆发」造成的穿透伤害+1。（可叠加，没有上限）
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。

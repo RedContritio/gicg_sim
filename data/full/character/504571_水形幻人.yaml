@@ -1,0 +1,331 @@
+id: 504571
+name: 水形幻人
+title: 苏醒的生命·水形幻人
+parent_class: character
+desc: 水形幻人卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/cfce24fb92c3cd65a134d031e45c3c7e_2496553020708451023.png
+header_img_url: ''
+version: '1771988122'
+attr:
+  元素:
+  - 水元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 3点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 水
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 3
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/0216f62a3d64b105cabc5ea80c4e3819_9208952187097720286.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/abae5073748f4e769b5a6c5fdcb3dc79_1464747908109997314.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/de066277f1f3120586b5e9c93c7fdb59_8900312345192360477.png
+skills:
+- name: 涌浪
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    水: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/f04392db22f72a639a113d2edc1d92ad_5274338065107927719.png
+  effect_html: '<html><head></head><body><p><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成1点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">。
+  term_refs:
+  - 水元素伤害
+- name: 汛波
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/def43673b9ab24e997dc05bfaed0c41f_6460874372753487667.png
+  effect_html: '<html><head></head><body><p><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，随机触发我方1个「召唤物」的「结束阶段」效果。如果自身生命值不低于2，则自身受到1点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效&lt;/span&gt;果抵消。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p></body></html>'
+  effect_text: 造成2点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">，随机触发我方1个「召唤物」的「结束阶段」效果。如果自身生命值不低于2，则自身受到1点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">。
+  term_refs:
+  - 水元素伤害
+  - 穿透伤害
+- name: 洪啸
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    水: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/2f9df765e37a12df49709ea337f815a0_1921835653620442794.png
+  effect_html: '<html><head></head><body><p><span style="color: rgb(0, 0, 0)">造成4点</span><strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;水元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，触发我方所有「召唤物」的「结束阶段」效果。</span></p></body></html>'
+  effect_text: 造成4点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">，触发我方所有「召唤物」的「结束阶段」效果。
+  term_refs:
+  - 水元素伤害
+  energy_req: 3
+- name: 分流
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/04527aa814e29d5f801efff742695576_8625775376586066698.png
+  effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+    0)">自身生命值不低于3，我方半幻人以外的「召唤物」离场时：</span></strong><span style="color: rgb(0, 0, 0)">自身受到2点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效&lt;/span&gt;果抵消。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，召唤1个独立的</span><strong><em><span style="color: rgb(0, 0, 0)">半幻人</span></em></strong><span
+    style="color: rgb(0, 0, 0)">。（每回合1次）</span></p></body></html>'
+  effect_text: 自身生命值不低于3，我方半幻人以外的「召唤物」离场时：自身受到2点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">，召唤1个独立的半幻人。（每回合1次）
+  term_refs:
+  - 穿透伤害
+summons:
+- name: 半幻人
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/1906bcb36b9dc5833a487e1107e7c6b2_809703029653444517.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(24, 144,
+    255)"><u>水元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><strong><span style="color: rgb(0, 0, 0)">此卡牌被弃置时：</span></strong><span
+    style="color: rgb(0, 0, 0)">治疗我方</span><strong><span style="color: rgb(0, 0, 0)">水形幻人</span></strong><span
+    style="color: rgb(0, 0, 0)">2点。</span></p><p><strong><span style="color: rgb(0,
+    0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><strong><span style="color: rgb(0, 0, 0)">：2</span></strong></p>'
+  effect_text: 结束阶段：造成1点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">。此卡牌被弃置时：治疗我方水形幻人2点。可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">：2
+  term_refs:
+  - 水元素伤害
+  - 可用次数
+talent:
+  name: 汇流
+  type: 装备牌
+  raw_life: 2
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/3280d5cf9ecdd8f5df379683bdf4c417_8018905969453195305.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>快速行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0, 0)">水形幻人</span></strong><span
+    style="color: rgb(0, 0, 0)">，使其附属</span><strong><span style="color: rgb(24, 144,
+    255)"><u>元素生命·水</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素生命·水：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色总是附着&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并且免疫&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。（角色总是附着</span><strong><span style="color: rgb(24, 144, 255)">水元素</span></strong><span
+    style="color: rgb(0, 0, 0)">，并且免疫</span><strong><span style="color: rgb(24, 144,
+    255)"><u>水元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;水元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着水元素，可发生元素反应：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害+2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span><strong><span style="color: rgb(0, 0, 0)"><u>持续回合</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;持续回合：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;每回合结束阶段，&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;-1；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;持续回合&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：2）<br>装备有此牌的水形幻人在场时，我方宣布结束后，如果所附属角色生命值不低于3，则所附属角色受到2点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，召唤1个独立的</span><strong><em><span style="color: rgb(0, 0, 0)">半幻人</span></em></strong><span
+    style="color: rgb(0, 0, 0)">。<br>（牌组中包含水形幻人，才能加入牌组）</span></p>'
+  effect_text: '快速行动快速行动：
+
+    执行了一次快速行动后，我方可以继续进行其他行动。
+
+    只有执行了一次战斗行动后，才会轮到对方行动" class="wiki-note-text">：装备给我方的水形幻人，使其附属元素生命·水元素生命·水：
+
+    状态
+
+    角色总是附着水元素，并且免疫水元素伤害。
+
+    持续回合：2" class="wiki-note-text">。（角色总是附着水元素，并且免疫水元素伤害水元素伤害：
+
+    附着水元素，可发生元素反应：
+
+    蒸发：本伤害+2
+
+    感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]" class="wiki-note-text">。持续回合持续回合：
+
+    每回合结束阶段，持续回合-1；
+
+    持续回合耗尽后，立刻弃置此牌。" class="wiki-note-text">：2）
+
+    装备有此牌的水形幻人在场时，我方宣布结束后，如果所附属角色生命值不低于3，则所附属角色受到2点穿透伤害穿透伤害：
+
+    穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。" class="wiki-note-text">，召唤1个独立的半幻人。
+
+    （牌组中包含水形幻人，才能加入牌组）'
+  term_refs:
+  - 快速行动
+  - 元素生命·水
+  - 水元素伤害
+  - 持续回合
+  - 穿透伤害
+  deck_constraint: 牌组中包含水形幻人，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '2'
+  skills:
+  - name: 骇浪迸发
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/362697ff461d5773544badb35bd245f7_3823821307725764770.png
+    effect_html: '<p>造成<strong><span style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，本角色受到2点<strong><u>穿透伤害</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+      &lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，我方随机召唤物可用次数+1，然后触发我方随机召唤物的回合结束效果1次。</p>'
+    effect_text: 造成水元素伤害水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">，本角色受到2点穿透伤害，我方随机召唤物可用次数+1，然后触发我方随机召唤物的回合结束效果1次。
+    term_refs:
+    - 水元素伤害
+    - 穿透伤害
+  - name: 怒涛投枪
+    type: 元素爆发
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 2
+    raw_energy_bg: 8
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/477abb4fa28319f79a5f57d9011c0ac2_4492259579431062896.png
+    effect_html: '<p>造成<strong><span style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着水元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;4&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。我方全体召唤物造成的伤害和治疗+4，然后立刻触发其回合结束效果1次。</p>'
+    effect_text: 造成水元素伤害水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">。我方全体召唤物造成的伤害和治疗+4，然后立刻触发其回合结束效果1次。
+    term_refs:
+    - 水元素伤害
+    energy_req: 2
+  - name: 水形聚引
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/11/258999284/fe627a2d9638fcda8d50eda7c699d5bc_3022155964015169660.png
+    effect_html: <p>我方召唤物离场时，此角色最大生命值<strong><u>整局</u></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;整局：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;直到整轮对局结束前，此效果持续生效。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>+1。</p>
+    effect_text: 我方召唤物离场时，此角色最大生命值整局+1。
+    term_refs:
+    - 整局
+flavor_html: <p><strong>苏醒的生命·水形幻人</strong></p><p>由无数的水滴凝聚成的，初具人形的魔物。</p>
+flavor_text: '苏醒的生命·水形幻人
+
+  由无数的水滴凝聚成的，初具人形的魔物。'
+terms:
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动
+  元素生命·水: 状态角色总是附着水元素，并且免疫水元素伤害。持续回合：2
+  持续回合: 每回合结束阶段，持续回合-1；持续回合耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/504571_水形幻人.json

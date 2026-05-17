@@ -1,0 +1,169 @@
+id: 504572
+name: 圣骸角鳄
+title: 圣骸角鳄
+parent_class: character
+attr:
+  元素:
+  - 水元素
+  武器:
+  - 其他武器
+  阵营:
+  - 圣骸兽
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 水
+weapon: 其他武器
+faction:
+- 圣骸兽
+hp: 11
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/360fcd49e8f9279eee0f99d9a34f836d_5002014805077929630.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/7211be710bed339884ea60f3e62b2308_5617765521495043608.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/08/258999284/49a9a8b4dc723948d68d714d22bd41a5_6273289759656121405.png
+skills:
+- name: 尖牙噬咬
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    水: 1
+    无色: 2
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 鳄齿锐波
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 3
+  effect_text: 造成3点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">，将至多1张原本元素骰费用最高的手牌置入牌组底，生成手牌噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">。
+  term_refs:
+  - 水元素伤害
+  - 噬骸能量块
+- name: 凶鳄狂浪
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 6
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    水: 3
+  effect_text: 造成4点水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]"
+    class="wiki-note-text">，舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">至多3张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">，每舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">1张，治疗我方受伤最多的角色1点，并使其获得1点最大生命值。
+  term_refs:
+  - 水元素伤害
+  - 舍弃
+  - 噬骸能量块
+  energy_req: 2
+- name: 圣骸感应
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】我方打出或弃置噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">后，治疗我方受伤最多的角色1点。
+  term_refs:
+  - 噬骸能量块
+summons: []
+talent:
+  name: 亡水溢流
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 6
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    水: 1
+  effect_text: '快速行动：装备给我方的圣骸角鳄。
+
+    入场时：生成手牌噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">。
+
+    装备有此牌的圣骸角鳄在场时，我方使用噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">后，治疗我方受伤最多的角色1点。
+
+    （牌组中包含圣骸角鳄，才能加入牌组）'
+  term_refs:
+  - 噬骸能量块
+  sub_type: 快速行动
+  deck_constraint: 牌组中包含圣骸角鳄，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '4'
+  skills:
+  - name: 鳄齿锐波
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 造成水元素伤害水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">。
+    term_refs:
+    - 水元素伤害
+  - name: 凶鳄狂浪
+    type: 元素爆发
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 2
+    raw_energy_bg: 8
+    cost: {}
+    effect_text: 造成2倍攻击力的水元素伤害水元素伤害：附着水元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍感电：所有敌方角色受到1点穿透伤害冻结：目标附属4层冻伤绽放：生成1层草原核"
+      class="wiki-note-text">，舍弃手牌中的噬骸能量块。
+    term_refs:
+    - 水元素伤害
+    - 舍弃
+    - 噬骸能量块
+    energy_req: 2
+  - name: 圣骸感应
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 【被动】我方打出或是舍弃噬骸能量块时，+2最大生命值。
+    term_refs:
+    - 舍弃
+    - 噬骸能量块
+flavor_text: '亡骸患水·圣骸角鳄
+
+  因为啃噬伟大的生命体，而扭曲异变的爬行动物，驾驭着多变的水流。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火/雷伤害+2的[草原核]
+  噬骸能量块: 事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。

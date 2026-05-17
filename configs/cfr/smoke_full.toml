@@ -1,0 +1,35 @@
+# CFR smoke_full cfg — paradigm-smoke-full-tier (D-601 / A1.6).
+#
+# Extends configs/cfr/smoke.toml; overrides only:
+#   - meta.run_label
+#   - [checkpoint] save_every short cadence
+#   - [paradigm.cfr] n_iterations bumped + traversal max_game_steps bumped
+#
+# STATUS (2026-05-17, cfr-driver-buffer-multihead-fix):
+# Stub buffer injected via env flag GICG_CFR_SMOKE_STUB_BUFFER=1 in
+# test_cfr_smoke_full.py per spec paradigm-cfr C6.4 ADD. Production CFR
+# (`_CFRBufferBundle`) unaffected — env flag is test-only dispatch in
+# CFRParadigm.make_buffer. Stub satisfies generic Buffer protocol with
+# minimal valid Batch (CFRLoss REQUIRED_KEYS) so the driver path
+# (collect → sample → loss → backward → optimizer.step → ckpt) runs;
+# does NOT validate CFR training quality.
+#
+# n_iterations sized so resume_and_continue produces at least one new
+# ckpt: initial run reaches step 30 (3 ckpt at 10/20/30); resume from
+# ckpt_10 continues to step 50 → adds ckpt_40 + ckpt_50.
+
+[meta]
+extends = "smoke.toml"
+paradigm = "cfr"
+run_label = "cfr_smoke_full"
+
+[paradigm.cfr]
+n_iterations = 50             # smoke=1 → 50 (resume 从 ckpt_10 → 跑到 50)
+traversals_per_iteration = 4
+
+[paradigm.cfr.traversal]
+max_game_steps = 500          # smoke=30 太紧导致 traversal RuntimeError
+
+[checkpoint]
+save_every = 10               # 50 / 10 = ≥ 5 ckpts; resume 后 +2 个新 ckpt
+keep_last_n = 10

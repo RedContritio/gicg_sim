@@ -1,0 +1,191 @@
+id: 501154
+name: 珐露珊
+title: 机逐封秘·珐露珊
+parent_class: character
+desc: 珐露珊卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/df01c4398360e3884ceef43d0717699d_2516913526561112922.png
+header_img_url: ''
+version: '1761099696'
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 须弥
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 风
+weapon: 弓
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/df01c4398360e3884ceef43d0717699d_6350296313348675536.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/c78d1facbf0616f4d1a5c4cb804c9788_7669569028825502674.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/de066277f1f3120586b5e9c93c7fdb59_109771181205006333.png
+skills:
+- name: 迴身箭术
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    风: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/da94dc432b2fdfff56dc821b208eb65b_1675928323837358814.png
+  effect_html: '<p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 非想风天
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/7fb2f931bdb1d001003ac18fa8c5a042_180586662624215779.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>风元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，本角色附属<strong><u>疾风示现</u></strong><span
+    data-type="详情" data-name="<p><strong>疾风示现：</strong></p><p>状态</p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>所附属角色进行重击</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>时：少花费1个</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>无色元素</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>，造成的</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>物理伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>变为</span><strong><span
+    style=&quot;color: rgb(19, 194, 194)&quot;>风元素伤害</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>，并且使目标角色附属</span><strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>风压坍陷</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。<br></span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>：1</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>。</strong></p>'
+  effect_text: 造成3点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，本角色附属疾风示现所附属角色进行重击时：少花费1个无色元素，造成的物理伤害变为风元素伤害，并且使目标角色附属风压坍陷。可用次数：1"
+    class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+  - 疾风示现
+- name: 抟风秘道
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/c992b62ec652ce301ab6e9895aac1284_9109457382282902369.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>风元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">，召唤</span><strong><em><span style="color: rgb(0, 0,
+    0)">赫耀多方面体</span></em></strong><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，召唤赫耀多方面体。
+  term_refs:
+  - 风元素伤害
+  energy_req: 2
+summons:
+- name: 赫耀多方面体
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/d51fd00a7e640ba13b62315e5184be58_168888966568961527.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(54, 207,
+    201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+    pre-wrap;&quot;>风元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br></span><strong><span
+    style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>此牌效果触发后，会消耗1次</span><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>；</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>耗尽后，立刻弃置此牌。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">：3<br></span><strong><span style="color: rgb(0, 0,
+    0)">此召唤物在场时：</span></strong><span style="color: rgb(0, 0, 0)">敌方角色受到的</span><strong><span
+    style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情"
+    data-name="<p style=&quot;white-space: pre-wrap;&quot;>风元素伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">+1。</span></p>'
+  effect_text: 结束阶段：造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">。可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3此召唤物在场时：敌方角色受到的风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">+1。
+  term_refs:
+  - 风元素伤害
+  - 可用次数
+talent:
+  name: 妙道合真
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/6f4712bcbbe53515e63c1de112a58967_4023120908043978069.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">珐露珊</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br>珐露珊装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>抟风秘道</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;抟风秘道：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;元素爆发&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(19, 194, 194)&quot;&gt;风元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，召唤&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;em&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;赫耀多方面体&lt;/span&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>装备有此牌的珐露珊所生成的</span><strong><em><span
+    style="color: rgb(0, 0, 0)">赫耀多方面体</span></em></strong><span style="color: rgb(0,
+    0, 0)">，会在其入场时和行动阶段开始时生成1个</span><strong><span style="color: rgb(19, 194, 194)">风元素</span></strong><span
+    style="color: rgb(0, 0, 0)">。<br>（牌组中包含珐露珊，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为珐露珊时，装备此牌。
+
+    珐露珊装备此牌后，立刻使用一次抟风秘道造成1点风元素伤害，召唤赫耀多方面体。" class="wiki-note-text">。
+
+    装备有此牌的珐露珊所生成的赫耀多方面体，会在其入场时和行动阶段开始时生成1个风元素。
+
+    （牌组中包含珐露珊，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 抟风秘道
+  energy_req: 2
+  deck_constraint: 牌组中包含珐露珊，才能加入牌组
+flavor_html: <p><strong>机逐封秘·珐露珊</strong></p><p>机巧易解，世殊难算。</p>
+flavor_text: '机逐封秘·珐露珊
+
+  机巧易解，世殊难算。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害
+  疾风示现: 状态所附属角色进行重击时：少花费1个无色元素，造成的物理伤害变为风元素伤害，并且使目标角色附属风压坍陷。可用次数：1
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  抟风秘道: 元素爆发造成1点风元素伤害，召唤赫耀多方面体。
+_raw_path: data/raw/character/501154_珐露珊.json

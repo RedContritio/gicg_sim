@@ -1,0 +1,41 @@
+id: 5432
+name: 炽烈的炎之魔女
+parent_class: action
+desc: 炽烈的炎之魔女
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/fa55d0e05799d88270cc50bd7148bfcf_3804037770932131779.png
+header_img_url: ''
+version: '1710295774'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>对角色打出「天赋」或角色使用技能时：</strong>少花费1个火元素。（每回合1次）</p><p><strong>投掷阶段：</strong>2个元素骰初始总是投出火元素。</p><p>（角色最多装备1件「圣遗物」）</p>
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个火元素。（每回合1次）
+
+  投掷阶段：2个元素骰初始总是投出火元素。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/9e7207494a4fdb10df19179ec836623b_4330227850508002727.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/fa55d0e05799d88270cc50bd7148bfcf_7195059919267767445.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/a2739ccb896f8825e295323c733b48d2_4486039830511890066.gif
+flavor_html: <p><strong>灼思终散·炽烈的炎之魔女</strong></p><p>「我拒绝挽歌，拒绝哀怨，拒绝悲叹，也拒绝一切无用的噪喧。若是公义早已不复，又该向谁献上救赎？」</p>
+flavor_text: '灼思终散·炽烈的炎之魔女
+
+  「我拒绝挽歌，拒绝哀怨，拒绝悲叹，也拒绝一切无用的噪喧。若是公义早已不复，又该向谁献上救赎？」'
+_raw_path: data/raw/action/5432_炽烈的炎之魔女.json

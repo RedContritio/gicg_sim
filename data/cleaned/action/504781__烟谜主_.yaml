@@ -1,0 +1,41 @@
+id: 504781
+name: 「烟谜主」
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '此牌初始具有4点灵觉。
+
+  我方挑选挑选：
+
+  从特定的多张牌中选择1张执行效果。" class="wiki-note-text">后：灵觉-1。
+
+  行动阶段开始时：若灵觉为0，则移除自身，然后从3个随机元素骰费用为2的支援牌中挑选挑选：
+
+  从特定的多张牌中选择1张执行效果。" class="wiki-note-text">一个生成。'
+term_refs:
+- 挑选
+terms:
+  挑选: 从特定的多张牌中选择1张执行效果。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/7a8c85830ce44927460008304d7f73ed_2256869035246289571.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/1f83f6f34b1af8920ebf43d40ca51e8c_8682815555943814152.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/22/258999284/a8d6bb384ed50cdca566a6b4d0d35d05_3798945335290762999.gif
+flavor_text: '「烟谜主」
+
+  以各种神奇秘术闻名的部族，据说在那里能倾听寂静夜晚国度的回音。'

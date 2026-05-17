@@ -1,0 +1,61 @@
+# BC production default cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
+#
+# Mirrors `_archived/smoke/smoke_bc_pretrain_container.toml` intent in the
+# unified pipeline cfg schema. BC pre-train on expert dataset
+# (CE hard target / d_model=32 / 60 epochs).
+#
+# Routed through `tools/run.py → core.pipeline.run_pipeline → BCParadigm`.
+# Dataset path SHALL be set via CLI --override paradigm.bc.dataset_path=...;
+# this default leaves empty (collector raise if not overridden).
+#
+# Hybrid TOML structure (N6): [shape] = BC historical defaults (d_model=32).
+# [paradigm.bc.agent] absent → factory + [shape] merge gives effective shape.
+
+[meta]
+seed = 42
+paradigm = "bc"
+run_label = "bc_default"
+device = "cpu"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["墨客"]
+team_size = 1
+max_rounds = 15
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy", "test_basic"]
+data_dir = "data"
+
+# Shared obs schema (N6.4). BC historical default d_model=32 / n_cross_layers=1.
+[shape]
+n_counter_slots = 1832
+n_hooks = 900
+max_tokens_per_hook = 120
+max_actions = 2048
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+
+[paradigm.bc]
+version = "1.0.0"
+paradigm = "bc"
+# Required: set via override / change before run.
+dataset_path = ""
+held_out_frac = 0.1
+loss_kind = "ce"
+value_coef = 0.0
+lr = 1e-4
+weight_decay = 0.0
+batch_size = 256
+grad_clip = 1.0
+n_epochs = 60
+buffer_cap = 1_000_000
+
+[checkpoint]
+save_every = 10000
+keep_last_n = 5
+artifacts_root = "artifacts"

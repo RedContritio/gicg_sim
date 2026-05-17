@@ -1,0 +1,145 @@
+id: 508011
+name: 米卡
+title: 米卡
+parent_class: character
+desc: 米卡卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/1dd8c9d34d35efb1a229eed4f8584e8a_1750190567551927569.png
+header_img_url: ''
+version: '1771986570'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 长柄武器
+  阵营: &id001
+  - 蒙德
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 冰
+weapon: 长柄武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/1dd8c9d34d35efb1a229eed4f8584e8a_1723021599615540573.png
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/de066277f1f3120586b5e9c93c7fdb59_8671162971657656926.png
+skills:
+- name: 西风枪术·镝传
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/42a17dadbab7ddd2c401c36dc0759a76_5996546819864782075.png
+  effect_html: '<html><head></head><body><p>造成2点<strong><span style="color: rgb(0,
+    0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 星霜的流旋
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/de9d17bb1d5cf5224c6b547fbba77c2b_3911333309938261254.png
+  effect_html: '<html><head></head><body><p><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span
+    style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;冰元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;冻结&lt;/strong&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap; min-height: 1.5em;&#34;&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>，生成灵风<span data-type="详情" data-name="&lt;p&gt;灵风&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色「普通攻击」后：&lt;/strong&gt;该角色本回合下次「普通攻击」少花费2个无色元素。&lt;/p&gt;&lt;p&gt;（可用次数：1）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，生成灵风。
+  term_refs:
+  - 冰元素伤害
+  - 灵风出战状态我方角色「普通攻击」后
+- name: 苍翎的颂愿
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/3b332d8afca0840bb389ab100490627b_1849286135454196117.png
+  effect_html: <html><head></head><body><p>治疗我方全体角色1点，生成鹰翎心得<span data-type="详情" data-name="&lt;p&gt;鹰翎心得&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;我方角色「普通攻击」少花费1个元素骰。&lt;/p&gt;&lt;p&gt;（可用次数：2）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>和鹰翎祝念<span data-type="详情"
+    data-name="&lt;p&gt;鹰翎祝念&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;我方角色「普通攻击」后治疗自身1点。&lt;/p&gt;&lt;p&gt;（可用次数：2）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>
+  effect_text: 治疗我方全体角色1点，生成鹰翎心得和鹰翎祝念。
+  term_refs:
+  - 鹰翎心得出战状态我方角色「普通攻击」少花费1个元素骰。（可用次数
+  - 鹰翎祝念出战状态我方角色「普通攻击」后治疗自身1点。（可用次数
+  energy_req: 2
+- name: 速射牵制
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/829e1287b033cd13966293beca779d2b_8476985699734096608.png
+  effect_html: '<html><head></head><body><p>【被动】<strong>自身使用技能后：</strong>下次我方造成的<strong><span
+    style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>+1。（每回合2次）</p></body></html>'
+  effect_text: 【被动】自身使用技能后：下次我方造成的物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">+1。（每回合2次）
+  term_refs:
+  - 物理伤害
+summons: []
+talent:
+  name: 依随的策援
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/25/288180982/1e57a66c80c1aba48bf3bcab8c8e7513_1656072684350297397.png
+  effect_html: '<html><head></head><body><p><strong>战斗行动：</strong>我方出战角色为<strong>米卡</strong>时，装备此牌。</p><p><strong>米卡</strong>装备此牌后，立刻使用一次<strong>星霜的流旋</strong>。</p><p>装备有此卡牌的<strong>米卡</strong>在场时，灵风<span
+    data-type="详情" data-name="&lt;p&gt;灵风&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色「普通攻击」后：&lt;/strong&gt;该角色本回合下次「普通攻击」少花费2个无色元素。&lt;/p&gt;&lt;p&gt;（可用次数：1）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>触发后会额外使该角色本回合下次「普通攻击」造成的<strong><span
+    style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>+2。</p><p>（牌组中包含米卡，才能加入牌组）</p></body></html>'
+  effect_text: '战斗行动：我方出战角色为米卡时，装备此牌。
+
+    米卡装备此牌后，立刻使用一次星霜的流旋。
+
+    装备有此卡牌的米卡在场时，灵风触发后会额外使该角色本回合下次「普通攻击」造成的物理伤害物理伤害：
+
+    物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">+2。
+
+    （牌组中包含米卡，才能加入牌组）'
+  term_refs:
+  - 灵风出战状态我方角色「普通攻击」后
+  - 物理伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含米卡，才能加入牌组
+flavor_html: <p><strong>米卡</strong></p><p>翎羽如穗，绘摹殊境。</p>
+flavor_text: '米卡
+
+  翎羽如穗，绘摹殊境。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+_raw_path: data/raw/character/508011_米卡.json

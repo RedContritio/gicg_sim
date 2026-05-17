@@ -1,0 +1,29 @@
+# s034: 1-card BC data gen with F1-D3 teacher.
+#
+# P2.2 ablation: tests "F1-D2 teacher ceiling caps BC quality".
+# F1-D2 teacher self-wr in s026 was 0.691 (low). F1-D3 should be
+# stronger (4× slower per decision). Same env as s026 except teacher
+# upgraded.
+
+run_label = "s034_bc_data_gen_stage3_1card_d3teacher"
+
+teams = ["测试角色D"]
+fix_dice = "none"
+max_rounds = 3
+card_pool = ["测试卡_碎片"]
+data_dir = "data"
+
+obs_mask = ["enemy_dice"]
+
+teacher = "F1-D3"
+teacher_dice_greedy = true
+opponent_mix = ["F1-D3", "F1-D2"]
+
+target_decisions = 50000
+max_games = 8000
+
+max_actions = 128
+seed = 0
+
+[meta]
+paradigm = "bc"

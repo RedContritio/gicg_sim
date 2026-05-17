@@ -1,0 +1,262 @@
+id: 5368
+name: 香菱
+title: 万民百味·香菱
+parent_class: character
+desc: 香菱卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/db00cd121173cb6fcfefcd2269fffe8d_4269206889525716747.png
+header_img_url: ''
+version: '1768356551'
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 长柄武器
+  阵营: &id001
+  - 璃月
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 火
+weapon: 长柄武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/db00cd121173cb6fcfefcd2269fffe8d_3134519584249287466.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/1d6420e87bad502a2e350ce25f999d8b_7033081990641516025.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 白案功夫
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/0cd68ecb1a011d94e2b4be1b99ac3302_8062496215333431665.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 锅巴出击
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/eff41796c703a21e367766cd96ccfefc_4096903365398601995.png
+  effect_html: <p>召唤<strong><em>锅巴</em></strong>。</p>
+  effect_text: 召唤锅巴。
+  term_refs: []
+- name: 旋火轮
+  type: 元素爆发
+  raw_life: 4
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 4
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/c324cd014801eaea70ee05529d9ba3ff_2574087438784210727.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(245,
+    34, 45)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，生成<strong><u>旋火轮</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;旋火轮：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色使用技能后：&lt;/strong&gt;造成2点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">，生成旋火轮火元素伤害。可用次数：2火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  - 旋火轮
+  energy_req: 2
+summons:
+- name: 锅巴
+  type: 召唤物
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/19b63677c8f4e6cabed15711be406e09_2795447472820195792.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>造成2点<strong><span style="color: rgb(207,
+    19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：2</strong></p>'
+  effect_text: 结束阶段：造成2点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。可用次数：2
+  term_refs:
+  - 火元素伤害
+  - 可用次数
+talent:
+  name: 交叉火力
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/101e8ef859847643178755f3bcacbad5_1044289593325522073.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>香菱</strong>时，装备此牌。</p><p>香菱装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>锅巴出击</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;锅巴出击：&lt;/p&gt;&lt;p&gt;召唤&lt;strong&gt;锅巴&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;锅巴&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;造成2点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的香菱施放<strong>锅巴出击</strong>时，自身也会造成1点<strong><span
+    style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含香菱，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为香菱时，装备此牌。
+
+    香菱装备此牌后，立刻使用一次锅巴出击火元素伤害。
+
+    可用次数：2
+
+    火元素伤害：
+
+    附着火元素，可发生元素反应：
+
+    融化：本伤害+2
+
+    蒸发：本伤害+2
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的香菱施放锅巴出击时，自身也会造成1点火元素伤害火元素伤害：
+
+    附着火元素，可发生元素反应：
+
+    融化：本伤害+2
+
+    蒸发：本伤害+2
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）" class="wiki-note-text">。
+
+    （牌组中包含香菱，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 锅巴出击
+  - 火元素伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含香菱，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 6
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '2'
+  skills:
+  - name: 白案功夫
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/0cd68ecb1a011d94e2b4be1b99ac3302_3769098984839144576.png
+    effect_html: <p>造成<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+    effect_text: 造成物理伤害。
+    term_refs:
+    - 物理伤害
+  - name: 旋火轮
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/21/258999284/c324cd014801eaea70ee05529d9ba3ff_3655863337968968835.png
+    effect_html: '<p>造成<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着火元素，可发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害翻倍，每8点&lt;strong&gt;元素精通&lt;/strong&gt;额外翻1倍&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害翻倍，每8点&lt;strong&gt;元素精通&lt;/strong&gt;额外翻1倍&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载：&lt;/strong&gt;伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，目标切换到上一个角色，他们交换位置并受到&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;目标附属&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;层[&lt;strong&gt;持续燃烧&lt;/strong&gt;]&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，基于自身攻击力生成2层的<strong><u>旋火轮</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;旋火轮：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方角色使用技能后：&lt;/strong&gt;造成&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(207, 19, 34)&quot;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。（受香菱攻击力强化）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着火元素，可发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害翻倍，每8点&lt;strong&gt;元素精通&lt;/strong&gt;额外翻1倍&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害翻倍，每8点&lt;strong&gt;元素精通&lt;/strong&gt;额外翻1倍&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载：&lt;/strong&gt;伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，目标切换到上一个角色，他们交换位置并受到&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;目标附属&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;层[&lt;strong&gt;持续燃烧&lt;/strong&gt;]&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成火元素伤害火元素伤害：附着火元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍融化：本伤害翻倍，每8点元素精通额外翻1倍超载：伤害+1，目标切换到上一个角色，他们交换位置并受到1点穿透伤害燃烧：目标附属1层[持续燃烧]"
+      class="wiki-note-text">，基于自身攻击力生成2层的旋火轮火元素伤害。（受香菱攻击力强化）火元素伤害：附着火元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍融化：本伤害翻倍，每8点元素精通额外翻1倍超载：伤害+1，目标切换到上一个角色，他们交换位置并受到1点穿透伤害燃烧：目标附属1层[持续燃烧]"
+      class="wiki-note-text">。
+    term_refs:
+    - 火元素伤害
+    - 旋火轮
+    energy_req: 2
+  - name: 锅巴出击
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/21/258999284/eff41796c703a21e367766cd96ccfefc_2910915076973293764.png
+    effect_html: <p>造战斗开始时：基于自身攻击力召唤<strong><em>锅巴</em></strong>。</p>
+    effect_text: 造战斗开始时：基于自身攻击力召唤锅巴。
+    term_refs: []
+  summons:
+  - name: 锅巴
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/21/258999284/19b63677c8f4e6cabed15711be406e09_129718372667950986.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong>结束阶段：</strong>造成<strong><span style="color: rgb(207,
+      19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着火元素，可发生元素反应&lt;/p&gt;&lt;p&gt;每点&lt;strong&gt;元素精通&lt;/strong&gt;使&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害翻倍，每8点&lt;strong&gt;元素精通&lt;/strong&gt;额外翻1倍&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害翻倍，每8点&lt;strong&gt;元素精通&lt;/strong&gt;额外翻1倍&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载：&lt;/strong&gt;伤害+&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;，目标切换到上一个角色，他们交换位置并受到&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;目标附属&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;层[&lt;strong&gt;持续燃烧&lt;/strong&gt;]&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（受香菱攻击力强化）</p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：3</p>'
+    effect_text: 结束阶段：造成火元素伤害火元素伤害：附着火元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍融化：本伤害翻倍，每8点元素精通额外翻1倍超载：伤害+1，目标切换到上一个角色，他们交换位置并受到1点穿透伤害燃烧：目标附属1层[持续燃烧]"
+      class="wiki-note-text">。（受香菱攻击力强化）可用次数：3
+    term_refs:
+    - 火元素伤害
+    - 可用次数
+flavor_html: '<p style="white-space: pre-wrap;"><strong>万民百味·香菱</strong></p><p style="white-space:
+  pre-wrap;">身为一个厨师，她几乎什么都做得到。</p>'
+flavor_text: '万民百味·香菱
+
+  身为一个厨师，她几乎什么都做得到。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  旋火轮: 出战状态我方角色使用技能后：造成2点火元素伤害。可用次数：2火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  锅巴出击: 召唤锅巴。锅巴结束阶段：造成2点火元素伤害。可用次数：2火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/5368_香菱.json

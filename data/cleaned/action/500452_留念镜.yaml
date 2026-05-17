@@ -1,0 +1,40 @@
+id: 500452
+name: 留念镜
+parent_class: action
+sub_class: 支援牌
+tags:
+- 道具
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 道具
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '我方打出「武器」/「圣遗物」/「场地」/「伙伴」手牌时：如果本场对局中我方曾经打出过所打出牌的同名卡牌，则少花费2个元素骰。（每回合1次）
+
+  可用次数此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。
+
+  " class="wiki-note-text">：2'
+term_refs: []
+terms:
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_7981771245086270348.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/aa32049459ce38daffbfe5dc82eb9303_2738230079920133028.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/17/258999284/91a53a4968c5dbc6ec087d9a3421775f_1871043670706662933.gif
+flavor_text: '留念镜
+
+  据说在很久以前，传说中的「狐斋宫大人」曾经将一件法器作为退邪之物赠与彼时柊家家主弘嗣。
+
+  柊以其为透镜部件的材料，后来从异国定做了特殊的「留影机」，并将其作为情谊的象征，回赠鸣神大社。'

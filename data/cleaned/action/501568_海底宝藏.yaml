@@ -1,0 +1,29 @@
+id: 501568
+name: 海底宝藏
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 其他标签
+  获取:
+  - 海中寻宝效果生成
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: 生成1个随机基础元素骰，治疗我方出战角色1点。（每个角色每回合最多受到1次来自本效果的治疗）
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/7a8c85830ce44927460008304d7f73ed_4335524935098537115.png
+generated_by: 海中寻宝效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/3aff8ec3cf191b9696331d29ccb9d81e_7906651546886585440.png
+flavor_text: ''

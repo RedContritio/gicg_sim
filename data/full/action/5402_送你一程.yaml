@@ -1,0 +1,44 @@
+id: 5402
+name: 送你一程
+parent_class: action
+desc: 送你一程
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '2'
+cost:
+  无色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/c0c1b91fe602e0d29159e8ae5effe537_7465992504913868183.png
+header_img_url: ''
+version: '1771987985'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买、初始自带
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p>选择一个敌方「召唤物」，使其「<strong><u>可用次数</u></strong><span data-type="详情" data-name="<p
+  style=&quot;white-space: pre-wrap;&quot;>可用次数：</p><p style=&quot;white-space: pre-wrap;&quot;>此牌效果触发后，会消耗1次可用次数；</p><p
+  style=&quot;white-space: pre-wrap;&quot;>可用次数耗尽后，立刻弃置此牌。</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>」-2。</p>'
+effect_text: '选择一个敌方「召唤物」，使其「可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">」-2。'
+term_refs:
+- 可用次数
+terms:
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/f5dd60d41187c41067aa90014d9c54c2_2660623964638893053.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/c0c1b91fe602e0d29159e8ae5effe537_5817178004449528211.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/4b52ad27097c7d8c954abc17d817b85f_5256799823016525786.gif
+flavor_html: <p>「一波送走~往生堂服务品质保证，包您满意！」</p>
+flavor_text: 「一波送走~往生堂服务品质保证，包您满意！」
+_raw_path: data/raw/action/5402_送你一程.json

@@ -1,0 +1,59 @@
+# r006: char_skill_refs obs 消融。r005A 去掉 char_skill_refs 区域。
+#
+# 动机:r001 slow no-K 5d = 0.55,r005A slow no-K 6d = 0.45,中间差 0.10。
+# 这个 gap 可能来自:
+#   - char_skill_refs obs region(多了 120 维 -1/refs)
+#   - SkillSlotPerm shuffle 额外引入的随机性
+#   - r001 → r005A 之间的其他 commit 累积(DSL filter、talent load、code
+#     refactor splits、DSL cache 等)
+#   - 噪声(20g gauntlet 1σ ≈ 0.11,和 0.10 gap 同量级)
+#
+# 用新的 obs config 开关把 char_skill_refs 区填 -1(schema 保留 6d,预测会飘),
+# 其他完全同 r005A。
+#
+# ⚠ 注意:include_char_skill_refs=false 时区域填 -1,StaticObsSize 不变,
+# 所以网络架构和 r005A 完全一致。网络 state_proj 仍是 6d,只是第 6 维输入
+# 一直是 -1 常量。严格来说这不是 "零特征" 而是 "常量特征",网络可能学到
+# "第 6 维无信息就忽略"。要真正的 5d 架构需另做 network/constants.py 改动。
+#
+# 预期判断:
+#   r006 ≈ 0.55(r001 水准):char_skill_refs 或 SkillSlotPerm 是 0.10 gap 来源,
+#                             建议移除 region 或重新设计
+#   r006 ≈ 0.45(r005A 水准):char_skill_refs 不是锅,剩余 gap 来自其他 commit
+#                             或纯噪声
+#   r006 在中间:两者都有贡献
+
+base = "random_1v1"
+run_label = "r006_slow_noskillrefs_400g"
+
+n_games = 400
+n_workers = 4
+batch_size = 64
+games_per_arena = 100
+games_per_gauntlet = 200
+checkpoint_every_n_games = 100
+
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+# lambda_anneal_games 省略 → 默认 slow 1500
+# expand_union_k 省略 → 默认 1(K=3 在本 run 前应已被彻底移除)
+
+[train]
+delta_aux_coef = 1.0
+
+[scenario]
+team_size = 2
+disjoint_teams = true
+
+[obs]
+# 关键变量:char_skill_refs 区改填 -1(保持 StaticObsSize),
+# 其余 shuffle 保持 on
+include_char_skill_refs = false
+shuffle_counters = true
+shuffle_hooks = true
+shuffle_cards = true
+shuffle_skill_slots = true
+
+[meta]
+paradigm = "az"

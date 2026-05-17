@@ -1,0 +1,51 @@
+id: 5416
+name: 千岩长枪
+parent_class: action
+desc: 千岩长枪
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/7b6b74c3444f624f117f8e05344d27ec_5670712886367938825.png
+header_img_url: ''
+version: '1687837121'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+  pre-wrap;">入场时：队伍中每有一名「璃月」角色，此牌就为附属的角色提供1点<strong><u>护盾</u></strong><span data-type="详情"
+  data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;护盾：&lt;/p&gt;&lt;p style=&#34;white-space:
+  pre-wrap;&#34;&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>。（最多3点）</p><p style="white-space: pre-wrap;">（「长柄武器」角色才能装备。角色最多装备1件「武器」）</p>'
+effect_text: '角色造成的伤害+1。
+
+  入场时：队伍中每有一名「璃月」角色，此牌就为附属的角色提供1点护盾护盾：
+
+  此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。" class="wiki-note-text">。（最多3点）
+
+  （「长柄武器」角色才能装备。角色最多装备1件「武器」）'
+term_refs:
+- 护盾
+terms:
+  护盾: 此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/bcc66ffd5b7bea190c27be86d18d1fa6_1437999561552750502.png
+weapon_type: 长柄武器
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/7b6b74c3444f624f117f8e05344d27ec_6292708375904670698.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/b1e01f62a4031c424d5f889f30a025f4_2336449970638693949.gif
+flavor_html: '<p style="white-space: pre-wrap;"><strong>重嶂不移·千岩长枪</strong></p><p style="white-space:
+  pre-wrap;">古代的千岩军爱用的武器。取孤云阁的岩片精工打造的长枪，枪尖坚固无比。</p>'
+flavor_text: '重嶂不移·千岩长枪
+
+  古代的千岩军爱用的武器。取孤云阁的岩片精工打造的长枪，枪尖坚固无比。'
+_raw_path: data/raw/action/5416_千岩长枪.json

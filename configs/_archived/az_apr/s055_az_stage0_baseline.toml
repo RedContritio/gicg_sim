@@ -1,0 +1,42 @@
+# s055: AZ 栈在 Stage 0 spec 下的 baseline run。
+#
+# 与 PPO Stage 0 (s008) 同 game spec:1v1 测试角色D mirror + fix_dice
+# + max_rounds=3 + fully observable + 无卡。验证 AZ 栈本身能在 simplest
+# stage work,排查 AZ-specific stack bug。
+#
+# 与 PPO 数字对照 (s008): vs random ≥ 0.95 / vs F1-D2 = 0.875
+#
+# 判据:
+#   vs random ≥ 0.95 → AZ 栈在 Stage 0 work,准备 Stage 1 AZ baseline (s056)
+#   vs random 0.70-0.95 → 部分 work,加大 n_rollouts / 长训
+#   vs random < 0.65 → AZ 栈本身有 bug,排查 (与 PPO 0.95+ 形成对照)
+#
+# 详见 docs/3_plans/curriculum/stage0.md (待加 AZ 栏)
+# + docs/3_plans/az/r009_az_warmstart.md (α 路径 first run)
+
+base = "fixed_1v1"
+run_label = "s055_az_stage0_baseline"
+
+# Stage 0 简单,200 局 baseline 验证够
+n_games = 200
+batch_size = 64
+games_per_arena = 50
+arena_games = 20
+games_per_gauntlet = 200
+gauntlet_games_per_opponent = 16
+
+[scenario]
+team_0 = ["测试角色D"]
+team_1 = ["测试角色D"]
+card_pool = []
+max_rounds = 3
+fix_dice = [2, 2, 2, 2, 0, 0, 0, 0]
+
+[mcts]
+n_rollouts = 100
+lambda_anneal_games = 200
+lambda_end = 0.5
+backend = "go"
+
+[meta]
+paradigm = "az"

@@ -1,0 +1,45 @@
+id: 506927
+name: 冒险家协会
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '结束阶段：冒险冒险：
+
+  从冒险地点中挑选1个生成。
+
+  如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。" class="wiki-note-text">1次。
+
+  可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3'
+term_refs:
+- 冒险
+- 可用次数
+terms:
+  冒险: 从冒险地点中挑选1个生成。如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/9e7207494a4fdb10df19179ec836623b_2949474042032549878.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/82cd8a4a820b5608e57a3661dcb49b8f_8218775068142851712.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/591f3aa8f5e4d7597526f2cfa06e6ad4_4528273377272968907.gif
+flavor_text: '冒险家协会
+
+  他们称自己「上至星天，下达九渊」。实际上好像从「找猫咪」到「探索秘境」都在其工作范围内。仰望星空，凝视深渊，都要脚踏实地嘛。'

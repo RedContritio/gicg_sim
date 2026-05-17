@@ -1,0 +1,314 @@
+'01':
+  hash: 7a8c85830ce44927460008304d7f73ed
+  n_cards: 107
+  samples:
+  - 磐岩盟契
+  - 旧时庭园
+  - 大梦的曲调
+  current_costs:
+  - '{"any": 0}'
+'02':
+  hash: 8c5a4f348a3a8017500c15e9cd0c5c15
+  n_cards: 77
+  samples:
+  - 老章
+  - 塞塔蕾
+  - 海祇之冠
+  current_costs:
+  - '{"any": 1}'
+  - '{"same": 1}'
+'03':
+  hash: 9e7207494a4fdb10df19179ec836623b
+  n_cards: 66
+  samples:
+  - 风龙废墟
+  - 晦朔千引
+  - 来歆余响
+  current_costs:
+  - '{"any": 2}'
+  - '{"same": 2}'
+'04':
+  hash: f5dd60d41187c41067aa90014d9c54c2
+  n_cards: 37
+  samples:
+  - 炸鱼薯条
+  - 老兵的容颜
+  - 缤纷马卡龙
+  current_costs:
+  - '{"any": 2}'
+  - '{"same": 2}'
+'05':
+  hash: bcc66ffd5b7bea190c27be86d18d1fa6
+  n_cards: 34
+  samples:
+  - 王下近侍
+  - 贯月矢
+  - 图莱杜拉的回忆
+  current_costs:
+  - '{"any": 3}'
+  - '{"same": 3}'
+'06':
+  hash: f21fd5a782dead6518d879c718eea643
+  n_cards: 16
+  samples:
+  - 盈满之实
+  - 海染砗磲
+  - 原木刀
+  current_costs:
+  - '{"same": 3}'
+'07':
+  hash: 6f082f91ed13b1f5b4f82206ebd332a9
+  n_cards: 14
+  samples:
+  - 酌盈剂虚
+  - 悲号回唱
+  - 雷萤浮闪
+  current_costs:
+  - '{"same": 3}'
+08:
+  hash: 7125244844988d521622982000b3675c
+  n_cards: 14
+  samples:
+  - 风物之诗咏
+  - 毁裂风涡
+  - 如影流露的冷刃
+  current_costs:
+  - '{"same": 3}'
+09:
+  hash: d08c736ffd58960cac4e7033dd69a0a3
+  n_cards: 13
+  samples:
+  - 衍溢的汐潮
+  - 星天的花雨
+  - 猜先有方
+  current_costs:
+  - '{"same": 3}'
+  - '{"水": 3}'
+'10':
+  hash: 5fd9633462b60065636434992f1d9625
+  n_cards: 12
+  samples:
+  - 归芒携信
+  - 以有趣相关为要义
+  - 冰雅刺剑
+  current_costs:
+  - '{"same": 3}'
+  - '{"冰": 3}'
+'11':
+  hash: a27c6121d910fcdd598fb02da9a01cfe
+  n_cards: 10
+  samples:
+  - 完场喝彩
+  - 魔蝎烈祸
+  - 僚佐的才巧
+  current_costs:
+  - '{"same": 3}'
+  - '{"火": 3}'
+'12':
+  hash: 00cce35b579cabd6b829eaa5cd1aed42
+  n_cards: 8
+  samples:
+  - 脉冲的魔女
+  - 亡雷凝蓄
+  - 侵雷重闪
+  current_costs:
+  - '{"雷": 1}'
+'13':
+  hash: 3d51302253f619d80c73559c5d38f3df
+  n_cards: 8
+  samples:
+  - 最终解释权
+  - 熔火铁甲
+  - 地狱里摇摆
+  current_costs:
+  - '{"same": 3}'
+  - '{"火": 1}'
+'14':
+  hash: b68c9ea46a14544092af66afe031b541
+  n_cards: 8
+  samples:
+  - 慈惠仁心
+  - 正理
+  - 沿途百景会心
+  current_costs:
+  - '{"same": 3}'
+  - '{"草": 3}'
+'15':
+  hash: 71fc6f5fba3de4fef6925cd22d2fdf5b
+  n_cards: 7
+  samples:
+  - 神性之陨
+  - 犬奔_疾如风
+  - 庄谐并举
+  current_costs: []
+'16':
+  hash: 44762d10de05f76e79b27ed8ee3fce50
+  n_cards: 5
+  samples:
+  - 古海孑遗的权柄
+  - 暗流涌动
+  - 夜域赐礼_波涛顶底
+  current_costs:
+  - '{"水": 1}'
+'17':
+  hash: c8600cf471b4c41a92ad00c68a3c6611
+  n_cards: 5
+  samples:
+  - 超量装药弹头
+  - 尖兵协同战法
+  - 蒸发祝佑_炽燃
+  current_costs: []
+'18':
+  hash: ecc31f3f06099f1d86e608a1b712e7c6
+  n_cards: 5
+  samples:
+  - 严霜棱晶
+  - 予行恶者以惩惧
+  - 湮远
+  current_costs: []
+'19':
+  hash: 1f62890b9c61a77c430040e743443cef
+  n_cards: 4
+  samples:
+  - 亡风啸卷
+  - 子弹的戏法
+  - 温敷战术包扎
+  current_costs:
+  - '{"风": 1}'
+'20':
+  hash: 2593ff944f9f2068cb0e676923bd69e2
+  n_cards: 4
+  samples:
+  - 夜域赐礼_团结炉心
+  - _曾如磐石抵挡黑水奔流__
+  - 元素共鸣_坚定之岩
+  current_costs:
+  - '{"岩": 1}'
+'21':
+  hash: 2a2a6e4f1cfd2931ae0f9588e1543f3d
+  n_cards: 3
+  samples:
+  - 以极限之名
+  - 霜月之坊
+  - 护法之誓
+  current_costs:
+  - '{"same": 4}'
+'22':
+  hash: e27d1a031f8206bce971972b7935b75b
+  n_cards: 3
+  samples:
+  - 唤醒眷属
+  - 万千子嗣
+  - 茉洁香迹
+  current_costs: []
+'23':
+  hash: e915ac0c0582312eb32eedb810dd4d28
+  n_cards: 3
+  samples:
+  - 索报皆偿
+  - 饕噬尽吞
+  - 元素共鸣_蔓生之草
+  current_costs:
+  - '{"草": 1}'
+'24':
+  hash: 0ab78ee1386d42288358972c012a3bb1
+  n_cards: 2
+  samples:
+  - 突角龙
+  - 重铸圣剑
+  current_costs: []
+'25':
+  hash: 506f4f7255247960513492c9767d0743
+  n_cards: 2
+  samples:
+  - 崇诚之真
+  - 冒险憧憬
+  current_costs:
+  - '{"same": 4}'
+'26':
+  hash: 72f3f6e39cc91339339bf02e0539e5d3
+  n_cards: 2
+  samples:
+  - 梦迹一风
+  - 蒲公英的国土
+  current_costs: []
+'27':
+  hash: 75a15409ce9b0506a1e1a8fa7f5c0368
+  n_cards: 2
+  samples:
+  - 五重天的寒雨
+  - 寒天宣命祝词
+  current_costs: []
+'28':
+  hash: 9862fdb9b4581f82b1f8a1c75a9e7f57
+  n_cards: 2
+  samples:
+  - 无光鲸噬
+  - 百川奔流
+  current_costs: []
+'29':
+  hash: aefd74af2edecabe9d1bfa0df9f3b464
+  n_cards: 2
+  samples:
+  - 起死回骸
+  - 虹彩缤纷的甜点茶话
+  current_costs: []
+'30':
+  hash: b4616033b92a7b60cf181962ee633e14
+  n_cards: 2
+  samples:
+  - 在地为化
+  - 眼识殊明
+  current_costs: []
+'31':
+  hash: c8cb2fc927a3610843641a8b8ce0f9f5
+  n_cards: 2
+  samples:
+  - 汇流
+  - 蒸发祝佑_狂浪
+  current_costs: []
+'32':
+  hash: cd47a0303526982ab0cee71941c43a41
+  n_cards: 2
+  samples:
+  - 落染五色
+  - 重铸_岩盔
+  current_costs: []
+'33':
+  hash: d759a7fcaf78046125db81764c333589
+  n_cards: 2
+  samples:
+  - 破夜的明焰
+  - 汲能棱晶
+  current_costs:
+  - '{"same": 2}'
+'34':
+  hash: 0c6b6c65320c8ee0b093d8be1dc0b26d
+  n_cards: 1
+  samples:
+  - 唯此一心
+  current_costs: []
+'35':
+  hash: 1d41d441b6edfeabafcb784ffb077bbe
+  n_cards: 1
+  samples:
+  - 割舍软弱之心
+  current_costs: []
+'36':
+  hash: 9c612b3f541dda9cefb89db8c07479bc
+  n_cards: 1
+  samples:
+  - 丛山锻火驰行
+  current_costs: []
+'37':
+  hash: 9dc26bb7f9bfeba59916eb9864e2c7c4
+  n_cards: 1
+  samples:
+  - 浪船
+  current_costs: []
+'38':
+  hash: f821d769cd4d342230aa440489eae3a7
+  n_cards: 1
+  samples:
+  - 炊金馔玉
+  current_costs: []

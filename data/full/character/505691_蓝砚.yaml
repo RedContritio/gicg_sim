@@ -1,0 +1,195 @@
+id: 505691
+name: 蓝砚
+title: 翦玉编春·蓝砚
+parent_class: character
+desc: 蓝砚卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/b448ace8a6f21314b0d097cd40811bbb_91194831960391068.png
+header_img_url: ''
+version: '1761488151'
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 璃月
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 风
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/b448ace8a6f21314b0d097cd40811bbb_4959882338856335294.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/f788fa4208bb1beadef94bdbecd7e4b7_5880333720844152538.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/de066277f1f3120586b5e9c93c7fdb59_3407185971879367376.png
+skills:
+- name: 玄鸾画水
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    风: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/b2e7d2f291282eddae61edaa9de98c41_7283560356557996313.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color:
+    rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>风元素伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+- name: 凤缕随翦舞
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/7602c02144feb3599e5b206166b63123_1875732569118149069.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">生成2层</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>凤缕护盾</u></span></strong><span data-type="详情" data-name="<p><strong>凤缕护盾：</strong></p><p><strong>出战状态</strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>为我方出战角色提供</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>1点护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。（可叠加，没有上限）</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，获得1层</span><strong><span style="color: rgb(0, 0, 0)"><u>高效切换</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>高效切换：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>出战状态</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>我方下次执行「切换角色」行动时：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>少花费1个元素骰。（可叠加，没有上限）</span></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，并造成1点</span><strong><span
+    style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情"
+    data-name="<p style=&quot;white-space: pre-wrap;&quot;>风元素伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，如果此技能引发了扩散，则额外生成1层</span><strong><span style="color: rgb(0, 0,
+    0)"><u>凤缕护盾</u></span></strong><span data-type="详情" data-name="<p><strong>凤缕护盾：</strong></p><p><strong>出战状态</strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>为我方出战角色提供</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>1点护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。（可叠加，没有上限）</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 生成2层凤缕护盾为我方出战角色提供1点护盾。（可叠加，没有上限）" class="wiki-note-text">，获得1层高效切换高效切换：出战状态我方下次执行「切换角色」行动时：少花费1个元素骰。（可叠加，没有上限）"
+    class="wiki-note-text">，并造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，如果此技能引发了扩散，则额外生成1层凤缕护盾为我方出战角色提供1点护盾。（可叠加，没有上限）" class="wiki-note-text">。
+  term_refs:
+  - 凤缕护盾
+  - 高效切换
+  - 风元素伤害
+- name: 鹍弦踏月出
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/2db09430be95c661c83aa254fc35aab8_3414318415429015440.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成3点</span><strong><span style="color:
+    rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>风元素伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;>扩散（水）：对目标以外的所有敌方角色造成1点水伤害</p><p style=&quot;white-space:
+    pre-wrap;&quot;>扩散（火）：对目标以外的所有敌方角色造成1点火伤害</p><p style=&quot;white-space: pre-wrap;&quot;>扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，生成2层</span><strong><span style="color: rgb(0, 0, 0)"><u>凤缕护盾</u></span></strong><span
+    data-type="详情" data-name="<p><strong>凤缕护盾：</strong></p><p><strong>出战状态</strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>为我方出战角色提供</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>1点护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。（可叠加，没有上限）</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成3点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，生成2层凤缕护盾为我方出战角色提供1点护盾。（可叠加，没有上限）" class="wiki-note-text">。
+  term_refs:
+  - 风元素伤害
+  - 凤缕护盾
+  energy_req: 2
+summons: []
+talent:
+  name: 舞袂翩兮扬玉霓
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/d836580126ee628ba68f0c9e3ebacbcb_5688297738448479815.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">蓝砚</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br>蓝砚装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>凤缕随翦舞</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;凤缕随翦舞：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素战技&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;生成2层&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;凤缕护盾&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，获得1层&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;高效切换&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(19, 194, 194)&quot;&gt;风元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，如果此技能引发了扩散，则额外生成1层&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;凤缕护盾&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br></span><strong><span
+    style="color: rgb(0, 0, 0)">装备有此牌的蓝砚在场，我方角色进行普通攻击时：</span></strong><span style="color:
+    rgb(0, 0, 0)">获得1层</span><strong><span style="color: rgb(0, 0, 0)"><u>凤缕护盾</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;凤缕护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;为我方出战角色提供&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;1点护盾&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（可叠加，没有上限）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含蓝砚，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为蓝砚时，装备此牌。
+
+    蓝砚装备此牌后，立刻使用一次凤缕随翦舞凤缕随翦舞：
+
+    元素战技
+
+    生成2层凤缕护盾，获得1层高效切换，并造成1点风元素伤害，如果此技能引发了扩散，则额外生成1层凤缕护盾。" class="wiki-note-text">。
+
+    装备有此牌的蓝砚在场，我方角色进行普通攻击时：获得1层凤缕护盾凤缕护盾：
+
+    出战状态
+
+    为我方出战角色提供1点护盾。（可叠加，没有上限）" class="wiki-note-text">。（每回合1次）
+
+    （牌组中包含蓝砚，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 凤缕随翦舞
+  - 凤缕护盾
+  deck_constraint: 牌组中包含蓝砚，才能加入牌组
+flavor_html: <p><strong>翦玉编春·蓝砚</strong></p><p>巧燕衔枝，欣悦盈门。</p>
+flavor_text: '翦玉编春·蓝砚
+
+  巧燕衔枝，欣悦盈门。'
+terms:
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害
+  凤缕护盾: 出战状态为我方出战角色提供1点护盾。（可叠加，没有上限）
+  高效切换: 出战状态我方下次执行「切换角色」行动时：少花费1个元素骰。（可叠加，没有上限）
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  凤缕随翦舞: 元素战技生成2层凤缕护盾，获得1层高效切换，并造成1点风元素伤害，如果此技能引发了扩散，则额外生成1层凤缕护盾。
+_raw_path: data/raw/character/505691_蓝砚.json

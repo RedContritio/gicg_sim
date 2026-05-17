@@ -1,0 +1,63 @@
+id: 500679
+name: 原木刀
+parent_class: action
+desc: 原木刀卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  无色: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/1f97927392b79a716430461251ff53e2_8528040489317947330.png
+header_img_url: ''
+version: '1755483898'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">角色造成的伤害+1</span></strong><span
+  style="color: rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0, 0)">入场时：</span></strong><span
+  style="color: rgb(0, 0, 0)">所附属角色在本回合中，下次使用「普通攻击」后：生成2个此角色类型的元素骰。<br>（</span><strong><span
+  style="color: rgb(0, 0, 0)">「单手剑」角色</span></strong><span style="color: rgb(0, 0,
+  0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '角色造成的伤害+1。
+
+  入场时：所附属角色在本回合中，下次使用「普通攻击」后：生成2个此角色类型的元素骰。
+
+  （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/f21fd5a782dead6518d879c718eea643_2499641950376554566.png
+weapon_type: 单手剑
+variants:
+- mode: 标准
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">角色造成的伤害+1</span></strong><span
+    style="color: rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0,
+    0)">入场时：</span></strong><span style="color: rgb(0, 0, 0)">所附属角色在本回合中，下次使用「普通攻击」后：生成2个此角色类型的元素骰。<br>（</span><strong><span
+    style="color: rgb(0, 0, 0)">「单手剑」角色</span></strong><span style="color: rgb(0,
+    0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+  effect_text: '角色造成的伤害+1。
+
+    入场时：所附属角色在本回合中，下次使用「普通攻击」后：生成2个此角色类型的元素骰。
+
+    （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/1f97927392b79a716430461251ff53e2_4196794667556484935.png
+jiqiao: true
+flavor_html: <p><strong>森林的瑞佑·原木刀</strong></p><p>「···即使如此，在沙漠的深处，如同森林王留下足印，你我留下故事。」</p><p>「过去友情的痕迹，听说如同化为子种的兰那罗，仍在静静沉睡着。」</p>
+flavor_text: '森林的瑞佑·原木刀
+
+  「···即使如此，在沙漠的深处，如同森林王留下足印，你我留下故事。」
+
+  「过去友情的痕迹，听说如同化为子种的兰那罗，仍在静静沉睡着。」'
+_raw_path: data/raw/action/500679_原木刀.json

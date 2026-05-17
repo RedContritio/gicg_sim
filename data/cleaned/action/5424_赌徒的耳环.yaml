@@ -1,0 +1,47 @@
+id: 5424
+name: 赌徒的耳环
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '敌方角色被击倒后：如果所附属角色为「出战角色」，则生成2个万能元素万能元素：
+
+  万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">（整场牌局限制3次）。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 万能元素
+terms:
+  万能元素: 万能元素可以视为任何类型的元素，来支付各种费用。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/8c5a4f348a3a8017500c15e9cd0c5c15_3269042573899354955.png
+variants:
+- mode: 标准
+  effect_text: '敌方角色被击倒后：如果所附属角色为「出战角色」，则生成2个万能元素万能元素：
+
+    万能元素可以视为任何类型的元素，来支付各种费用。" class="wiki-note-text">（整场牌局限制3次）。
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/c36e23e6486cfc14ba1afac19d73620e_6020851449922266352.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/1becdca70e4ce1ee2137c1fa69f4cbc9_3367480181908515055.gif
+jiqiao: true
+flavor_text: '喝雉呼卢·赌徒的耳环
+
+  「在生死攸关的对局中，多一分冷静理智，便也就多了一缕得胜的希望。」'

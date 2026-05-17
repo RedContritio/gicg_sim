@@ -1,0 +1,387 @@
+{
+  "id": "502899",
+  "name": "镀金旅团·叶轮舞者",
+  "desc": "镀金旅团·叶轮舞者卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/d817cec7f1b14e0949f458e3b9746fa3_3263880810360461798.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"旋舞之忆·叶轮舞者\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/d817cec7f1b14e0949f458e3b9746fa3_8569570692569956190.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/88b22023dcff0d3b8706df0c33b2b59e_4071500878607004925.gif\",\"life\":10,\"life_bg\":11,\"energy\":2,\"energy_bg\":8,\"attr\":[{\"key\":\"元素：\",\"value\":[\"草元素\"]},{\"key\":\"武器：\",\"value\":[\"其他武器\"]},{\"key\":\"阵营：\",\"value\":[\"镀金旅团\"]},{\"key\":\"充能：\",\"value\":[\"2点\"]},{\"key\":\"获取方式：\",\"value\":[\"酒馆挑战·友好对局\"]}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "131",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"叶轮轻扫\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/06e3bf5c09e70fc238f4d8add6312171_2981806382445103072.png\",\"life\":1,\"life_bg\":2,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1694067287681_0\"},{\"tab_name\":\"蔓延旋舞\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/d69cd6abad732aa60170bc087993b671_5098242204074695402.png\",\"life\":3,\"life_bg\":2,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成3点<strong><span style=\\\"color: rgb(82, 196, 26)\\\"><u>草元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>草元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着草元素，可发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;><strong>绽放</strong>：本伤害+1，生成使下次火/雷伤害＋2的[<strong>草原核</strong>]</p><p style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p><p style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">，生成1层</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>灵蛇祝福</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>灵蛇祝福：</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>出战状态</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>我方使用厄灵·草之灵蛇的特技</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>时：此</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>特技</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>造成的伤害+1，并且不消耗厄灵·草之灵蛇的</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：1（可叠加，没有上限）</span></strong></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p>\"]},\"tab_id\":\"1728389817596_1\"},{\"tab_name\":\"厄灵苏醒·草之灵蛇\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/96b81cdc1ce8dfac226116c9fe43992a_2705445042404454391.png\",\"life\":3,\"life_bg\":2,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成4点<strong><span style=\\\"color: rgb(82, 196, 26)\\\"><u>草元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>草元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着草元素，可发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;><strong>绽放</strong>：本伤害+1，生成使下次火/雷伤害＋2的[<strong>草原核</strong>]</p><p style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p><p style=&quot;white-space: pre-wrap;&quot;><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>，<span style=\\\"color: rgb(0, 0, 0)\\\">整场牌局限制1次，将1张</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>厄灵·草之灵蛇</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>厄灵·草之灵蛇</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>装备牌</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>费用：0</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>特技</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>：藤蔓锋鳞</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>2</span></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>（角色最多装备1个「特技」）</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">加入我方手牌。<br>（装备有</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>厄灵·草之灵蛇</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>厄灵·草之灵蛇</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>装备牌</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>费用：0</span></strong></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>特技</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>：藤蔓锋鳞</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>2</span></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>（角色最多装备1个「特技」）</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">的角色可以使用特技：</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>藤蔓锋鳞</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong>藤蔓锋鳞：</strong></p><p><strong>特技</strong></p><p><strong>费用：1+1点充能</strong></p><p>造成1点<strong><span style=&quot;color: rgb(126, 194, 54)&quot;>草元素伤害</span></strong>。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">）</span></p>\"]},\"tab_id\":\"1728389964874_2\"},{\"tab_name\":\"厄灵之能\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/6f2fc1e2e7ad6747577d954f3db9012f_2120144226908224970.png\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><span style=\\\"color: rgb(0, 0, 0)\\\">【被动】</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">此角色受到伤害后：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">如果此角色生命值不多于7，则获得1点</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">充能</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">。（每回合1次）</span></p>\"]},\"tab_id\":\"1728390448217_3\"}]}",
+          "style": ""
+        }
+      ],
+      "id": "132",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"厄灵·草之灵蛇\",\"skill_type\":\"特技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/3261818320d16e4b8cabb03dbe540914_6911917252679998208.png\",\"life\":0,\"life_bg\":10,\"energy\":0,\"desc\":{\"key\":\"特技效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>特技</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>特技：</span></strong></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。</span></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。</span></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>藤蔓锋鳞</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong>藤蔓锋鳞：</strong></p><p><strong>特技</strong></p><p><strong>费用：1+1点充能</strong></p><p>造成1点<strong><span style=&quot;color: rgb(126, 194, 54)&quot;>草元素伤害</span></strong>。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span></p><p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>可用次数</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>此牌效果触发后，会消耗1次</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>;</span></p><p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>耗尽后，立刻弃置此牌。</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">：</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">2</span></p><p><span style=\\\"color: rgb(0, 0, 0)\\\">（角色最多装备1个「特技」）</span></p>\"]},\"tab_id\":\"1694067334491_0\"}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "133",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>旋舞之忆·叶轮舞者</strong></p><p>「沙之民有音乐与舞蹈的传统，起初是对神的礼赞，后来则是讨取王者欢心的演艺与战斗的技术。」</p>\",\"switch\":true,\"is_show_switch\":true,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "134",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"\",\"common_img\":\"\",\"gold_img\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"充能：\",\"value\":[]},{\"key\":\"攻击：\",\"value\":[]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6496",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815714102_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6497",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "召唤物",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"召唤物\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"默认标题\",\"skill_type\":\"\",\"icon\":\"\",\"life\":0,\"life_bg\":0,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"\",\"value\":[\"<p></p>\"]},\"tab_id\":\"1730815724349_0\"}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "6498",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\" style=\\\"text-align: center\\\">自行巧局</h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "6537",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "天赋牌",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"天赋牌\",\"layout_\":\"banner\",\"list\":[{\"tab_name\":\"灵蛇旋嘶\",\"skill_type\":\"装备牌\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/6f6a41cd2ca30f56ff066b73a5be903d_8016995240043950498.png\",\"life\":3,\"life_bg\":2,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"天赋效果\",\"value\":[\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>战斗行动</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：我方出战角色为</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">镀金旅团·叶轮舞者</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">时，装备此牌。</span></p><p><span style=\\\"color: rgb(0, 0, 0)\\\">镀金旅团·叶轮舞者装备此牌后，立刻使用一次</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>蔓延旋舞</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;蔓延旋舞：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;&lt;span style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;，生成1层&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;灵蛇祝福&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。</span></p><p><span style=\\\"color: rgb(0, 0, 0)\\\">装备有此牌的</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\">镀金旅团·叶轮舞者</span></strong><span style=\\\"color: rgb(0, 0, 0)\\\">在场，我方装备了</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>厄灵·草之灵蛇</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;厄灵·草之灵蛇&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;装备牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;：藤蔓锋鳞&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;（角色最多装备1个「特技」）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">的角色切换至出战时：造成1点</span><strong><span style=\\\"color: rgb(82, 196, 26)\\\"><u>草元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;草元素伤害：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">。（每回合1次）</span></p><p><span style=\\\"color: rgb(0, 0, 0)\\\">（牌组中包含镀金旅团·叶轮舞者，才能加入牌组）</span></p>\"]},\"tab_id\":\"1759479143814_0\"}],\"baseInfoSwitchDisabled\":false,\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "8550",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<h1 class=\\\"custom-heading-cls\\\"><strong>天赋牌</strong></h1>\",\"switch\":false,\"is_show_switch\":false,\"without_border\":true}\n",
+          "style": ""
+        }
+      ],
+      "id": "8551",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": true,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1761099807",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "49",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "87",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "131",
+                "pos": "left"
+              },
+              {
+                "id": "132",
+                "pos": "right"
+              },
+              {
+                "id": "133",
+                "pos": "left"
+              },
+              {
+                "id": "134",
+                "pos": "left"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          },
+          {
+            "module_group_id": "2630",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "8551",
+                "pos": "banner"
+              },
+              {
+                "id": "8550",
+                "pos": "banner"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      },
+      {
+        "tab_id": "445",
+        "tab_name": "自行巧局",
+        "module_group": [
+          {
+            "module_group_id": "2158",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "6537",
+                "pos": "banner"
+              },
+              {
+                "id": "6496",
+                "pos": "left"
+              },
+              {
+                "id": "6497",
+                "pos": "right"
+              },
+              {
+                "id": "6498",
+                "pos": "left"
+              }
+            ],
+            "name": "自行巧局",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "233",
+      "name": "角色牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "角色牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"元素\\\",\\\"children\\\":[{\\\"label\\\":\\\"冰元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"水元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"火元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"雷元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"岩元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"草元素\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"风元素\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[{\\\"label\\\":\\\"单手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"法器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"双手剑\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"弓\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"长柄武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他武器\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"阵营\\\",\\\"children\\\":[{\\\"label\\\":\\\"蒙德\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"璃月\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"稻妻\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"须弥\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"枫丹\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"纳塔\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"挪德卡莱\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"愚人众\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"镀金旅团\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"魔物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣骸兽\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"寰宇劫灭\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/233?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "68df8f92a7cb50d78a2b88bb",
+  "ext": {
+    "fe_ext": "{\"c_233\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/08/258999284/de066277f1f3120586b5e9c93c7fdb59_7747619812997154801.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"元素/草元素\\\",\\\"武器/其他武器\\\",\\\"阵营/镀金旅团\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

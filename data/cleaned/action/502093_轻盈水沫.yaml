@@ -1,0 +1,48 @@
+id: 502093
+name: 轻盈水沫
+parent_class: action
+sub_class: 装备牌
+tags:
+- 天赋
+cost_text: '3'
+cost:
+  水: 3
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 天赋
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 6
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为丘丘水行游侠时，装备此牌。
+
+  丘丘水行游侠装备此牌后，立刻使用一次狂澜镰击水元素伤害。
+
+  如果有敌方角色附属有冻结或水泡围困，则本角色获得1点充能。（每回合1次）" class="wiki-note-text">。
+
+  装备有此牌的丘丘水行游侠在场，我方使用「特技」时：少花费1个元素骰。（每回合1次）
+
+  （牌组中包含丘丘水行游侠，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 狂澜镰击
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  狂澜镰击: 元素战技造成3点水元素伤害。如果有敌方角色附属有冻结或水泡围困，则本角色获得1点充能。（每回合1次）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/d08c736ffd58960cac4e7033dd69a0a3_1998823564690588203.png
+requires_char: 丘丘水行游侠
+deck_constraint: 牌组中包含丘丘水行游侠，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/b95574484dca95f9e3a11750c6b3058a_7054619643283816743.png
+flavor_text: '丘丘水行游侠·轻盈水沫
+
+  「史莱莫莫！」'

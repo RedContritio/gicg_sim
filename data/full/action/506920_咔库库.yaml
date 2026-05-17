@@ -1,0 +1,62 @@
+id: 506920
+name: 咔库库
+parent_class: action
+desc: 咔库库卡牌
+sub_class: 装备牌
+tags: &id001
+- 特技
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/5fab729d51a8343c95a532156451dd47_1697690354116320822.png
+header_img_url: ''
+version: '1761109293'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 伊法技能效果生成
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong>特技：<span style="color: rgb(0, 0, 0)"><u>援护射击</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;援护射击：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;费用：2&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;消耗1点&lt;strong&gt;「夜魂值」&lt;/strong&gt;，对上一个敌方角色&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(54, 207, 201)&quot;&gt;&lt;u&gt;风元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+  data-type=&quot;详情&quot; data-name=&quot;&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;风元素伤害：&lt;/p&gt;&lt;p
+  style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;扩散（水）：对目标以外的所有敌方角色造成1点水伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;扩散（火）：对目标以外的所有敌方角色造成1点火伤害&lt;/p&gt;&lt;p style=&quot;white-space:
+  pre-wrap;&quot;&gt;扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害&lt;/p&gt;&quot; class=&quot;wiki-note-text&quot;&gt;&lt;sup
+  class=&quot;wiki-sup&quot;&gt;[详情]&lt;/sup&gt;&lt;/span&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;，并治疗我方受伤最多的角色2点。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span></p><p>所附属角色<strong>「夜魂值」</strong>为0时，弃置此牌；此牌被弃置时，所附属角色结束<strong>夜魂加持</strong>。</p><p></p>'
+effect_text: '特技：援护射击造成1点风元素伤害风元素伤害：
+
+  和已附着的元素发生元素反应：
+
+  扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害
+
+  扩散（水）：对目标以外的所有敌方角色造成1点水伤害
+
+  扩散（火）：对目标以外的所有敌方角色造成1点火伤害
+
+  扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害" class="wiki-note-text">，并治疗我方受伤最多的角色2点。" class="wiki-note-text">
+
+  所附属角色「夜魂值」为0时，弃置此牌；此牌被弃置时，所附属角色结束夜魂加持。'
+term_refs:
+- 援护射击
+terms:
+  援护射击: 特技费用：2消耗1点「夜魂值」，对上一个敌方角色造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，并治疗我方受伤最多的角色2点。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/7a8c85830ce44927460008304d7f73ed_5682579321354407360.png
+generated_by: 伊法技能效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/5fab729d51a8343c95a532156451dd47_4245641290755684283.png
+flavor_html: <p></p>
+flavor_text: ''
+_raw_path: data/raw/action/506920_咔库库.json

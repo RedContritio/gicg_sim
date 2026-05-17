@@ -1,0 +1,49 @@
+id: 500682
+name: 老兵的容颜
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 圣遗物
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色受到伤害或治疗后：根据本回合触发此效果的次数，执行不同的效果。
+
+  第一次触发：生成1个此角色类型的元素骰。
+
+  第二次触发：抓1张牌。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/f5dd60d41187c41067aa90014d9c54c2_1528653400350239062.png
+variants:
+- mode: 标准
+  effect_text: '角色受到伤害或治疗后：根据本回合触发此效果的次数，执行不同的效果。
+
+    第一次触发：生成1个此角色类型的元素骰。
+
+    第二次触发：抓1张牌。
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/166e56c3c68e531c97f4fdfde1adde06_4511818010196081435.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/1b7eb4106f12aa6c5cffbc00a0f23bd4_2256325185403580856.gif
+jiqiao: true
+flavor_text: '荣辱之相·老兵的容颜
+
+  「即使能将伤痕完全遮盖，心里的伤也不会消失吧。」'

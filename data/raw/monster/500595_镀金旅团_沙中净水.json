@@ -1,0 +1,131 @@
+{
+  "id": "500595",
+  "name": "镀金旅团·沙中净水",
+  "desc": "镀金旅团·沙中净水魔物牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/5b7cb4cbff256c7426cfe35b2854b712_8806543417413614526.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"镀金旅团·沙中净水\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/5b7cb4cbff256c7426cfe35b2854b712_6871352072701956407.png\",\"gold_img\":\"\",\"life\":8,\"life_bg\":11,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"元素：\",\"value\":[\"水元素\"]},{\"key\":\"武器：\",\"value\":[\"其他武器\"]},{\"key\":\"阵营：\",\"value\":[\"镀金旅团\"]},{\"key\":\"充能：\",\"value\":[\"2\"]},{\"key\":\"获取方式：\",\"value\":[\"无\"]}],\"repeated\":false}",
+          "style": ""
+        }
+      ],
+      "id": "2808",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"轻灵直刺\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/a94ec4a1d2734feca4bdd106c5c31615_3719030557625325690.png\",\"life\":1,\"life_bg\":6,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917631352_0\"},{\"tab_name\":\"迅捷闪击\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/a0027a139901222ec1bc4e2983b3456e_8797292467012139076.png\",\"life\":3,\"life_bg\":6,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成3点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917634542_1\"},{\"tab_name\":\"环舞连斩\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/1647762ebb6e1ac8f101d6e5e14e21fe_6582609663448990156.png\",\"life\":3,\"life_bg\":6,\"energy\":2,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>本角色分别<strong><u>准备技能</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>准备技能：</p><p style=&quot;white-space: pre-wrap;&quot;>有些技能无法被直接使用，而是需要一定次数的行动轮来进行<strong>准备</strong>。</p><p style=&quot;white-space: pre-wrap;&quot;>轮到一位牌手行动时，如果该牌手的「出战角色」正在<strong>准备</strong>技能，则跳过该牌手的行动；如果技能已经完成<strong>准备</strong>，角色将会在此时直接使用此技能。（此类需要<strong>准备</strong>的技能，无法触发「使用技能后」效果。）</p><p style=&quot;white-space: pre-wrap;&quot;>只有「出战角色」才能<strong>准备</strong>技能；如果正在<strong>准备</strong>技能的「出战角色」被切换到后台，技能的<strong>准备</strong>就会被打断。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>：<strong><u>环舞连斩·先攻</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p>环舞连斩·先攻：</p><p>元素爆发</p><p>（需准备1个行动轮）</p><p>造成2点<strong>物理伤害</strong>，然后<strong>准备技能</strong>：<strong>环舞连斩·定势</strong>。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>和<strong><u>环舞连斩·定势</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p>环舞连斩·定势：</p><p>元素爆发</p><p>（需准备1个行动轮）</p><p>造成3点<strong>物理伤害</strong>。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917635167_2\"},{\"tab_name\":\"厄灵解放·水\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/c55185866901828a09ac0988afc8cff8_3136050930510739304.png\",\"energy\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>【被动】<strong>此角色受到伤害后：</strong>如果此角色生命值不多于7，则获得1点<strong><u>充能</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>充能：</p><p style=&quot;white-space: pre-wrap;&quot;>角色使用「元素爆发」时，需要消耗充能。</p><p style=&quot;white-space: pre-wrap;&quot;>角色使用「元素战技」或「普通攻击」后，会获得1点充能。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>并附属<strong><u>厄灵苏醒·水</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p>厄灵苏醒·水：</p><p>状态</p><p>角色<strong>造成的伤害+1</strong>，且造成的<strong>物理伤害</strong>变为<strong><span style=&quot;color: rgb(24, 144, 255)&quot;>水元素伤害</span></strong>。</p><p>此角色受到的<strong><span style=&quot;color: rgb(24, 144, 255)&quot;>水元素伤害</span></strong>+2。</p><p><strong>持续回合：2</strong></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。（整场牌局限制1次）</p>\"]},\"tab_id\":\"1704642747395_3\"}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "2809",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1704679720",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "260",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "1193",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "2808",
+                "pos": "left"
+              },
+              {
+                "id": "2809",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": true,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "235",
+      "name": "魔物牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "魔物牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"/ys/obc/channel/map/231/235?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "658fc6e8bd1aa1568a8dea62",
+  "ext": {
+    "fe_ext": "{\"c_235\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/0464df5cfa4f36ec5539e826ce5b1108_525138540148933115.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

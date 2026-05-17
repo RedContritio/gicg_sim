@@ -1,0 +1,55 @@
+id: 501418
+name: 竭泽
+parent_class: action
+desc: 竭泽卡牌，别称：鱼弓
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/ea03edad3c81f49bddc24a5689f278d2_6229118249248157024.png
+header_img_url: ''
+version: '1717554663'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">我方打出名称不存在于初始牌组中的行动牌后：</span></strong><span
+  style="color: rgb(0, 0, 0)">此牌累积1点</span><strong><span style="color: rgb(0, 0, 0)">「渔猎」</span></strong><span
+  style="color: rgb(0, 0, 0)">。（最多累积2点，每回合最多累积2点）<br></span><strong><span style="color:
+  rgb(0, 0, 0)">角色使用技能时：</span></strong><span style="color: rgb(0, 0, 0)">如果此牌已有</span><strong><span
+  style="color: rgb(0, 0, 0)">「渔猎」</span></strong><span style="color: rgb(0, 0, 0)">，则消耗所有</span><strong><span
+  style="color: rgb(0, 0, 0)">「渔猎」</span></strong><span style="color: rgb(0, 0, 0)">，使此技能伤害+1，并且每消耗1点</span><strong><span
+  style="color: rgb(0, 0, 0)">「渔猎」</span></strong><span style="color: rgb(0, 0, 0)">就抓1张牌。<br>（</span><strong><span
+  style="color: rgb(0, 0, 0)">「弓」角色</span></strong><span style="color: rgb(0, 0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '我方打出名称不存在于初始牌组中的行动牌后：此牌累积1点「渔猎」。（最多累积2点，每回合最多累积2点）
+
+  角色使用技能时：如果此牌已有「渔猎」，则消耗所有「渔猎」，使此技能伤害+1，并且每消耗1点「渔猎」就抓1张牌。
+
+  （「弓」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/9e7207494a4fdb10df19179ec836623b_8829114768588567951.png
+weapon_type: 弓
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/ea03edad3c81f49bddc24a5689f278d2_1178889981950997247.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/1ee48d77fa072f23d69df56e42848c21_5394014572671509741.gif
+flavor_html: '<p><strong>网破·竭泽</strong></p><p><span style="color: rgb(0, 0, 0)">「···原本在高原上巨大的湖泊中如箭头一般笔直射穿空间的鱼，<br>它曾如长枪一般笔直，循着圣迹沿洄，<br>溪流渐渐渗入沙中，湖泽退缩成水洼，<br>最终只得在水洼中蜷曲身体，结果成为了朝圣之人的猎获。」</span></p>'
+flavor_text: '网破·竭泽
+
+  「···原本在高原上巨大的湖泊中如箭头一般笔直射穿空间的鱼，
+
+  它曾如长枪一般笔直，循着圣迹沿洄，
+
+  溪流渐渐渗入沙中，湖泽退缩成水洼，
+
+  最终只得在水洼中蜷曲身体，结果成为了朝圣之人的猎获。」'
+_raw_path: data/raw/action/501418_竭泽.json

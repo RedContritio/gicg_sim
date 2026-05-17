@@ -1,0 +1,39 @@
+# s024: Stage 3 PPO fine-tune, seed=1 (multi-seed reinforcement of s023)
+#
+# Same TOML as s023 except `seed = 1`. Single-seed s023 gave F1-D2 = 0.031
+# (n=64 external) — single-seed inconclusive per `feedback_ppo_multiseed_required`.
+# This run + s025 (seed=2) provide 3-seed sample to estimate mean±std on
+# the F1-D2 wr; n=3 is small but distinguishes "0.03 is the truth" from
+# "0.03 was unlucky".
+#
+# BC ckpt (s022, seed=0) is reused — BC at 60ep is closer to converged
+# than PPO fine-tune, and the strong-variance phase per project_stage1
+# diagnostic chain has been the PPO update loop. If multi-seed PPO finds
+# wide variance, the next step would be multi-seed BC too (3×3=9 runs).
+
+run_label = "s024_stage3_seed1"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_iterations = 500
+eval_every = 25
+n_eval_games = 64
+lr = 1e-4
+entropy_coef = 0.003
+value_coef = 0.1
+seed = 1
+
+obs_mask = ["enemy_dice"]
+card_pool = ["测试卡_增幅", "测试卡_碎片"]
+
+rollout_opponent = "F1-D1,F1-D2"
+init_ckpt = "artifacts/202604250723_s022_bc_pretrain_stage3/final.pt"
+
+[reward_shaping]
+terminal_win = 10.0
+terminal_loss = 10.0
+
+[meta]
+paradigm = "ppo"

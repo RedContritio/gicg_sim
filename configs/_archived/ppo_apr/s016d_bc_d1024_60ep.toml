@@ -1,0 +1,28 @@
+# s016d: further scale-up to push soft match toward 80%.
+#
+# s016b (d_model=512, n_hidden=4, 30ep) → soft=65.8% (MARGINAL).
+# Scale d_model 512→1024 + double epochs. ce still slowly decreasing
+# at end of s016b (epoch 28=1.943 → 29=1.941) so not saturated.
+
+run_label = "s016d_bc_d1024_60ep"
+
+dataset = "artifacts/202604250506_s015_bc_data_gen/dataset.npz"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_epochs = 60
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 1000
+
+[meta]
+paradigm = "bc"

@@ -1,0 +1,46 @@
+id: 6619
+name: 千夜浮梦
+parent_class: action
+desc: 千夜浮梦卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a56d5cf80b505c42a3643534d3dc2821_7560912789128554.png
+header_img_url: ''
+version: '1687837103'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;"><strong>角色造成的伤害+1</strong>。</p><p
+  style="white-space: pre-wrap;"><strong>我方角色引发元素反应时：</strong>造成的伤害+1。（每回合最多触发2次）</p><p
+  style="white-space: pre-wrap;">（<strong>「法器」角色</strong>才能装备。角色最多装备1件「武器」）</p>'
+effect_text: '角色造成的伤害+1。
+
+  我方角色引发元素反应时：造成的伤害+1。（每回合最多触发2次）
+
+  （「法器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/03/75720734/bcc66ffd5b7bea190c27be86d18d1fa6_988221122780808871.png
+weapon_type: 法器
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/a56d5cf80b505c42a3643534d3dc2821_8758750260465224130.png
+flavor_html: '<p style="white-space: pre-wrap;"><strong>千夜曙歌·千夜浮梦</strong></p><p style="white-space:
+  pre-wrap;">「万物生灭皆有定期，如同黑夜与黎明往复不息。」</p><p style="white-space: pre-wrap;">「就让这盏灯中的故事，给你值得期许的美梦吧。」</p>'
+flavor_text: '千夜曙歌·千夜浮梦
+
+  「万物生灭皆有定期，如同黑夜与黎明往复不息。」
+
+  「就让这盏灯中的故事，给你值得期许的美梦吧。」'
+_raw_path: data/raw/action/6619_千夜浮梦.json

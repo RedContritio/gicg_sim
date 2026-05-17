@@ -1,0 +1,219 @@
+id: 500992
+name: 绮良良
+title: 檐宇猫游·绮良良
+parent_class: character
+desc: 绮良良卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/650f884967057168a0b9b4025a032c11_8224086841446271146.png
+header_img_url: ''
+version: '1761099786'
+attr:
+  元素:
+  - 草元素
+  武器:
+  - 单手剑
+  阵营: &id001
+  - 稻妻
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 草
+weapon: 单手剑
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/650f884967057168a0b9b4025a032c11_2097188456727270580.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/f42aa542d7e488f0abe3a6287d86309a_2524068804143644535.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/de066277f1f3120586b5e9c93c7fdb59_3101831941836346764.png
+skills:
+- name: 箱纸切削术
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    草: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/fec68a7e965413cd6881925a1b1c46dc_2971938263632041083.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p><strong>物理伤害：</strong></p><p>物理伤害不会附着元素，也不会发生元素反应。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 呜喵町飞足
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/f19df62c04e80071c2278ae5ef2f21ff_8786745388682460864.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">生成</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>猫箱急件</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>猫箱急件：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>出战状态</span></p><p><strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>绮良良为出战角色时，我方切换角色后：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>造成1点</span><strong><span style=&quot;color: rgb(82, 196, 26)&quot;>草元素伤害</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>，抓1张牌。</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>可用次数：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>1（可叠加，最多叠加到2次）</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">和</span><strong><span style="color: rgb(0, 0, 0)"><u>安全运输护盾</u></span></strong><span
+    data-type="详情" data-name="<p><strong>安全运输护盾：</strong></p><p>出战状态</p><p>为我方出战<span
+    style=&quot;color: rgb(0, 0, 0)&quot;>角色提供</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>2点护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 生成猫箱急件猫箱急件：出战状态绮良良为出战角色时，我方切换角色后：造成1点草元素伤害，抓1张牌。可用次数：1（可叠加，最多叠加到2次）"
+    class="wiki-note-text">和安全运输护盾角色提供2点护盾。" class="wiki-note-text">。
+  term_refs:
+  - 猫箱急件
+  - 安全运输护盾
+- name: 秘法·惊喜特派
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/562bc0909575afbc29f1971ae2c4b24d_5181008040290623097.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成4点</span><strong><span style="color:
+    rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="<p><strong>草元素伤害：</strong></p><p>附着草元素，可发生元素反应：</p><p>绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]</p><p>燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）</p><p>原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，在敌方场上生成</span><strong><span style="color: rgb(0, 0, 0)"><u>猫草豆蔻</u></span></strong><span
+    data-type="详情" data-name="<p><strong>猫草豆蔻：</strong></p><p>出战状态</p><p><strong>所在阵营打出2张行动牌后：</strong>对所在阵营的出战角色造成1点<strong><span
+    style=&quot;color: rgb(82, 196, 26)&quot;>草元素伤害</span></strong>。</p><p><strong>可用次数：</strong>2</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成4点草元素伤害，在敌方场上生成猫草豆蔻草元素伤害。可用次数：2" class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  - 猫草豆蔻
+  energy_req: 2
+summons: []
+talent:
+  name: 沿途百景会心
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/d00693f2246c912c56900d481e37104a_3953458705731916120.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：</strong><span
+    style="color: rgb(0, 0, 0)">我方出战角色为</span><strong><span style="color: rgb(0, 0,
+    0)">绮良良</span></strong><span style="color: rgb(0, 0, 0)">时，装备此牌。</span></p><p><span
+    style="color: rgb(0, 0, 0)">绮良良装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>呜喵町飞足</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;呜喵町飞足：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;元素战技&lt;/p&gt;&lt;p&gt;生成&lt;strong&gt;&lt;u&gt;猫箱急件&lt;/u&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;u&gt;安全运输护盾&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><span style="color: rgb(0, 0, 0)">装备有此牌的</span><strong><span
+    style="color: rgb(0, 0, 0)">绮良良</span></strong><span style="color: rgb(0, 0, 0)">为出战角色，我方进行「切换角色」行动时：少花费1个元素骰。（每回合1次）</span></p><p><span
+    style="color: rgb(0, 0, 0)">（牌组中包含绮良良，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为绮良良时，装备此牌。
+
+    绮良良装备此牌后，立刻使用一次呜喵町飞足。
+
+    装备有此牌的绮良良为出战角色，我方进行「切换角色」行动时：少花费1个元素骰。（每回合1次）
+
+    （牌组中包含绮良良，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 呜喵町飞足
+  deck_constraint: 牌组中包含绮良良，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 12
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '2'
+  skills:
+  - name: 呜喵町飞足
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/f19df62c04e80071c2278ae5ef2f21ff_1052429359627019349.png
+    effect_html: '<p><span style="color: rgb(0, 0, 0)">生成3层</span><strong><span style="color:
+      rgb(0, 0, 0)"><u>护盾</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;为我方出战角色提供&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1点&lt;u&gt;护盾&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;。（可叠加，没有上限）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;护盾：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，对上一个敌方角色造成<strong><span
+      style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">。</span></p>'
+    effect_text: 生成3层护盾，对上一个敌方角色造成草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。
+    term_refs:
+    - 护盾
+    - 草元素伤害
+  - name: 秘法·惊喜特派
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/562bc0909575afbc29f1971ae2c4b24d_2833961077379253033.png
+    effect_html: '<p>造成<strong><span style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">，在敌方场上生成</span><strong><span style="color: rgb(0, 0, 0)"><u>猫草豆蔻</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;猫草豆蔻：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方切换角色后：&lt;/strong&gt;对所在阵营的出战角色造成1点&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(82, 196, 26)&quot;&gt;&lt;u&gt;草元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+      rgb(0, 0, 0)">。</span></p>'
+    effect_text: 造成草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">，在敌方场上生成猫草豆蔻草元素伤害。可用次数：2草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+      class="wiki-note-text">。
+    term_refs:
+    - 草元素伤害
+    - 猫草豆蔻
+    energy_req: 2
+flavor_html: '<p><strong><span style="color: rgb(0, 0, 0)">檐宇猫游·绮良良</span></strong></p><p><span
+  style="color: rgb(0, 0, 0)">歧尾骏足，通达万户。</span></p>'
+flavor_text: '檐宇猫游·绮良良
+
+  歧尾骏足，通达万户。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  猫箱急件: 出战状态绮良良为出战角色时，我方切换角色后：造成1点草元素伤害，抓1张牌。可用次数：1（可叠加，最多叠加到2次）
+  安全运输护盾: 出战状态为我方出战角色提供2点护盾。
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  猫草豆蔻: 出战状态所在阵营打出2张行动牌后：对所在阵营的出战角色造成1点草元素伤害。可用次数：2
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  呜喵町飞足: 元素战技生成猫箱急件和安全运输护盾。
+_raw_path: data/raw/character/500992_绮良良.json

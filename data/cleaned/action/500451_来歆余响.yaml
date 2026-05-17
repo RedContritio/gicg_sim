@@ -1,0 +1,45 @@
+id: 500451
+name: 来歆余响
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 圣遗物
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色使用「普通攻击」后：抓1张牌。（每回合1次）
+
+  角色使用技能后：如果我方元素骰数量不多于手牌数量，则生成1个所附属角色类型的元素骰。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/18/258999284/9e7207494a4fdb10df19179ec836623b_196356879065528509.png
+variants:
+- mode: 标准
+  effect_text: '角色使用「普通攻击」后：抓1张牌。（每回合1次）
+
+    角色使用技能后：如果我方元素骰数量不多于手牌数量，则生成1个所附属角色类型的元素骰。（每回合1次）
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/18/258999284/d9db70a7475940b91d63699e1276678d_8473736559088406285.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/18/258999284/bab94ba81954c5306626f5b823632173_1014641295717863350.gif
+jiqiao: true
+flavor_text: '璞玉弥久·来歆余响
+
+  「…传说的大河下总会生出许多支流。其中又有故事说，美玉曾为神山中璞玉，是经帝君之手才被精心雕琢。」'

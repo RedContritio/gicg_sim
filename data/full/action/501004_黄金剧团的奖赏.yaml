@@ -1,0 +1,55 @@
+id: 501004
+name: 黄金剧团的奖赏
+parent_class: action
+desc: 黄金剧团的奖赏卡牌
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/0f7dfce291215155b3a48a56c8c996c4_41818533657599536.png
+header_img_url: ''
+version: '1732241954'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>结束阶段：</strong>如果所附属角色在后台，则此牌积累1点「报酬」。（最多积累2点）</p><p><strong>对角色打出「天赋」或角色使用「元素战技」时：</strong>此牌每有一点「报酬」，就将其消耗，以少花费1个元素骰。</p><p>（角色最多装备1件「圣遗物」）</p>
+effect_text: '结束阶段：如果所附属角色在后台，则此牌积累1点「报酬」。（最多积累2点）
+
+  对角色打出「天赋」或角色使用「元素战技」时：此牌每有一点「报酬」，就将其消耗，以少花费1个元素骰。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/7a8c85830ce44927460008304d7f73ed_1214216702223032638.png
+variants:
+- mode: 标准
+  effect_html: <p><strong>结束阶段：</strong>如果所附属角色在后台，则此牌积累1点「报酬」。（最多积累2点）</p><p><strong>对角色打出「天赋」或角色使用「元素战技」时：</strong>此牌每有一点「报酬」，就将其消耗，以少花费1个元素骰。</p><p>（角色最多装备1件「圣遗物」）</p>
+  effect_text: '结束阶段：如果所附属角色在后台，则此牌积累1点「报酬」。（最多积累2点）
+
+    对角色打出「天赋」或角色使用「元素战技」时：此牌每有一点「报酬」，就将其消耗，以少花费1个元素骰。
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/0f7dfce291215155b3a48a56c8c996c4_3799856037595257577.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/8d63f0dac7a41d8e3fcb108c713eba31_1417115058037267871.gif
+jiqiao: true
+flavor_html: <p><strong>谐和乐章·黄金剧团的奖赏</strong></p><p>「···待到黄金的大乐章重新奏响之时，『金色剧团』终将领取诚实者应得的报酬。」</p><p>「待到完美的秩序在人类中分出主人与奴仆，健全与美令荣耀王国再度光荣···」</p>
+flavor_text: '谐和乐章·黄金剧团的奖赏
+
+  「···待到黄金的大乐章重新奏响之时，『金色剧团』终将领取诚实者应得的报酬。」
+
+  「待到完美的秩序在人类中分出主人与奴仆，健全与美令荣耀王国再度光荣···」'
+_raw_path: data/raw/action/501004_黄金剧团的奖赏.json

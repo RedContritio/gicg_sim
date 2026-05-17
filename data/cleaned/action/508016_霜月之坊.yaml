@@ -1,0 +1,56 @@
+id: 508016
+name: 霜月之坊
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '4'
+cost:
+  同色: 4
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '4'
+raw_life: 4
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '入场时：抓2张牌，治疗我方受伤最多的角色2点。
+
+  结束阶段：赋予我方随机2张当前元素骰费用不为0的手牌费用降低附着效果状态
+
+  每层使打出此卡牌少花费1个元素骰。（可叠加，没有上限）" class="wiki-note-text">。
+
+  可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2'
+term_refs:
+- 可用次数
+terms:
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/2a2a6e4f1cfd2931ae0f9588e1543f3d_3149493080102273126.png
+variants:
+- mode: 标准
+  effect_text: '入场时：抓2张牌，治疗我方受伤最多的角色2点。
+
+    结束阶段：赋予我方随机2张当前元素骰费用不为0的手牌费用降低附着效果状态
+
+    每层使打出此卡牌少花费1个元素骰。（可叠加，没有上限）" class="wiki-note-text">。
+
+    可用次数可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/02/24/288180982/96ac16c6f3a14db71a147bc310768ee4_8186906079872455830.png
+jiqiao: true
+flavor_text: ''

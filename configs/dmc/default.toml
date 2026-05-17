@@ -1,0 +1,73 @@
+# DMC production default cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
+#
+# Mirrors `_archived/active/dmc_stage3.toml` intent in the unified pipeline
+# cfg schema. DMC Stage 3 baseline (赤蝶 vs 墨客, 2 test cards,
+# ε-greedy 0.05, d_model=32, 100M frames pilot — defaults here are
+# downscaled to single-process serial mode).
+#
+# Routed through `tools/run.py → core.pipeline.run_pipeline → DMCParadigm`.
+#
+# Hybrid TOML structure (N6): [shape] = DMC historical defaults (d_model=32).
+
+[meta]
+seed = 42
+paradigm = "dmc"
+run_label = "dmc_default"
+device = "cpu"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["墨客"]
+card_pool = ["测试卡_增幅", "测试卡_碎片"]
+team_size = 1
+max_rounds = 10
+obs_mask = ["enemy_dice"]
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy", "test_basic"]
+data_dir = "data"
+
+# Shared obs schema (N6.4). DMC historical default d_model=32 / n_cross_layers=1.
+# Note: archived dmc_stage3.toml uses d_model=128 (Stage 3 full), but the
+# DMCParadigmConfig dataclass default was 32 — we follow the dataclass
+# default for symmetry with N1.2 factory expectations.
+[shape]
+n_counter_slots = 1832
+n_hooks = 900
+max_tokens_per_hook = 120
+max_actions = 2048
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+
+[paradigm.dmc]
+version = "1.0.0"
+paradigm = "dmc"
+epsilon = 0.05
+gamma = 1.0
+lr = 1e-4
+weight_decay = 0.0
+batch_size = 32
+max_grad_norm = 5.0
+buffer_cap = 100_000
+max_game_steps = 400
+total_frames = 5_000_000
+train_ratio = 4
+eval_interval_episodes = 30
+eval_n_scenarios = 8
+eval_baselines = ["F1-D2"]
+
+[paradigm.dmc.opponent_mix]
+random = 0.40
+f1d2 = 0.30
+f1d4 = 0.00
+historical = 0.30
+ring_size = 5
+
+[checkpoint]
+save_every = 10000
+keep_last_n = 5
+artifacts_root = "artifacts"

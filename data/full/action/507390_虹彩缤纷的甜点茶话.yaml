@@ -1,0 +1,69 @@
+id: 507390
+name: 虹彩缤纷的甜点茶话
+parent_class: action
+desc: 虹彩缤纷的甜点茶话
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '4'
+cost:
+  冰: 4
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/02/258999284/9278a2a5aca9d6422ea90e1ed06d2a59_7070819850252148521.png
+header_img_url: ''
+version: '1764739906'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '4'
+raw_life: 4
+raw_life_bg: 1
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">爱可菲</span></strong><span
+  style="color: rgb(0, 0, 0)">时，装备此牌。<br>爱可菲装备此牌后，立刻使用一次</span><strong><span style="color:
+  rgb(0, 0, 0)"><u>低温烹饪</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;低温烹饪：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，召唤&lt;/span&gt;&lt;strong&gt;&lt;em&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;厨艺机关·低温冷藏模式&lt;/span&gt;&lt;/em&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br></span><strong><span
+  style="color: rgb(0, 0, 0)">我方其他角色使用「普通攻击」后：</span></strong><span style="color:
+  rgb(0, 0, 0)">触发我方</span><strong><em><span style="color: rgb(0, 0, 0)">厨艺机关·低温冷藏模式</span></em></strong><span
+  style="color: rgb(0, 0, 0)">的「结束阶段」效果。（不消耗使用次数，每回合1次）<br>（牌组中包含爱可菲，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为爱可菲时，装备此牌。
+
+  爱可菲装备此牌后，立刻使用一次低温烹饪造成1点冰元素伤害，召唤厨艺机关·低温冷藏模式。" class="wiki-note-text">。
+
+  我方其他角色使用「普通攻击」后：触发我方厨艺机关·低温冷藏模式的「结束阶段」效果。（不消耗使用次数，每回合1次）
+
+  （牌组中包含爱可菲，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 低温烹饪
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  低温烹饪: 元素战技造成1点冰元素伤害，召唤厨艺机关·低温冷藏模式。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/02/258999284/aefd74af2edecabe9d1bfa0df9f3b464_3922829776060090729.png
+requires_char: 爱可菲
+deck_constraint: 牌组中包含爱可菲，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/02/258999284/9278a2a5aca9d6422ea90e1ed06d2a59_2616688112080879031.png
+flavor_html: <p><strong>爱可菲·虹彩缤纷的甜点茶话</strong></p><p>「臻品呈现！」</p>
+flavor_text: '爱可菲·虹彩缤纷的甜点茶话
+
+  「臻品呈现！」'
+_raw_path: data/raw/action/507390_虹彩缤纷的甜点茶话.json

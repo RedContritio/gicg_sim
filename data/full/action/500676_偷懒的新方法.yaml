@@ -1,0 +1,79 @@
+id: 500676
+name: 偷懒的新方法
+parent_class: action
+desc: 偷懒的新方法卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  风: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/8399149d2618f3566580df22b153579a_3372712821070634535.png
+header_img_url: ''
+version: '1706666811'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 3
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">早柚</span></strong><span
+  style="color: rgb(0, 0, 0)">时，装备此牌。<br>早柚装备此牌后，立刻使用一次</span><strong><span style="color:
+  rgb(0, 0, 0)"><u>呜呼流·风隐急进</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;呜呼流·风隐急进：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;元素战技&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(19, 194, 194)&quot;&gt;风元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，本角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;准备技能&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;风风轮舞踢&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;如果当前技能引发了扩散，则&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;风风轮舞踢&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;将改为造成被扩散元素的伤害。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>装备有此牌的早柚为出战角色期间，我方引发扩散反应时：抓2张牌。（每回合1次）<br>（牌组中包含早柚，才能加入牌组）</span></p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为早柚时，装备此牌。
+
+  早柚装备此牌后，立刻使用一次呜呼流·风隐急进呜呼流·风隐急进：
+
+  元素战技
+
+  造成1点风元素伤害，本角色准备技能：风风轮舞踢。
+
+  如果当前技能引发了扩散，则风风轮舞踢将改为造成被扩散元素的伤害。" class="wiki-note-text">。
+
+  装备有此牌的早柚为出战角色期间，我方引发扩散反应时：抓2张牌。（每回合1次）
+
+  （牌组中包含早柚，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 呜呼流·风隐急进
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  呜呼流·风隐急进: 元素战技造成1点风元素伤害，本角色准备技能：风风轮舞踢。如果当前技能引发了扩散，则风风轮舞踢将改为造成被扩散元素的伤害。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/7125244844988d521622982000b3675c_1055942773911018324.png
+requires_char: 早柚
+deck_constraint: 牌组中包含早柚，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/8399149d2618f3566580df22b153579a_4849308244790424730.png
+flavor_html: <p><strong>早柚·偷懒的新方法</strong></p><p>「工作还不如睡觉。」</p>
+flavor_text: '早柚·偷懒的新方法
+
+  「工作还不如睡觉。」'
+_raw_path: data/raw/action/500676_偷懒的新方法.json

@@ -1,0 +1,41 @@
+id: 5529
+name: 蒙德土豆饼
+parent_class: action
+desc: 蒙德土豆饼
+sub_class: 事件牌
+tags: &id001
+- 料理
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/f1026f0a187267e7484d04885e62558a_1248842015783359733.png
+header_img_url: ''
+version: '1687837123'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 牌手手册第一局奖励获取
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">治疗目标角色2点。</p><p style="white-space:
+  pre-wrap;">(每回合每个角色最多食用1次「料理」)</p>'
+effect_text: '治疗目标角色2点。
+
+  (每回合每个角色最多食用1次「料理」)'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/8c5a4f348a3a8017500c15e9cd0c5c15_9129903443889929572.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/f1026f0a187267e7484d04885e62558a_1910147917667500142.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/3dadfbc7818e37c9971974ee7ad54f0c_9055901033467942706.gif
+flavor_html: '<p style="white-space: pre-wrap;"><strong>蒙德土豆饼</strong></p><p style="white-space:
+  pre-wrap;">香甜的口感，验证了某位提瓦特知名美食家的名言——能被冠以当地地名的菜肴，绝对不会难吃。</p>'
+flavor_text: '蒙德土豆饼
+
+  香甜的口感，验证了某位提瓦特知名美食家的名言——能被冠以当地地名的菜肴，绝对不会难吃。'
+_raw_path: data/raw/action/5529_蒙德土豆饼.json

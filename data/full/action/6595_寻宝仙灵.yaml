@@ -1,0 +1,40 @@
+id: 6595
+name: 寻宝仙灵
+parent_class: action
+desc: 寻宝仙灵卡牌
+sub_class: 支援牌
+tags: &id001
+- 道具
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/4321ae941ccf75069eb630547df61e3c_7793999451945125774.png
+header_img_url: ''
+version: '1687837113'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;"><strong>我方角色使用技能后：</strong>此牌累积<strong>1个「寻宝线索」</strong>。</p><p
+  style="white-space: pre-wrap;">当此牌已累积<strong>3个「寻宝线索」</strong>时，弃置此牌：抓3张牌。</p>'
+effect_text: '我方角色使用技能后：此牌累积1个「寻宝线索」。
+
+  当此牌已累积3个「寻宝线索」时，弃置此牌：抓3张牌。'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/8c5a4f348a3a8017500c15e9cd0c5c15_4184318741540011804.png
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/4321ae941ccf75069eb630547df61e3c_1672242083656433331.png
+flavor_html: '<p style="white-space: pre-wrap;"><strong>或可解语·寻宝仙灵</strong></p><p style="white-space:
+  pre-wrap;">能引人寻宝的奇异仙灵。据说，有某人能与它们交流⋯？</p>'
+flavor_text: '或可解语·寻宝仙灵
+
+  能引人寻宝的奇异仙灵。据说，有某人能与它们交流⋯？'
+_raw_path: data/raw/action/6595_寻宝仙灵.json

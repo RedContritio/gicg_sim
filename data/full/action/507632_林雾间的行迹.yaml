@@ -1,0 +1,45 @@
+id: 507632
+name: 林雾间的行迹
+parent_class: action
+desc: 林雾间的行迹卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  雷: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/a8e80c34d2dbcc14c144e8c706fbadc4_5429388594810405383.png
+header_img_url: ''
+version: '1768194139'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 5
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">快速行动</span></strong><span
+  style="color: rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0,
+  0)">欧洛伦</span></strong><span style="color: rgb(0, 0, 0)">。<br>我方每回合首次引发的感电反应造成的穿透伤害+1。<br>（牌组中包含欧洛伦，才能加入牌组）</span></p>'
+effect_text: '快速行动：装备给我方的欧洛伦。
+
+  我方每回合首次引发的感电反应造成的穿透伤害+1。
+
+  （牌组中包含欧洛伦，才能加入牌组）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/00cce35b579cabd6b829eaa5cd1aed42_8311138628363502186.png
+requires_char: 欧洛伦
+deck_constraint: 牌组中包含欧洛伦，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/a8e80c34d2dbcc14c144e8c706fbadc4_6701785820151555329.png
+flavor_html: <p><strong>欧洛伦·林雾间的行迹</strong></p><p>「去吧，你自由了。 」</p>
+flavor_text: '欧洛伦·林雾间的行迹
+
+  「去吧，你自由了。 」'
+_raw_path: data/raw/action/507632_林雾间的行迹.json

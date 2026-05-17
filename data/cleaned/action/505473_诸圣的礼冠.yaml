@@ -1,0 +1,33 @@
+id: 505473
+name: 诸圣的礼冠
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 圣遗物
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '附属角色消耗「夜魂值」后：该角色下次技能或特技造成伤害+1。（每回合2次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_859543752951680983.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/9541c5197827be760578bf40262e2308_6667104550486422326.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/e722f2472694e1d4ff6890b0fd76e16e_6016541762695335991.gif
+flavor_text: '王酋之证·诸圣的礼冠
+
+  「在日轮的辉光下，各部族的战酋订下休战的盟约，夜域的诸圣也放下争执为他献上礼冠。」'

@@ -1,0 +1,96 @@
+id: 501406
+name: 乐园遗落之花
+parent_class: action
+desc: 乐园遗落之花卡牌
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/5a997c90413e44f8147b136856facd2b_8759080322483134287.png
+header_img_url: ''
+version: '1757395778'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">敌方受到伤害后：</span></strong><span
+  style="color: rgb(0, 0, 0)">如果此伤害是</span><strong><span style="color: rgb(82, 196,
+  26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着草元素，可发生元素反应：&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;绽放&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成回合结束时造成1点火元素伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;]（可用次数1，最多叠加到2）&lt;br&gt;&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">或发生了</span><strong><span
+  style="color: rgb(82, 196, 26)"><u>草元素相关反应</u></span></strong><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;草元素相关反应：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;绽放&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成回合结束时造成1点火元素伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;]（可用次数1，最多叠加到2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，则累积1枚</span><strong><span
+  style="color: rgb(0, 0, 0)">「花冠水晶」</span></strong><span style="color: rgb(0, 0,
+  0)">。（最多叠加到5）</span></p><p><strong><span style="color: rgb(0, 0, 0)">行动阶段开始时：</span></strong><span
+  style="color: rgb(0, 0, 0)">如果</span><strong><span style="color: rgb(0, 0, 0)">「花冠水晶」</span></strong><span
+  style="color: rgb(0, 0, 0)">数量为5：则生成1个万能元素，并抓1张牌。（每回合2次）</span></p><p><span style="color:
+  rgb(0, 0, 0)">（角色最多装备1件「圣遗物」）</span></p>'
+effect_text: '敌方受到伤害后：如果此伤害是草元素伤害草元素伤害：
+
+  附着草元素，可发生元素反应：
+
+  绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+
+  燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）
+
+  原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]" class="wiki-note-text">或发生了草元素相关反应草元素相关反应：
+
+  绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+
+  燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）
+
+  原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]" class="wiki-note-text">，则累积1枚「花冠水晶」。（最多叠加到5）
+
+  行动阶段开始时：如果「花冠水晶」数量为5：则生成1个万能元素，并抓1张牌。（每回合2次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 草元素伤害
+- 草元素相关反应
+terms:
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  草元素相关反应: 绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火元素伤害的[燃烧烈焰]（可用次数1，最多叠加到2）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/9e7207494a4fdb10df19179ec836623b_3951999913053841481.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/5a997c90413e44f8147b136856facd2b_1066861540711037751.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/02/258999284/3281eb5b026b2fed2c9e7e9425262454_6880857544465998423.gif
+flavor_html: <p><strong>凋落梦景·乐园遗落之花</strong></p><p>「但『永恒』终究是谎言，酣醉与欢爱只会磨却记忆，将之化作破碎的梦呓。」</p>
+flavor_text: '凋落梦景·乐园遗落之花
+
+  「但『永恒』终究是谎言，酣醉与欢爱只会磨却记忆，将之化作破碎的梦呓。」'
+_raw_path: data/raw/action/501406_乐园遗落之花.json

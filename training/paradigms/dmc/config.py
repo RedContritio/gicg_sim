@@ -1,0 +1,121 @@
+"""DMCParadigmConfig — read from cfg.paradigm dict in TOML.
+
+Driver receives ``TrainingConfig`` with `cfg.paradigm: dict` (paradigm-
+specific schema). DMC adapter parses that dict into this frozen
+dataclass for typed access. Spec ref: paradigm-dmc/spec.md D1-D7 +
+config-schema/spec.md § 7 (cfg-schema-unification N1-N3)。
+
+Fields mirror the legacy `training.dmc.config.DmcConfig` subset that
+the new pipeline driver consumes — NOT a 1:1 port because driver owns
+artifacts / ckpt cadence / total_frames already (cfg.checkpoint /
+cfg.meta). Paradigm-local fields stay here.
+
+cfg-schema-unification:
+- inherits ParadigmConfigBase (version + paradigm metadata, N2)
+- `agent: ObsShape` paradigm-local field via factory (N1.2)
+- AgentShapeCfg = ObsShape alias preserves test_dmc_paradigm.py
+  isinstance check + dmc/paradigm.py import (CC-202)
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+from training.core.cfg import ObsShape, ParadigmConfigBase, build_shape_from_toml, make_dmc_default_shape
+
+
+# Backward-compat alias (CC-202).
+AgentShapeCfg = ObsShape
+
+# Closed enum of supported cfg schema versions (CC-204).
+_DMC_SUPPORTED_VERSIONS = frozenset({'1.0.0'})
+
+
+@dataclass(frozen=True)
+class OpponentMixCfg:
+    """[paradigm.opponent_mix] section. Must sum to 1.0."""
+
+    random: float = 0.40
+    f1d2: float = 0.30
+    f1d4: float = 0.00
+    historical: float = 0.30
+    ring_size: int = 5
+
+    def __post_init__(self) -> None:
+        s = self.random + self.f1d2 + self.f1d4 + self.historical
+        if abs(s - 1.0) > 1e-6:
+            raise ValueError(
+                f'OpponentMixCfg: weights must sum to 1.0 (got {s}: random={self.random} '
+                f'f1d2={self.f1d2} f1d4={self.f1d4} historical={self.historical})'
+            )
+
+
+@dataclass(frozen=True)
+class DMCParadigmConfig(ParadigmConfigBase):
+    """Top-level DMC paradigm cfg. Default values match
+    `configs/dmc_stage3_smoke.toml`'s legacy DmcConfig smoke preset."""
+
+    paradigm: str = 'dmc'
+
+    # Algorithm hparams (spec D2-D3, D6)
+    epsilon: float = 0.05  # D3.2 ε-greedy actor
+    gamma: float = 1.0  # D1.2 MC undiscounted
+    lr: float = 1e-4
+    weight_decay: float = 0.0
+    batch_size: int = 16
+    max_grad_norm: float = 5.0  # spec D-implicit (review C.9)
+
+    # Buffer (D4.3)
+    buffer_cap: int = 5000
+
+    # Episode bound (engine-level)
+    max_game_steps: int = 400
+
+    # Scheduling
+    total_frames: int = 5000  # smoke default; production overrides
+    train_ratio: int = 4  # n_drained × train_ratio per outer iter
+    weight_sync_every_steps: int = 0  # 0 = sync each iter (serial-mode); >0 = every-N iter
+
+    # Component config — paradigm-local ObsShape (N1.2)
+    agent: ObsShape = field(default_factory=make_dmc_default_shape)
+    opponent_mix: OpponentMixCfg = field(default_factory=OpponentMixCfg)
+
+    # Eval cadence (legacy DMC eval block — wraps existing PeriodicEvaluator
+    # if cfg.eval.inference is None; otherwise driver's core/eval path)
+    eval_interval_episodes: int = 30
+    eval_n_scenarios: int = 8
+    eval_baselines: tuple = ('F1-D2',)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> 'DMCParadigmConfig':
+        """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4).
+
+        Additional validations (cfg-schema-unification N3):
+        - `version` ∈ _DMC_SUPPORTED_VERSIONS;若缺省默认 '1.0.0'
+        - `paradigm` 字段值若提供必须 == 'dmc'(CC-205)
+        """
+        allowed = set(cls.__dataclass_fields__.keys())
+        unknown = set(d.keys()) - allowed
+        if unknown:
+            raise ValueError(
+                f'DMCParadigmConfig.from_dict: unknown paradigm key(s) {sorted(unknown)} (allowed: {sorted(allowed)})'
+            )
+        version = d.get('version', '1.0.0')
+        if version not in _DMC_SUPPORTED_VERSIONS:
+            raise ValueError(
+                f'DMCParadigmConfig: unsupported version {version!r} (supported: {sorted(_DMC_SUPPORTED_VERSIONS)})'
+            )
+        paradigm_val = d.get('paradigm', 'dmc')
+        if paradigm_val != 'dmc':
+            raise ValueError(f'DMCParadigmConfig: paradigm mismatch: expected dmc, got {paradigm_val!r}')
+        agent_d = d.get('agent', {})
+        opp_d = d.get('opponent_mix', {})
+        kwargs: dict = {k: v for k, v in d.items() if k not in ('agent', 'opponent_mix')}
+        if isinstance(agent_d, dict):
+            kwargs['agent'] = build_shape_from_toml(agent_d, make_dmc_default_shape)
+        if isinstance(opp_d, dict):
+            kwargs['opponent_mix'] = OpponentMixCfg(**opp_d)
+        # eval_baselines may come from TOML as list; coerce to tuple
+        if 'eval_baselines' in kwargs and isinstance(kwargs['eval_baselines'], list):
+            kwargs['eval_baselines'] = tuple(kwargs['eval_baselines'])
+        return cls(**kwargs)

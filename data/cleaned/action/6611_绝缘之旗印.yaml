@@ -1,0 +1,58 @@
+id: 6611
+name: 绝缘之旗印
+parent_class: action
+sub_class: 装备牌
+tags:
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 圣遗物
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '其他我方角色使用「元素爆发」后：所附属角色获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+  角色使用「元素爆发」造成的伤害+2。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 充能
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/9e7207494a4fdb10df19179ec836623b_1070826176128234158.png
+variants:
+- mode: 标准
+  effect_text: '其他我方角色使用「元素爆发」后：所附属角色获得1点充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+    角色使用「元素爆发」造成的伤害+2。（每回合1次）
+
+    （角色最多装备1件「圣遗物」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/361399b0aa575a2805da6765d3c0e17c_4972333427190668688.png
+jiqiao: true
+flavor_text: '绝缘之旗印·华饰之兜
+
+  浮生若梦十三年，
+
+  影峠绯雪翩跹烟，
+
+  再顾君已远。'

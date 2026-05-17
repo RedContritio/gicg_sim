@@ -1,0 +1,69 @@
+id: 506157
+name: 罔极盛怒
+parent_class: action
+desc: 罔极盛怒卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  火: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/76f9128c521d0057c10b2fbdc225e580_3765306487765998776.png
+header_img_url: ''
+version: '1757383773'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 4
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span><strong><span style="color: rgb(0, 0, 0)"><u>快速行动</u></span></strong></span><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：装备给我方的</span><strong>蚀灭的源焰之主</strong><span style="color: rgb(0, 0,
+  0)">。<br></span><strong><span style="color: rgb(0, 0, 0)">敌方打出名称不存在于本局最初牌组的牌时：</span></strong><span
+  style="color: rgb(0, 0, 0)">所附属角色获得1点</span><span><strong><span style="color: rgb(0,
+  0, 0)"><u>充能</u></span></strong></span><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，下次造成的伤害+1。（每回合1次）<br>（牌组中包含</span>蚀灭的源焰之主<span style="color: rgb(0,
+  0, 0)">，才能加入牌组）</span></p>'
+effect_text: '快速行动快速行动：
+
+  执行了一次快速行动后，我方可以继续进行其他行动。
+
+  只有执行了一次战斗行动后，才会轮到对方行动。" class="wiki-note-text">：装备给我方的蚀灭的源焰之主。
+
+  敌方打出名称不存在于本局最初牌组的牌时：所附属角色获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">，下次造成的伤害+1。（每回合1次）
+
+  （牌组中包含蚀灭的源焰之主，才能加入牌组）'
+term_refs:
+- 快速行动
+- 充能
+terms:
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/3d51302253f619d80c73559c5d38f3df_846996085905930762.png
+requires_char: 蚀灭的源焰之主
+deck_constraint: 牌组中包含蚀灭的源焰之主，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/76f9128c521d0057c10b2fbdc225e580_588508008413011306.png
+flavor_html: <p><strong>蚀灭的源焰之主·罔极盛怒</strong></p><p>「漆黑的福音令其永困于生命的最后一日，无穷的怒火吞没所有的理智，此刻，唯有战意不遑宁息，燃烧不止。」</p>
+flavor_text: '蚀灭的源焰之主·罔极盛怒
+
+  「漆黑的福音令其永困于生命的最后一日，无穷的怒火吞没所有的理智，此刻，唯有战意不遑宁息，燃烧不止。」'
+_raw_path: data/raw/action/506157_罔极盛怒.json

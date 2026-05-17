@@ -1,0 +1,62 @@
+id: 5594
+name: 射手丘丘人
+title: 射手丘丘人
+parent_class: monster
+attr:
+  元素:
+  - 物理
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: ''
+weapon: 其他武器
+faction:
+- 魔物/丘丘人
+hp: 3
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/19ea96977b7722d9f379227497327d15_1937156949029501254.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/84c66b03acc74f9a1305f6cc7df0cf9c_577154475089360443.png
+skills:
+- name: 射
+  type: 普通攻击
+  raw_life: 2
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 2
+  effect_text: 造成1点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 几支一起
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    同色: 3
+  effect_text: 造成5点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+  energy_req: 2
+- name: 躲起来
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】此角色使用技能后，自动切换到下一个角色。
+  term_refs: []
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。

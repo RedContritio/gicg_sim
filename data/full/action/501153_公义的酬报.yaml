@@ -1,0 +1,88 @@
+id: 501153
+name: 公义的酬报
+parent_class: action
+desc: 公义的酬报卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/000bcdedf14ef6af2cfa36a003841098_5830143410133732181.png
+header_img_url: ''
+version: '1755851277'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">角色使用「元素爆发」造成的伤害+2</span></strong><span
+  style="color: rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0, 0)">我方出战角色受到伤害或治疗后：</span></strong><span
+  style="color: rgb(0, 0, 0)">累积1点</span><strong><span style="color: rgb(0, 0, 0)">「公义之理」</span></strong><span
+  style="color: rgb(0, 0, 0)">。如果此牌已累积3点</span><strong><span style="color: rgb(0,
+  0, 0)">「公义之理」</span></strong><span style="color: rgb(0, 0, 0)">，则消耗3点</span><strong><span
+  style="color: rgb(0, 0, 0)">「公义之理」</span></strong><span style="color: rgb(0, 0,
+  0)">，使角色获得1点</span><strong><span style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>（</span><strong><span style="color: rgb(0, 0, 0)">「长柄武器」角色</span></strong><span
+  style="color: rgb(0, 0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '角色使用「元素爆发」造成的伤害+2。
+
+  我方出战角色受到伤害或治疗后：累积1点「公义之理」。如果此牌已累积3点「公义之理」，则消耗3点「公义之理」，使角色获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+  （「长柄武器」角色才能装备。角色最多装备1件「武器」）'
+term_refs:
+- 充能
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/9e7207494a4fdb10df19179ec836623b_1640016033004633148.png
+weapon_type: 长柄武器
+variants:
+- mode: 标准
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">角色使用「元素爆发」造成的伤害+2</span></strong><span
+    style="color: rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0,
+    0)">我方出战角色受到伤害或治疗后：</span></strong><span style="color: rgb(0, 0, 0)">累积1点</span><strong><span
+    style="color: rgb(0, 0, 0)">「公义之理」</span></strong><span style="color: rgb(0, 0,
+    0)">。如果此牌已累积3点</span><strong><span style="color: rgb(0, 0, 0)">「公义之理」</span></strong><span
+    style="color: rgb(0, 0, 0)">，则消耗3点</span><strong><span style="color: rgb(0, 0,
+    0)">「公义之理」</span></strong><span style="color: rgb(0, 0, 0)">，使角色获得1点</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>充能</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br>（</span><strong><span style="color: rgb(0, 0, 0)">「长柄武器」角色</span></strong><span
+    style="color: rgb(0, 0, 0)">才能装备。角色最多装备1件「武器」）</span></p>'
+  effect_text: '角色使用「元素爆发」造成的伤害+2。
+
+    我方出战角色受到伤害或治疗后：累积1点「公义之理」。如果此牌已累积3点「公义之理」，则消耗3点「公义之理」，使角色获得1点充能充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+    （「长柄武器」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/000bcdedf14ef6af2cfa36a003841098_4382151758785122038.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/04/15/258999284/f6c3c4a924bf1eeca5ceef3131776363_4524006308380275664.gif
+jiqiao: true
+flavor_html: <p><strong>枪尖一点·公义的酬报</strong></p><p>「世界理应是如此运行，公义的道理应当如此。」</p><p>「但『理应如此』的事情，却总难有好的结果。」</p>
+flavor_text: '枪尖一点·公义的酬报
+
+  「世界理应是如此运行，公义的道理应当如此。」
+
+  「但『理应如此』的事情，却总难有好的结果。」'
+_raw_path: data/raw/action/501153_公义的酬报.json

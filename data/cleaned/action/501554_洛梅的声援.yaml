@@ -1,0 +1,31 @@
+id: 501554
+name: 洛梅的声援
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 其他标签
+  获取:
+  - 瑟琳效果生成
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: 随机将2张美露莘好奇的「圣遗物」加入手牌。
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/7a8c85830ce44927460008304d7f73ed_7320178019851081507.png
+generated_by: 瑟琳效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/b8cc5a1a4f585ab31d7af7621fe7cc9a_7205746796255007122.png
+flavor_text: '美露莘的声援
+
+  效果随机的超棒贴纸，凝聚了美露莘们的心意。'

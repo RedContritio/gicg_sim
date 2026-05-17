@@ -1,0 +1,77 @@
+id: 506918
+name: 温敷战术包扎
+parent_class: action
+desc: 温敷战术包扎卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  风: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/775d537c80b16d221072fd4d4f86bbda_5834008333580595011.png
+header_img_url: ''
+version: '1761109280'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 3
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>快速行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0, 0)">伊法</span></strong><span
+  style="color: rgb(0, 0, 0)">，治疗我方受伤最多的角色1点。<br>装备有此牌的伊法在场时，我方触发</span><strong><span
+  style="color: rgb(19, 194, 194)"><u>风元素相关反应</u></span></strong><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;风元素相关反应：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（冰）&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点冰元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（水）&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点水元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（火）&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点火元素伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;扩散（雷）&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：对目标以外的所有敌方角色造成1点雷元素伤害。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">或感电反应后，治疗我方受伤最多的角色1点。（每回合2次）<br>（牌组中包含伊法，才能加入牌组）</span></p>'
+effect_text: '快速行动快速行动：
+
+  执行了一次快速行动后，我方可以继续进行其他行动。
+
+  只有执行了一次战斗行动后，才会轮到对方行动。" class="wiki-note-text">：装备给我方的伊法，治疗我方受伤最多的角色1点。
+
+  装备有此牌的伊法在场时，我方触发风元素相关反应风元素相关反应：
+
+  扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害。
+
+  扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害。
+
+  扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害。
+
+  扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害。" class="wiki-note-text">或感电反应后，治疗我方受伤最多的角色1点。（每回合2次）
+
+  （牌组中包含伊法，才能加入牌组）'
+term_refs:
+- 快速行动
+- 风元素相关反应
+terms:
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+  风元素相关反应: 扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害。扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害。扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害。扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/1f62890b9c61a77c430040e743443cef_8509651701700810733.png
+requires_char: 伊法
+deck_constraint: 牌组中包含伊法，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/775d537c80b16d221072fd4d4f86bbda_2936420837169196536.png
+flavor_html: <p><strong>伊法· 温敷战术包扎</strong></p><p>「小心为妙！」</p>
+flavor_text: '伊法· 温敷战术包扎
+
+  「小心为妙！」'
+_raw_path: data/raw/action/506918_温敷战术包扎.json

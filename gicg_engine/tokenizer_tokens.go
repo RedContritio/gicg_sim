@@ -1,0 +1,229 @@
+package engine
+
+// Token type constants — the ~200 ID vocabulary the DSL tokenizer
+// emits. Grouped by category (keywords, operators, API calls, enum
+// values, ctx fields, method calls, literals).
+
+const (
+	TokPad = 0
+
+	// Keywords (1-19)
+	TokIf       = 1
+	TokThen     = 2
+	TokEnd      = 3
+	TokReturn   = 4
+	TokElseif   = 5
+	TokElse     = 6
+	TokLocal    = 7
+	TokFunction = 8
+	TokAnd      = 9
+	TokOr       = 10
+	TokNot      = 11
+	TokTrue     = 12
+	TokFalse    = 13
+	TokNil      = 14
+
+	// Operators (20-39)
+	TokEq     = 20 // ==
+	TokNeq    = 21 // ~=
+	TokLt     = 22 // <
+	TokGt     = 23 // >
+	TokLe     = 24 // <=
+	TokGe     = 25 // >=
+	TokAdd    = 26 // +
+	TokSub    = 27 // -
+	TokMul    = 28 // *
+	TokDiv    = 29 // /
+	TokAssign = 30 // =
+	TokDot    = 31 // .
+	TokColon  = 32 // :
+	TokComma  = 33 // ,
+	TokLParen = 34 // (
+	TokRParen = 35 // )
+	TokLBrace = 36 // {
+	TokRBrace = 37 // }
+
+	// API calls (40-79)
+	TokDeclareCounter     = 40
+	TokGetCounter         = 41
+	TokGetCounterGroup    = 42
+	TokRegisterOnTagWrite = 43
+	TokDeclareChar        = 44
+	TokGetChar            = 45
+	TokDeclareSkill       = 46
+	TokGetSkill           = 47
+	TokInvokeSkill        = 48
+	TokDeclareCard        = 49
+	TokGetCard            = 50
+	TokAddCard            = 51
+	TokDealDamage         = 52
+	TokHeal               = 53
+	TokDeferFn            = 54
+	TokGetActiveChar      = 55
+	TokSetActiveChar      = 56
+	TokGetNextChar        = 57
+	TokContextPlayer      = 58
+	TokForceSwitch        = 59
+	TokGainEnergy         = 60
+	TokConsumeEnergy      = 61
+	TokSetWinner          = 62
+	TokGetTurn            = 63
+	TokDrawCard           = 64
+	TokCancel             = 65
+	TokMin                = 66
+	TokMax                = 67
+	TokPcall              = 68
+
+	// Hook types (80-109; 80/82 reserved — 旧 HookDamageBoost/Reduce 已 ADR-0019 §B.5 删除)
+	TokOnReactionDamage      = 81
+	TokOnAfterDamage         = 83
+	TokOnBeforeHeal          = 84
+	TokOnAfterHeal           = 85
+	TokOnActionCheck         = 86
+	TokOnActionPrepare       = 87
+	TokOnSkillUse            = 88
+	TokOnCardPlay            = 89
+	TokOnSwitch              = 90
+	TokOnBeforeTurnFlip      = 91
+	TokOnRoundStart          = 92
+	TokOnRoundEnd            = 93
+	TokOnRoundEndPostSummon  = 94
+	TokOnRoundEndDecay       = 95
+	TokOnRoundEndFinal       = 96
+	TokOnBeforeWrite         = 97
+	TokOnAfterWrite          = 98
+	TokOnBeforeEnergyGain    = 99
+	TokOnAfterEnergyGain     = 100
+	TokOnBeforeEnergyConsume = 101
+	TokOnAfterEnergyConsume  = 102
+	// ADR-0019 §B.5 — strict 4+3 hook 时机
+	TokOnDamageType       = 103
+	TokOnDamageAdd        = 104
+	TokOnDamageMul        = 105
+	TokOnDamageReduceBuff = 106
+	TokOnShieldAbsorb     = 107
+	TokOnDamageImmunity   = 108
+	// ADR-0019 §A.4 / dsl_gaps D3 — 调和 hook
+	TokOnTune = 109
+
+	// Enum prefixes (110-179)
+	TokElementNone     = 110
+	TokElementFire     = 111
+	TokElementIce      = 112
+	TokElementWater    = 113
+	TokElementElectro  = 114
+	TokElementGeo      = 115
+	TokElementPhysical = 116
+	TokElementAnemo    = 117
+	TokElementDendro   = 118
+	TokElementPiercing = 119 // ADR-0019 §B.1: 穿透 = 元素类型,不是 modifier flag
+
+	TokTargetEnemyActive    = 120
+	TokTargetEnemyAll       = 121
+	TokTargetOwnAll         = 122
+	TokTargetEnemyNonActive = 123
+	TokTargetOwnActive      = 124
+	TokTargetCardTarget     = 125
+
+	TokScopeSelf         = 130
+	TokScopeActiveStatus = 131
+	TokScopePerChar      = 132
+	TokScopePerPlayer    = 133
+	TokScopeGlobal       = 134
+
+	TokOpSet = 140
+	TokOpAdd = 141
+	TokOpSub = 142
+
+	TokSourceSkill    = 150
+	TokSourceCard     = 151
+	TokSourceStatus   = 152
+	TokSourceSummon   = 153
+	TokSourceSupport  = 154
+	TokSourceReaction = 155
+
+	TokTagSummon    = 160
+	TokTagElement   = 161
+	TokTagEquip     = 162
+	TokTagFood      = 163
+	TokTagSupport   = 164
+	TokTagShield    = 165
+	TokTagSpecialty = 166
+
+	TokPlayerOwn   = 170
+	TokPlayerEnemy = 171
+	TokPlayerAll   = 172
+
+	TokWeaponNone     = 180
+	TokWeaponSword    = 181
+	TokWeaponPolearm  = 182
+	TokWeaponBow      = 183
+	TokWeaponClaymore = 184
+	TokWeaponCatalyst = 185
+
+	TokSlotNone      = 200
+	TokSlotEquip     = 201
+	TokSlotSupport   = 202
+	TokSlotSpecialty = 203
+
+	TokActionKindSkill   = 190
+	TokActionKindCard    = 191
+	TokActionKindSwitch  = 192
+	TokActionKindEndTurn = 193
+
+	TokZoneHand = 196
+	TokZoneDeck = 197
+
+	// ctx fields (200-219)
+	TokCtxValue        = 200
+	TokCtxElement      = 201
+	TokCtxActorPlayer  = 202
+	TokCtxActorChar    = 203
+	TokCtxSkillIndex   = 204
+	TokCtxCardRef      = 205
+	TokCtxTargetPlayer = 206
+	TokCtxTargetChar   = 207
+	TokCtxPlayable     = 208
+	// 209 retired: was TokCtxApCost (AP system removed Phase IV.c+d)
+	TokCtxBattleAction  = 210
+	TokCtxHit           = 211
+	TokCtxSource        = 212
+	TokCtxActionKind    = 213
+	TokCtxPenetrate     = 214
+	TokCtxActionContext = 215
+	TokCtxPaid          = 216
+	TokCtxNeedTarget    = 217
+
+	// Methods (220-239)
+	TokMGet         = 220
+	TokMSet         = 221
+	TokMAdd         = 222
+	TokMSub         = 223
+	TokMCmin        = 224
+	TokMCmax        = 225
+	TokMGetAt       = 226
+	TokMSetAt       = 227
+	TokMAddAt       = 228
+	TokMSubAt       = 229
+	TokMDecayAll    = 230
+	TokMFillAll     = 231
+	TokMHp          = 232
+	TokMEnergy      = 233
+	TokMAlive       = 234
+	TokMOwnerPlayer = 235
+	TokMOwnerChar   = 236
+	TokMName        = 237
+	TokMElement     = 238
+	TokMWeapon      = 239
+
+	// Literals (240-249)
+	TokLitNumber = 240 // next value = the number
+	TokLitString = 241 // next value = string hash
+
+	// References (250-252)
+	TokVarRef = 250 // local variable reference (next = var index in scope)
+
+	TokVocabSize = 256
+)
+
+// TokenPair is (token_type, token_value)

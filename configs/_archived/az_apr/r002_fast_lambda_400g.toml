@@ -1,0 +1,43 @@
+# r002: same scenario as r001 (team_size=2 random, 400g, go backend)
+# but with faster lambda anneal — lambda_anneal_games=400 instead of
+# default 1500. Goal: force value_mix_lambda to finish at 0.8 by g400
+# so the network's V head actually drives MCTS leaf values instead
+# of being ignored (r001 g400 ended at effective_lambda≈0.052).
+#
+# If r002 gauntlet beats r001_mcts_200 baseline meaningfully, we'll
+# move lambda_anneal_games=400 into shipped_1v1 / shipped_2v2 as
+# the new default. If no gain, it's evidence value head isn't
+# learning useful signal and we need to look elsewhere.
+
+base = "random_1v1"
+run_label = "r002_fast_lambda_400g"
+
+n_games = 400
+n_workers = 4
+batch_size = 64
+games_per_arena = 100
+games_per_gauntlet = 200
+checkpoint_every_n_games = 100
+
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+lambda_anneal_games = 400   # vs 1500 in random_1v1 preset
+
+[train]
+delta_aux_coef = 1.0
+
+[scenario]
+team_size = 2
+disjoint_teams = true
+
+# r002 competes directly against r001 — identical scenario, only
+# lambda_anneal_games differs. r001_mcts_200 baseline in gauntlet
+# gives the head-to-head signal.
+[[gauntlet_model_opponents]]
+name = "r001_mcts_200"
+ckpt_path = "artifacts/202604190744_r001_randteam2_400g/final_champion.pt"
+rollouts = 200
+
+[meta]
+paradigm = "az"

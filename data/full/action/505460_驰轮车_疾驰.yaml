@@ -1,0 +1,76 @@
+id: 505460
+name: 驰轮车·疾驰
+parent_class: action
+desc: 驰轮车·疾驰卡牌
+sub_class: 装备牌
+tags: &id001
+- 特技
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/31d5b53225a1014c8622d7dc2c9a0493_26511776158529376.png
+header_img_url: ''
+version: '1750212662'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 玛薇卡技能效果生成
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong>此卡牌可使用次数为0时：</strong>抓4张牌。</p><p><strong><span style="color:
+  rgb(0, 0, 0)"><u>特技</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：<strong><u>疾驰</u></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;疾驰：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;费用：2&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;消耗1点&lt;strong&gt;「夜魂值」&lt;/strong&gt;，然后&lt;strong&gt;准备技能&lt;/strong&gt;：&lt;strong&gt;驰轮车：疾驰&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;行动阶段开始时：&lt;/strong&gt;生成2个万能元素骰。&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span></p><p>（仅<strong>玛薇卡</strong>可用）</p><p><strong><span
+  style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：</span>2</p><p>(角色最多装备1个「特技」）</p>'
+effect_text: '此卡牌可使用次数为0时：抓4张牌。
+
+  特技特技：
+
+  出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。
+
+  使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。
+
+  角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。" class="wiki-note-text">：疾驰
+
+  （仅玛薇卡可用）
+
+  可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数;
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2
+
+  (角色最多装备1个「特技」）'
+term_refs:
+- 特技
+- 疾驰
+- 可用次数
+terms:
+  特技: 出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。
+  疾驰: 特技费用：2消耗1点「夜魂值」，然后准备技能：驰轮车：疾驰。行动阶段开始时：生成2个万能元素骰。
+  可用次数: 此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_2492666528618106255.png
+requires_char: 玛薇卡
+generated_by: 玛薇卡技能效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/18/258999284/31d5b53225a1014c8622d7dc2c9a0493_8192798041035888377.png
+flavor_html: <p></p>
+flavor_text: ''
+_raw_path: data/raw/action/505460_驰轮车_疾驰.json

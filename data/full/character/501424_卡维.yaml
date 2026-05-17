@@ -1,0 +1,313 @@
+id: 501424
+name: 卡维
+title: 天穹之镜·卡维
+parent_class: character
+desc: 卡维卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/03/258999284/2879f08ce85d5ab6c5b69e8e729923e5_7897703783807306831.png
+header_img_url: ''
+version: '1771987883'
+attr:
+  元素:
+  - 草元素
+  武器:
+  - 双手剑
+  阵营: &id001
+  - 须弥
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 草
+weapon: 双手剑
+faction: *id001
+hp: 12
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/2879f08ce85d5ab6c5b69e8e729923e5_5879182844975848941.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/c6c03e3dad22020316f54238360f740f_4036406940248850441.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/03/258999284/de066277f1f3120586b5e9c93c7fdb59_2055723940158668595.png
+skills:
+- name: 旋规设矩
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    草: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/05/258999284/1227a0ceb1f8bf428e36713043a41c02_6568645425988792761.png
+  effect_html: '<html><head></head><body><p>造成2点<strong><span style="color: rgb(0,
+    0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 画则巧施
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/c16266bb9d15e3d2f72b5c9928d8c3da_4617658453359064497.png
+  effect_html: '<html><head></head><body><p>造成2点<strong><span style="color: rgb(82,
+    196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;草元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，<span style="color:
+    rgb(0, 0, 0)">生成</span><strong><span style="color: rgb(0, 0, 0)"><u>迸发扫描</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0,
+    0, 0)&#34;&gt;迸发扫描：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;双方选择行动前：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;如果我方场上存在草原核或丰穰之核，则使其&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;-1，并&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;我方牌库顶的1张卡牌。然后，造成所&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;卡牌当前元素骰费用的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数：1（可叠加，最多叠加到3次）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">，生成迸发扫描迸发扫描：出战状态双方选择行动前：如果我方场上存在草原核或丰穰之核，则使其可用次数-1，并舍弃我方牌库顶的1张卡牌。然后，造成所舍弃卡牌当前元素骰费用的草元素伤害。可用次数：1（可叠加，最多叠加到3次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  - 迸发扫描
+- name: 繁绘隅穹
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/40b352ac9244264e9eecf3413512fae2_1420990360545160672.png
+  effect_html: '<html><head></head><body><p>造成3点<strong><span style="color: rgb(82,
+    196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;草元素伤害：&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，本角色附属<strong><u>梅赫拉克的助力</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0,
+    0, 0)&#34;&gt;梅赫拉克的助力：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;角色「普通攻击」造成的伤害+1，且造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;物理伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;变为&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(82, 196, 26)&#34;&gt;草元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;角色普通攻击后：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0,
+    0, 0)&#34;&gt;迸发扫描&lt;/span&gt;&lt;/strong&gt;&lt;span style=&#34;color: rgb(0,
+    0, 0)&#34;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;持续回合：2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，生成2层</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>迸发扫描</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;迸发扫描：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;双方选择行动前：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;如果我方场上存在草原核或丰穰之核，则使其&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;-1，并&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;我方牌库顶的1张卡牌。然后，造成所&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;卡牌当前元素骰费用的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数：1（可叠加，最多叠加到3次）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成3点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">，本角色附属梅赫拉克的助力梅赫拉克的助力：状态角色「普通攻击」造成的伤害+1，且造成的物理伤害变为草元素伤害。角色普通攻击后：生成迸发扫描。持续回合：2"
+    class="wiki-note-text">，生成2层迸发扫描迸发扫描：出战状态双方选择行动前：如果我方场上存在草原核或丰穰之核，则使其可用次数-1，并舍弃我方牌库顶的1张卡牌。然后，造成所舍弃卡牌当前元素骰费用的草元素伤害。可用次数：1（可叠加，最多叠加到3次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+  - 梅赫拉克的助力
+  - 迸发扫描
+  energy_req: 2
+summons: []
+talent:
+  name: 预算师的技艺
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/10ea9432a97b89788ede72906f5af735_2900270216620323771.png
+  effect_html: '<html><head></head><body><p><strong><span style="color: rgb(0, 0,
+    0)"><u>战斗行动</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">卡维</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br/>卡维装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>画则巧施</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;画则巧施：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;元素战技&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;造成2点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;，生成&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;迸发扫描&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br/>装备有此牌的卡维在场，我方触发</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>迸发扫描</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;迸发扫描：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;出战状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;双方选择行动前：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;如果我方场上存在草原核或丰穰之核，则使其&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;-1，并&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;我方牌库顶的1张卡牌。然后，造成所&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;舍弃&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;卡牌当前元素骰费用的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(82, 196, 26)&#34;&gt;草元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;可用次数：1（可叠加，最多叠加到3次）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">的效果后：将1张所</span><strong><span style="color: rgb(0, 0, 0)"><u>舍弃</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&#34;color: rgb(0,
+    0, 0)&#34;&gt;舍弃：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color:
+    rgb(0, 0, 0)&#34;&gt;通过行动牌或角色技能的效&lt;/span&gt;果，将行动牌从手牌或牌库中弃置。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">卡牌的复制加入你的手牌。如果该牌为「场地」牌，则使本回合中我方下次打出「场地」时少花费2个元素骰。（每回合1次）<br/>（牌组中包含卡维，才能加入牌组）</span></p></body></html>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为卡维时，装备此牌。
+
+    卡维装备此牌后，立刻使用一次画则巧施造成2点草元素伤害，生成迸发扫描。" class="wiki-note-text">。
+
+    装备有此牌的卡维在场，我方触发迸发扫描迸发扫描：
+
+    出战状态
+
+    双方选择行动前：如果我方场上存在草原核或丰穰之核，则使其可用次数-1，并舍弃我方牌库顶的1张卡牌。然后，造成所舍弃卡牌当前元素骰费用的草元素伤害。
+
+    可用次数：1（可叠加，最多叠加到3次）" class="wiki-note-text">的效果后：将1张所舍弃舍弃：
+
+    通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">卡牌的复制加入你的手牌。如果该牌为「场地」牌，则使本回合中我方下次打出「场地」时少花费2个元素骰。（每回合1次）
+
+    （牌组中包含卡维，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 画则巧施
+  - 迸发扫描
+  - 舍弃
+  deck_constraint: 牌组中包含卡维，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 2
+  attr:
+    充能:
+    - 2点
+    攻击:
+    - '2'
+  skills:
+  - name: 旋规设距
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/1227a0ceb1f8bf428e36713043a41c02_1349421797192955634.png
+    effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成2点物理伤害。
+    term_refs:
+    - 物理伤害
+  - name: 繁绘隅穹
+    type: 元素爆发
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/40b352ac9244264e9eecf3413512fae2_347385398749692498.png
+    effect_html: '<p>造成<strong><span style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，2回合内，自身<strong><u>额外行动</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;额外行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色不会因为额外行动而获得充能。
+      &lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>次数+1，附属<strong><u>元素附魔：草</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;元素附魔：草：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;所附属角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(82, 196, 26)&quot;&gt;&lt;u&gt;草元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 造成草元素伤害草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">，2回合内，自身额外行动次数+1，附属元素附魔：草草元素伤害。物理伤害：物理伤害不会附着元素，也不会发生元素反应。草元素伤害：附着草元素，可发生元素反应每点元素精通使特定效果提升1倍。绽放：生成1层草原核燃烧：目标附属1层[持续燃烧]原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。
+    term_refs:
+    - 草元素伤害
+    - 额外行动
+    - 元素附魔
+  - name: 画巧则施
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/c16266bb9d15e3d2f72b5c9928d8c3da_7768445883992857981.png
+    effect_html: '<p>【被动】我方的<strong><u>元素精通</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;元素精通：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每点元素精通使得敌方受到的元素反应中&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;提升1倍。
+      &lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>+1。</p><p><strong>使用技能后：</strong>对随机敌方造成己方<strong><u>草原核</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;草原核：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;触发绽放反应时：&lt;/strong&gt;对随机敌方造成自身层数三分之一的&lt;strong&gt;&lt;u&gt;穿透伤害&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方造成&lt;span
+      style=&quot;color: rgb(207, 19, 34)&quot;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;后：&lt;/strong&gt;对敌方全体造成自身层数的&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;，然后消灭自身。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方造成&lt;span
+      style=&quot;color: rgb(146, 84, 222)&quot;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;后：&lt;/strong&gt;对敌方生命值最低2名角色造成自身层数的&lt;strong&gt;穿透伤害&lt;/strong&gt;，然后消灭自身。&lt;/p&gt;&lt;p&gt;（可叠加，没有上限）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害翻倍，每8点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;额外翻1倍&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上一个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;目标附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;持续燃烧&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>层数六分之一的<strong><u>穿透伤害</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+      &lt;/p&gt;" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>。</strong></p>'
+    effect_text: 【被动】我方的元素精通特定效果提升1倍。 " class="wiki-note-text">+1。使用技能后：对随机敌方造成己方草原核火元素伤害后：对敌方全体造成自身层数的火元素伤害，然后消灭自身。我方造成雷元素伤害后：对敌方生命值最低2名角色造成自身层数的穿透伤害，然后消灭自身。（可叠加，没有上限）穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。火元素伤害：附着火元素，可发生元素反应每点元素精通使特定效果提升1倍。蒸发：本伤害翻倍，每8点元素精通额外翻1倍融化：本伤害翻倍，每8点元素精通额外翻1倍超载：伤害+1，目标切换到上一个角色，他们交换位置并受到1点穿透伤害燃烧：目标附属1层[持续燃烧]雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">层数六分之一的穿透伤害。
+    term_refs:
+    - 元素精通
+    - 草原核
+    - 穿透伤害
+flavor_html: <p><strong>天穹之镜·卡维</strong></p><p>体悟、仁爱与识美之知。</p>
+flavor_text: '天穹之镜·卡维
+
+  体悟、仁爱与识美之知。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  迸发扫描: 出战状态双方选择行动前：如果我方场上存在草原核或丰穰之核，则使其可用次数-1，并舍弃我方牌库顶的1张卡牌。然后，造成所舍弃卡牌当前元素骰费用的草元素伤害。可用次数：1（可叠加，最多叠加到3次）
+  梅赫拉克的助力: 状态角色「普通攻击」造成的伤害+1，且造成的物理伤害变为草元素伤害。角色普通攻击后：生成迸发扫描。持续回合：2
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  画则巧施: 元素战技造成2点草元素伤害，生成迸发扫描。
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+_raw_path: data/raw/character/501424_卡维.json

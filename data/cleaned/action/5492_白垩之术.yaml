@@ -1,0 +1,34 @@
+id: 5492
+name: 白垩之术
+parent_class: action
+sub_class: 事件牌
+tags:
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 其他标签
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '从最多2个我方后台角色身上，转移1点充能角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">到我方出战角色。'
+term_refs: []
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/8c5a4f348a3a8017500c15e9cd0c5c15_8707396400065664325.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/567c17051137fdd9e5c981ea584df298_6054876926783846996.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/9befa7e027222a771c6f5f91a76356a1_1163210424036993847.gif
+flavor_text: '炼金实验
+
+  「不必紧张，你看，实验已经完成了，很成功。」'

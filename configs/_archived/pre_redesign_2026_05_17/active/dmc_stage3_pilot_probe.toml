@@ -1,0 +1,43 @@
+# DMC pilot probe — 200 frames smoke check on Windows GPU (CUDA forward 验证)
+# 跑 ~2-5 ep,只看是否 crash 与 fps 量级,不写 artifacts。
+
+base = "stage3"
+
+total_frames = 200
+batch_size = 32
+buffer_cap = 1000
+save_interval_minutes = 999       # 不要 ckpt
+write_artifacts = false
+run_label = "dmc_pilot_probe"
+
+device = "cuda"
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["墨客"]
+card_pool = ["测试卡_增幅", "测试卡_碎片"]
+team_size = 1
+max_rounds = 10
+obs_mask = ["enemy_dice"]
+deck_padding = {card = "碌碌无为", target_size = 15}
+pool = ["v_legacy", "test_basic"]
+
+[agent]
+d_model = 128
+n_cross_layers = 2
+
+[opponent_pool]
+random = 0.50
+f1d2 = 0.50
+f1d4 = 0.0
+historical = 0.0                   # probe 不需要 historical
+ring_size = 5
+
+[eval]
+enabled = false                    # probe 不 eval
+interval_minutes = 999
+n_scenarios = 4
+baselines = ["F1-D2"]
+
+[meta]
+paradigm = "dmc"

@@ -1,0 +1,55 @@
+id: 5406
+name: 魔导绪论
+parent_class: action
+desc: 魔导绪论
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/1abc432f853c6fa24624a92646c62237_7336928583967273301.png
+header_img_url: ''
+version: '1732242842'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+  pre-wrap;">（「法器」角色才能装备。角色最多装备1件「武器」）</p>'
+effect_text: '角色造成的伤害+1。
+
+  （「法器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/03/75720734/9e7207494a4fdb10df19179ec836623b_3561282734647632548.png
+weapon_type: 法器
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+    pre-wrap;">（「法器」角色才能装备。角色最多装备1件「武器」）</p>'
+  effect_text: '角色造成的伤害+1。
+
+    （「法器」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/1abc432f853c6fa24624a92646c62237_1948018119958549545.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/03/75720734/96ccdb04813b377fe1e8982b10a118f0_6729714720469470035.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>止水息雷·魔导绪论</strong></p><p style="white-space:
+  pre-wrap;">第十二版《魔导绪论》。</p><p style="white-space: pre-wrap;">尽管部分内容错漏较多，但依然是当今最权威的魔导入门指南。</p>'
+flavor_text: '止水息雷·魔导绪论
+
+  第十二版《魔导绪论》。
+
+  尽管部分内容错漏较多，但依然是当今最权威的魔导入门指南。'
+_raw_path: data/raw/action/5406_魔导绪论.json

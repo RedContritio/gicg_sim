@@ -1,0 +1,171 @@
+id: 6557
+name: 安柏
+title: 侦察骑士·安柏
+parent_class: character
+desc: 安柏卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/915473ac6c13d0bea16d141adca38359_1134588033158709876.png
+header_img_url: ''
+version: '1768356156'
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 蒙德
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 火
+weapon: 弓
+faction: *id001
+hp: 12
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/915473ac6c13d0bea16d141adca38359_823004675460920277.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/373808b82341aa6a6974e05fc1cdee44_428693245243958747.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/09/258999284/1542ad39ad316c7953a462c2cc4250a8_1201273916942221391.png
+skills:
+- name: 神射手
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/949d07ba4f72b33b739fb0ed413a7fa2_2087057972645428834.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 爆弹玩偶
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/36e0f7549a2676d340220d9b0da2e037_4582096687507723724.png
+  effect_html: <p>召唤<strong><em>兔兔伯爵</em></strong>。</p>
+  effect_text: 召唤兔兔伯爵。
+  term_refs: []
+- name: 箭雨
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/cae15535936cce8934a1c0a2330e69ac_2372376468187258300.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207,
+    19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，对所有敌方后台角色造成2点<strong><u>穿透伤害</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">，对所有敌方后台角色造成2点穿透伤害。
+  term_refs:
+  - 火元素伤害
+  - 穿透伤害
+  energy_req: 2
+summons:
+- name: 兔兔伯爵
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/17/183046623/6864ff4d13f55e24080152f88fef542f_1635591582740112856.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>我方出战角色受到伤害时：</strong>抵消2点伤害。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：1</strong>，耗尽时不弃置此牌。</p><p><strong>结束阶段，如果可用次数已耗尽：</strong>弃置此牌，以造成2点<strong><span
+    style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 我方出战角色受到伤害时：抵消2点伤害。可用次数：1，耗尽时不弃置此牌。结束阶段，如果可用次数已耗尽：弃置此牌，以造成2点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 可用次数
+  - 火元素伤害
+talent:
+  name: 一触即发
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/2a48f2862634d319b9165838de944561_1335738399957709685.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>安柏</strong>时，装备此牌。</p><p>安柏装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>爆弹玩偶</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;爆弹玩偶：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;召唤&lt;strong&gt;兔兔伯爵&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;兔兔伯爵&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方出战角色受到伤害时：&lt;/strong&gt;抵消2点伤害。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：1&lt;/strong&gt;，耗尽时不弃置此牌。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段，如果可用次数已耗尽：&lt;/strong&gt;弃置此牌，以造成2点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>安柏<strong>普通攻击</strong>后：如果此牌和<strong><em>兔兔伯爵</em></strong>仍在场，则引爆<strong><em>兔兔伯爵</em></strong>，造成4点<strong><span
+    style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>（牌组中包含安柏，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为安柏时，装备此牌。
+
+    安柏装备此牌后，立刻使用一次爆弹玩偶火元素伤害。
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。
+
+    火元素伤害：
+
+    附着火元素，可发生元素反应：
+
+    融化：本伤害+2
+
+    蒸发：本伤害+2
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）" class="wiki-note-text">。
+
+    安柏普通攻击后：如果此牌和兔兔伯爵仍在场，则引爆兔兔伯爵，造成4点火元素伤害火元素伤害：
+
+    附着火元素，可发生元素反应：
+
+    融化：本伤害+2
+
+    蒸发：本伤害+2
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）" class="wiki-note-text">。
+
+    （牌组中包含安柏，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 爆弹玩偶
+  - 火元素伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含安柏，才能加入牌组
+flavor_html: <p><strong>侦察骑士·安柏</strong></p><p>如果想要成为一名伟大的牌手⋯</p><p>首先，要有坐上牌桌的勇气。</p>
+flavor_text: '侦察骑士·安柏
+
+  如果想要成为一名伟大的牌手⋯
+
+  首先，要有坐上牌桌的勇气。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  爆弹玩偶: 元素战技召唤兔兔伯爵。兔兔伯爵我方出战角色受到伤害时：抵消2点伤害。可用次数：1，耗尽时不弃置此牌。结束阶段，如果可用次数已耗尽：弃置此牌，以造成2点火元素伤害。可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+_raw_path: data/raw/character/6557_安柏.json

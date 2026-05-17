@@ -1,0 +1,83 @@
+id: 5500
+name: 重帘留香
+parent_class: action
+desc: 行秋天赋 重帘留香
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  水: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/eb3cd31f7a2c433499221b5664a264f3_3086723857644931388.png
+header_img_url: ''
+version: '1699421959'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 6
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+  pre-wrap;&quot;>战斗行动：</p><p style=&quot;white-space: pre-wrap;&quot;>我方执行了一次战斗行动后，会轮到对方行动。</p><p
+  style=&quot;white-space: pre-wrap;&quot;>打出具有此规则的手牌是一个战斗行动，而非快速行动。</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>行秋</strong>时，装备此牌。</p><p>行秋装备此牌后，立刻使用一次<strong><u>画雨笼山</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>画雨笼山：</p><p
+  style=&quot;white-space: pre-wrap;&quot;>造成2点<strong><span style=&quot;color:rgba(24,144,255,1)&quot;>水元素伤害</span></strong>，本角色<strong>附着水元素</strong>，召唤<strong>雨帘剑</strong>。</p>"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的行秋生成的<strong><u>雨帘剑</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>雨帘剑：</p><p
+  style=&quot;white-space: pre-wrap;&quot;>出战状态</p><p style=&quot;white-space: pre-wrap;&quot;>我方出战角色受到至少为3的伤害时：抵消1点伤害。</p><p
+  style=&quot;white-space: pre-wrap;&quot;>可用次数：2</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>改为可以抵挡至少为2的伤害，并且初始<strong><u>可用次数</u></strong><span
+  data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>可用次数：</p><p
+  style=&quot;white-space: pre-wrap;&quot;>此牌效果触发后，会消耗1次可用次数；</p><p style=&quot;white-space:
+  pre-wrap;&quot;>可用次数耗尽后，立刻弃置此牌。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>+1。</p><p>（牌组中包含行秋，才能加入牌组）</p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为行秋时，装备此牌。
+
+  行秋装备此牌后，立刻使用一次画雨笼山画雨笼山：
+
+  造成2点水元素伤害，本角色附着水元素，召唤雨帘剑。" class="wiki-note-text">。
+
+  装备有此牌的行秋生成的雨帘剑雨帘剑：
+
+  出战状态
+
+  我方出战角色受到至少为3的伤害时：抵消1点伤害。
+
+  可用次数：2" class="wiki-note-text">改为可以抵挡至少为2的伤害，并且初始可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">+1。
+
+  （牌组中包含行秋，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 画雨笼山
+- 雨帘剑
+- 可用次数
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  画雨笼山: 造成2点水元素伤害，本角色附着水元素，召唤雨帘剑。
+  雨帘剑: 出战状态我方出战角色受到至少为3的伤害时：抵消1点伤害。可用次数：2
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/08/258999284/d08c736ffd58960cac4e7033dd69a0a3_7298825653991852472.png
+duration: 可用次数2
+requires_char: 行秋
+deck_constraint: 牌组中包含行秋，才能加入牌组
+is_combat_action: true
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/eb3cd31f7a2c433499221b5664a264f3_3640098588958242591.png
+flavor_html: <p><strong>行秋 · 重帘留香</strong></p><p>他的运笔方法一直让人印象深刻。</p>
+flavor_text: '行秋 · 重帘留香
+
+  他的运笔方法一直让人印象深刻。'
+_raw_path: data/raw/action/5500_重帘留香.json

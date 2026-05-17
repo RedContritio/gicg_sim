@@ -1,0 +1,268 @@
+id: 6559
+name: 雷电将军
+title: 一心净土·雷电将军
+parent_class: character
+desc: 雷电将军卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e9cb40e812da2147e3786f7cc3b2bd7d_8665169646537325232.png
+header_img_url: ''
+version: '1768356136'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 长柄武器
+  阵营: &id001
+  - 稻妻
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 雷
+weapon: 长柄武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e9cb40e812da2147e3786f7cc3b2bd7d_208524583698335951.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/ad45a7a675159ae38f2f9a44a102acd6_3496699014024691879.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 源流
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/0cd68ecb1a011d94e2b4be1b99ac3302_4090150291593632958.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 神变·恶曜开眼
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/ca5a55d164f3a97852b0d7fc59d09875_1236252164045819134.png
+  effect_html: <p>召唤<strong><em>雷罚恶曜之眼。</em></strong></p>
+  effect_text: 召唤雷罚恶曜之眼。
+  term_refs: []
+- name: 奥义·梦想真说
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/e32265b2715186774b8d4bcf3d918880_1471851977626289486.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(146,
+    84, 222)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，其他我方角色获得2点<strong><u>充能</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;充能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">，其他我方角色获得2点充能。
+  term_refs:
+  - 雷元素伤害
+  - 充能
+  energy_req: 2
+- name: 诸愿百眼之轮
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/2df2771f98519d3d46ad0551977ca99a_7788585308123167206.png
+  effect_html: <p>【被动】战斗开始时，初始附属<strong><u>诸愿百眼之轮</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;诸愿百眼之轮：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;其他我方角色使用「元素爆发」后：&lt;/strong&gt;累积1点&lt;strong&gt;「愿力」&lt;/strong&gt;。（最多累积3点）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色使用奥义·梦想真说时：&lt;/strong&gt;消耗所有&lt;strong&gt;「愿力」&lt;/strong&gt;，每点&lt;strong&gt;「愿力」&lt;/strong&gt;使造成的伤害+1。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 【被动】战斗开始时，初始附属诸愿百眼之轮。
+  term_refs:
+  - 诸愿百眼之轮
+summons:
+- name: 雷罚恶曜之眼
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/17/183046623/a27cfa39a258ff4b80f01b1964e6faac_1649452858766133852.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>造成1点<strong><span style="color: rgb(146,
+    84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(146, 84, 222)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：3</strong></p><p><strong>此召唤物在场时：</strong>我方角色「元素爆发」造成的伤害+1。</p>'
+  effect_text: 结束阶段：造成1点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">。可用次数：3此召唤物在场时：我方角色「元素爆发」造成的伤害+1。
+  term_refs:
+  - 雷元素伤害
+  - 可用次数
+talent:
+  name: 万千的愿望
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/bea2df42c6cb8eecf724f2da60554278_7253359527898516926.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>雷电将军</strong>时，装备此牌。</p><p>雷电将军装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>奥义·梦想真说</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;奥义·梦想真说：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;元素爆发&lt;/u&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(146, 84, 222)&quot;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;，其他我方角色获得2点&lt;strong&gt;&lt;u&gt;充能&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;元素爆发：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(146, 84, 222)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的雷电将军使用<strong>奥义·梦想真说</strong>时每消耗1点「愿力」，都使造成的伤害额外+1。</p><p>（牌组中包含雷电将军，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为雷电将军时，装备此牌。
+
+    雷电将军装备此牌后，立刻使用一次奥义·梦想真说雷元素伤害，其他我方角色获得2点充能。
+
+    元素爆发：
+
+    角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。
+
+    雷元素伤害：
+
+    附着雷元素，可发生元素反应：
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+
+    充能：
+
+    角色使用「元素爆发」时，需要消耗充能。
+
+    角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+    装备有此牌的雷电将军使用奥义·梦想真说时每消耗1点「愿力」，都使造成的伤害额外+1。
+
+    （牌组中包含雷电将军，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 奥义·梦想真说
+  energy_req: 2
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含雷电将军，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 10
+  energy: 3
+  attr:
+    充能:
+    - 3点
+    攻击:
+    - '4'
+  skills:
+  - name: 源流
+    type: 普通攻击
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/0cd68ecb1a011d94e2b4be1b99ac3302_4682253187184790276.png
+    effect_html: <p>造成<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+    effect_text: 造成物理伤害。
+    term_refs:
+    - 物理伤害
+  - name: 奥义·梦想真说
+    type: 元素爆发
+    raw_life: 3
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/e32265b2715186774b8d4bcf3d918880_4194755672576427080.png
+    effect_html: '<p>消耗所有<strong>「愿力」</strong>，自身附属其1倍的<strong><u>梦想一心</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;梦想一心：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;每层使所附属角色本回合攻击力+1。&lt;/p&gt;&lt;p&gt;所附属角色造成的&lt;strong&gt;&lt;u&gt;物理伤害&lt;/u&gt;&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;所附属角色使用技能后：&lt;/strong&gt;其他我方角色获得2点&lt;strong&gt;&lt;u&gt;充能&lt;/u&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;充能：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/p&gt;&lt;p&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，然后造成<strong><span
+      style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情"
+      data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+    effect_text: 消耗所有「愿力」，自身附属其1倍的梦想一心雷元素伤害。所附属角色使用技能后：其他我方角色获得2点充能。物理伤害：物理伤害不会附着元素，也不会发生元素反应。雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。"
+      class="wiki-note-text">，然后造成雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。
+    term_refs:
+    - 梦想一心
+    - 雷元素伤害
+    energy_req: 3
+  - name: 诸愿百眼之轮
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/2df2771f98519d3d46ad0551977ca99a_1965930722283466851.png
+    effect_html: <p>【被动】<strong>战斗开始时：</strong>初始附属<strong><u>诸愿百眼之轮</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;诸愿百眼之轮：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;其他我方角色使用「元素爆发」后：&lt;/strong&gt;累积所消耗&lt;strong&gt;&lt;u&gt;充能&lt;/u&gt;&lt;/strong&gt;的&lt;strong&gt;「愿力」&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>雷罚恶曜之眼</em></strong>。</p>
+    effect_text: 【被动】战斗开始时：初始附属诸愿百眼之轮，召唤雷罚恶曜之眼。
+    term_refs:
+    - 诸愿百眼之轮
+  summons:
+  - name: 雷罚恶曜之眼
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/22/258999284/a27cfa39a258ff4b80f01b1964e6faac_8702599087298076217.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong>结束阶段：</strong>造成2点<strong><span style="color: rgb(114,
+      46, 209)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：6</strong></p><p></p>'
+    effect_text: 结束阶段：造成2点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。可用次数：6
+    term_refs:
+    - 雷元素伤害
+    - 可用次数
+flavor_html: <p><strong>一心净土·雷电将军</strong></p><p>鸣雷寂灭，浮世泡影。</p>
+flavor_text: '一心净土·雷电将军
+
+  鸣雷寂灭，浮世泡影。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+  诸愿百眼之轮: 状态其他我方角色使用「元素爆发」后：累积1点「愿力」。（最多累积3点）所附属角色使用奥义·梦想真说时：消耗所有「愿力」，每点「愿力」使造成的伤害+1。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  奥义·梦想真说: 元素爆发造成3点雷元素伤害，其他我方角色获得2点充能。元素爆发：角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+_raw_path: data/raw/character/6559_雷电将军.json

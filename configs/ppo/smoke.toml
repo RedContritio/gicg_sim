@@ -1,0 +1,58 @@
+# PPO smoke cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
+#
+# Minimum viable PPO (~3min Mac CPU) for pipeline alive verify.
+# Tight rollout horizon (1 iter × 2 games × 30 steps) and tiny network.
+#
+# Hybrid TOML structure (N6): [shape] omitted — factory + per-agent override
+# (CC-305). For PPO agent factory default lives in PPOAgentShapeCfg() (not
+# make_ppo_default_shape; future unification). smoke d_model=32 override.
+
+[meta]
+seed = 42
+paradigm = "ppo"
+run_label = "ppo_smoke"
+device = "cpu"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["赤蝶"]
+team_size = 1
+max_rounds = 5
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy", "test_basic"]
+data_dir = "data"
+
+# [shape] omitted — smoke uses factory default + per-agent override below.
+
+[paradigm.ppo]
+gamma = 0.99
+gae_lambda = 0.95
+clip_epsilon = 0.2
+value_coef = 0.5
+entropy_coef = 0.01
+lr = 3.0e-4
+max_grad_norm = 0.5
+n_epochs = 1
+minibatch_size = 8
+buffer_cap = 500
+total_iterations = 1
+batch_size = 8
+
+[paradigm.ppo.agent]
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+
+[paradigm.ppo.rollout]
+n_games_per_iter = 2
+max_steps_per_game = 30
+rollout_opponent = "self"
+
+[checkpoint]
+save_every = 100
+keep_last_n = 1
+artifacts_root = "artifacts"

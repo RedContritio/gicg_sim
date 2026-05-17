@@ -1,0 +1,54 @@
+id: 6587
+name: 刺身拼盘
+parent_class: action
+desc: 刺身拼盘
+sub_class: 事件牌
+tags: &id001
+- 料理
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/20/1694811/66806f78b2ced1ea0be9b888d912a61a_8814575863313174324.png
+header_img_url: ''
+version: '1746758902'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">目标角色在本回合结束前，<strong>「普通攻击」</strong>造成的伤害+1。</p><p
+  style="white-space: pre-wrap;">（每回合每个角色最多食用1次「料理」）</p>'
+effect_text: '目标角色在本回合结束前，「普通攻击」造成的伤害+1。
+
+  （每回合每个角色最多食用1次「料理」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/20/1694811/8c5a4f348a3a8017500c15e9cd0c5c15_1786727558418588542.png
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">目标角色在本回合结束前，<strong>「普通攻击」</strong>造成的伤害+1。</p><p
+    style="white-space: pre-wrap;">（每回合每个角色最多食用1次「料理」）</p>'
+  effect_text: '目标角色在本回合结束前，「普通攻击」造成的伤害+1。
+
+    （每回合每个角色最多食用1次「料理」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/20/1694811/66806f78b2ced1ea0be9b888d912a61a_4018550382259795345.png
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>刺身拼盘</strong></p><p style="white-space:
+  pre-wrap;">在厨师高超的刀工下，食材保留着最为巅峰的口感。入口时，仿佛依然带着生命力在唇齿间跳跃···</p><p style="white-space:
+  pre-wrap;">等一等，难道这些食材真的还···</p>'
+flavor_text: '刺身拼盘
+
+  在厨师高超的刀工下，食材保留着最为巅峰的口感。入口时，仿佛依然带着生命力在唇齿间跳跃···
+
+  等一等，难道这些食材真的还···'
+_raw_path: data/raw/action/6587_刺身拼盘.json

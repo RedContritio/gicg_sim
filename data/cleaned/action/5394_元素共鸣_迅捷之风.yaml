@@ -1,0 +1,44 @@
+id: 5394
+name: 元素共鸣：迅捷之风
+parent_class: action
+sub_class: 事件牌
+tags:
+- 元素共鸣
+cost_text: '1'
+cost:
+  风: 1
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 元素共鸣
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 3
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '我方下次执行「切换角色」行动时：将此次切换视为「快速行动」而非「战斗行动」，并且少花费1个元素骰。
+
+  我方下次触发扩散反应时对目标以外的所有角色造成的伤害+1。
+
+  （牌组包含至少2个风元素角色，才能加入牌组）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/1f62890b9c61a77c430040e743443cef_7999159044821561765.png
+deck_constraint: 牌组包含至少2个风元素角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_text: '我方下次执行「切换角色」行动时：将此次切换视为「快速行动」而非「战斗行动」，并且少花费1个元素骰。
+
+    我方下次触发扩散反应时对目标以外的所有角色造成的伤害+1。
+
+    （牌组包含至少2个风元素角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/707f537df32de90d61b3ac8e8dcd4daf_7351067372939949818.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/67d5fcaf2b35f4a0cd107356cca5d8bf_3237611293894142435.gif
+jiqiao: true
+flavor_text: 疾风穿林，驰骋四方。

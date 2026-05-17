@@ -1,0 +1,239 @@
+id: 503425
+name: 黄金王兽
+title: 狼群魔主·黄金王兽
+parent_class: character
+desc: 黄金王兽卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/a68bde2f8d8ffa3964c7b5c305b7ae84_1841431683474535429.png
+header_img_url: ''
+version: '1761099989'
+attr:
+  元素:
+  - 岩元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 岩
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/19/258999284/a68bde2f8d8ffa3964c7b5c305b7ae84_4531383064023947680.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/18/258999284/e6cf9c237ec7a2622b6fb940626b15cc_3488502125976423250.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/18/258999284/de066277f1f3120586b5e9c93c7fdb59_1315123898045572172.png
+skills:
+- name: 王狼直击
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    岩: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/18/258999284/33906fca341bb4a803f7b0457d7cbb11_2774548475695290014.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 兽境轰召
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/18/258999284/4e3681910d6030538828aaca2d9a8ec4_807642467059739344.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;岩元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，目标角色附属2层</span><strong><span style="color: rgb(0, 0, 0)"><u>黄金侵蚀</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;黄金侵蚀：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;如果所附属角色位于后台，则此效果每有1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，就对所附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1（可叠加，最多叠加到3次）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，召唤</span><strong><em><span style="color: rgb(0, 0, 0)">兽境犬首</span></em></strong>。</p>'
+  effect_text: 造成2点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，目标角色附属2层黄金侵蚀黄金侵蚀：状态结束阶段：如果所附属角色位于后台，则此效果每有1次可用次数，就对所附属角色造成1点穿透伤害。可用次数：1（可叠加，最多叠加到3次）"
+    class="wiki-note-text">，召唤兽境犬首。
+  term_refs:
+  - 岩元素伤害
+  - 黄金侵蚀
+- name: 黄金侵绞
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/18/258999284/fa73097822d092389bcf8fff81b90224_4686715611294853097.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&quot;white-space: pre-wrap;&quot;&gt;岩元素伤害：&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p style=&quot;white-space:
+    pre-wrap;&quot;&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p
+    style=&quot;white-space: pre-wrap;&quot;&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，对所有敌方后台角色造成1点</span><strong><span style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，并使所有敌方角色附属</span><strong><span style="color: rgb(0, 0, 0)"><u>黄金侵蚀</u></span></strong><span
+    style="color: rgb(0, 0, 0)"><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;黄金侵蚀：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;如果所附属角色位于后台，则此效果每有1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，就对所附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1（可叠加，最多叠加到3次）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</span></p>'
+  effect_text: 造成3点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，对所有敌方后台角色造成1点穿透伤害穿透伤害：穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。"
+    class="wiki-note-text">，并使所有敌方角色附属黄金侵蚀黄金侵蚀：状态结束阶段：如果所附属角色位于后台，则此效果每有1次可用次数，就对所附属角色造成1点穿透伤害。可用次数：1（可叠加，最多叠加到3次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 岩元素伤害
+  - 穿透伤害
+  - 黄金侵蚀
+  energy_req: 2
+summons:
+- name: 兽境犬首
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/11/18/258999284/3e32a0169cd4d974e63d42a9db75e7eb_6960651172648088173.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(212, 177,
+    6)"><u>岩元素伤害</u></span></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+    pre-wrap;&quot;>岩元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>和已附着的元素发生元素反应：</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>结晶（冰）</strong>：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>结晶（水）</strong>：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>结晶（火）</strong>：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>结晶（雷）</strong>：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，目标角色附属</span><strong><span style="color: rgb(0, 0, 0)"><u>黄金侵蚀</u></span></strong><span
+    style="color: rgb(0, 0, 0)"><span data-type="详情" data-name="<p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>黄金侵蚀：</span></strong></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>结束阶段：</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>如果所附属角色位于后台，则此效果每有1次</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>，就对所附属角色造成1点</span><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>穿透伤害</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：1（可叠加，最多叠加到3次）</span></strong></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</span></p><p><strong><span
+    style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数：</span></strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>此牌效果触发后，会消耗1次</span><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>；</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>耗尽后，立刻弃置此牌。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">：2</span></p><p></p>'
+  effect_text: 结束阶段：造成1点岩元素伤害岩元素伤害：和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。"
+    class="wiki-note-text">，目标角色附属黄金侵蚀黄金侵蚀：状态结束阶段：如果所附属角色位于后台，则此效果每有1次可用次数，就对所附属角色造成1点穿透伤害。可用次数：1（可叠加，最多叠加到3次）"
+    class="wiki-note-text">。可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：2
+  term_refs:
+  - 岩元素伤害
+  - 黄金侵蚀
+  - 可用次数
+talent:
+  name: 异兽侵蚀
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/e61044db77d2bee655c1d045df887554_927865285297677633.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">黄金王兽</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br>黄金王兽装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>兽境轰召</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;兽境轰召：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成1点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(212, 177, 6)&quot;&gt;岩元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，目标角色附属2层&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;黄金侵蚀&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，召唤&lt;/span&gt;&lt;strong&gt;&lt;em&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;兽境犬首&lt;/span&gt;&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br>装备有此牌的黄金王兽在场时，对方的</span><strong><span style="color: rgb(0,
+    0, 0)"><u>黄金侵蚀</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;黄金侵蚀：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;如果所附属角色位于后台，则此效果每有1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，就对所附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1（可叠加，最多叠加到3次）&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">最多可叠加到5次，并且所附属角色不在后台时也会生效。<br>（牌组中包含黄金王兽，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为黄金王兽时，装备此牌。
+
+    黄金王兽装备此牌后，立刻使用一次兽境轰召岩元素伤害，目标角色附属2层黄金侵蚀，召唤兽境犬首。" class="wiki-note-text">。
+
+    装备有此牌的黄金王兽在场时，对方的黄金侵蚀黄金侵蚀：
+
+    状态
+
+    结束阶段：如果所附属角色位于后台，则此效果每有1次可用次数，就对所附属角色造成1点穿透伤害。
+
+    可用次数：1（可叠加，最多叠加到3次）" class="wiki-note-text">最多可叠加到5次，并且所附属角色不在后台时也会生效。
+
+    （牌组中包含黄金王兽，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 兽境轰召
+  - 黄金侵蚀
+  deck_constraint: 牌组中包含黄金王兽，才能加入牌组
+flavor_html: <p><strong>狼群魔主·黄金王兽</strong></p><p>来自异界的扭曲魔兽，统领兽境群狼的王者，拥有指挥狼群溶解空间的权威。</p>
+flavor_text: '狼群魔主·黄金王兽
+
+  来自异界的扭曲魔兽，统领兽境群狼的王者，拥有指挥狼群溶解空间的权威。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  岩元素伤害: 和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+  黄金侵蚀: 状态结束阶段：如果所附属角色位于后台，则此效果每有1次可用次数，就对所附属角色造成1点穿透伤害。可用次数：1（可叠加，最多叠加到3次）
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  兽境轰召: 元素战技造成1点岩元素伤害，目标角色附属2层黄金侵蚀，召唤兽境犬首。
+_raw_path: data/raw/character/503425_黄金王兽.json

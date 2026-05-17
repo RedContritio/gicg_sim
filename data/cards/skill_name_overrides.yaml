@@ -1,0 +1,30 @@
+# skill name override:wiki raw 数据中 tab_name='默认标题' 但 desc 非空的 outlier 处理。
+#
+# Schema:
+#   overrides:
+#     - card_id: <int>
+#       card_name: <str>          # 仅 review 用
+#       module_kind: <str>        # 卡牌技能 / 召唤物 / 天赋牌
+#       desc_html_md5: <str>      # raw desc HTML 的 md5(签名 — wiki desc 改变即失效)
+#       action: rename | warn     # rename:用 name 字段;warn:仅 warning 接受 '默认标题'
+#       name: <str>               # action=rename 时必填
+#       why: <str>                # 决策依据
+#
+# 严格契约:
+# - 没命中此 yaml 的 placeholder name 仍 raise(P-9)
+# - desc_html_md5 完全匹配才生效;wiki 数据修复后 md5 变化 → override 失效 → raise
+
+overrides:
+  - card_id: 501395
+    card_name: 芙宁娜·芒
+    module_kind: 召唤物
+    desc_html_md5: d4900a483e9fe7f99aaf192402717627
+    action: rename
+    name: 众水的歌者
+    why: user 指定。variant 模式第二召唤物对位 standard 模式 '众水的歌者'(wiki 数据 typo 漏标 name)
+  - card_id: 5361
+    card_name: 砂糖
+    module_kind: 卡牌技能
+    desc_html_md5: c5ca04f4d7edf06d155ec6e8a9b17987
+    action: warn
+    why: variant 被动技能(元素精通+1)wiki 数据 typo 漏 name;user 决定保持 warning 不 raise,name 保留 '默认标题' 输出

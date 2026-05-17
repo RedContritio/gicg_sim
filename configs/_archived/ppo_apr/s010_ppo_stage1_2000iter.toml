@@ -1,0 +1,17 @@
+# s010: s009 × 4 iter. Tests "is more training enough?"
+#
+# Result (2026-04-25 01:41, wall=433s): REGRESSED.
+#   random=0.562 / F1-D1=0.188 / F1-D2=0.062  (all worse than s009)
+#   loss/value_loss never converged (150/300). Proved iter was
+#   NOT the bottleneck. Diagnostic: value gradient dominates trunk
+#   (ratio ~7500:1), policy gets no learning signal → s011.
+
+base = "default"
+run_label = "s010_ppo_stage1_2000iter"
+
+n_iterations = 2000
+eval_every = 50
+n_eval_games = 16
+
+[meta]
+paradigm = "ppo"

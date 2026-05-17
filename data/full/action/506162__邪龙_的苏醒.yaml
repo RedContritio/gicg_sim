@@ -1,0 +1,70 @@
+id: 506162
+name: 「邪龙」的苏醒
+parent_class: action
+desc: 「邪龙」的苏醒
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/9362e2d9730bee84d5b41850a1e0e9bd_6970464839964086708.png
+header_img_url: ''
+version: '1764729042'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">召唤</span><strong><em><span style="color:
+  rgb(0, 0, 0)">「邪龙」</span></em></strong><span style="color: rgb(0, 0, 0)">。<br>本场对局中，我方支援区每弃置1张卡牌，则</span><strong><em><span
+  style="color: rgb(0, 0, 0)">「邪龙」</span></em></strong><span style="color: rgb(0,
+  0, 0)">可用次数+1；我方召唤区每弃置1张卡牌，则</span><strong><em><span style="color: rgb(0, 0, 0)">「邪龙」</span></em></strong><span
+  style="color: rgb(0, 0, 0)">效果量+1。（可叠加，最多叠加到4）<br>（</span><strong><span style="color:
+  rgb(0, 0, 0)">「邪龙」</span></strong><span style="color: rgb(0, 0, 0)">：</span><strong><span
+  style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span style="color: rgb(0, 0, 0)">造成1点</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>穿透伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。</span><strong><span style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：1）</span></p>'
+effect_text: '召唤「邪龙」。
+
+  本场对局中，我方支援区每弃置1张卡牌，则「邪龙」可用次数+1；我方召唤区每弃置1张卡牌，则「邪龙」效果量+1。（可叠加，最多叠加到4）
+
+  （「邪龙」：结束阶段：造成1点穿透伤害穿透伤害：
+
+  穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。" class="wiki-note-text">。可用次数可用次数：
+
+  此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：1）'
+term_refs:
+- 穿透伤害
+- 可用次数
+terms:
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/9e7207494a4fdb10df19179ec836623b_8829228840508575114.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/9362e2d9730bee84d5b41850a1e0e9bd_5229484141013095084.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/09/08/258999284/757721fcfb4ceeb64857c26078b41bf4_4261478616993639620.gif
+flavor_html: <p><strong>「邪龙」的苏醒</strong></p><p>「他裹挟着不祥的黑雾，从天而降，踏平了我们的家园…」</p>
+flavor_text: '「邪龙」的苏醒
+
+  「他裹挟着不祥的黑雾，从天而降，踏平了我们的家园…」'
+_raw_path: data/raw/action/506162__邪龙_的苏醒.json

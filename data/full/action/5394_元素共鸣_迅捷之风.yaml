@@ -1,0 +1,52 @@
+id: 5394
+name: 元素共鸣：迅捷之风
+parent_class: action
+desc: 元素共鸣：迅捷之风
+sub_class: 事件牌
+tags: &id001
+- 元素共鸣
+cost_text: '1'
+cost:
+  风: 1
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/707f537df32de90d61b3ac8e8dcd4daf_2314640692068595351.png
+header_img_url: ''
+version: '1778216580'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 3
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>我方下次执行「切换角色」行动时：</strong>将此次切换视为<strong>「快速行动」</strong>而非<strong>「战斗行动」</strong>，并且少花费1个元素骰。</p><p>我方下次触发扩散反应时对目标以外的所有角色造成的伤害+1。</p><p>（牌组包含至少2个风元素角色，才能加入牌组）</p>
+effect_text: '我方下次执行「切换角色」行动时：将此次切换视为「快速行动」而非「战斗行动」，并且少花费1个元素骰。
+
+  我方下次触发扩散反应时对目标以外的所有角色造成的伤害+1。
+
+  （牌组包含至少2个风元素角色，才能加入牌组）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/1f62890b9c61a77c430040e743443cef_7999159044821561765.png
+deck_constraint: 牌组包含至少2个风元素角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_html: <p><strong>我方下次执行「切换角色」行动时：</strong>将此次切换视为<strong>「快速行动」</strong>而非<strong>「战斗行动」</strong>，并且少花费1个元素骰。</p><p>我方下次触发扩散反应时对目标以外的所有角色造成的伤害+1。</p><p>（牌组包含至少2个风元素角色，才能加入牌组）</p>
+  effect_text: '我方下次执行「切换角色」行动时：将此次切换视为「快速行动」而非「战斗行动」，并且少花费1个元素骰。
+
+    我方下次触发扩散反应时对目标以外的所有角色造成的伤害+1。
+
+    （牌组包含至少2个风元素角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/707f537df32de90d61b3ac8e8dcd4daf_7351067372939949818.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/67d5fcaf2b35f4a0cd107356cca5d8bf_3237611293894142435.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;">疾风穿林，驰骋四方。</p>'
+flavor_text: 疾风穿林，驰骋四方。
+_raw_path: data/raw/action/5394_元素共鸣_迅捷之风.json

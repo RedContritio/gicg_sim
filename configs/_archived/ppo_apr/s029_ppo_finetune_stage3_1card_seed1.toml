@@ -1,0 +1,31 @@
+# s029: Stage 3 1-card PPO fine-tune, seed=1 (multi-seed reinforcement of s028).
+#
+# Same TOML as s028 except `seed = 1`. Single-seed s028 gave F1-D2 = 0.219.
+# This run + s030 (seed=2) provide n=3 for mean±std (per multi-seed contract).
+
+run_label = "s029_ppo_finetune_stage3_1card_seed1"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_iterations = 500
+eval_every = 25
+n_eval_games = 64
+lr = 1e-4
+entropy_coef = 0.003
+value_coef = 0.1
+seed = 1
+
+obs_mask = ["enemy_dice"]
+card_pool = ["测试卡_碎片"]
+
+rollout_opponent = "F1-D1,F1-D2"
+init_ckpt = "artifacts/202604251612_s027_bc_pretrain_stage3_1card/final.pt"
+
+[reward_shaping]
+terminal_win = 10.0
+terminal_loss = 10.0
+
+[meta]
+paradigm = "ppo"

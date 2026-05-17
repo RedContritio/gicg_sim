@@ -1,0 +1,47 @@
+id: 500045
+name: 王下近侍
+parent_class: action
+sub_class: 装备牌
+tags:
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 武器
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 12
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色造成的伤害+1。
+
+  入场时：在本回合中，下次对角色打出「天赋」或角色使用「元素战技」时，少花费2个元素骰。
+
+  （「弓」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/12/203927054/bcc66ffd5b7bea190c27be86d18d1fa6_3186580157410971383.png
+weapon_type: 弓
+variants:
+- mode: 标准
+  effect_text: '角色造成的伤害+1。
+
+    入场时：在本回合中，下次对角色打出「天赋」或角色使用「元素战技」时，少花费2个元素骰。
+
+    （「弓」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/12/203927054/c667e01fa50b448958eff1d077a7ce1b_1806864451648421284.png
+jiqiao: true
+flavor_text: '森林教诲·王下近侍
+
+  从兰那罗的故事中得到的武器，具有弓的形制。
+
+  「记住，这个世界只是森林的梦···请将森林的语言、保护王土的责任传给更多人。」'

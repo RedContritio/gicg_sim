@@ -1,0 +1,67 @@
+id: 5604
+name: 雷史莱姆
+title: 雷史莱姆
+parent_class: monster
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction:
+- 魔物
+hp: 4
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/cbb167fdd9ba03585d0cbbbbdf40ed91_5042251620940846290.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_6484136752263720300.png
+skills:
+- name: 弹跳
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  effect_text: 造成1点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+- name: 重重下落
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  effect_text: 造成4点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  energy_req: 2
+- name: 元素沉积·雷
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】战斗开始时，初始附属元素生命·雷元素生命·雷：状态角色总是附着雷元素，并且免疫雷元素伤害。" class="wiki-note-text">。
+  term_refs:
+  - 元素生命·雷
+summons: []
+flavor_text: ''
+terms:
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  元素生命·雷: 状态角色总是附着雷元素，并且免疫雷元素伤害。

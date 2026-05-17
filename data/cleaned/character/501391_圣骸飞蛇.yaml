@@ -1,0 +1,165 @@
+id: 501391
+name: 圣骸飞蛇
+title: 圣骸飞蛇
+parent_class: character
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物
+  - 圣骸兽
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 风
+weapon: 其他武器
+faction:
+- 魔物
+- 圣骸兽
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/39bdf909aff15f061d4d9ea3d4c2b2ab_472359532850721936.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/98badb0f9778dff6bb324bacc30d6633_2048449367067163523.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/06/04/258999284/de066277f1f3120586b5e9c93c7fdb59_8516812800324978547.png
+skills:
+- name: 旋尾迅击
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    风: 1
+    无色: 2
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 盘绕风引
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  effect_text: 造成3点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，抓1张牌。
+  term_refs:
+  - 风元素伤害
+- name: 错落风涡
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  effect_text: 造成2点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害"
+    class="wiki-note-text">，舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">手牌中所有的噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">，每舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">2张，此次伤害翻倍1次。
+  term_refs:
+  - 风元素伤害
+  - 舍弃
+  - 噬骸能量块
+  energy_req: 2
+- name: 不朽亡骸·风
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】战斗开始时，生成6张噬骸能量块噬骸能量块：事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）"
+    class="wiki-note-text">，均匀放入牌库。
+  term_refs:
+  - 噬骸能量块
+summons: []
+talent:
+  name: 亡风啸卷
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 1
+  effect_text: '入场时：生成1张噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">，置入我方手牌。
+
+    装备有此牌的圣骸飞蛇在场，我方打出噬骸能量块噬骸能量块：
+
+    事件牌
+
+    费用：0
+
+    随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）" class="wiki-note-text">后：本回合中，我方下次切换角色后生成1个出战角色类型的元素骰。
+
+    （牌组中包含圣骸飞蛇，才能加入牌组）'
+  term_refs:
+  - 噬骸能量块
+  deck_constraint: 牌组中包含圣骸飞蛇，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 8
+  energy: 3
+  attr:
+    充能:
+    - 3点
+    攻击:
+    - '3'
+  skills:
+  - name: 盘绕风引
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 造成风元素伤害风元素伤害：和已附着的元素发生元素反应每点元素精通使特定效果提升1倍。扩散(冰)：伤害+1，对目标以外的所有敌方角色造成1点冰元素伤害扩散(水)：伤害+1，对目标以外的所有敌方角色造成1点水元素伤害扩散(火)：伤害+1，对目标以外的所有敌方角色造成1点火元素伤害扩散(雷)：伤害+1，对目标以外的所有敌方角色造成1点雷元素伤害"
+      class="wiki-note-text">。
+    term_refs:
+    - 风元素伤害
+  - name: 错落风涡
+    type: 元素爆发
+    raw_life: 2
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 造成2倍攻击力的风元素伤害，然后舍弃舍弃：通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。" class="wiki-note-text">手牌中所有的噬骸能量块噬骸能量块：费用：0事件牌选一个我方角色+2攻击力。被舍弃时：我方全体圣骸兽+1攻击力。"
+      class="wiki-note-text">。
+    term_refs:
+    - 风元素伤害
+    - 舍弃
+    - 噬骸能量块
+    energy_req: 2
+  - name: 不朽亡骸·风
+    type: 被动技能
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    effect_text: 准备阶段：将一张噬骸能量块噬骸能量块：费用：0事件牌选一个我方角色+2攻击力。被舍弃时：我方全体圣骸兽+1攻击力。" class="wiki-note-text">加入手牌
+    term_refs:
+    - 噬骸能量块
+flavor_text: '亡骸恶风·圣骸飞蛇
+
+  因为啃噬伟大的生命体，而扭曲异变的飞蛇，驾驭着凌厉的狂风。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰伤害扩散（水）：对目标以外的所有敌方角色造成1点水伤害扩散（火）：对目标以外的所有敌方角色造成1点火伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷伤害
+  舍弃: 通过行动牌或角色技能的效果，将行动牌从手牌或牌库中弃置。
+  噬骸能量块: 事件牌费用：0随机舍弃1张原本元素骰费用最高的手牌，生成1个我方出战角色类型的元素骰。（每回合最多打出1张）

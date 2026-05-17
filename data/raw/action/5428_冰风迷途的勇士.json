@@ -1,0 +1,160 @@
+{
+  "id": "5428",
+  "name": "冰风迷途的勇士",
+  "desc": "冰风迷途的勇士",
+  "icon_url": "https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/9f6238a08b5844b652365304f05a4e8e_1667994661821497515.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"name\":\"冰风迷途的勇士\",\"common_img\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/9f6238a08b5844b652365304f05a4e8e_2132799436037663512.png\",\"gold_img\":\"https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/1055ee0c7dafa6ac892830b437f34557_5034450669589886710.gif\",\"life\":2,\"life_bg\":9,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"类型\",\"value\":[\"：装备牌\"]},{\"key\":\"获取\",\"value\":[\"：卡牌商店购买\"]},{\"key\":\"标签\",\"value\":[\"：圣遗物\"]},{\"key\":\"花费\",\"value\":[\"：2\"]}]}",
+          "style": ""
+        }
+      ],
+      "id": "1",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "效果描述",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>对角色打出「天赋」或角色使用技能时：</strong>少花费1个冰元素。（每回合1次）</p><p><strong>投掷阶段：</strong>2个元素骰初始总是投出冰元素。</p><p>（角色最多装备1件「圣遗物」）</p>\",\"switch\":false,\"is_show_switch\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "2",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>冬日流旅·冰风迷途的勇士</strong></p><p>「⋯请你活下去，请不要与我们共同走向灭亡，湮没于冰冷的遗忘⋯」</p>\",\"switch\":false,\"is_show_switch\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "3",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": true,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1710295797",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "1",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "1",
+            "layout": "l2r1",
+            "module": [
+              {
+                "id": "1",
+                "pos": "left"
+              },
+              {
+                "id": "2",
+                "pos": "right"
+              },
+              {
+                "id": "3",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "234",
+      "name": "行动牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "行动牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"类型\\\",\\\"children\\\":[{\\\"label\\\":\\\"装备牌\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"事件牌\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"支援牌\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"标签\\\",\\\"children\\\":[{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣遗物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"天赋\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"料理\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"道具\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"伙伴\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"场地\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"元素共鸣\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"元素幻变\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"秘传\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"特技\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他标签\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"花费\\\",\\\"children\\\":[{\\\"label\\\":\\\"花费0\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费1\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费2\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费3\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费4\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费5\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费6\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他花费\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/234?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "64994eded95196fc2310b7b0",
+  "ext": {
+    "fe_ext": "{\"c_234\":{\"costBgIcon\":{\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/9e7207494a4fdb10df19179ec836623b_482091382793135503.png\"]},\"filter\":{\"text\":\"[\\\"类型/装备牌\\\",\\\"标签/圣遗物\\\",\\\"花费/花费2\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

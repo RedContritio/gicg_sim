@@ -1,0 +1,36 @@
+# r001: randteam2 400g — Phase B of 2026-04-19 session. Validates
+# C1v7 architecture under team_size=2 + random team sampling.
+# Inherits c1_random's 5-char pool; disjoint_teams=true dodges
+# mirror-match hook-dup bug (#152).
+#
+# Backend is set post Phase A; if s002 showed Go has gain this
+# gets switched to "go". Default here is "python" until updated.
+
+base = "random_1v1"
+run_label = "r001_randteam2_400g"
+
+n_games = 400
+n_workers = 4
+batch_size = 64
+games_per_arena = 100
+games_per_gauntlet = 200
+checkpoint_every_n_games = 100
+
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+# Backend decided by Phase A (2026-04-19): s001 Python 46.3min,
+# s002 Go 37.4min, -19% wall. No correctness regression in loss
+# (29.65 vs 29.33). Go gauntlet g100 actually stronger (mcts_200
+# 0.55 vs 0.05) but that's 100g training variance, not backend-
+# related. See artifacts/202604190{600,656}_s00{1,2}_*.
+
+[train]
+delta_aux_coef = 1.0
+
+[scenario]
+team_size = 2
+disjoint_teams = true
+
+[meta]
+paradigm = "az"

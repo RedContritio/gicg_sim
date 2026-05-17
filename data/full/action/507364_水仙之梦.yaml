@@ -1,0 +1,66 @@
+id: 507364
+name: 水仙之梦
+parent_class: action
+desc: 水仙之梦卡牌
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/03/258999284/f2759f2fa53785fd6405f07a19734513_5638744037884681802.png
+header_img_url: ''
+version: '1764733631'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">附属角色使用技能后：<u>冒险</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;冒险：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;从冒险地点中&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;挑选&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;1个生成。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">1次。 （每回合2次）<br>如果我方已经完成过</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>冒险</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;冒险：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;从冒险地点中&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;挑选&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;1个生成。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，则所附属角色造成的伤害+1。<br>（角色最多装备1件「圣遗物」）</span></p>'
+effect_text: '附属角色使用技能后：冒险冒险：
+
+  从冒险地点中挑选1个生成。
+
+  如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。" class="wiki-note-text">1次。 （每回合2次）
+
+  如果我方已经完成过冒险冒险：
+
+  从冒险地点中挑选1个生成。
+
+  如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。" class="wiki-note-text">，则所附属角色造成的伤害+1。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 冒险
+terms:
+  冒险: 从冒险地点中挑选1个生成。如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/9e7207494a4fdb10df19179ec836623b_6244682638670768220.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/f2759f2fa53785fd6405f07a19734513_1976407380603703443.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/12/01/258999284/8d3c61b6420f92da14763e461737229a_5042503790333820307.gif
+flavor_html: <p><strong>水仙之梦</strong></p><p>「还有人仍然如同珍藏干枯的花一般，始终怀念仍待继续的午后冒险故事…」</p>
+flavor_text: '水仙之梦
+
+  「还有人仍然如同珍藏干枯的花一般，始终怀念仍待继续的午后冒险故事…」'
+_raw_path: data/raw/action/507364_水仙之梦.json

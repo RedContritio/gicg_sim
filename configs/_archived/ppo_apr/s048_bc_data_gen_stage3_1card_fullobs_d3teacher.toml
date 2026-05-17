@@ -1,0 +1,27 @@
+# s048: 1-card fullobs F1-D3 teacher BC data gen.
+# Combines best-of-each: F1-D3 teacher (s034 +0.10 vs s026) + fullobs
+# (s031 +0.13 vs s026). Tests whether the two improvements add or are
+# substitutive in the combined setup.
+
+run_label = "s048_bc_data_gen_stage3_1card_fullobs_d3teacher"
+
+teams = ["测试角色D"]
+fix_dice = "none"
+max_rounds = 3
+card_pool = ["测试卡_碎片"]
+data_dir = "data"
+
+obs_mask = []
+
+teacher = "F1-D3"
+teacher_dice_greedy = true
+opponent_mix = ["F1-D3", "F1-D2"]
+
+target_decisions = 50000
+max_games = 8000
+
+max_actions = 128
+seed = 0
+
+[meta]
+paradigm = "bc"

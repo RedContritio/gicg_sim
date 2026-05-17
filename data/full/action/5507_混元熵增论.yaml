@@ -1,0 +1,78 @@
+id: 5507
+name: 混元熵增论
+parent_class: action
+desc: 砂糖天赋 混元熵增论
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  风: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/93fb13495601c24680e2299f9ed4f582_2499309288429565866.png
+header_img_url: ''
+version: '1690185619'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战获取
+  标签: *id001
+  花费:
+  - '3'
+  - 2点充能
+raw_life: 3
+raw_life_bg: 3
+raw_energy: 2
+raw_energy_bg: 8
+effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="<p style=&quot;white-space:
+  pre-wrap;&quot;>战斗行动：</p><p style=&quot;white-space: pre-wrap;&quot;>我方执行了一次战斗行动后，会轮到对方行动。</p><p
+  style=&quot;white-space: pre-wrap;&quot;>打出具有此规则的手牌是一个战斗行动，而非快速行动。</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>砂糖</strong>时，装备此牌。</p><p>砂糖装备此牌后，立刻使用一次<strong><u>禁·风灵作成·柒伍同构贰型</u></strong><span
+  data-type="详情" data-name="<p>禁·风灵作成·染伍同构贰型：</p><p>造成1点<span style=&quot;color: rgb(54,
+  207, 201)&quot;>风元素伤害</span>，召唤<strong>大型风灵</strong>。</p>" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的砂糖生成的<strong><u>大型风灵</u></strong><span
+  data-type="详情" data-name="<p>大型风灵：</p><p style=&quot;text-align: start&quot;>召唤物</p><p
+  style=&quot;text-align: start&quot;><strong>结束阶段：</strong>造成2点<strong><span style=&quot;color:
+  rgb(54, 207, 201)&quot;>风元素伤害</span></strong>。</p><p style=&quot;text-align: start&quot;><strong>可用次数：3</strong></p><p
+  style=&quot;text-align: start&quot;><strong>我方角色或召唤物引发扩散反应后：</strong>转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）</p><p
+  style=&quot;text-align: start&quot;><strong>此召唤物在场时：</strong>如果此牌的元素类型已转换，则使我方造成的此类元素伤害+1。</p>"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>已转换成另一种元素后：我方造成的此类元素伤害+1。</p><p>（牌组中包含砂糖，才能加入牌组）</p>'
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为砂糖时，装备此牌。
+
+  砂糖装备此牌后，立刻使用一次禁·风灵作成·柒伍同构贰型风元素伤害，召唤大型风灵。" class="wiki-note-text">。
+
+  装备有此牌的砂糖生成的大型风灵召唤物
+
+  结束阶段：造成2点风元素伤害。
+
+  可用次数：3
+
+  我方角色或召唤物引发扩散反应后：转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）
+
+  此召唤物在场时：如果此牌的元素类型已转换，则使我方造成的此类元素伤害+1。" class="wiki-note-text">已转换成另一种元素后：我方造成的此类元素伤害+1。
+
+  （牌组中包含砂糖，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 禁·风灵作成·染伍同构贰型
+- 大型风灵
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  禁·风灵作成·柒伍同构贰型: 禁·风灵作成·染伍同构贰型：造成1点风元素伤害，召唤大型风灵。
+  大型风灵: 召唤物结束阶段：造成2点风元素伤害。可用次数：3我方角色或召唤物引发扩散反应后：转换此牌的元素类型，改为造成被扩散的元素类型的伤害。（离场前仅限一次）此召唤物在场时：如果此牌的元素类型已转换，则使我方造成的此类元素伤害+1。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/7125244844988d521622982000b3675c_7522840845427847007.png
+energy_req: 2
+duration: 可用次数3
+requires_char: 砂糖
+deck_constraint: 牌组中包含砂糖，才能加入牌组
+is_combat_action: true
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/93fb13495601c24680e2299f9ed4f582_8546524189632094855.png
+flavor_html: <p><strong>砂糖 · 混元熵增论</strong></p><p>狂风骤降，乱中取胜。</p>
+flavor_text: '砂糖 · 混元熵增论
+
+  狂风骤降，乱中取胜。'
+_raw_path: data/raw/action/5507_混元熵增论.json

@@ -1,0 +1,24 @@
+# s001: Phase A Python baseline — backend comparison vs s002 (Go).
+# 100g, c1_random, team_size=1. Same seed + config as s002; only
+# [mcts.backend] differs. Judged on wall_s, final train loss, and
+# g100 gauntlet vs mcts_200.
+
+base = "random_1v1"
+run_label = "s001_backend_bench_py_100g"
+
+n_games = 100
+n_workers = 4
+batch_size = 64
+games_per_arena = 50
+games_per_gauntlet = 100
+checkpoint_every_n_games = 100
+
+[mcts]
+parallel_rollouts = 4
+backend = "python"
+
+[train]
+delta_aux_coef = 1.0
+
+[meta]
+paradigm = "az"

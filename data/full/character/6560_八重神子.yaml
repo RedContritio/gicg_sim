@@ -1,0 +1,252 @@
+id: 6560
+name: 八重神子
+title: 浮世笑百姿·八重神子
+parent_class: character
+desc: 八重神子卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/7e55525ee5cff216360b46322aa107ee_1400216900491081343.png
+header_img_url: ''
+version: '1769664029'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 法器
+  阵营: &id001
+  - 稻妻
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 雷
+weapon: 法器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/7e55525ee5cff216360b46322aa107ee_5470950562732053429.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/ac172ed29d70e2ffaf24a0477a7bb51e_5005704696090270795.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 狐灵食罪式
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/0f451842885c44779d882c9ced0b9b09_8612625810041328789.jpg
+  effect_html: '<html><head></head><body><p>造成1点<strong><span style="color: rgb(146,
+    84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成1点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+- name: 野干役咒·杀生樱
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/5d52bb5027ee98ea6295c7cbe6f75260_4362138600485261556.png
+  effect_html: <p>召唤<strong><em>杀生樱</em></strong>。如果场上原本已存在<strong><em>杀生樱</em></strong>，则额外使其造成的伤害+1。（最多+1）</p>
+  effect_text: 召唤杀生樱。如果场上原本已存在杀生樱，则额外使其造成的伤害+1。（最多+1）
+  term_refs: []
+- name: 大密法·天狐显真
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/b5ebdd77cfd7a6e12d1326c08e8f9214_6239158387266355120.png
+  effect_html: '<html><head></head><body><p>造成4点<strong><span style="color: rgb(146,
+    84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>；如果我方场上存在<strong><em>杀生樱</em></strong>，则将其消灭，然后生成<strong><u>天狐霆雷</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;天狐霆雷：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;出战状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方选择行动前：&lt;/strong&gt;造成3点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：1&lt;/strong&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p></body></html>'
+  effect_text: 造成4点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">；如果我方场上存在杀生樱，则将其消灭，然后生成天狐霆雷雷元素伤害。可用次数：1雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 天狐霆雷
+  energy_req: 2
+summons:
+- name: 杀生樱
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/17/183046623/d63267f4388f521b1481a85ace6de257_3147336152102036232.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>造成1点<strong><span style="color: rgb(146,
+    84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(146, 84, 222)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>；</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：3</strong>（可叠加，最多叠加到6次）</p><p><strong>我方宣布结束时：</strong>如果此牌的<strong>可用次数</strong>至少为4，则造成1点<strong><span
+    style="color: rgb(146, 84, 222)">雷元素伤害</span></strong>。（需消耗<strong>可用次数</strong>）</p>'
+  effect_text: 结束阶段：造成1点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">；可用次数：3（可叠加，最多叠加到6次）我方宣布结束时：如果此牌的可用次数至少为4，则造成1点雷元素伤害。（需消耗可用次数）
+  term_refs:
+  - 雷元素伤害
+  - 可用次数
+talent:
+  name: 神篱之御荫
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/bdb47c41b068190b9f0fd7fe1ca46bf3_792303922206996107.png
+  effect_html: '<html><head></head><body><p><strong><u>战斗行动</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>八重神子</strong>时，装备此牌。</p><p>八重神子装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>大密法·天狐显真</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;大密法·天狐显真：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;元素爆发&lt;/u&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成4点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;；如果我方场上存在&lt;strong&gt;杀生樱&lt;/strong&gt;，则将其消灭，然后生成&lt;strong&gt;天狐霆雷&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;杀生樱&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;造成1点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：3&lt;/strong&gt;（可叠加，最多叠加到6次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方宣布结束时：&lt;/strong&gt;如果此牌的&lt;strong&gt;可用次数&lt;/strong&gt;至少为4，则造成1点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;。（需消耗&lt;strong&gt;可用次数&lt;/strong&gt;）&lt;/p&gt;&lt;/blockquote&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;天狐霆雷&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;我方选择行动前：&lt;/strong&gt;造成3点&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;&lt;u&gt;雷元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：1&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;元素爆发：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(146, 84, 222)&#34;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的八重神子通过<strong>大密法·天狐显真</strong>消灭了<strong><em>杀生樱</em></strong>后，本回合下次使用<strong><u>野干役咒·杀生樱</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;野干役咒·杀生樱：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;召唤&lt;strong&gt;&lt;em&gt;杀生樱&lt;/em&gt;&lt;/strong&gt;。如果场上原本已存在&lt;strong&gt;&lt;em&gt;杀生樱&lt;/em&gt;&lt;/strong&gt;，则额外使其造成的伤害+1。（最多+1）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>时少花费2个元素骰。</p><p>（牌组中包含八重神子，才能加入牌组）</p></body></html>'
+  effect_text: '战斗行动：我方出战角色为八重神子时，装备此牌。
+
+    八重神子装备此牌后，立刻使用一次大密法·天狐显真雷元素伤害；如果我方场上存在杀生樱，则将其消灭，然后生成天狐霆雷。
+
+    杀生樱
+
+    结束阶段：造成1点雷元素伤害；
+
+    可用次数：3（可叠加，最多叠加到6次）
+
+    我方宣布结束时：如果此牌的可用次数至少为4，则造成1点雷元素伤害。（需消耗可用次数）
+
+    天狐霆雷
+
+    我方选择行动前：造成3点雷元素伤害。
+
+    可用次数：1
+
+    元素爆发：
+
+    角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。
+
+    雷元素伤害：
+
+    附着雷元素，可发生元素反应：
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的八重神子通过大密法·天狐显真消灭了杀生樱后，本回合下次使用野干役咒·杀生樱时少花费2个元素骰。
+
+    （牌组中包含八重神子，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 大密法·天狐显真
+  - 野干役咒·杀生樱
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含八重神子，才能加入牌组
+jiqiao: true
+variants:
+- mode: 自行巧局
+  hp: 16
+  energy: 3
+  attr:
+    充能:
+    - 3点
+    攻击:
+    - '2'
+  skills:
+  - name: 野干役咒 · 杀生樱
+    type: 元素战技
+    raw_life: 0
+    raw_life_bg: 0
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/5d52bb5027ee98ea6295c7cbe6f75260_3188026011733330727.png
+    effect_html: <p>召唤<strong><em>杀生樱</em></strong>，如果场上已存在<strong><em>杀生樱</em></strong>，则改为其攻击力和可用次数+1。</p>
+    effect_text: 召唤杀生樱，如果场上已存在杀生樱，则改为其攻击力和可用次数+1。
+    term_refs: []
+  - name: 大密法 · 天狐显真
+    type: 元素爆发
+    raw_life: 3
+    raw_life_bg: 8
+    raw_energy: 0
+    raw_energy_bg: 0
+    cost: {}
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/b5ebdd77cfd7a6e12d1326c08e8f9214_1506764801472745612.png
+    effect_html: '<p>对随机敌方造成<strong><span style="color: rgb(114, 46, 209)"><u>雷元素伤害</u></span></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+      rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，我方<strong><em>杀生樱</em></strong>每有1层，额外重复1次。然后摧毁我方<strong><em>杀生樱</em></strong>。</p>'
+    effect_text: 对随机敌方造成雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">，我方杀生樱每有1层，额外重复1次。然后摧毁我方杀生樱。
+    term_refs:
+    - 雷元素伤害
+    energy_req: 3
+  summons:
+  - name: 杀生樱
+    type: 召唤物
+    icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/07/258999284/d63267f4388f521b1481a85ace6de257_8957175397166713815.png
+    raw_life: 0
+    raw_energy: 0
+    effect_html: '<p><strong>结束阶段：</strong>造成1点<strong><span style="color: rgb(114,
+      46, 209)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着雷元素，可发生元素反应&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;每点&lt;/span&gt;&lt;strong&gt;&lt;span&gt;元素精通&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;使&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;特定效果&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;提升1倍。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;伤害+&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，目标切换到上个角色，他们交换位置并受到&lt;/span&gt;&lt;strong&gt;&lt;span&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色附属&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;strong&gt;&lt;span&gt;冻伤&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;感电：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;所有敌方角色受到&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;1&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;生成2层[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]，最多叠加&lt;/span&gt;&lt;strong&gt;&lt;span
+      style=&quot;color: rgb(250, 219, 20)&quot;&gt;2&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;层&lt;/span&gt;&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+      data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+      class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：3</strong></p>'
+    effect_text: 结束阶段：造成1点雷元素伤害雷元素伤害：附着雷元素，可发生元素反应每点元素精通使特定效果提升1倍。超载：伤害+1，目标切换到上个角色，他们交换位置并受到1点穿透伤害超导：所有敌方角色附属1层冻伤感电：所有敌方角色受到1点穿透伤害原激化：生成2层[激化领域]，最多叠加2层"
+      class="wiki-note-text">。可用次数：3
+    term_refs:
+    - 雷元素伤害
+    - 可用次数
+flavor_html: <p><strong>浮世笑百姿·八重神子</strong></p><p>「兼具智慧与美貌的八重神子大人」</p>
+flavor_text: '浮世笑百姿·八重神子
+
+  「兼具智慧与美貌的八重神子大人」'
+terms:
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  天狐霆雷: 出战状态我方选择行动前：造成3点雷元素伤害。可用次数：1雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  大密法·天狐显真: 元素爆发造成4点雷元素伤害；如果我方场上存在杀生樱，则将其消灭，然后生成天狐霆雷。杀生樱结束阶段：造成1点雷元素伤害；可用次数：3（可叠加，最多叠加到6次）我方宣布结束时：如果此牌的可用次数至少为4，则造成1点雷元素伤害。（需消耗可用次数）天狐霆雷我方选择行动前：造成3点雷元素伤害。可用次数：1元素爆发：角色的充能达到上限时，可以消耗所有的充能，来使用威力强大的「元素爆发」。雷元素伤害：附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  野干役咒·杀生樱: 元素战技召唤杀生樱。如果场上原本已存在杀生樱，则额外使其造成的伤害+1。（最多+1）
+_raw_path: data/raw/character/6560_八重神子.json

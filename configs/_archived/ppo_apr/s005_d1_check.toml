@@ -1,0 +1,37 @@
+# s005: 事后验证 ExpandUnionK=3 的 Go 实现是否把 D1 trigger 压到 ~0。
+# 仅在 r005A > r004(K=3 净负)时触发:若 K=3 是净负,需要 smoke 区分
+# "实现 bug 让 D1 漏出" vs "算法本身扰动了 π_target"。
+#
+# 配置:cp r004,但 n_games=50、n_workers=1(单线程 deterministic profile)。
+# 训练不禁用(smoke 也要经过训练路径,n_d1_trigger 在 selfplay mcts_profile 里,
+# 训练之前就记录好,不会被污染)。
+#
+# 读取:`artifacts/<ts>_s005_d1_check/metrics.jsonl` 里每条 selfplay event 的
+# mcts_profile.n_d1_trigger 字段。ExpandUnionK=3 设计目标是压到 0 或接近。
+
+base = "random_1v1"
+run_label = "s005_d1_check"
+
+n_games = 50
+n_workers = 1
+batch_size = 64
+games_per_arena = 100
+games_per_gauntlet = 200
+checkpoint_every_n_games = 100
+
+# ⚠ DEPRECATED: relied on expand_union_k=3, since removed. Kept as
+# historical record. To re-run, strip the expand_union_k reference.
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+# expand_union_k = 3   # REMOVED
+
+[train]
+delta_aux_coef = 1.0
+
+[scenario]
+team_size = 2
+disjoint_teams = true
+
+[meta]
+paradigm = "az"

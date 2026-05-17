@@ -1,0 +1,28 @@
+# s016c: F1-D1 BC diagnostic — can MLP learn 1-ply greedy argmax?
+#
+# Tests the hypothesis that F1-D2 BC plateau (37%) is due to
+# lookahead, not MLP capacity. F1-D1 is 1-ply, no simulation needed
+# — if MLP can't learn F1-D1 to ≥ 70% match, obs itself is deficient.
+
+run_label = "s016c_bc_f1d1_diag"
+
+dataset = "artifacts/202604250500_s015c_bc_f1d1_diag/dataset.npz"
+
+d_model = 512
+n_hidden_layers = 4
+max_actions = 128
+
+n_epochs = 30
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 200
+
+[meta]
+paradigm = "bc"

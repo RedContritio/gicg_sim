@@ -1,0 +1,26 @@
+# s013: s012 + 2000 iter. Lets agent refine attack strategy.
+#
+# Result (2026-04-25 03:17, wall=570s): PARTIAL.
+#   random=0.875 / F1-D1=0.562 / F1-D2=0.000
+#   Learned to beat F1-D1 (56%, above 50% baseline) but failed to
+#   generalize to F1-D2. Replay vs F1-D2 showed F1-D2 does
+#   Tune×5→重击×2 combos (6 HP/round) that agent never saw in
+#   training (F1-D1 never Tunes). Classic opponent overfitting
+#   via train distribution shift. → s014 mixed opponents.
+
+base = "default"
+run_label = "s013_stage1_vs_f1d1_2000iter"
+
+n_iterations = 2000
+eval_every = 50
+n_eval_games = 16
+
+value_coef = 0.1
+rollout_opponent = "F1-D1"
+
+[reward_shaping]
+terminal_win = 10.0
+terminal_loss = 10.0
+
+[meta]
+paradigm = "ppo"

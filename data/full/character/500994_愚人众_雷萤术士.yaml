@@ -1,0 +1,228 @@
+id: 500994
+name: 愚人众·雷萤术士
+title: 雾虚霆闪·雷萤术士
+parent_class: character
+desc: 愚人众·雷萤术士卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/e7e0e8c1cab4d08764f95d14345c4eef_6159492498288098480.png
+header_img_url: ''
+version: '1761100122'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 愚人众
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 雷
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/e7e0e8c1cab4d08764f95d14345c4eef_4303268682366227358.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/88a1351919e156811e6b86c71244fa28_2675437535663105108.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/de066277f1f3120586b5e9c93c7fdb59_2916660775610308994.png
+skills:
+- name: 轰闪落雷
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/f490cdb9ac6d8af9990bffd312d021d0_7357861734525355867.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p><strong>雷元素伤害：</strong></p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点雷元素伤害。
+  term_refs:
+  - 雷元素伤害
+- name: 雾虚之召
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/170a763eb069a3f4577b04dbeb73f3a7_245180266074223049.png
+  effect_html: <p>召唤<strong><em>雷萤</em></strong>。</p>
+  effect_text: 召唤雷萤。
+  term_refs: []
+- name: 霆雷之护
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/7ddbd6e73bea8f907590c964c2f88d98_2187578641261417207.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p><strong>雷元素伤害：</strong></p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，<span style="color:
+    rgb(0, 0, 0)">本角色</span><strong><span style="color: rgb(114, 46, 209)"><u>附着雷元素</u></span></strong><span
+    data-type="详情" data-name="<p><strong>附着雷元素：</strong></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>不通过伤害附着雷元素时，发生的元素反应会忽略伤害效果：</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>超载</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>：目标强制切换到下一个角色</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>超导</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>：没有效果</span></p><p><strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>感电</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>：没有效果</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>原激化</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>：生成使下2次草元素或雷元素伤害+1的[</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>激化领域</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>]</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，生成</span><strong><span style="color: rgb(0, 0, 0)"><u>雷萤护罩</u></span></strong><span
+    data-type="详情" data-name="<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>雷萤护罩：</span></strong></p><p><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>出战状态</span></p><p><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>为我方出战角色提供1点</span><strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>创建时：</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>如果我方场上存在</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>雷萤</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>，则额外提供其</span><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>可用次数</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>的</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>护盾</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>。（最多额外提供3点</span><strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>护盾</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>）</span></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">并</span><strong><u>准备技能</u></strong><span data-type="详情" data-name="<p><strong>准备技能：</strong></p><p>有些技能无法被直接使用，而是需要一定次数的行动轮来进行<strong>准备</strong>。</p><p>轮到一位牌手行动时，如果该牌手的「出战角色」正在<strong>准备</strong>技能，则跳过该牌手的行动；如果技能已经完成<strong>准备</strong>，角色将会在此时直接使用此技能。（此类需要<strong>准备</strong>的技能，无法触发「使用技能后」效果。）</p><p>只有「出战角色」才能<strong>准备</strong>技能；如果正在<strong>准备</strong>技能的「出战角色」被切换到后台，技能的<strong>准备</strong>就会被打断。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：<strong><span style="color:
+    rgb(0, 0, 0)"><u>霆电迸发</u></span></strong><span data-type="详情" data-name="<p><strong>霆电迸发：</strong></p><p>元素爆发</p><p>（需准备1个行动轮）</p><p>造成2点<strong><span
+    style=&quot;color: rgb(114, 46, 209)&quot;>雷元素伤害</span></strong>。</p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成1点雷元素伤害，本角色附着雷元素不通过伤害附着雷元素时，发生的元素反应会忽略伤害效果：超载：目标强制切换到下一个角色超导：没有效果感电：没有效果原激化：生成使下2次草元素或雷元素伤害+1的[激化领域]"
+    class="wiki-note-text">，生成雷萤护罩雷萤护罩：出战状态为我方出战角色提供1点护盾。创建时：如果我方场上存在雷萤，则额外提供其可用次数的护盾。（最多额外提供3点护盾）"
+    class="wiki-note-text">并准备技能：霆电迸发雷元素伤害。" class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 附着雷元素
+  - 雷萤护罩
+  - 准备技能
+  - 霆电迸发
+  energy_req: 2
+summons:
+- name: 雷萤
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/b49d5bd6e23362e65f2819b62c1752f6_652290106975576928.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(146, 84,
+    222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="<p><strong>雷元素伤害：</strong></p><p>附着雷元素，可发生元素反应：</p><p><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p><strong>超导</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>感电</strong>：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p><strong>原激化</strong>：本伤害+1，生成使下2次草/雷伤害+1的[<strong>激化领域</strong>]</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br></span><strong><u>可用次数</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>可用次数：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>此牌效果触发后，会消耗1次可用次数；</p><p style=&quot;white-space: pre-wrap;&quot;>可用次数耗尽后，立刻弃置此牌。</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong><span style="color:
+    rgb(0, 0, 0)">：</span></strong><span style="color: rgb(0, 0, 0)">3</span><strong><span
+    style="color: rgb(0, 0, 0)"><br>敌方累计打出3张行动牌后：</span></strong><span style="color:
+    rgb(0, 0, 0)">此牌</span><strong><span style="color: rgb(0, 0, 0)">可用次数</span></strong><span
+    style="color: rgb(0, 0, 0)">+1。（最多叠加到3）</span><strong><span style="color: rgb(0,
+    0, 0)"><br>愚人众·雷萤术士受到元素反应伤害后：</span></strong><span style="color: rgb(0, 0, 0)">此牌</span><strong><span
+    style="color: rgb(0, 0, 0)">可用次数</span></strong><span style="color: rgb(0, 0,
+    0)">-1。</span><strong><span style="color: rgb(255, 255, 255)">。。</span></strong></p>'
+  effect_text: 结束阶段：造成1点雷元素伤害。可用次数可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3敌方累计打出3张行动牌后：此牌可用次数+1。（最多叠加到3）愚人众·雷萤术士受到元素反应伤害后：此牌可用次数-1。。。
+  term_refs:
+  - 雷元素伤害
+  - 可用次数
+talent:
+  name: 雷萤浮闪
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/adf954bd07442eed0bc3c77847c2d727_4241705866554494964.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">愚人众·雷萤术士</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br>愚人众·雷萤术士装备此牌后，立刻使用一次</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>雾虚之召</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雾虚之兆：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;元素战技&lt;/p&gt;&lt;p&gt;召唤&lt;strong&gt;&lt;em&gt;雷萤&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br>装备有此牌的愚人众·雷萤术士在场时，我方选择行动前：如果</span><strong><em><span style="color:
+    rgb(0, 0, 0)">雷萤</span></em></strong><span style="color: rgb(0, 0, 0)">的</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">至少为3，则</span><strong><em><span
+    style="color: rgb(0, 0, 0)">雷萤</span></em></strong><span style="color: rgb(0,
+    0, 0)">立刻造成1点</span><strong><span style="color: rgb(114, 46, 209)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;雷元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;附着雷元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;超载&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2，目标强制切换到下一个角色。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;超导&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;原激化&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;]。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（需消耗</span><strong><span
+    style="color: rgb(0, 0, 0)">可用次数</span></strong><span style="color: rgb(0, 0,
+    0)">，每回合1次）<br>（牌组中包含愚人众·雷萤术士，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为愚人众·雷萤术士时，装备此牌。
+
+    愚人众·雷萤术士装备此牌后，立刻使用一次雾虚之召。
+
+    装备有此牌的愚人众·雷萤术士在场时，我方选择行动前：如果雷萤的可用次数可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">至少为3，则雷萤立刻造成1点雷元素伤害雷元素伤害：
+
+    附着雷元素，可发生元素反应：
+
+    超载：本伤害+2，目标强制切换到下一个角色。
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害。
+
+    感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害。
+
+    原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]。" class="wiki-note-text">。（需消耗可用次数，每回合1次）
+
+    （牌组中包含愚人众·雷萤术士，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 雾虚之兆
+  - 可用次数
+  - 雷元素伤害
+  deck_constraint: 牌组中包含愚人众·雷萤术士，才能加入牌组
+flavor_html: <p><strong>雾虚霆闪·雷萤术士</strong></p><p>···正如雾虚草的气味会令雷萤迷醉，嗜虐的术士也贪恋着戏弄对手的快感···</p>
+flavor_text: '雾虚霆闪·雷萤术士
+
+  ···正如雾虚草的气味会令雷萤迷醉，嗜虐的术士也贪恋着戏弄对手的快感···'
+terms:
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色。超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害。感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害。原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]。
+  附着雷元素: 不通过伤害附着雷元素时，发生的元素反应会忽略伤害效果：超载：目标强制切换到下一个角色超导：没有效果感电：没有效果原激化：生成使下2次草元素或雷元素伤害+1的[激化领域]
+  雷萤护罩: 出战状态为我方出战角色提供1点护盾。创建时：如果我方场上存在雷萤，则额外提供其可用次数的护盾。（最多额外提供3点护盾）
+  准备技能: 有些技能无法被直接使用，而是需要一定次数的行动轮来进行准备。轮到一位牌手行动时，如果该牌手的「出战角色」正在准备技能，则跳过该牌手的行动；如果技能已经完成准备，角色将会在此时直接使用此技能。（此类需要准备的技能，无法触发「使用技能后」效果。）只有「出战角色」才能准备技能；如果正在准备技能的「出战角色」被切换到后台，技能的准备就会被打断。
+  霆电迸发: 元素爆发（需准备1个行动轮）造成2点雷元素伤害。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  雾虚之召: 雾虚之兆：元素战技召唤雷萤。
+_raw_path: data/raw/character/500994_愚人众_雷萤术士.json

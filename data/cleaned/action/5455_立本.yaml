@@ -1,0 +1,46 @@
+id: 5455
+name: 立本
+parent_class: action
+sub_class: 支援牌
+tags:
+- 伙伴
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 伙伴
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '结束阶段：收集我方未使用的元素骰(每种最多1个)。
+
+  行动阶段开始时：如果此牌已收集3个元素骰，则抓2张牌，生成2点万能元素可以视为任何类型的元素，来支付各种费用。
+
+  " class="wiki-note-text">，然后弃置此牌。'
+term_refs: []
+terms:
+  万能元素: 可以视为任何类型的元素，来支付各种费用。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/7a8c85830ce44927460008304d7f73ed_4408529502307669717.png
+variants:
+- mode: 标准
+  effect_text: '结束阶段：收集我方未使用的元素骰(每种最多1个)。
+
+    行动阶段开始时：如果此牌已收集3个元素骰，则抓2张牌，生成2点万能元素可以视为任何类型的元素，来支付各种费用。
+
+    " class="wiki-note-text">，然后弃置此牌。'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/dbe203124b2b61d17f0c46523679ee52_7625356549640398540.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/1e374752ccf005727d03fb55a232ff32_3110082738255674655.gif
+jiqiao: true
+flavor_text: '百货奇货·立本
+
+  「这个世界马上就要发生大事了！我这里有一笔好生意，你可愿意听听？」'

@@ -1,0 +1,68 @@
+id: 5682
+name: 冲锋丘丘人
+title: 冲锋丘丘人
+parent_class: monster
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 火
+weapon: 其他武器
+faction:
+- 魔物/丘丘人
+hp: 4
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/b2751af5c3dddc5a4bf7909bd2382adc_8142471467728886523.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_4902898807497925406.png
+skills:
+- name: 火把打
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  effect_text: 造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 边跑边打
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  effect_text: 造成2点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 连续挥火把
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 3
+  effect_text: 造成4点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  energy_req: 2
+summons: []
+flavor_text: ''
+terms:
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）

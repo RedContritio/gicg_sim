@@ -1,0 +1,38 @@
+id: 500025
+name: 旧时庭园
+parent_class: action
+desc: 事件牌 秘传 旧时庭园
+sub_class: 事件牌
+tags: &id001
+- 秘传
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/07/14/183046623/cd9d8158b2361b984da8c061926bb636_6397252658968786079.png
+header_img_url: ''
+version: '1703039404'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 13
+effect_html: <p><strong>我方有角色已装备「武器」或「圣遗物」时，才能打出：</strong>本回合中，我方下次打出「武器」或「圣遗物」装备牌时少花费2个元素骰。</p><p>（整局游戏只能打出一张「秘传」卡牌；这张牌一定在你的起始手牌中）</p>
+effect_text: '我方有角色已装备「武器」或「圣遗物」时，才能打出：本回合中，我方下次打出「武器」或「圣遗物」装备牌时少花费2个元素骰。
+
+  （整局游戏只能打出一张「秘传」卡牌；这张牌一定在你的起始手牌中）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/07/14/183046623/7a8c85830ce44927460008304d7f73ed_5451859673108702003.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/07/14/183046623/cd9d8158b2361b984da8c061926bb636_390832108951639145.png
+flavor_html: <p><strong>旧时庭园</strong></p><p>「空蝉幽世此浮生，岂非渺然梦寤时。」</p>
+flavor_text: '旧时庭园
+
+  「空蝉幽世此浮生，岂非渺然梦寤时。」'
+_raw_path: data/raw/action/500025_旧时庭园.json

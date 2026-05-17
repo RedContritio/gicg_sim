@@ -1,0 +1,16 @@
+# r009 BC ep=3 ckpt gauntlet。Hold-out 反弹(soft 0.924→0.940, val_mae 0.709→0.620)。
+
+socket = "/var/run/gicg/eval.sock"
+ckpt = "artifacts/202604270918_r009_bc_pretrain_stage3/epoch_3.pt"
+out_dir = "artifacts/202604270918_r009_bc_pretrain_stage3"
+
+teams = ["测试角色D"]
+card_pool = ["测试卡_碎片"]
+max_rounds = 3
+obs_mask = ["enemy_dice"]
+fix_dice = "none"
+games_per_cell = 8
+seed = 0
+
+[meta]
+paradigm = "bc"

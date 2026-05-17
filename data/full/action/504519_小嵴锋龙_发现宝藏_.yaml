@@ -1,0 +1,53 @@
+id: 504519
+name: 小嵴锋龙！发现宝藏！
+parent_class: action
+desc: 小嵴锋龙！发现宝藏！卡牌
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/10/258999284/7f43e01235d3b59c48ac6d9ebd803748_1003928614000784747.png
+header_img_url: ''
+version: '1743388574'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">向双方牌组中放入2张</span><span><strong><span
+  style="color: rgb(0, 0, 0)"><u>燃素充盈</u></span></strong></span><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;燃素充盈：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;事件牌&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;费用：0&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;本回合我方下次角色消耗「夜魂值」后：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;该角色获得1点「夜魂值」。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，随后双方各抓2张牌。</span></p>'
+effect_text: '向双方牌组中放入2张燃素充盈燃素充盈：
+
+  事件牌
+
+  费用：0
+
+  本回合我方下次角色消耗「夜魂值」后：该角色获得1点「夜魂值」。" class="wiki-note-text">，随后双方各抓2张牌。'
+term_refs:
+- 燃素充盈
+terms:
+  燃素充盈: 事件牌费用：0本回合我方下次角色消耗「夜魂值」后：该角色获得1点「夜魂值」。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/03/28/80663279/8c5a4f348a3a8017500c15e9cd0c5c15_6973678175838090657.png
+duration: 持续本回合
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/10/258999284/7f43e01235d3b59c48ac6d9ebd803748_5052551949082854888.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/02/10/258999284/5ee74d7767735785d435db113fd969a0_299588079183079278.gif
+flavor_html: <p><strong>小嵴锋龙！发现宝藏！</strong></p><p>「亮晶晶的石头，金闪闪的摩拉！」</p>
+flavor_text: '小嵴锋龙！发现宝藏！
+
+  「亮晶晶的石头，金闪闪的摩拉！」'
+_raw_path: data/raw/action/504519_小嵴锋龙_发现宝藏_.json

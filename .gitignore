@@ -1,8 +1,31 @@
-third_party/
-tools/
 rl_mvp_v3.txt
-.claude/
+# .claude/ contents are local-only, EXCEPT the OpenSpec workflow integration
+# below which travels with the repo. Use `.claude/*` (not `.claude/`) so git
+# still descends into .claude/ to evaluate whitelist patterns.
+.claude/*
+!.claude/commands/
+.claude/commands/*
+!.claude/commands/opsx/
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/openspec-apply-change/
+!.claude/skills/openspec-archive-change/
+!.claude/skills/openspec-explore/
+!.claude/skills/openspec-propose/
+!.claude/skills/run/
+.venv/
+__pycache__/
+*.pyc
 *.o
 *.a
 *.so
 *.dylib
+
+# macOS Finder metadata (auto-created;不该 track)
+.DS_Store
+tools/cleanse_4_raw.py
+data/full_haiku/
+docs/3_plans/cards/effect_mechanism_inventory.md
+
+# external reference implementations (do not commit)
+ref/

@@ -1,0 +1,185 @@
+id: 502090
+name: 菲米尼
+title: 潜怀遐梦·菲米尼
+parent_class: character
+desc: 菲米尼卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/edc282bd8955faa88895b23c4061a2f5_2301203435965777916.png
+header_img_url: ''
+version: '1760346499'
+attr:
+  元素:
+  - 冰元素
+  武器:
+  - 双手剑
+  阵营: &id001
+  - 枫丹，愚人众
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+  始基力:
+  - 芒性
+element: 冰
+weapon: 双手剑
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+始基力: 芒性
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/edc282bd8955faa88895b23c4061a2f5_7931855952099336084.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/33a59c42acdd2624078100f8a11160c9_6586216208495352325.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/de066277f1f3120586b5e9c93c7fdb59_4745789385360420178.png
+skills:
+- name: 洑流剑
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    冰: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/8fbe2d2ee135f932387d96e8e14e4e89_4016057964635067622.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 浮冰增压
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/631401634edd0a641a42a09722d82f09_6491825398627675961.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，若角色未附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>佩伊刻计</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>佩伊刻计：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>我方每抓1张牌后：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>此牌累积1层</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>所附属角色使用浮冰增压时：</span></strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>如果</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>物理伤害</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">，则使其附属</span><strong><span style="color: rgb(0, 0,
+    0)"><u>佩伊刻计</u></span></strong><span data-type="详情" data-name="<p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>佩伊刻计：</span></strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>我方每抓1张牌后：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>此牌累积1层</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>。</span></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>所附属角色使用浮冰增压时：</span></strong><span style=&quot;color: rgb(0,
+    0, 0)&quot;>如果</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>「压力阶级」</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点</span><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>物理伤害</span></strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>。</span></p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span
+    style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，若角色未附属佩伊刻计佩伊刻计：状态我方每抓1张牌后：此牌累积1层「压力阶级」。所附属角色使用浮冰增压时：如果「压力阶级」至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点物理伤害。"
+    class="wiki-note-text">，则使其附属佩伊刻计佩伊刻计：状态我方每抓1张牌后：此牌累积1层「压力阶级」。所附属角色使用浮冰增压时：如果「压力阶级」至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点物理伤害。"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  - 佩伊刻计
+- name: 猎影潜袭
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/27/258999284/4c548a11ba631ee6ccf70282d8af1718_5268158437550047138.png
+  effect_html: '<p>造成4点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>冰元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着冰元素，可发生元素反应:</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超导：</strong>本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>冻结</strong>：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）</p><p
+    style=&quot;white-space: pre-wrap; min-height: 1.5em;&quot;></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，本角色附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>潜猎模式</u></span></strong><span data-type="详情" data-name="<p><strong>潜猎模式：</strong></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>状态</span></strong></p><p><strong><span style=&quot;color:
+    rgb(0, 0, 0)&quot;>我方抓3张牌后：</span></strong><span style=&quot;color: rgb(0, 0,
+    0)&quot;>提供1点</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>护盾</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>，保护所附属角色。（可叠加，最多叠加至2点）。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>所附属角色使用普通攻击或元素战技后：</span></strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>将原本元素骰费用最高的至多2张手牌置于牌库底，然后抓等量的牌。</span></p><p><strong><span
+    style=&quot;color: rgb(0, 0, 0)&quot;>持续回合：2</span></strong></p>" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成4点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">，本角色附属潜猎模式状态我方抓3张牌后：提供1点护盾，保护所附属角色。（可叠加，最多叠加至2点）。所附属角色使用普通攻击或元素战技后：将原本元素骰费用最高的至多2张手牌置于牌库底，然后抓等量的牌。持续回合：2"
+    class="wiki-note-text">。
+  term_refs:
+  - 冰元素伤害
+  - 潜猎模式
+  energy_req: 2
+summons: []
+talent:
+  name: 梦晓与决意之刻
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/13/258999284/64216fa8f7b8b6af5888be62b1e5446f_6921916432401636157.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;战斗行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+    rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;br&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(255, 255, 255)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">菲米尼</span></strong><span
+    style="color: rgb(0, 0, 0)">时，装备此牌。<br>菲米尼装备此牌后，立刻使用一次</span><strong><span style="color:
+    rgb(0, 0, 0)"><u>浮冰增压</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;浮冰增压：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成2点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，若角色未附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;佩伊刻计&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，则使其附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;佩伊刻计&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>装备有此牌的菲米尼使用技能后，抓1张牌。（每回合至多触发2次）<br>（牌组中包含菲米尼，才能加入牌组）</span></p>'
+  effect_text: '战斗行动战斗行动：
+
+    我方执行了一次战斗行动后，会轮到对方行动。
+
+    打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为菲米尼时，装备此牌。
+
+    菲米尼装备此牌后，立刻使用一次浮冰增压造成2点冰元素伤害，若角色未附属佩伊刻计，则使其附属佩伊刻计。" class="wiki-note-text">。
+
+    装备有此牌的菲米尼使用技能后，抓1张牌。（每回合至多触发2次）
+
+    （牌组中包含菲米尼，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 浮冰增压
+  deck_constraint: 牌组中包含菲米尼，才能加入牌组
+flavor_html: <p><strong>潜怀遐梦·菲米尼</strong></p><p>繁星丽天，孤怀寒芒。</p>
+flavor_text: '潜怀遐梦·菲米尼
+
+  繁星丽天，孤怀寒芒。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  佩伊刻计: 状态我方每抓1张牌后：此牌累积1层「压力阶级」。所附属角色使用浮冰增压时：如果「压力阶级」至少有2层，则移除此效果，使技能少花费1元素骰，且如果此技能结算后「压力阶级」至少有4层，则再额外造成2点物理伤害。
+  潜猎模式: 状态我方抓3张牌后：提供1点护盾，保护所附属角色。（可叠加，最多叠加至2点）。所附属角色使用普通攻击或元素战技后：将原本元素骰费用最高的至多2张手牌置于牌库底，然后抓等量的牌。持续回合：2
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  浮冰增压: 元素战技造成2点冰元素伤害，若角色未附属佩伊刻计，则使其附属佩伊刻计。
+_raw_path: data/raw/character/502090_菲米尼.json

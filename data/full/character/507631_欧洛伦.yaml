@@ -1,0 +1,209 @@
+id: 507631
+name: 欧洛伦
+title: 深黯的谜烟·欧洛伦
+parent_class: character
+desc: 欧洛伦卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/d304aab0f0ea83c2d532b0bafc434348_3758102480713224416.png
+header_img_url: ''
+version: '1768194122'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 纳塔
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 雷
+weapon: 弓
+faction: *id001
+hp: 10
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/d304aab0f0ea83c2d532b0bafc434348_7459900338418555674.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/8f679d5d262957410c7eeaa9d46dd1f0_1165081861846347479.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/de066277f1f3120586b5e9c93c7fdb59_4139183167975819788.png
+skills:
+- name: 宿灵闪箭
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/067ca3b60e34d72dc54d4db235287fe4_4842516985011645271.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 暝色缒索
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/ddaffb5f60f5a848ab869aeed66963d7_4194742434903521590.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span style="color:
+    rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，生成</span><strong><span style="color: rgb(0, 0, 0)"><u>宿灵球</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;宿灵球：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;行动阶段开始时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(114, 46, 209)&quot;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点雷元素伤害，生成宿灵球宿灵球：出战状态行动阶段开始时：造成1点雷元素伤害。可用次数：1" class="wiki-note-text">。
+  term_refs:
+  - 雷元素伤害
+  - 宿灵球
+- name: 黯声回响
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/9b42c01c5434aa2eb62d15e344727cea_4055010393150111801.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">造成2点</span><strong><span style="color:
+    rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">，召唤</span><strong><em><span style="color: rgb(0, 0, 0)">超音灵眼</span></em></strong><span
+    style="color: rgb(0, 0, 0)">。</span></p>'
+  effect_text: 造成2点雷元素伤害，召唤超音灵眼。
+  term_refs:
+  - 雷元素伤害
+  energy_req: 2
+- name: 夜翳的通感
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/33ccac2adea6cd18a9c2d59f14843ae6_3282756831587509125.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">【被动】</span><strong><span style="color:
+    rgb(0, 0, 0)">我方触发感电反应后：</span></strong><span style="color: rgb(0, 0, 0)">如果可能，消耗2点</span><strong><span
+    style="color: rgb(0, 0, 0)">「夜魂值」</span></strong><span style="color: rgb(0, 0,
+    0)">，造成1点</span><strong><span style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。</span></p><p><span style="color: rgb(0, 0, 0)">我方造成此技能以外的</span><strong><span
+    style="color: rgb(24, 144, 255)"><u>水元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(24, 144, 255)&quot;&gt;水元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;附着水元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;蒸发&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;感电&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;冻结&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;绽放&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：本伤害+1，生成使下次火元素或雷元素伤害+2的[&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;]&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">或</span><strong><span
+    style="color: rgb(146, 84, 222)"><u>雷元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">后，自身进入</span><strong><span style="color: rgb(0, 0, 0)"><u>夜魂加持</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+    0, 0)&quot;&gt;夜魂加持：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色可累积&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;「夜魂值」。&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;（最多累积到2点）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂值为0时，退出&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;夜魂加持&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">，并获得1点</span><strong><span
+    style="color: rgb(0, 0, 0)">「夜魂值」。</span></strong><span style="color: rgb(0, 0,
+    0)">（每回合1次）</span></p>'
+  effect_text: 【被动】我方触发感电反应后：如果可能，消耗2点「夜魂值」，造成1点雷元素伤害。我方造成此技能以外的水元素伤害水元素伤害：附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]"
+    class="wiki-note-text">或雷元素伤害后，自身进入夜魂加持夜魂加持：状态所附属角色可累积「夜魂值」。（最多累积到2点）夜魂值为0时，退出夜魂加持。"
+    class="wiki-note-text">，并获得1点「夜魂值」。（每回合1次）
+  term_refs:
+  - 雷元素伤害
+  - 水元素伤害
+  - 夜魂加持
+summons:
+- name: 超音灵眼
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/2a179be505d2c8e9097709a17b223db7_4957973981423613982.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">结束阶段：</span></strong><span
+    style="color: rgb(0, 0, 0)">造成1点</span><strong><span style="color: rgb(146, 84,
+    222)"><u>雷元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;雷元素伤害&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;附着雷元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;感电&lt;/strong&gt;：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+    rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0, 0)">我方出战角色受到伤害时：</span></strong><span
+    style="color: rgb(0, 0, 0)">抵消1点伤害，然后此牌</span><strong><span style="color: rgb(0,
+    0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">-1。（每回合1次）<br></span><strong><span
+    style="color: rgb(0, 0, 0)"><u>可用次数</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">：3</span></p>'
+  effect_text: 结束阶段：造成1点雷元素伤害。我方出战角色受到伤害时：抵消1点伤害，然后此牌可用次数可用次数：此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。"
+    class="wiki-note-text">-1。（每回合1次）可用次数可用次数：此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">：3
+  term_refs:
+  - 雷元素伤害
+  - 可用次数
+talent:
+  name: 林雾间的行迹
+  type: 装备牌
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 1
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/a8e80c34d2dbcc14c144e8c706fbadc4_6330228216558976468.png
+  effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">快速行动</span></strong><span
+    style="color: rgb(0, 0, 0)">：装备给我方的</span><strong><span style="color: rgb(0, 0,
+    0)">欧洛伦</span></strong><span style="color: rgb(0, 0, 0)">。<br>我方每回合首次引发的感电反应造成的穿透伤害+1。<br>（牌组中包含欧洛伦，才能加入牌组）</span></p>'
+  effect_text: '快速行动：装备给我方的欧洛伦。
+
+    我方每回合首次引发的感电反应造成的穿透伤害+1。
+
+    （牌组中包含欧洛伦，才能加入牌组）'
+  term_refs: []
+  sub_type: 快速行动
+  deck_constraint: 牌组中包含欧洛伦，才能加入牌组
+flavor_html: <p><strong>深黯的谜烟·欧洛伦</strong></p><p>难辨难明之形色。</p>
+flavor_text: '深黯的谜烟·欧洛伦
+
+  难辨难明之形色。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  雷元素伤害: 附着雷元素，可发生元素反应：超载：本伤害+2，目标强制切换到下一个角色超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]
+  宿灵球: 出战状态行动阶段开始时：造成1点雷元素伤害。可用次数：1
+  水元素伤害: 附着水元素，可发生元素反应：蒸发：本伤害+2感电：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）绽放：本伤害+1，生成使下次火元素或雷元素伤害+2的[草原核]
+  夜魂加持: 状态所附属角色可累积「夜魂值」。（最多累积到2点）夜魂值为0时，退出夜魂加持。
+  可用次数: 此牌效果触发后，会消耗1次可用次数;可用次数耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/507631_欧洛伦.json

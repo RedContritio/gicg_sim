@@ -1,0 +1,77 @@
+id: 505471
+name: 火与战争
+parent_class: action
+desc: 火与战争卡牌
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/884a6c5256fdf570dafe5adc5c0eb9b1_7570740356484943695.png
+header_img_url: ''
+version: '1750212934'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">选一个我方角色，使其附属</span><strong><span
+  style="color: rgb(0, 0, 0)">「重燃」</span></strong><span style="color: rgb(0, 0, 0)">为1的</span><span><strong><span
+  style="color: rgb(0, 0, 0)"><u>还魂诗</u></span></strong></span><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;还魂诗：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;本回合内，所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;如可能，消耗等同于此牌&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;「重燃」&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;的元素骰，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到1点生命值。然后此牌&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;「重燃」&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（本回合内该角色被击倒时，消耗等同于</span><strong><span
+  style="color: rgb(0, 0, 0)">「重燃」</span></strong><span style="color: rgb(0, 0, 0)">的元素骰，使角色</span><span><strong><span
+  style="color: rgb(0, 0, 0)"><u>免于被击倒</u></span></strong></span><span data-type="详情"
+  data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;一些效果会使角色在生命值被降为0的时候&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到一定生命值。&lt;br&gt;此时，角色不视为被&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;过。（因此，角色所附属的&lt;/span&gt;装备和状态不会被弃置，充能也不会被清空。）&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，并治疗该角色到1点生命值，然后</span><strong><span style="color: rgb(0, 0, 0)">「重燃」</span></strong><span
+  style="color: rgb(0, 0, 0)">+1）<br>（牌组包含至少2个「纳塔」角色，才能加入牌组）</span></p>'
+effect_text: '选一个我方角色，使其附属「重燃」为1的还魂诗还魂诗：
+
+  状态
+
+  本回合内，所附属角色被击倒时：如可能，消耗等同于此牌「重燃」的元素骰，使角色免于被击倒，并治疗该角色到1点生命值。然后此牌「重燃」+1。" class="wiki-note-text">。（本回合内该角色被击倒时，消耗等同于「重燃」的元素骰，使角色免于被击倒免于被击倒：
+
+  一些效果会使角色在生命值被降为0的时候免于被击倒，并治疗该角色到一定生命值。
+
+  此时，角色不视为被击倒过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）" class="wiki-note-text">，并治疗该角色到1点生命值，然后「重燃」+1）
+
+  （牌组包含至少2个「纳塔」角色，才能加入牌组）'
+term_refs:
+- 还魂诗
+- 免于被击倒
+terms:
+  还魂诗: 状态本回合内，所附属角色被击倒时：如可能，消耗等同于此牌「重燃」的元素骰，使角色免于被击倒，并治疗该角色到1点生命值。然后此牌「重燃」+1。
+  免于被击倒: 一些效果会使角色在生命值被降为0的时候免于被击倒，并治疗该角色到一定生命值。此时，角色不视为被击倒过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_3112069492064304036.png
+duration: 持续本回合
+deck_constraint: 牌组包含至少2个「纳塔」角色，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/884a6c5256fdf570dafe5adc5c0eb9b1_6127011854622496025.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/06/16/258999284/7c6176f5ff6a21aa73e3340b826afd1b_6399317261992705378.gif
+flavor_html: <p><strong>火与战争</strong></p><p>「我们继承了记忆与传说。我们和太阳与风一同成长。我们铸造了命运与未来。这些都是纳塔的火，纳塔的血液。」</p>
+flavor_text: '火与战争
+
+  「我们继承了记忆与传说。我们和太阳与风一同成长。我们铸造了命运与未来。这些都是纳塔的火，纳塔的血液。」'
+_raw_path: data/raw/action/505471_火与战争.json

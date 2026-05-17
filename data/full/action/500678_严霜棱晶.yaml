@@ -1,0 +1,91 @@
+id: 500678
+name: 严霜棱晶
+parent_class: action
+desc: 严霜棱晶卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  冰: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/71d1da569b1927b33c9cd1dcf04c7ab1_2388630248715491313.png
+header_img_url: ''
+version: '1706666795'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 1
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">我方出战角色为</span><strong><span style="color:
+  rgb(0, 0, 0)">无相之冰</span></strong><span style="color: rgb(0, 0, 0)">时，才能打出：使其附属</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>冰晶核心</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;冰晶核心：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到1点生命值。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>装备有此牌的无相之冰触发</span><strong><span style="color: rgb(0, 0, 0)"><u>冰晶核心</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;冰晶核心：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;，并治疗该角色到1点生命值。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">后：对敌方出战角色附属</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>严寒</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;严寒：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;对附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;：1（所附属角色被附属&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;炽热&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;时，移除此效果。）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。<br>（牌组中包含无相之冰，才能加入牌组）</span></p>'
+effect_text: '我方出战角色为无相之冰时，才能打出：使其附属冰晶核心冰晶核心：
+
+  状态
+
+  所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到1点生命值。" class="wiki-note-text">。
+
+  装备有此牌的无相之冰触发冰晶核心冰晶核心：
+
+  状态
+
+  所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到1点生命值。" class="wiki-note-text">后：对敌方出战角色附属严寒严寒：
+
+  状态
+
+  结束阶段：对附属角色造成1点冰元素伤害。
+
+  可用次数：1（所附属角色被附属炽热时，移除此效果。）" class="wiki-note-text">。
+
+  （牌组中包含无相之冰，才能加入牌组）'
+term_refs:
+- 冰晶核心
+- 严寒
+terms:
+  冰晶核心: 状态所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到1点生命值。
+  严寒: 状态结束阶段：对附属角色造成1点冰元素伤害。可用次数：1（所附属角色被附属炽热时，移除此效果。）
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/ecc31f3f06099f1d86e608a1b712e7c6_7990645433168355220.png
+duration: 可用次数1
+requires_char: 无相之冰
+deck_constraint: 牌组中包含无相之冰，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/27/258999284/71d1da569b1927b33c9cd1dcf04c7ab1_880598011600009874.png
+flavor_html: <p><strong>无相之冰·严霜棱晶</strong></p><p>即便有着高度稳定的形态与机械般的行动方式，也需要谨慎屏护要害···</p>
+flavor_text: '无相之冰·严霜棱晶
+
+  即便有着高度稳定的形态与机械般的行动方式，也需要谨慎屏护要害···'
+_raw_path: data/raw/action/500678_严霜棱晶.json

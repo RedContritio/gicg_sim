@@ -1,0 +1,77 @@
+id: 6632
+name: 岩盾丘丘暴徒
+title: 岩盾丘丘暴徒
+parent_class: monster
+attr:
+  元素:
+  - 岩元素
+  武器:
+  - 其他武器
+  阵营:
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 岩
+weapon: 其他武器
+faction:
+- 魔物/丘丘人
+hp: 8
+energy: 2
+acquire: 无
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/00cf5df5a7e57193dcb77b07fb6f3866_6794016575365012708.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/0464df5cfa4f36ec5539e826ce5b1108_7121565514915097297.png
+skills:
+- name: Plata Plama
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    岩: 1
+    无色: 2
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: Da Plama
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    岩: 3
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: Aba Movo
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 7
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    岩: 3
+  effect_text: 造成5点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+  energy_req: 2
+- name: 岩石大盾
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】战斗开始时，初始附属岩石大盾岩石大盾：状态所附属角色受到伤害时：抵消最多2点伤害。抵消岩元素伤害时，需额外消耗1次可用次数。可用次数：3"
+    class="wiki-note-text">。
+  term_refs:
+  - 岩石大盾
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  岩石大盾: 状态所附属角色受到伤害时：抵消最多2点伤害。抵消岩元素伤害时，需额外消耗1次可用次数。可用次数：3

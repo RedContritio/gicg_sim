@@ -1,0 +1,48 @@
+id: 505310
+name: 困困冥想术
+parent_class: action
+desc: 困困冥想术卡牌
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/01/258999284/3d3f334c85d5170dc49b6bab0a26a3c9_498462693366148948.png
+header_img_url: ''
+version: '1746583792'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span style="color: rgb(0, 0, 0)">从随机3张特技牌中</span><strong><span style="color:
+  rgb(0, 0, 0)"><u>挑选</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;挑选：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;从特定的多张牌中选择1张执行效果。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">1张。<br>我方下次打出不属于初始卡组的牌少花费2个元素骰。</span></p>'
+effect_text: '从随机3张特技牌中挑选挑选：
+
+  从特定的多张牌中选择1张执行效果。" class="wiki-note-text">1张。
+
+  我方下次打出不属于初始卡组的牌少花费2个元素骰。'
+term_refs:
+- 挑选
+terms:
+  挑选: 从特定的多张牌中选择1张执行效果。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/01/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_2021326395872993912.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/01/258999284/3d3f334c85d5170dc49b6bab0a26a3c9_2475960371644413525.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/05/01/258999284/77ca53c66b8289d4f66d4c828050ce44_2390692116899978606.gif
+flavor_html: '<p><strong><span style="color: rgb(0, 0, 0)">困困冥想术</span></strong></p><p>「所谓冥想…喂！冥想可不是让你睡觉的！」</p>'
+flavor_text: '困困冥想术
+
+  「所谓冥想…喂！冥想可不是让你睡觉的！」'
+_raw_path: data/raw/action/505310_困困冥想术.json

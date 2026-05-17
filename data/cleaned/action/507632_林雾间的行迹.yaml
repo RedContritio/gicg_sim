@@ -1,0 +1,37 @@
+id: 507632
+name: 林雾间的行迹
+parent_class: action
+sub_class: 装备牌
+tags:
+- 天赋
+cost_text: '1'
+cost:
+  雷: 1
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 天赋
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 5
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '快速行动：装备给我方的欧洛伦。
+
+  我方每回合首次引发的感电反应造成的穿透伤害+1。
+
+  （牌组中包含欧洛伦，才能加入牌组）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/00cce35b579cabd6b829eaa5cd1aed42_8311138628363502186.png
+requires_char: 欧洛伦
+deck_constraint: 牌组中包含欧洛伦，才能加入牌组
+is_combat_action: true
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/01/12/258999284/a8e80c34d2dbcc14c144e8c706fbadc4_6701785820151555329.png
+flavor_text: '欧洛伦·林雾间的行迹
+
+  「去吧，你自由了。 」'

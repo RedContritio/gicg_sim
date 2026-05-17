@@ -1,0 +1,119 @@
+id: 5603
+name: 火深渊法师
+title: 火深渊法师
+parent_class: monster
+desc: 火深渊法师卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/ad5b817bc9ed686037586730792a5bb6_3823440569642256905.png
+header_img_url: ''
+version: '1694074781'
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 3点
+  获取方式:
+  - 无
+element: 火
+weapon: 其他武器
+faction: *id001
+hp: 4
+energy: 3
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/ad5b817bc9ed686037586730792a5bb6_1165889669483049513.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/e0715828c8478435f762c411a2ea63de_512767394389614395.png
+skills:
+- name: 炎波
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/0f451842885c44779d882c9ced0b9b09_799080124835198330.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成1点<strong><span style="color:rgba(207,19,34,1)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;火元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 灼面的祭法
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/f192b517286d3354bd23cbfff5ae54ef_4057084669786125659.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成3点<strong><span style="color:rgba(207,19,34,1)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;火元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 熔焰地涌之仪
+  type: 元素爆发
+  raw_life: 4
+  raw_life_bg: 4
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    火: 4
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/7fb597d6935b8398d0747ba5798a4f59_3020501242396646073.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成7点<strong><span style="color:rgba(207,19,34,1)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;火元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成7点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  energy_req: 3
+- name: 火元素护罩
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/7b6fb3cf4b4d3f5f3b8aeb6364321c86_3614907309468558062.jpg
+  effect_html: '<p style="white-space: pre-wrap;">【被动】战斗开始时，初始附属<strong><u>火元素护罩</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;火元素护罩：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;状态&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;所附属角色&lt;strong&gt;免疫所有伤害&lt;/strong&gt;。&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;此状态提供2次&lt;strong&gt;&lt;span style=&#34;color:rgba(207,19,34,1)&#34;&gt;火元素附着&lt;/span&gt;&lt;/strong&gt;（可被元素反应消耗）：耗尽后移除此状态，并使所附属角色直到本回合结束前&lt;strong&gt;无法使用技能&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 【被动】战斗开始时，初始附属火元素护罩火元素护罩：状态所附属角色免疫所有伤害。此状态提供2次火元素附着（可被元素反应消耗）：耗尽后移除此状态，并使所附属角色直到本回合结束前无法使用技能。"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素护罩
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  火元素护罩: 状态所附属角色免疫所有伤害。此状态提供2次火元素附着（可被元素反应消耗）：耗尽后移除此状态，并使所附属角色直到本回合结束前无法使用技能。
+_raw_path: data/raw/monster/5603_火深渊法师.json

@@ -1,0 +1,30 @@
+# s012: s011 + 100% vs F1-D1 rollout (break self-play collapse).
+#
+# P0 = training net (trajectories collected), P1 = fixed F1-D1
+# dice_greedy (no collection). No self-play, so mirror-match
+# mutual-Tune draw dynamics can't form. Tests the "self-play
+# collapse" hypothesis from s011 replay.
+#
+# Result (2026-04-25 03:12, wall=153s): BREAKTHROUGH.
+#   random=0.312/F1-D1=0.000/F1-D2=0.000 numerically low BUT
+#   replay showed agent now ATTACKS (突刺×3 + 轻击 per round),
+#   no longer Tune-heavy. Agent total output 10 HP > F1-D1 8 HP,
+#   loses by 1-HP margin due to step order not strategy. Self-play
+#   collapse hypothesis CONFIRMED — more iter should refine.
+
+base = "default"
+run_label = "s012_stage1_vs_f1d1_opp"
+
+n_iterations = 500
+eval_every = 25
+n_eval_games = 16
+
+value_coef = 0.1
+rollout_opponent = "F1-D1"
+
+[reward_shaping]
+terminal_win = 10.0
+terminal_loss = 10.0
+
+[meta]
+paradigm = "ppo"

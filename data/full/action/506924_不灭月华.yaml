@@ -1,0 +1,46 @@
+id: 506924
+name: 不灭月华
+parent_class: action
+desc: 不灭月华卡牌
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/b1d91536731f3986eff3aab55bcd2e36_7963607729263107477.png
+header_img_url: ''
+version: '1761109326'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">所附属角色生命值至少为11时：</span></strong><span
+  style="color: rgb(0, 0, 0)">造成的伤害+2。<br></span><strong><span style="color: rgb(0,
+  0, 0)">入场时：</span></strong><span style="color: rgb(0, 0, 0)">所附属角色获得1点最大生命值。<br>（</span><strong><span
+  style="color: rgb(0, 0, 0)">「法器」角色</span></strong><span style="color: rgb(0, 0,
+  0)">才能装备。角色最多装备1件「武器」）</span></p>'
+effect_text: '所附属角色生命值至少为11时：造成的伤害+2。
+
+  入场时：所附属角色获得1点最大生命值。
+
+  （「法器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/9e7207494a4fdb10df19179ec836623b_5822442726637322817.png
+weapon_type: 法器
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/b1d91536731f3986eff3aab55bcd2e36_7557845508902426698.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/f64ac83a4c5f05ac55f7994d01efa07b_8261998571644542891.gif
+flavor_html: <p><strong>真珠海波·不灭月华</strong></p><p>「即使雷云日渐集聚，紫电之威凶险难测，海祇的月华也将透过云霭，播撒皓光吧。」</p>
+flavor_text: '真珠海波·不灭月华
+
+  「即使雷云日渐集聚，紫电之威凶险难测，海祇的月华也将透过云霭，播撒皓光吧。」'
+_raw_path: data/raw/action/506924_不灭月华.json

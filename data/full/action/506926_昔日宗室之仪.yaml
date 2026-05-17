@@ -1,0 +1,57 @@
+id: 506926
+name: 昔日宗室之仪
+parent_class: action
+desc: 昔日宗室之仪卡牌
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '3'
+cost:
+  无色: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/99517acb13ab84d9312ca092d09d664d_1023746029901190339.png
+header_img_url: ''
+version: '1761109339'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)">入场时：</span></strong><span
+  style="color: rgb(0, 0, 0)">使所附属角色获得1点</span><span><strong><span style="color: rgb(0,
+  0, 0)"><u>充能</u></span></strong></span><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;充能：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素爆发」时，需要消耗充能。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;角色使用「元素战技」或「普通攻击」后，会获得1点充能。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br></span><strong><span style="color: rgb(0, 0, 0)">所附属角色使用「元素爆发」后：</span></strong><span
+  style="color: rgb(0, 0, 0)">我方角色下3次造成的伤害+1。<br>（角色最多装备1件「圣遗物」）</span></p>'
+effect_text: '入场时：使所附属角色获得1点充能充能：
+
+  角色使用「元素爆发」时，需要消耗充能。
+
+  角色使用「元素战技」或「普通攻击」后，会获得1点充能。" class="wiki-note-text">。
+
+  所附属角色使用「元素爆发」后：我方角色下3次造成的伤害+1。
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 充能
+terms:
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/f21fd5a782dead6518d879c718eea643_2393604034741014077.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/405efd1f1e1709be215ce7373607a9ec_2139476310287217630.gif
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/405efd1f1e1709be215ce7373607a9ec_4018251749920265432.gif
+flavor_html: <p><strong>过往年岁·昔日宗室之仪</strong></p><p>「这不仅仅是因为他们拥有天生高贵的血脉，也因为他们坚守美德，抱持着原则与尊重。</p><p>后来，纵欲缩短了贵族的寿命，退化了他们以华美自矜的容颜。」</p>
+flavor_text: '过往年岁·昔日宗室之仪
+
+  「这不仅仅是因为他们拥有天生高贵的血脉，也因为他们坚守美德，抱持着原则与尊重。
+
+  后来，纵欲缩短了贵族的寿命，退化了他们以华美自矜的容颜。」'
+_raw_path: data/raw/action/506926_昔日宗室之仪.json

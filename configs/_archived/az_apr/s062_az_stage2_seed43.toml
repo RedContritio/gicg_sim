@@ -1,0 +1,28 @@
+# s062: AZ Stage 2 baseline (seed=43)。s061 同 toml except seed。
+
+base = "fixed_1v1"
+run_label = "s062_az_stage2_seed43"
+seed = 43
+
+n_games = 200
+batch_size = 64
+games_per_arena = 50
+arena_games = 20
+games_per_gauntlet = 200
+gauntlet_games_per_opponent = 16
+
+[scenario]
+team_0 = ["测试角色D"]
+team_1 = ["测试角色D"]
+card_pool = []
+max_rounds = 3
+obs_mask = ["enemy_dice"]
+
+[mcts]
+n_rollouts = 100
+lambda_anneal_games = 200
+lambda_end = 0.5
+backend = "go"
+
+[meta]
+paradigm = "az"

@@ -1,0 +1,72 @@
+id: 5598
+name: 野伏·阵刀番
+title: 野伏·阵刀番
+parent_class: monster
+attr:
+  元素:
+  - 物理
+  武器:
+  - 其他武器
+  阵营: []
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: ''
+weapon: 其他武器
+faction: []
+hp: 6
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/67088ce0fdec0ecb1e2bcae40100de91_4569621871636718386.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/5d274d7316b4a9b3b6df26a62225993e_8722245116574723246.png
+skills:
+- name: 连续斩
+  type: 普通攻击
+  raw_life: 3
+  raw_life_bg: 10
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    无色: 3
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 跳劈弹
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    同色: 3
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 居合·纳刀
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    同色: 3
+  effect_text: 本角色准备技能：居合·前居合·前：元素爆发（需准备2个行动轮）造成6点物理伤害。" class="wiki-note-text">。
+  term_refs:
+  - 居合·前
+  energy_req: 2
+- name: 残心
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  effect_text: 【被动】结束阶段：如果此角色是「出战角色」，就获得1点充能。
+  term_refs: []
+summons: []
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  居合·前: 元素爆发（需准备2个行动轮）造成6点物理伤害。

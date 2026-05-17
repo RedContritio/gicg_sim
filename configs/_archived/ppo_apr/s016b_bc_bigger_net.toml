@@ -1,0 +1,33 @@
+# s016b: 扩大 network 看 BC match rate 是否 limit 在容量而非 obs。
+#
+# s016 baseline (d_model=256, n_hidden=2, 10 epochs) match=23.7% FAIL。
+# 扩 2× 参数:d_model 512 + n_hidden 4 + 30 epochs。
+#
+# 判据:
+#   - match ≥ 60% → 是容量问题,继续 scale
+#   - match < 40% → 是 obs/task structural,F1-D2 lookahead 信息不在 obs
+#
+# 注意网络太大 → over-fit train 但 val 不升,也是 obs 问题信号。
+
+run_label = "s016b_bc_bigger_net"
+
+dataset = "artifacts/202604250506_s015_bc_data_gen/dataset.npz"
+
+d_model = 512
+n_hidden_layers = 4
+max_actions = 128
+
+n_epochs = 30
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 500
+
+[meta]
+paradigm = "bc"

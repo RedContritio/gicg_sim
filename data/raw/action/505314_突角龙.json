@@ -1,0 +1,189 @@
+{
+  "id": "505314",
+  "name": "突角龙",
+  "desc": "突角龙卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/192ce5481c21e740b4630a0602b3e5b5_1127811356570641269.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"突角龙\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/192ce5481c21e740b4630a0602b3e5b5_5955176255097578471.png\",\"gold_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/e0c085382b30b252fcdd75c2beb386b7_3759300274746915480.gif\",\"life\":4,\"life_bg\":10,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"类型\",\"value\":[\"装备牌\"]},{\"key\":\"标签\",\"value\":[\"特技\"]},{\"key\":\"获取\",\"value\":[\"卡牌商店购买获取\"]},{\"key\":\"花费\",\"value\":[\"4\"]}],\"baseInfoSwitchDisabled\":false}",
+          "style": ""
+        }
+      ],
+      "id": "85",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "效果描述",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>特技</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;特技：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;出战角色装备有「特技」卡牌时，就可以使用对应的「特技」。&lt;br&gt;使用「特技」是一种「战斗行动」。角色因冻结、石化、眩晕等原因无法使用技能时，也会同时无法使用「特技」。&lt;br&gt;角色使用「特技」时不视为使用技能，无法触发「使用技能后」「角色引发元素反应后」等效果；角色使用「特技」造成的伤害不被视为角色造成的伤害。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：</span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>昂扬状态</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;昂扬状态：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;特技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;花费：3&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附属角色&lt;strong&gt;准备技能&lt;/strong&gt;2次&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;「普通攻击」。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\"><br></span><strong><span style=\\\"color: rgb(0, 0, 0)\\\"><u>可用次数</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color: rgb(0, 0, 0)&quot;&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span><span style=\\\"color: rgb(0, 0, 0)\\\">：2<br>（角色最多装备1个「特技」）</span></p>\",\"switch\":true,\"is_show_switch\":false,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "86",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌故事",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "collapse_panel",
+          "layout": "",
+          "data": "{\"rich_text\":\"<p><strong>突角龙·昂扬疾驰</strong></p><p>在疾驰的突角龙面前，浑厚的冲撞岩皆不足为惧，水面与液态燃素之上亦如坦途。</p>\",\"switch\":true,\"is_show_switch\":false,\"without_border\":false}\n",
+          "style": ""
+        }
+      ],
+      "id": "87",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": true,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "特技",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"特技\",\"layout_\":\"left\",\"list\":[{\"tab_name\":\"昂扬状态\",\"skill_type\":\"特技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/75019ddf20d1485e844ad7c5e3106e0f_5220421915413934082.png\",\"life\":3,\"life_bg\":10,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"特技效果\",\"value\":[\"<p>附属角色<strong><u>准备技能</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备技能：</span></strong></p><p><span style=&quot;color: rgb(0, 0, 0)&quot;>有些技能无法被直接使用，而是需要一定次数的行动轮来进行</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>。<br>轮到一位牌手行动时，如果该牌手的「出战角色」正在</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>技能，则跳过该牌手的行动；如果技能已经完成</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>，角色将会在此时直接使用此技能。（此类需要</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>的技能，无法触发「使用技能后」「角色引发元素反应后」等效果。）<br>只有「出战角色」才能</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>技能；如果正在</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>技能的「出战角色」被切换到后台，技能的</span><strong><span style=&quot;color: rgb(0, 0, 0)&quot;>准备</span></strong><span style=&quot;color: rgb(0, 0, 0)&quot;>就会被打断。</span></p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>2次<span style=\\\"color: rgb(0, 0, 0)\\\">「普通攻击」。</span></p>\"]},\"tab_id\":\"1724641086413_0\"}],\"baseInfoSwitchDisabled\":false,\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "5840",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1746583827",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "36",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "57",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "85",
+                "pos": "left"
+              },
+              {
+                "id": "86",
+                "pos": "right"
+              },
+              {
+                "id": "5840",
+                "pos": "left"
+              },
+              {
+                "id": "87",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": false,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "234",
+      "name": "行动牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "行动牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[{\\\"label\\\":\\\"类型\\\",\\\"children\\\":[{\\\"label\\\":\\\"装备牌\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"事件牌\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"支援牌\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"标签\\\",\\\"children\\\":[{\\\"label\\\":\\\"武器\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"圣遗物\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"天赋\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"料理\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"道具\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"伙伴\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"场地\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"元素共鸣\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"元素幻变\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"秘传\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"特技\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他标签\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"花费\\\",\\\"children\\\":[{\\\"label\\\":\\\"花费0\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费1\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费2\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费3\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费4\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费5\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"花费6\\\",\\\"children\\\":[]},{\\\"label\\\":\\\"其他花费\\\",\\\"children\\\":[]}]},{\\\"label\\\":\\\"特殊模式\\\",\\\"children\\\":[{\\\"label\\\":\\\"自行巧局\\\",\\\"children\\\":[]}]}]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"https://baike.mihoyo.com/ys/obc/channel/map/231/234?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"首页更多文案\",\"attribute_key\":\"home_more_text\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"开放全量C端玩家可新建词条\",\"attribute_key\":\"open_for_create\",\"value\":\"0\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "66cdc5ba2644d7479101374c",
+  "ext": {
+    "fe_ext": "{\"c_234\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2025/05/06/258999284/0ab78ee1386d42288358972c012a3bb1_7150618307208400332.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1},\"filter\":{\"text\":\"[\\\"类型/装备牌\\\",\\\"标签/特技\\\",\\\"花费/花费4\\\"]\"}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

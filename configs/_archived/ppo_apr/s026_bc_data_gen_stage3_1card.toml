@@ -1,0 +1,33 @@
+# s026: Stage 3 BC data gen with reduced card_pool (1 card only).
+#
+# Diagnostic per project_stage3_single_seed memory: tests "cards
+# complexity is the dominant factor for BC→PPO F1-D2 FAIL" hypothesis.
+# Single card 测试卡_碎片 (1-any cost, 1 Physical damage to enemy active)
+# — simplest possible card, no stateful buff. Baseline for whether
+# pool-size-2 in s021 (测试卡_增幅 + 测试卡_碎片) is too complex or
+# whether even 1 card breaks the BC pipeline.
+#
+# Reuses every other Stage 3 setup (obs_mask, max_rounds, teacher).
+
+run_label = "s026_bc_data_gen_stage3_1card"
+
+teams = ["测试角色D"]
+fix_dice = "none"
+max_rounds = 3
+card_pool = ["测试卡_碎片"]
+data_dir = "data"
+
+obs_mask = ["enemy_dice"]
+
+teacher = "F1-D2"
+teacher_dice_greedy = true
+opponent_mix = ["F1-D2", "F1-D1"]
+
+target_decisions = 50000
+max_games = 8000
+
+max_actions = 128
+seed = 0
+
+[meta]
+paradigm = "bc"

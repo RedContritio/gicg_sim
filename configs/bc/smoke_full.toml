@@ -1,0 +1,24 @@
+# BC smoke_full cfg — paradigm-smoke-full-tier (D-601 / A1.6).
+#
+# Extends configs/bc/smoke.toml; overrides only:
+#   - meta.run_label
+#   - [checkpoint] save_every short cadence
+#   - [paradigm.bc] n_epochs bumped to ≥ 100 step (epoch_steps = dataset/bs)
+#
+# STATUS (per SF-105): test_bc_smoke_full.py currently pytest.skip due to
+# BC requiring an NPZ dataset (`paradigm.dataset_path`) which is not
+# available in test fixtures. Follow-up change: `bc-smoke-dataset-fixture`
+# (auto-gen tiny NPZ via tools/dataset/gen_bc.py at test time). Toml
+# pre-tuned for when fixture lands; `dataset_path` to be set via override.
+
+[meta]
+extends = "smoke.toml"
+paradigm = "bc"
+run_label = "bc_smoke_full"
+
+[paradigm.bc]
+n_epochs = 100                # smoke=1 epoch → 100 (state.step counter = epoch)
+
+[checkpoint]
+save_every = 30               # 100 epoch / 30 = ≥ 3 ckpts
+keep_last_n = 5

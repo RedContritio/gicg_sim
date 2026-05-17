@@ -1,0 +1,40 @@
+id: 500436
+name: 苇海信标
+parent_class: action
+sub_class: 装备牌
+tags:
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+attr:
+  类型:
+  - 装备牌
+  标签:
+  - 武器
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色造成的伤害+1。
+
+  角色使用「元素战技」后：本回合内，角色下次造成的伤害额外+1。（每回合1次）
+
+  角色受到伤害后：本回合内，角色下次造成的伤害额外+1。（每回合1次）
+
+  （「双手剑」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/18/258999284/bcc66ffd5b7bea190c27be86d18d1fa6_5357191741241434640.png
+weapon_type: 双手剑
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/18/258999284/4148c247b2685dfcb305cc9b6c5e8cff_6450004800527281410.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/18/258999284/646c78cca3250fa413b2cc340d0e8b01_4575333207812344930.gif
+flavor_text: '沙海守望·苇海信标
+
+  「在挖掘出过往处决犯行者的王器的水池废墟之上，失去了沙之梦，又不愿放弃沙海的人们聚集于此。」
+
+  「以从未存在的苇海为名，与曾经应许的梦相回响…」'

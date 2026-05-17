@@ -1,0 +1,63 @@
+# DMC Phase 3.4 smoke — new unified pipeline cfg schema (P3-B).
+#
+# Equivalent in intent to configs/dmc_stage3_smoke.toml but routed
+# through `tools/run.py → core.pipeline.run_pipeline → DMCParadigm`.
+# Old cfg + tools/dmc_train.py kept as fallback (dual-path until P5 mv).
+#
+# Target: ~5-10 min on Mac CPU, loss ↓ + non-zero WP vs F1-D2.
+
+[meta]
+seed = 42
+paradigm = "dmc"
+run_label = "dmc_stage3_smoke_v2"
+device = "cpu"
+
+[pipeline]
+mode = "serial"          # P3-B: serial; async mp lands in P4
+num_actors = 1
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["墨客"]
+card_pool = ["测试卡_增幅", "测试卡_碎片"]
+team_size = 1
+max_rounds = 10
+obs_mask = ["enemy_dice"]
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy", "test_basic"]
+data_dir = "data"
+
+[paradigm]
+# Reduced for smoke (~5 min wall on Mac CPU).
+total_frames = 5000
+batch_size = 16
+buffer_cap = 5000
+epsilon = 0.05
+gamma = 1.0
+lr = 1e-4
+weight_decay = 0.0
+max_grad_norm = 5.0
+max_game_steps = 400
+train_ratio = 4
+eval_interval_episodes = 30
+eval_n_scenarios = 8
+eval_baselines = ["F1-D2"]
+
+[paradigm.agent]
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+# n_counter_slots / n_hooks / max_tokens_per_hook / max_actions use the
+# DMCParadigmConfig defaults (match legacy AgentConfig smoke prods).
+
+[paradigm.opponent_mix]
+random = 0.40
+f1d2 = 0.30
+f1d4 = 0.00
+historical = 0.30
+ring_size = 5
+
+[checkpoint]
+save_every = 2500      # 2 ckpt over 5000-frame smoke
+keep_last_n = 3
+artifacts_root = "artifacts"

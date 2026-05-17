@@ -1,0 +1,41 @@
+id: 5478
+name: 烤蘑菇披萨
+parent_class: action
+sub_class: 事件牌
+tags:
+- 料理
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 料理
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '治疗目标角色1点，两回合内结束阶段再治疗此角色1点。
+
+  (每回合每个角色最多食用1次「料理」)'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/8c5a4f348a3a8017500c15e9cd0c5c15_1281478861223429825.png
+variants:
+- mode: 标准
+  effect_text: '治疗目标角色1点，两回合内结束阶段再治疗此角色1点。
+
+    (每回合每个角色最多食用1次「料理」)'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/915af5fee026a95d6001559c3a1737ff_7314618671408359619.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/14fe37fbadeaf8f4a4bbffd7721b288d_7763542231435440590.gif
+jiqiao: true
+flavor_text: '烤蘑菇披萨
+
+  据说有学者曾通过精密计算，研究出披萨的「最公平切法」，但由于太麻烦，根本没有人使用···'

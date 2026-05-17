@@ -1,0 +1,57 @@
+id: 505693
+name: 饕噬尽吞
+parent_class: action
+desc: 饕噬尽吞卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '1'
+cost:
+  草: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/840ad57e6a3de504c1a18dd0511e172b_3023014152118276356.png
+header_img_url: ''
+version: '1753841917'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 2
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><span><strong><span style="color: rgb(0, 0, 0)"><u>快速行动</u></span></strong></span><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;快速行动：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;执行了一次快速行动后，我方可以继续进行其他行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;只有执行了一次战斗行动后，才会轮到对方行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：装备给我方的</span><strong>贪食匿叶龙山王</strong><span style="color: rgb(0, 0,
+  0)">，敌方抓1张牌，然后我方窃取1张原本元素骰费用最高的对方手牌。<br></span><strong><span style="color: rgb(0,
+  0, 0)">我方打出名称不存在于本局最初牌组的牌时：</span></strong><span style="color: rgb(0, 0, 0)">触发贪食之王1次。（每回合1次）<br>（牌组中包含</span>贪食匿叶龙山王<span
+  style="color: rgb(0, 0, 0)">，才能加入牌组）</span></p>'
+effect_text: '快速行动快速行动：
+
+  执行了一次快速行动后，我方可以继续进行其他行动。
+
+  只有执行了一次战斗行动后，才会轮到对方行动。" class="wiki-note-text">：装备给我方的贪食匿叶龙山王，敌方抓1张牌，然后我方窃取1张原本元素骰费用最高的对方手牌。
+
+  我方打出名称不存在于本局最初牌组的牌时：触发贪食之王1次。（每回合1次）
+
+  （牌组中包含贪食匿叶龙山王，才能加入牌组）'
+term_refs:
+- 快速行动
+terms:
+  快速行动: 执行了一次快速行动后，我方可以继续进行其他行动。只有执行了一次战斗行动后，才会轮到对方行动。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/e915ac0c0582312eb32eedb810dd4d28_1580442652222601489.png
+requires_char: 贪食匿叶龙山王
+deck_constraint: 牌组中包含贪食匿叶龙山王，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/07/28/258999284/840ad57e6a3de504c1a18dd0511e172b_8571717521108052350.png
+flavor_html: <p><strong>贪食匿叶龙山王·饕噬尽吞</strong></p><p>「有部族人认为，它有着现在这样的体态，是与绒翼龙的『暴君』一般，拥有着特殊的体质…但也许只是因为它活得太长，而吃得也实在太多了的缘故。」</p>
+flavor_text: '贪食匿叶龙山王·饕噬尽吞
+
+  「有部族人认为，它有着现在这样的体态，是与绒翼龙的『暴君』一般，拥有着特殊的体质…但也许只是因为它活得太长，而吃得也实在太多了的缘故。」'
+_raw_path: data/raw/action/505693_饕噬尽吞.json

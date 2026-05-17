@@ -1,0 +1,37 @@
+id: 5485
+name: 神宝迁宫祝词
+parent_class: action
+desc: 神宝迁宫祝词
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '0'
+cost:
+  同色: 0
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/a67aefe7f7473b2bc9f602917bad9c5f_6329604065139808609.png
+header_img_url: ''
+version: '1695916320'
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p>将一个装备在我方角色的「圣遗物」装备牌，转移给另一个我方角色，并重置其效果的「每回合」次数限制。</p>
+effect_text: 将一个装备在我方角色的「圣遗物」装备牌，转移给另一个我方角色，并重置其效果的「每回合」次数限制。
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/28/12109492/7a8c85830ce44927460008304d7f73ed_2579848960549568186.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/a67aefe7f7473b2bc9f602917bad9c5f_8524016633139982064.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/f66f1b328eae5b9ceb0d7f8c4ed2a7a2_972421057077742071.gif
+flavor_html: <p><strong>神宝迁宫</strong></p><p>「呵呵···这下总该变得有意思起来了吧？」</p>
+flavor_text: '神宝迁宫
+
+  「呵呵···这下总该变得有意思起来了吧？」'
+_raw_path: data/raw/action/5485_神宝迁宫祝词.json

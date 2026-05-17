@@ -1,0 +1,171 @@
+id: 5357
+name: 柯莱
+title: 萃念初蘖·柯莱
+parent_class: character
+desc: 柯莱卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/cca275e9c7e6fa6cf61c5e1d6768db9d_3947546790342705142.png
+header_img_url: ''
+version: '1768356715'
+attr:
+  元素:
+  - 草元素
+  武器:
+  - 弓
+  阵营: &id001
+  - 须弥
+  充能:
+  - 2点
+  获取方式:
+  - 角色邀请·友好对局
+element: 草
+weapon: 弓
+faction: *id001
+hp: 11
+energy: 2
+acquire: 角色邀请·友好对局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/cca275e9c7e6fa6cf61c5e1d6768db9d_4064677380613373250.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/147bff33ed0087e51d89c02f3398413d_7320943249614776900.gif
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 祈颂射艺
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    草: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/949d07ba4f72b33b739fb0ed413a7fa2_8973341437030448429.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 拂花偈叶
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/1bfdd645a02ea655cf3d4fa34d468a36_6197207334476477244.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82,
+    196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化：&lt;/strong&gt;本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。
+  term_refs:
+  - 草元素伤害
+- name: 猫猫秘宝
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 2
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    草: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/0b58649d9870ae67b3e956820f164d6f_5553345163926201274.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82,
+    196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化：&lt;/strong&gt;本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>柯里安巴</em></strong>。</p>'
+  effect_text: 造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">，召唤柯里安巴。
+  term_refs:
+  - 草元素伤害
+  energy_req: 2
+summons:
+- name: 柯里安巴
+  type: 召唤物
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/4562f5108720b7a6048440a1b86c963d_9140007412773415051.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p>结束阶段：造成2点<strong><span style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82,
+    196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着草元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放：&lt;/strong&gt;本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化：&lt;/strong&gt;本伤害+1，生成使下2次草/雷伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：2</p>'
+  effect_text: 结束阶段：造成2点草元素伤害草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草/雷伤害+1的[激化领域]"
+    class="wiki-note-text">。可用次数：2
+  term_refs:
+  - 草元素伤害
+  - 可用次数
+talent:
+  name: 飞叶迴斜
+  type: 装备牌
+  raw_life: 4
+  raw_life_bg: 2
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    草: 4
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/498477350c3824e043ea0a13c8dc19a3_1976703927938848643.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>柯莱</strong>时，装备此牌。</p><p>柯莱装备此牌后，立刻使用一次<strong><u>拂花偈叶</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;拂花偈叶：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(82, 196, 26)&quot;&gt;&lt;u&gt;草元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的柯莱使用了<strong>拂花偈叶</strong>的回合中，我方角色的技能引发<strong><span
+    style="color: rgb(82, 196, 26)"><u>草元素相关反应</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素相关反应&lt;/span&gt;&lt;/strong&gt;：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;绽放&lt;/strong&gt;：本伤害+1，生成使下次火/雷伤害＋2的[&lt;strong&gt;草原核&lt;/strong&gt;]&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;&lt;p&gt;&lt;strong&gt;原激化&lt;/strong&gt;：本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;strong&gt;激化领域&lt;/strong&gt;]&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>后：造成1点<strong><span
+    style="color: rgb(82, 196, 26)"><u>草元素伤害</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(82, 196, 26)&quot;&gt;草元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着草元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;绽放：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下次火元素或雷元素伤害＋2的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;草原核&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;原激化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成使下2次草元素或雷元素伤害+1的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;激化领域&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（每回合1次）</p><p>（牌组中包含柯莱，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为柯莱时，装备此牌。
+
+    柯莱装备此牌后，立刻使用一次拂花偈叶草元素伤害。
+
+    草元素伤害：
+
+    附着草元素，可发生元素反应：
+
+    绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+
+    原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]" class="wiki-note-text">。
+
+    装备有此牌的柯莱使用了拂花偈叶的回合中，我方角色的技能引发草元素相关反应草元素相关反应：
+
+    绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+
+    原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]" class="wiki-note-text">后：造成1点草元素伤害草元素伤害：
+
+    附着草元素，可发生元素反应：
+
+    绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+
+    原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]" class="wiki-note-text">。（每回合1次）
+
+    （牌组中包含柯莱，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 拂花偈叶
+  - 草元素相关反应
+  - 草元素伤害
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含柯莱，才能加入牌组
+flavor_html: '<p style="white-space: pre-wrap;"><strong>萃念初蘖·柯莱</strong></p><p style="white-space:
+  pre-wrap;">「大声喊出卡牌的名字会让它威力加倍…这一定是虚构的吧?」</p>'
+flavor_text: '萃念初蘖·柯莱
+
+  「大声喊出卡牌的名字会让它威力加倍…这一定是虚构的吧?」'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  草元素伤害: 附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  拂花偈叶: 元素战技造成3点草元素伤害。草元素伤害：附着草元素，可发生元素反应：绽放：本伤害+1，生成使下次火元素或雷元素伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+  草元素相关反应: 绽放：本伤害+1，生成使下次火/雷伤害＋2的[草原核]燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）原激化：本伤害+1，生成使下2次草元素或雷元素伤害+1的[激化领域]
+_raw_path: data/raw/character/5357_柯莱.json

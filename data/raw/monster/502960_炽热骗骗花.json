@@ -1,0 +1,131 @@
+{
+  "id": "502960",
+  "name": "炽热骗骗花",
+  "desc": "炽热骗骗花卡牌",
+  "icon_url": "https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/db250b92535f34060c12fb78dc07946a_566576568900866188.png",
+  "header_img_url": "",
+  "modules": [
+    {
+      "name": "基础信息",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_base_info",
+          "layout": "",
+          "data": "{\"moduleName\":\"基础信息\",\"layout_\":\"left\",\"name\":\"炽热骗骗花\",\"common_img\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/db250b92535f34060c12fb78dc07946a_8673079310135534413.png\",\"gold_img\":\"\",\"life\":10,\"life_bg\":11,\"energy\":0,\"energy_bg\":0,\"attr\":[{\"key\":\"元素：\",\"value\":[\"火元素\"]},{\"key\":\"武器：\",\"value\":[\"其他武器\"]},{\"key\":\"阵营：\",\"value\":[\"魔物\"]},{\"key\":\"充能：\",\"value\":[\"3点\"]},{\"key\":\"获取方式：\",\"value\":[\"无\"]}],\"repeated\":false}",
+          "style": ""
+        }
+      ],
+      "id": "2808",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": false,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    },
+    {
+      "name": "卡牌技能",
+      "is_poped": false,
+      "components": [
+        {
+          "component_id": "card_skill",
+          "layout": "",
+          "data": "{\"moduleName\":\"卡牌技能\",\"layout_\":\"right\",\"list\":[{\"tab_name\":\"头槌猛击\",\"skill_type\":\"普通攻击\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/03e9e5156cb9ba4e033d60fd5541a6b5_7649861360558665075.jpg\",\"life\":1,\"life_bg\":4,\"energy\":2,\"energy_bg\":10,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成2点<strong><u>物理伤害</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917631352_0\"},{\"tab_name\":\"炽热花叶\",\"skill_type\":\"元素战技\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/e0412f0215070a228aaa19161cb1daa0_7270562090438771379.png\",\"life\":3,\"life_bg\":4,\"energy\":0,\"energy_bg\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成3点<strong><span style=\\\"color: rgb(207, 19, 34)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>火元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着火元素，可发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>蒸发</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917634542_1\"},{\"tab_name\":\"炙蜜爆发\",\"skill_type\":\"元素爆发\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/750d742e8919ad72b449da650fbd0fb1_1976267484287807961.png\",\"life\":3,\"life_bg\":4,\"energy\":3,\"energy_bg\":8,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p>造成7点<strong><span style=\\\"color: rgb(207, 19, 34)\\\"><u>火元素伤害</u></span></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>火元素伤害：</p><p style=&quot;white-space: pre-wrap;&quot;>附着火元素，可发生元素反应：</p><p style=&quot;white-space: pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>蒸发</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1703917635167_2\"},{\"tab_name\":\"精妙伪装\",\"skill_type\":\"被动技能\",\"icon\":\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/e6c78a8a0d95681970e262b6bd449c60_1016377764101036720.png\",\"energy\":0,\"desc\":{\"key\":\"技能效果\",\"value\":[\"<p><strong>回合开始时：</strong>对方需从3张随机牌中挑选1张牌，如果选到了骗骗花的伪装，则骗骗花获得1点<strong><u>充能</u></strong><span data-type=\\\"详情\\\" data-name=\\\"<p style=&quot;white-space: pre-wrap;&quot;>充能：</p><p style=&quot;white-space: pre-wrap;&quot;>角色使用「元素爆发」时，需要消耗充能。</p><p style=&quot;white-space: pre-wrap;&quot;>角色使用「元素战技」或「普通攻击」后，会获得1点充能。</p>\\\" class=\\\"wiki-note-text\\\"><sup class=\\\"wiki-sup\\\">[详情]</sup></span>。</p>\"]},\"tab_id\":\"1728617066058_3\"}],\"repeated\":true}",
+          "style": ""
+        }
+      ],
+      "id": "2809",
+      "is_customize_name": true,
+      "is_abstract": false,
+      "is_show_switch": false,
+      "switch": false,
+      "desc": "",
+      "repeated": true,
+      "is_submodule": false,
+      "origin_module_id": "0",
+      "without_border": false,
+      "can_delete": false,
+      "is_hidden": false,
+      "rich_text_editing": false
+    }
+  ],
+  "filter_values": {},
+  "menu_id": "0",
+  "menu_name": "",
+  "version": "1728635660",
+  "langs": [],
+  "template_layout": {
+    "tab": [
+      {
+        "tab_id": "260",
+        "tab_name": "页签1",
+        "module_group": [
+          {
+            "module_group_id": "1193",
+            "layout": "l1r1",
+            "module": [
+              {
+                "id": "2808",
+                "pos": "left"
+              },
+              {
+                "id": "2809",
+                "pos": "right"
+              }
+            ],
+            "name": "",
+            "repeated": true,
+            "parent_group_id": "0"
+          }
+        ]
+      }
+    ]
+  },
+  "edit_lock_status": "Unlock",
+  "correct_lock_status": "Unlock",
+  "menus": [
+    {
+      "id": "235",
+      "name": "魔物牌",
+      "has_page": false,
+      "style": "",
+      "sub_menus": [],
+      "icon": "",
+      "mi18n_key": "魔物牌",
+      "is_hidden": false,
+      "parent_id": "231",
+      "template_id": "",
+      "bg_img": "",
+      "ch_ext": "[{\"type\":\"text\",\"attribute_name\":\"每行个数\",\"attribute_key\":\"col_per_row\",\"value\":\"2\"},{\"type\":\"text\",\"attribute_name\":\"展示样式\",\"attribute_key\":\"display_type\",\"value\":\"cardFilter\"},{\"type\":\"text\",\"attribute_name\":\"频道icon\",\"attribute_key\":\"icon_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"跳转链接\",\"attribute_key\":\"jump_url\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc\",\"attribute_key\":\"icon_url_pc\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"频道icon-pc-hover\",\"attribute_key\":\"icon_url_pc_hover\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"筛选器\",\"attribute_key\":\"filter\",\"value\":\"[]\"},{\"type\":\"text\",\"attribute_name\":\"首页更多\",\"attribute_key\":\"home_more\",\"value\":\"/ys/obc/channel/map/231/235?bbs_presentation_style=no_header\"},{\"type\":\"text\",\"attribute_name\":\"在目录中展示\",\"attribute_key\":\"show_in_catalog\",\"value\":\"\"},{\"type\":\"text\",\"attribute_name\":\"最新词条\",\"attribute_key\":\"is_latest\",\"value\":\"0\"},{\"type\":\"text\",\"attribute_name\":\"更多入口icon\",\"attribute_key\":\"king_kong_icon\",\"value\":\"\"}]",
+      "updated_at": "-62135596800"
+    }
+  ],
+  "template_id": "6606158d5d00f11619ee4ec9",
+  "ext": {
+    "fe_ext": "{\"c_235\":{\"costBgIcon\":{\"allow_file_type\":[],\"list\":[\"https://act-upload.mihoyo.com/wiki-user-upload/2024/10/11/183046623/de066277f1f3120586b5e9c93c7fdb59_8267786140225952522.png\"],\"max_file_size\":10,\"picture_num\":1},\"energyBgIcon\":{\"allow_file_type\":[],\"list\":[],\"max_file_size\":10,\"picture_num\":1}}}",
+    "post_ext": {
+      "post_id": "",
+      "post_user_name": "",
+      "post_time": "0",
+      "post_avatar_url": "",
+      "url": ""
+    },
+    "server_ext": "",
+    "personalized_color": "",
+    "scrolling_text": "",
+    "corner_mark": "None"
+  },
+  "alias_name": "",
+  "lang": "",
+  "beta": false,
+  "page_type": "Default",
+  "menu_style": "",
+  "status": "Online"
+}

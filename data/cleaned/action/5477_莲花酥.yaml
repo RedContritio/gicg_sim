@@ -1,0 +1,42 @@
+id: 5477
+name: 莲花酥
+parent_class: action
+sub_class: 事件牌
+tags:
+- 料理
+cost_text: '1'
+cost:
+  同色: 1
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 料理
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '本回合中，目标角色下次受到的伤害-3。
+
+  (每回合中每个角色最多食用1次「料理」)'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/8c5a4f348a3a8017500c15e9cd0c5c15_4177608079467920792.png
+duration: 持续本回合
+variants:
+- mode: 标准
+  effect_text: '本回合中，目标角色下次受到的伤害-3。
+
+    (每回合中每个角色最多食用1次「料理」)'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/79683714/3df4388cf37da743d62547874329e020_2796890620079557811.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/79683714/8c6f293d54b53ccd02728f07ab32ba1a_1483515287380821346.gif
+jiqiao: true
+flavor_text: '莲花酥
+
+  面团做成的花骨朵儿，放入宛若湖面一般的油锅中，花瓣便一层一层地绽放开来，真是赏心悦目。'

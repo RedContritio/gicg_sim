@@ -1,0 +1,50 @@
+id: 5460
+name: 璃月港口
+parent_class: action
+sub_class: 支援牌
+tags:
+- 场地
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 场地
+  获取:
+  - 卡牌商店购买、完成挑战目标
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '结束阶段：抓2张牌。
+
+  可用次数此牌效果触发后，会消耗1次可用次数；
+
+  可用次数耗尽后，立刻弃置此牌。
+
+  " class="wiki-note-text">：2'
+term_refs: []
+terms:
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/30/158741257/9e7207494a4fdb10df19179ec836623b_3268541664488199907.png
+variants:
+- mode: 标准
+  effect_text: '结束阶段：抓2张牌。
+
+    可用次数此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。
+
+    " class="wiki-note-text">：2'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/c9f669c64195790d3ca31ee6559360ab_4991171678622913752.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/11/30/158741257/951fda11afb4b1290a62d167f5c095e6_7235981806342506159.gif
+jiqiao: true
+flavor_text: '千帆络绎之港
+
+  「风雨犹祝，山海同欢，是承天地之佑。」'

@@ -1,0 +1,32 @@
+# Tiny AZ smoke that exercises the init_from_ckpt path.
+# 2 games + small budget — confirms BC ckpt loads without ELF/state_dict
+# mismatch and self-play doesn't crash on the first MCTS step.
+
+base = "fixed_1v1"
+run_label = "smoke_az_init_from_bc"
+seed = 42
+
+n_games = 2
+batch_size = 16
+games_per_arena = 100  # > n_games so no arena trigger
+games_per_gauntlet = 0  # skip gauntlet
+n_workers = 1
+min_buffer_before_train = 1
+train_steps_per_game = 0  # don't train; we only want load + 1 selfplay round
+
+init_from_ckpt = "artifacts/202604270112_smoke_bc_pretrain/final.pt"
+
+[scenario]
+team_0 = ["测试角色D"]
+team_1 = ["测试角色D"]
+card_pool = ["测试卡_碎片"]
+max_rounds = 3
+obs_mask = ["enemy_dice"]
+
+[mcts]
+n_rollouts = 20
+parallel_rollouts = 1
+backend = "python"
+
+[meta]
+paradigm = "az"

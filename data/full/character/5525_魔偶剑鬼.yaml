@@ -1,0 +1,206 @@
+id: 5525
+name: 魔偶剑鬼
+title: 万般机巧·魔偶剑鬼
+parent_class: character
+desc: 魔偶剑鬼卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/5b21d3abb8dd7245a8f5f540d8049fcb_8786428691685397533.png
+header_img_url: ''
+version: '1768356303'
+attr:
+  元素:
+  - 风元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 3点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 风
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 3
+acquire: 酒馆挑战·友好对局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/5b21d3abb8dd7245a8f5f540d8049fcb_59481287402207724.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/28d90f4c270108629ee2418b9436c49b_5812254214682022054.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/11/24/195563531/de066277f1f3120586b5e9c93c7fdb59_3022382599163958750.png
+skills:
+- name: 一文字
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 3
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    风: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/726f23517c8595c477dd65c987b42482_8078755335487165194.png
+  effect_html: <p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;物理伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>
+  effect_text: 造成2点物理伤害。
+  term_refs:
+  - 物理伤害
+- name: 孤风刀势
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/a72086131fbe3e03201926a46dac48f3_7155522304163694322.png
+  effect_html: <p>召唤<strong><em>剑影·孤风</em></strong>。</p>
+  effect_text: 召唤剑影·孤风。
+  term_refs: []
+- name: 霜驰影突
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 1
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    冰: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/6df8766388e62c6a97f9898605fb45e2_6047730151662669218.png
+  effect_html: <p>召唤<strong><em>剑影·霜驰</em></strong>。</p><p></p>
+  effect_text: 召唤剑影·霜驰。
+  term_refs: []
+- name: 机巧伪天狗抄
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 3
+  raw_energy_bg: 8
+  cost:
+    风: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/11/27/12109492/75142675f9625abbe1d9686f1a7f59b7_6144574132276306286.png
+  effect_html: '<p>造成4点<strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(54,
+    207, 201)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（冰）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（水）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（火）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（雷）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，触发我方所有<strong>剑影</strong>召唤物的效果。（不消耗其可用次数）</p>'
+  effect_text: 造成4点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害"
+    class="wiki-note-text">，触发我方所有剑影召唤物的效果。（不消耗其可用次数）
+  term_refs:
+  - 风元素伤害
+  energy_req: 3
+summons:
+- name: 剑影·孤风
+  type: 召唤物
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/90767acfd11dc25ae46a333557b3ee2a_4658043205818200753.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p>结束阶段：造成1点<strong><span style="color: rgb(54, 207, 201)"><u>风元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(54,
+    207, 201)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;和已附着的元素发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（冰）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（水）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（火）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;扩散（雷）：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此牌效果触发后，会消耗1次&lt;/span&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;；&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;耗尽后，立刻弃置此牌。&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：2</p>'
+  effect_text: 结束阶段：造成1点风元素伤害风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害"
+    class="wiki-note-text">。可用次数：2
+  term_refs:
+  - 风元素伤害
+  - 可用次数
+- name: 剑影·霜驰
+  type: 召唤物
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/12109492/3f77ab65d8d940df9b3cf70d96ae0b25_8204101439924542003.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p>结束阶段：造成1点<strong><span style="color: rgb(145, 213, 255)"><u>冰元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(145,
+    213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着冰元素，可发生元素反应:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超导：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;冻结：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：2</p>'
+  effect_text: 结束阶段：造成1点冰元素伤害冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）"
+    class="wiki-note-text">。可用次数：2
+  term_refs:
+  - 冰元素伤害
+  - 可用次数
+talent:
+  name: 机巧神通
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 3
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    风: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/22/258999284/29356bd9bc7cbd8bf4843d6725cb8af6_5633111107187874625.png
+  effect_html: '<p><strong><u>战斗行动</u></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>：我方出战角色为<strong>魔偶剑鬼</strong>时，装备此牌。</p><p>魔偶剑鬼装备此牌后，立刻使用一次<strong><span
+    style="color: rgb(212, 177, 6)"><u>孤风刀势</u></span></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;孤风刀势：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;召唤&lt;strong&gt;&lt;em&gt;剑影·孤风&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;剑影·孤风&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;造成1点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(54, 207, 201)&quot;&gt;&lt;u&gt;风元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(54, 207, 201)&quot;&gt;风元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;扩散（冰）：&lt;/strong&gt;对目标以外的所有敌方角色造成1点冰元素伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;扩散（水）：&lt;/strong&gt;对目标以外的所有敌方角色造成1点水元素伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;扩散（火）：&lt;/strong&gt;对目标以外的所有敌方角色造成1点火元素伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;扩散（雷）：&lt;/strong&gt;对目标以外的所有敌方角色造成1点雷元素伤害&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的魔偶剑鬼施放<strong>孤风刀势</strong>后，我方切换到后一个角色；施放<strong><u>霜驰影突</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;霜驰影突：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;召唤&lt;strong&gt;&lt;em&gt;剑影·霜驰&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;剑影·霜驰&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结束阶段：&lt;/strong&gt;造成1点&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;&lt;u&gt;冰元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;u&gt;可用次数&lt;/u&gt;：2&lt;/strong&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着冰元素，可发生元素反应:&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超导：&lt;/strong&gt;本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害&lt;/p&gt;&lt;p&gt;&lt;strong&gt;冻结：&lt;/strong&gt;本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>后，我方切换到前一个角色。</p><p>（牌组中包含魔偶剑鬼，才能加入牌组）</p>'
+  effect_text: '战斗行动：我方出战角色为魔偶剑鬼时，装备此牌。
+
+    魔偶剑鬼装备此牌后，立刻使用一次孤风刀势风元素伤害。
+
+    可用次数：2
+
+    风元素伤害：
+
+    和已附着的元素发生元素反应：
+
+    扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害
+
+    扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害
+
+    扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害
+
+    扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">。
+
+    装备有此牌的魔偶剑鬼施放孤风刀势后，我方切换到后一个角色；施放霜驰影突冰元素伤害。
+
+    可用次数：2
+
+    冰元素伤害：
+
+    附着冰元素，可发生元素反应:
+
+    融化：本伤害+2
+
+    超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害
+
+    冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+
+    可用次数：
+
+    此牌效果触发后，会消耗1次可用次数；
+
+    可用次数耗尽后，立刻弃置此牌。" class="wiki-note-text">后，我方切换到前一个角色。
+
+    （牌组中包含魔偶剑鬼，才能加入牌组）'
+  term_refs:
+  - 战斗行动
+  - 孤风刀势
+  - 霜驰影突
+  sub_type: 战斗行动
+  deck_constraint: 牌组中包含魔偶剑鬼，才能加入牌组
+flavor_html: '<p style="white-space: pre-wrap;"><strong>万般机巧·魔偶剑鬼</strong></p><p style="white-space:
+  pre-wrap;">今日，其仍徘徊在因缘断绝之地。</p>'
+flavor_text: '万般机巧·魔偶剑鬼
+
+  今日，其仍徘徊在因缘断绝之地。'
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  风元素伤害: 和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  冰元素伤害: 附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  孤风刀势: 元素战技召唤剑影·孤风。剑影·孤风结束阶段：造成1点风元素伤害。可用次数：2风元素伤害：和已附着的元素发生元素反应：扩散（冰）：对目标以外的所有敌方角色造成1点冰元素伤害扩散（水）：对目标以外的所有敌方角色造成1点水元素伤害扩散（火）：对目标以外的所有敌方角色造成1点火元素伤害扩散（雷）：对目标以外的所有敌方角色造成1点雷元素伤害可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  霜驰影突: 元素战技召唤剑影·霜驰。剑影·霜驰结束阶段：造成1点冰元素伤害。可用次数：2冰元素伤害：附着冰元素，可发生元素反应:融化：本伤害+2超导：本伤害+1，对目标以外的所有敌方角色造成1点穿透伤害冻结：本伤害+1，使目标本回合无法行动（受到物理或火元素伤害后提前解除，但是伤害+2）可用次数：此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+_raw_path: data/raw/character/5525_魔偶剑鬼.json

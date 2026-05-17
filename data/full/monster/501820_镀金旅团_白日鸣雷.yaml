@@ -1,0 +1,105 @@
+id: 501820
+name: 镀金旅团·白日鸣雷
+title: 镀金旅团·白日鸣雷
+parent_class: monster
+desc: 镀金旅团·白日鸣雷魔物牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/22/288180982/9757abd40a565a7fb9a6617be560ae88_2824103642124392139.png
+header_img_url: ''
+version: '1724340602'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 镀金旅团
+  充能:
+  - '2'
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction: *id001
+hp: 8
+energy: 2
+acquire: 无
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/15/183046623/9757abd40a565a7fb9a6617be560ae88_7974279887763817619.PNG
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/0464df5cfa4f36ec5539e826ce5b1108_6403283966253781649.png
+skills:
+- name: 战斧挥击
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/a94ec4a1d2734feca4bdd106c5c31615_3737554613198996137.png
+  effect_html: '<p>造成2点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 蓄势旋斩
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/01/07/183046623/cd2a93cd7451e78016ddc6cef3b35195_9154364474899146478.png
+  effect_html: '<p>造成3点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 重斧轰破
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/15/183046623/c648694ce25671b811f8040a41bba720_1201422559648829048.png
+  effect_html: '<p>造成5点<strong><u>物理伤害</u></strong><span data-type="详情" data-name="<p
+    style=&quot;white-space: pre-wrap;&quot;>物理伤害：</p><p style=&quot;white-space:
+    pre-wrap;&quot;>物理伤害不会附着元素，也不会发生元素反应。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成5点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+  energy_req: 2
+- name: 厄灵解放·雷
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2024/08/15/183046623/60fcdc212c3057f2134c96e6fe871fbf_3315787622559522843.png
+  effect_html: '<p>【被动】<strong>此角色受到伤害后：</strong>如果此角色生命值不多于7，则获得1点<strong><u>充能</u></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>充能：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>角色使用「元素爆发」时，需要消耗充能。</p><p style=&quot;white-space:
+    pre-wrap;&quot;>角色使用「元素战技」或「普通攻击」后，会获得1点充能。</p>" class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>并附属<strong><u>厄灵苏醒·雷</u></strong><span
+    data-type="详情" data-name="<p>厄灵苏醒·雷：</p><p>状态</p><p>角色<strong>造成的伤害+1</strong>，且造成的<strong>物理伤害</strong>变为<strong><span
+    style=&quot;color: rgb(146, 84, 222)&quot;>雷元素伤害</span></strong>。</p><p>此角色受到的<strong><span
+    style=&quot;color: rgb(146, 84, 222)&quot;>雷元素伤害</span></strong>+2。</p><p><strong>持续回合：2</strong></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。（整场牌局限制1次）</p>'
+  effect_text: 【被动】此角色受到伤害后：如果此角色生命值不多于7，则获得1点充能充能：角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。"
+    class="wiki-note-text">并附属厄灵苏醒·雷雷元素伤害。此角色受到的雷元素伤害+2。持续回合：2" class="wiki-note-text">。（整场牌局限制1次）
+  term_refs:
+  - 充能
+  - 厄灵苏醒·雷
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  充能: 角色使用「元素爆发」时，需要消耗充能。角色使用「元素战技」或「普通攻击」后，会获得1点充能。
+  厄灵苏醒·雷: 状态角色造成的伤害+1，且造成的物理伤害变为雷元素伤害。此角色受到的雷元素伤害+2。持续回合：2
+_raw_path: data/raw/monster/501820_镀金旅团_白日鸣雷.json

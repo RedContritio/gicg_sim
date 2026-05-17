@@ -1,0 +1,71 @@
+# AZ smoke cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
+#
+# Minimum viable cfg (~5min Mac CPU wall) for `tools/run.py` pipeline
+# alive verify. NOT for production runs.
+#
+# Hybrid TOML structure (N6): [shape] omitted — paradigm.az.agent override
+# pulls from make_az_default_shape() factory (per N6.4 / CC-305), then
+# overrides d_model=32 / n_cross_layers=1 for smoke speed.
+
+[meta]
+seed = 42
+paradigm = "az"
+run_label = "az_smoke"
+device = "cpu"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["赤蝶"]
+team_size = 1
+max_rounds = 5
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy", "test_basic"]
+data_dir = "data"
+
+# [shape] omitted — smoke uses factory default + per-agent override below.
+
+[paradigm.az]
+version = "1.0.0"
+paradigm = "az"
+lr = 1e-3
+weight_decay = 0.0
+batch_size = 8
+buffer_cap = 500
+priority_weight = 3.0
+max_game_steps = 30
+total_games = 2
+train_steps_per_game = 1
+min_buffer_before_train = 4
+
+[paradigm.az.agent]
+# Smoke: d_model=32 / n_cross_layers=1 (overrides factory default 128/2).
+# n_counter_slots / n_hooks / max_tokens_per_hook / max_actions inherit
+# factory defaults (1832 / 900 / 120 / 2048) per CC-208.
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+
+[paradigm.az.mcts]
+n_rollouts = 8
+c_puct = 1.4
+dirichlet_alpha = 0.3
+dirichlet_eps = 0.25
+temperature = 1.0
+temperature_switch_step = 15
+max_rollout_depth = 30
+backend = "python"
+profile = false
+
+[paradigm.az.train]
+l2_coef = 1e-4
+max_grad_norm = 1.0
+value_target_source = "z"
+
+[checkpoint]
+save_every = 100
+keep_last_n = 1
+artifacts_root = "artifacts"

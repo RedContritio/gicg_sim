@@ -1,0 +1,69 @@
+id: 508301
+name: 火岩祝佑·重熔
+parent_class: action
+desc: 火岩祝佑·重熔
+sub_class: 支援牌
+tags: &id001
+- 元素幻变
+cost_text: '3'
+cost:
+  岩: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/08/80663279/f85c37d1496ce4df0a802bd4232e6142_5803263852682805633.png
+header_img_url: ''
+version: '1775623679'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 元素幻变：火岩祝佑效果生成
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 7
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<html><head></head><body><p><strong>投掷阶段：</strong>总是投出2个<strong><span
+  style="color: rgb(207, 19, 34)">火元素骰</span></strong>和2个<strong><span style="color:
+  rgb(212, 177, 6)">岩元素骰</span></strong>。</p><p><strong>我方造成<span style="color: rgb(207,
+  19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(207, 19, 34)&#34;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;融化：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;蒸发：&lt;/strong&gt;本伤害+2&lt;/p&gt;&lt;p&gt;&lt;strong&gt;超载：&lt;/strong&gt;本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p&gt;&lt;strong&gt;燃烧：&lt;/strong&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>或<span style="color:
+  rgb(212, 177, 6)"><u>岩元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&#34;color: rgb(212, 177, 6)&#34;&gt;岩元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;和已附着的元素发生元素反应：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（冰）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（水）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（火）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;结晶（雷）&lt;/strong&gt;：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>后：</strong>生成2层<strong>护盾</strong>。（每回合1次）</p></body></html>'
+effect_text: '投掷阶段：总是投出2个火元素骰和2个岩元素骰。
+
+  我方造成火元素伤害火元素伤害：
+
+  附着火元素，可发生元素反应：
+
+  融化：本伤害+2
+
+  蒸发：本伤害+2
+
+  超载：本伤害+2，目标强制切换到下一个角色
+
+  燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）" class="wiki-note-text">或岩元素伤害岩元素伤害
+
+  和已附着的元素发生元素反应：
+
+  结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+  结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+  结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+
+  结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。" class="wiki-note-text">后：生成2层护盾。（每回合1次）'
+term_refs:
+- 火元素伤害
+- 岩元素伤害和已附着的元素发生元素反应
+terms:
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  岩元素伤害: 和已附着的元素发生元素反应：结晶（冰）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（水）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（火）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。结晶（雷）：本伤害+1，我方出战角色获得1点护盾（可叠加，最多2点）。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/08/80663279/71fc6f5fba3de4fef6925cd22d2fdf5b_828824890972949640.png
+generated_by: 元素幻变：火岩祝佑效果生成
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2026/04/08/80663279/b979576ce63b9a960d8700769d1c6906_906928291198687109.png
+flavor_html: <p></p>
+flavor_text: ''
+_raw_path: data/raw/action/508301_火岩祝佑_重熔.json

@@ -1,0 +1,103 @@
+id: 5597
+name: 野伏·火付番
+title: 野伏·火付番
+parent_class: monster
+desc: 野伏·火付番卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/ab067d0349c28010736c388d88ff6d18_9211501547586540158.png
+header_img_url: ''
+version: '1694074779'
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营: []
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 火
+weapon: 其他武器
+faction: []
+hp: 6
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/ab067d0349c28010736c388d88ff6d18_2499729206321361407.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/5d274d7316b4a9b3b6df26a62225993e_8722245116574723246.png
+skills:
+- name: 连续斩
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/03e9e5156cb9ba4e033d60fd5541a6b5_3379984132000007917.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成2点<strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: 焰硝花火
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/dc1f85332f555b330d7c3b2e9bd9a810_7837705305637376203.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成3点<strong><span style="color:rgba(207,19,34,1)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;火元素伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;附着火元素，可发生元素反应：&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;融化&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;蒸发&lt;/strong&gt;：本伤害+2&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;&lt;strong&gt;超载&lt;/strong&gt;：本伤害+2，目标强制切换到下一个角色&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;燃烧&lt;/strong&gt;：本伤害+1，生成回合结束时造成1点火伤害的[&lt;strong&gt;燃烧烈焰&lt;/strong&gt;]（可生效1次，最多叠加到2次）&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，我方切换到下一个角色。</p>'
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">，我方切换到下一个角色。
+  term_refs:
+  - 火元素伤害
+- name: 居合·纳刀
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    同色: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/af3dcfea7767cf43ffa7ff1093f4b3e0_2492504179189308211.jpg
+  effect_html: '<p style="white-space: pre-wrap;">本角色准备技能：<strong><u>居合·前</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;居合·前：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;元素爆发&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;（需准备2个行动轮）&lt;/p&gt;&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;造成6点&lt;strong&gt;物理伤害&lt;/strong&gt;。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 本角色准备技能：居合·前居合·前：元素爆发（需准备2个行动轮）造成6点物理伤害。" class="wiki-note-text">。
+  term_refs:
+  - 居合·前
+  energy_req: 2
+- name: 残心
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/7373e09e249e597408466b8a407954fa_7772403836127004736.jpg
+  effect_html: '<p style="white-space: pre-wrap;">【被动】结束阶段：如果此角色是「出战角色」，就获得1点充能。</p>'
+  effect_text: 【被动】结束阶段：如果此角色是「出战角色」，就获得1点充能。
+  term_refs: []
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  居合·前: 元素爆发（需准备2个行动轮）造成6点物理伤害。
+_raw_path: data/raw/monster/5597_野伏_火付番.json

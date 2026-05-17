@@ -1,0 +1,49 @@
+id: 6612
+name: 天空之刃
+parent_class: action
+sub_class: 装备牌
+tags:
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 武器
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '角色造成的伤害+1。
+
+  每回合1次：角色使用「普通攻击」造成的伤害额外+1。
+
+  （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/03/75720734/bcc66ffd5b7bea190c27be86d18d1fa6_988221122780808871.png
+weapon_type: 单手剑
+variants:
+- mode: 标准
+  effect_text: '角色造成的伤害+1。
+
+    每回合1次：角色使用「普通攻击」造成的伤害额外+1。
+
+    （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/b3a9cd06298bf6dcd9191a88bb754f14_1942460510871818087.png
+jiqiao: true
+flavor_text: '穿刺高天·天空之刃
+
+  贯穿高天之牙。当恶秽的仇敌陨灭，风之龙亦陷入沉眠。
+
+  沉睡百年，蒙德的众生忘却了特瓦林的死战。
+
+  这柄利剑是风龙恢复名誉的祈愿。'

@@ -1,0 +1,70 @@
+id: 506928
+name: 祀珑在昔，灵锦歆诚
+parent_class: action
+desc: 祀珑在昔，灵锦歆诚卡牌
+sub_class: 事件牌
+tags: &id001
+- 其他标签
+cost_text: '1'
+cost:
+  同色: 1
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/19f755738e765cd98343c74654f1cce8_1559925167864042073.png
+header_img_url: ''
+version: '1761109351'
+attr:
+  类型:
+  - 事件牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买获取
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>冒险</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;冒险：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;从冒险地点中&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;挑选&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;1个生成。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">1次。如果我方冒险经历不低于4，则改为对我方「出战角色」造成1点</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>物理伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;物理伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">，</span><strong><span style="color: rgb(0, 0, 0)"><u>冒险</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;冒险：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;从冒险地点中&lt;/span&gt;&lt;strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;挑选&lt;/span&gt;&lt;/strong&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;1个生成。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color:
+  rgb(0, 0, 0)&quot;&gt;如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">2次。</span></p>'
+effect_text: '冒险冒险：
+
+  从冒险地点中挑选1个生成。
+
+  如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。" class="wiki-note-text">1次。如果我方冒险经历不低于4，则改为对我方「出战角色」造成1点物理伤害物理伤害：
+
+  物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">，冒险冒险：
+
+  从冒险地点中挑选1个生成。
+
+  如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。" class="wiki-note-text">2次。'
+term_refs:
+- 冒险
+- 物理伤害
+terms:
+  冒险: 从冒险地点中挑选1个生成。如果我方已存在冒险地点，则改为使该冒险地点的冒险经历+1。
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/8c5a4f348a3a8017500c15e9cd0c5c15_3877978003553812696.png
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/19f755738e765cd98343c74654f1cce8_5038695666985738596.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/19/258999284/7b02be0ac38713999cbfb05498083627_8140110463619330748.gif
+flavor_html: <p><strong>祀珑在昔，灵锦歆诚</strong></p><p>「孩子们在溪流中洗濯拍动的小脚丫，彩虹弧光中欢笑的渔夫，被月光染成银色的幽会恋人…如果你曾注意，如若你曾欣赏过…同样作为这片大地上的生灵，人类的天真，又与我们有多大不同呢？」</p>
+flavor_text: '祀珑在昔，灵锦歆诚
+
+  「孩子们在溪流中洗濯拍动的小脚丫，彩虹弧光中欢笑的渔夫，被月光染成银色的幽会恋人…如果你曾注意，如若你曾欣赏过…同样作为这片大地上的生灵，人类的天真，又与我们有多大不同呢？」'
+_raw_path: data/raw/action/506928_祀珑在昔_灵锦歆诚.json

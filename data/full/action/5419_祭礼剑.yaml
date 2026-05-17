@@ -1,0 +1,57 @@
+id: 5419
+name: 祭礼剑
+parent_class: action
+desc: 祭礼剑
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  同色: 3
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/5dda866add6d4244a69c0ffdd2b53e51_1375735839691106206.png
+header_img_url: ''
+version: '1746758857'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+  pre-wrap;">角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）</p><p style="white-space: pre-wrap;">（「单手剑」角色才能装备。角色最多装备1件「武器」）</p>'
+effect_text: '角色造成的伤害+1。
+
+  角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）
+
+  （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/bcc66ffd5b7bea190c27be86d18d1fa6_8191776552556129558.png
+weapon_type: 单手剑
+variants:
+- mode: 标准
+  effect_html: '<p style="white-space: pre-wrap;">角色造成的伤害+1。</p><p style="white-space:
+    pre-wrap;">角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）</p><p style="white-space: pre-wrap;">（「单手剑」角色才能装备。角色最多装备1件「武器」）</p>'
+  effect_text: '角色造成的伤害+1。
+
+    角色使用「元素战技」后：生成1个此角色类型的元素骰。（每回合1次）
+
+    （「单手剑」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/5dda866add6d4244a69c0ffdd2b53e51_9160756012872920248.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/05/75720734/269e29dbab370c133fc3398ae3b0d34e_3442904441480933128.gif
+jiqiao: true
+flavor_html: '<p style="white-space: pre-wrap;"><strong>气定神闲·祭礼剑</strong></p><p style="white-space:
+  pre-wrap;">经历漫长岁月的道具用剑，在时间之风中变得如钢铁般锋利。</p>'
+flavor_text: '气定神闲·祭礼剑
+
+  经历漫长岁月的道具用剑，在时间之风中变得如钢铁般锋利。'
+_raw_path: data/raw/action/5419_祭礼剑.json

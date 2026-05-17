@@ -1,0 +1,47 @@
+# r009_bc_pretrain_stage3: BC pretrain AZ ActorCritic for Stage 3 1-card.
+#
+# Trains ActorCritic via soft-target CE on F1-D2 teacher's tied set
+# (PPO s016d 同 loss form,broke F1-D2 hard-match ceiling 38.7%).
+# Output: artifacts/<ts>_r009_bc_pretrain_stage3/final.pt — consumed by
+# r009 AZ training via init_from_ckpt.
+
+run_label = "r009_bc_pretrain_stage3"
+dataset_path = "artifacts/202604270026_r009_bc_data_gen_stage3/dataset.npz"
+seed = 0
+
+# ActorCritic arch (must match AZConfig agent for r009 launch).
+# n_counter_slots / n_hooks / max_tokens_per_hook 来自 fixed_1v1_config
+# (training/az/config.py::smoke_config defaults inherited).
+n_counter_slots = 1832  # 2*6*128 + 2*140 + 16 (smoke_config default)
+n_hooks = 900
+max_tokens_per_hook = 120
+max_actions = 128
+d_model = 128
+n_cross_layers = 2
+dropout = 0.1
+
+# BC train hyper.
+#
+# batch_size=256 OOMs on 18 GB VM during forward. HookEncoder reshapes to
+# (B*max_n_active, max_tokens, d_model) = (256*~50, 120, 128) ≈ multiple
+# GB intermediate tensors per layer × 2 transformer layers × backward ≈
+# 14 GB+. batch_size=64 stays safely under 5 GB peak.
+#
+# n_epochs trim from PPO s016d's 60 because AZ transformer is ~8s/batch
+# on CPU; 50k decisions / batch=64 = 781 batches × 8s × 30 epoch ≈ 52h.
+# We're already on the long end; profile real wall on first few epochs
+# and trim if needed.
+#
+# Phase 4 smoke verified that even 2-epoch BC on 2k decisions reaches
+# vs F1-D2 = 0.6875 with this arch, so quality risk from epoch trim is low.
+lr = 1e-4
+batch_size = 64
+n_epochs = 10  # 50k/64=781 batches × 8s = ~1.7h/epoch → 17h total
+value_coef = 0.5
+held_out_frac = 0.1
+
+# CPU; MPS only worth it at d_model >= 256 + batch >= 32 per memory feedback_default_mps
+device = "cpu"
+
+[meta]
+paradigm = "bc"

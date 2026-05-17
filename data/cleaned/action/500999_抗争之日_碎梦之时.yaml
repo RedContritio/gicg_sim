@@ -1,0 +1,34 @@
+id: 500999
+name: 抗争之日·碎梦之时
+parent_class: action
+sub_class: 事件牌
+tags:
+- 秘传
+cost_text: '0'
+cost:
+  同色: 0
+attr:
+  类型:
+  - 事件牌
+  标签:
+  - 秘传
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '0'
+raw_life: 0
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 13
+effect_text: '本回合中，目标我方角色受到的伤害-1。（最多生效4次）
+
+  （整局游戏只能打出一张「秘传」卡牌；这张牌一定在你的起始手牌中）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/7a8c85830ce44927460008304d7f73ed_1113274159103698441.png
+duration: 持续本回合
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/03/06/258999284/035d9f63a863e8ad26cb6ecf62725411_2229767666746467527.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/02/28/258999284/96c2d733d68ad17b19fb2602030cdaed_3461149185760140983.gif
+flavor_text: '抗争之日·碎梦之时
+
+  冲破囚笼之人一路得胜，永远的繁华之梦也随着这座王都土崩瓦解···'

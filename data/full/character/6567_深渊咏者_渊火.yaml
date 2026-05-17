@@ -1,0 +1,185 @@
+id: 6567
+name: 深渊咏者·渊火
+title: 深渊咏者·渊火
+parent_class: character
+desc: 深渊咏者·渊火卡牌
+icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/1e2c28dfe8d5f14a70af6219a888432a_687004061346249064.png
+header_img_url: ''
+version: '1771295496'
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 火
+weapon: 其他武器
+faction: *id001
+hp: 6
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/1e2c28dfe8d5f14a70af6219a888432a_956783985247152270.png
+gold_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/11/27/258999284/a7d10f85d1607d31481a5dd263920fd5_5752869954864069097.gif
+raw_life_bg: 11
+cost_bg_icon_url: https://act-upload.mihoyo.com/ys-obc/2023/05/19/183046623/5d274d7316b4a9b3b6df26a62225993e_2809470443958908188.png
+skills:
+- name: 拯救之焰
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/0f451842885c44779d882c9ced0b9b09_7550073894614825351.jpg
+  effect_html: '<p>造成1点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207,
+    19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 炽烈箴言
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/3090acc4a927cba996b6356f99db87d9_8220742127501145178.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207,
+    19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 天陨预兆
+  type: 元素爆发
+  raw_life: 4
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 4
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/dfa378fb6c635d91b99fcc65edcb0546_1724051858233871114.png
+  effect_html: '<p>造成3点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(207,
+    19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，召唤<strong><em>黯火炉心</em></strong>。</p>'
+  effect_text: 造成3点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">，召唤黯火炉心。
+  term_refs:
+  - 火元素伤害
+  energy_req: 2
+- name: 火之新生
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/16/183046623/24722a3923aa2362a5ecdaa248a3f37b_100670191008092035.png
+  effect_html: '<p>【被动】战斗开始时，初始附属<strong><u>火之新生</u></strong><span data-type="详情"
+    data-name="&lt;p&gt;&lt;strong&gt;火之新生：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;&lt;u&gt;免于被击倒&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;，并治疗该角色到4点生命值。此效果触发后，角色造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;+1。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;免于被击倒：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;一些效果会使角色在生命值被降为0的时候&lt;/span&gt;&lt;strong&gt;&lt;span&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，并治疗该角色到一定生命值。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此时，角色不视为被&lt;/span&gt;&lt;strong&gt;&lt;span&gt;击倒&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 【被动】战斗开始时，初始附属火之新生所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的火元素伤害+1。免于被击倒：一些效果会使角色在生命值被降为0的时候免于被击倒，并治疗该角色到一定生命值。此时，角色不视为被击倒过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火之新生
+summons:
+- name: 黯火炉心
+  type: 召唤物
+  icon: https://act-upload.mihoyo.com/ys-obc/2023/05/17/183046623/68087eeb0ffed52029a7ad3220eb04db_2391994745432576824.png
+  raw_life: 0
+  raw_energy: 0
+  effect_html: '<p><strong>结束阶段：</strong>造成1点<strong><span style="color: rgb(207,
+    19, 34)"><u>火元素伤害</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(207, 19, 34)&quot;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，对所有敌方后台角色造成1点<strong><u>穿透伤害</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;穿透伤害：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p><strong><u>可用次数</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;可用次数：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;此牌效果触发后，会消耗1次&lt;strong&gt;可用次数&lt;/strong&gt;；&lt;/p&gt;&lt;p&gt;&lt;strong&gt;可用次数&lt;/strong&gt;耗尽后，立刻弃置此牌。&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><strong>：2</strong></p>'
+  effect_text: 结束阶段：造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">，对所有敌方后台角色造成1点穿透伤害。可用次数：2
+  term_refs:
+  - 火元素伤害
+  - 穿透伤害
+  - 可用次数
+talent:
+  name: 烬火重燃
+  type: 装备牌
+  raw_life: 2
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/c065153c09a84ed9d7c358c8cc61171f_2168963718034991707.png
+  effect_html: '<html><head></head><body><p><strong>入场时：</strong>如果装备有此牌的<strong>深渊咏者·渊火</strong>已触发过<strong><u>火之新生</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;火之新生：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;状态&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;所附属角色被击倒时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;移除此效果，使角色&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;&lt;u&gt;免于被击倒&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;，并治疗该角色到4点生命值。此效果触发后，角色造成的&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(245, 34, 45)&#34;&gt;&lt;u&gt;火元素伤害&lt;/u&gt;&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&#34;color: rgb(0, 0, 0)&#34;&gt;+1。&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;免于被击倒：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;一些效果会使角色在生命值被降为0的时候&lt;/span&gt;&lt;strong&gt;&lt;span&gt;免于被击倒&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;，并治疗该角色到一定生命值。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;此时，角色不视为被&lt;/span&gt;&lt;strong&gt;&lt;span&gt;击倒&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）&lt;/span&gt;&lt;/p&gt;&lt;hr&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&#34;color: rgb(207, 19, 34)&#34;&gt;火元素伤害：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;附着火元素，可发生元素反应：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;融化：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;蒸发：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;超载：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+2，目标强制切换到下一个角色&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span&gt;燃烧：&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;本伤害+1，生成回合结束时造成1点火伤害的[&lt;/span&gt;&lt;strong&gt;&lt;span&gt;燃烧烈焰&lt;/span&gt;&lt;/strong&gt;&lt;span&gt;]（可生效1次，最多叠加到2次）&lt;/span&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，就立刻弃置此牌，为角色附属<strong><u>渊火加护</u></strong><span
+    data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;渊火加护：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;为所附属角色提&lt;strong&gt;供2点护盾&lt;/strong&gt;。&lt;strong&gt;此护盾耗尽后&lt;/strong&gt;，对所有敌方角色造成1点&lt;strong&gt;穿透伤害。&lt;/strong&gt;&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p><p>装备有此牌的深渊咏者·渊火触发<strong><u>火之新生</u></strong>时：弃置此牌，为角色附属<strong><u>渊火加护</u></strong>。</p><p>（牌组中包含深渊咏者·渊火，才能加入牌组）</p></body></html>'
+  effect_text: '入场时：如果装备有此牌的深渊咏者·渊火已触发过火之新生所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的火元素伤害+1。
+
+    免于被击倒：
+
+    一些效果会使角色在生命值被降为0的时候免于被击倒，并治疗该角色到一定生命值。
+
+    此时，角色不视为被击倒过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）
+
+    火元素伤害：
+
+    附着火元素，可发生元素反应：
+
+    融化：本伤害+2
+
+    蒸发：本伤害+2
+
+    超载：本伤害+2，目标强制切换到下一个角色
+
+    燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）" class="wiki-note-text">，就立刻弃置此牌，为角色附属渊火加护。
+
+    装备有此牌的深渊咏者·渊火触发火之新生时：弃置此牌，为角色附属渊火加护。
+
+    （牌组中包含深渊咏者·渊火，才能加入牌组）'
+  term_refs:
+  - 火之新生
+  - 渊火加护
+  deck_constraint: 牌组中包含深渊咏者·渊火，才能加入牌组
+flavor_html: <p><strong>深渊咏者·渊火</strong></p><p>章典示现，劝听箴言。</p>
+flavor_text: '深渊咏者·渊火
+
+  章典示现，劝听箴言。'
+terms:
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  火之新生: 状态所附属角色被击倒时：移除此效果，使角色免于被击倒，并治疗该角色到4点生命值。此效果触发后，角色造成的火元素伤害+1。免于被击倒：一些效果会使角色在生命值被降为0的时候免于被击倒，并治疗该角色到一定生命值。此时，角色不视为被击倒过。（因此，角色所附属的装备和状态不会被弃置，充能也不会被清空。）火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  穿透伤害: 穿透伤害无法受到伤害加成，但是也无法被护盾、伤害免疫等效果抵消。
+  可用次数: 此牌效果触发后，会消耗1次可用次数；可用次数耗尽后，立刻弃置此牌。
+  渊火加护: 为所附属角色提供2点护盾。此护盾耗尽后，对所有敌方角色造成1点穿透伤害。
+_raw_path: data/raw/character/6567_深渊咏者_渊火.json

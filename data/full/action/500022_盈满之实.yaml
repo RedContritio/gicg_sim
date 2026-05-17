@@ -1,0 +1,53 @@
+id: 500022
+name: 盈满之实
+parent_class: action
+desc: 装备牌 盈满之实
+sub_class: 装备牌
+tags: &id001
+- 武器
+cost_text: '3'
+cost:
+  无色: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/07/14/183046623/f396d3f86aecfc992feb76ed44485171_6772938798473134827.png
+header_img_url: ''
+version: '1755483911'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>角色造成的伤害+1</strong>。</p><p><strong>入场时：</strong>抓2张牌。</p><p>（<strong>「法器」角色</strong>才能装备。角色最多装备1件「武器」）</p>
+effect_text: '角色造成的伤害+1。
+
+  入场时：抓2张牌。
+
+  （「法器」角色才能装备。角色最多装备1件「武器」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/07/14/183046623/f21fd5a782dead6518d879c718eea643_1528948032449161530.png
+weapon_type: 法器
+variants:
+- mode: 标准
+  effect_html: <p><strong>角色造成的伤害+1</strong>。</p><p><strong>入场时：</strong>抓2张牌。</p><p>（<strong>「法器」角色</strong>才能装备。角色最多装备1件「武器」）</p>
+  effect_text: '角色造成的伤害+1。
+
+    入场时：抓2张牌。
+
+    （「法器」角色才能装备。角色最多装备1件「武器」）'
+- mode: 自行巧局
+  effect_html: '<h1 class="custom-heading-cls" style="text-align: center">自行巧局</h1>'
+  effect_text: 自行巧局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/07/14/183046623/f396d3f86aecfc992feb76ed44485171_1252924063800768441.png
+jiqiao: true
+flavor_html: <p><strong>月满之相·盈满之实</strong></p><p>「就算是再苦涩的故事，其中也有勇气，具有力量⋯金发的好那菈与我们一同冒险的故事，会替好那菈保护森林。」</p>
+flavor_text: '月满之相·盈满之实
+
+  「就算是再苦涩的故事，其中也有勇气，具有力量⋯金发的好那菈与我们一同冒险的故事，会替好那菈保护森林。」'
+_raw_path: data/raw/action/500022_盈满之实.json

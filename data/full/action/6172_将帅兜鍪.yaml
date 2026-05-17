@@ -1,0 +1,55 @@
+id: 6172
+name: 将帅兜鍪
+parent_class: action
+desc: 将帅兜鍪
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/02/27/12109492/86ed124f5715f96604248a48a57de351_9119652051826793212.png
+header_img_url: ''
+version: '1687837120'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p style="white-space: pre-wrap;"><strong>行动阶段开始时</strong>：为角色附属<strong>「<u>重嶂不移</u>」</strong><span
+  data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;重嶂不移&lt;/p&gt;&lt;p
+  style=&#34;white-space: pre-wrap;&#34;&gt;状态&lt;/p&gt;&lt;p style=&#34;white-space:
+  pre-wrap;&#34;&gt;提供2点&lt;strong&gt;护盾&lt;/strong&gt;，保护所附属的角色。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>。（提供2点<strong><u>护盾</u></strong><span data-type="详情"
+  data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;护盾：&lt;/p&gt;&lt;p style=&#34;white-space:
+  pre-wrap;&#34;&gt;此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span>，保护该角色。）</p><p style="white-space: pre-wrap;">（角色最多装备1件「圣遗物」）</p>'
+effect_text: '行动阶段开始时：为角色附属「重嶂不移」重嶂不移
+
+  状态
+
+  提供2点护盾，保护所附属的角色。" class="wiki-note-text">。（提供2点护盾护盾：
+
+  此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。" class="wiki-note-text">，保护该角色。）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs:
+- 护盾
+terms:
+  护盾: 此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2023/02/04/12109492/9e7207494a4fdb10df19179ec836623b_31839413009355489.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2023/02/27/12109492/86ed124f5715f96604248a48a57de351_6600927335776465307.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2023/02/27/12109492/16ed9508dbc64cf65586aea41d62f0c2_5838168680221891015.gif
+flavor_html: '<p style="white-space: pre-wrap;"><strong>誓愿无渝·将帅兜鍪</strong></p><p style="white-space:
+  pre-wrap;">「直至最后一滴血汇入大地，琉璃砂终又显露光泽。」</p>'
+flavor_text: '誓愿无渝·将帅兜鍪
+
+  「直至最后一滴血汇入大地，琉璃砂终又显露光泽。」'
+_raw_path: data/raw/action/6172_将帅兜鍪.json

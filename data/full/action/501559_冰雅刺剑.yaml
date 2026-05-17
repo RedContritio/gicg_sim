@@ -1,0 +1,97 @@
+id: 501559
+name: 冰雅刺剑
+parent_class: action
+desc: 冰雅刺剑卡牌
+sub_class: 装备牌
+tags: &id001
+- 天赋
+cost_text: '3'
+cost:
+  冰: 3
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/a0597437167a2f8b5637ae66b393bd84_8056280571992519237.png
+header_img_url: ''
+version: '1724724567'
+attr:
+  类型:
+  - 装备牌
+  标签: *id001
+  获取:
+  - 猫尾酒馆对战获取
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 1
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: '<p><strong><span style="color: rgb(0, 0, 0)"><u>战斗行动</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;战斗行动：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;我方执行了一次战斗行动后，会轮到对方行动。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;打出具有此规则的手牌是一个战斗行动，而非快速行动。&lt;/span&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">：我方出战角色为</span><strong><span style="color: rgb(0, 0, 0)">愚人众·霜役人</span></strong><span
+  style="color: rgb(0, 0, 0)">时，装备此牌。<br>愚人众·霜役人装备此牌后，立刻使用一次</span><strong><span style="color:
+  rgb(0, 0, 0)"><u>霜刃截击</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;霜刃截击：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;元素战技&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;造成3点&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;。&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">。<br>装备有此牌的</span><strong><span style="color: rgb(0, 0, 0)">愚人众·霜役人</span></strong><span
+  style="color: rgb(0, 0, 0)">触发</span><strong><span style="color: rgb(0, 0, 0)"><u>血契掠影</u></span></strong><span
+  data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color: rgb(0,
+  0, 0)&quot;&gt;血契掠影：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;被动技能&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;【被动】&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;本角色使用技能后：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;对敌方出战角色附属&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;为（本技能最终伤害值-2）的&lt;/span&gt;&lt;span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;生命之契&lt;/span&gt;&lt;/strong&gt;&lt;/span&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;。（最多5层）&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+  class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">后：使敌方出战角色的</span><strong><span
+  style="color: rgb(0, 0, 0)"><u>生命之契</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;生命之契：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色受到治疗时：&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;此效果每有1次&lt;/span&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;，就消耗1次，以抵消1点所受到的治疗。（无法抵消复苏和分配生命值引发的治疗）&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+  style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数：1（可叠加，没有上限）。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;"
+  class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span><span style="color:
+  rgb(0, 0, 0)">层数翻倍。<br>（牌组中包含愚人众·霜役人，才能加入牌组）</span></p>'
+effect_text: '战斗行动我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为愚人众·霜役人时，装备此牌。
+
+  愚人众·霜役人装备此牌后，立刻使用一次霜刃截击冰元素伤害。" class="wiki-note-text">。
+
+  装备有此牌的愚人众·霜役人触发血契掠影血契掠影：
+
+  被动技能
+
+  【被动】本角色使用技能后：对敌方出战角色附属可用次数为（本技能最终伤害值-2）的生命之契。（最多5层）" class="wiki-note-text">后：使敌方出战角色的生命之契生命之契：
+
+  状态
+
+  所附属角色受到治疗时：此效果每有1次可用次数，就消耗1次，以抵消1点所受到的治疗。（无法抵消复苏和分配生命值引发的治疗）
+
+  可用次数：1（可叠加，没有上限）。" class="wiki-note-text">层数翻倍。
+
+  （牌组中包含愚人众·霜役人，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 霜刃截击
+- 血契掠影
+- 生命之契
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  霜刃截击: 元素战技造成3点冰元素伤害。
+  血契掠影: 被动技能【被动】本角色使用技能后：对敌方出战角色附属可用次数为（本技能最终伤害值-2）的生命之契。（最多5层）
+  生命之契: 状态所附属角色受到治疗时：此效果每有1次可用次数，就消耗1次，以抵消1点所受到的治疗。（无法抵消复苏和分配生命值引发的治疗）可用次数：1（可叠加，没有上限）。
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/5fd9633462b60065636434992f1d9625_4234442668275909772.png
+duration: 可用次数1
+requires_char: 愚人众·霜役人
+deck_constraint: 牌组中包含愚人众·霜役人，才能加入牌组
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2024/07/07/258999284/a0597437167a2f8b5637ae66b393bd84_1668427359164092344.png
+flavor_html: <p><strong>霜役人·冰雅刺剑</strong></p><p>「恕我之前招待不周。」</p>
+flavor_text: '霜役人·冰雅刺剑
+
+  「恕我之前招待不周。」'
+_raw_path: data/raw/action/501559_冰雅刺剑.json

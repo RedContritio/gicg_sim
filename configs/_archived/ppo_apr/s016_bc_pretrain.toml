@@ -1,0 +1,32 @@
+# s016: BC pretrain on s015 50k teacher decisions.
+#
+# Trains PPONet (MLP trunk + policy/value) to imitate F1-D2 argmax +
+# MC terminal_z. Result is a PPO-compatible ckpt for s017 fine-tune.
+#
+# Go/No-go: val match rate ≥ 0.80 → proceed to PPO fine-tune.
+# 60-80 → iterate on d_model / data. < 60 → diagnose obs / net cap.
+
+run_label = "s016_bc_pretrain"
+
+dataset = "artifacts/202604250506_s015_bc_data_gen/dataset.npz"
+
+# Net (matches PPOConfig defaults for seamless fine-tune)
+d_model = 256
+n_hidden_layers = 2
+max_actions = 128
+
+# Training
+n_epochs = 10
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 200
+
+[meta]
+paradigm = "bc"

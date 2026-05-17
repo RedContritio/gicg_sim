@@ -1,0 +1,49 @@
+id: 5396
+name: 元素共鸣：坚定之岩
+parent_class: action
+sub_class: 事件牌
+tags:
+- 元素共鸣
+cost_text: '1'
+cost:
+  岩: 1
+attr:
+  类型:
+  - 事件牌
+  获取:
+  - 卡牌商店购买
+  标签:
+  - 元素共鸣
+  花费:
+  - '1'
+raw_life: 1
+raw_life_bg: 7
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '为我方出战角色提供3点护盾护盾
+
+  此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+
+  " class="wiki-note-text">。
+
+  （牌组包含至少2个岩元素角色，才能加入牌组）'
+term_refs: []
+terms:
+  护盾: 此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/2593ff944f9f2068cb0e676923bd69e2_2661263938816544587.png
+deck_constraint: 牌组包含至少2个岩元素角色，才能加入牌组
+variants:
+- mode: 标准
+  effect_text: '为我方出战角色提供3点护盾护盾
+
+    此护盾所保护的角色受到伤害时，将会消耗护盾来抵消伤害。
+
+    " class="wiki-note-text">。
+
+    （牌组包含至少2个岩元素角色，才能加入牌组）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/504be5406c58bbc3e269ceb8780eaa54_8358329092517997158.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75833613/4a59f2e0aa0d8d3589ce055e853e5d0f_7219522558375624199.gif
+jiqiao: true
+flavor_text: 山骞不崩，磐石为镇。

@@ -1,0 +1,25 @@
+# s027: BC pretrain on s026 (1-card Stage 3 data). Same arch + hparams
+# as s016d / s019 / s022 (d=1024, h=4, 60ep, soft target).
+
+run_label = "s027_bc_pretrain_stage3_1card"
+
+dataset = "artifacts/202604251133_s026_bc_data_gen_stage3_1card/dataset.npz"
+
+d_model = 1024
+n_hidden_layers = 4
+max_actions = 128
+
+n_epochs = 60
+batch_size = 256
+lr = 3e-4
+lr_end = 3e-5
+value_coef = 0.1
+grad_clip = 0.5
+val_split = 0.1
+seed = 0
+device = "cpu"
+
+log_every = 1000
+
+[meta]
+paradigm = "bc"

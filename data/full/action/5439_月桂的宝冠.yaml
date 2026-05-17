@@ -1,0 +1,39 @@
+id: 5439
+name: 月桂的宝冠
+parent_class: action
+desc: 月桂的宝冠
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/ee4fbb8c86fcc3d54c5e6717b3b62ddb_7264725145151740958.png
+header_img_url: ''
+version: '1710295813'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>对角色打出「天赋」或角色使用技能时：</strong>少花费1个草元素。（每回合1次）</p><p>（角色最多装备1件「圣遗物」）</p>
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个草元素。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/f5dd60d41187c41067aa90014d9c54c2_8992844298268433110.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/ee4fbb8c86fcc3d54c5e6717b3b62ddb_2187110345050193669.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/b769d1509a7ba90e426c56302413056f_7213069753343579550.gif
+flavor_html: <p><strong>唤雨之纹·月桂的宝冠</strong></p><p>「万物生灭皆有定期，其循环往复不停。」</p>
+flavor_text: '唤雨之纹·月桂的宝冠
+
+  「万物生灭皆有定期，其循环往复不停。」'
+_raw_path: data/raw/action/5439_月桂的宝冠.json

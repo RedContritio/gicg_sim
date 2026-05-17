@@ -1,0 +1,20 @@
+# Legacy prod pool — predates per-game-version pool tracking. Holds
+# the 5 prod chars (赤蝶 / 墨客 / 猫咪 / 刻师傅 / 天星) and L1..L6 cards
+# that existed before ADR-0011. Future real game-version pools (v3.3,
+# v4.1, ...) will be added as siblings or descendants once we start
+# tracking actual game-balance versions.
+#
+# parent = null because there is currently no shared root pool. If a
+# `base` pool is later introduced (e.g. for cards present in every
+# game version), this can switch to parent = "base".
+
+[version]
+id = "v_legacy"
+parent = ""
+desc = "Pre-ADR-0011 prod cards/chars; placeholder until per-version pools land."
+
+[cards]
+remove = []
+
+[characters]
+remove = []

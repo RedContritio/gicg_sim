@@ -1,0 +1,45 @@
+id: 5452
+name: 瓦格纳
+parent_class: action
+sub_class: 支援牌
+tags:
+- 伙伴
+cost_text: '2'
+cost:
+  同色: 2
+attr:
+  类型:
+  - 支援牌
+  标签:
+  - 伙伴
+  获取:
+  - 卡牌商店购买、完成挑战目标
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '入场时：此牌附带2个「锻造原胚」。如果我方牌组中初始包含至少3种「武器」牌，则从牌组中随机抽取一张「武器」牌。
+
+  结束阶段：补充1个「锻造原胚」。
+
+  打出「武器」手牌时：如可能，则支付等同于「武器」总费用数量的「锻造原胚」，以免费装备此「武器」。（每回合1次）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/9e7207494a4fdb10df19179ec836623b_2181799268975089827.png
+variants:
+- mode: 标准
+  effect_text: '入场时：此牌附带2个「锻造原胚」。如果我方牌组中初始包含至少3种「武器」牌，则从牌组中随机抽取一张「武器」牌。
+
+    结束阶段：补充1个「锻造原胚」。
+
+    打出「武器」手牌时：如可能，则支付等同于「武器」总费用数量的「锻造原胚」，以免费装备此「武器」。（每回合1次）'
+- mode: 自行巧局
+  effect_text: 自行巧局
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/9a47df734f5bd5d52ce3ade67cf50cfa_2013364341657681878.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/a61c62327bd217d0527b7f7fc3f6ef9d_1850987451978604101.gif
+jiqiao: true
+flavor_text: '铁匠老板·瓦格纳
+
+  「打铁依靠的不只是蛮力，还有日以继夜努力而流下的汗水，以及比锻铁还要结实的毅力！」'

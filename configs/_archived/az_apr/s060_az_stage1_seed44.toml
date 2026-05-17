@@ -1,0 +1,28 @@
+# s060: AZ Stage 1 baseline (seed=44)。s058 同 toml except seed。
+# Multi-seed n=3 加固,配合 s058+s059。
+
+base = "fixed_1v1"
+run_label = "s060_az_stage1_seed44"
+seed = 44
+
+n_games = 200
+batch_size = 64
+games_per_arena = 50
+arena_games = 20
+games_per_gauntlet = 200
+gauntlet_games_per_opponent = 16
+
+[scenario]
+team_0 = ["测试角色D"]
+team_1 = ["测试角色D"]
+card_pool = []
+max_rounds = 3
+
+[mcts]
+n_rollouts = 100
+lambda_anneal_games = 200
+lambda_end = 0.5
+backend = "go"
+
+[meta]
+paradigm = "az"

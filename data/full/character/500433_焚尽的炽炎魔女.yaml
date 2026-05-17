@@ -1,0 +1,169 @@
+id: 500433
+name: 焚尽的炽炎魔女
+title: 焚尽的炽炎魔女
+parent_class: character
+desc: 焚尽的炽炎魔女卡牌
+icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/36f1358533325d377d6a4e99eec5918f_5752584983961403108.png
+header_img_url: ''
+version: '1761100246'
+attr:
+  元素:
+  - 火元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 愚人众
+  充能:
+  - 2点
+  获取方式:
+  - 酒馆挑战·友好对局
+element: 火
+weapon: 其他武器
+faction: *id001
+hp: 10
+energy: 2
+acquire: 酒馆挑战·友好对局
+common_img: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/36f1358533325d377d6a4e99eec5918f_6190662149106536998.png
+raw_life_bg: 11
+raw_energy_bg: 8
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/de066277f1f3120586b5e9c93c7fdb59_1577745862616059155.png
+skills:
+- name: 红莲之蛾
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    火: 1
+    无色: 2
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/86ff2dcfaf79e215791b65d7f6a0100a_1758886379155620764.png
+  effect_html: '<p>造成1点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>火元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着火元素，可发生元素反应：</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>蒸发</strong>：本伤害+2</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成1点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+- name: 烬灭之鞭
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/5ebe47ad42ad678785def13a30f485ad_5687308121190951050.png
+  effect_html: '<p>造成2点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>火元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着火元素，可发生元素反应：</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>蒸发</strong>：本伤害+2</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>，并使目标角色附属<strong><u>炽热</u></strong><span
+    data-type="详情" data-name="<p><strong>炽热：</strong></p><p>状态</p><p><strong>结束阶段：</strong>对所附属角色造成1点<strong><span
+    style=&quot;color: rgb(245, 34, 45)&quot;>火元素伤害</span></strong>。</p><p><strong>可用次数：</strong>1</p><p>所附属角色被附属<strong>严寒</strong>时，移除此效果。</p><p></p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">，并使目标角色附属炽热火元素伤害。可用次数：1所附属角色被附属严寒时，移除此效果。" class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  - 炽热
+- name: 燃焰旋织
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 4
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    火: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2023/12/20/258999284/456005ca57b543d460e516403de7dd7b_5879470454090240332.png
+  effect_html: '<p>造成6点<strong><span style="color: rgb(207, 19, 34)"><u>火元素伤害</u></span></strong><span
+    data-type="详情" data-name="<p style=&quot;white-space: pre-wrap;&quot;>火元素伤害：</p><p
+    style=&quot;white-space: pre-wrap;&quot;>附着火元素，可发生元素反应：</p><p style=&quot;white-space:
+    pre-wrap;&quot;><strong>融化</strong>：本伤害+2</p><p style=&quot;white-space: pre-wrap;&quot;><strong>蒸发</strong>：本伤害+2</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>超载</strong>：本伤害+2，目标强制切换到下一个角色</p><p
+    style=&quot;white-space: pre-wrap;&quot;><strong>燃烧</strong>：本伤害+1，生成回合结束时造成1点火伤害的[<strong>燃烧烈焰</strong>]（可生效1次，最多叠加到2次）</p>"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成6点火元素伤害火元素伤害：附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）"
+    class="wiki-note-text">。
+  term_refs:
+  - 火元素伤害
+  energy_req: 2
+summons: []
+talent:
+  name: 苦痛奉还
+  type: 装备牌
+  raw_life: 3
+  raw_life_bg: 9
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    同色: 3
+  icon: https://act-upload.mihoyo.com/wiki-user-upload/2025/10/21/258999284/b053865b60ec217331ea86ff7fb8789c_376856086500909365.png
+  effect_html: '<p><span style="color: rgb(0, 0, 0)">我方出战角色为</span><strong><span style="color:
+    rgb(0, 0, 0)">「女士」</span></strong><span style="color: rgb(0, 0, 0)">时，才能打出：入场时，生成3个</span><strong><span
+    style="color: rgb(0, 0, 0)">「女士」</span></strong><span style="color: rgb(0, 0,
+    0)">当前元素类型的元素骰。<br>角色受到至少为3点的伤害时：抵消1点伤害，然后根据「女士」的形态对敌方出战角色附属</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>严寒</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;严寒：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;状态&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;对附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(145, 213, 255)&quot;&gt;冰元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被附属&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;炽热&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;时，移除此效果。&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">或</span><strong><span
+    style="color: rgb(0, 0, 0)"><u>炽热</u></span></strong><span data-type="详情" data-name="&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;炽热：&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;状态&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;结束阶段：&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;对所附属角色造成1点&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(245, 34, 45)&quot;&gt;火元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;可用次数&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;：1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;所附属角色被附属&lt;/span&gt;&lt;strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;严寒&lt;/span&gt;&lt;/strong&gt;&lt;span
+    style=&quot;color: rgb(0, 0, 0)&quot;&gt;时，移除此效果&lt;/span&gt;&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span><span style="color: rgb(0, 0, 0)">。（每回合1次）<br>（牌组中包含「女士」，才能加入牌组）</span></p>'
+  effect_text: '我方出战角色为「女士」时，才能打出：入场时，生成3个「女士」当前元素类型的元素骰。
+
+    角色受到至少为3点的伤害时：抵消1点伤害，然后根据「女士」的形态对敌方出战角色附属严寒结束阶段：对附属角色造成1点冰元素伤害。
+
+    可用次数：1
+
+    所附属角色被附属炽热时，移除此效果。" class="wiki-note-text">或炽热炽热：
+
+    状态
+
+    结束阶段：对所附属角色造成1点火元素伤害。
+
+    可用次数：1
+
+    所附属角色被附属严寒时，移除此效果" class="wiki-note-text">。（每回合1次）
+
+    （牌组中包含「女士」，才能加入牌组）'
+  term_refs:
+  - 严寒
+  - 炽热
+  deck_constraint: 牌组中包含「女士」，才能加入牌组
+flavor_html: <p><strong>第八执行官·「女士」</strong></p><p>瞳仁中倒映着破晓的赤红，她最后展开烈焰之翼向黎明飞去。</p><p>「但那并不是曙光，亲爱的罗莎琳。那是焚尽一切的火海。」</p><p>但这也没什么所谓。因为她心中明白，自己早已被烈火吞没。</p>
+flavor_text: '第八执行官·「女士」
+
+  瞳仁中倒映着破晓的赤红，她最后展开烈焰之翼向黎明飞去。
+
+  「但那并不是曙光，亲爱的罗莎琳。那是焚尽一切的火海。」
+
+  但这也没什么所谓。因为她心中明白，自己早已被烈火吞没。'
+terms:
+  火元素伤害: 附着火元素，可发生元素反应：融化：本伤害+2蒸发：本伤害+2超载：本伤害+2，目标强制切换到下一个角色燃烧：本伤害+1，生成回合结束时造成1点火伤害的[燃烧烈焰]（可生效1次，最多叠加到2次）
+  炽热: 状态结束阶段：对所附属角色造成1点火元素伤害。可用次数：1所附属角色被附属严寒时，移除此效果。
+  严寒: 状态结束阶段：对附属角色造成1点冰元素伤害。可用次数：1所附属角色被附属炽热时，移除此效果。
+_raw_path: data/raw/character/500433_焚尽的炽炎魔女.json

@@ -1,0 +1,104 @@
+id: 5590
+name: 雷斧丘丘暴徒
+title: 雷斧丘丘暴徒
+parent_class: monster
+desc: 雷斧丘丘暴徒卡牌
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/dc73e0c199476239470bedfd7f2723eb_4870665569458624117.png
+header_img_url: ''
+version: '1694074780'
+attr:
+  元素:
+  - 雷元素
+  武器:
+  - 其他武器
+  阵营: &id001
+  - 魔物/丘丘人
+  充能:
+  - 2点
+  获取方式:
+  - 无
+element: 雷
+weapon: 其他武器
+faction: *id001
+hp: 8
+energy: 2
+acquire: 无
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/dc73e0c199476239470bedfd7f2723eb_8497110805782997384.png
+raw_life_bg: 11
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/0464df5cfa4f36ec5539e826ce5b1108_7121565514915097297.png
+skills:
+- name: Du Plama
+  type: 普通攻击
+  raw_life: 1
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 10
+  cost:
+    雷: 1
+    无色: 2
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/03e9e5156cb9ba4e033d60fd5541a6b5_1959244332258103284.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成2点<strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成2点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: Upa
+  type: 元素战技
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost:
+    雷: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/e3692b42c8d9bca5c3d0f7fc54acd903_6154642606973018626.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成3点<strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成3点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+- name: Oto Tiga
+  type: 元素爆发
+  raw_life: 3
+  raw_life_bg: 5
+  raw_energy: 2
+  raw_energy_bg: 8
+  cost:
+    雷: 3
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/07/183046623/67cdcf3e13e31cf86f74d60cd1e63645_4618408903865054517.jpg
+  effect_html: '<p style="white-space: pre-wrap;">造成5点<strong><u>物理伤害</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;物理伤害不会附着元素，也不会发生元素反应。&lt;/p&gt;" class="wiki-note-text"><sup
+    class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 造成5点物理伤害物理伤害：物理伤害不会附着元素，也不会发生元素反应。" class="wiki-note-text">。
+  term_refs:
+  - 物理伤害
+  energy_req: 2
+- name: 流煌磨刃
+  type: 被动技能
+  raw_life: 0
+  raw_life_bg: 0
+  raw_energy: 0
+  raw_energy_bg: 0
+  cost: {}
+  icon: https://uploadstatic.mihoyo.com/ys-obc/2022/12/12/183046623/f7c8c4eb27c73e83b6d6ece6b598c0f3_5419760757395929879.jpg
+  effect_html: '<p style="white-space: pre-wrap;">【被动】战斗开始时，初始附属<strong><u>流煌磨刃</u></strong><span
+    data-type="详情" data-name="&lt;p style=&#34;white-space: pre-wrap;&#34;&gt;流煌磨刃：&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;状态&lt;/p&gt;&lt;p style=&#34;white-space:
+    pre-wrap;&#34;&gt;角色造成的&lt;strong&gt;物理伤害&lt;/strong&gt;变为&lt;strong&gt;&lt;span
+    style=&#34;color:rgba(146,84,222,1)&#34;&gt;雷元素伤害&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p
+    style=&#34;white-space: pre-wrap;&#34;&gt;&lt;strong&gt;可用次数&lt;/strong&gt;：3&lt;/p&gt;"
+    class="wiki-note-text"><sup class="wiki-sup">[详情]</sup></span>。</p>'
+  effect_text: 【被动】战斗开始时，初始附属流煌磨刃流煌磨刃：状态角色造成的物理伤害变为雷元素伤害可用次数：3" class="wiki-note-text">。
+  term_refs:
+  - 流煌磨刃
+summons: []
+flavor_html: ''
+flavor_text: ''
+terms:
+  物理伤害: 物理伤害不会附着元素，也不会发生元素反应。
+  流煌磨刃: 状态角色造成的物理伤害变为雷元素伤害可用次数：3
+_raw_path: data/raw/monster/5590_雷斧丘丘暴徒.json

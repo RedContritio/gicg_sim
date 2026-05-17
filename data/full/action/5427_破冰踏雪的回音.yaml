@@ -1,0 +1,39 @@
+id: 5427
+name: 破冰踏雪的回音
+parent_class: action
+desc: 破冰踏雪的回音
+sub_class: 装备牌
+tags: &id001
+- 圣遗物
+cost_text: '2'
+cost:
+  无色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/65841e618f66c6cb19823657118de30e_3244206711075165707.png
+header_img_url: ''
+version: '1710295859'
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 卡牌商店购买
+  标签: *id001
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 10
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>对角色打出「天赋」或角色使用技能时：</strong>少花费1个冰元素。（每回合1次）</p><p>（角色最多装备1件「圣遗物」）</p>
+effect_text: '对角色打出「天赋」或角色使用技能时：少花费1个冰元素。（每回合1次）
+
+  （角色最多装备1件「圣遗物」）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://act-upload.mihoyo.com/wiki-user-upload/2023/08/16/12109492/f5dd60d41187c41067aa90014d9c54c2_5311737825178131805.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/65841e618f66c6cb19823657118de30e_8205517272486395154.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/75720734/a94c6e03d1ff617c5fc7e3b176135a69_3760836206480008806.gif
+flavor_html: <p><strong>遥世霜歌·破冰踏雪的回音</strong></p><p>「越过冰封的门扉，走下深邃的回廊，他折下银白枝条，为雪国带来希望⋯」</p>
+flavor_text: '遥世霜歌·破冰踏雪的回音
+
+  「越过冰封的门扉，走下深邃的回廊，他折下银白枝条，为雪国带来希望⋯」'
+_raw_path: data/raw/action/5427_破冰踏雪的回音.json

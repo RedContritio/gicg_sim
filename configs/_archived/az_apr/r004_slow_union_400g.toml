@@ -1,0 +1,51 @@
+# r004: r003 的 anneal A/B 对照。同 400g、同 team_size=2、同 K=3、同 obs 结构,
+# **唯一变量**:去掉 lambda_anneal_games=400(fallback 默认 1500 slow)。
+#
+# 动机:r003 gauntlet vs_mcts_200=0.25,比 r002(0.30, fast)和 r001(0.55, slow)
+# 都差。训练 loss 却比 r002 更低(policy 2.28 vs 2.54,entropy 2.27 vs 2.58),
+# 出现 "训练信号改善但 argmax 胜率下降" 的反直觉现象。假设之一:fast_anneal 才
+# 是主矛盾,K=3 只是缓解 D1 污染,救不回 fast_anneal 破坏的 value head。r004
+# 把 anneal 翻成 slow(lambda_anneal 跨 1500 games,400g 内 lambda 仅走到 ~0.27),
+# 测试 K=3 在 slow 曲线下是否恢复 argmax 强度。
+#
+# gauntlet 基线对比目标:
+#   r001 slow,no K:       0.55
+#   r002 fast,no K:       0.30
+#   r003 fast + K=3:      0.25
+#   r004 slow + K=3:      ?  ← 本 run 将回答
+#
+# 预期分支:
+#   若 r004 ≥ r001(0.55):K=3 不损伤,slow_anneal 是关键 → ship K=3 + slow
+#   若 r003 < r004 < r001:K=3 损伤 policy shape,slow 能部分补偿 → 放弃 K=3
+#   若 r004 ≈ r003(0.25):K=3 本身就是主矛盾 → 彻底放弃 K=3 默认
+
+base = "random_1v1"
+run_label = "r004_slow_union_400g"
+
+n_games = 400
+n_workers = 4
+batch_size = 64
+games_per_arena = 100
+games_per_gauntlet = 200
+checkpoint_every_n_games = 100
+
+# ⚠ DEPRECATED: this run used expand_union_k=3, since removed from the
+# codebase. See r003 config header for details.
+[mcts]
+parallel_rollouts = 4
+backend = "go"
+# lambda_anneal_games intentionally omitted → defaults to 1500 (slow)
+# expand_union_k = 3   # REMOVED — see header
+
+[train]
+delta_aux_coef = 1.0
+
+[scenario]
+team_size = 2
+disjoint_teams = true
+
+# 注意:r001/r002/r003 ckpt 与当前 6d state shape 不兼容(obs 改过),
+# model_opponents 省略。gauntlet 仅依赖 mcts_50/100/200 reference opponents。
+
+[meta]
+paradigm = "az"

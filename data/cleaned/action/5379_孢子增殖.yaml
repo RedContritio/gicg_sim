@@ -1,0 +1,53 @@
+id: 5379
+name: 孢子增殖
+parent_class: action
+sub_class: 装备牌
+tags:
+- 天赋
+cost_text: '3'
+cost:
+  草: 3
+attr:
+  类型:
+  - 装备牌
+  获取:
+  - 猫尾酒馆对战
+  标签:
+  - 天赋
+  花费:
+  - '3'
+raw_life: 3
+raw_life_bg: 2
+raw_energy: 0
+raw_energy_bg: 0
+effect_text: '战斗行动战斗行动：
+
+  我方执行了一次战斗行动后，会轮到对方行动。
+
+  打出具有此规则的手牌是一个战斗行动，而非快速行动。" class="wiki-note-text">：我方出战角色为翠翎恐蕈时，装备此牌。
+
+  翠翎恐蕈装备此牌后，立刻使用一次不稳定孢子云造成3点草元素伤害。" class="wiki-note-text">。
+
+  装备有此牌的翠翎恐蕈，可累积的「活化激能」活化激能：
+
+  状态
+
+  本角色造成或受到元素伤害后:累积1层「活化激能」。（最多累积3层）
+
+  结束阶段:如果「活化激能」层数已达到上限,就将其清空。同时,角色失去所有充能。" class="wiki-note-text">层数+1。
+
+  （牌组中包含翠翎恐蕈，才能加入牌组）'
+term_refs:
+- 战斗行动
+- 活化激能
+terms:
+  战斗行动: 我方执行了一次战斗行动后，会轮到对方行动。打出具有此规则的手牌是一个战斗行动，而非快速行动。
+  不稳定孢子云: 造成3点草元素伤害。
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/10827219/b68c9ea46a14544092af66afe031b541_5849883246214915501.png
+requires_char: 翠翎恐蕈
+deck_constraint: 牌组中包含翠翎恐蕈，才能加入牌组
+is_combat_action: true
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/10827219/e8a6f51c84083731f9377a437db46f73_7481799731263851778.png
+flavor_text: '粉尘孢子云
+
+  那是智慧远超一般生物的蕈兽之王布设的陷阱，鲜少有人能安然无恙地通过。'

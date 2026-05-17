@@ -1,0 +1,41 @@
+id: 5451
+name: 蒂玛乌斯
+parent_class: action
+desc: 蒂玛乌斯
+sub_class: 支援牌
+tags: &id001
+- 伙伴
+cost_text: '2'
+cost:
+  同色: 2
+icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/839e1884908b6ce5e8bc2d27bde98f20_713246836452250490.png
+header_img_url: ''
+version: '1704175457'
+attr:
+  类型:
+  - 支援牌
+  标签: *id001
+  获取:
+  - 卡牌商店购买、完成挑战目标
+  花费:
+  - '2'
+raw_life: 2
+raw_life_bg: 9
+raw_energy: 0
+raw_energy_bg: 0
+effect_html: <p><strong>入场时：</strong>此牌附带2个「合成材料」。如果我方牌组中初始包含至少6张「圣遗物」牌，则从牌组中随机抽取一张「圣遗物」牌。</p><p><strong>结束阶段：</strong>补充1个「合成材料」。</p><p><strong>打出「圣遗物」手牌时：</strong>如可能，则支付等同于「圣遗物」总费用数量的「合成材料」，以免费装备此「圣遗物」。（每回合1次）</p>
+effect_text: '入场时：此牌附带2个「合成材料」。如果我方牌组中初始包含至少6张「圣遗物」牌，则从牌组中随机抽取一张「圣遗物」牌。
+
+  结束阶段：补充1个「合成材料」。
+
+  打出「圣遗物」手牌时：如可能，则支付等同于「圣遗物」总费用数量的「合成材料」，以免费装备此「圣遗物」。（每回合1次）'
+term_refs: []
+terms: {}
+cost_bg_icon_url: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/9e7207494a4fdb10df19179ec836623b_2181799268975089827.png
+common_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/06/158741257/839e1884908b6ce5e8bc2d27bde98f20_778730297202034218.png
+gold_img: https://uploadstatic.mihoyo.com/ys-obc/2022/12/04/158741257/436555d7d760fb3a5a53440078948769_428935998047199554.gif
+flavor_html: <p><strong>炼金学者·蒂玛乌斯</strong></p><p>「你好…哦，是想要借用合成台吗？当然可以，请便。」</p>
+flavor_text: '炼金学者·蒂玛乌斯
+
+  「你好…哦，是想要借用合成台吗？当然可以，请便。」'
+_raw_path: data/raw/action/5451_蒂玛乌斯.json
