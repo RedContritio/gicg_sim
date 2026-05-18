@@ -22,6 +22,7 @@ from unittest import mock
 import pytest
 
 from tools.runs import helpers
+from tools.runs._helpers import locks as _locks
 
 
 # --- Test helpers -------------------------------------------------------------
@@ -216,8 +217,8 @@ def test_allocate_blocked_by_held_lock_raises_after_retries(
     artifacts.mkdir()
     lock_path = artifacts / '.run_id_lock'
 
-    monkeypatch.setattr(helpers.time, 'sleep', lambda _s: None)
-    monkeypatch.setattr(helpers.random, 'uniform', lambda _a, _b: 0.0)
+    monkeypatch.setattr(_locks.time, 'sleep', lambda _s: None)
+    monkeypatch.setattr(_locks.random, 'uniform', lambda _a, _b: 0.0)
 
     # Hold the lock from this thread; allocator runs from another
     # thread to avoid recursive flock on the same fd (which would
@@ -271,8 +272,8 @@ def test_allocate_retry_budget_is_exactly_ten(
     lock_path = artifacts / '.run_id_lock'
 
     sleep_calls: list[float] = []
-    monkeypatch.setattr(helpers.time, 'sleep', lambda s: sleep_calls.append(s))
-    monkeypatch.setattr(helpers.random, 'uniform', lambda _a, _b: 0.01)
+    monkeypatch.setattr(_locks.time, 'sleep', lambda s: sleep_calls.append(s))
+    monkeypatch.setattr(_locks.random, 'uniform', lambda _a, _b: 0.01)
 
     holder_fd = open(lock_path, 'a+')
     try:
@@ -319,12 +320,12 @@ def test_posix_dispatch_uses_fcntl_flock(tmp_path: Path) -> None:
     LOCK_EX | LOCK_NB — proves we didn't accidentally fall into a
     blocking variant.
     """
-    with mock.patch.object(helpers.fcntl, 'flock', wraps=helpers.fcntl.flock) as spy:
+    with mock.patch.object(_locks.fcntl, 'flock', wraps=_locks.fcntl.flock) as spy:
         with helpers.allocate_nnn(tmp_path) as nnn:
             assert nnn == 1
         spy.assert_called()
         _fd, flags = spy.call_args.args
-        assert flags == helpers.fcntl.LOCK_EX | helpers.fcntl.LOCK_NB
+        assert flags == _locks.fcntl.LOCK_EX | _locks.fcntl.LOCK_NB
 
 
 def test_windows_dispatch_routes_to_msvcrt(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -338,8 +339,8 @@ def test_windows_dispatch_routes_to_msvcrt(tmp_path: Path, monkeypatch: pytest.M
     fake_msvcrt.LK_NBLCK = 1
     fake_msvcrt.locking = mock.MagicMock(return_value=None)
 
-    monkeypatch.setattr(helpers.sys, 'platform', 'win32')
-    monkeypatch.setattr(helpers, 'msvcrt', fake_msvcrt, raising=False)
+    monkeypatch.setattr(_locks.sys, 'platform', 'win32')
+    monkeypatch.setattr(_locks, 'msvcrt', fake_msvcrt, raising=False)
 
     with helpers.allocate_nnn(tmp_path) as nnn:
         assert nnn == 1
