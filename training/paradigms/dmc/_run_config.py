@@ -107,11 +107,6 @@ class DmcConfig(TrainingConfig):
     # Discount: DMC uses γ=1 (sparse terminal reward, no bootstrap).
     gamma: float = 1.0
 
-    # JIT-traced forward path for the actor's inference graph. Smoke off,
-    # full train on. CPU-affinity / single-thread fields previously sat
-    # next to this knob but were dead (no readers) — relocated to the
-    # live ``DMCParadigmConfig`` in 2026-05-18 T-3.4.5b once they got
-    # actual wiring; ``use_jit_trace`` stays here until Task 4 moves it.
     use_jit_trace: bool = False  # smoke off, full train on
 
     write_artifacts: bool = True

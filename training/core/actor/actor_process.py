@@ -31,8 +31,8 @@ def _resolve_actor_affinity(cfg: Any) -> Optional[list[int]]:
     """Read ``cfg.paradigm.cpu_affinity_actors`` if present (paradigm-aware).
 
     Returns ``None`` for paradigms that don't define this field — affinity
-    is a per-paradigm opt-in (DMC Phase 3.4.5 introduces it). Robust to
-    both shapes of ``cfg.paradigm`` we observed in the loader (see
+    is a per-paradigm opt-in. Robust to both shapes of ``cfg.paradigm``
+    we observed in the loader (see
     ``training/core/config/loader.py:_build_dataclass``): runtime cfgs
     carry a flat dict (paradigm_flat) while in-process construction in
     tests may set a typed ``DMCParadigmConfig`` instance.

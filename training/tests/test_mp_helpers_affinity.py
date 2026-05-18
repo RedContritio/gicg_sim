@@ -1,4 +1,4 @@
-"""Tests for ``harden_child_env(affinity=...)`` — T-3.4.5b verification.
+"""Tests for ``harden_child_env(affinity=...)``.
 
 Three cases:
 

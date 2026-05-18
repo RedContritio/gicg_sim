@@ -42,9 +42,8 @@ def _apply_learner_affinity(cfg: Any) -> None:
     — runtime cfgs carry a flat ``paradigm_flat`` dict per
     ``training/core/config/loader.py:_build_dataclass``.
 
-    Silently skipped on platforms without ``cpu_affinity`` (Mac). Per
-    PLAN.md §3.4.5.2: affinity is an optimization hint, not a correctness
-    requirement.
+    Silently skipped on platforms without ``cpu_affinity`` (Mac):
+    affinity is an optimization hint, not a correctness requirement.
     """
     paradigm = getattr(cfg, 'paradigm', None)
     if paradigm is None:
@@ -62,9 +61,6 @@ def _apply_learner_affinity(cfg: Any) -> None:
 
         psutil.Process().cpu_affinity(affinity)
     except (ImportError, AttributeError, OSError):
-        # Mac has no cpu_affinity on psutil.Process; missing psutil and
-        # kernel rejection are silenced for the same hint-not-contract
-        # reason as the actor-side application in _mp_helpers.py.
         pass
 
 
@@ -113,10 +109,9 @@ def run_paradigm_train(state: SetupState) -> None:
     cfg_resolved_path = state.artifacts_dir / _current_cfg_resolved_filename(state)
     cfg = load_cfg(cfg_resolved_path, overrides=[])
 
-    # T-3.4.5b: pin learner-process CPU affinity *before* any heavy
-    # paradigm setup so child threads spawned by torch/buffer allocators
-    # inherit the cpuset. No-op on Mac and on cfgs that don't set the
-    # field.
+    # Pin learner-process CPU affinity *before* any heavy paradigm setup
+    # so child threads spawned by torch/buffer allocators inherit the
+    # cpuset. No-op on Mac and on cfgs that don't set the field.
     _apply_learner_affinity(cfg)
 
     paradigm = resolve_paradigm(cfg.meta.paradigm)

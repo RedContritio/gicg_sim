@@ -87,11 +87,11 @@ class DMCParadigmConfig(ParadigmConfigBase):
     eval_n_scenarios: int = 8
     eval_baselines: tuple = ('F1-D2',)
 
-    # CPU affinity hints for the DMC training pipeline (PLAN.md §3.4.5.2).
-    # Lists of logical CPU IDs, e.g. [0,1,...,15] for X3D CCD0. Silently
-    # skipped on platforms without cpu_affinity support (macOS) — the
-    # field declarations stand as portable cfg shape, the runtime apply
-    # site decides what's actionable per host.
+    # CPU affinity hints for the DMC training pipeline. Lists of logical
+    # CPU IDs, e.g. [0,1,...,15] for X3D CCD0. Silently skipped on
+    # platforms without cpu_affinity support (macOS) — the field
+    # declarations stand as portable cfg shape, the runtime apply site
+    # decides what's actionable per host.
     # - ``cpu_affinity_actors``: pinned in each spawned actor process via
     #   ``training/core/actor/actor_process.py:actor_main`` →
     #   ``harden_child_env(affinity=...)``.
