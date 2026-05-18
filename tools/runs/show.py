@@ -1,89 +1,169 @@
-"""``tools.runs.show`` — detail dump of a single run metadata record.
+"""``tools.runs.show`` — detail dump of a single run by NNN shorthand.
 
-Outputs a human-readable key/value listing plus the raw TOML at the
-bottom, so this both replaces "open the toml in an editor" and gives
-the reader the canonical bytes for sanity check.
+Clean-slate redesign per
+``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
+§CLI show 细则 HIGH-1-C 行 120-125 + §Schema CRIT-6-A 行 157 +
+§错误处理 行 318.
 
-CLI:
+Behavior:
 
-    .venv/bin/python -m tools.runs.show r013 [--root <path>] [--toml-only]
+- Accept any 1-6 digit shorthand (``69`` / ``069`` / ``000069``); internal
+  zero-pad to 6 digits + exact match via :func:`resolve_nnn_to_dir`.
+- Print every ``metadata.toml`` field (all 11) for human inspection.
+- Print **every** ``cfg_resolved*.toml`` (v1 + v2 + ... v<N>) as audit
+  trail; the highest-version one is marked ``(current)`` (spec 行 157
+  "truth = 最高版").
+- Malformed metadata.toml: **raise** (NOT skip like list — show
+  targets a single NNN, failing loud is correct per spec 行 318).
+- Dir-lookup failures (0 / ≥2 match) bubble up from resolver as
+  :class:`LookupError`.
 
-Exits 1 if the run is not registered.
+CLI::
+
+    .venv/bin/python -m tools.runs.show <NNN>
+
+``<NNN>`` is the 1-6 digit shorthand. Exit codes:
+
+- 0 — success
+- 2 — lookup / parse error (LookupError / ValueError / OSError)
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 from tools.runs import schema
+from tools.runs._helpers.resolver import resolve_nnn_to_dir
+
+# Resume-versioned cfg files (spec §Resume 行 153-157): v1 has no suffix,
+# v>=2 carries ``_v<N>`` suffix; latest version is current truth.
+_CFG_RESOLVED_V_RE = re.compile(r'^cfg_resolved_v(\d+)\.toml$')
+
+# Match list.py's display order; keep in sync with schema._FIELD_ORDER.
+_FIELD_ORDER: tuple[str, ...] = (
+    'run_id',
+    'timestamp',
+    'cfg_file',
+    'cfg_resolved_version',
+    'git_commit',
+    'host',
+    'status',
+    'artifacts_dir',
+    'wall_seconds',
+    'exit_code',
+    'notes',
+)
 
 
-def render(meta: schema.RunMetadata, toml_only: bool = False) -> str:
-    """Pure-string render for both stdout and tests."""
-    if toml_only:
-        return schema.dumps(meta)
+def _list_cfg_resolved_versions(artifacts_dir: Path) -> list[tuple[int, Path]]:
+    """Return sorted ``[(version, path), ...]`` for all ``cfg_resolved*.toml``.
 
-    lines: list[str] = []
-    lines.append(f'run_id       : {meta.run_id}')
-    lines.append(f'label        : {meta.label}')
-    lines.append(f'type         : {meta.type}')
-    lines.append(f'paradigm     : {meta.paradigm}')
-    lines.append(f'status       : {meta.status}')
-    lines.append(f'timestamp    : {meta.timestamp}')
-    lines.append(f'host         : {meta.host}')
-    lines.append(f'git_commit   : {meta.git_commit}')
-    lines.append(f'cfg_file     : {meta.cfg_file}')
-    lines.append(f'cfg_checksum : {meta.cfg_checksum}')
-    lines.append(f'cfg_run_label: {meta.cfg_run_label}')
-    lines.append(
-        f'artifacts_dir: {meta.artifacts_dir or "(unset — run `complete --artifacts-dir <path>` after train)"}'
+    - ``cfg_resolved.toml`` → version 1 (spec 行 153 "首版固定无后缀").
+    - ``cfg_resolved_v<N>.toml`` → version N (N >= 2; spec 行 155).
+
+    Sort ascending by version so the caller can render v1 → v<N> in order.
+    Returns ``[]`` when no cfg_resolved files exist (defensive — production
+    train.py always writes at least v1, but recover / hand-crafted dirs
+    may not).
+    """
+    versions: list[tuple[int, Path]] = []
+    if not artifacts_dir.is_dir():
+        return versions
+    for entry in artifacts_dir.iterdir():
+        if not entry.is_file():
+            continue
+        if entry.name == 'cfg_resolved.toml':
+            versions.append((1, entry))
+            continue
+        m = _CFG_RESOLVED_V_RE.match(entry.name)
+        if m is None:
+            continue
+        versions.append((int(m.group(1)), entry))
+    versions.sort(key=lambda pair: pair[0])
+    return versions
+
+
+def _format_metadata(meta: schema.RunMetadata) -> str:
+    """Render all 11 metadata fields as ``key: value`` lines.
+
+    Field order matches :data:`_FIELD_ORDER` (same as ``schema._FIELD_ORDER``
+    so the human view tracks the TOML dump order).
+    """
+    lines = ['=== metadata ===']
+    for field in _FIELD_ORDER:
+        value = getattr(meta, field)
+        lines.append(f'{field}: {value}')
+    return '\n'.join(lines)
+
+
+def show_run(repo_root: Path, nnn: str) -> str:
+    """Build the full show-output string for ``nnn`` under ``repo_root``.
+
+    Pure string return (no stdout side effect) so tests can assert on the
+    rendered text directly; :func:`main` is the CLI shell that prints it.
+
+    Raises:
+        ValueError: ``nnn`` is not a 1-6 digit string (caller bug; resolver
+            shape contract).
+        LookupError: 0 or ≥2 ``artifacts/`` dirs match the zero-padded NNN
+            (spec 行 122-123 — show 单 NNN 失败 = 直接 raise).
+        OSError / ValueError: malformed ``metadata.toml`` (parse fail / schema
+            violation / read error). Per spec 行 318, show **does not skip**
+            — failing loud on a single-target query is correct.
+    """
+    artifacts_dir = resolve_nnn_to_dir(repo_root, nnn)
+    metadata_path = artifacts_dir / 'metadata.toml'
+    # load_file → tomllib.loads → from_dict → validate.
+    # Any of these may raise OSError / ValueError; let them propagate
+    # per spec 行 318 (show != list, single-target raise).
+    meta = schema.load_file(metadata_path)
+
+    cfg_versions = _list_cfg_resolved_versions(artifacts_dir)
+    # current = max version present. Empty list → fall back to metadata's
+    # cfg_resolved_version (defensive; both rare hand-crafted dirs and the
+    # canonical first-version path stay consistent).
+    if cfg_versions:
+        current_version = max(v for v, _ in cfg_versions)
+    else:
+        current_version = meta.cfg_resolved_version
+
+    sections: list[str] = [_format_metadata(meta)]
+
+    if not cfg_versions:
+        sections.append('\n=== cfg_resolved ===\n(no cfg_resolved*.toml files in artifacts dir)')
+    else:
+        for version, path in cfg_versions:
+            suffix = ' (current)' if version == current_version else ''
+            header = f'\n=== cfg_resolved_v{version}{suffix} ({path.name}) ==='
+            body = path.read_text(encoding='utf-8').rstrip('\n')
+            sections.append(f'{header}\n{body}')
+
+    return '\n'.join(sections) + '\n'
+
+
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument(
+        'nnn',
+        help='NNN shorthand: 1-6 digit run id (e.g. 69, 069, 000069). Internal zero-pad to 6 digits.',
     )
-    lines.append('')
-    lines.append(f'[summary] wall={meta.summary.wall or "-"}')
-    if meta.summary.description:
-        lines.append(f'          description={meta.summary.description}')
-
-    if meta.result.gauntlet is not None:
-        g = meta.result.gauntlet
-        lines.append('')
-        lines.append(f'[result.gauntlet] n={g.n}')
-        for k in sorted(g.metrics):
-            lines.append(f'  {k}: {g.metrics[k]:.4f}')
-
-    if meta.result.training is not None:
-        t = meta.result.training
-        lines.append('')
-        lines.append(f'[result.training] final_loss={t.final_loss:.4f} n_games_completed={t.n_games_completed}')
-
-    if meta.notes.text:
-        lines.append('')
-        lines.append(f'[notes] {meta.notes.text}')
-
-    lines.append('')
-    lines.append('--- raw toml ---')
-    lines.append(schema.dumps(meta).rstrip('\n'))
-    return '\n'.join(lines) + '\n'
+    # --root undocumented but supported for tests; production runs cwd.
+    ap.add_argument('--root', default=None, help=argparse.SUPPRESS)
+    return ap.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('run_id')
-    ap.add_argument('--root', default=None)
-    ap.add_argument('--toml-only', action='store_true', dest='toml_only')
-    args = ap.parse_args(argv)
-    root = Path(args.root) if args.root else None
-    path = schema.run_path(args.run_id, root=root)
-    if not path.exists():
-        print(f'tools.runs.show: run {args.run_id} not registered (no file at {path})', file=sys.stderr)
-        return 1
+    args = _parse_args(argv)
+    repo_root = Path(args.root) if args.root else Path.cwd()
     try:
-        meta = schema.load_file(path)
-    except (ValueError, OSError) as e:
-        print(f'tools.runs.show: failed to read {path}: {e}', file=sys.stderr)
-        return 1
-    sys.stdout.write(render(meta, toml_only=args.toml_only))
+        output = show_run(repo_root, args.nnn)
+    except (LookupError, ValueError, OSError) as e:
+        print(f'tools.runs.show: {e}', file=sys.stderr)
+        return 2
+    sys.stdout.write(output)
     return 0
 
 
