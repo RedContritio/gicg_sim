@@ -25,6 +25,9 @@ assertion below asserts ``train_steps > 0`` to lock the regression
 — if ``pipeline.py:83`` collect gate is ever broken again the
 BC smoke_full test fails fast instead of silently writing
 random-init ckpts (the pre-fix failure mode).
+
+T-25 rewrite: template now owns workspace/ subdir + artifacts/
+allocation; we only need a sibling ``fixture/`` subdir for the NPZ.
 """
 
 from __future__ import annotations
@@ -128,10 +131,8 @@ def _gen_bc_npz_for_smoke(tmp_path: Path) -> Path:
 def test_bc_smoke_full(tmp_path) -> None:
     """BC full smoke — driver train (100 epoch) + ckpt save + resume.
 
-    Two tmp_path subdirs: ``fixture/`` holds the on-the-fly NPZ so
-    pytest leaves it alone for inspection; ``artifacts/`` holds the
-    CheckpointManager output (kept disjoint to avoid bouncing artifact
-    counter against fixture files).
+    ``fixture/`` subdir holds the on-the-fly NPZ; template owns the
+    ``workspace/`` subdir with symlinks for the subprocess cwd.
 
     Resume bumps ``paradigm.bc.n_epochs`` from 100 → 130 so the
     resumed run has room to land a new ckpt step (BC's terminus is
@@ -148,13 +149,11 @@ def test_bc_smoke_full(tmp_path) -> None:
     fixture_dir.mkdir()
     npz_path = _gen_bc_npz_for_smoke(fixture_dir)
 
-    artifacts_root = tmp_path / 'artifacts'
-    artifacts_root.mkdir()
     dataset_override = f'paradigm.bc.dataset_path={npz_path}'
 
     artifacts = run_paradigm_train_via_driver(
         cfg,
-        artifacts_root,
+        tmp_path,
         extra_overrides=[dataset_override],
     )
     ckpts = verify_ckpt_files(artifacts, expected_min_count=2)

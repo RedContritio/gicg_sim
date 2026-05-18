@@ -95,18 +95,34 @@ def run_paradigm_train(state: SetupState) -> None:
         network = paradigm.make_network(cfg)
         opp_pool = paradigm.make_opponent_pool(cfg, network)
 
-    run_pipeline(
-        cfg,
-        paradigm,
-        env_factory=env_factory,
-        opp_pool=opp_pool,
-        eval_server=None,  # EvalServer wiring stays out of T-11 (post-redesign backlog)
-        # T-12: ``state.resume_ckpt_path`` is None on fresh path, the
-        # ckpt Path on resume path. ``CheckpointManager.try_resume``
-        # handles the load logic; passing None == fresh start.
-        resume_from=state.resume_ckpt_path,
-        prebuilt_artifacts_dir=state.artifacts_dir,
-    )
+    # T-12: ``state.resume_ckpt_path`` is None on fresh path, the ckpt
+    # ``Path`` on resume path. ``CheckpointManager.init_artifacts_dir``
+    # treats ``resume_from`` and ``prebuilt`` as mutually exclusive (one
+    # derives artifacts_dir from ``ckpt.parent.parent``, the other adopts
+    # caller's dir verbatim); on resume the two yield the same dir by
+    # construction (Phase A resume sets ``state.artifacts_dir =
+    # ckpt.parent.parent``), so we must pass only one. Convention: pass
+    # ``resume_from`` on the resume branch so ``ckpt_mgr.try_resume``
+    # actually loads weights, and pass ``prebuilt`` on the fresh branch
+    # so Phase A's allocated dir name (with NNN) is honored verbatim.
+    if state.resume_ckpt_path is not None:
+        run_pipeline(
+            cfg,
+            paradigm,
+            env_factory=env_factory,
+            opp_pool=opp_pool,
+            eval_server=None,
+            resume_from=state.resume_ckpt_path,
+        )
+    else:
+        run_pipeline(
+            cfg,
+            paradigm,
+            env_factory=env_factory,
+            opp_pool=opp_pool,
+            eval_server=None,
+            prebuilt_artifacts_dir=state.artifacts_dir,
+        )
 
 
 def _current_cfg_resolved_filename(state: SetupState) -> str:

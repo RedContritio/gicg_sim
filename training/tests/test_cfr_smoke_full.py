@@ -2,7 +2,7 @@
 
 OpenSpec ref: ``openspec/changes/paradigm-smoke-full-tier/specs/
 training-architecture/spec.md`` invariant A1.6 + DECISIONS SF-105
-+ ``openspec/changes/cfr-driver-buffer-multihead-fix/`` (this change).
++ ``openspec/changes/cfr-driver-buffer-multihead-fix/`` (stub buffer).
 
 CFR has a 3-headed buffer (advantage[player0/player1] + strategy +
 value) — ``_CFRBufferBundle.sample()`` raises because the generic
@@ -21,6 +21,13 @@ This does NOT validate CFR training quality (CFR remains frozen-research
 tier per C6.1 + C6.3). Production CFR runs are unaffected — env flag is
 test-only and dispatch in ``CFRParadigm.make_buffer`` keeps
 ``_CFRBufferBundle`` as the production default.
+
+T-25 rewrite note: pre-T-23 driver had ``--max-steps`` which capped
+the initial run at step 30 so resume from ckpt_10 had room to advance
+to n_iterations=50. Spec C-1 deleted ``--max-steps``; we now cap via
+cfg's ``n_iterations=50`` and bump on resume to ``n_iterations=80``
+(matching BC / PPO terminus-bump pattern) so post-resume ckpts at
+step 60 / 70 / 80 appear as new files.
 """
 
 from __future__ import annotations
@@ -39,7 +46,7 @@ _STUB_BUFFER_ENV = {'GICG_CFR_SMOKE_STUB_BUFFER': '1'}
 
 @pytest.mark.smoke_full
 def test_cfr_smoke_full(tmp_path) -> None:
-    """CFR full smoke — driver train (≥ 30 iter) + ckpt save + resume.
+    """CFR full smoke — driver train (50 iter) + ckpt save + resume.
 
     Stub buffer injected via env flag per cfr-driver-buffer-multihead-fix
     C6.4 — production CFR unaffected.
@@ -47,15 +54,18 @@ def test_cfr_smoke_full(tmp_path) -> None:
     cfg = REPO_ROOT / 'configs' / 'cfr' / 'smoke_full.toml'
     assert cfg.exists(), f'cfg missing: {cfg}'
 
-    # Initial run capped at step 30 (cfg n_iterations=50); resume continues
-    # without --max-steps so it can advance past step 30 and write new
-    # ckpt files (ckpt_40 / ckpt_50). Without max_steps cap, initial run
-    # would consume all n_iterations and resume could only overwrite
-    # existing ckpt files at the same steps.
-    artifacts = run_paradigm_train_via_driver(cfg, tmp_path, extra_env=_STUB_BUFFER_ENV, max_steps=30)
+    artifacts = run_paradigm_train_via_driver(cfg, tmp_path, extra_env=_STUB_BUFFER_ENV)
     ckpts = verify_ckpt_files(artifacts, expected_min_count=2)
 
-    new_ckpts = resume_and_continue(ckpts[0], extra_env=_STUB_BUFFER_ENV)
+    # Bump n_iterations to give the resumed run room for new ckpt(s).
+    # Initial run reaches step 50 (n_iterations=50, save_every=10 →
+    # ckpts at 10/20/30/40/50); resume from earliest ckpt_10 + bump
+    # n_iterations=80 → continues 10 → 80 → adds ckpts at 60/70/80.
+    new_ckpts = resume_and_continue(
+        ckpts[0],
+        extra_env=_STUB_BUFFER_ENV,
+        extra_overrides=['paradigm.cfr.n_iterations=80'],
+    )
     assert len(new_ckpts) > len(ckpts), (
         f'expected new ckpt(s) after resume from {ckpts[0].name}, got {len(ckpts)} → {len(new_ckpts)} files'
     )
