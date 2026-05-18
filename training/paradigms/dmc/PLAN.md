@@ -545,51 +545,59 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 
 > 本节是 audit 结果 + actionable sub-tasks(基于 grep 验证实际 ship 进度,非 design intent — 上面 §Phase 3.x 是原 design plan)。
 
-### Phase 3.2 status(2/3 done)
+### Phase 3.2 status(3/3 done)
 
 | Sub-step | 状态 | 证据 |
 |---|---|---|
 | 3.2.1 `libgicg.dll` Windows build | **DONE** | 2026-05-14 verify(per `reference_windows_gpu_box` memory)|
 | 3.2.2 Platform detect adapter | **DONE** | `gicg_env/engine.py:_find_lib` 已 `sys.platform` dispatch |
-| 3.2.3 TCP socket replace Unix | **PENDING** | `tools/remote/eval_service{,_server}.py` 仍 `AF_UNIX` |
+| 3.2.3 TCP socket replace Unix | **DONE** | `tools/remote/eval_service{,_server}.py` AF_INET(commits 6e8f40c + 18338f5);cross-platform smoke at tools/remote/tests/(0f89583 + 0b3c709)|
 
 #### Phase 3.2 剩余 actionable plan(~半天,~80-120 LOC)
 
 | Task | 说明 | LOC |
 |---|---|---|
 | **T-3.2a** | PLAN.md §3.2.3 路径校正(2026-05-18 已 done) | ~10 doc |
-| **T-3.2b** | `tools/remote/eval_service_server.py`: `AF_UNIX` → `AF_INET` + bind `(host, port)`,读 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)。不留 `AF_UNIX` fallback。 | ~30 |
-| **T-3.2c** | `tools/remote/eval_service.py` client 同步:`AF_INET` + 读同 env var。 | ~20 |
-| **T-3.2d** | `tools/remote/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 ssh 跑相同 test verify。 | ~30 |
-| **T-3.2e** | 更新 `reference_windows_gpu_box` memory 加 `GICG_EVAL_PORT` env var 注释;PLAN.md 3.2 标 DONE。 | doc |
+| **T-3.2b** | `tools/remote/eval_service_server.py`: `AF_UNIX` → `AF_INET` + bind `(host, port)`,读 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)。不留 `AF_UNIX` fallback。 | ✅ ~30 — commit 6e8f40c |
+| **T-3.2c** | `tools/remote/eval_service.py` client 同步:`AF_INET` + 读同 env var。 | ✅ ~20 — commit 6e8f40c |
+| **T-3.2d** | `tools/remote/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 ssh 跑相同 test verify。 | ✅ ~30 — commits 0f89583 + 0b3c709 |
+| **T-3.2e** | 更新 `reference_windows_gpu_box` memory 加 `GICG_EVAL_PORT` env var 注释;PLAN.md 3.2 标 DONE。 | ✅ doc — 本提交 |
 
 **Verify gate**:Mac `pytest gicg_env/tests/ tools/remote/tests/ -q` + Windows ssh `pytest gicg_env/tests/ -q` 全 PASS。
 
 ---
 
-### Phase 3.4.5 status(~30% done)
+### Phase 3.4.5 status(~75% done)
 
 | Sub-step | 状态 | 证据 / 缺口 |
 |---|---|---|
-| 3.4.5.1 OMP / threading control | **DONE(97%)** | `training/core/actor/_mp_helpers.py:27 harden_child_env` 5 env var + `torch.set_num_threads(1)`;**缺 `torch.set_num_interop_threads(1)`** |
-| 3.4.5.2 CPU affinity | **PENDING** | `training/paradigms/dmc/_run_config.py:114-116` 声明 `cpu_affinity_{actors,learner,eval}` 字段但**全 repo 无 reader**(死字段) |
-| 3.4.5.3 JIT inference | **PARTIAL** | `torch.inference_mode()` ship(`inference_server.py:115,190`);**`torch.jit.trace` 死**(`use_jit_trace` 字段无 reader) |
+| 3.4.5.1 OMP / threading control | **DONE (100%)** | `+ torch.set_num_interop_threads(1)` shipped(commit 259356f);`harden_child_env` 5 env var + `torch.set_num_threads(1)` + `torch.set_num_interop_threads(1)` 完整 |
+| 3.4.5.2 CPU affinity | **DONE (actors + learner; eval deferred)** | wired in DMCParadigmConfig + actor_main + run_paradigm_train(commit 9663e0a);eval_service CLI flag deferred to follow-up F-3.4.5b-eval |
+| 3.4.5.3 JIT inference | **DONE (infrastructure; DMC runtime NO-OP)** | use_jit_trace wired in LocalNetworkProvider + InferenceServer + _server_loop(commits 2a896f8 + ac7821d);DMC trace path NO-OP because DMCNetwork.forward raises NotImplementedError;provider_factory plumbing gap acknowledged in field comment(see F-3.4.5c-factory follow-up)|
 | 3.4.5.4 Shared mem replay | **DONE** | `training/core/actor/{weights_shm.py, ipc/ring.py}` `multiprocessing.shared_memory` ring buffer |
 | 3.4.5.5 Engine call minimize | **N/A** | 无 redundant call,plan 不要求 fix |
-| 3.4.5.6 cProfile 验证 | **PENDING** | 全 repo 无 `.prof` / `cProfile` import / `runs.md:59` 标 pending |
-| 3.4.5.7 Throughput baseline | **PENDING** | `notes.md:224` 仅旧 "17 fps" smoke,无 X3D 实测 |
+| 3.4.5.6 cProfile 验证 | **DONE (Mac baseline); PENDING (Windows)** | `tools/dmc/profile_actor.py` + Mac 274 fps captured(commits c26b0bb + e2c414e);Windows X3D run blocked by box availability |
+| 3.4.5.7 Throughput baseline | **PARTIAL (Mac baseline; Windows pending)** | Mac M-series baseline 274 fps in notes.md;X3D ≥ 1200 fps target requires Windows box access |
 
 #### Phase 3.4.5 剩余 actionable plan(~1-2 day,~200-300 LOC + Windows-side profile run)
 
 | Task | 说明 | LOC |
 |---|---|---|
-| **T-3.4.5a** | `_mp_helpers.harden_child_env` 加 `torch.set_num_interop_threads(1)` trivial fix。 | ~1 |
-| **T-3.4.5b** | Wire `cpu_affinity_*`(死字段 → 真用):actor process boot 调 `psutil.Process().cpu_affinity(cfg.cpu_affinity_actors)`;learner / eval 同样 wire。default X3D:actors `[0..7, 16..23]` / learner `[8]` / eval `[9..15]`。Mac / Linux fallback:skip if no CCD assumption。 | ~40 |
-| **T-3.4.5c** | Wire `use_jit_trace`(死字段 → 真用):actor 启动后 `trace_once(net, example_obs)`,hot loop `traced_net(*obs_args)`(已有 `inference_mode`);`cfg.use_jit_trace=True` 才走 traced 路径。 | ~60 |
-| **T-3.4.5d** | `tools/dmc/profile_actor.py`(新):single-actor 5min smoke + cProfile output `actor.prof` + snakeviz HTML。Mac + Windows 都可跑(Windows 是 baseline 真测点)。 | ~60 |
-| **T-3.4.5e** | Windows X3D profile run:ssh + 跑 `profile_actor.py` 5min,记 per-actor fps + cProfile top hotspots → `notes.md "## Phase 3.4.5 — CPU profile results"`(目前空)。target verify per-actor ≥ 1200 fps。 | run + doc |
-| **T-3.4.5f** | Multi-actor smoke total throughput(Windows):24 actor smoke 5min,记 total fps ≥ 28k → `notes.md` "Phase 3.4.5 verdict"。若 < target → cycle(profile → 优化 → retry)。 | run + doc |
-| **T-3.4.5g** | Phase 3.4.5 close 决策:PASS(per-actor ≥ 1200 + total ≥ 28k)→ close + 准备进 Stage 3 train;FAIL → 扩 ablation cycle。 | doc |
+| **T-3.4.5a** | `_mp_helpers.harden_child_env` 加 `torch.set_num_interop_threads(1)` trivial fix。 | ✅ ~1 — commit 259356f |
+| **T-3.4.5b** | Wire `cpu_affinity_*`(死字段 → 真用):actor process boot 调 `psutil.Process().cpu_affinity(cfg.cpu_affinity_actors)`;learner / eval 同样 wire。default X3D:actors `[0..7, 16..23]` / learner `[8]` / eval `[9..15]`。Mac / Linux fallback:skip if no CCD assumption。 | ✅ ~40 — commit 9663e0a(actors + learner only;eval deferred — see F-3.4.5b-eval)|
+| **T-3.4.5c** | Wire `use_jit_trace`(死字段 → 真用):actor 启动后 `trace_once(net, example_obs)`,hot loop `traced_net(*obs_args)`(已有 `inference_mode`);`cfg.use_jit_trace=True` 才走 traced 路径。 | ✅ ~60 — commit 2a896f8(infrastructure wired;DMC NO-OP per field comment;see F-3.4.5c-test for server_loop test coverage)|
+| **T-3.4.5d** | `tools/dmc/profile_actor.py`(新):single-actor 5min smoke + cProfile output `actor.prof` + snakeviz HTML。Mac + Windows 都可跑(Windows 是 baseline 真测点)。 | ✅ ~60 — commits c26b0bb + e2c414e(Mac baseline 274 fps captured;Windows follow-up in T-3.4.5e)|
+| **T-3.4.5e** | Windows X3D profile run:ssh + 跑 `profile_actor.py` 5min,记 per-actor fps + cProfile top hotspots → `notes.md "## Phase 3.4.5 — CPU profile results"`(目前空)。target verify per-actor ≥ 1200 fps。 | run + doc(PENDING — Windows-blocked)|
+| **T-3.4.5f** | Multi-actor smoke total throughput(Windows):24 actor smoke 5min,记 total fps ≥ 28k → `notes.md` "Phase 3.4.5 verdict"。若 < target → cycle(profile → 优化 → retry)。 | run + doc(PENDING — Windows-blocked)|
+| **T-3.4.5g** | Phase 3.4.5 close 决策:PASS(per-actor ≥ 1200 + total ≥ 28k)→ close + 准备进 Stage 3 train;FAIL → 扩 ablation cycle。 | doc(PENDING — Windows-blocked)|
+
+#### Phase 3.4.5 follow-ups discovered during ship
+
+| Task | 说明 | LOC | 触发 |
+|---|---|---|---|
+| **F-3.4.5b-eval** | `tools/remote/eval_service.py` 加 `--cpu-affinity` CLI flag(可选 env `GICG_EVAL_CPU_AFFINITY`)。`DMCParadigmConfig.cpu_affinity_eval` 是 documentation 字段,ops 启动 eval_service 时手动传给 `--cpu-affinity`。 | ~20 | Task 3 spec deferred(eval_service 是 separate process,DMC cfg 无法 runtime 触达) |
+| **F-3.4.5c-test** | `training/tests/test_inference_server_jit_trace.py`(新):mp Process spawn smoke,verify `use_jit_trace=True` ctor flag → `_server_loop` 实际 trace + `'weights'` msg 触发 invalidation。 | ~50 | Task 4 review:`_server_loop` `use_jit_trace=True` path 零测试覆盖,只 LocalNetworkProvider 测了 |
+| **F-3.4.5c-factory** | `training/core/actor/provider_factory.build_network_provider` 扩展 `use_jit_trace` 参数,要求 `InferenceCfg` 加第 5 字段或别路径绕过 R7 4-字段契约。OR document that paradigms wanting trace 必须 bypass factory(现状)。 | ~30 if extend / 0 if document | Task 4 review:wiring 链 inert at factory site;DMC NO-OP 之外还有 generic gap |
 
 **Verify gate**:per-actor ≥ 1200 fps + total ≥ 28k fps(24 actor on X3D)。
 

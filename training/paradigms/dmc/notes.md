@@ -274,6 +274,19 @@ Swap p0/p1 asymmetry(0.25 vs 0.00):p0 = agent=赤蝶 / opp=墨客;p1 反过来�
 
 ## Phase 3.4.5 — CPU profile results
 
+### Status overview (2026-05-18 ship)
+
+| Sub-step | 状态 | 提交 |
+|---|---|---|
+| 3.4.5.1 OMP / interop / threading | ✅ DONE | 259356f |
+| 3.4.5.2 CPU affinity (actors + learner) | ✅ DONE (eval deferred) | 9663e0a |
+| 3.4.5.3 JIT trace infrastructure | ✅ DONE (DMC runtime NO-OP) | 2a896f8 |
+| 3.4.5.4 Shared mem replay | ✅ DONE (pre-existing) | n/a |
+| 3.4.5.6 cProfile harness + Mac baseline | ✅ DONE | c26b0bb |
+| 3.4.5.7 Throughput PASS criteria verify | ⏸ PENDING (Windows) | T-3.4.5e/f |
+
+See `PLAN.md "Phase 3.4.5 actionable plan"` for follow-ups.
+
 ### Mac M-series baseline (2026-05-18, profile_actor.py initial run)
 
 **Setup:** single-actor serial DMC smoke (`configs/dmc/smoke.toml`), 60s wall budget, cProfile cumulative-time sort. Tool: `tools/dmc/profile_actor.py`. `harden_child_env` applied (OMP/MKL/BLAS=1, torch.set_num_threads(1), torch.set_num_interop_threads(1)).
