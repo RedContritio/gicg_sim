@@ -482,49 +482,6 @@ def test_setup_state_is_frozen(tmp_path: Path) -> None:
         state.nnn = 999  # type: ignore[misc]
 
 
-# --- main() placeholder + argparse --------------------------------------------
-
-
-def test_main_placeholder_returns_0_on_success(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    cfg = _write_cfg(tmp_path / 'cfg.toml', 'main_test')
-    rc = train_mod.main([str(cfg)])
-    assert rc == 0
-    err = capsys.readouterr().err
-    # Post T-09, main() runs Phase A + Phase B before the stub print.
-    assert 'Phase B complete' in err
-
-
-def test_main_returns_2_on_bad_label(tmp_path: Path) -> None:
-    cfg = _write_cfg(tmp_path / 'cfg.toml', '../etc')
-    with pytest.raises(SystemExit) as ei:
-        train_mod.main([str(cfg)])
-    assert ei.value.code == 2
-
-
-def test_main_returns_2_on_missing_cfg(tmp_path: Path) -> None:
-    with pytest.raises(SystemExit) as ei:
-        train_mod.main([str(tmp_path / 'missing.toml')])
-    assert ei.value.code == 2
-
-
-def test_parse_args_supports_resume_flag(tmp_path: Path) -> None:
-    """``--resume`` is parsed (but not used) in T-08; T-12 implements logic."""
-    cfg = tmp_path / 'cfg.toml'
-    cfg.write_text('# placeholder\n')
-    args = train_mod._parse_args([str(cfg), '--resume', '/tmp/some.pt'])
-    assert args.resume == '/tmp/some.pt'
-
-
-def test_parse_args_override_repeatable(tmp_path: Path) -> None:
-    cfg = tmp_path / 'cfg.toml'
-    cfg.write_text('# placeholder\n')
-    args = train_mod._parse_args([str(cfg), '--override', 'a.b=1', '--override', 'c.d=2'])
-    assert args.override == ['a.b=1', 'c.d=2']
-
-
-def test_parse_args_override_default_empty(tmp_path: Path) -> None:
-    cfg = tmp_path / 'cfg.toml'
-    cfg.write_text('# placeholder\n')
-    args = train_mod._parse_args([str(cfg)])
-    assert args.override == []
-    assert args.resume is None
+# NOTE: ``main()`` + ``_parse_args`` integration tests live in
+# ``test_train_main.py`` (T-10 housekeeping split — file was at 530/500
+# after T-09 landed). Phase-A-only unit tests stay here.
