@@ -61,6 +61,17 @@ def maybe_arena(
     log,
     artifacts_dir: Optional[Path],
 ) -> None:
+    """Arena challenger-vs-champion eval; on replacement, save the new
+    champion ckpt to ``<artifacts_dir>/ckpts/champion_g<NNNNN>.pt``.
+
+    Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-
+    design.md`` §Per-run dir 行 76-96 / §ckpts/ naming 行 606-613
+    (``ckpts/`` 含所有 ``.pt``).
+
+    Width: 5-digit zero-pad on ``game_marker``. This is AZ-internal
+    convention (larger than gauntlet's 4-digit) and is intentionally
+    NOT unified — see T-30 plan note (historical OK).
+    """
     from training.paradigms.az.arena import arena_match
 
     arena = arena_match(
@@ -87,4 +98,6 @@ def maybe_arena(
         result.champion_replacements.append(game_marker)
         log('replace', {'game': game_marker, 'win_rate': arena.challenger_win_rate})
         if artifacts_dir is not None:
-            challenger.save(str(artifacts_dir / f'champion_g{game_marker:05d}.pt'))
+            ckpts_dir = artifacts_dir / 'ckpts'
+            ckpts_dir.mkdir(parents=True, exist_ok=True)
+            challenger.save(str(ckpts_dir / f'champion_g{game_marker:05d}.pt'))

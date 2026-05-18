@@ -122,9 +122,9 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    ckpts = sorted(args.run_dir.glob('champion_g*.pt'))
+    ckpts = sorted((args.run_dir / 'ckpts').glob('champion_g*.pt'))
     if not ckpts:
-        print(f'no champions found under {args.run_dir}', file=sys.stderr)
+        print(f'no champions found under {args.run_dir}/ckpts/', file=sys.stderr)
         return 1
 
     cfg = fixed_1v1_config(data_dir='data')

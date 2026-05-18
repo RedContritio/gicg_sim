@@ -1,6 +1,6 @@
 """Quick absolute-strength diag on saved C1 champion checkpoints.
 
-Loads each ``champion_gNNNNN.pt`` under the given run dir and runs
+Loads each ``champion_gNNNNN.pt`` under ``<run_dir>/ckpts/`` and runs
 a short matchup panel (random + mcts_pure_N) so the operator can see
 the real win-rate trajectory of the champions that HAVE been saved
 (replaces only — failed arenas don't produce a ckpt).
@@ -43,9 +43,9 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    ckpts = sorted(args.run_dir.glob('champion_g*.pt'))
+    ckpts = sorted((args.run_dir / 'ckpts').glob('champion_g*.pt'))
     if not ckpts:
-        print(f'no champion_g*.pt found under {args.run_dir}', file=sys.stderr)
+        print(f'no champion_g*.pt found under {args.run_dir}/ckpts/', file=sys.stderr)
         return 1
 
     cfg = fixed_1v1_config(data_dir='data')
