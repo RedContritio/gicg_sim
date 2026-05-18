@@ -453,7 +453,9 @@ def test_main_runs_phase_a_and_b_and_writes_all_three_files(tmp_path: Path) -> N
     assert (art / 'cfg_resolved.toml').is_file()
     assert (art / 'metadata.toml').is_file()
     meta = schema.load_file(art / 'metadata.toml')
-    assert meta.status == 'running'
+    # Post T-10 main() runs Phase C which closes to 'done'. Phase-C-
+    # specific close behavior lives in test_train_close.py.
+    assert meta.status == 'done'
 
 
 def test_main_exits_2_when_phase_b_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

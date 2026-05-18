@@ -20,7 +20,10 @@ Lifecycle phases:
 - Phase D (T-11+): paradigm dispatch / resume / authoritative host
 
 T-08 ``main()`` calls Phase A then prints a stub and exits 0. T-09
-inserts the Phase B call between Phase A success and the stub.
+inserts the Phase B call between Phase A success and the stub. T-10
+replaces the stub with Phase C (run + close metadata) so ``main()``
+now runs Phase A → B → C and returns Phase C's process exit code
+(spec §Exit codes 行 247-257).
 """
 
 from __future__ import annotations
@@ -47,6 +50,10 @@ from tools.runs._train.setup import (  # noqa: F401
 from tools.runs._train.snapshot import (  # noqa: F401
     phase_b_write_cfg_metadata as _phase_b_write_cfg_metadata,
 )
+from tools.runs._train.run import (  # noqa: F401
+    _run_train_placeholder,
+    phase_c_run_train_and_close as _phase_c_run_train_and_close,
+)
 
 __all__ = [
     'SetupState',
@@ -60,7 +67,8 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         description=(
             'Atomic train lifecycle (clean-slate redesign): allocate NNN, mkdir '
             'per-run dir, snapshot cfg, write metadata, run train, close metadata. '
-            'T-08 ships steps 0-3 (setup + allocator); 4-7 land in T-09 / T-10.'
+            'T-08-T-10 ship steps 0-7 (placeholder train); T-11 swaps in real '
+            'paradigm dispatch over the same Phase C stub.'
         ),
     )
     parser.add_argument('cfg', type=str, help='path to TOML cfg')
@@ -104,10 +112,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f'tools.runs.train: cfg/metadata snapshot failed: {exc}', file=sys.stderr)
         return 2
 
-    # Phase C placeholder — T-10 runs train + closes metadata. T-09 stops
-    # here so Phase B can ship independently with full test coverage.
-    print(f'[stub] Phase B complete: {state.artifacts_dir}', file=sys.stderr)
-    return 0
+    # Phase C: run train (T-10 stub; T-11 real paradigm dispatch) +
+    # close metadata. Phase C is the boundary that owns its own exit
+    # code mapping (spec §Exit codes 0/1/3) and never raises SystemExit
+    # back out — exceptions there map to exit 3 (final write failure)
+    # so we always have a deterministic numeric return value here.
+    return _phase_c_run_train_and_close(state)
 
 
 if __name__ == '__main__':
