@@ -50,8 +50,8 @@ def _start_server(port: int):
     server = EvalServer(host='localhost', port=port, max_workers=1)
     thread = threading.Thread(target=server.start, daemon=True)
     thread.start()
-    # Wait briefly for bind to complete before client connects.
-    time.sleep(0.2)
+    # server.start() returns after bind() but before accept loop is live; brief wait avoids ConnectionRefusedError race
+    time.sleep(0.5)
     return server, thread
 
 
@@ -87,11 +87,9 @@ def server_port():
 
 
 def test_status_roundtrip(server_port):
-    """Full TCP bind -> accept -> status RPC -> close roundtrip."""
     host, port = server_port
     resp = _send_request(host, port, json.dumps({'kind': 'status'}).encode('utf-8'))
     assert resp['status'] == 'ok'
-    # Status fields per EvalServer._handle_connection status branch.
     for field in ('active', 'completed', 'errors', 'queued', 'uptime_s'):
         assert field in resp, f'missing status field: {field}'
     assert resp['active'] == 0
@@ -120,6 +118,5 @@ def test_invalid_json_returns_error(server_port):
     assert resp['status'] == 'error'
     assert 'message' in resp
 
-    # Server still alive — followup status request must succeed.
     followup = _send_request(host, port, json.dumps({'kind': 'status'}).encode('utf-8'))
     assert followup['status'] == 'ok'
