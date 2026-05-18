@@ -98,7 +98,10 @@ def _retry_acquire_flock(fd, *, timeout_msg: str) -> None:  # noqa: ANN001 — f
             _acquire_flock(fd)
             return
         except (BlockingIOError, OSError) as e:
-            if isinstance(e, OSError) and not isinstance(e, BlockingIOError) and not _is_contended(e):
+            # BlockingIOError is an OSError subclass and _is_contended already
+            # returns True for it (行 70-71), so a single _is_contended check
+            # subsumes the previous nested isinstance dead branch.
+            if not _is_contended(e):
                 raise
             last_err = e
             if attempt < _LOCK_RETRY_LIMIT - 1:

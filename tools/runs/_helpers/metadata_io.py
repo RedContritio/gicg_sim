@@ -40,6 +40,24 @@ def write_metadata_atomic(artifacts_dir: Path, metadata: schema.RunMetadata) -> 
 
     :func:`schema.dumps` validates fields before serialization, so
     invalid metadata raises before any file IO happens.
+
+    Note: Spec line 544 表表述 ``metadata: dict`` 是 simplification;实际实现
+    接收 :class:`schema.RunMetadata` (strict typing,避免 caller 传 dict 时
+    静默走 validate 失败)。Caller(T-08 train.py)必须先构 ``RunMetadata``
+    再调本 helper。
+
+    Warning: 本 helper 内部已 acquire :func:`acquire_metadata_lock`,**不要**
+    在外层 already 持锁时调::
+
+        with acquire_metadata_lock(d):
+            write_metadata_atomic(d, m)  # ❌ deadlock
+
+    正确用法:``write_metadata_atomic(d, m)`` 直接调,或在
+    read-and-compare-and-write 场景由 caller 自己 lock + load + compare +
+    ``write_metadata_atomic`` + dirty release 的 pattern(注意
+    ``write_metadata_atomic`` 内会再 acquire — Linux flock cross-fd
+    same-process 会 deadlock 至 retry 耗尽 raise;macOS BSD-flock per-fd
+    不 deadlock 但仍非预期路径)。
     """
     target = artifacts_dir / 'metadata.toml'
     temp = artifacts_dir / 'metadata.toml.tmp'
