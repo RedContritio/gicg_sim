@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 # Re-exports: keep public ``tools.runs.train.<symbol>`` surface stable
 # for tests that import e.g. ``train_mod.SetupState`` /
@@ -42,6 +43,9 @@ from tools.runs._train.setup import (  # noqa: F401
     _validate_run_label,
     _verify_repo_root,
     phase_a_setup as _phase_a_setup,
+)
+from tools.runs._train.snapshot import (  # noqa: F401
+    phase_b_write_cfg_metadata as _phase_b_write_cfg_metadata,
 )
 
 __all__ = [
@@ -86,10 +90,23 @@ def main(argv: list[str] | None = None) -> int:
         print(f'tools.runs.train: setup failed: {exc}', file=sys.stderr)
         return 2
 
-    # Phase B/C placeholder — T-09 writes cfg_leaf.toml + cfg_resolved.toml
-    # + metadata.toml; T-10 runs train + closes metadata. T-08 stops here
-    # so phase A can ship independently with full test coverage.
-    print(f'[stub] Phase A complete: {state.artifacts_dir}', file=sys.stderr)
+    # Phase B: cfg_leaf.toml + cfg_resolved.toml + metadata.toml (status='running').
+    # Failure path internally rmtree's the orphan dir + raises SystemExit(2)
+    # — we let that propagate (the SystemExit handler in caller code, or
+    # python interpreter top-level, prints the captured stderr). Other
+    # unexpected exceptions are caught + mapped to exit 2 the same way as
+    # Phase A above.
+    try:
+        _phase_b_write_cfg_metadata(state, Path(args.cfg))
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001 — top-level CLI boundary
+        print(f'tools.runs.train: cfg/metadata snapshot failed: {exc}', file=sys.stderr)
+        return 2
+
+    # Phase C placeholder — T-10 runs train + closes metadata. T-09 stops
+    # here so Phase B can ship independently with full test coverage.
+    print(f'[stub] Phase B complete: {state.artifacts_dir}', file=sys.stderr)
     return 0
 
 

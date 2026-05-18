@@ -490,7 +490,8 @@ def test_main_placeholder_returns_0_on_success(tmp_path: Path, capsys: pytest.Ca
     rc = train_mod.main([str(cfg)])
     assert rc == 0
     err = capsys.readouterr().err
-    assert 'Phase A complete' in err
+    # Post T-09, main() runs Phase A + Phase B before the stub print.
+    assert 'Phase B complete' in err
 
 
 def test_main_returns_2_on_bad_label(tmp_path: Path) -> None:
