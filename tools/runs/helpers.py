@@ -189,6 +189,24 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
       so two concurrent allocators see each other's dirs on the
       subsequent re-glob.
 
+    Caller 责任 (within ``with`` body):
+
+    - 立即 mkdir ``<repo>/artifacts/<ts>_<NNN:06d>_<label>/`` (O_EXCL,
+      ``exist_ok=False``) before exiting the ``with`` block — under
+      lock — so the next allocator's ``_glob_max_nnn`` observes the
+      new entry.
+    - 如 ``FileExistsError`` (macOS case-insensitive FS 撞名 / cross-host
+      sync stale dir leftover that didn't match the strict regex but
+      happens to collide on the new name): exit the ``with`` block and
+      re-enter ``allocate_nnn(repo_root)``. Lock release → re-glob
+      observes the offending dir → the next loop's ``NNN`` will skip
+      past the collision. spec 行 269-275 显式列此 retry pattern.
+    - ``allocate_nnn`` 不内置 mkdir / 不内置 EEXIST retry — 选择 Option C
+      (``@contextmanager`` yielding ``int``) 而非 callback-style
+      ``allocate_nnn(repo_root, on_alloc=lambda nnn: ...)`` 是为保持
+      helper 表 行 542 ``(repo_root) -> int`` 的 simplification. retry
+      由 caller (T-08 ``train.py``) 显式控制。
+
     Signature note: spec helper table 行 542 advertises
     ``(repo_root: Path) -> int``. We implement as a context manager
     yielding ``int`` rather than a bare function because spec line 271
