@@ -453,7 +453,13 @@ def test_setup_orphan_dir_rmtree_on_assembly_failure(tmp_path: Path, monkeypatch
 # --- SetupState dataclass shape ----------------------------------------------
 
 
-def test_setup_state_has_six_documented_fields(tmp_path: Path) -> None:
+def test_setup_state_has_eight_documented_fields(tmp_path: Path) -> None:
+    """SetupState shape: 6 fresh-path fields + 2 resume-context (T-12).
+
+    Resume fields default to ``cfg_resolved_version=1`` /
+    ``resume_ckpt_path=None`` so fresh-path callers don't pass them.
+    Resume Phase A builds with both populated.
+    """
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'shape_check')
     state = train_mod._phase_a_setup(_make_args(cfg))
     # Frozen dataclass → __dataclass_fields__ is the source of truth.
@@ -465,6 +471,8 @@ def test_setup_state_has_six_documented_fields(tmp_path: Path) -> None:
         'nnn',
         'label',
         'timestamp_utc',
+        'cfg_resolved_version',
+        'resume_ckpt_path',
     }
     # Spot-check types on the live instance.
     assert isinstance(state.artifacts_dir, Path)
@@ -473,6 +481,9 @@ def test_setup_state_has_six_documented_fields(tmp_path: Path) -> None:
     assert isinstance(state.nnn, int) and state.nnn >= 1
     assert isinstance(state.label, str)
     assert isinstance(state.timestamp_utc, datetime)
+    # Fresh path defaults: version=1, no resume ckpt.
+    assert state.cfg_resolved_version == 1
+    assert state.resume_ckpt_path is None
 
 
 def test_setup_state_is_frozen(tmp_path: Path) -> None:

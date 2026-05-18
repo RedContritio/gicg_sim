@@ -53,62 +53,98 @@ from tools.runs._train.setup import SetupState
 
 
 def phase_b_write_cfg_metadata(state: SetupState, cfg_path: Path) -> None:
-    """Write cfg_leaf.toml + cfg_resolved.toml + metadata.toml(status='running').
+    """Write cfg_leaf*.toml + cfg_resolved*.toml + metadata.toml(status='running').
 
-    Atomic semantics: all three files must exist (and metadata must be
-    valid + flushed) before this function returns. Any failure midway
-    triggers ``rmtree(state.artifacts_dir)`` so a half-populated dir
-    never survives.
+    Atomic semantics: all three writes must complete (and metadata be
+    valid + flushed) before this function returns. On the fresh path
+    any failure midway triggers ``rmtree(state.artifacts_dir)`` so a
+    half-populated dir never survives.
+
+    Filename versioning (spec 行 156 pair-versioning):
+    - v1 (fresh path, ``state.cfg_resolved_version == 1``) → unsuffixed
+      ``cfg_leaf.toml`` + ``cfg_resolved.toml``.
+    - vN >= 2 (resume path) → ``cfg_leaf_v<N>.toml`` +
+      ``cfg_resolved_v<N>.toml``. Both files always written as a
+      paired set (same N) so cfg_leaf history aligns with the
+      cfg_resolved truth at each version.
+
+    Resume-path discipline (T-12):
+    - **No rmtree on failure** — the per-run dir holds prior cfg
+      snapshots, metadata, and ckpts/ that we must not destroy if our
+      vN write fails mid-flight. Resume Phase A already updated the
+      metadata pointer; a Phase B write failure on resume leaves the
+      vN files possibly-partial, but the operator can re-run resume to
+      bump to vN+1 (the failed vN files become audit trail). This
+      mirrors spec 行 51 cleanup applying to ``fresh`` orphan dirs
+      only; a resume dir is by definition NOT orphan.
+    - Metadata write on resume Phase B is **skipped** because resume
+      Phase A already wrote the bumped metadata under the allocator
+      lock (cfg_resolved_version + cfg_file + status='running').
+      Re-writing here would either duplicate that work or accidentally
+      reset Phase A's preserved ``exit_code``.
 
     The leaf-bytes write is a pure ``write_bytes`` (no re-encoding —
     bytes captured in Phase A round-trip exactly). The resolved-dict
     write goes through ``dict_to_toml`` then immediate
     ``tomllib.loads`` round-trip-verify so a silent emitter bug cannot
-    let a non-parseable cfg_resolved sneak past. Metadata write is
-    routed through the existing ``write_metadata_atomic`` helper (per-
-    run flock + temp + rename).
+    let a non-parseable cfg_resolved sneak past.
 
-    ``cfg_path`` is the user-passed leaf cfg path (from argv) — recorded
-    in ``metadata.cfg_file`` as the "last leaf path used" per spec 行
-    179. Plumbed as an explicit arg rather than on SetupState so the
-    Phase A dataclass shape stays exactly the 6 documented fields.
+    ``cfg_path`` is the user-passed leaf cfg path (from argv) — used
+    by ``_build_initial_metadata`` on the fresh path. Resume path
+    ignores this arg (Phase A already wrote it into metadata).
     """
+    is_resume = state.cfg_resolved_version > 1
+    leaf_name, resolved_name = _versioned_filenames(state.cfg_resolved_version)
+
     try:
-        # Step 4a: immutable leaf snapshot (bytes, no re-encoding).
-        leaf_target = state.artifacts_dir / 'cfg_leaf.toml'
-        leaf_target.write_bytes(state.cfg_leaf_bytes)
+        # Step 4a: leaf snapshot.
+        (state.artifacts_dir / leaf_name).write_bytes(state.cfg_leaf_bytes)
 
         # Step 4b: resolved merged cfg dump.
         resolved_text = dict_to_toml(state.cfg_resolved)
-        # Round-trip verify: a silent emitter bug would otherwise let a
-        # non-parseable cfg_resolved.toml sneak past, breaking later
-        # tooling (show / list / resume) that reads this file.
         _verify_round_trip(resolved_text, state.cfg_resolved)
-        resolved_target = state.artifacts_dir / 'cfg_resolved.toml'
-        resolved_target.write_text(resolved_text, encoding='utf-8')
+        (state.artifacts_dir / resolved_name).write_text(resolved_text, encoding='utf-8')
 
-        # Step 5: initial metadata.toml (status='running').
-        metadata = _build_initial_metadata(state, cfg_path)
-        write_metadata_atomic(state.artifacts_dir, metadata)
+        # Step 5: metadata write — fresh path only. Resume Phase A
+        # already wrote the bumped metadata under allocator lock; doing
+        # it again here would race with the spec's "Phase A owns
+        # metadata bump" invariant (spec 行 153-159 CRIT-6-A).
+        if not is_resume:
+            metadata = _build_initial_metadata(state, cfg_path)
+            write_metadata_atomic(state.artifacts_dir, metadata)
     except BaseException as exc:
-        # Spec 行 51, 53: orphan-dir rmtree on Phase B failure. Spec 行
-        # 301: cleanup errors never mask the root cause — log and let
-        # the original raise propagate.
-        try:
-            shutil.rmtree(state.artifacts_dir)
-        except OSError as cleanup_err:
-            print(
-                f'tools.runs.train: Phase B orphan-dir cleanup failed for '
-                f'{state.artifacts_dir}: {cleanup_err}; manual rmtree required',
-                file=sys.stderr,
-            )
-        # If the original was already a SystemExit propagate as-is; else
-        # wrap in SystemExit(2) per CLI exit-code convention (spec
-        # §Exit codes — cfg / setup error = 2).
+        # Cleanup applies to fresh-path only — a resume dir holds prior
+        # artifacts (ckpts, older cfg versions, metadata) that an
+        # rmtree would destroy. See docstring above.
+        if not is_resume:
+            try:
+                shutil.rmtree(state.artifacts_dir)
+            except OSError as cleanup_err:
+                print(
+                    f'tools.runs.train: Phase B orphan-dir cleanup failed for '
+                    f'{state.artifacts_dir}: {cleanup_err}; manual rmtree required',
+                    file=sys.stderr,
+                )
         if isinstance(exc, SystemExit):
             raise
         print(f'tools.runs.train: Phase B failed: {exc}', file=sys.stderr)
         raise SystemExit(2) from exc
+
+
+def _versioned_filenames(cfg_resolved_version: int) -> tuple[str, str]:
+    """Return ``(leaf_name, resolved_name)`` for the given version.
+
+    Spec 行 156 pair-versioning: v1 is unsuffixed (``cfg_leaf.toml`` /
+    ``cfg_resolved.toml``); vN >= 2 is suffixed
+    (``cfg_leaf_v<N>.toml`` / ``cfg_resolved_v<N>.toml``). Pure helper
+    so test_train_resume.py can pin the naming convention without
+    re-deriving it from the suffix logic.
+    """
+    if cfg_resolved_version < 1:
+        raise ValueError(f'cfg_resolved_version must be >= 1, got {cfg_resolved_version}')
+    if cfg_resolved_version == 1:
+        return ('cfg_leaf.toml', 'cfg_resolved.toml')
+    return (f'cfg_leaf_v{cfg_resolved_version}.toml', f'cfg_resolved_v{cfg_resolved_version}.toml')
 
 
 def _build_initial_metadata(state: SetupState, cfg_path: Path) -> schema.RunMetadata:

@@ -67,7 +67,12 @@ def run_paradigm_train(state: SetupState) -> None:
     # so any schema violation in the resolved cfg surfaces here, not in
     # the middle of a paradigm-specific factory call. ``overrides=[]``
     # because Phase A already applied them.
-    cfg_resolved_path = state.artifacts_dir / 'cfg_resolved.toml'
+    #
+    # Resume path (T-12): the current truth is the highest-version
+    # ``cfg_resolved_v<N>.toml`` (spec 行 157 CRIT-6-A) — Phase B
+    # writes it under the suffixed name when ``cfg_resolved_version > 1``.
+    # Fresh path uses the unsuffixed ``cfg_resolved.toml``.
+    cfg_resolved_path = state.artifacts_dir / _current_cfg_resolved_filename(state)
     cfg = load_cfg(cfg_resolved_path, overrides=[])
 
     paradigm = resolve_paradigm(cfg.meta.paradigm)
@@ -96,6 +101,23 @@ def run_paradigm_train(state: SetupState) -> None:
         env_factory=env_factory,
         opp_pool=opp_pool,
         eval_server=None,  # EvalServer wiring stays out of T-11 (post-redesign backlog)
-        resume_from=None,  # resume path lands in T-12 via SetupState extension
+        # T-12: ``state.resume_ckpt_path`` is None on fresh path, the
+        # ckpt Path on resume path. ``CheckpointManager.try_resume``
+        # handles the load logic; passing None == fresh start.
+        resume_from=state.resume_ckpt_path,
         prebuilt_artifacts_dir=state.artifacts_dir,
     )
+
+
+def _current_cfg_resolved_filename(state: SetupState) -> str:
+    """Return the cfg_resolved filename for the run's current version.
+
+    v1 → ``cfg_resolved.toml`` (unsuffixed); vN >= 2 →
+    ``cfg_resolved_v<N>.toml``. Mirrors
+    :func:`tools.runs._train.snapshot._versioned_filenames` resolved
+    half; kept here as a one-liner so dispatch doesn't import private
+    snapshot helpers.
+    """
+    if state.cfg_resolved_version == 1:
+        return 'cfg_resolved.toml'
+    return f'cfg_resolved_v{state.cfg_resolved_version}.toml'

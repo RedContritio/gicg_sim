@@ -47,6 +47,9 @@ from tools.runs._train.setup import (  # noqa: F401
     _verify_repo_root,
     phase_a_setup as _phase_a_setup,
 )
+from tools.runs._train.resume import (  # noqa: F401
+    phase_a_resume as _phase_a_resume,
+)
 from tools.runs._train.snapshot import (  # noqa: F401
     phase_b_write_cfg_metadata as _phase_b_write_cfg_metadata,
 )
@@ -83,7 +86,12 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         '--resume',
         type=str,
         default=None,
-        help='ckpt path to resume from (parsed only; resume logic lands in T-12)',
+        help=(
+            'ckpt path to resume from (T-12). Infers artifacts_dir from '
+            '<ckpt>.parent.parent; reuses NNN; allocates cfg_resolved_v<N>; '
+            'transitions metadata.status to running via the resume schema '
+            'exception ({done,failed,killed,unknown,running} → running).'
+        ),
     )
     return parser.parse_args(argv)
 
@@ -91,7 +99,15 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     try:
-        state = _phase_a_setup(args)
+        if args.resume:
+            # Resume path: reuse existing artifacts_dir, bump cfg_resolved_version,
+            # write status='running' via the resume schema exception (CRIT-2-A).
+            # No new NNN allocation, no per-run dir mkdir.
+            state = _phase_a_resume(args)
+        else:
+            # Fresh path: allocate NNN under flock, mkdir per-run dir,
+            # cfg_resolved_version=1.
+            state = _phase_a_setup(args)
     except SystemExit:
         raise
     except Exception as exc:  # noqa: BLE001 — top-level CLI boundary

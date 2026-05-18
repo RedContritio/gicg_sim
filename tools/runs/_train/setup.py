@@ -41,12 +41,27 @@ _RUN_LABEL_RE = re.compile(r'^[a-zA-Z0-9_-]{1,64}$')
 class SetupState:
     """Phase A output handed to Phase B (T-09) / C (T-10).
 
-    Fields are exactly the 6 documented in the implementer brief —
-    nothing more, nothing less. ``timestamp_utc`` is the single source
-    that **both** the dir-name ``<ts>`` segment and the future
-    ``metadata.timestamp`` field derive from (spec 行 70 — "single
-    source"; avoids midnight-UTC drift between two separate
+    8 fields (6 fresh-path + 2 resume-context). ``timestamp_utc`` is
+    the single source that **both** the dir-name ``<ts>`` segment and
+    the future ``metadata.timestamp`` field derive from (spec 行 70 —
+    "single source"; avoids midnight-UTC drift between two separate
     ``datetime.now()`` calls).
+
+    Resume-context fields (T-12):
+
+    - ``cfg_resolved_version``: which ``cfg_resolved_v<N>.toml`` /
+      ``cfg_leaf_v<N>.toml`` Phase B writes (and records in metadata
+      ``cfg_resolved_version``). Fresh path = 1 (writes the unsuffixed
+      ``cfg_resolved.toml`` / ``cfg_leaf.toml``); resume path = N+1
+      computed under the allocator lock (spec 行 153-158 CRIT-6-A).
+    - ``resume_ckpt_path``: ``Path`` for Phase C to pass through to
+      ``run_pipeline(resume_from=...)``; ``None`` on fresh path.
+
+    Option B chosen over a parallel ``ResumeState`` dataclass (Option
+    C) because Phase B's version-aware file-naming logic is naturally
+    parameterized by ``cfg_resolved_version`` — keeping it inside the
+    same handoff record means callers don't have to plumb two
+    different state shapes through ``main()``.
     """
 
     artifacts_dir: Path
@@ -55,6 +70,8 @@ class SetupState:
     nnn: int
     label: str
     timestamp_utc: datetime
+    cfg_resolved_version: int = 1
+    resume_ckpt_path: Path | None = None
 
 
 def _validate_run_label(label: Any, *, source: str) -> str:
