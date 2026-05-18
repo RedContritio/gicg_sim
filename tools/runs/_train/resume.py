@@ -20,16 +20,12 @@ Phase B via the new :class:`SetupState.cfg_resolved_version` field;
 Phase B then suffixes filenames as ``cfg_resolved_v<N>.toml`` /
 ``cfg_leaf_v<N>.toml`` (spec 行 156 pair-versioning).
 
-Spec cross-refs:
-- 行 145-164 §Resume 语义 (full section)
-- 行 149     HIGH-2-C 缺 leaf cfg → SystemExit(2)
-- 行 153-156 cfg_resolved_v<N> file naming + paired cfg_leaf_v<N>
-- 行 155     HIGH-3-A allocator-lock-protected N glob/write
-- 行 157-159 CRIT-6-A truth + cfg_resolved_version metadata field
-- 行 161     Resume status transition (via validate_transition resume=True)
-- 行 162     metadata fields not reset (timestamp/exit_code preserved)
-- 行 185     H-3 wall_seconds overwrite (last attempt)
-- 行 235-246 CRIT-2-A Resume exception transitions
+Spec cross-refs: 行 145-164 §Resume (full); 行 149 HIGH-2-C leaf cfg req;
+行 153-156 cfg_resolved_v<N> + paired cfg_leaf_v<N>; 行 155 HIGH-3-A
+flock'd N glob/write; 行 157-159 CRIT-6-A cfg_resolved_version truth;
+行 161-162 status transition + preserved timestamp/exit_code;
+行 185 H-3 wall_seconds (last attempt); 行 235-246 CRIT-2-A exceptions;
+行 348-355 HIGH-2-D authoritative-host marker (T-13).
 """
 
 from __future__ import annotations
@@ -49,6 +45,7 @@ from tools.runs._train.setup import (
     SetupState,
     _extract_leaf_label,
     _validate_run_label,
+    _verify_authoritative_host,
     _verify_repo_root,
 )
 from tools.runs._train.snapshot import _verify_round_trip, _versioned_filenames
@@ -133,6 +130,9 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
             file=sys.stderr,
         )
         raise SystemExit(2)
+
+    # Spec §HIGH-2-D 行 348-355 — post-metadata-read / pre-allocator-lock per T-12 handoff symmetry.
+    _verify_authoritative_host(Path.cwd())
 
     # Step 4: re-resolve cfg + apply --override (spec 行 152: cfg
     # drift across resume is allowed by design).

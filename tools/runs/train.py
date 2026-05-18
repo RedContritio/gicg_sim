@@ -44,6 +44,7 @@ from tools.runs._train.setup import (  # noqa: F401
     _extract_leaf_label,
     _RUN_LABEL_RE,
     _validate_run_label,
+    _verify_authoritative_host,
     _verify_repo_root,
     phase_a_setup as _phase_a_setup,
 )

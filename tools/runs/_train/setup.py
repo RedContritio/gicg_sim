@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import re
 import shutil
+import socket
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -133,6 +134,36 @@ def _verify_repo_root(cwd: Path) -> None:
         raise SystemExit(f'tools.runs.train must run from repo root; cwd={cwd} lacks tools/runs/')
 
 
+def _verify_authoritative_host(repo_root: Path) -> None:
+    """Enforce spec §HIGH-2-D 行 348-355 authoritative-host marker.
+
+    ``artifacts/.authoritative_host`` records the hostname allowed to
+    allocate new NNN. Absent → allow (行 353); content == ``gethostname()``
+    → allow (行 354); mismatch → ``SystemExit(2)`` with 行 352 pinned
+    wording. ``.strip()`` tolerates ``echo > marker`` trailing newlines.
+
+    Marker does NOT cross-host sync (行 355 + 行 367 rsync exclude).
+    Called from both :func:`phase_a_setup` (post-cfg-validate /
+    pre-leaf-bytes per 行 351) and :func:`._train.resume.phase_a_resume`
+    (post-metadata-read / pre-allocator-lock, T-12 handoff symmetry).
+    The ``tools.runs.sync init-authoritative`` writer is T-19 scope.
+    """
+    marker_path = repo_root / 'artifacts' / '.authoritative_host'
+    if not marker_path.is_file():
+        return
+    content = marker_path.read_text(encoding='utf-8').strip()
+    current = socket.gethostname()
+    if content == current:
+        return
+    print(
+        f'tools.runs.train: this host is pull-only; cannot allocate new NNN. '
+        f'To make this host authoritative, run tools.runs.sync init-authoritative '
+        f'(marker says: {content!r}, this host: {current!r})',
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+
+
 def phase_a_setup(args: argparse.Namespace) -> SetupState:
     """Steps 0-3: validate → capture → resolve → mkdir per-run dir.
 
@@ -153,6 +184,10 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     if not cfg_path.is_file():
         print(f'tools.runs.train: cfg {cfg_path} is not a regular file', file=sys.stderr)
         raise SystemExit(2)
+
+    # Spec §HIGH-2-D 行 351 "step 0 后,step 1 前" — reject pull-only
+    # replicas before any I/O (read_bytes / mkdir / NNN allocate).
+    _verify_authoritative_host(Path.cwd())
 
     # Step 1: capture leaf bytes FIRST (spec 行 38 "read_bytes 立即,防 cfg edit race").
     # Order matters: we read bytes before any other I/O on cfg_path so the
