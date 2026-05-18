@@ -147,9 +147,12 @@ lib_path = os.path.join(os.path.dirname(__file__), f'libgicg.{ext}')
 
 ### 3.2.3 · TCP localhost replace Unix socket(~50 LOC)
 
-`training/framework/inference/server_loop/server.py` + `client.py`:
+**路径校正(2026-05-18 audit)**:原 plan 指 `training/framework/inference/server_loop/server.py + client.py` 但该路径实际用 `multiprocessing.connection` Pipe(与 socket 无关)。**真正 Unix socket** 在 `tools/remote/eval_service.py:55`(client 读 `GICG_EVAL_SOCKET`)+ `tools/remote/eval_service_server.py:63`(`socket.AF_UNIX`)。
+
+`tools/remote/eval_service{,_server}.py`:
 - `socket.AF_UNIX` → `socket.AF_INET`
-- 配置 `GICG_EVAL_PORT` 替代 `GICG_EVAL_SOCKET` path
+- 配置 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)替代 `GICG_EVAL_SOCKET` path
+- 不留 `AF_UNIX` fallback(per `feedback_no_compat_fallback` memory)
 - 顺便 fix memory `project_v_phase2_eval_schema_gaps` Gap 3 silent fail
 
 Verify:Mac + Windows 上 `python -m pytest gicg_env/tests/ -q` 全 PASS。
@@ -535,3 +538,127 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 1. wp_mean ≥ 0.30 + CI95 上限 ≥ 0.40 → 继续 Stage 3 full train(2e9 frames)
 2. 0.15 ≤ wp_mean < 0.30 → 触发 B.3 A2 fallback (独立 Q-MLP)
 3. wp_mean < 0.15 → 进入 A.1/A.2/A.6 ablation 路径 (~3-5 GPU-days budget),最后还失败 → DMC 路线 close 转 closure 集合
+
+---
+
+## Phase 3.2 / 3.4.5 / 3.5 implementation tracking(2026-05-18 audit)
+
+> 本节是 audit 结果 + actionable sub-tasks(基于 grep 验证实际 ship 进度,非 design intent — 上面 §Phase 3.x 是原 design plan)。
+
+### Phase 3.2 status(2/3 done)
+
+| Sub-step | 状态 | 证据 |
+|---|---|---|
+| 3.2.1 `libgicg.dll` Windows build | **DONE** | 2026-05-14 verify(per `reference_windows_gpu_box` memory)|
+| 3.2.2 Platform detect adapter | **DONE** | `gicg_env/engine.py:_find_lib` 已 `sys.platform` dispatch |
+| 3.2.3 TCP socket replace Unix | **PENDING** | `tools/remote/eval_service{,_server}.py` 仍 `AF_UNIX` |
+
+#### Phase 3.2 剩余 actionable plan(~半天,~80-120 LOC)
+
+| Task | 说明 | LOC |
+|---|---|---|
+| **T-3.2a** | PLAN.md §3.2.3 路径校正(2026-05-18 已 done) | ~10 doc |
+| **T-3.2b** | `tools/remote/eval_service_server.py`: `AF_UNIX` → `AF_INET` + bind `(host, port)`,读 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)。不留 `AF_UNIX` fallback。 | ~30 |
+| **T-3.2c** | `tools/remote/eval_service.py` client 同步:`AF_INET` + 读同 env var。 | ~20 |
+| **T-3.2d** | `tools/remote/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 ssh 跑相同 test verify。 | ~30 |
+| **T-3.2e** | 更新 `reference_windows_gpu_box` memory 加 `GICG_EVAL_PORT` env var 注释;PLAN.md 3.2 标 DONE。 | doc |
+
+**Verify gate**:Mac `pytest gicg_env/tests/ tools/remote/tests/ -q` + Windows ssh `pytest gicg_env/tests/ -q` 全 PASS。
+
+---
+
+### Phase 3.4.5 status(~30% done)
+
+| Sub-step | 状态 | 证据 / 缺口 |
+|---|---|---|
+| 3.4.5.1 OMP / threading control | **DONE(97%)** | `training/core/actor/_mp_helpers.py:27 harden_child_env` 5 env var + `torch.set_num_threads(1)`;**缺 `torch.set_num_interop_threads(1)`** |
+| 3.4.5.2 CPU affinity | **PENDING** | `training/paradigms/dmc/_run_config.py:114-116` 声明 `cpu_affinity_{actors,learner,eval}` 字段但**全 repo 无 reader**(死字段) |
+| 3.4.5.3 JIT inference | **PARTIAL** | `torch.inference_mode()` ship(`inference_server.py:115,190`);**`torch.jit.trace` 死**(`use_jit_trace` 字段无 reader) |
+| 3.4.5.4 Shared mem replay | **DONE** | `training/core/actor/{weights_shm.py, ipc/ring.py}` `multiprocessing.shared_memory` ring buffer |
+| 3.4.5.5 Engine call minimize | **N/A** | 无 redundant call,plan 不要求 fix |
+| 3.4.5.6 cProfile 验证 | **PENDING** | 全 repo 无 `.prof` / `cProfile` import / `runs.md:59` 标 pending |
+| 3.4.5.7 Throughput baseline | **PENDING** | `notes.md:224` 仅旧 "17 fps" smoke,无 X3D 实测 |
+
+#### Phase 3.4.5 剩余 actionable plan(~1-2 day,~200-300 LOC + Windows-side profile run)
+
+| Task | 说明 | LOC |
+|---|---|---|
+| **T-3.4.5a** | `_mp_helpers.harden_child_env` 加 `torch.set_num_interop_threads(1)` trivial fix。 | ~1 |
+| **T-3.4.5b** | Wire `cpu_affinity_*`(死字段 → 真用):actor process boot 调 `psutil.Process().cpu_affinity(cfg.cpu_affinity_actors)`;learner / eval 同样 wire。default X3D:actors `[0..7, 16..23]` / learner `[8]` / eval `[9..15]`。Mac / Linux fallback:skip if no CCD assumption。 | ~40 |
+| **T-3.4.5c** | Wire `use_jit_trace`(死字段 → 真用):actor 启动后 `trace_once(net, example_obs)`,hot loop `traced_net(*obs_args)`(已有 `inference_mode`);`cfg.use_jit_trace=True` 才走 traced 路径。 | ~60 |
+| **T-3.4.5d** | `tools/dmc/profile_actor.py`(新):single-actor 5min smoke + cProfile output `actor.prof` + snakeviz HTML。Mac + Windows 都可跑(Windows 是 baseline 真测点)。 | ~60 |
+| **T-3.4.5e** | Windows X3D profile run:ssh + 跑 `profile_actor.py` 5min,记 per-actor fps + cProfile top hotspots → `notes.md "## Phase 3.4.5 — CPU profile results"`(目前空)。target verify per-actor ≥ 1200 fps。 | run + doc |
+| **T-3.4.5f** | Multi-actor smoke total throughput(Windows):24 actor smoke 5min,记 total fps ≥ 28k → `notes.md` "Phase 3.4.5 verdict"。若 < target → cycle(profile → 优化 → retry)。 | run + doc |
+| **T-3.4.5g** | Phase 3.4.5 close 决策:PASS(per-actor ≥ 1200 + total ≥ 28k)→ close + 准备进 Stage 3 train;FAIL → 扩 ablation cycle。 | doc |
+
+**Verify gate**:per-actor ≥ 1200 fps + total ≥ 28k fps(24 actor on X3D)。
+
+---
+
+### Phase 3.5 Stage 3 启动 checklist
+
+#### Step 0 — Prereq verify(两者全 PASS 才进 Step 1)
+- [ ] Phase 3.2 ship 完成(T-3.2b/c/d 全 done,verify gate PASS)
+- [ ] Phase 3.4.5 ship 完成(T-3.4.5a..f 全 done,verify gate PASS)
+- [ ] Windows GPU box reachable:`ssh dev@192.168.31.56 'powershell -Command Get-Date'` 通
+
+#### Step 1 — Code bundle Mac → Windows
+```bash
+# per reference_windows_gpu_box memory
+cd ~/Projects/gicg_mono
+tar -czf - --exclude=artifacts --exclude=.venv --exclude=ref --exclude=__pycache__ \
+  --exclude='.git' --exclude='*.pyc' --exclude='gicg_env/libgicg.dylib' \
+  --exclude='gicg_env/libgicg.h' . | \
+  ssh dev@192.168.31.56 'powershell -Command "cd D:\gicg_dev; tar -xzf -"'
+
+ssh dev@192.168.31.56 'powershell -Command "Get-ChildItem D:\gicg_dev -Recurse -Force | Where-Object {\$_.Name -like \"._*\" -or \$_.Name -eq \".DS_Store\"} | Remove-Item -Force"'
+```
+
+#### Step 2 — Windows build verify
+- [ ] `libgicg.dll` build(`Test-Path D:\gicg_dev\gicg_env\libgicg.dll`)
+- [ ] venv install + cuda forward verify(`torch.cuda.is_available()` + matmul sm_120)
+
+#### Step 3 — Pilot run(100k frames,~10-30 min)
+```powershell
+cd D:\gicg_dev
+$env:OMP_NUM_THREADS = "1"; $env:PYTHONIOENCODING = "utf-8"
+.\.venv\Scripts\python.exe -X utf8 -m tools.runs.train configs\dmc\stage3.toml `
+    --override paradigm.dmc.total_frames=100000
+```
+
+监控 `metrics.jsonl`,出 3+ eval round 后看 `wp_mean`。
+
+#### Step 4 — Pilot decision tree(per §Paradigm risk audit / Pilot 后决策树)
+
+| pilot wp_mean(3 eval round vs F1-D2 n=128×2 swap) | 行动 |
+|---|---|
+| **≥ 0.30 + CI95 上限 ≥ 0.40** | → Step 5 full Stage 3 train |
+| **0.15 ≤ wp < 0.30** | → 触发 B.3 A2 fallback(独立 Q-MLP head ~80-120 LOC)+ pilot 重跑 |
+| **< 0.15** | → A.1/A.2/A.6 ablation(γ<1 / step-discount / action embedding,~3-5 GPU-days);全 fail → DMC paradigm **close** 进 closure 集合 |
+
+#### Step 5 — Full Stage 3 train(2e9 frames,~16-25h wall)
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m tools.runs.train configs\dmc\stage3.toml
+```
+
+**早停**:
+- vs F1-D2 WP 持续 3 次 eval > 0.50 + F1-D4 不 collapse(> 0.30)→ 早停 PASS
+- 16h 内 < 0.30 → early abort + investigate
+
+#### Step 6 — Verdict + 落 doc
+- **PASS(WP ≥ 0.50)**:`tools.runs.mark <NNN> --status done` + 落 ADR `paradigm-dmc` capability spec(走 openspec change)
+- **partial(0.27 ≤ WP < 0.50)**:user 决策 — A.3 修正 PASS 阈值 / 切 stage / 加 lever / 转 ablation
+- **FAIL(WP < 0.27)**:`mark --status done --notes 'closure'` + 落 closure ADR(加 ADR-0009/0010 集合);BC ckpt 仍作 production fallback
+
+---
+
+### Task dispatch 顺序(综合)
+
+| 优先级 | Task | 估时 | 阻塞 |
+|---|---|---|---|
+| 1 | T-3.2b..e(TCP socket migration) | ~半天 | 阻塞 T-3.4.5e/f(Windows multi-actor 需 eval socket 通)|
+| 2 | T-3.4.5a..d(local infra wiring) | ~半天 | independent,可与 T-3.2 并行 |
+| 3 | T-3.4.5e..g(Windows X3D profile + verdict) | ~1 天(real Windows 跑)| depends on T-3.2 + T-3.4.5a..d |
+| 4 | Phase 3.5 Step 0-6(per 上方 checklist) | ~1-2 天(若 pilot PASS) | depends on T-3.2 + T-3.4.5 全 done |
+
+**总估**:3-5 天到 Phase 3.5 pilot 决策点。
