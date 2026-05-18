@@ -76,6 +76,7 @@ def actor_main(
     build_policy_path: Optional[str] = None,
     build_provider_path: Optional[str] = None,
     spec_sampler_path: Optional[str] = None,
+    inference_client: Any = None,
     stop_event: Any = None,
 ) -> None:
     """Actor loop — runs episodes until stop is requested.
@@ -85,6 +86,13 @@ def actor_main(
     - In-proc: pass callable ``build_*`` + ``spec_sampler`` directly.
     - Cross-process spawn: pass ``*_path`` dotted strings; this
       function resolves them inside the child after env hardening.
+
+    ``inference_client`` (optional): parent-constructed InferenceClient
+    handed in via per-actor kwargs. When provided, ``build_provider`` is
+    called with ``inference_client=`` kwarg so paradigm factories can
+    construct a :class:`RemoteNetworkProvider` routed to a shared
+    :class:`InferenceServer`. Backward compatible: old factories with
+    signature ``(cfg, actor_id)`` are still called without the kwarg.
 
     Stop signalling: either ``should_stop`` callable OR an mp.Event
     ``stop_event`` (preferred for spawned workers).
@@ -122,7 +130,10 @@ def actor_main(
     opp_registry = build_opp_registry(cfg)
     runner = EpisodeRunner(env_factory, opp_registry)
     policy = build_policy(cfg, actor_id)
-    provider = build_provider(cfg, actor_id)
+    if inference_client is not None:
+        provider = build_provider(cfg, actor_id, inference_client=inference_client)
+    else:
+        provider = build_provider(cfg, actor_id)
 
     if should_stop is None:
         should_stop = (lambda: stop_event.is_set()) if stop_event is not None else (lambda: False)

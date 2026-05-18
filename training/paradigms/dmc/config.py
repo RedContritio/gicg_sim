@@ -127,6 +127,18 @@ class DMCParadigmConfig(ParadigmConfigBase):
     # DMCSerialCollector._ensure_dmc_provider).
     inference_acceleration: str = 'none'
 
+    # Dotted-module paths consumed by the mp actor bootstrap. Resolved
+    # inside spawned children by ``training.core.actor.actor_process.
+    # resolve_builder``. Only required when ``cfg.pipeline.mode='async'``;
+    # serial mode never reads them. The new wire path (P2-PoC E target)
+    # routes ``DMCMultiProcessCollector._bootstrap`` to factories under
+    # ``training.paradigms.dmc.mp_factories``; legacy resolver path
+    # (``training.paradigms.dmc.collector._dmc_build_*``) still consumes
+    # these fields via cfg.paradigm dict for backward compat.
+    mp_env_factory_path: Optional[str] = None
+    mp_opp_registry_path: Optional[str] = None
+    mp_provider_path: Optional[str] = None
+
     @classmethod
     def from_dict(cls, d: dict) -> 'DMCParadigmConfig':
         """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4).

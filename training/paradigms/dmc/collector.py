@@ -1,9 +1,9 @@
-"""DMC collectors — serial + multi-process (see per-class docstrings).
+"""DMC collectors — serial + multi-process (per-class docstrings).
 
-Module-level builder dispatchers (``_dmc_build_*``) resolve paradigm-
-supplied factories (picklable dotted paths) inside spawned children;
-required by ``DMCMultiProcessCollector``'s actor bootstrap.
-"""
+``_dmc_build_*`` resolve paradigm-supplied factories (picklable dotted
+paths) inside spawned children; required by the legacy ``_bootstrap``
+path. The current mp path wires ``training.paradigms.dmc.mp_factories``
+directly (E target / P2-PoC) and bypasses these resolvers."""
 
 from __future__ import annotations
 
@@ -29,11 +29,10 @@ def derive_seed(master_seed: int, *labels: Any) -> int:
 
 
 class DMCSerialCollector:
-    """Single-process DMC episode collector. Inference routes through a
-    lazily-built LocalNetworkProvider(DMCInferenceNet(agent.net)). The
-    pipeline-supplied ``provider`` arg to ``collect`` is ignored — the
-    driver's generic provider does not match DMC's 15-tensor obs_dict
-    contract. Indirection unblocks GPU collector inference + torch.compile."""
+    """Single-process DMC collector. Lazy LocalNetworkProvider(
+    DMCInferenceNet(agent.net)); the pipeline ``provider`` arg is
+    ignored (DMC's 15-tensor obs_dict shape mismatch). Indirection
+    unblocks GPU collector + torch.compile."""
 
     requires_network_in_collect = True
 
@@ -50,8 +49,8 @@ class DMCSerialCollector:
         self._dmc_provider: Optional[Any] = None
 
     def _ensure_dmc_provider(self) -> Any:
-        # Lazy-build LocalNetworkProvider(DMCInferenceNet(agent.net));
-        # same nn.Module so optimizer.step() updates are visible.
+        # Lazy LocalNetworkProvider(DMCInferenceNet(agent.net)); same
+        # nn.Module so optimizer.step() updates are visible.
         if self._dmc_provider is None:
             from training.core.actor.network_provider import LocalNetworkProvider
             from training.paradigms.dmc.inference_net import DMCInferenceNet
@@ -65,12 +64,11 @@ class DMCSerialCollector:
         return self._dmc_provider
 
     def _read_inference_acceleration(self) -> str:
-        # Tolerate typed DMCParadigmConfig OR raw dict (mp paths).
-        paradigm = getattr(self.cfg, 'paradigm', None)
-        if hasattr(paradigm, 'inference_acceleration'):
-            return getattr(paradigm, 'inference_acceleration') or 'none'
-        if isinstance(paradigm, dict):
-            return paradigm.get('inference_acceleration', 'none') or 'none'
+        p = getattr(self.cfg, 'paradigm', None)
+        if hasattr(p, 'inference_acceleration'):
+            return getattr(p, 'inference_acceleration') or 'none'
+        if isinstance(p, dict):
+            return p.get('inference_acceleration', 'none') or 'none'
         return 'none'
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
@@ -79,14 +77,12 @@ class DMCSerialCollector:
         episodes_for_buffer: list = []
         episode_stats: list = []
         n_trans_total = 0
-
         for _ in range(max(1, n_episodes)):
             self._episode_seq += 1
             ep_seed = derive_seed(self._master_seed, 'episode', self._episode_seq)
             self.env.reset(seed=ep_seed)
             opponent = self.opp_pool.sample()
             agent_side = self._rng_side.randint(0, 1)
-
             transitions, G, n_steps = play_one_episode(
                 self.env,
                 self.agent,
@@ -96,11 +92,9 @@ class DMCSerialCollector:
                 rng_action=self._rng_action,
                 provider=dmc_provider,
             )
-
             if transitions:
                 episodes_for_buffer.append((transitions, G))
                 n_trans_total += len(transitions)
-
             episode_stats.append(
                 {
                     'ep_idx': self._episode_seq,
@@ -111,7 +105,6 @@ class DMCSerialCollector:
                     'n_transitions': len(transitions),
                 }
             )
-
         return CollectorOutput(
             transitions=[],
             episode_stats=episode_stats,
@@ -144,52 +137,19 @@ class DMCSerialCollector:
 
 
 # ---------- DMC multi-process collector (FU-W3b-DMC) ---------- #
-
-# Per-actor episode counter; child processes copy after spawn.
-_DMC_ACTOR_EP_SEQ: dict = {}
-
-
-def _resolve_paradigm_factory(cfg: Any, key: str) -> Any:
-    """Look up dotted ``module.attr`` factory path in cfg.paradigm (CS4)."""
-    from training.core.actor.actor_process import resolve_builder
-
-    pdict = cfg.paradigm if isinstance(cfg.paradigm, dict) else {}
-    path = pdict.get(key)
-    if not path:
-        raise ValueError(f'DMC mp actor: cfg.paradigm.{key} required for spawn (dotted "module.attr").')
-    return resolve_builder(path)
-
-
-def _dmc_build_env_factory(cfg: Any, seed: int):
-    return _resolve_paradigm_factory(cfg, 'mp_env_factory_path')(cfg, seed)
-
-
-def _dmc_build_opp_registry(cfg: Any):
-    return _resolve_paradigm_factory(cfg, 'mp_opp_registry_path')(cfg)
-
-
-def _dmc_build_policy(cfg: Any, actor_id: int):
-    from training.paradigms.dmc.config import DMCParadigmConfig
-    from training.paradigms.dmc.policy import DMCEpisodePolicy
-
-    pcfg = DMCParadigmConfig.from_dict(cfg.paradigm if isinstance(cfg.paradigm, dict) else {})
-    return DMCEpisodePolicy(
-        epsilon=pcfg.epsilon,
-        seed=int(cfg.meta.seed) + 11 + actor_id,
-        deterministic=False,
-    )
-
-
-def _dmc_build_provider(cfg: Any, actor_id: int):
-    return _resolve_paradigm_factory(cfg, 'mp_provider_path')(cfg, actor_id)
-
-
-def _dmc_spec_sampler(cfg: Any, actor_id: int):
-    from training.core.protocols import EpisodeSpec
-
-    _DMC_ACTOR_EP_SEQ[actor_id] = _DMC_ACTOR_EP_SEQ.get(actor_id, 0) + 1
-    seed = derive_seed(int(cfg.meta.seed), 'mp_ep', actor_id, _DMC_ACTOR_EP_SEQ[actor_id])
-    return EpisodeSpec(scenario_seed=seed, opponent_id='random')
+# Mp internals (legacy resolvers + spec_sampler + inference pool helper)
+# live in _mp_internal to keep this file under 300 lines. Re-export the
+# names the existing tests import via `from collector import ...`.
+from training.paradigms.dmc._mp_internal import (  # noqa: E402,F401
+    _DMC_ACTOR_EP_SEQ,
+    _dmc_build_env_factory,
+    _dmc_build_opp_registry,
+    _dmc_build_policy,
+    _dmc_build_provider,
+    _dmc_spec_sampler,
+    _resolve_paradigm_factory,
+    _spawn_inference_pool,
+)
 
 
 class DMCMultiProcessCollector:
@@ -200,44 +160,51 @@ class DMCMultiProcessCollector:
 
     def __init__(
         self,
-        cfg: Any,
-        paradigm_cfg: Any,
-        network: Any,
-        opp_pool: Any,
-        env_factory: Any,
+        cfg,
+        paradigm_cfg,
+        network,
+        opp_pool,
+        env_factory,
         *,
         runtime: Optional[Runtime] = None,
         ring: Optional[SHMRing] = None,
     ) -> None:
-        self.cfg = cfg
-        self.pcfg = paradigm_cfg
-        self.network = network
-        self.opp_pool = opp_pool
-        self.env_factory = env_factory
+        self.cfg, self.pcfg, self.network = cfg, paradigm_cfg, network
+        self.opp_pool, self.env_factory = opp_pool, env_factory
         self._master_seed = int(cfg.meta.seed)
         self._episode_seq = 0
         self._weights_version = 0
         self.runtime = runtime if runtime is not None else Runtime(cfg)
         self.ring = ring if ring is not None else SHMRing(capacity=1024, slot_payload_max=512 * 1024)
         self._spawned = False
+        self._inference_server: Optional[Any] = None
+        self._inference_clients: list = []
 
     def _bootstrap(self) -> None:
-        """One-shot: publish initial weights then spawn actors. Idempotent."""
+        """Publish initial weights, stand up shared InferenceServer + N
+        InferenceClients, then spawn actors. Idempotent. Mp factories
+        in :mod:`training.paradigms.dmc.mp_factories`."""
         if self._spawned:
             return
-        # W3a constraint: parent must publish('latest') before workers attach.
         sd_cpu = {k: v.detach().cpu() for k, v in self.network.state_dict().items()}
         self.runtime.publish_weights(sd_cpu, version=self._weights_version)
         n_actors = int(getattr(self.cfg.pipeline, 'num_actors', 1))
-        actor_kwargs = {
-            'build_env_factory_path': 'training.paradigms.dmc.collector._dmc_build_env_factory',
-            'build_opp_registry_path': 'training.paradigms.dmc.collector._dmc_build_opp_registry',
-            'build_policy_path': 'training.paradigms.dmc.collector._dmc_build_policy',
-            'build_provider_path': 'training.paradigms.dmc.collector._dmc_build_provider',
-            'spec_sampler_path': 'training.paradigms.dmc.collector._dmc_spec_sampler',
+        self._inference_server, self._inference_clients = _spawn_inference_pool(self.cfg, self.network, n_actors)
+        mp = 'training.paradigms.dmc.mp_factories'
+        coll = 'training.paradigms.dmc.collector'
+        base = {
+            'build_env_factory_path': f'{mp}.build_dmc_env_factory',
+            'build_opp_registry_path': f'{mp}.build_dmc_opp_registry',
+            'build_policy_path': f'{coll}._dmc_build_policy',
+            'build_provider_path': f'{mp}.build_dmc_provider',
+            'spec_sampler_path': f'{coll}._dmc_spec_sampler',
             'transition_queue': self.ring,
         }
-        self.runtime.start_actors(n_actors=n_actors, actor_kwargs_factory=lambda i: dict(actor_kwargs))
+        clients = self._inference_clients
+        self.runtime.start_actors(
+            n_actors=n_actors,
+            actor_kwargs_factory=lambda i: dict(base, inference_client=clients[i]),
+        )
         self._spawned = True
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
@@ -274,14 +241,21 @@ class DMCMultiProcessCollector:
         return self._weights_version
 
     def close(self) -> None:
-        try:
-            self.runtime.close()
-        except Exception:
-            pass
-        try:
-            self.ring.close()
-        except Exception:
-            pass
+        # Order: clients → server.stop → runtime.close → ring.close.
+        def _safely(fn):
+            try:
+                fn()
+            except Exception:
+                pass
+
+        for c in self._inference_clients:
+            _safely(c.close)
+        self._inference_clients = []
+        if self._inference_server is not None:
+            _safely(self._inference_server.stop)
+            self._inference_server = None
+        _safely(self.runtime.close)
+        _safely(self.ring.close)
         self._spawned = False
 
     def state_dict(self) -> dict:

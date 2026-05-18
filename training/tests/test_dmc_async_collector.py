@@ -93,7 +93,14 @@ def test_dmc_async_collector_import_surface():
 
 def test_dmc_async_collector_bootstrap_publishes_then_spawns():
     """W3a constraint: WeightsSHM.write('latest', ...) must happen before
-    start_actors so child providers can attach."""
+    start_actors so child providers can attach.
+
+    Post P2-PoC E wiring: bootstrap also stands up a real
+    InferenceServer + per-actor InferenceClient. We mock the runtime
+    (no real actor spawn) but the server IS spawned because the mp
+    factories require an attached client. ``close()`` shuts everything
+    down in order.
+    """
     from training.paradigms.dmc.collector import DMCMultiProcessCollector
 
     rt = _MockRuntime()
@@ -110,26 +117,30 @@ def test_dmc_async_collector_bootstrap_publishes_then_spawns():
     # Bootstrap not done at __init__.
     assert not rt.published
     assert not rt.start_actors_calls
-    coll._bootstrap()
-    # Publish happened, then spawn — sequencing enforced by bootstrap body.
-    assert len(rt.published) == 1
-    assert rt.published[0][0] == 0  # initial version
-    assert rt.start_actors_calls == [
-        (
-            2,
-            {
-                'build_env_factory_path': 'training.paradigms.dmc.collector._dmc_build_env_factory',
-                'build_opp_registry_path': 'training.paradigms.dmc.collector._dmc_build_opp_registry',
-                'build_policy_path': 'training.paradigms.dmc.collector._dmc_build_policy',
-                'build_provider_path': 'training.paradigms.dmc.collector._dmc_build_provider',
-                'spec_sampler_path': 'training.paradigms.dmc.collector._dmc_spec_sampler',
-                'transition_queue': ring,
-            },
-        ),
-    ]
-    # Bootstrap idempotent — second call must not re-spawn.
-    coll._bootstrap()
-    assert len(rt.start_actors_calls) == 1
+    try:
+        coll._bootstrap()
+        # Publish happened, then spawn — sequencing enforced by bootstrap body.
+        assert len(rt.published) == 1
+        assert rt.published[0][0] == 0  # initial version
+        # Single start_actors call with the expected dotted paths +
+        # inference_client kwarg threaded through.
+        assert len(rt.start_actors_calls) == 1
+        n_actors, kwargs = rt.start_actors_calls[0]
+        assert n_actors == 2
+        assert kwargs['build_env_factory_path'] == 'training.paradigms.dmc.mp_factories.build_dmc_env_factory'
+        assert kwargs['build_opp_registry_path'] == 'training.paradigms.dmc.mp_factories.build_dmc_opp_registry'
+        assert kwargs['build_policy_path'] == 'training.paradigms.dmc.collector._dmc_build_policy'
+        assert kwargs['build_provider_path'] == 'training.paradigms.dmc.mp_factories.build_dmc_provider'
+        assert kwargs['spec_sampler_path'] == 'training.paradigms.dmc.collector._dmc_spec_sampler'
+        assert kwargs['transition_queue'] is ring
+        # Per-actor InferenceClient registered + threaded into kwargs.
+        assert 'inference_client' in kwargs
+        assert kwargs['inference_client'] is not None
+        # Bootstrap idempotent — second call must not re-spawn.
+        coll._bootstrap()
+        assert len(rt.start_actors_calls) == 1
+    finally:
+        coll.close()
 
 
 def test_dmc_async_collector_collect_drains_ring():
@@ -148,15 +159,18 @@ def test_dmc_async_collector_collect_drains_ring():
         runtime=rt,
         ring=ring,
     )
-    out = coll.collect(n_episodes=10, provider=None)
-    assert out.n_units == 5  # 3 + 2 transitions
-    assert len(out.episode_stats) == 2
-    assert out.runtime_metrics['n_pulled'] == 2
-    assert out.runtime_metrics['dmc_episodes'][0][0] == items[0]
-    # Subsequent collect with empty ring → 0 units, runtime not re-spawned.
-    out2 = coll.collect(n_episodes=10, provider=None)
-    assert out2.n_units == 0
-    assert len(rt.start_actors_calls) == 1
+    try:
+        out = coll.collect(n_episodes=10, provider=None)
+        assert out.n_units == 5  # 3 + 2 transitions
+        assert len(out.episode_stats) == 2
+        assert out.runtime_metrics['n_pulled'] == 2
+        assert out.runtime_metrics['dmc_episodes'][0][0] == items[0]
+        # Subsequent collect with empty ring → 0 units, runtime not re-spawned.
+        out2 = coll.collect(n_episodes=10, provider=None)
+        assert out2.n_units == 0
+        assert len(rt.start_actors_calls) == 1
+    finally:
+        coll.close()
 
 
 def test_dmc_async_collector_collect_respects_max_pull():
@@ -172,8 +186,11 @@ def test_dmc_async_collector_collect_respects_max_pull():
         runtime=_MockRuntime(),
         ring=_MockRing(items=list(items)),
     )
-    out = coll.collect(n_episodes=2, provider=None)
-    assert out.runtime_metrics['n_pulled'] == 2  # capped by n_episodes
+    try:
+        out = coll.collect(n_episodes=2, provider=None)
+        assert out.runtime_metrics['n_pulled'] == 2  # capped by n_episodes
+    finally:
+        coll.close()
 
 
 def test_dmc_async_collector_sync_weights_bumps_version():
@@ -232,12 +249,15 @@ def test_dmc_async_collector_state_dict_roundtrip():
         runtime=_MockRuntime(),
         ring=_MockRing(items=[['a'], ['b']]),
     )
-    coll.collect(n_episodes=2, provider=None)
-    coll.sync_weights(_tiny_net())
-    sd = coll.state_dict()
-    assert sd['episode_seq'] == 2
-    assert sd['weights_version'] == 1
-    assert sd['master_seed'] == 7
+    try:
+        coll.collect(n_episodes=2, provider=None)
+        coll.sync_weights(_tiny_net())
+        sd = coll.state_dict()
+        assert sd['episode_seq'] == 2
+        assert sd['weights_version'] == 1
+        assert sd['master_seed'] == 7
+    finally:
+        coll.close()
 
     coll2 = DMCMultiProcessCollector(
         cfg=_async_cfg_obj(),

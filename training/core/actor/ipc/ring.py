@@ -157,6 +157,36 @@ class SHMRing:
         r._buf = r._shm.buf
         return r
 
+    # Spawn picklability ------------------------------------------------
+    # ``self._buf`` is a memoryview backed by ``self._shm``; memoryview
+    # is not picklable. Strip it on pickle and rehydrate by re-opening
+    # the named SharedMemory on the worker side. The worker becomes a
+    # non-owner view (no unlink on close).
+    def __getstate__(self) -> dict:
+        return {
+            'name': self.name,
+            'capacity': self.capacity,
+            'slot_payload_max': self.slot_payload_max,
+            '_slot_size': self._slot_size,
+            '_lock': self._lock,
+            '_head': self._head,
+            '_tail': self._tail,
+            '_count': self._count,
+        }
+
+    def __setstate__(self, state: dict) -> None:
+        self.name = state['name']
+        self.capacity = state['capacity']
+        self.slot_payload_max = state['slot_payload_max']
+        self._slot_size = state['_slot_size']
+        self._lock = state['_lock']
+        self._head = state['_head']
+        self._tail = state['_tail']
+        self._count = state['_count']
+        self._owner = False
+        self._shm = SharedMemory(name=self.name)
+        self._buf = self._shm.buf
+
     def close(self) -> None:
         """Owner: unlink SHM. Worker: detach only."""
         try:

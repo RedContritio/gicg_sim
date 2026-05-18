@@ -71,6 +71,12 @@ class EpisodeRunner:
             if cur == our_player:
                 obs = self._get_obs(env)
                 mask = self._get_legal_mask(env)
+                # Optional duck-typed hook: paradigm-specific providers
+                # that need the env reference for obs encoding (e.g.
+                # DMC's obs_dict adapter) can observe it here before
+                # policy.act forwards through them.
+                if hasattr(provider, 'observe_env'):
+                    provider.observe_env(env)
                 action, meta = policy.act(obs, mask, provider)
                 step_out = env.step(action)
                 reward = self._reward_from_step(step_out)
@@ -112,11 +118,14 @@ class EpisodeRunner:
 
     @staticmethod
     def _get_legal_mask(env: Any) -> Any:
-        if hasattr(env, 'get_legal_mask'):
-            return env.get_legal_mask()
+        # Prefer get_legal_actions kinds list (no max_actions arg
+        # needed) — GicgEnv.get_legal_mask requires a max_actions
+        # parameter we don't carry through this layer.
         if hasattr(env, 'get_legal_actions'):
             kinds, _ = env.get_legal_actions()
             return kinds
+        if hasattr(env, 'get_legal_mask'):
+            return env.get_legal_mask()
         return None
 
     @staticmethod
