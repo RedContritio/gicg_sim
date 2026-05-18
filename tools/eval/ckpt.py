@@ -3,15 +3,15 @@ dmc_eval_ckpt.py + dmc_dump_replay.py.
 
 Usage::
 
-    # 多 ckpt 同 scenarios deterministic 对比
+    # 多 ckpt 同 scenarios deterministic 对比(T-06 ckpts/ subdir layout)
     .venv/bin/python -m tools.eval.ckpt configs/dmc_stage3_pilot.toml \\
-        --ckpts artifacts/A/latest.pt artifacts/B/latest.pt \\
+        --ckpts artifacts/A/ckpts/latest.pt artifacts/B/ckpts/latest.pt \\
         --baselines random F1-D2 F1-D4 --n-scenarios 128 \\
         --output-dir /tmp/cmp/
 
     # 出 replay yaml(diff 两 ckpt 策略)
     .venv/bin/python -m tools.eval.ckpt configs/dmc_stage3_pilot.toml \\
-        --ckpts a.pt b.pt --baselines F1-D2 \\
+        --ckpts artifacts/A/ckpts/latest.pt artifacts/B/ckpts/latest.pt --baselines F1-D2 \\
         --record-replays --output-dir /tmp/cmp/
 """
 
@@ -26,8 +26,21 @@ from pathlib import Path
 
 
 def _ckpt_label(p: Path) -> str:
-    """/x/y/202605151019_dmc_stage3_pilot/latest.pt → 202605151019_dmc_stage3_pilot"""
-    return p.parent.name
+    """Extract human-readable run label from ckpt path.
+
+    Post-T-06 layout: ckpts/ subdir 包所有 .pt,run_label = ckpt 的 grandparent::
+
+        /x/y/202605151019_000069_dmc_stage3_pilot/ckpts/latest.pt
+        →   202605151019_000069_dmc_stage3_pilot
+
+    若 parent dir 名非 ``ckpts``(说明 caller 传 flat path 或非标准 layout),
+    raise ValueError — clean-slate 不留 flat 兼容(spec 行 76-96 / 606-613)。
+    """
+    if p.parent.name != 'ckpts':
+        raise ValueError(
+            f'ckpt path must live under <run>/ckpts/ subdir (T-06 layout); got parent={p.parent.name!r} for {p}'
+        )
+    return p.parent.parent.name
 
 
 def main():

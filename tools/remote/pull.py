@@ -1,6 +1,10 @@
 """Pull Windows → Mac. Selective rsync of artifacts/<run>/ — only
-metrics.jsonl + summary.json + latest.pt + tb/(skip per-step ckpts unless
---all-ckpts).
+metrics.jsonl + summary.json + ckpts/latest.pt + tb/(skip per-step
+ckpts unless --all-ckpts).
+
+T-06 clean-slate:所有 .pt 进 ``<run>/ckpts/`` 子目录,rsync include
+模式必须含 ``ckpts/`` 自身才能让其下文件被 transfer(否则 --exclude=*
+会先拒目录)。
 
 Usage::
 
@@ -23,14 +27,17 @@ def main():
     p.add_argument('run_label', type=str)
     p.add_argument('--remote-root', default='D:/gicg_dev/artifacts')
     p.add_argument('--local-root', default='artifacts')
-    p.add_argument('--all-ckpts', action='store_true', help='also pull ckpt_*.pt')
+    p.add_argument('--all-ckpts', action='store_true', help='also pull ckpts/ckpt_*.pt + gauntlet_*.pt')
     args = p.parse_args()
 
     src = f'{REMOTE}:{args.remote_root}/{args.run_label}/'
     dst = Path(args.local_root) / args.run_label
     dst.mkdir(parents=True, exist_ok=True)
+    # T-06 layout:.pt 在 <run>/ckpts/ 下,rsync 必须先 include 目录自身。
+    # 默认只拉 ckpts/latest.pt,--all-ckpts 全量(ckpt_*.pt + gauntlet_*.pt)。
     includes = [
-        '--include=latest.pt',
+        '--include=ckpts/',
+        '--include=ckpts/latest.pt',
         '--include=metrics.jsonl',
         '--include=summary.json',
         '--include=eval_metrics.jsonl',
@@ -38,7 +45,8 @@ def main():
         '--include=tb/*',
     ]
     if args.all_ckpts:
-        includes.append('--include=ckpt_*.pt')
+        # ckpts/*** 递归含所有 .pt(ckpt_<step>.pt + gauntlet_g<g>.pt)
+        includes.append('--include=ckpts/***')
     includes.append('--exclude=*')
     cmd = ['rsync', '-az', '--partial', '--inplace', *includes, src, f'{dst}/']
     print(f'[pull] {src} -> {dst}')

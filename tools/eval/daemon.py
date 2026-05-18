@@ -3,7 +3,7 @@ GPU training box and runs PeriodicEvaluator.
 
 架构 (review C.3 / C.4 / E.2 一举三得):
   Windows training: 只 save ckpt + 不再调 in-process eval(cfg.eval.enabled=False)
-  Mac eval daemon:  poll latest.pt mtime → rsync 拉 → load → 跑 eval → 写 mac 本地 metrics + TB
+  Mac eval daemon:  poll ckpts/latest.pt mtime → rsync 拉 → load → 跑 eval → 写 mac 本地 metrics + TB
 
 不回传 train 端;Mac 上同 artifacts/<run>/ 目录里既有 train 的 metrics.jsonl(也通过 rsync 同步)
 也有 daemon 写的 eval_metrics.jsonl + eval_tb/, user 在 Mac 上 tensorboard 看 train + eval 双轴。
@@ -16,8 +16,8 @@ Usage::
         --poll-seconds 30
 
 每 ``--poll-seconds`` 秒一轮:
-  1. rsync 拉 artifacts/<run-label>/  (含 latest.pt, ckpt_*.pt, metrics.jsonl, tb/)
-  2. 比 local latest.pt mtime;无变化 → continue
+  1. rsync 拉 artifacts/<run-label>/  (含 ckpts/latest.pt, ckpts/ckpt_*.pt, metrics.jsonl, tb/)
+  2. 比 local ckpts/latest.pt mtime;无变化 → continue
   3. mtime 变 → 解析 ckpt frame# → 构造独立 inference DmcAgent → 跑 PeriodicEvaluator → log
 
 退出: ctrl-c 或 `--max-iterations N`。
@@ -49,9 +49,11 @@ def _do_rsync(remote: str, local_root: Path, run_label: str) -> int:
         '-az',
         '--partial',
         '--inplace',
-        # latest.pt + ckpt_*.pt + metrics.jsonl + tb events
-        '--include=latest.pt',
-        '--include=ckpt_*.pt',
+        # ckpts/(latest.pt + ckpt_*.pt + gauntlet_g*.pt) + metrics.jsonl + tb events
+        # T-06 clean-slate:所有 .pt 进 ckpts/ 子目录,rsync include 必须含 ckpts/ 自身
+        # 才能让其下文件被 transfer(否则 --exclude=* 会先拒目录)
+        '--include=ckpts/',
+        '--include=ckpts/***',
         '--include=metrics.jsonl',
         '--include=summary.json',
         '--include=tb/',
@@ -85,7 +87,7 @@ def _run_one_eval(
 ) -> None:
     """Run one eval round + write metrics + TB."""
     t = time.perf_counter()
-    ckpt_path = local_run_dir / 'latest.pt'
+    ckpt_path = local_run_dir / 'ckpts' / 'latest.pt'
     agent = _build_eval_agent_from_ckpt(cfg, ckpt_path, paradigm)
     results = evaluator.run_once(agent)
     eval_wall = time.perf_counter() - t
@@ -175,9 +177,9 @@ def main():
                     break
                 continue
 
-            latest = local_run_dir / 'latest.pt'
+            latest = local_run_dir / 'ckpts' / 'latest.pt'
             if not latest.exists():
-                print(f'[daemon] iter {iteration}: no latest.pt yet,sleep')
+                print(f'[daemon] iter {iteration}: no ckpts/latest.pt yet,sleep')
             else:
                 mtime = latest.stat().st_mtime
                 if last_eval_mtime is None or mtime > last_eval_mtime:
