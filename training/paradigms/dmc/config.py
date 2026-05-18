@@ -114,6 +114,11 @@ class DMCParadigmConfig(ParadigmConfigBase):
     # the generic NetworkProvider trace path is a NO-OP for DMC until the
     # network exposes a tensor-shaped forward; field is wired here for
     # future activation + future cross-paradigm use of the same flag.
+    # Wiring gap: training/core/actor/provider_factory.build_network_provider
+    # does not currently plumb this flag, and InferenceCfg's R7 contract
+    # fixes its field set at 4. Paradigms wanting to activate trace must
+    # construct LocalNetworkProvider directly in their mp_provider_path
+    # factory.
     use_jit_trace: bool = False
 
     @classmethod

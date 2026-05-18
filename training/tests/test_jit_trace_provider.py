@@ -1,4 +1,4 @@
-"""Tests for ``LocalNetworkProvider`` ``use_jit_trace`` wiring (T-3.4.5c).
+"""Tests for ``LocalNetworkProvider`` ``use_jit_trace`` wiring.
 
 Covers:
 1. Default behavior (``use_jit_trace=False``) is unchanged: no trace
