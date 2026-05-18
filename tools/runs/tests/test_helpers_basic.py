@@ -199,3 +199,36 @@ def test_extract_meta_field_paradigm(tmp_path: Path) -> None:
     cfg.write_text('[meta]\nparadigm = "dmc"\nrun_label = "smoke"\n', encoding='utf-8')
     assert helpers.extract_meta_field(cfg, 'paradigm') == 'dmc'
     assert helpers.extract_meta_field(cfg, 'run_label') == 'smoke'
+
+
+# --- RUN_DIR_RE (R8 — single-source run-dir name regex) ----------------------
+
+
+def test_run_dir_re_matches_well_formed() -> None:
+    # ``<YYYYMMDDHHMM>_<NNNNNN>_<label>`` — group 1 = NNN, group 2 = label.
+    m = helpers.RUN_DIR_RE.match('202605180100_000001_az_smoke')
+    assert m is not None
+    assert m.group(1) == '000001'
+    assert m.group(2) == 'az_smoke'
+
+
+def test_run_dir_re_rejects_legacy_dirs() -> None:
+    # Pre-redesign dirs (``r001_old``, ``pre_redesign_xxx``, bare lockfiles)
+    # must not match; list.py / sync_scan.py depend on this filter.
+    assert helpers.RUN_DIR_RE.match('r001_old') is None
+    assert helpers.RUN_DIR_RE.match('pre_redesign_xxx') is None
+    assert helpers.RUN_DIR_RE.match('.run_id_lock') is None
+    # Wrong NNN width (5 digits) is also rejected.
+    assert helpers.RUN_DIR_RE.match('202605180100_00001_x') is None
+    # Missing trailing label rejected.
+    assert helpers.RUN_DIR_RE.match('202605180100_000001_') is None
+    # Wrong timestamp width (11 digits).
+    assert helpers.RUN_DIR_RE.match('20260518010_000001_x') is None
+
+
+def test_run_dir_re_label_accepts_underscores_and_dashes() -> None:
+    # Labels can contain underscores / dashes / digits (slug-like).
+    m = helpers.RUN_DIR_RE.match('202605180100_000099_dmc-smoke_v2')
+    assert m is not None
+    assert m.group(1) == '000099'
+    assert m.group(2) == 'dmc-smoke_v2'

@@ -271,7 +271,7 @@ class TestMalformedHandling:
         assert 'skipping' not in err
 
     def test_unparseable_dir_name_uses_question_mark(self, tmp_path, capsys):
-        """Hand-crafted dir whose name matches _RUN_DIR_RE but metadata
+        """Hand-crafted dir whose name matches RUN_DIR_RE but metadata
         broken → warning uses NNN extracted from dir name. (No coverage
         for the '?' fallback in _scan_one's nnn_from_dir because
         list_runs filters non-matching dirs upstream — this test

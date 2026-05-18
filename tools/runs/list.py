@@ -32,12 +32,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from tools.runs import schema
-from tools.runs._helpers.paths import extract_meta_field
-
-# Dir-name shape per spec §Per-run 行 79 ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
-# ``^`` + ``\d{12}`` prefix guard skips pre-redesign legacy dirs
-# (``r001_old/``, ``pre_redesign_xxx/``) and the ``.run_id_lock`` file.
-_RUN_DIR_RE = re.compile(r'^\d{12}_(\d{6})_(.+)$')
+from tools.runs._helpers.paths import RUN_DIR_RE, extract_meta_field
 
 # Resume-versioned cfg files (spec §Resume 行 153-157): v1 has no suffix,
 # v>=2 carries ``_v<N>`` suffix; latest version is current truth.
@@ -111,7 +106,7 @@ def _scan_one(run_dir: Path) -> _Row | None:
     silent-skip (recover-eligible state, not corruption).
     """
     metadata_path = run_dir / 'metadata.toml'
-    m = _RUN_DIR_RE.match(run_dir.name)
+    m = RUN_DIR_RE.match(run_dir.name)
     nnn_from_dir = m.group(1) if m else '?'
     label_from_dir = m.group(2) if m else run_dir.name
 
@@ -162,7 +157,7 @@ def list_runs(
     for entry in artifacts_dir.iterdir():
         if not entry.is_dir():
             continue
-        if _RUN_DIR_RE.match(entry.name) is None:
+        if RUN_DIR_RE.match(entry.name) is None:
             continue
         row = _scan_one(entry)
         if row is None:

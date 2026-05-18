@@ -17,13 +17,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+from tools.runs._helpers.paths import RUN_DIR_RE
+
 if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib  # type: ignore
-
-# Dir-name shape per spec §Per-run 行 79: ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
-_RUN_DIR_RE = re.compile(r'^\d{12}_(\d{6})_(.+)$')
 
 
 def scan_local_timestamps(local_root: Path) -> dict[str, str]:
@@ -40,7 +39,7 @@ def scan_local_timestamps(local_root: Path) -> dict[str, str]:
     for entry in artifacts.iterdir():
         if not entry.is_dir():
             continue
-        m = _RUN_DIR_RE.match(entry.name)
+        m = RUN_DIR_RE.match(entry.name)
         if m is None:
             continue
         nnn = m.group(1)
@@ -113,7 +112,7 @@ def parse_remote_find_output(text: str) -> dict[str, str]:
         parts = file_path.split('/')
         if len(parts) < 3 or parts[0] != 'artifacts' or parts[-1] != 'metadata.toml':
             continue
-        m = _RUN_DIR_RE.match(parts[-2])
+        m = RUN_DIR_RE.match(parts[-2])
         if m is None:
             continue
         nnn = m.group(1)

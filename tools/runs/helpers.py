@@ -8,10 +8,11 @@ from __future__ import annotations
 from tools.runs._helpers.allocator import allocate_nnn
 from tools.runs._helpers.locks import acquire_metadata_lock
 from tools.runs._helpers.metadata_io import write_metadata_atomic
-from tools.runs._helpers.paths import cfg_checksum, extract_meta_field, normalize_repo_relative
+from tools.runs._helpers.paths import RUN_DIR_RE, cfg_checksum, extract_meta_field, normalize_repo_relative
 from tools.runs._helpers.resolver import resolve_nnn_to_dir
 
 __all__ = [
+    'RUN_DIR_RE',
     'acquire_metadata_lock',
     'allocate_nnn',
     'cfg_checksum',

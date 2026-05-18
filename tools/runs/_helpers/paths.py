@@ -8,6 +8,9 @@ Covers spec §Public API helper 表 行 533-547:
 - R1 normalize_repo_relative: repo-rooted POSIX forward-slash form
 - R2 cfg_checksum: content-only SHA-256 ``sha256:<64-hex>``
 - R3 extract_meta_field: leaf-only TOML ``[meta]`` field reader
+- R8 RUN_DIR_RE: shared regex for ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``
+  run-dir name shape (single source of truth — list.py + sync_scan.py
+  both import this)
 
 Stdlib only. tomllib (Python ≥ 3.11) handles the TOML parse.
 """
@@ -15,6 +18,7 @@ Stdlib only. tomllib (Python ≥ 3.11) handles the TOML parse.
 from __future__ import annotations
 
 import hashlib
+import re
 import sys
 from pathlib import Path
 
@@ -22,6 +26,12 @@ if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib  # type: ignore
+
+# Per spec §Per-run 行 79: ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
+# Group 1 = NNN (6 digits); group 2 = label (free-form, ≥ 1 char).
+# Public — re-exported via tools.runs.helpers; replaces inline copies
+# previously in list.py + sync_scan.py (M-4 dedup, T-18 review).
+RUN_DIR_RE = re.compile(r'^\d{12}_(\d{6})_(.+)$')
 
 
 def normalize_repo_relative(path: Path, repo_root: Path, label: str) -> str:

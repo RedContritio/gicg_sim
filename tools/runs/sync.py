@@ -153,13 +153,12 @@ def _excludes_for_conflicts(rows: list[ConflictRow], *, direction: str) -> list[
 
     Pattern: ``artifacts/*_<NNN>_*/`` matches ``<ts>_<NNN>_<label>``.
     Listed BEFORE generic ``--exclude=*`` they win (rsync first-match-wins).
+
+    ``direction`` is pre-validated by the sole caller ``build_rsync_cmd``
+    (and transitively by ``sync()``); no defensive recheck here (CLAUDE.md
+    §2 dead-defensive ban).
     """
-    if direction == 'push':
-        bad = 'remote_newer'
-    elif direction == 'pull':
-        bad = 'local_newer'
-    else:
-        raise ValueError(f'direction must be push|pull, got {direction!r}')
+    bad = 'remote_newer' if direction == 'push' else 'local_newer'
     return [f'--exclude=artifacts/*_{row.nnn}_*/' for row in rows if row.resolution == bad]
 
 
