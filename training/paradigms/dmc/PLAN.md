@@ -603,6 +603,54 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 
 ---
 
+### mp 统一架构 backlog(2026-05-19 audit + Windows benchmark 触发)
+
+> 触发:2026-05-18 Windows 24-actor benchmark(shell-spawn 独立 process)实测 1484-1705 fps,vs PLAN.md §3.4.5.7 target 28k → **gap ~17×**。Mac 264 fps + Windows 152 fps single-actor 共同确认 collector CPU 推理是真瓶颈,**GPU collector inference 是唯一能闭 wall budget 的路径**。审计发现 mp 模式架构在 repo 内全 paradigm dead:`mp_provider_path` 等字段 resolver 转发到 user-supplied 路径,但 **0 cfg 设值,0 paradigm 提供真实 factory 实现**。
+>
+> 2026-05-19:P2-PoC 首次 dispatch 实施 78 min 后 subagent API 403 失败,改动 scope 超出原 spec(动 `episode_runner.py` + `ipc/ring.py` + 新建未授权 `_mp_internal.py`),未 commit。原因:**真正的 mp 统一架构是跨 paradigm core change,scope 在单次 subagent dispatch 内难以稳定收敛**。
+
+#### 子任务拆解(P2-PoC 拆为 5 子项)
+
+| 子任务 | 内容 | LOC | 跨 paradigm 风险 |
+|---|---|---|---|
+| **MP-1** core/actor.actor_main 加 `inference_client` kwarg | actor_process.py:104 `build_provider(cfg, actor_id)` → 条件性附带 `inference_client` kwarg(non-None 时);其他 paradigm 旧 factory 签名兼容(不接 kwarg 不破) | ~15 | 中:AZ/PPO/CFR/BC mp factories 全做 backward compat regression |
+| **MP-2** DMC mp_factories.py 实装(3 factory) | `build_dmc_env_factory` / `build_dmc_opp_registry`(限 random opp,greedy/historical 需 weights sharing 另说) / `build_dmc_provider`(返 RemoteNetworkProvider) | ~100 | 低:DMC-only,新文件 |
+| **MP-3** DMCMultiProcessCollector._bootstrap GPU server 装配 | 父进程构 `DMCInferenceNet → InferenceServer(device='cuda', max_batch=N) → N × InferenceClient.attach → server.start → 每 actor 自带 client via per-actor kwargs` + `close` hook | ~80 | 低:DMC-only,但 mp.Queue cross-spawn pickle 路径需测 |
+| **MP-4** configs/dmc/gpu_async.toml + mp smoke test | extends smoke.toml,async mode,num_actors=2,device=cpu(Mac 验)/cuda(Win 验);test 验证 transition 流过 ring | ~60 | 低 |
+| **MP-5** InferenceServer 真 batching | `_server_loop` 收 N requests → stack obs_dict per-key → 1 forward → scatter response;dict obs 变长 hook field 需 batch-max padding | ~150 | 高:架构改 InferenceServer,影响所有 server 用户(AZ 已有);需 paradigm-aware stacking helper |
+
+#### 顺序建议
+
+```
+MP-1 → MP-2 → MP-3 → MP-4(Mac 验)→ Windows MP-4(GPU 验)→ MP-5(batching 优化)
+```
+
+- MP-1~4 是 PoC,可分 4 独立 commit subagent-driven 串行 ship,每步 100 LOC 以内
+- MP-5 真 batching 是 perf 优化,先 PoC 通(单 actor → 1 server,无 batching)再做
+- Mac CPU 验 architecture 通即 ship MP-1~4;Windows GPU benchmark 在 P3 一并跑
+
+#### Risk register
+
+- **R1 跨 paradigm regression**:MP-1 改 core/actor 影响 AZ/PPO/CFR/BC,每 dispatch 需跑全 paradigm smoke regression
+- **R2 mp.Queue pickle invariants**:InferenceClient 跨 spawn 时 mp.Queue 必须 picklable,且 response queue 不被父进程 GC
+- **R3 weight sync window**:WeightsSHM + 共享 InferenceServer 两条 weight 同步路径,需明确"InferenceServer 自己拉 weights 还是父进程 publish"(决策点)
+- **R4 single actor on GPU 比 CPU 慢**:cross-process IPC overhead;只在 N ≥ 4 actor batch 时才 win,smoke 单 actor 数据可能误导
+- **R5 InferenceServer batching dict obs**:DMC obs 15 tensor 含变长 hook 字段,padding 策略需 paradigm-aware,不是通用框架能解的
+
+#### 当前 stash(2026-05-19 partial work)
+
+未 commit 的文件(下次 implementer 决定 cherry-pick 哪些):
+- `training/paradigms/dmc/mp_factories.py`(spec 内,155 LOC)
+- `training/paradigms/dmc/_mp_internal.py`(scope creep,75 LOC — 跳过)
+- `configs/dmc/gpu_async.toml`(spec 内,29 LOC)
+- `training/tests/test_dmc_mp_factories.py`(spec 内,72 LOC)
+- modified `actor_process.py` / `collector.py` / `config.py`(spec 内但 scope 超)
+- modified `episode_runner.py` / `ipc/ring.py` / `test_dmc_async_collector.py`(scope creep,跳过)
+
+下次 dispatch 建议:**tighter scope per subagent**(MP-1 / MP-2 / MP-3 / MP-4 分开,每个 ≤ 100 LOC),避免单次 78 min 大 dispatch 风险。
+
+---
+
 ### Phase 3.5 Stage 3 启动 checklist
 
 #### Step 0 — Prereq verify(两者全 PASS 才进 Step 1)
