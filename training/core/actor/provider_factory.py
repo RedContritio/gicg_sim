@@ -29,6 +29,18 @@ def build_network_provider(
         network_blueprint: pytorch network (deep-copied for local; ignored for remote).
         inference_client: required when placement='remote'.
         weights_shm: WeightsSHM handle (optional in P3-A scaffold).
+
+    Limitations:
+        ``use_jit_trace`` is NOT plumbed from ``inf_cfg`` to
+        :class:`LocalNetworkProvider` because ``InferenceCfg`` is closed
+        at 4 fields (R7 contract in :mod:`training.core.config.base`).
+        The flag is currently paradigm-specific (only
+        ``DMCParadigmConfig`` declares it). Paradigms wanting to
+        activate trace at the actor-process boot site must construct
+        :class:`LocalNetworkProvider` directly in their
+        ``mp_provider_path`` factory, bypassing this builder. See
+        :class:`LocalNetworkProvider` for the ``use_jit_trace=True``
+        ctor path.
     """
     if inf_cfg is None:
         raise ValueError('build_network_provider: inf_cfg is None')

@@ -597,7 +597,7 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 |---|---|---|---|
 | **F-3.4.5b-eval** | `tools/remote/eval_service.py` 加 `--cpu-affinity` CLI flag(可选 env `GICG_EVAL_CPU_AFFINITY`)。`DMCParadigmConfig.cpu_affinity_eval` 是 documentation 字段,ops 启动 eval_service 时手动传给 `--cpu-affinity`。 | ✅ ~30 | Task 3 spec deferred(eval_service 是 separate process,DMC cfg 无法 runtime 触达) |
 | **F-3.4.5c-test** | `training/tests/test_inference_server_jit_trace.py`(新):mp Process spawn smoke,verify `use_jit_trace=True` ctor flag → `_server_loop` 实际 trace + `'weights'` msg 触发 invalidation。 | ✅ ~50 | Task 4 review:`_server_loop` `use_jit_trace=True` path 零测试覆盖,只 LocalNetworkProvider 测了 |
-| **F-3.4.5c-factory** | `training/core/actor/provider_factory.build_network_provider` 扩展 `use_jit_trace` 参数,要求 `InferenceCfg` 加第 5 字段或别路径绕过 R7 4-字段契约。OR document that paradigms wanting trace 必须 bypass factory(现状)。 | ~30 if extend / 0 if document | Task 4 review:wiring 链 inert at factory site;DMC NO-OP 之外还有 generic gap |
+| **F-3.4.5c-factory** | `training/core/actor/provider_factory.build_network_provider` 扩展 `use_jit_trace` 参数,要求 `InferenceCfg` 加第 5 字段或别路径绕过 R7 4-字段契约。OR document that paradigms wanting trace 必须 bypass factory(现状)。**Decision (2026-05-18)**: Option B documented; paradigm-side `mp_provider_path` factory bypasses `build_network_provider` to activate trace. `InferenceCfg` R7 4-field contract preserved. | ✅ ~25 doc-only | Task 4 review:wiring 链 inert at factory site;DMC NO-OP 之外还有 generic gap |
 
 **Verify gate**:per-actor ≥ 1200 fps + total ≥ 28k fps(24 actor on X3D)。
 

@@ -24,6 +24,15 @@ class LocalNetworkProvider:
     forward for the remainder of this provider's lifetime (no per-call
     retry). ``update_weights`` invalidates the traced module so the next
     forward re-traces with the fresh weights.
+
+    Factory note:
+        :func:`training.core.actor.provider_factory.build_network_provider`
+        does NOT plumb ``use_jit_trace`` from ``InferenceCfg`` (R7
+        4-field contract). Paradigms wanting to activate trace must
+        construct :class:`LocalNetworkProvider` directly — typically in
+        the paradigm's ``mp_provider_path`` factory — passing
+        ``use_jit_trace=True`` explicitly. The generic factory path
+        always builds with ``use_jit_trace=False``.
     """
 
     def __init__(
