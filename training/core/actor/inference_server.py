@@ -57,8 +57,15 @@ def _server_loop(
     response_qs: list,
     ready_event,
     stop_event,
+    use_jit_trace: bool = False,
 ) -> None:
-    """Top-level so it's picklable into spawn target."""
+    """Top-level so it's picklable into spawn target.
+
+    ``use_jit_trace=True`` enables lazy first-batch ``torch.jit.trace``.
+    On trace failure, log a single-line warning + permanently fall back
+    to untraced forward (no per-call retry). Weight-update messages
+    invalidate the traced module so the next forward re-traces.
+    """
     harden_child_env()
     install_quiet_sigterm(stop_event)
     try:
@@ -67,6 +74,35 @@ def _server_loop(
         ready_event.set()
         stop_event.set()
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
+
+    # Lazy first-batch trace state. ``traced_net`` is ``None`` until the
+    # first forward attempts a trace; ``trace_attempted`` is set after
+    # the first attempt (success OR failure) so we don't retry per call.
+    traced_net: Any = None
+    trace_attempted = False
+
+    def _maybe_trace(obs: Any, mask: Any):
+        nonlocal traced_net, trace_attempted
+        if not use_jit_trace or trace_attempted:
+            return traced_net if traced_net is not None else network
+        trace_attempted = True
+        try:
+            example = (obs, mask) if mask is not None else (obs,)
+            traced_net = torch.jit.trace(network, example, check_trace=False)
+        except Exception as exc:
+            print(
+                f'[InferenceServer] torch.jit.trace failed ({type(exc).__name__}: {exc}); '
+                f'falling back to untraced forward for remainder of process lifetime.'
+            )
+            traced_net = None
+        return traced_net if traced_net is not None else network
+
+    def _invalidate_trace() -> None:
+        nonlocal traced_net, trace_attempted
+        if use_jit_trace:
+            traced_net = None
+            trace_attempted = False
+
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
 
@@ -81,6 +117,7 @@ def _server_loop(
         if first[0] == 'weights':
             try:
                 network.load_state_dict(first[1])
+                _invalidate_trace()
             except Exception as exc:  # pragma: no cover
                 print(f'[InferenceServer] weight load failed: {exc}')
             continue
@@ -100,6 +137,7 @@ def _server_loop(
             if msg[0] == 'weights':
                 try:
                     network.load_state_dict(msg[1])
+                    _invalidate_trace()
                 except Exception as exc:  # pragma: no cover
                     print(f'[InferenceServer] weight load failed: {exc}')
                 continue
@@ -112,8 +150,9 @@ def _server_loop(
             try:
                 obs = _from_bytes(obs_bytes)
                 mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
+                net = _maybe_trace(obs, mask)
                 with torch.inference_mode():
-                    out = network(obs, mask) if mask is not None else network(obs)
+                    out = net(obs, mask) if mask is not None else net(obs)
                 response_qs[client_id].put(('ok', req_id, _to_bytes(out)))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
@@ -137,11 +176,13 @@ class InferenceServer:
         device: str = 'cpu',
         max_batch: int = 64,
         batch_timeout_ms: int = 2,
+        use_jit_trace: bool = False,
     ) -> None:
         self.network = network.to(device).eval()
         self.device = torch.device(device)
         self.max_batch = max_batch
         self.batch_timeout_ms = batch_timeout_ms
+        self.use_jit_trace = use_jit_trace
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -176,6 +217,7 @@ class InferenceServer:
                 self._response_qs,
                 self._ready_event,
                 self._stop_event,
+                self.use_jit_trace,
             ),
             daemon=False,
             name='InferenceServer',

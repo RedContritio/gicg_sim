@@ -108,6 +108,14 @@ class DMCParadigmConfig(ParadigmConfigBase):
     cpu_affinity_learner: Optional[list[int]] = None
     cpu_affinity_eval: Optional[list[int]] = None
 
+    # JIT-traced forward path for the actor's inference graph (Mac smoke
+    # default off, full train default on). The DMCNetwork class currently
+    # uses an env-based inference path (act_with_logit / select_action) so
+    # the generic NetworkProvider trace path is a NO-OP for DMC until the
+    # network exposes a tensor-shaped forward; field is wired here for
+    # future activation + future cross-paradigm use of the same flag.
+    use_jit_trace: bool = False
+
     @classmethod
     def from_dict(cls, d: dict) -> 'DMCParadigmConfig':
         """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4).

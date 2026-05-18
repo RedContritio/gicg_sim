@@ -107,8 +107,6 @@ class DmcConfig(TrainingConfig):
     # Discount: DMC uses γ=1 (sparse terminal reward, no bootstrap).
     gamma: float = 1.0
 
-    use_jit_trace: bool = False  # smoke off, full train on
-
     write_artifacts: bool = True
 
 
@@ -168,7 +166,6 @@ def smoke_config(data_dir: Optional[str] = None) -> DmcConfig:
         artifacts_root='artifacts',
         run_label='dmc_smoke',
         write_artifacts=True,
-        use_jit_trace=False,
     )
 
 
@@ -187,7 +184,6 @@ def stage3_config(data_dir: Optional[str] = None) -> DmcConfig:
     base.eval.interval_minutes = 60
     base.eval.n_scenarios = 128
     base.run_label = 'dmc_stage3'
-    base.use_jit_trace = True
     return base
 
 

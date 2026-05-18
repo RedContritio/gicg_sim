@@ -16,19 +16,54 @@ import torch
 
 class LocalNetworkProvider:
     """In-process network. ``forward`` runs in inference_mode; weights
-    sync via ``update_weights`` (load_state_dict)."""
+    sync via ``update_weights`` (load_state_dict).
 
-    def __init__(self, network: torch.nn.Module, device: str = 'cpu', version_tag: str = 'latest') -> None:
+    ``use_jit_trace=True`` enables lazy first-forward ``torch.jit.trace``
+    of the underlying network. Best-effort: on trace failure, log a
+    single-line warning and permanently fall back to the untraced
+    forward for the remainder of this provider's lifetime (no per-call
+    retry). ``update_weights`` invalidates the traced module so the next
+    forward re-traces with the fresh weights.
+    """
+
+    def __init__(
+        self,
+        network: torch.nn.Module,
+        device: str = 'cpu',
+        version_tag: str = 'latest',
+        use_jit_trace: bool = False,
+    ) -> None:
         self.network = network.to(device)
         self.network.eval()
         self._device = torch.device(device)
         self.version_tag = version_tag
         self.version = 0
         self._shm = None  # P3-B: WeightsSHM handle
+        self._use_jit_trace = use_jit_trace
+        self._traced_net: Optional[torch.nn.Module] = None  # lazy: first forward attempts trace
+        self._trace_attempted = False  # one-shot guard, no retry after failure
 
     def forward(self, obs: Any, mask: Any) -> Any:
+        net = self._maybe_trace(obs, mask)
         with torch.inference_mode():
-            return self.network(obs, mask) if mask is not None else self.network(obs)
+            return net(obs, mask) if mask is not None else net(obs)
+
+    def _maybe_trace(self, obs: Any, mask: Any) -> torch.nn.Module:
+        """Lazy first-forward trace. On trace failure, log + permanently
+        fall back to untraced network (no per-call retry)."""
+        if not self._use_jit_trace or self._trace_attempted:
+            return self._traced_net if self._traced_net is not None else self.network
+        self._trace_attempted = True
+        try:
+            example = (obs, mask) if mask is not None else (obs,)
+            self._traced_net = torch.jit.trace(self.network, example, check_trace=False)
+        except Exception as exc:
+            print(
+                f'[LocalNetworkProvider] torch.jit.trace failed ({type(exc).__name__}: {exc}); '
+                f'falling back to untraced forward for remainder of process lifetime.'
+            )
+            self._traced_net = None
+        return self._traced_net if self._traced_net is not None else self.network
 
     def update_weights(self, version_tag: Optional[str] = None, state_dict: Optional[dict] = None) -> int:
         """Two modes:
@@ -36,10 +71,17 @@ class LocalNetworkProvider:
           + serial mode).
         - SHM: pass ``version_tag``; provider pulls from WeightsSHM if
           attached (P3-B wiring).
+
+        Invalidates the traced module (if any) so the next forward
+        re-traces with the updated weights.
         """
         if state_dict is not None:
             self.network.load_state_dict(state_dict)
             self.version += 1
+            # Invalidate traced module so next forward re-traces with new weights.
+            if self._use_jit_trace:
+                self._traced_net = None
+                self._trace_attempted = False
             return self.version
         # SHM-driven path (no-op in P3-A scaffold; full impl P3-B).
         if self._shm is not None:
