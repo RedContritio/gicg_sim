@@ -32,10 +32,29 @@ def dispatch_gauntlet(
 
     Non-blocking: issues each ACK sequentially then returns. If
     eval_service is down, logs a skip and continues.
+
+    Gauntlet challenger ckpt is saved to
+    ``<artifacts_dir>/ckpts/gauntlet_g<NNNN>.pt`` (4-digit zero-pad of
+    ``game_marker``). Spec ref: ``docs/superpowers/specs/2026-05-18-
+    tools-runs-redesign-design.md`` §ckpts/ naming convention (HIGH-X-1).
+
+    Raises ``ValueError`` if ``game_marker >= 10000`` — strict contract
+    on the 4-digit width. Production runs producing >9999 gauntlet
+    intermediates must widen the prefix via spec amendment (no silent
+    overflow into longer filenames).
     """
     if artifacts_dir is None:
         return
-    ckpt_path = str(artifacts_dir / f'ckpt_gauntlet_g{game_marker:05d}.pt')
+    if not (0 <= game_marker < 10_000):
+        raise ValueError(
+            f'dispatch_gauntlet: game_marker={game_marker} outside '
+            f'[0, 10_000) — gauntlet_g<NNNN>.pt prefix is 4-digit zero-pad '
+            f'(spec §ckpts/ naming convention). Amend spec + this guard '
+            f'before running gauntlet past 9999 intermediates.'
+        )
+    ckpts_dir = artifacts_dir / 'ckpts'
+    ckpts_dir.mkdir(parents=True, exist_ok=True)
+    ckpt_path = str(ckpts_dir / f'gauntlet_g{game_marker:04d}.pt')
     challenger.save(ckpt_path)
 
     panel_base = {
