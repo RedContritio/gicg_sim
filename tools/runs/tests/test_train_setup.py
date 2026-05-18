@@ -26,6 +26,7 @@ from typing import Any
 import pytest
 
 from tools.runs import train as train_mod
+from tools.runs._train import setup as setup_mod
 
 
 # --- Fixtures -----------------------------------------------------------------
@@ -387,7 +388,7 @@ def test_setup_ts_in_dir_name_matches_state_timestamp(tmp_path: Path, monkeypatc
             assert tz == timezone.utc, 'spec requires UTC at the source'
             return fixed
 
-    monkeypatch.setattr(train_mod, 'datetime', _FakeDatetime)
+    monkeypatch.setattr(setup_mod, 'datetime', _FakeDatetime)
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'utc_test')
     state = train_mod._phase_a_setup(_make_args(cfg))
     # Both views derived from `fixed` → identical strftime.
@@ -414,7 +415,7 @@ def test_setup_uses_utc_not_local(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
             seen_tzs.append(tz)
             return real_now(tz)
 
-    monkeypatch.setattr(train_mod, 'datetime', _CaptureDatetime)
+    monkeypatch.setattr(setup_mod, 'datetime', _CaptureDatetime)
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'utc_only')
     train_mod._phase_a_setup(_make_args(cfg))
     assert seen_tzs, 'datetime.now never called'
@@ -429,19 +430,19 @@ def test_setup_orphan_dir_rmtree_on_assembly_failure(tmp_path: Path, monkeypatch
     succeeded — orphan dir must be rmtree'd (spec 行 51, 53)."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'lbl')
 
-    real_setup_state = train_mod.SetupState
+    real_setup_state = setup_mod.SetupState
     dirs_created: list[Path] = []
 
     def exploding_state(**kw: Any) -> Any:  # noqa: ANN401
         dirs_created.append(kw['artifacts_dir'])
         raise RuntimeError('simulated state assembly failure')
 
-    monkeypatch.setattr(train_mod, 'SetupState', exploding_state)
+    monkeypatch.setattr(setup_mod, 'SetupState', exploding_state)
     try:
         with pytest.raises(RuntimeError, match='simulated state assembly failure'):
             train_mod._phase_a_setup(_make_args(cfg))
     finally:
-        monkeypatch.setattr(train_mod, 'SetupState', real_setup_state)
+        monkeypatch.setattr(setup_mod, 'SetupState', real_setup_state)
 
     assert dirs_created, 'mkdir of per-run dir never happened'
     # The orphan dir created before the failure must be cleaned up.
