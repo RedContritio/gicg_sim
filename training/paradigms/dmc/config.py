@@ -108,18 +108,24 @@ class DMCParadigmConfig(ParadigmConfigBase):
     cpu_affinity_learner: Optional[list[int]] = None
     cpu_affinity_eval: Optional[list[int]] = None
 
-    # JIT-traced forward path for the actor's inference graph (Mac smoke
-    # default off, full train default on). The DMCNetwork class currently
-    # uses an env-based inference path (act_with_logit / select_action) so
-    # the generic NetworkProvider trace path is a NO-OP for DMC until the
-    # network exposes a tensor-shaped forward; field is wired here for
-    # future activation + future cross-paradigm use of the same flag.
+    # Inference acceleration mode for the actor's forward path
+    # (DMCInferenceNet wired through LocalNetworkProvider in
+    # DMCSerialCollector._ensure_dmc_provider). One of:
+    #
+    # - 'none' (default): bypass; run network as-is.
+    # - 'trace': lazy first-forward torch.jit.trace; invalidated on
+    #   weight update.
+    # - 'compile': torch.compile(net, mode='reduce-overhead',
+    #   dynamic=True) once at provider ctor. dynamic=True is critical
+    #   because DMC obs has variable n_legal_actions per turn — without
+    #   it cache thrash would make compile slower than no compile.
+    #
     # Wiring gap: training/core/actor/provider_factory.build_network_provider
-    # does not currently plumb this flag, and InferenceCfg's R7 contract
-    # fixes its field set at 4. Paradigms wanting to activate trace must
-    # construct LocalNetworkProvider directly in their mp_provider_path
-    # factory.
-    use_jit_trace: bool = False
+    # does not currently plumb this field, and InferenceCfg's R7
+    # contract fixes its field set at 4. Paradigms read this field
+    # directly when constructing LocalNetworkProvider (see
+    # DMCSerialCollector._ensure_dmc_provider).
+    inference_acceleration: str = 'none'
 
     @classmethod
     def from_dict(cls, d: dict) -> 'DMCParadigmConfig':
@@ -128,7 +134,30 @@ class DMCParadigmConfig(ParadigmConfigBase):
         Additional validations (cfg-schema-unification N3):
         - `version` ∈ _DMC_SUPPORTED_VERSIONS;若缺省默认 '1.0.0'
         - `paradigm` 字段值若提供必须 == 'dmc'(CC-205)
+        - `inference_acceleration` ∈ {'none','trace','compile'}
+        - `use_jit_trace` (deprecated alias): if True → converted to
+          `inference_acceleration='trace'` with a DeprecationWarning.
         """
+        # Translate deprecated `use_jit_trace` alias before the unknown-
+        # key check so the field name stays out of the allowed set.
+        d = dict(d)  # avoid mutating caller's dict
+        if 'use_jit_trace' in d:
+            import warnings as _warnings
+
+            legacy_val = d.pop('use_jit_trace')
+            if legacy_val:
+                if d.get('inference_acceleration', 'none') != 'none':
+                    raise ValueError(
+                        'DMCParadigmConfig: cannot set both use_jit_trace=True and '
+                        f'inference_acceleration={d["inference_acceleration"]!r}; '
+                        "use inference_acceleration='trace' only."
+                    )
+                _warnings.warn(
+                    "DMCParadigmConfig: use_jit_trace is deprecated, use inference_acceleration='trace' instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                d['inference_acceleration'] = 'trace'
         allowed = set(cls.__dataclass_fields__.keys())
         unknown = set(d.keys()) - allowed
         if unknown:
@@ -143,6 +172,11 @@ class DMCParadigmConfig(ParadigmConfigBase):
         paradigm_val = d.get('paradigm', 'dmc')
         if paradigm_val != 'dmc':
             raise ValueError(f'DMCParadigmConfig: paradigm mismatch: expected dmc, got {paradigm_val!r}')
+        accel = d.get('inference_acceleration', 'none')
+        if accel not in ('none', 'trace', 'compile'):
+            raise ValueError(
+                f"DMCParadigmConfig: inference_acceleration must be one of ['none','trace','compile'], got {accel!r}"
+            )
         agent_d = d.get('agent', {})
         opp_d = d.get('opponent_mix', {})
         kwargs: dict = {k: v for k, v in d.items() if k not in ('agent', 'opponent_mix')}

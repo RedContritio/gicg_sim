@@ -1,26 +1,20 @@
 """InferenceServer — batched-forward server in a dedicated mp.Process.
 
-Wire protocol over an ``mp.Queue`` (request_q):
+Wire protocol (request_q msgs):
 
     ('infer', client_id:int, request_id:str, obs_bytes:bytes, mask_bytes:bytes|None)
     ('weights', state_dict:dict)
     ('stop',)
 
 Server batches up to ``max_batch`` infer requests (or until
-``batch_timeout_ms`` elapses since the first request in a batch),
-forwards on ``device``, and replies on the pre-registered response
-queue for ``client_id`` with ``('ok', request_id, logits_bytes)`` or
-``('err', request_id, repr(exc))``.
+``batch_timeout_ms`` since the batch's first request), forwards on
+``device``, replies on the response queue registered for ``client_id``
+with ``('ok', request_id, logits_bytes)`` or ``('err', ..., repr(exc))``.
+Response queues MUST be registered before ``start()`` because
+``mp.Queue`` cannot traverse another queue — it crosses spawn as an arg.
 
-Response queues must be registered before ``start()`` via
-``register_client()`` because ``mp.Queue`` cannot be passed *through*
-another queue — it must traverse the spawn boundary as an argument.
-
-Loopback fallback: ``forward_one`` does an in-proc forward (used by
-serial-mode tests + ``InferenceClient`` constructed with ``server=`` arg
-directly). When the dedicated process is started via ``start()``, the
-in-proc network handle is still kept for ``forward_one`` to keep
-backward compatibility with P3-A loopback tests.
+Loopback fallback: ``forward_one`` does an in-proc forward (P3-A tests +
+``InferenceClient`` with ``server=`` arg).
 """
 
 from __future__ import annotations
@@ -29,6 +23,7 @@ import pickle
 import queue as _queue
 import time
 import traceback
+import warnings
 from typing import Any
 
 import torch
@@ -38,6 +33,8 @@ from training.core.actor._mp_helpers import (
     harden_child_env,
     install_quiet_sigterm,
 )
+
+_VALID_ACCEL = ('none', 'trace', 'compile')
 
 
 def _to_bytes(t: Any) -> bytes:
@@ -57,14 +54,15 @@ def _server_loop(
     response_qs: list,
     ready_event,
     stop_event,
-    use_jit_trace: bool = False,
+    inference_acceleration: str = 'none',
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
-    ``use_jit_trace=True`` enables lazy first-batch ``torch.jit.trace``.
-    On trace failure, log a single-line warning + permanently fall back
-    to untraced forward (no per-call retry). Weight-update messages
-    invalidate the traced module so the next forward re-traces.
+    ``inference_acceleration``: ``'none'`` (raw) | ``'trace'`` (lazy
+    first-batch jit.trace, invalidated on weight update) | ``'compile'``
+    (torch.compile once after pickle.loads — weight updates do NOT
+    invalidate since load_state_dict mutates in place). Trace + compile
+    both fall back to raw forward on construction failure.
     """
     harden_child_env()
     install_quiet_sigterm(stop_event)
@@ -75,15 +73,27 @@ def _server_loop(
         stop_event.set()
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
 
-    # Lazy first-batch trace state. ``traced_net`` is ``None`` until the
-    # first forward attempts a trace; ``trace_attempted`` is set after
-    # the first attempt (success OR failure) so we don't retry per call.
+    # Compile-once path: build before ready_event so the first forward
+    # incurs no compile penalty.
+    compiled_net: Any = None
+    if inference_acceleration == 'compile':
+        try:
+            compiled_net = torch.compile(network, mode='reduce-overhead', dynamic=True)
+        except Exception as exc:
+            print(
+                f'[InferenceServer] torch.compile failed ({type(exc).__name__}: {exc}); '
+                f'falling back to raw forward for remainder of process lifetime.'
+            )
+            compiled_net = None
+
+    # Lazy first-batch trace state — ``trace_attempted`` is one-shot
+    # (success OR failure both block per-call retry).
     traced_net: Any = None
     trace_attempted = False
 
     def _maybe_trace(obs: Any, mask: Any):
         nonlocal traced_net, trace_attempted
-        if not use_jit_trace or trace_attempted:
+        if trace_attempted:
             return traced_net if traced_net is not None else network
         trace_attempted = True
         try:
@@ -97,11 +107,19 @@ def _server_loop(
             traced_net = None
         return traced_net if traced_net is not None else network
 
+    def _select_net(obs: Any, mask: Any):
+        if inference_acceleration == 'compile':
+            return compiled_net if compiled_net is not None else network
+        if inference_acceleration == 'trace':
+            return _maybe_trace(obs, mask)
+        return network
+
     def _invalidate_trace() -> None:
         nonlocal traced_net, trace_attempted
-        if use_jit_trace:
+        if inference_acceleration == 'trace':
             traced_net = None
             trace_attempted = False
+        # compile mode: parameter tensors mutated in place; no invalidate.
 
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
@@ -143,14 +161,13 @@ def _server_loop(
                 continue
             batch.append(msg)
         # Per-request forward — paradigm-specific shapes prevent safe
-        # uniform stacking. Correctness preserved; batching gains are
-        # left for a future paradigm-aware hook.
+        # uniform stacking. Batching gains left for a paradigm-aware hook.
         for msg in batch:
             _kind, client_id, req_id, obs_bytes, mask_bytes = msg
             try:
                 obs = _from_bytes(obs_bytes)
                 mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
-                net = _maybe_trace(obs, mask)
+                net = _select_net(obs, mask)
                 with torch.inference_mode():
                     out = net(obs, mask) if mask is not None else net(obs)
                 response_qs[client_id].put(('ok', req_id, _to_bytes(out)))
@@ -159,16 +176,11 @@ def _server_loop(
 
 
 class InferenceServer:
-    """Spawn-ctx batched inference server. Optional dedicated process.
-
-    Workflow:
-
-    1. Construct.
-    2. ``register_client(q)`` for each client (returns client_id).
-    3. ``start()`` to spawn dedicated process.
-    4. Clients submit via ``request_queue`` keyed by their client_id;
-       server replies on the pre-registered response queue.
-    """
+    """Spawn-ctx batched inference server. Workflow: construct →
+    ``register_client(q)`` for each client → ``start()`` to spawn.
+    ``inference_acceleration``: ``'none'`` | ``'trace'`` | ``'compile'``
+    (see ``_server_loop``). ``use_jit_trace=True`` is a deprecated alias
+    that converts to ``'trace'`` with a ``DeprecationWarning``."""
 
     def __init__(
         self,
@@ -176,13 +188,32 @@ class InferenceServer:
         device: str = 'cpu',
         max_batch: int = 64,
         batch_timeout_ms: int = 2,
+        inference_acceleration: str = 'none',
         use_jit_trace: bool = False,
     ) -> None:
+        if use_jit_trace:
+            if inference_acceleration != 'none':
+                raise ValueError(
+                    'InferenceServer: cannot pass both use_jit_trace=True and '
+                    f'inference_acceleration={inference_acceleration!r}; '
+                    "use inference_acceleration='trace' only."
+                )
+            warnings.warn(
+                "InferenceServer: use_jit_trace=True is deprecated, use inference_acceleration='trace' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            inference_acceleration = 'trace'
+        if inference_acceleration not in _VALID_ACCEL:
+            raise ValueError(
+                f'InferenceServer: inference_acceleration must be one of '
+                f'{list(_VALID_ACCEL)}, got {inference_acceleration!r}'
+            )
         self.network = network.to(device).eval()
         self.device = torch.device(device)
         self.max_batch = max_batch
         self.batch_timeout_ms = batch_timeout_ms
-        self.use_jit_trace = use_jit_trace
+        self.inference_acceleration = inference_acceleration
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -190,9 +221,14 @@ class InferenceServer:
         self._response_qs: list = []
         self._proc = None
 
+    @property
+    def use_jit_trace(self) -> bool:
+        """Back-compat read accessor for the deprecated boolean field."""
+        return self.inference_acceleration == 'trace'
+
     def register_client(self, response_q) -> int:
-        """Register a client's response queue; return its client_id.
-        Must be called BEFORE ``start()`` so the queue traverses spawn."""
+        """Register a response queue (returns client_id). MUST run before
+        ``start()`` so the queue traverses the spawn boundary."""
         if self._proc is not None:
             raise RuntimeError('InferenceServer.register_client: must register before start()')
         client_id = len(self._response_qs)
@@ -200,8 +236,7 @@ class InferenceServer:
         return client_id
 
     def start(self, wait_ready_s: float = 15.0) -> None:
-        """Spawn the dedicated server process. Idempotent — calling
-        twice raises."""
+        """Spawn the server process. Idempotent — calling twice raises."""
         if self._proc is not None:
             raise RuntimeError('InferenceServer.start: already started')
         ctx = get_ctx()
@@ -217,7 +252,7 @@ class InferenceServer:
                 self._response_qs,
                 self._ready_event,
                 self._stop_event,
-                self.use_jit_trace,
+                self.inference_acceleration,
             ),
             daemon=False,
             name='InferenceServer',
@@ -228,13 +263,12 @@ class InferenceServer:
             raise TimeoutError(f'InferenceServer ready signal missed within {wait_ready_s}s')
 
     def forward_one(self, obs: Any, mask: Any) -> Any:
-        """Synchronous in-process forward. Loopback path for tests."""
+        """In-proc forward (loopback path for tests)."""
         with torch.inference_mode():
             return self.network(obs, mask) if mask is not None else self.network(obs)
 
     def update_network(self, state_dict: dict) -> None:
-        """Update weights. In-proc mode: load directly. Spawned mode:
-        push via request queue."""
+        """In-proc → load directly; spawned → push via request queue."""
         if self._proc is None:
             self.network.load_state_dict(state_dict)
         else:

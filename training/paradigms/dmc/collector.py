@@ -29,15 +29,11 @@ def derive_seed(master_seed: int, *labels: Any) -> int:
 
 
 class DMCSerialCollector:
-    """Single-process DMC episode collector.
-
-    Inference routes through a lazily-built
-    LocalNetworkProvider(DMCInferenceNet(agent.net)). The pipeline-
-    supplied ``provider`` arg to ``collect`` is ignored — the driver's
-    generic provider does not match DMC's 15-tensor obs_dict contract.
-    Equivalent in-proc forward to the prior in-agent path; indirection
-    unblocks GPU collector inference + torch.compile.
-    """
+    """Single-process DMC episode collector. Inference routes through a
+    lazily-built LocalNetworkProvider(DMCInferenceNet(agent.net)). The
+    pipeline-supplied ``provider`` arg to ``collect`` is ignored — the
+    driver's generic provider does not match DMC's 15-tensor obs_dict
+    contract. Indirection unblocks GPU collector inference + torch.compile."""
 
     requires_network_in_collect = True
 
@@ -61,8 +57,21 @@ class DMCSerialCollector:
             from training.paradigms.dmc.inference_net import DMCInferenceNet
 
             infer_net = DMCInferenceNet(self.agent.net).to(self.agent.device).eval()
-            self._dmc_provider = LocalNetworkProvider(infer_net, device=str(self.agent.device))
+            self._dmc_provider = LocalNetworkProvider(
+                infer_net,
+                device=str(self.agent.device),
+                inference_acceleration=self._read_inference_acceleration(),
+            )
         return self._dmc_provider
+
+    def _read_inference_acceleration(self) -> str:
+        # Tolerate typed DMCParadigmConfig OR raw dict (mp paths).
+        paradigm = getattr(self.cfg, 'paradigm', None)
+        if hasattr(paradigm, 'inference_acceleration'):
+            return getattr(paradigm, 'inference_acceleration') or 'none'
+        if isinstance(paradigm, dict):
+            return paradigm.get('inference_acceleration', 'none') or 'none'
+        return 'none'
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
         del provider  # ignored — see class docstring
@@ -136,22 +145,18 @@ class DMCSerialCollector:
 
 # ---------- DMC multi-process collector (FU-W3b-DMC) ---------- #
 
-# Module-level per-actor episode counter; child processes get their own
-# copy after spawn so streams are independent.
+# Per-actor episode counter; child processes copy after spawn.
 _DMC_ACTOR_EP_SEQ: dict = {}
 
 
 def _resolve_paradigm_factory(cfg: Any, key: str) -> Any:
-    """Look up a dotted ``module.attr`` factory path in cfg.paradigm
-    + import it. Raises ValueError loudly when missing (CS4)."""
+    """Look up dotted ``module.attr`` factory path in cfg.paradigm (CS4)."""
     from training.core.actor.actor_process import resolve_builder
 
     pdict = cfg.paradigm if isinstance(cfg.paradigm, dict) else {}
     path = pdict.get(key)
     if not path:
-        raise ValueError(
-            f'DMC mp actor: cfg.paradigm.{key} required for spawn (dotted "module.attr").',
-        )
+        raise ValueError(f'DMC mp actor: cfg.paradigm.{key} required for spawn (dotted "module.attr").')
     return resolve_builder(path)
 
 
@@ -189,8 +194,7 @@ def _dmc_spec_sampler(cfg: Any, actor_id: int):
 
 class DMCMultiProcessCollector:
     """DMC async collector — N actor procs + SHM ring + WeightsSHM.
-    ``collect`` drains the ring; ``sync_weights`` re-publishes; ``close``
-    terminates. Production use needs DmcAgent → typed-EpisodePolicy."""
+    ``collect`` drains the ring; ``sync_weights`` re-publishes."""
 
     requires_network_in_collect = True
 
@@ -237,9 +241,7 @@ class DMCMultiProcessCollector:
         self._spawned = True
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
-        """Drain SHM ring → CollectorOutput. ``n_episodes`` = max
-        actor-pushed records to pull this iter; actors run continuously
-        between drains."""
+        """Drain SHM ring → CollectorOutput. ``n_episodes`` caps pulls per iter."""
         del provider  # mp mode: actors own their own providers
         self._bootstrap()
         episodes_for_buffer: list = []
@@ -265,8 +267,7 @@ class DMCMultiProcessCollector:
         )
 
     def sync_weights(self, network: Any) -> int:
-        """Publish latest learner weights to WeightsSHM. Actor providers
-        poll between episodes (see actor_main)."""
+        """Publish learner weights to WeightsSHM (actors poll between episodes)."""
         self._weights_version += 1
         sd_cpu = {k: v.detach().cpu() for k, v in network.state_dict().items()}
         self.runtime.publish_weights(sd_cpu, version=self._weights_version)
@@ -296,5 +297,4 @@ class DMCMultiProcessCollector:
         self._weights_version = sd.get('weights_version', 0)
 
 
-# Public alias per FU-W3b-DMC task spec.
-DMCAsyncCollector = DMCMultiProcessCollector
+DMCAsyncCollector = DMCMultiProcessCollector  # public alias (FU-W3b-DMC)
