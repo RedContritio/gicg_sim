@@ -143,6 +143,18 @@ def _extract_leaf_label(leaf_bytes: bytes, cfg_path: Path) -> Any:
     return meta.get('run_label')
 
 
+def _verify_repo_root(cwd: Path) -> None:
+    """Verify cwd looks like the gicg_mono repo root.
+
+    Production caller invoked from a subdir (e.g. ``cd tools && python -m
+    tools.runs.train ...``) would silently root ``artifacts/`` at the
+    wrong dir — guard prevents the silent misdirection by sanity-checking
+    that ``tools/runs/`` lives under cwd.
+    """
+    if not (cwd / 'tools' / 'runs').is_dir():
+        raise SystemExit(f'tools.runs.train must run from repo root; cwd={cwd} lacks tools/runs/')
+
+
 def _phase_a_setup(args: argparse.Namespace) -> SetupState:
     """Steps 0-3: validate → capture → resolve → mkdir per-run dir.
 
@@ -155,6 +167,7 @@ def _phase_a_setup(args: argparse.Namespace) -> SetupState:
     short-circuits before we do any cfg load / extends resolution work
     when the leaf is already broken.
     """
+    _verify_repo_root(Path.cwd())
     cfg_path = Path(args.cfg)
     if not cfg_path.exists():
         print(f'tools.runs.train: cfg {cfg_path} not found', file=sys.stderr)
@@ -257,9 +270,9 @@ def _phase_a_setup(args: argparse.Namespace) -> SetupState:
             timestamp_utc=timestamp_utc,
         )
     except BaseException:
-        # Best-effort cleanup; if rmtree itself fails, surface the
-        # original error not the cleanup error (Python finally
-        # semantics preserved via raise-from None on cleanup error).
+        # Surface the original error, not the cleanup error.
+        # Bare `raise` at line 284 re-raises the original including KeyboardInterrupt.
+        # Cleanup-error stderr print is informational, not an exception path.
         try:
             shutil.rmtree(artifacts_dir, ignore_errors=False)
         except OSError as cleanup_err:

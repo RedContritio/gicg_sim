@@ -18,6 +18,7 @@ land.
 from __future__ import annotations
 
 import re
+from dataclasses import FrozenInstanceError
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -33,7 +34,14 @@ from tools.runs import train as train_mod
 @pytest.fixture(autouse=True)
 def _isolate_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Train uses ``Path.cwd()`` to root ``artifacts/``. Each test gets
-    a fresh empty tmp tree as its cwd so they don't share artifacts/."""
+    a fresh empty tmp tree as its cwd so they don't share artifacts/.
+
+    Materialize ``tools/runs/`` under tmp_path so the ``_verify_repo_root``
+    guard (added in T-08 quality-review M-1 fix) accepts the fake cwd.
+    The dedicated ``test_setup_rejects_non_repo_cwd`` test below opts
+    out via its own monkeypatch.chdir to verify the guard fires.
+    """
+    (tmp_path / 'tools' / 'runs').mkdir(parents=True)
     monkeypatch.chdir(tmp_path)
     return tmp_path
 
@@ -66,6 +74,27 @@ def _make_args(cfg: Path, **kw: Any) -> Any:
         override=list(kw.get('override', [])),
         resume=kw.get('resume'),
     )
+
+
+# --- Repo-root guard (T-08 quality review M-1) -------------------------------
+
+
+def test_setup_rejects_non_repo_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Guard fires when cwd does not contain ``tools/runs/`` — prevents
+    silent misdirection of ``artifacts/`` when caller runs from a subdir.
+    """
+    bare = tmp_path / 'bare_dir'
+    bare.mkdir()
+    # Opt out of the autouse fixture's tools/runs/ marker by chdir-ing
+    # to a sibling dir without the marker.
+    monkeypatch.chdir(bare)
+    cfg = bare / 'cfg.toml'
+    cfg.write_text('[meta]\nrun_label = "any"\n')
+    with pytest.raises(SystemExit) as ei:
+        train_mod._phase_a_setup(_make_args(cfg))
+    # SystemExit args is the message string (passed positionally), not a
+    # numeric code — verify the diagnostic mentions the missing marker.
+    assert 'tools/runs/' in str(ei.value)
 
 
 # --- Step 0: run_label regex validate (leaf + post-resolve) -------------------
@@ -448,7 +477,7 @@ def test_setup_state_has_six_documented_fields(tmp_path: Path) -> None:
 def test_setup_state_is_frozen(tmp_path: Path) -> None:
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'frozen_check')
     state = train_mod._phase_a_setup(_make_args(cfg))
-    with pytest.raises(Exception):  # FrozenInstanceError or AttributeError
+    with pytest.raises((FrozenInstanceError, AttributeError)):
         state.nnn = 999  # type: ignore[misc]
 
 
