@@ -151,6 +151,64 @@ def test_resume_cfg_pointing_to_dir_exits_2(tmp_path: Path) -> None:
     assert ei.value.code == 2
 
 
+def test_resume_load_with_extends_fail_exit_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
+    """Spec 行 152: resume re-resolves cfg; if load_with_extends raises
+    (malformed TOML / missing extends parent), exit 2 with stderr
+    diagnostic. Covers resume.py 行 142-144 raise path (I-1 — was
+    untested before the v1 quality review).
+
+    Strategy: fresh_train captures the artifacts dir + ckpt; then we
+    overwrite the leaf cfg with malformed TOML (unterminated string)
+    and re-invoke main() in --resume mode. The leaf-bytes parse
+    actually happens in :func:`_extract_leaf_label` before we reach
+    ``load_with_extends`` — that earlier guard raises SystemExit(2)
+    too, but with a different stderr token. To exercise specifically
+    the ``load_with_extends`` path (which parses on disk via tomllib +
+    walks the ``extends`` chain), we point ``extends`` at a missing
+    parent file: leaf-bytes TOML is valid (passes _extract_leaf_label)
+    but extends resolution fails.
+    """
+    cfg, art = fresh_train(tmp_path)
+    ckpt = make_dummy_ckpt(art)
+
+    # Valid TOML so _extract_leaf_label succeeds; broken meta.extends
+    # so load_with_extends raises FileNotFoundError (resume.py 行 142
+    # catches both ValueError and FileNotFoundError).
+    cfg.write_text(
+        """
+[meta]
+seed = 1
+paradigm = "dmc"
+run_label = "resume_test"
+extends = "missing_parent.toml"
+"""
+    )
+
+    with pytest.raises(SystemExit) as ei:
+        train_mod.main([str(cfg), '--resume', str(ckpt)])
+    assert ei.value.code == 2
+    err = capsys.readouterr().err
+    assert 'cfg resolve failed' in err
+
+
+def test_resume_override_apply_fail_exit_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
+    """Spec 行 152: --override is applied during resume; malformed
+    override (e.g. missing ``=``) → exit 2 with stderr diagnostic.
+    Covers resume.py 行 148-150 raise path (I-1 — was untested before
+    the v1 quality review).
+    """
+    cfg, art = fresh_train(tmp_path)
+    ckpt = make_dummy_ckpt(art)
+
+    with pytest.raises(SystemExit) as ei:
+        train_mod.main(
+            [str(cfg), '--resume', str(ckpt), '--override', 'bad-no-equals'],
+        )
+    assert ei.value.code == 2
+    err = capsys.readouterr().err
+    assert '--override apply failed' in err
+
+
 # --- Status transitions (CRIT-2-A) -------------------------------------------
 
 

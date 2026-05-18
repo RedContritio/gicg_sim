@@ -44,12 +44,14 @@ from tools.runs import schema
 from tools.runs._helpers.locks import _retry_acquire_flock
 from tools.runs._helpers.metadata_io import write_metadata_atomic
 from tools.runs._helpers.paths import normalize_repo_relative
+from tools.runs._train.cfg_toml import dict_to_toml
 from tools.runs._train.setup import (
     SetupState,
     _extract_leaf_label,
     _validate_run_label,
     _verify_repo_root,
 )
+from tools.runs._train.snapshot import _verify_round_trip, _versioned_filenames
 from training.core.config.loader import _apply_overrides, load_with_extends
 
 # Matches cfg_resolved.toml (v1) and cfg_resolved_v<N>.toml (vN, N>=2).
@@ -75,15 +77,19 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
     5. Re-validate ``run_label`` regex post-resolve (defense in depth
        — leaf cfg might have changed since the original train run).
     6. Allocate ``cfg_resolved_version = max(existing) + 1`` under the
-       global allocator flock (spec 行 155 HIGH-3-A — guards parallel
-       resume race).
-    7. Read current metadata + apply resume status transition via
+       global allocator flock. **Under the same lock**, write the
+       paired ``cfg_leaf_v<N>.toml`` + ``cfg_resolved_v<N>.toml`` AND
+       bump metadata — spec 行 155 binds glob + write + bump as one
+       critical section (splitting the vN write out post-lock opens
+       the v1 race window where two threads both glob N=2 and overwrite
+       each other; see ``_bump_metadata_for_resume`` docstring).
+    7. ``'running' already`` → warn no-op + continue (spec 行 243);
+       otherwise apply resume status transition via
        :func:`schema.validate_transition` ``resume=True``.
-       ``'running' already`` → warn no-op + continue (spec 行 243).
-    8. Write updated metadata (status='running', cfg_resolved_version=N,
+    8. Metadata write (status='running', cfg_resolved_version=N,
        cfg_file=new leaf path). ``timestamp`` / ``exit_code`` preserved
        (spec 行 162). ``wall_seconds`` reset to 0.0 — overwritten at
-       Phase C close with the last-attempt elapsed (H-3 行 185).
+       Phase C close (H-3 行 185).
 
     Returns the :class:`SetupState` for Phase B. Phase B reads
     ``state.cfg_resolved_version`` to suffix filenames.
@@ -103,14 +109,12 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
         )
         raise SystemExit(2)
 
-    # Step 1 + 3: artifacts_dir inference + sanity guards. ckpt path
-    # convention is ``<artifacts_dir>/ckpts/ckpt_<n>.pt`` (T-06 layout),
-    # so grandparent yields the per-run dir. We do NOT require the ckpt
-    # file itself to exist on disk — paradigm may load it lazily inside
-    # ``run_pipeline.try_resume`` and we don't want to second-guess that
-    # contract here. But the *structure* (metadata.toml present + ckpts/
-    # sibling) must hold or we'd silently scribble cfg_resolved_v<N> /
-    # metadata bump into a directory that isn't actually a registered run.
+    # Step 1 + 3: artifacts_dir inference (ckpt convention is
+    # ``<artifacts_dir>/ckpts/ckpt_<n>.pt`` per T-06) + structural
+    # sanity guards. The ckpt file itself is checked lazily by
+    # paradigm's run_pipeline.try_resume; here we only require the
+    # registered-run structure (metadata.toml + ckpts/) so a typo
+    # cannot silently scribble vN files into an unrelated dir.
     artifacts_dir = ckpt_path.parent.parent
     ckpts_dir = ckpt_path.parent
     metadata_path = artifacts_dir / 'metadata.toml'
@@ -130,9 +134,8 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
         )
         raise SystemExit(2)
 
-    # Step 4: re-resolve cfg + apply --override. Spec 行 152 explicitly
-    # allows cfg drift across resume — we re-run the load + override
-    # pipeline rather than reading the old cfg_resolved.toml back.
+    # Step 4: re-resolve cfg + apply --override (spec 行 152: cfg
+    # drift across resume is allowed by design).
     leaf_bytes = cfg_path.read_bytes()
     leaf_label = _extract_leaf_label(leaf_bytes, cfg_path)
     _validate_run_label(leaf_label, source='leaf cfg.meta.run_label')
@@ -149,19 +152,15 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
             print(f'tools.runs.train: --override apply failed: {e}', file=sys.stderr)
             raise SystemExit(2) from e
 
-    # Step 5: post-resolve regex re-validate. Cfg drift is allowed; a
-    # malformed run_label is not (would break the dir-name convention
-    # for any future re-register).
+    # Step 5: post-resolve regex re-validate (cfg drift allowed; bad
+    # run_label not — would break dir-name convention).
     resolved_meta = cfg_resolved.get('meta')
     resolved_label = resolved_meta.get('run_label') if isinstance(resolved_meta, dict) else None
     _validate_run_label(resolved_label, source='resolved cfg.meta.run_label')
 
-    # Step 6: N allocation under flock. Spec 行 155 mandates
-    # ``artifacts/.run_id_lock`` (the global allocator lock). Two
-    # parallel resumes against the same dir → first wins, second sees
-    # the new vN file on re-glob inside the lock body. Cross-dir
-    # resumes serialize too — over-locks but matches spec wording
-    # exactly (per HIGH-3-A pinned design).
+    # Step 6: N allocation + paired vN write + metadata bump all under
+    # the global allocator flock (spec 行 155 HIGH-3-A). Cross-dir
+    # resumes serialize too — over-locks but spec-literal.
     repo_root = Path.cwd()
     artifacts_root = repo_root / 'artifacts'
     artifacts_root.mkdir(parents=True, exist_ok=True)
@@ -173,23 +172,18 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
             timeout_msg='unable to acquire run-id lock after 10 retries; check artifacts/.run_id_lock',
         )
         version = _next_cfg_resolved_version(artifacts_dir)
-        # Hold the lock through metadata update so a concurrent resume
-        # can't sneak a duplicate vN between our glob and the metadata
-        # write (the per-dir flock would handle the metadata race but
-        # spec 行 155 binds the version to the global allocator lock).
         _bump_metadata_for_resume(
             artifacts_dir=artifacts_dir,
             metadata_path=metadata_path,
             cfg_path=cfg_path,
             cfg_resolved_version=version,
+            cfg_leaf_bytes=leaf_bytes,
+            cfg_resolved=cfg_resolved,
             repo_root=repo_root,
         )
 
-    # Read back the updated metadata for the dir-name timestamp source
-    # — resume reuses the original timestamp (spec 行 162 not reset).
-    # Re-reading is the natural way to single-source the field that
-    # both ``timestamp_utc`` (used downstream) and the on-disk
-    # ``metadata.timestamp`` derive from.
+    # Re-read updated metadata so ``timestamp_utc`` single-sources the
+    # original (spec 行 162: timestamp NOT reset on resume).
     fresh_metadata = schema.load_file(metadata_path)
     timestamp_utc = datetime.fromisoformat(fresh_metadata.timestamp)
     nnn = int(fresh_metadata.run_id)
@@ -239,18 +233,26 @@ def _bump_metadata_for_resume(
     metadata_path: Path,
     cfg_path: Path,
     cfg_resolved_version: int,
+    cfg_leaf_bytes: bytes,
+    cfg_resolved: dict,
     repo_root: Path,
 ) -> None:
-    """Read metadata, apply resume status transition, write updated record.
+    """Write cfg_leaf_v<N>, cfg_resolved_v<N>, and bumped metadata.
 
-    Called under the allocator flock so the read-modify-write cannot
-    interleave with a parallel resume's version glob. The per-run
-    metadata lock is re-acquired inside ``write_metadata_atomic`` — on
-    POSIX flock cross-fd same-process is generally fine since the
-    allocator lock fd is distinct, but the documented warning in
-    ``metadata_io.py`` is for cross-fd self-deadlock under Linux's
-    BSD-style flock. Here the locks guard different files
-    (.run_id_lock vs .metadata_lock), so no self-deadlock.
+    Called under the allocator flock so the full critical section
+    (glob → write pair → metadata bump) cannot interleave with a
+    parallel resume (spec 行 155). The per-run metadata lock acquired
+    inside ``write_metadata_atomic`` guards a different file, so no
+    self-deadlock. Steps: (1) write ``cfg_leaf_v<N>.toml``;
+    (2) write ``cfg_resolved_v<N>.toml`` via ``dict_to_toml`` +
+    round-trip verify (catches emitter bugs at write time, mirroring
+    fresh-path Phase B); (3) ``write_metadata_atomic`` with
+    status='running' / cfg_resolved_version=N / cfg_file=leaf path.
+
+    Failure: partial state survives (registered dir, not orphan).
+    Operator re-runs; the failed vN files become audit trail and the
+    next attempt allocates vN+1. Spec 行 51 cleanup applies only to
+    the fresh path.
     """
     current = schema.load_file(metadata_path)
 
@@ -266,6 +268,17 @@ def _bump_metadata_for_resume(
     else:
         schema.validate_transition(current.status, 'running', resume=True)
 
+    # Step 1-2: write paired vN files INSIDE the allocator lock.
+    # _verify_round_trip + _versioned_filenames imported from
+    # snapshot.py to single-source the emitter-bug guard + filename
+    # convention between fresh and resume paths.
+    leaf_name, resolved_name = _versioned_filenames(cfg_resolved_version)
+    (artifacts_dir / leaf_name).write_bytes(cfg_leaf_bytes)
+    resolved_text = dict_to_toml(cfg_resolved)
+    _verify_round_trip(resolved_text, cfg_resolved)
+    (artifacts_dir / resolved_name).write_text(resolved_text, encoding='utf-8')
+
+    # Step 3: metadata bump.
     cfg_file_rel = normalize_repo_relative(cfg_path, repo_root, label='cfg')
 
     updated = schema.RunMetadata(

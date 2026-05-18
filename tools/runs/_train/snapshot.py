@@ -68,32 +68,40 @@ def phase_b_write_cfg_metadata(state: SetupState, cfg_path: Path) -> None:
       paired set (same N) so cfg_leaf history aligns with the
       cfg_resolved truth at each version.
 
-    Resume-path discipline (T-12):
-    - **No rmtree on failure** — the per-run dir holds prior cfg
-      snapshots, metadata, and ckpts/ that we must not destroy if our
-      vN write fails mid-flight. Resume Phase A already updated the
-      metadata pointer; a Phase B write failure on resume leaves the
-      vN files possibly-partial, but the operator can re-run resume to
-      bump to vN+1 (the failed vN files become audit trail). This
-      mirrors spec 行 51 cleanup applying to ``fresh`` orphan dirs
-      only; a resume dir is by definition NOT orphan.
-    - Metadata write on resume Phase B is **skipped** because resume
-      Phase A already wrote the bumped metadata under the allocator
-      lock (cfg_resolved_version + cfg_file + status='running').
-      Re-writing here would either duplicate that work or accidentally
-      reset Phase A's preserved ``exit_code``.
+    Resume-path discipline (T-12 fix-up):
+    - **Resume path is no-op here.** The vN file writes + metadata bump
+      moved into Phase A's allocator-lock critical section (spec 行 155
+      requires glob + paired vN write + metadata bump as one atomic
+      unit — splitting the write to Phase B post-lock opened a race
+      where two parallel resumes both globbed N=2 and overwrote each
+      other). Phase B retains the early ``is_resume`` return for the
+      lifecycle hook (so dispatch can call Phase B uniformly fresh vs
+      resume), but does nothing.
 
-    The leaf-bytes write is a pure ``write_bytes`` (no re-encoding —
-    bytes captured in Phase A round-trip exactly). The resolved-dict
-    write goes through ``dict_to_toml`` then immediate
-    ``tomllib.loads`` round-trip-verify so a silent emitter bug cannot
-    let a non-parseable cfg_resolved sneak past.
+    Fresh-path:
+    - Step 4a: ``cfg_leaf.toml`` from ``state.cfg_leaf_bytes`` (pure
+      ``write_bytes``; bytes captured in Phase A round-trip exactly).
+    - Step 4b: ``cfg_resolved.toml`` via ``dict_to_toml`` +
+      ``tomllib.loads`` round-trip-verify (silent emitter bug catch
+      at write time, not read time).
+    - Step 5: ``metadata.toml`` (status='running') via
+      ``write_metadata_atomic``.
+    - Failure mid-way → ``rmtree(state.artifacts_dir)`` + re-raise as
+      ``SystemExit(2)``. Fresh dir is by definition orphan if Phase B
+      fails (no prior artifacts to preserve).
 
     ``cfg_path`` is the user-passed leaf cfg path (from argv) — used
     by ``_build_initial_metadata`` on the fresh path. Resume path
     ignores this arg (Phase A already wrote it into metadata).
     """
     is_resume = state.cfg_resolved_version > 1
+    if is_resume:
+        # Phase A already did everything (vN write + metadata bump
+        # under allocator lock). Nothing for Phase B to do; returning
+        # early avoids both the duplicate-write race and the
+        # rmtree-on-failure trap that would destroy a registered dir.
+        return
+
     leaf_name, resolved_name = _versioned_filenames(state.cfg_resolved_version)
 
     try:
@@ -105,26 +113,19 @@ def phase_b_write_cfg_metadata(state: SetupState, cfg_path: Path) -> None:
         _verify_round_trip(resolved_text, state.cfg_resolved)
         (state.artifacts_dir / resolved_name).write_text(resolved_text, encoding='utf-8')
 
-        # Step 5: metadata write — fresh path only. Resume Phase A
-        # already wrote the bumped metadata under allocator lock; doing
-        # it again here would race with the spec's "Phase A owns
-        # metadata bump" invariant (spec 行 153-159 CRIT-6-A).
-        if not is_resume:
-            metadata = _build_initial_metadata(state, cfg_path)
-            write_metadata_atomic(state.artifacts_dir, metadata)
+        # Step 5: metadata write.
+        metadata = _build_initial_metadata(state, cfg_path)
+        write_metadata_atomic(state.artifacts_dir, metadata)
     except BaseException as exc:
-        # Cleanup applies to fresh-path only — a resume dir holds prior
-        # artifacts (ckpts, older cfg versions, metadata) that an
-        # rmtree would destroy. See docstring above.
-        if not is_resume:
-            try:
-                shutil.rmtree(state.artifacts_dir)
-            except OSError as cleanup_err:
-                print(
-                    f'tools.runs.train: Phase B orphan-dir cleanup failed for '
-                    f'{state.artifacts_dir}: {cleanup_err}; manual rmtree required',
-                    file=sys.stderr,
-                )
+        # Fresh-path cleanup: orphan dir must not survive.
+        try:
+            shutil.rmtree(state.artifacts_dir)
+        except OSError as cleanup_err:
+            print(
+                f'tools.runs.train: Phase B orphan-dir cleanup failed for '
+                f'{state.artifacts_dir}: {cleanup_err}; manual rmtree required',
+                file=sys.stderr,
+            )
         if isinstance(exc, SystemExit):
             raise
         print(f'tools.runs.train: Phase B failed: {exc}', file=sys.stderr)
