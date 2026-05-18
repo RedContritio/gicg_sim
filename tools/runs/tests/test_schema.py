@@ -126,6 +126,14 @@ class TestFieldValidation:
         with pytest.raises(ValueError, match='wall_seconds'):
             schema.validate(_minimal_meta(wall_seconds=bad))
 
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), float('-inf')])
+    def test_rejects_nan_inf_wall_seconds(self, bad):
+        """NaN/Inf are semantically garbage for an elapsed-time field; the
+        `< 0` guard does not catch them (NaN comparisons are False; +Inf > 0
+        passes). Per CLAUDE.md §2 意外输入必须抛异常."""
+        with pytest.raises(ValueError, match='wall_seconds'):
+            schema.validate(_minimal_meta(wall_seconds=bad))
+
     @pytest.mark.parametrize('ok', [0.0, 0, 42, 84.3])
     def test_accepts_wall_seconds(self, ok):
         schema.validate(_minimal_meta(wall_seconds=ok))
@@ -157,7 +165,6 @@ class TestValidateTransitionNormal:
             ('running', 'done'),
             ('running', 'failed'),
             ('running', 'killed'),
-            ('running', 'running'),  # idempotent write
             ('unknown', 'done'),
             ('unknown', 'failed'),
             ('unknown', 'killed'),
@@ -191,6 +198,10 @@ class TestValidateTransitionNormal:
             # running → unknown: forbidden (recover only writes unknown for
             # rebuilt dirs that had no metadata at all)
             ('running', 'unknown'),
+            # running → running: spec §Status 状态机 行 226-231 does NOT list
+            # it as a normal arrow. Only the resume path (line 243 no-op warn)
+            # permits it (covered by ``test_resume_running_to_running_no_op_allowed``).
+            ('running', 'running'),
         ],
     )
     def test_forbidden(self, old, new):

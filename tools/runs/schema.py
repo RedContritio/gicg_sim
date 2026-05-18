@@ -11,6 +11,7 @@ longer a separate ``artifacts/runs/<NNN>.toml`` index (spec §Per-run
 
 from __future__ import annotations
 
+import math
 import re
 import sys
 from dataclasses import dataclass
@@ -97,6 +98,8 @@ def validate(meta: RunMetadata) -> None:
         raise ValueError('artifacts_dir is required (non-empty; repo-relative path)')
     if isinstance(meta.wall_seconds, bool) or not isinstance(meta.wall_seconds, (int, float)):
         raise ValueError(f'wall_seconds must be number, got {type(meta.wall_seconds).__name__}')
+    if not math.isfinite(meta.wall_seconds):
+        raise ValueError(f'wall_seconds {meta.wall_seconds!r} must be finite (no NaN / Inf)')
     if meta.wall_seconds < 0:
         raise ValueError(f'wall_seconds {meta.wall_seconds!r} must be >= 0')
     if not isinstance(meta.exit_code, int) or isinstance(meta.exit_code, bool):
@@ -105,18 +108,18 @@ def validate(meta: RunMetadata) -> None:
         raise ValueError(f'notes must be str (use empty string when absent), got {type(meta.notes).__name__}')
 
 
-# Status transition table (spec §Status 状态机 行 226-230 + §Resume 例外规则 行 235-245).
+# Status transition table (spec §Status 状态机 行 226-231 + §Resume 例外规则 行 235-246).
 #
 # Normal (resume=False): running → {done,failed,killed} (auto by train + manual
 # by mark); unknown → {done,failed,killed} (mark, recover 收尾). running →
-# running is allowed as the idempotent fresh-start path.
+# running is NOT a normal transition — spec only authorizes it via the resume
+# path (line 243 'already running' no-op warn).
 #
 # Resume exception (CRIT-2-A): {done,failed,killed,unknown,running} → running.
 # running → running under resume is the spec line 243 'already running' no-op
 # warn path; schema layer allows it, caller logs the warn.
 _NORMAL_TRANSITIONS: frozenset[tuple[str, str]] = frozenset(
     {
-        ('running', 'running'),
         ('running', 'done'),
         ('running', 'failed'),
         ('running', 'killed'),
@@ -140,10 +143,11 @@ def validate_transition(old: str, new: str, *, resume: bool = False) -> None:
     """Validate a status transition. Raise :class:`InvalidTransition` on violation.
 
     Per spec §Status 状态机 + §Resume 例外规则:
-    - Without ``resume``: only ``running → {done,failed,killed,running}`` and
+    - Without ``resume``: only ``running → {done,failed,killed}`` and
       ``unknown → {done,failed,killed}`` allowed.
     - With ``resume=True``: also allows
-      ``{done,failed,killed,unknown,running} → running`` (CRIT-2-A).
+      ``{done,failed,killed,unknown,running} → running`` (CRIT-2-A; the
+      ``running → running`` arm covers spec line 243 'already running' no-op).
     - Terminal states (done/failed/killed) are otherwise frozen.
     - ``unknown`` is the recover-rebuilt non-terminal state.
     """
@@ -162,7 +166,7 @@ def validate_transition(old: str, new: str, *, resume: bool = False) -> None:
         )
     raise InvalidTransition(
         f'transition {old!r} → {new!r} not allowed; '
-        f'normal: running → {{done,failed,killed,running}} or unknown → {{done,failed,killed}}; '
+        f'normal: running → {{done,failed,killed}} or unknown → {{done,failed,killed}}; '
         f'{{done,failed,killed}} terminal (use resume=True for resume exception)'
     )
 
@@ -240,13 +244,15 @@ def from_dict(d: dict[str, Any]) -> RunMetadata:
 
 
 def _format_scalar(v: Any) -> str:
-    if isinstance(v, bool):
-        return 'true' if v else 'false'
+    # No bool branch: `_format_scalar` is private (only `dumps` calls it), and
+    # `dumps` calls `validate` first, which rejects bool for every numeric
+    # field. No NaN/Inf branch either: `validate` rejects them via
+    # `math.isfinite`, so they never reach the emitter.
     if isinstance(v, int):
         return str(v)
     if isinstance(v, float):
         s = repr(v)
-        if '.' not in s and 'e' not in s and 'n' not in s and 'i' not in s:
+        if '.' not in s and 'e' not in s:
             s += '.0'  # force decimal so re-parse gives float
         return s
     if isinstance(v, str):
