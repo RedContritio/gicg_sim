@@ -62,3 +62,83 @@ class DMCInferenceNet(nn.Module):
             obs['modifier_log'],
         )
         return out['q']
+
+    def batched_forward(self, obs_list: list[dict]) -> torch.Tensor:
+        """Stack N single-request obs_dicts → 1 batched forward → (N, max_actions) Q logits.
+
+        Variable-length fields (``hook_emb``, ``hook_mask``) padded to
+        batch-max ``n_active`` with zero embeddings + False mask; the
+        cross-attention pipeline masks out padded positions so valid
+        rows are not contaminated. Fixed-shape fields concat'd along
+        batch dim 0.
+
+        Numerically equivalent to
+        ``torch.cat([self.forward(obs_i) for obs_i in obs_list], dim=0)``
+        but with one underlying ActorCritic.forward call for GPU
+        efficiency. ``InferenceServer`` activates this path whenever the
+        wrapped network exposes ``batched_forward`` and batch size > 1.
+        """
+        n = len(obs_list)
+        if n == 0:
+            raise ValueError('DMCInferenceNet.batched_forward: empty obs_list')
+        if n == 1:
+            # Degenerate — same as forward(); avoid stack overhead.
+            return self.forward(obs_list[0])
+
+        # Fixed-shape fields: concat along batch dim 0. Each entry in
+        # obs_list has these as (1, ...) tensors from build_obs_dict.
+        fixed_keys = (
+            'counter_values',
+            'counter_sids',
+            'active_slot_mask',
+            'card_buckets',
+            'enemy_sizes',
+            'meta',
+            'action_refs',
+            'action_payments',
+            'structural_values',
+            'char_skill_refs',
+            'recent_damage',
+            'prepare_skill',
+            'modifier_log',
+        )
+        batched = {k: torch.cat([o[k] for o in obs_list], dim=0) for k in fixed_keys}
+
+        # Variable-length fields: hook_emb is (1, n_active_i, D),
+        # hook_mask is (1, n_active_i). Pad to batch-max n_active across
+        # all requests; padded positions get zero emb + False mask so
+        # CrossAttentionBlock + masked pooling ignore them.
+        hook_embs = [o['hook_emb'] for o in obs_list]
+        hook_masks = [o['hook_mask'] for o in obs_list]
+        max_n_active = max(he.shape[1] for he in hook_embs)
+        d = hook_embs[0].shape[2]
+        device = hook_embs[0].device
+        dtype = hook_embs[0].dtype
+
+        padded_hook_emb = torch.zeros(n, max_n_active, d, dtype=dtype, device=device)
+        padded_hook_mask = torch.zeros(n, max_n_active, dtype=torch.bool, device=device)
+        for i, (he, hm) in enumerate(zip(hook_embs, hook_masks)):
+            na = he.shape[1]
+            padded_hook_emb[i, :na, :] = he[0]
+            padded_hook_mask[i, :na] = hm[0]
+        batched['hook_emb'] = padded_hook_emb
+        batched['hook_mask'] = padded_hook_mask
+
+        out = self.net(
+            batched['counter_values'],
+            batched['counter_sids'],
+            batched['active_slot_mask'],
+            batched['hook_emb'],
+            batched['hook_mask'],
+            batched['card_buckets'],
+            batched['enemy_sizes'],
+            batched['meta'],
+            batched['action_refs'],
+            batched['action_payments'],
+            batched['structural_values'],
+            batched['char_skill_refs'],
+            batched['recent_damage'],
+            batched['prepare_skill'],
+            batched['modifier_log'],
+        )
+        return out['q']

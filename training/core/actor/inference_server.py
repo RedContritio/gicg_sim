@@ -28,6 +28,13 @@ from typing import Any
 
 import torch
 
+from training.core.actor._inference_helpers import (
+    _AccelState,
+    _from_bytes,
+    _run_batched_path,
+    _to_bytes,
+    _to_device,
+)
 from training.core.actor._mp_helpers import (
     get_ctx,
     harden_child_env,
@@ -35,29 +42,6 @@ from training.core.actor._mp_helpers import (
 )
 
 _VALID_ACCEL = ('none', 'trace', 'compile')
-
-
-def _to_bytes(t: Any) -> bytes:
-    return pickle.dumps(t, protocol=pickle.HIGHEST_PROTOCOL)
-
-
-def _from_bytes(b: bytes) -> Any:
-    return pickle.loads(b)
-
-
-def _to_device(obj: Any, device: str) -> Any:
-    """Recurse into dict / tuple / Tensor and `.to(device)` each tensor.
-
-    obs may be a single tensor, a dict of tensors (DMC), or a tuple
-    (legacy). Non-tensor leaf values pass through unchanged.
-    """
-    if isinstance(obj, torch.Tensor):
-        return obj.to(device)
-    if isinstance(obj, dict):
-        return {k: _to_device(v, device) for k, v in obj.items()}
-    if isinstance(obj, (tuple, list)):
-        return type(obj)(_to_device(v, device) for v in obj)
-    return obj
 
 
 def _server_loop(
@@ -88,54 +72,11 @@ def _server_loop(
         stop_event.set()
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
 
-    # Compile-once path: build before ready_event so the first forward
-    # incurs no compile penalty.
-    compiled_net: Any = None
-    if inference_acceleration == 'compile':
-        try:
-            compiled_net = torch.compile(network, mode='reduce-overhead', dynamic=True)
-        except Exception as exc:
-            print(
-                f'[InferenceServer] torch.compile failed ({type(exc).__name__}: {exc}); '
-                f'falling back to raw forward for remainder of process lifetime.'
-            )
-            compiled_net = None
-
-    # Lazy first-batch trace state — ``trace_attempted`` is one-shot
-    # (success OR failure both block per-call retry).
-    traced_net: Any = None
-    trace_attempted = False
-
-    def _maybe_trace(obs: Any, mask: Any):
-        nonlocal traced_net, trace_attempted
-        if trace_attempted:
-            return traced_net if traced_net is not None else network
-        trace_attempted = True
-        try:
-            example = (obs, mask) if mask is not None else (obs,)
-            traced_net = torch.jit.trace(network, example, check_trace=False)
-        except Exception as exc:
-            print(
-                f'[InferenceServer] torch.jit.trace failed ({type(exc).__name__}: {exc}); '
-                f'falling back to untraced forward for remainder of process lifetime.'
-            )
-            traced_net = None
-        return traced_net if traced_net is not None else network
-
-    def _select_net(obs: Any, mask: Any):
-        if inference_acceleration == 'compile':
-            return compiled_net if compiled_net is not None else network
-        if inference_acceleration == 'trace':
-            return _maybe_trace(obs, mask)
-        return network
-
-    def _invalidate_trace() -> None:
-        nonlocal traced_net, trace_attempted
-        if inference_acceleration == 'trace':
-            traced_net = None
-            trace_attempted = False
-        # compile mode: parameter tensors mutated in place; no invalidate.
-
+    # _AccelState builds compile-once net up-front (so first forward
+    # carries no compile penalty) and lazy-traces on the first request
+    # when mode == 'trace'. Both failures fall back to the raw network
+    # for the remainder of process lifetime.
+    accel = _AccelState(network, inference_acceleration)
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
 
@@ -150,7 +91,7 @@ def _server_loop(
         if first[0] == 'weights':
             try:
                 network.load_state_dict(first[1])
-                _invalidate_trace()
+                accel.invalidate_trace()
             except Exception as exc:  # pragma: no cover
                 print(f'[InferenceServer] weight load failed: {exc}')
             continue
@@ -170,13 +111,21 @@ def _server_loop(
             if msg[0] == 'weights':
                 try:
                     network.load_state_dict(msg[1])
-                    _invalidate_trace()
+                    accel.invalidate_trace()
                 except Exception as exc:  # pragma: no cover
                     print(f'[InferenceServer] weight load failed: {exc}')
                 continue
             batch.append(msg)
-        # Per-request forward — paradigm-specific shapes prevent safe
-        # uniform stacking. Batching gains left for a paradigm-aware hook.
+        # Paradigm-aware batched path: if network exposes batched_forward
+        # AND there's >1 request, one ActorCritic.forward + scatter back
+        # via _run_batched_path. Networks without batched_forward (legacy
+        # AZ, plain test nets) + singleton batches fall through to the
+        # per-request loop below, which is also the only path that
+        # exercises the trace / compile accel layers (single-forward only).
+        if hasattr(network, 'batched_forward') and len(batch) > 1:
+            _run_batched_path(network, batch, device_str, response_qs)
+            continue
+
         for msg in batch:
             _kind, client_id, req_id, obs_bytes, mask_bytes = msg
             try:
@@ -189,7 +138,7 @@ def _server_loop(
                 obs = _to_device(obs, device_str)
                 if mask is not None:
                     mask = _to_device(mask, device_str)
-                net = _select_net(obs, mask)
+                net = accel.select(obs, mask)
                 with torch.inference_mode():
                     out = net(obs, mask) if mask is not None else net(obs)
                 out = _to_device(out, 'cpu')
