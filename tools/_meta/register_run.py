@@ -1,14 +1,16 @@
 """DEPRECATED: Auto-append a row to `docs/4_runs/registry.md`.
 
-⚠ DEPRECATED (core-network-generic-promotion Phase 5, 2026-05-17):
+⚠ DEPRECATED (core-network-generic-promotion Phase 5, 2026-05-17;
+re-affirmed by tools/runs clean-slate redesign 2026-05-18):
 this tool drove the legacy ``docs/4_runs/registry.md`` markdown
 workflow. Phase 0 of ``core-network-generic-promotion`` archived
 ``docs/4_runs/registry.md`` to
 ``docs/5_history/runs_pre_redesign_2026_05_17.md`` and replaced this
-tool with the new ``tools/runs/`` CLI suite (register / list / show /
-complete / sync). New code SHALL use ``tools.runs.register`` etc., not
-this module. Kept for orphan callers and historical reference; subject
-to git-rm in a future cleanup change.
+tool with the new ``tools/runs/`` CLI suite (post-redesign: ``train`` /
+``mark`` / ``recover`` / ``list`` / ``show`` / ``sync``). New code
+SHALL use ``tools.runs.train`` etc., not this module. Kept for orphan
+callers and historical reference; subject to git-rm in a future
+cleanup change.
 
 Eliminates the "forgot to register before launching" drift: the
 launcher(`tools.run` paradigm dispatch)calls this at startup and the

@@ -1,17 +1,18 @@
 """tools.runs — Run metadata workflow + cross-machine sync.
 
-Per OpenSpec change `core-network-generic-promotion` Phase 5
-(spec `tools-layout/spec.md` invariants T1-T5).
+Per clean-slate redesign (2026-05-18, docs/superpowers/plans/2026-05-18-
+tools-runs-redesign-implementation.md). Run metadata + cfg snapshot +
+ckpts all live under `artifacts/<ts>_<NNNNNN>_<label>/` (gitignored,
+same lifecycle). CLI is the only sanctioned mutator — no hand-edit, no
+parallel markdown registry.
 
-Run metadata lives in `artifacts/runs/<run_id>.toml` (gitignored,
-same lifecycle as ckpt / replays). CLI is the only sanctioned
-mutator — no hand-edit, no parallel markdown registry.
+Subcommands (post-redesign):
 
-Subcommands:
-
-- ``tools.runs.register``  start a run record (status=pending)
-- ``tools.runs.complete``  finalize a run record (status=done|failed|killed)
-- ``tools.runs.list``       table view (replaces docs/4_runs/registry.md)
+- ``tools.runs.train``      unified train entry (allocates NNN +
+                            registers + auto-closes status)
+- ``tools.runs.mark``       manual status transition (failed / killed)
+- ``tools.runs.recover``    rebuild metadata.toml from on-disk artifacts
+- ``tools.runs.list``       table view of all runs
 - ``tools.runs.show``       detail dump of single run
-- ``tools.runs.sync``       rsync wrapper, pull/push only runs/*.toml
+- ``tools.runs.sync``       rsync wrapper, pull/push only metadata
 """

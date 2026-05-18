@@ -22,13 +22,43 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
+import json
 import sys
 from pathlib import Path
 
+from training.core.config.loader import load_with_extends
 from training.core.config.loader import load_cfg
 from training.core.env_factory import make_env_factory
 from training.core.pipeline import run_pipeline
 from training.paradigms import resolve as resolve_paradigm
+
+
+def _cfg_checksum(cfg_path: Path) -> str:
+    """Extends-resolved canonical-JSON sha256, matching the format
+    written by the retired legacy register CLI so on-disk
+    ``metadata.cfg_checksum`` snapshots still compare correctly during
+    the legacy-path drift guard. tools.run.py + this helper are slated
+    for removal in T-23; do not adopt as a new public API."""
+    merged = load_with_extends(cfg_path)
+    canonical = json.dumps(merged, sort_keys=True, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+    return f'sha256:{hashlib.sha256(canonical.encode("utf-8")).hexdigest()}'
+
+
+def _extract_run_label(cfg_path: Path) -> str | None:
+    """Inlined from retired legacy register CLI's run_label extractor.
+    Reads cfg's extends-resolved ``[meta].run_label`` field. Same caveat
+    as ``_cfg_checksum``: dies with tools/run.py in T-23."""
+    merged = load_with_extends(cfg_path)
+    meta = merged.get('meta')
+    if not isinstance(meta, dict):
+        return None
+    v = meta.get('run_label')
+    if v is None:
+        return None
+    if not isinstance(v, str):
+        raise ValueError(f'cfg {cfg_path} meta.run_label must be a string, got {type(v).__name__}')
+    return v
 
 
 def _metadata_timestamp_to_dir_prefix(ts: str) -> str:
@@ -85,7 +115,8 @@ def main(argv: list | None = None) -> int:
         if not meta_path.exists():
             print(
                 f'[tools.run] run {args.run_id} not registered (no {meta_path}); '
-                f'register first via `tools.runs.register --run-id {args.run_id} --cfg {cfg_path}`',
+                f'the legacy register CLI is retired — start the run via '
+                f'`tools.runs.train {cfg_path}` instead (it allocates NNN + creates metadata atomically)',
                 file=sys.stderr,
             )
             return 2
@@ -106,8 +137,8 @@ def main(argv: list | None = None) -> int:
         # legitimately differ from cfg via `register --cfg-run-label-override`
         # (Phase 2 AD4). Checksum subsumes run_label edits anyway — run_label
         # is part of the cfg → part of canonical JSON → part of checksum.
-        from tools.runs.register import _cfg_checksum, _extract_run_label
-
+        # _cfg_checksum / _extract_run_label inlined above (T-21 retired
+        # the legacy register CLI; this whole legacy path dies in T-23).
         current_checksum = _cfg_checksum(cfg_path)
         if current_checksum != run_meta.cfg_checksum:
             print(

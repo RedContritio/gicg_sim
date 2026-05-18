@@ -45,7 +45,7 @@ import sys
 from pathlib import Path
 
 from tools.runs import schema
-from tools.runs.register import _normalize_repo_relative
+from tools.runs.helpers import normalize_repo_relative as _normalize_repo_relative
 
 
 def _load_gauntlet_json(path: Path) -> schema.GauntletResult:
@@ -93,8 +93,7 @@ def complete(
     path = schema.run_path(run_id, root=root)
     if not path.exists():
         raise FileNotFoundError(
-            f'run {run_id} not registered (no file at {path}); '
-            f'run `tools.runs.register --run-id {run_id} --cfg <path>` first'
+            f'run {run_id} not registered (no file at {path}); start the run via `tools.runs.train <cfg>` first'
         )
     meta = schema.load_file(path)
     meta.status = status
