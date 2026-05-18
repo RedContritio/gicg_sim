@@ -115,20 +115,10 @@ def _gen_bc_npz(fixture_dir: Path) -> Path:
 # cfg_rel: cfg under configs/; extra_env: subprocess env additions
 # (CFR stub buffer flag per cfr-driver-buffer-multihead-fix C6.4);
 # pre_fixture: marker for in-test fixture prep (BC dataset injection);
-# skip_reason: not None ⇒ pytest.skip with that message (cfg quality
-# issues unrelated to T-11 dispatch wiring stay flagged here so the
-# matrix matches the spec's 5-paradigm coverage symbolically — the
-# in-process delegation unit test still proves the dispatch path works
-# for ALL paradigms).
-#
-# AZ + CFR smokes are skipped because ``configs/<paradigm>/smoke.toml``
-# was designed against the legacy ``tools/run.py`` driver that accepted
-# ``--max-steps`` to cap episode/iter counts. Running the cfg unmodified
-# now triggers
-#   AZ:  selfplay max_game_steps=30 exceeded → RuntimeError before save
-#   CFR: traversal max_game_steps=30 exceeded → RuntimeError before save
-# Both are pre-existing cfg quality issues (not T-11 dispatch bugs);
-# fixing them belongs to a separate paradigm-cfg-cleanup change.
+# skip_reason: not None ⇒ pytest.skip with that message (kept as a hook
+# for future paradigm-specific cfg quality issues; all 5 paradigms are
+# currently active after T-31 raised AZ/CFR ``max_game_steps`` caps from
+# the legacy ``tools/run.py --max-steps``-era value of 30).
 _PARADIGM_MATRIX: dict[str, dict[str, Any]] = {
     'dmc': {
         'cfg_rel': 'configs/dmc/smoke.toml',
@@ -152,21 +142,13 @@ _PARADIGM_MATRIX: dict[str, dict[str, Any]] = {
         'cfg_rel': 'configs/cfr/smoke.toml',
         'extra_env': {'GICG_CFR_SMOKE_STUB_BUFFER': '1'},
         'pre_fixture': None,
-        'skip_reason': (
-            'CFR smoke cfg max_game_steps=30 cap is exceeded by a real traversal '
-            '(pre-existing cfg issue, not T-11 dispatch bug); cfg cleanup is out of '
-            'scope. CFR dispatch wiring is covered by the delegation unit test.'
-        ),
+        'skip_reason': None,
     },
     'az': {
         'cfg_rel': 'configs/az/smoke.toml',
         'extra_env': {},
         'pre_fixture': None,
-        'skip_reason': (
-            'AZ smoke cfg max_game_steps=30 cap is exceeded by a real selfplay game '
-            '(pre-existing cfg issue, not T-11 dispatch bug); cfg cleanup is out of '
-            'scope. AZ dispatch wiring is covered by the delegation unit test.'
-        ),
+        'skip_reason': None,
     },
 }
 

@@ -36,7 +36,10 @@ weight_decay = 0.0
 batch_size = 8
 buffer_cap = 500
 priority_weight = 3.0
-max_game_steps = 30
+# 100 matches az smoke_full; legacy smoke value 30 relied on `tools/run.py
+# --max-steps` driver cap (deleted by T-11 spec C-1) — actual games regularly
+# exceed 30 steps and would trip selfplay's RuntimeError before any ckpt save.
+max_game_steps = 100
 total_games = 2
 train_steps_per_game = 1
 min_buffer_before_train = 4
