@@ -274,7 +274,58 @@ Swap p0/p1 asymmetry(0.25 vs 0.00):p0 = agent=赤蝶 / opp=墨客;p1 反过来�
 
 ## Phase 3.4.5 — CPU profile results
 
-(待 profile + 优化后填)
+### Mac M-series baseline (2026-05-18, profile_actor.py initial run)
+
+**Setup:** single-actor serial DMC smoke (`configs/dmc/smoke.toml`), 60s wall budget, cProfile cumulative-time sort. Tool: `tools/dmc/profile_actor.py`. `harden_child_env` applied (OMP/MKL/BLAS=1, torch.set_num_threads(1), torch.set_num_interop_threads(1)).
+
+**Throughput:**
+- wall_duration_s: 60.44
+- n_collect_calls: 1087 (each = 1 episode)
+- n_transitions: 16563
+- per_actor_fps: 274.0
+
+**Top 15 hotspots (cumulative time):**
+
+| # | Function | cumtime (s) | ncalls |
+|---|---|---|---|
+| 1 | tools.dmc.profile_actor:_run_one_actor_for_duration | 60.44 | 1 |
+| 2 | training.paradigms.dmc.collector:DMCSerialCollector.collect | 60.00 | 1087 |
+| 3 | training.paradigms.dmc._episode:play_one_episode | 59.87 | 1087 |
+| 4 | torch.nn.modules.module:_wrapped_call_impl | 31.12 | 1779850 |
+| 5 | torch.nn.modules.module:_call_impl | 31.10 | 1779850 |
+| 6 | training.core.matchup.greedy_player:select_action | 22.42 | 5118 |
+| 7 | training.core.matchup.greedy_player:select_with_info | 22.42 | 5118 |
+| 8 | training.paradigms.dmc._agent:act_with_logit | 20.56 | 16563 |
+| 9 | training.core.matchup.greedy_player:_score_best_response | 19.82 | 204771 |
+| 10 | training.paradigms.dmc._agent:_forward_logits | 19.68 | 16563 |
+| 11 | training.core.network.actor_critic:forward | 19.01 | 16563 |
+| 12 | training.core.network.actor_critic:encode | 18.41 | 16563 |
+| 13 | training.core.network.agent_base:game_start | 13.33 | 1087 |
+| 14 | training.core.network.agent_base:encode_static | 13.30 | 1087 |
+| 15 | training.core.network.agent_base:encode_static_tensors_with_tokens | 12.21 | 1087 |
+
+**Interpretation (per PLAN.md §3.4.5.6 category):**
+
+- **NN forward (DMC agent path):** ~32% of wall — `act_with_logit` (20.56s) + `_forward_logits` (19.68s) + `actor_critic.forward/encode` (37.4s combined under nn.Module.__call__). The 1.78M `_call_impl` calls reflect transformer sub-module nesting per inference.
+- **F1-D2 opponent self-play overhead:** ~37% of wall — `greedy_player.select_action` (22.42s) + `_score_best_response` (19.82s). Smoke opponent_mix has `f1d2=0.30`, so ~30% of episodes spend the opponent half running depth-2 greedy. That's a meaningful chunk of the budget on Mac CPU.
+- **Static obs encoding:** ~22% of wall (per-episode warmup) — `encode_static_tensors_with_tokens` 12.21s spread over 1087 episodes (~11ms / episode start). Mostly one-shot per episode (cached after `game_start`).
+- **env.step / get_legal_actions / get_obs (engine ctypes):** not visible in the top 15 → engine overhead is small head per PLAN.md §3.4.5.5 expectation.
+
+**Red-line checks (per PLAN.md §3.4.5.6):**
+
+- [x] No BLAS/OMP threading sync in hot path (no `mkl_*` / `omp_*` symbols visible; `harden_child_env` effective).
+- [x] No pickle/unpickle in hot path (serial mode by construction; N/A for `serial` cfg).
+- [x] No frequent `.to('cuda')` / `.cpu()` (`cfg.meta.device = cpu` confirmed; no device-transfer functions in top 15).
+
+**Note:** Mac M-series numbers are baseline for hotspot identification + future Windows X3D delta comparison. Per-actor ≥ 1200 fps PASS criteria (PLAN.md §3.4.5.7) is for Windows X3D, NOT Mac. 274 fps Mac single-actor → projecting to X3D V-Cache + Blackwell-class CPU IPC headroom should give the ~5× lift needed to clear the 1200 fps gate; cannot be confirmed without the box.
+
+**Hotspot observation worth surfacing:** F1-D2 opponent depth-2 search consumes ~37% of single-actor wall — when Stage 3 train runs on Windows, the `opponent_mix.f1d2=0.30` ratio + `f1d4=0.10` (deeper search, slower) will be a real throughput tax. Phase 3.4.5 §opp-mix ratio decision (memory referenced) was already flagged with this trade; baseline confirms the magnitude.
+
+**Windows X3D follow-up (Task T-3.4.5e per PLAN.md, deferred per Windows box unavailability):**
+
+- Run same tool on Windows: `ssh dev@192.168.31.56 'cd D:\gicg_dev && .\.venv\Scripts\python.exe -m tools.dmc.profile_actor --cfg configs\dmc\smoke.toml --duration-seconds 300'`
+- Target: per-actor fps ≥ 1200 + multi-actor total ≥ 28k (24 actor) per PLAN.md §3.4.5.7.
+- Compare hotspot list vs Mac baseline above — expect NN forward proportion to grow (faster opponent self-play + V-Cache hit) and opp self-play proportion to shrink.
 
 ---
 
