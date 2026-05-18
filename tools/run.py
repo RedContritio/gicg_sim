@@ -203,57 +203,31 @@ def main(argv: list | None = None) -> int:
 
     resume_path = Path(args.resume) if args.resume else None
 
-    auto_status = 'done'
-    auto_complete_failed = False
-    final_state = None
-    try:
-        final_state = run_pipeline(
-            cfg,
-            paradigm,
-            env_factory=env_factory,
-            opp_pool=opp_pool,
-            eval_server=None,  # P4: wire EvalServer when async + remote inference lands
-            resume_from=resume_path,
-            max_steps=args.max_steps,
-            artifacts_timestamp_utc=artifacts_timestamp_utc,
+    # T-22 (2026-05-18 clean-slate redesign): auto-complete path retired
+    # along with the legacy finalization CLI module. This whole legacy
+    # driver dies in T-23; --run-id linkage here loses the metadata-close
+    # step, which is acceptable because the new `tools.runs.train`
+    # (Phase C close) is the supported entry. Users still hitting
+    # `tools.run --run-id` before T-23 must manually `tools.runs.mark`
+    # to close metadata.
+    if args.run_id:
+        print(
+            '[tools.run] WARNING: legacy --run-id auto-complete removed in T-22; '
+            'metadata stays running after train. Either migrate to `tools.runs.train <cfg>` '
+            'or close manually with `tools.runs.mark <NNN> --status done|failed`.',
+            file=sys.stderr,
         )
-    except BaseException:
-        auto_status = 'failed'
-        raise
-    finally:
-        if args.run_id:
-            # Wrap auto-complete in try/except so a metadata-write failure
-            # (disk-full / _normalize_repo_relative rejecting an out-of-tree
-            # resume parent / schema validate error) does NOT replace the
-            # in-flight train exception per Python finally semantics.
-            try:
-                from training.core.checkpoint import CheckpointManager
 
-                from tools.runs.complete import complete_from_train
-
-                if args.resume:
-                    # CheckpointManager.init_artifacts_dir(resume_from=...) returns
-                    # Path(resume_from).parent — synthesize-from-formula would diverge.
-                    actual_dir = Path(args.resume).parent
-                else:
-                    artifacts_root = Path(getattr(cfg.checkpoint, 'artifacts_root', 'artifacts'))
-                    actual_dir = artifacts_root / CheckpointManager.compute_dir_name(
-                        artifacts_timestamp_utc, cfg.meta.run_label
-                    )
-                wall = final_state.wall_seconds if final_state is not None else None
-                complete_from_train(
-                    run_id=args.run_id,
-                    artifacts_dir=actual_dir,
-                    status=auto_status,
-                    wall_seconds=wall,
-                )
-            except Exception as e:  # noqa: BLE001 — must swallow to preserve train exception
-                print(
-                    f'[tools.run] auto-complete failed for run {args.run_id}: {e}; '
-                    f'metadata may be stale, run `tools.runs.complete --run-id {args.run_id} --status {auto_status} --artifacts-dir <path>` manually',
-                    file=sys.stderr,
-                )
-                auto_complete_failed = True
+    final_state = run_pipeline(
+        cfg,
+        paradigm,
+        env_factory=env_factory,
+        opp_pool=opp_pool,
+        eval_server=None,  # P4: wire EvalServer when async + remote inference lands
+        resume_from=resume_path,
+        max_steps=args.max_steps,
+        artifacts_timestamp_utc=artifacts_timestamp_utc,
+    )
 
     print(
         f'[tools.run] final: step={final_state.step} '
@@ -262,8 +236,7 @@ def main(argv: list | None = None) -> int:
         f'train_steps={final_state.train_steps} '
         f'wall_s={final_state.wall_seconds:.1f}'
     )
-    # Non-zero exit if metadata link was not closed — CI/cron must detect.
-    return 3 if auto_complete_failed else 0
+    return 0
 
 
 if __name__ == '__main__':
