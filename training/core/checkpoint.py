@@ -24,8 +24,9 @@ class CheckpointManager:
 
     Layout:
         artifacts_dir/
-            ckpt_<step>.pt
-            latest.pt           (symlink-like copy)
+            ckpts/
+                ckpt_<step>.pt
+                latest.pt           (symlink-like copy of last ckpt_<step>.pt)
             metrics.jsonl
             cfg_snapshot.json
     """
@@ -62,7 +63,14 @@ class CheckpointManager:
         identical to the register-time UTC timestamp — single-sourced,
         sync-safe across machines."""
         if resume_from is not None:
-            d = Path(resume_from).parent
+            # ckpts live in `<artifacts_dir>/ckpts/<file>.pt` — strip `ckpts/`.
+            ckpts_dir = Path(resume_from).parent
+            if ckpts_dir.name != 'ckpts':
+                raise ValueError(
+                    f'CheckpointManager: resume {resume_from} parent dir is '
+                    f'{ckpts_dir.name!r}, expected {"ckpts"!r} (per spec §Per-run dir 结构)'
+                )
+            d = ckpts_dir.parent
             if not (d / 'metrics.jsonl').exists():
                 raise FileNotFoundError(f'CheckpointManager: resume {resume_from} missing sibling metrics.jsonl')
             self.artifacts_dir = d
@@ -86,7 +94,9 @@ class CheckpointManager:
         if self.artifacts_dir is None:
             self.init_artifacts_dir()
         d = self.artifacts_dir
-        ckpt_path = d / f'ckpt_{state.step}.pt'
+        ckpts_dir = d / 'ckpts'
+        ckpts_dir.mkdir(parents=True, exist_ok=True)
+        ckpt_path = ckpts_dir / f'ckpt_{state.step}.pt'
         payload = {
             'net': self.network.state_dict(),
             'optimizer': self.optimizer.state_dict() if self.optimizer is not None else None,
@@ -96,7 +106,7 @@ class CheckpointManager:
         if extra:
             payload.update(extra)
         torch.save(payload, ckpt_path)
-        shutil.copy2(ckpt_path, d / 'latest.pt')
+        shutil.copy2(ckpt_path, ckpts_dir / 'latest.pt')
         return ckpt_path
 
     def try_resume(self, path: Path, device: str = 'cpu') -> PipelineState:
