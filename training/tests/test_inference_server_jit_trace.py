@@ -89,17 +89,19 @@ def test_use_jit_trace_weights_update_invalidates_without_crash():
         x = torch.randn(1, 4)
         out_before = client.request(x, None)
 
-        # Mutate weights to a deterministic new state (all zeros — both
-        # weight (3, 4) and bias (3,) parameters in _TinyNet.fc).
         new_sd = {k: torch.zeros_like(v) for k, v in net.state_dict().items()}
         server.update_network(new_sd)
 
-        # Allow the queued weights msg to be consumed before the next
-        # request — give the server-loop a short window to drain.
-        time.sleep(0.1)
+        # Poll until the weights update is observed (out diverges from out_before).
+        # Bounded by 50 iterations × 20ms = 1s — generous for queue drain even
+        # on a loaded CI runner.
+        for _ in range(50):
+            probe = client.request(x, None)
+            if not torch.allclose(probe, out_before, atol=1e-6):
+                break
+            time.sleep(0.02)
+        out_after = probe
 
-        out_after = client.request(x, None)
-        # All-zero weight + zero bias → forward returns all zeros.
         # Verify the output reflects the new (zeroed) weights, NOT the old.
         assert not torch.allclose(out_before, out_after, atol=1e-6), (
             'weights update did not propagate — server still serving old weights'
