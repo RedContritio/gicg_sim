@@ -1,15 +1,20 @@
 """Standalone evaluation service for AZ / CFR training.
 
-Global singleton — listens on a fixed Unix socket (default
-``/tmp/gicg_eval.sock``), accepts matchup requests from any
-training run. Each request carries its own player specs, team
-configuration, and result output path, so one service instance
-serves all runs.
+Global singleton — listens on a fixed TCP localhost address (default
+``localhost:9100``), accepts matchup requests from any training run.
+Each request carries its own player specs, team configuration, and
+result output path, so one service instance serves all runs.
+
+The server binds ``localhost`` only (never ``0.0.0.0``) — eval_service
+is process-local IPC dressed in TCP for Windows portability, not a
+network service. Cross-host topologies (e.g. dispatch from container
+to host) wire the loopback port through the container runtime
+(``-p 9100:9100``) rather than binding externally.
 
 Start once, leave running across training sessions::
 
     .venv/bin/python -m tools.remote.eval_service
-    .venv/bin/python -m tools.remote.eval_service --socket /tmp/gicg_eval.sock --workers 2
+    .venv/bin/python -m tools.remote.eval_service --host localhost --port 9100 --workers 2
 
 The authoritative request schema lives in
 ``tools/remote/eval_service_schema.json`` (JSON Schema 2020-12). The
@@ -49,10 +54,12 @@ from tools.remote.eval_service_server import EvalServer
 # ---------------------------------------------------------------------------
 # Constants
 
-# GICG_EVAL_SOCKET env var lets the container deployment override the
-# socket path (named volume at /var/run/gicg/eval.sock). Falls back to
-# /tmp for host-native runs that don't set it.
-DEFAULT_SOCKET_PATH = os.environ.get('GICG_EVAL_SOCKET', '/tmp/gicg_eval.sock')
+# TCP localhost (AF_INET) — Windows-portable (AF_UNIX unavailable on
+# Windows). Env-var overrides let container deployments map the
+# loopback port through ``-p 9100:9100`` and clients on the same host
+# pick up the same default.
+DEFAULT_HOST = os.environ.get('GICG_EVAL_HOST', 'localhost')
+DEFAULT_PORT = int(os.environ.get('GICG_EVAL_PORT', '9100'))
 DEFAULT_METRICS_PATH = '/tmp/gicg_eval_metrics.jsonl'
 
 _SCHEMA_PATH = Path(__file__).parent / 'eval_service_schema.json'
@@ -63,7 +70,8 @@ _VALIDATOR = make_validator(REQUEST_SCHEMA)
 
 
 def build_server(
-    socket_path: Path,
+    host: str,
+    port: int,
     max_workers: int = 2,
     metrics_path: str | None = DEFAULT_METRICS_PATH,
 ) -> EvalServer:
@@ -72,7 +80,8 @@ def build_server(
     instantiate a server without duplicating the schema-load
     boilerplate."""
     return EvalServer(
-        socket_path=socket_path,
+        host=host,
+        port=port,
         max_workers=max_workers,
         metrics_path=metrics_path,
         request_schema=REQUEST_SCHEMA,
@@ -89,10 +98,16 @@ def main() -> None:
         description='Global evaluation service for AZ training.',
     )
     parser.add_argument(
-        '--socket',
+        '--host',
         type=str,
-        default=DEFAULT_SOCKET_PATH,
-        help=f'socket path (default: {DEFAULT_SOCKET_PATH})',
+        default=DEFAULT_HOST,
+        help=f'bind host (default: {DEFAULT_HOST}). Localhost only — external exposure is intentionally not supported.',
+    )
+    parser.add_argument(
+        '--port',
+        type=int,
+        default=DEFAULT_PORT,
+        help=f'bind TCP port (default: {DEFAULT_PORT})',
     )
     parser.add_argument(
         '--workers',
@@ -125,10 +140,9 @@ def main() -> None:
     preload_dsl(args.data_dir)
     print(f'[eval] DSL cache warmed from {args.data_dir}', flush=True)
 
-    socket_path = Path(args.socket)
-
     server = build_server(
-        socket_path=socket_path,
+        host=args.host,
+        port=args.port,
         max_workers=args.workers,
         metrics_path=args.metrics,
     )

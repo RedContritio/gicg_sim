@@ -1,8 +1,8 @@
 """Integration test for tools/remote/eval_service.py.
 
 Starts an EvalServer in a background thread, sends a status request
-and a small matchup (kind=gauntlet) request via Unix socket, verifies
-the protocol round-trip and result file output.
+and a small matchup (kind=gauntlet) request via TCP localhost,
+verifies the protocol round-trip and result file output.
 """
 
 from __future__ import annotations
@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 import os
 import socket
-import tempfile
 import threading
 import time
 from pathlib import Path
@@ -22,10 +21,22 @@ from training.paradigms.az.config import smoke_config
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
 
+def _alloc_port() -> int:
+    """Allocate a free TCP port on localhost via bind-to-0. TOCTOU race
+    is acceptable for tests (collision statistically rare; xdist-safe
+    enough for the -n 4 concurrency the suite runs at)."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('localhost', 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+
 class _TestEnv:
-    def __init__(self, run_path: Path, socket_path: Path, cfg):
+    def __init__(self, run_path: Path, host: str, port: int, cfg):
         self.path = run_path
-        self.socket_path = socket_path
+        self.host = host
+        self.port = port
         self.cfg = cfg
 
 
@@ -38,14 +49,13 @@ def test_env(tmp_path):
     agent = Agent(cfg.agent)
     ckpt_path = tmp_path / 'ckpt_test.pt'
     agent.save(str(ckpt_path))
-    sock_path = Path(tempfile.mkdtemp(prefix='eval_')) / 'eval.sock'
-    return _TestEnv(tmp_path, sock_path, cfg)
+    return _TestEnv(tmp_path, 'localhost', _alloc_port(), cfg)
 
 
-def _send_request(socket_path: str, req: dict) -> dict:
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+def _send_request(host: str, port: int, req: dict) -> dict:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(5.0)
-    sock.connect(socket_path)
+    sock.connect((host, port))
     sock.sendall(json.dumps(req).encode('utf-8'))
     # Schema responses exceed a single 4K packet; drain until EOF.
     buf = b''
@@ -58,10 +68,10 @@ def _send_request(socket_path: str, req: dict) -> dict:
     return json.loads(buf.decode('utf-8'))
 
 
-def _start_server(socket_path: Path):
+def _start_server(host: str, port: int):
     from tools.remote.eval_service import EvalServer
 
-    server = EvalServer(socket_path=socket_path, max_workers=1)
+    server = EvalServer(host=host, port=port, max_workers=1)
     t = threading.Thread(target=server.start, daemon=True)
     t.start()
     time.sleep(0.5)
@@ -74,10 +84,11 @@ class TestSchemaEndpoint:
     tests guard the round-trip."""
 
     def test_schema_request_returns_schema(self, test_env):
-        server, t = _start_server(test_env.socket_path)
+        server, t = _start_server(test_env.host, test_env.port)
         try:
             resp = _send_request(
-                str(test_env.socket_path),
+                test_env.host,
+                test_env.port,
                 {'kind': 'schema'},
             )
             assert resp['status'] == 'ok'
@@ -95,10 +106,11 @@ class TestSchemaEndpoint:
     def test_invalid_player_type_rejected(self, test_env):
         """Schema validation should reject a player type not in the
         oneOf union with an error pointing at the offending path."""
-        server, t = _start_server(test_env.socket_path)
+        server, t = _start_server(test_env.host, test_env.port)
         try:
             resp = _send_request(
-                str(test_env.socket_path),
+                test_env.host,
+                test_env.port,
                 {
                     'kind': 'gauntlet',
                     'mode': 'fixed',
@@ -122,10 +134,11 @@ class TestSchemaEndpoint:
         """Conditional-required: mode=enumerate_disjoint needs
         char_pool + team_size. Guards the schema's ``allOf if/then``
         branch — the most fragile non-trivial piece of the schema."""
-        server, t = _start_server(test_env.socket_path)
+        server, t = _start_server(test_env.host, test_env.port)
         try:
             resp = _send_request(
-                str(test_env.socket_path),
+                test_env.host,
+                test_env.port,
                 {
                     'kind': 'gauntlet',
                     'mode': 'enumerate_disjoint',
@@ -145,10 +158,11 @@ class TestSchemaEndpoint:
 
     def test_mcts_pure_without_n_simulations_rejected(self, test_env):
         """mcts_pure requires n_simulations >= 1; schema guards it."""
-        server, t = _start_server(test_env.socket_path)
+        server, t = _start_server(test_env.host, test_env.port)
         try:
             resp = _send_request(
-                str(test_env.socket_path),
+                test_env.host,
+                test_env.port,
                 {
                     'kind': 'gauntlet',
                     'mode': 'fixed',
@@ -170,10 +184,11 @@ class TestSchemaEndpoint:
         """Runtime-only invariant: ckpt path must exist on disk.
         Schema can't express 'file exists', so ``_validate_request``
         does this as an extra check."""
-        server, t = _start_server(test_env.socket_path)
+        server, t = _start_server(test_env.host, test_env.port)
         try:
             resp = _send_request(
-                str(test_env.socket_path),
+                test_env.host,
+                test_env.port,
                 {
                     'kind': 'gauntlet',
                     'mode': 'fixed',

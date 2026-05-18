@@ -1,6 +1,6 @@
 """Gauntlet dispatch + eval_service one-shot ACK helper.
 
-DEFAULT_SOCKET_PATH is inlined here (not imported from
+DEFAULT_HOST / DEFAULT_PORT are inlined here (not imported from
 tools.remote.eval_service) to avoid framework → tools cross-layer
 import.
 """
@@ -15,10 +15,11 @@ from typing import Optional
 
 
 # Inlined to break the framework → tools back-import cycle. Mirrors
-# tools.remote.eval_service.DEFAULT_SOCKET_PATH (env-var-aware so
-# container deployment using /var/run/gicg/ resolves the same path on
-# both ends).
-DEFAULT_SOCKET_PATH = os.environ.get('GICG_EVAL_SOCKET', '/tmp/gicg_eval.sock')
+# tools.remote.eval_service.DEFAULT_HOST / DEFAULT_PORT (env-var-aware
+# so container deployment mapping ``-p 9100:9100`` resolves the same
+# address on both ends).
+DEFAULT_HOST = os.environ.get('GICG_EVAL_HOST', 'localhost')
+DEFAULT_PORT = int(os.environ.get('GICG_EVAL_PORT', '9100'))
 
 
 def dispatch_gauntlet(
@@ -117,7 +118,7 @@ def dispatch_gauntlet(
             'id': f'g{game_marker:05d}_{opp_name}',
             'players': [challenger_spec, opp_spec],
         }
-        if request_eval(DEFAULT_SOCKET_PATH, req):
+        if request_eval(DEFAULT_HOST, DEFAULT_PORT, req):
             n_dispatched += 1
     if n_dispatched > 0:
         log(
@@ -138,13 +139,13 @@ def dispatch_gauntlet(
         )
 
 
-def request_eval(socket_path: str, req: dict) -> bool:
-    """Send one eval request via Unix socket, get ACK. Returns True on
+def request_eval(host: str, port: int, req: dict) -> bool:
+    """Send one eval request via TCP localhost, get ACK. Returns True on
     success, False if the eval_service is unreachable."""
     try:
-        sock = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
+        sock = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
         sock.settimeout(2.0)
-        sock.connect(socket_path)
+        sock.connect((host, port))
         sock.sendall(json.dumps(req).encode('utf-8') + b'\n')
         resp = sock.recv(4096)
         sock.close()

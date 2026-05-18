@@ -19,15 +19,15 @@ import socket
 from typing import Any, List, Optional
 
 
-def fetch_schema(sock_path: str) -> dict:
+def fetch_schema(host: str, port: int) -> dict:
     """Query the service for its request schema. Raises on any failure;
     the caller decides whether to proceed without (we choose not to —
     silent fallback to heuristic types is how bodies end up rejected
     server-side after a schema bump)."""
     req = {'kind': 'schema'}
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(5.0)
-    s.connect(sock_path)
+    s.connect((host, port))
     s.sendall(json.dumps(req).encode('utf-8') + b'\n')
     buf = b''
     while b'\n' not in buf:

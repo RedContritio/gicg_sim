@@ -1,4 +1,4 @@
-"""Unix-socket server for tools.remote.eval_service. Split out of
+"""TCP-localhost server for tools.remote.eval_service. Split out of
 eval_service.py to stay under the 300-line size cap. :class:`EvalServer`
 owns the accept loop, connection dispatch, and status printer; job
 execution and schema validation live in eval_service_job."""
@@ -31,11 +31,13 @@ def _load_default_schema() -> dict:
 
 
 class EvalServer:
-    """Main server: bind socket, accept connections, dispatch jobs."""
+    """Main server: bind TCP localhost socket, accept connections,
+    dispatch jobs."""
 
     def __init__(
         self,
-        socket_path: Path,
+        host: str,
+        port: int,
         max_workers: int = 2,
         metrics_path: str | None = None,
         request_schema: dict | None = None,
@@ -45,7 +47,8 @@ class EvalServer:
             request_schema = _load_default_schema()
         if validator is None:
             validator = make_validator(request_schema)
-        self.socket_path = socket_path
+        self.host = host
+        self.port = port
         self.max_workers = max_workers
         self.state = ServiceState(metrics_path=metrics_path)
         self._stop_event = threading.Event()
@@ -55,13 +58,13 @@ class EvalServer:
         self._validator = validator
 
     def start(self) -> None:
-        # Clean up stale socket
-        if self.socket_path.exists():
-            self.socket_path.unlink()
-
-        # Bind
-        self._sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self._sock.bind(str(self.socket_path))
+        # Bind TCP localhost. No stale-file cleanup needed (AF_INET has
+        # no filesystem footprint).
+        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # SO_REUSEADDR so a quick restart after stop() doesn't trip
+        # TIME_WAIT on the previous bind.
+        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._sock.bind((self.host, self.port))
         self._sock.listen(8)
         self._sock.settimeout(1.0)  # so accept loop checks stop_event
 
@@ -74,13 +77,14 @@ class EvalServer:
         self._status_thread.start()
 
         print(
-            f'[eval] ready: socket={self.socket_path} workers={self.max_workers}',
+            f'[eval] ready: address={self.host}:{self.port} workers={self.max_workers}',
             flush=True,
         )
         self.state.log_metric(
             'started',
             {
-                'socket': str(self.socket_path),
+                'host': self.host,
+                'port': self.port,
                 'workers': self.max_workers,
             },
         )
@@ -93,8 +97,6 @@ class EvalServer:
             self._executor.shutdown(wait=True, cancel_futures=False)
         if self._sock:
             self._sock.close()
-        if self.socket_path.exists():
-            self.socket_path.unlink()
         print('[eval] stopped', flush=True)
 
     def _accept_loop(self) -> None:

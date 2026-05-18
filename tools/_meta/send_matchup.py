@@ -31,8 +31,9 @@ Escape hatches for programmatic use:
   --body <path.json>   load request body from JSON file
   --stdin              load request body from stdin
 
-``--socket PATH`` overrides the default socket. ``--help`` prints
-usage + per-kind field reference (built from the fetched schema).
+``--host HOST`` / ``--port PORT`` override the default TCP target.
+``--help`` prints usage + per-kind field reference (built from the
+fetched schema).
 
 Examples::
 
@@ -72,16 +73,16 @@ import socket
 import sys
 from typing import List, Optional, Tuple
 
-from tools.remote.eval_service import DEFAULT_SOCKET_PATH
+from tools.remote.eval_service import DEFAULT_HOST, DEFAULT_PORT
 from tools._meta.send_matchup_help import help_from_schema
 from tools._meta.send_matchup_parser import build_request
 from tools._meta.send_matchup_schema import fetch_schema
 
 
-def _send(sock_path: str, req: dict) -> Tuple[int, dict]:
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+def _send(host: str, port: int, req: dict) -> Tuple[int, dict]:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10.0)
-    s.connect(sock_path)
+    s.connect((host, port))
     s.sendall(json.dumps(req, ensure_ascii=False).encode('utf-8') + b'\n')
     buf = b''
     while b'\n' not in buf:
@@ -99,7 +100,8 @@ def main() -> int:
     argv = sys.argv[1:]
 
     # Extract global flags first.
-    sock_path = DEFAULT_SOCKET_PATH
+    host = DEFAULT_HOST
+    port = DEFAULT_PORT
     body_path: Optional[str] = None
     use_stdin = False
     want_help = False
@@ -107,8 +109,11 @@ def main() -> int:
     i = 0
     while i < len(argv):
         a = argv[i]
-        if a == '--socket':
-            sock_path = argv[i + 1]
+        if a == '--host':
+            host = argv[i + 1]
+            i += 2
+        elif a == '--port':
+            port = int(argv[i + 1])
             i += 2
         elif a == '--body':
             body_path = argv[i + 1]
@@ -125,9 +130,9 @@ def main() -> int:
 
     # Fetch schema up front (once). Required — no silent fallback.
     try:
-        schema = fetch_schema(sock_path)
+        schema = fetch_schema(host, port)
     except Exception as exc:
-        print(f'ERROR: could not fetch schema from {sock_path}: {exc}', file=sys.stderr)
+        print(f'ERROR: could not fetch schema from {host}:{port}: {exc}', file=sys.stderr)
         print(
             '  Is eval_service running? Start with: python -m tools.remote.eval_service',
             file=sys.stderr,
@@ -151,7 +156,7 @@ def main() -> int:
             print(f'ERROR: parse: {exc}', file=sys.stderr)
             return 2
 
-    rc, resp = _send(sock_path, req)
+    rc, resp = _send(host, port, req)
     print(json.dumps(resp, ensure_ascii=False))
     return rc
 
