@@ -107,10 +107,11 @@ def test_remote_url_rejects_macos_local_path_with_colon(tmp_path):
         sync.build_rsync_cmd('push', '/Volumes/X:/foo/', root=tmp_path)
 
 
-def test_remote_url_rejects_ipv6_form(tmp_path):
-    """IPv6 ``user@[::1]:/path/`` is T-19 scope — explicitly rejected for T-18."""
-    with pytest.raises(ValueError, match='user@host'):
-        sync.build_rsync_cmd('push', 'user@[::1]:/path/', root=tmp_path)
+def test_remote_url_accepts_ipv6_form(tmp_path):
+    """IPv6 ``user@[::1]:/path/`` is now accepted (T-19 spec §HIGH-6-B).
+    Detailed IPv6 cases live in ``test_sync_ipv6.py``."""
+    cmd = sync.build_rsync_cmd('push', 'user@[::1]:/path/', root=tmp_path)
+    assert cmd[0] == 'rsync'
 
 
 # ---------------------------------------------------------------------------

@@ -230,7 +230,9 @@ def test_sync_ssh_filenotfound_treated_as_empty(tmp_path):
 
 
 def test_main_dry_run_prints_cmd(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(sync, '_scan_remote_timestamps', lambda *_a, **_kw: {})
+    # T-19: sync() now calls ``_fetch_remote_find_text`` (single SSH fetch
+    # reused for ts + dir-name parse); stub that out so no real SSH fires.
+    monkeypatch.setattr(sync, '_fetch_remote_find_text', lambda *_a, **_kw: '')
     rc = sync.main(['push', 'u@h:/p/', '--root', str(tmp_path), '--dry-run'])
     assert rc == 0
     out = capsys.readouterr().out
@@ -247,7 +249,8 @@ def test_main_bad_remote_exits_1(tmp_path, capsys):
 def test_main_invokes_rsync_via_monkeypatched_subprocess(tmp_path, monkeypatch, capsys):
     captured: list[list[str]] = []
     monkeypatch.setattr(subprocess, 'run', mock_runner(captured, FakeResult(stdout='sent 5 bytes\n')))
-    monkeypatch.setattr(sync, '_scan_remote_timestamps', lambda *_a, **_kw: {})
+    # T-19: stub the SSH fetch so ``subprocess.run`` only captures the rsync call.
+    monkeypatch.setattr(sync, '_fetch_remote_find_text', lambda *_a, **_kw: '')
     rc = sync.main(['pull', 'u@h:/p/', '--root', str(tmp_path)])
     assert rc == 0
     assert len(captured) == 1

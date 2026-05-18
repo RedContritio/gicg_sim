@@ -3,10 +3,12 @@
 Internal helper for :mod:`tools.runs.sync`. Split out to keep sync.py under
 the 300-line pre-commit budget.
 
-Two public functions:
+Public functions:
 - ``scan_local_timestamps`` — glob ``<root>/artifacts/<run_dir>/metadata.toml``
 - ``scan_remote_timestamps`` — SSH + ``find … -exec cat`` then parse blocks
 - ``parse_remote_find_output`` — pure parser, exposed for unit tests
+- ``scan_local_dir_names`` — list run-dir names locally (case-collide input, T-19)
+- ``parse_remote_dir_names`` — list run-dir names from the same SSH output (T-19)
 """
 
 from __future__ import annotations
@@ -64,13 +66,14 @@ def _parse_user_host_path(remote: str) -> tuple[str, str]:
     return user_host, path
 
 
-def scan_remote_timestamps(remote: str, *, runner=None) -> dict[str, str]:
-    """SSH to remote host + emit one ``===FILE / body / ===END`` block per
-    ``<remote_path>/artifacts/*/metadata.toml``, then parse into
-    ``{nnn: timestamp}``.
+def fetch_remote_find_text(remote: str, *, runner=None) -> str:
+    """Run the SSH ``find … -exec`` once and return raw stdout text.
 
-    Empty dict on SSH failure (treated as "no remote runs known"). ``runner``
-    injectable for tests.
+    Both :func:`parse_remote_find_output` (timestamps) and
+    :func:`parse_remote_dir_names` (case-collide input) consume the same
+    block stream — surface this single fetch so we don't pay the SSH RTT
+    twice (T-19 case-collide wiring). Returns ``''`` on any SSH failure
+    so downstream parsers degrade to empty results.
     """
     if runner is None:
         runner = subprocess.run
@@ -88,10 +91,21 @@ def scan_remote_timestamps(remote: str, *, runner=None) -> dict[str, str]:
             check=False,
         )
     except (FileNotFoundError, OSError):
-        return {}
+        return ''
     if result.returncode != 0:
-        return {}
-    return parse_remote_find_output(result.stdout)
+        return ''
+    return result.stdout
+
+
+def scan_remote_timestamps(remote: str, *, runner=None) -> dict[str, str]:
+    """SSH to remote host + emit one ``===FILE / body / ===END`` block per
+    ``<remote_path>/artifacts/*/metadata.toml``, then parse into
+    ``{nnn: timestamp}``.
+
+    Empty dict on SSH failure (treated as "no remote runs known"). ``runner``
+    injectable for tests.
+    """
+    return parse_remote_find_output(fetch_remote_find_text(remote, runner=runner))
 
 
 def parse_remote_find_output(text: str) -> dict[str, str]:
@@ -124,3 +138,47 @@ def parse_remote_find_output(text: str) -> dict[str, str]:
         if isinstance(ts, str) and ts:
             out[nnn] = ts
     return out
+
+
+def scan_local_dir_names(local_root: Path) -> list[str]:
+    """Return every well-formed run-dir name under ``<local_root>/artifacts/``.
+
+    Used by case-collide detection (spec §CRIT-5-A 行 341-346); we need
+    the full ``<ts>_<NNN>_<label>`` name (not the parsed NNN) so case
+    differences in the label portion are surfaced (``..._DMC`` vs
+    ``..._dmc`` would silently collide on macOS APFS).
+    """
+    artifacts = local_root / 'artifacts'
+    if not artifacts.is_dir():
+        return []
+    names: list[str] = []
+    for entry in artifacts.iterdir():
+        if not entry.is_dir():
+            continue
+        if RUN_DIR_RE.match(entry.name) is None:
+            continue
+        names.append(entry.name)
+    return names
+
+
+def parse_remote_dir_names(text: str) -> list[str]:
+    """Parse the same ``===FILE`` block stream and return run-dir names.
+
+    Mirrors :func:`parse_remote_find_output` but yields ``parts[-2]``
+    (the dir name) rather than ``{nnn: ts}``. Malformed paths are
+    silently skipped (same robustness contract).
+    """
+    names: list[str] = []
+    blocks = re.split(r'^===FILE ', text, flags=re.MULTILINE)
+    for block in blocks:
+        if not block.strip():
+            continue
+        head, _, _rest = block.partition('\n')
+        file_path = head.strip()
+        parts = file_path.split('/')
+        if len(parts) < 3 or parts[0] != 'artifacts' or parts[-1] != 'metadata.toml':
+            continue
+        if RUN_DIR_RE.match(parts[-2]) is None:
+            continue
+        names.append(parts[-2])
+    return names

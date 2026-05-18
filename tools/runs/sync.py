@@ -2,37 +2,28 @@
 
 Clean-slate rewrite per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
-- §Cross-host sync 设计 行 326-331
-- §Conflict resolution HIGH-2-E 行 333-339
-- §Include / exclude pattern 行 357-371
+§Cross-host sync 行 326-331 / §Conflict HIGH-2-E 行 333-339 / §Case-collide
+CRIT-5-A 行 341-346 (T-19) / §Authoritative HIGH-2-D 行 348-356 (T-19) /
+§Include-exclude 行 357-371 / §IPv6 HIGH-6-B 行 441 / 行 493 (T-19).
 
-What gets transferred (rsync include):
-    artifacts/*/metadata.toml
-    artifacts/*/cfg_resolved*.toml       (含 v2/v3 ...)
-    artifacts/*/cfg_leaf*.toml           (含 v2/v3 ...)
+Transferred: ``artifacts/*/{metadata.toml,cfg_resolved*.toml,cfg_leaf*.toml}``.
+Never transferred (excluded): ``artifacts/{.authoritative_host,.run_id_lock}``,
+``artifacts/*/.metadata_lock``, plus all of ``ckpts/`` / ``metrics.jsonl`` /
+``tb/`` (catch-all ``--exclude=*``).
 
-What NEVER transfers (rsync exclude / not matched):
-    artifacts/.authoritative_host        host-local 不跨机
-    artifacts/.run_id_lock               host-local lock
-    artifacts/*/.metadata_lock           per-run lock 也不跨
-    artifacts/*/ckpts/                   (数据大,跨机不必要)
-    artifacts/*/metrics.jsonl
-    artifacts/*/tb/
-    (其他全部 by 末尾 ``--exclude=*``)
-
-Conflict resolution (HIGH-2-E): per-NNN ``metadata.timestamp`` 字段比对,
-不用 mtime(跨时区 / clock drift 不可靠)。push 时 local 新 → 覆盖 remote;
-remote 新 → skip + stderr warn(通过给 rsync 加额外 ``--exclude`` 该 NNN
-路径实现);timestamp 完全等 → raise SyncConflict + 列冲突 NNN(极罕见,
-user 手动 resolve)。
+Conflict resolution: per-NNN ``metadata.timestamp`` compare (not mtime —
+clock-drift unsafe); losing side gets ``--exclude=`` to skip + stderr warn;
+exact tie raises :class:`SyncConflict`. Case-collide: pre-flight scan
+local+remote dir names; if two differ only in case, raise
+:class:`CaseCollideError` before rsync runs (macOS APFS ↔ Linux ext4 guard).
 
 CLI::
 
     .venv/bin/python -m tools.runs.sync push <user@host:path/>
     .venv/bin/python -m tools.runs.sync pull <user@host:path/>
+    .venv/bin/python -m tools.runs.sync init-authoritative
 
-T-18 scope: 仅 push/pull + flags + timestamp 比对。``init-authoritative``
-子命令 / IPv6 regex / case-collide detection / integration tests 是 T-19/T-20.
+T-20 scope: integration tests (real rsync + ssh).
 """
 
 from __future__ import annotations
@@ -40,36 +31,44 @@ from __future__ import annotations
 import argparse
 import re
 import shlex
+import socket
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools.runs._helpers.sync_scan import (
-    parse_remote_find_output as _parse_remote_find_output,  # noqa: F401  re-export for tests
+from tools.runs._helpers.sync_extras import (
+    REMOTE_RE_PATTERN,
+    CaseCollideError,
+    detect_case_collisions,
+    init_authoritative,
 )
-from tools.runs._helpers.sync_scan import (
-    scan_local_timestamps as _scan_local_timestamps,
-)
-from tools.runs._helpers.sync_scan import (
-    scan_remote_timestamps as _scan_remote_timestamps,
-)
+from tools.runs._helpers import sync_scan as _ss
 
-# Public surface — tests still poke ``_scan_local_timestamps`` /
-# ``_parse_remote_find_output`` via aliased re-exports above.
+_fetch_remote_find_text = _ss.fetch_remote_find_text
+_parse_remote_dir_names = _ss.parse_remote_dir_names
+_parse_remote_find_output = _ss.parse_remote_find_output  # noqa: F841 (kept for test re-export below)
+_scan_local_dir_names = _ss.scan_local_dir_names
+_scan_local_timestamps = _ss.scan_local_timestamps
+_scan_remote_timestamps = _ss.scan_remote_timestamps  # noqa: F841  back-compat re-export for tests
+
+# Public surface — tests poke ``_scan_local_timestamps`` /
+# ``_parse_remote_find_output`` via the aliased re-exports above.
 __all__ = [
     'RSYNC_FLAGS',
     'SyncConflict',
+    'CaseCollideError',
     'ConflictRow',
     'build_rsync_cmd',
     'detect_conflicts',
+    'detect_case_collisions',
+    'init_authoritative',
     'sync',
     'main',
 ]
 
-# Hardcoded — user override forbidden per spec risk note (a stray
-# ``--exclude=*`` removal could leak GB-scale ckpt across a slow link).
-# Order matters: rsync applies the first matching include/exclude.
+# Hardcoded; user override forbidden (stray ``--exclude=*`` removal could
+# leak GB-scale ckpt across a slow link). rsync = first-match-wins.
 RSYNC_FLAGS: tuple[str, ...] = (
     '-av',
     '--include=artifacts/',
@@ -83,11 +82,9 @@ RSYNC_FLAGS: tuple[str, ...] = (
     '--exclude=*',
 )
 
-# Remote URL — strict ``user@host:path/`` (host: alphanum + dot + dash, ASCII).
-# IPv6 ``user@[::1]:/path/`` form is explicitly out of scope for T-18 and
-# rejected (T-19 will widen). Trailing ``/`` is required (rsync merges
-# contents only with trailing slash).
-_REMOTE_RE = re.compile(r'^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:.*/$')
+# Strict ``user@host:path/`` form; host = alphanum hostname / IPv4, or
+# IPv6 bracket form (spec §HIGH-6-B). Pattern source lives in sync_extras.
+_REMOTE_RE = re.compile(REMOTE_RE_PATTERN)
 
 
 class SyncConflict(RuntimeError):
@@ -107,25 +104,19 @@ class ConflictRow:
 
 def _validate_remote(remote: str) -> None:
     """Strict ``user@host:path/`` form. macOS local paths with ``:`` and
-    bare ``host:path/`` (no user) are rejected. IPv6 ``[::1]`` form is
-    T-19 scope and rejected here."""
+    bare ``host:path/`` (no user) are rejected. IPv6 bracket form
+    (``user@[::1]:/path/``) is accepted (spec §HIGH-6-B)."""
     if not _REMOTE_RE.match(remote):
         raise ValueError(
             f'remote {remote!r} must be of form user@host:path/ '
-            '(user@host + colon + path + trailing slash; IPv6 not yet supported)'
+            '(user@host + colon + path + trailing slash; IPv6 bracket form OK)'
         )
 
 
 def detect_conflicts(local: dict[str, str], remote: dict[str, str]) -> list[ConflictRow]:
-    """Pair every NNN seen in either side; compare ``metadata.timestamp``.
-
-    Returns list sorted by nnn asc. Each row:
-    - ``'local_newer'`` — local ts > remote ts (push: ok / pull: skip)
-    - ``'remote_newer'`` — remote ts > local ts (push: skip / pull: ok)
-    - ``'equal'`` — bit-equal ts string (HIGH-2-E tie → must raise upstream)
-    - ``'only_local'`` — local has it, remote doesn't (push: transfer)
-    - ``'only_remote'`` — remote has it, local doesn't (pull: transfer)
-    """
+    """Pair every NNN seen on either side; compare ``metadata.timestamp``.
+    Result sorted by NNN asc. ``resolution`` ∈ {local_newer, remote_newer,
+    equal (HIGH-2-E tie → upstream raises), only_local, only_remote}."""
     rows: list[ConflictRow] = []
     for nnn in sorted(set(local) | set(remote)):
         l_ts = local.get(nnn)
@@ -144,19 +135,12 @@ def detect_conflicts(local: dict[str, str], remote: dict[str, str]) -> list[Conf
 
 
 def _excludes_for_conflicts(rows: list[ConflictRow], *, direction: str) -> list[str]:
-    """Build extra ``--exclude=`` flags for NNN dirs we must NOT touch.
+    """Build ``--exclude=artifacts/*_<NNN>_*/`` for losing-side NNN.
 
-    push direction → exclude every ``remote_newer`` NNN (don't overwrite).
-    pull direction → exclude every ``local_newer`` NNN (same logic, reverse).
-    ``equal`` is handled by the SyncConflict raise upstream; ``only_*`` and
-    the winning side need no exclude.
-
-    Pattern: ``artifacts/*_<NNN>_*/`` matches ``<ts>_<NNN>_<label>``.
-    Listed BEFORE generic ``--exclude=*`` they win (rsync first-match-wins).
-
-    ``direction`` is pre-validated by the sole caller ``build_rsync_cmd``
-    (and transitively by ``sync()``); no defensive recheck here (CLAUDE.md
-    §2 dead-defensive ban).
+    push → exclude ``remote_newer`` rows (don't overwrite remote-fresher).
+    pull → exclude ``local_newer`` rows (symmetric). ``equal`` raises
+    upstream; ``only_*`` and the winning side need no exclude. ``direction``
+    is pre-validated by callers (no defensive recheck per CLAUDE.md §2).
     """
     bad = 'remote_newer' if direction == 'push' else 'local_newer'
     return [f'--exclude=artifacts/*_{row.nnn}_*/' for row in rows if row.resolution == bad]
@@ -169,12 +153,8 @@ def build_rsync_cmd(
     root: Path,
     conflict_rows: list[ConflictRow] | None = None,
 ) -> list[str]:
-    """Assemble the rsync argv list.
-
-    Conflict-derived ``--exclude`` flags come BEFORE the include flags so
-    they win (rsync first-match-wins). Direction controls argv order:
-    ``push = local → remote`` / ``pull = remote → local``.
-    """
+    """rsync argv. Conflict ``--exclude`` flags precede include flags
+    (first-match-wins). push = local → remote; pull = remote → local."""
     if direction not in ('push', 'pull'):
         raise ValueError(f'direction must be push|pull, got {direction!r}')
     _validate_remote(remote)
@@ -203,18 +183,12 @@ def sync(
     ssh_runner=None,
     dry_run: bool = False,
 ) -> list[str] | int:
-    """Run sync. With ``dry_run=True`` return the rsync argv list and
-    skip actually invoking it (used by tests + ``--dry-run`` CLI flag).
+    """Run sync. ``dry_run=True`` returns the rsync argv list without invoking.
 
-    Steps:
-    1. Scan local + remote (via SSH) metadata.toml timestamps.
-    2. Detect per-NNN conflicts; raise SyncConflict on any ``equal`` tie.
-    3. For losing-side NNN (remote_newer on push / local_newer on pull),
-       stderr warn + add to rsync ``--exclude`` so they don't transfer.
-    4. Build cmd; if dry_run, return cmd; else exec via runner.
-
-    ``runner`` injects ``subprocess.run`` for rsync. ``ssh_runner`` injects
-    the SSH cmd used to fetch remote timestamps.
+    Steps: scan local + remote (one SSH fetch reused) → case-collide raise
+    pre-flight → per-NNN conflict detect → losing-side ``--exclude`` + warn
+    → build cmd → dry-run return / exec. ``runner`` injects rsync subprocess;
+    ``ssh_runner`` injects the SSH call.
     """
     if direction not in ('push', 'pull'):
         raise ValueError(f'direction must be push|pull, got {direction!r}')
@@ -223,7 +197,21 @@ def sync(
         runner = subprocess.run
 
     local_ts = _scan_local_timestamps(root)
-    remote_ts = _scan_remote_timestamps(remote, runner=ssh_runner)
+    remote_text = _fetch_remote_find_text(remote, runner=ssh_runner)
+    remote_ts = _parse_remote_find_output(remote_text)
+
+    # Spec §CRIT-5-A — pre-flight case-collide; raise before rsync runs so
+    # macOS APFS doesn't silently overwrite ``_DMC`` vs ``_dmc`` siblings.
+    local_names = _scan_local_dir_names(root)
+    remote_names = _parse_remote_dir_names(remote_text)
+    collisions = detect_case_collisions(local_names + remote_names)
+    if collisions:
+        pairs = ', '.join(f'{a!r} <-> {b!r}' for a, b in collisions)
+        raise CaseCollideError(
+            f'artifacts dir name(s) collide under case-insensitive fs (macOS APFS): {pairs}. '
+            'Rename one side before retrying sync.'
+        )
+
     conflicts = detect_conflicts(local_ts, remote_ts)
 
     ties = [c for c in conflicts if c.resolution == 'equal']
@@ -265,20 +253,37 @@ def sync(
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('direction', choices=['push', 'pull'])
-    ap.add_argument('remote', help='e.g. dev@192.168.31.56:/d/gicg_dev/')
+    ap.add_argument('direction', choices=['push', 'pull', 'init-authoritative'])
+    ap.add_argument(
+        'remote',
+        nargs='?',
+        default=None,
+        help='e.g. dev@192.168.31.56:/d/gicg_dev/ (omit for init-authoritative)',
+    )
     ap.add_argument('--root', default=None, help='override local repo root (testing only)')
     ap.add_argument('--dry-run', action='store_true', help='print rsync cmd without executing')
     args = ap.parse_args(argv)
+    root = Path(args.root) if args.root else Path.cwd()
+
+    if args.direction == 'init-authoritative':
+        if args.remote is not None:
+            print('tools.runs.sync: init-authoritative takes no remote argument', file=sys.stderr)
+            return 1
+        marker = init_authoritative(root)
+        print(f'authoritative host set: {socket.gethostname()} ({marker})', file=sys.stderr)
+        return 0
+
+    if args.remote is None:
+        print(f'tools.runs.sync: {args.direction} requires a remote argument', file=sys.stderr)
+        return 1
     try:
-        root = Path(args.root) if args.root else Path.cwd()
         result = sync(
             direction=args.direction,
             remote=args.remote,
             root=root,
             dry_run=args.dry_run,
         )
-    except (ValueError, RuntimeError, SyncConflict) as e:
+    except (ValueError, RuntimeError, SyncConflict, CaseCollideError) as e:
         print(f'tools.runs.sync: {e}', file=sys.stderr)
         return 1
     if args.dry_run:
