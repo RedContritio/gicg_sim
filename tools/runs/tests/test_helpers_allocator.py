@@ -243,7 +243,10 @@ def test_allocate_blocked_by_held_lock_raises_after_retries(
         assert 'e' in err_box, 'expected RuntimeError, allocator returned cleanly'
         err = err_box['e']
         assert isinstance(err, RuntimeError)
-        assert 'unable to acquire run-id lock after 10 retries' in str(err)
+        # Full match (not substring) — pin spec 行 306 prescribed wording
+        # exactly, so any drift (missing hint suffix, rewording) fails the
+        # test loudly.
+        assert str(err) == 'unable to acquire run-id lock after 10 retries; check artifacts/.run_id_lock'
         # Cause chain: BlockingIOError from the last failed attempt.
         assert err.__cause__ is not None
     finally:

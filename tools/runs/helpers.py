@@ -212,7 +212,9 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
     Raises:
         RuntimeError: After 10 retries failing to acquire the
             allocator lock (``'unable to acquire run-id lock after 10
-            retries'``).
+            retries; check artifacts/.run_id_lock'``). The trailing
+            hint is operator-actionable — spec 行 306 prescribes it
+            verbatim so users know where to inspect.
     """
     artifacts_dir = repo_root / 'artifacts'
     artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -253,7 +255,9 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
                     time.sleep(random.uniform(0, _LOCK_RETRY_SLEEP_MAX_SECONDS))
 
         if not acquired:
-            raise RuntimeError('unable to acquire run-id lock after 10 retries') from last_err
+            raise RuntimeError(
+                'unable to acquire run-id lock after 10 retries; check artifacts/.run_id_lock'
+            ) from last_err
 
         nnn = _glob_max_nnn(artifacts_dir) + 1
         yield nnn
