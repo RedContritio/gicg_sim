@@ -137,26 +137,51 @@ def actor_main(
 
     if should_stop is None:
         should_stop = (lambda: stop_event.is_set()) if stop_event is not None else (lambda: False)
-    while not should_stop():
-        spec = spec_sampler(cfg, actor_id)
-        record = runner.run(spec, policy, provider)
-        # Push transition list; ring/queue handles backpressure (drop on full).
-        try:
-            if hasattr(transition_queue, 'push'):  # SHMRing
-                ok = transition_queue.push(record.transitions)
-                if not ok:
-                    # Ring full — yield briefly so consumer drains.
-                    time.sleep(0.001)
-            else:  # IPCQueue / mp.Queue
-                transition_queue.put(record.transitions)
-        except Exception as exc:
-            # Don't bring down the actor on a transient transport hiccup.
-            print(f'[actor {actor_id}] transport error: {type(exc).__name__}: {exc}')
-        # Poll new weights between episodes.
-        try:
-            provider.update_weights()
-        except Exception as exc:
-            print(f'[actor {actor_id}] provider.update_weights err: {type(exc).__name__}: {exc}')
+    try:
+        while not should_stop():
+            spec = spec_sampler(cfg, actor_id)
+            record = runner.run(spec, policy, provider)
+            # Push transition list; ring/queue handles backpressure (drop on full).
+            try:
+                if hasattr(transition_queue, 'push'):  # SHMRing
+                    ok = transition_queue.push(record.transitions)
+                    if not ok:
+                        # Ring full — yield briefly so consumer drains.
+                        time.sleep(0.001)
+                else:  # IPCQueue / mp.Queue
+                    transition_queue.put(record.transitions)
+            except Exception as exc:
+                # Don't bring down the actor on a transient transport hiccup.
+                print(f'[actor {actor_id}] transport error: {type(exc).__name__}: {exc}')
+            # Poll new weights between episodes.
+            try:
+                provider.update_weights()
+            except Exception as exc:
+                print(f'[actor {actor_id}] provider.update_weights err: {type(exc).__name__}: {exc}')
+    finally:
+        # Cancel mp.Queue feeder-join atexit deadlock: any cross-process
+        # queue handle the actor inherited (transition_queue,
+        # inference_client.{request,response}_queue) may have a
+        # QueueFeederThread blocked on a pipe send whose peer has died.
+        # Python's atexit Queue finalizer would then block forever on
+        # thread.join. cancel_join_thread tells it to drop in-flight
+        # data on close; we don't care about pending data at shutdown.
+        if hasattr(provider, 'close'):
+            try:
+                provider.close()
+            except Exception:
+                pass
+        for q in (transition_queue,):
+            if q is None:
+                continue
+            for attr in ('cancel_join_thread', 'close'):
+                fn = getattr(q, attr, None)
+                if fn is None:
+                    continue
+                try:
+                    fn()
+                except Exception:
+                    pass
 
 
 class ActorProcess:
@@ -196,14 +221,25 @@ class ActorProcess:
     def is_alive(self) -> bool:
         return self._proc is not None and self._proc.is_alive()
 
-    def terminate(self, timeout_s: float = 10.0) -> None:
+    def terminate(self, timeout_s: float = 2.0) -> None:
+        """Cooperative stop → SIGTERM → SIGKILL escalation.
+
+        Actor may be blocked inside a cgo call (Go runtime owns the
+        OS thread + intercepts SIGTERM). SIGKILL cannot be caught so
+        it's the only guaranteed shutdown path. Grace timeouts are short
+        because actors that don't respond within 2s of stop_event are
+        almost certainly stuck (one DMC episode is ~100ms-1s).
+        """
         if self._proc is None:
             return
         self.stop_event.set()
         self._proc.join(timeout=timeout_s)
         if self._proc.is_alive():
-            self._proc.terminate()
-            self._proc.join(timeout=2.0)
+            self._proc.terminate()  # SIGTERM — Go may swallow
+            self._proc.join(timeout=1.0)
+        if self._proc.is_alive():
+            self._proc.kill()  # SIGKILL — uncatchable
+            self._proc.join(timeout=1.0)
         self._proc = None
 
     @property

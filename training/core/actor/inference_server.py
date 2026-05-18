@@ -45,6 +45,21 @@ def _from_bytes(b: bytes) -> Any:
     return pickle.loads(b)
 
 
+def _to_device(obj: Any, device: str) -> Any:
+    """Recurse into dict / tuple / Tensor and `.to(device)` each tensor.
+
+    obs may be a single tensor, a dict of tensors (DMC), or a tuple
+    (legacy). Non-tensor leaf values pass through unchanged.
+    """
+    if isinstance(obj, torch.Tensor):
+        return obj.to(device)
+    if isinstance(obj, dict):
+        return {k: _to_device(v, device) for k, v in obj.items()}
+    if isinstance(obj, (tuple, list)):
+        return type(obj)(_to_device(v, device) for v in obj)
+    return obj
+
+
 def _server_loop(
     network_bytes: bytes,
     device_str: str,
@@ -167,9 +182,17 @@ def _server_loop(
             try:
                 obs = _from_bytes(obs_bytes)
                 mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
+                # Move obs to server device — IPC delivers CPU-pickled
+                # tensors; network may live on cuda. Mirror back to cpu
+                # before pickling response so client-side unpickle works
+                # on hosts without a matching cuda runtime.
+                obs = _to_device(obs, device_str)
+                if mask is not None:
+                    mask = _to_device(mask, device_str)
                 net = _select_net(obs, mask)
                 with torch.inference_mode():
                     out = net(obs, mask) if mask is not None else net(obs)
+                out = _to_device(out, 'cpu')
                 response_qs[client_id].put(('ok', req_id, _to_bytes(out)))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
@@ -287,11 +310,29 @@ class InferenceServer:
             self._proc.terminate()
             self._proc.join(timeout=2.0)
         self._proc = None
+        # cancel_join_thread before close: at shutdown the feeder thread
+        # may be blocked on a pipe write whose reader (the spawned server
+        # process) has died → join_thread would hang indefinitely. We do
+        # not care about in-flight messages at shutdown, so drop them.
         try:
-            self.request_queue.close()
-            self.request_queue.join_thread()
+            self.request_queue.cancel_join_thread()
         except Exception:
             pass
+        try:
+            self.request_queue.close()
+        except Exception:
+            pass
+        # Symmetric cleanup on per-client response queues; same deadlock
+        # surfaces if any reply is in-flight when shutdown trips.
+        for q in self._response_qs:
+            try:
+                q.cancel_join_thread()
+            except Exception:
+                pass
+            try:
+                q.close()
+            except Exception:
+                pass
 
     def device_str(self) -> str:
         return str(self.device)

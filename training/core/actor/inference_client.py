@@ -103,9 +103,16 @@ class InferenceClient:
     def close(self) -> None:
         self.server = None
         if self.response_queue is not None:
+            # cancel_join_thread before close avoids the actor-side
+            # atexit deadlock when our peer (the spawned InferenceServer
+            # process) has died with our pending reply in flight. We
+            # don't care about pending replies at shutdown.
+            try:
+                self.response_queue.cancel_join_thread()
+            except Exception:
+                pass
             try:
                 self.response_queue.close()
-                self.response_queue.join_thread()
             except Exception:
                 pass
             self.response_queue = None
