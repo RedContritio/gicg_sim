@@ -151,5 +151,5 @@ def request_eval(host: str, port: int, req: dict) -> bool:
         sock.close()
         data = json.loads(resp.decode('utf-8'))
         return data.get('status') == 'accepted'
-    except (ConnectionRefusedError, FileNotFoundError, TimeoutError, OSError):
+    except (ConnectionRefusedError, TimeoutError, OSError):
         return False
