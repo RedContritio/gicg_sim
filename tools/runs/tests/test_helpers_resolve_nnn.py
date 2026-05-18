@@ -177,6 +177,22 @@ def test_whitespace_raises_value(tmp_path: Path) -> None:
         helpers.resolve_nnn_to_dir(tmp_path, ' 69')
 
 
+@pytest.mark.parametrize('bad_input', ['٦٩', '六', '①②③'])
+def test_unicode_digit_raises_value_error(tmp_path: Path, bad_input: str) -> None:
+    """Unicode digits (Arabic-Indic, Chinese numerals, circled digits) must
+    raise ``ValueError``, not silently fall through to ``LookupError``.
+
+    Python's ``\\d`` regex class matches Unicode digit chars by default,
+    which would let e.g. ``'٦٩'`` pass the input shape check, then
+    ``zfill(6)`` → ``'0000٦٩'`` would never match any ASCII artifacts
+    dir name and silently raise ``LookupError('not found')`` — masking
+    the real bug (caller passed non-ASCII input). ``[0-9]{1,6}`` ASCII-
+    only regex catches this at the input-validation boundary.
+    """
+    with pytest.raises(ValueError, match='1-6 digit'):
+        helpers.resolve_nnn_to_dir(tmp_path, bad_input)
+
+
 # --- Non-NNN entries don't interfere -----------------------------------------
 
 

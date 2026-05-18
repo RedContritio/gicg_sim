@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-_DIGITS_RE = re.compile(r'^\d{1,6}$')
+_DIGITS_RE = re.compile(r'^[0-9]{1,6}$')
 
 
 def resolve_nnn_to_dir(repo_root: Path, nnn: str) -> Path:
