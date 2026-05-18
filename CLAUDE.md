@@ -43,7 +43,7 @@ Two smoke tiers — default `smoke` (≤ 60s/paradigm) + opt-in `smoke_full` (5-
 # Default smoke (collector → forward → backward → optimizer.step + eval probe + paradigm-specific invariant)
 .venv/bin/python -m pytest -m smoke training/tests/ -q                   # all 5 paradigm,total ~5s wall
 
-# Full smoke (real 100-step train + auto-save ckpt + resume verify via tools.run driver e2e)
+# Full smoke (real 100-step train + auto-save ckpt + resume verify via tools.runs.train driver e2e)
 # Opt-in only — run before big release / cfg schema change / network architecture change
 .venv/bin/python -m pytest -m smoke_full training/tests/ -q              # all 5 paradigm,total ~25-50min wall
 .venv/bin/python -m pytest training/tests/test_dmc_smoke_full.py -v      # single paradigm probe
@@ -57,17 +57,18 @@ Two smoke tiers — default `smoke` (≤ 60s/paradigm) + opt-in `smoke_full` (5-
 Python's `-m` mode sets `sys.path[0]` to cwd, so imports like `from gicg_env import ...` resolve without any `sys.path` hacks in the source files.
 
 ```bash
-.venv/bin/python -m tools.run <config.toml>                              # paradigm dispatch train driver
+.venv/bin/python -m tools.runs.train <config.toml>                       # 主入口:atomic 全 lifecycle(allocate NNN + snapshot cfg + train + close metadata)
 .venv/bin/python -m tools.send_matchup --help
 
-# Run registry (post 2026-05-17 取代 docs/4_runs/registry.md):
-.venv/bin/python -m tools.runs.register --run-id <id> --cfg <path>       # start run
-.venv/bin/python -m tools.runs.complete --run-id <id> --status done      # finalize
-.venv/bin/python -m tools.runs.list                                       # table view
-.venv/bin/python -m tools.runs.show <id>                                  # detail dump
-.venv/bin/python -m tools.runs.sync pull dev@<host>:/path/to/repo/        # rsync metadata cross-machine
+# Run registry (post 2026-05-18 clean-slate redesign — per-run dir self-contained):
+.venv/bin/python -m tools.runs.list                                              # 表格视图,扫 artifacts/*/metadata.toml
+.venv/bin/python -m tools.runs.show <NNN>                                        # 详细 dump(NNN shorthand,1-6 位 zero-pad)
+.venv/bin/python -m tools.runs.mark <NNN> --status done|failed|killed [--notes …] # running/unknown → 终态(外部死亡 / 救援收尾)
+.venv/bin/python -m tools.runs.recover <dir>                                     # metadata 缺失救援:从 cfg + ckpts 重建(status='unknown')
+.venv/bin/python -m tools.runs.sync push|pull <user@host:path/>                  # rsync metadata + cfg backup(NOT ckpts/)
+.venv/bin/python -m tools.runs.sync init-authoritative                           # 写当前 hostname 到 artifacts/.authoritative_host(本 host 可 train)
 
-# Ckpt inspection (post 2026-05-17 self-describing schema):
+# Ckpt inspection (self-describing schema):
 .venv/bin/python -m tools.ckpt.info <path>.pt                            # paradigm/cfg/git_commit/state_dict 元数据
 ```
 
@@ -100,31 +101,37 @@ Bypass individual checks with ``SKIP_LINE_LIMIT_HOOK=1`` / ``SKIP_RUFF_HOOK=1`` 
 
 ## Artifacts
 
-Every child of `artifacts/` is named `YYYYMMDDHHMM_<cfg.meta.run_label>/`,生成 by `CheckpointManager.init_artifacts_dir`。`run_label` 是 cfg 模板里的人友好 slug(如 `az_smoke` / `dmc_smoke_full`),不强制嵌 run-id 前缀 —— **`run-id ↔ artifacts dir` 关联 通过 `RunMetadata.artifacts_dir` 字段**,不通过 dir-name 约定。
+Per-run dir 名 `artifacts/<YYYYMMDDHHMM>_<NNNNNN>_<cfg.meta.run_label>/`(UTC 分钟时间戳 + 6 位 zero-pad NNN + run_label slug)。dir self-contained:
 
-Workflow:
-
-```bash
-# 1. 选 next NNN(每 type 独立递增)
-.venv/bin/python -m tools.runs.list
-
-# 2. register(自动 snapshot cfg.meta.run_label 入 metadata.cfg_run_label)
-.venv/bin/python -m tools.runs.register --run-id s069 --cfg <path>
-
-# 3. train(--run-id 让 ckpt dir timestamp 与 register 单源)
-.venv/bin/python -m tools.run <cfg> --run-id s069
-
-# 4. complete(--artifacts-dir 写 metadata.artifacts_dir,闭合关联)
-.venv/bin/python -m tools.runs.complete --run-id s069 --status done \
-    --artifacts-dir artifacts/<actual_dir>
+```
+artifacts/<ts>_<NNN>_<label>/
+├── metadata.toml         # run-lifecycle 索引(11 字段)
+├── cfg_resolved.toml     # 完整展开 cfg(post extends + --override),reproducibility truth
+├── cfg_leaf.toml         # user 提供的 leaf cfg 拷贝(immutable snapshot)
+├── ckpts/                # ckpts 单独子目录(ckpt_<step>.pt + latest.pt + gauntlet_g<NNNN>.pt)
+├── metrics.jsonl
+└── tb/                   # TB logs(可选)
 ```
 
-Note: smoke_full / direct `run_pipeline()` callers don't run through `--run-id` —
-their artifacts dirs use local `datetime.now()` (not UTC), and they don't write
-back to any metadata. M5 timestamp single-sourcing applies only to the
-`register → train --run-id → auto-complete` production flow above.
+例:`artifacts/202605180355_000069_dmc_smoke_full/`。
 
-`run-id` 必须 `<r|s><NNN>`(`r` 生产 / `s` smoke or bench)。Pre-redesign runs(r001-r012 + s001-s068)live in `docs/5_history/runs_pre_redesign_2026_05_17.md`,不在 live index。
+Workflow(单命令 atomic lifecycle):
+
+```bash
+# train 全 lifecycle 自闭环 — allocate NNN + mkdir + snapshot cfg + run + close metadata
+.venv/bin/python -m tools.runs.train <cfg>
+
+# resume(reuse 原 NNN,allocate cfg_resolved_v<N>;状态机 exception 转回 running)
+.venv/bin/python -m tools.runs.train --resume <artifacts_dir>/ckpts/latest.pt <cfg>
+
+# 外部死亡(SIGKILL / power loss)→ status 卡 'running' → user 手动收尾
+.venv/bin/python -m tools.runs.mark <NNN> --status killed --notes 'OOM'
+
+# metadata.toml 丢失救援:重建 status='unknown' + 后 mark 收尾
+.venv/bin/python -m tools.runs.recover artifacts/<ts>_<NNN>_<label>/
+```
+
+Pre-redesign runs(r001-r012 + s001-s068,旧 `artifacts/runs/<id>.toml` 索引 + `<r|s><NNN>` 命名)live in `docs/5_history/runs_pre_redesign_2026_05_17.md`,不在 live index;clean-slate 后 NNN 6 位 zero-pad,无 r/s 前缀。
 
 ## Architecture
 
@@ -170,7 +177,7 @@ Full DSL reference (counter scopes, damage pipeline, file isolation, skill-patte
 - 当前 shipped 代码状态 → `docs/1_specs/` (engine / env / network / search / training / eval)(P1 后逐步迁 `openspec/specs/`)
 - 决策日志 (ADR) → `docs/2_decisions/` (adr-NNNN-*.md)(P1 后新 ADR 走 OpenSpec change;旧 ADR 迁 `docs/history/adr/`)
 - 计划与 roadmap → `docs/3_plans/` (curriculum / az / backlog / acceptance)
-- 训练 run 注册 → `tools.runs.register / list / show / complete / sync` CLI(`tools/runs/`,metadata 落 `artifacts/runs/<id>.toml` gitignored);pre-redesign 历史 → `docs/5_history/runs_pre_redesign_2026_05_17.md`
+- 训练 run lifecycle → `tools.runs.train / list / show / mark / recover / sync` CLI(`tools/runs/`,metadata 落 `artifacts/<ts>_<NNN>_<label>/metadata.toml` per-run self-contained);pre-redesign 历史 → `docs/5_history/runs_pre_redesign_2026_05_17.md`
 - 历史复盘 / review / audit / ablation / 已废 epoch → `docs/5_history/`(留 docs)
 
 **其他**:
