@@ -62,6 +62,36 @@ DEFAULT_HOST = os.environ.get('GICG_EVAL_HOST', 'localhost')
 DEFAULT_PORT = int(os.environ.get('GICG_EVAL_PORT', '9100'))
 DEFAULT_METRICS_PATH = '/tmp/gicg_eval_metrics.jsonl'
 
+
+def _apply_cpu_affinity(spec: str | None) -> None:
+    """Parse "0,1,2,3" CSV and pin via psutil.Process().cpu_affinity().
+
+    Silently skips when:
+    - spec is None or empty (default: unpinned)
+    - psutil missing or psutil.Process has no cpu_affinity (Mac)
+    - kernel rejects the requested set (OSError)
+
+    Affinity is a hint, not a contract — same policy as harden_child_env.
+    """
+    if not spec:
+        return
+    try:
+        cores = [int(s.strip()) for s in spec.split(',') if s.strip()]
+    except ValueError as exc:
+        raise SystemExit(f'eval_service: --cpu-affinity parse error: {exc} (expected "0,1,2,3" CSV)')
+    if not cores:
+        return
+    try:
+        import psutil
+
+        psutil.Process().cpu_affinity(cores)
+        print(f'[eval] cpu_affinity pinned to {cores}', flush=True)
+    except (ImportError, AttributeError, OSError) as exc:
+        # Mac doesn't support cpu_affinity; psutil may also lack it on some
+        # platforms. Silent skip — affinity is a hint, not a contract.
+        print(f'[eval] cpu_affinity skip ({type(exc).__name__}): {exc}', flush=True)
+
+
 _SCHEMA_PATH = Path(__file__).parent / 'eval_service_schema.json'
 with _SCHEMA_PATH.open('r', encoding='utf-8') as _f:
     REQUEST_SCHEMA = json.load(_f)
@@ -116,6 +146,17 @@ def main() -> None:
         help='max concurrent evaluations (default: 2)',
     )
     parser.add_argument(
+        '--cpu-affinity',
+        type=str,
+        default=os.environ.get('GICG_EVAL_CPU_AFFINITY'),
+        help='comma-separated CPU IDs to pin this eval_service process to '
+        '(e.g., "9,10,11,12,13,14,15"). Default: unpinned. '
+        'Reads env GICG_EVAL_CPU_AFFINITY when --cpu-affinity not given. '
+        'Silently skipped on platforms without psutil.Process.cpu_affinity '
+        '(Mac). Match DMCParadigmConfig.cpu_affinity_eval value when '
+        'starting eval_service alongside a DMC training run.',
+    )
+    parser.add_argument(
         '--metrics',
         type=str,
         default=DEFAULT_METRICS_PATH,
@@ -130,6 +171,8 @@ def main() -> None:
         'mid-run DSL edits.',
     )
     args = parser.parse_args()
+
+    _apply_cpu_affinity(args.cpu_affinity)
 
     # Warm the DSL parse cache before accepting any gauntlet jobs.
     # This way the service is not vulnerable to the partial-read
