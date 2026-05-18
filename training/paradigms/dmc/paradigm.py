@@ -85,7 +85,7 @@ class DMCParadigm:
     def make_collector(self, cfg: Any, env_factory: Any, network: Any, opp_pool: Any) -> Any:
         """Serial or async collector based on cfg.pipeline.mode.
 
-        env_factory: callable(game_idx) → GicgEnv, built by tools/run.py.
+        env_factory: callable(game_idx) → GicgEnv, built by tools.runs.train.
         opp_pool: paradigm-built OpponentPool from
             ``make_opponent_pool`` (driver does not directly know this
             type — but accepts the param for forwarding).
@@ -110,7 +110,7 @@ class DMCParadigm:
 
     def make_opponent_pool(self, cfg: Any, network: Any) -> OpponentPool:
         """Paradigm-specific factory: build OpponentPool with historical
-        DMC-agent factory wired. Called by tools/run.py (driver itself
+        DMC-agent factory wired. Called by tools.runs.train (driver itself
         doesn't know about OpponentPool — it just forwards opp_pool
         kwarg to make_collector).
         """

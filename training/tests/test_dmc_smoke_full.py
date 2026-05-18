@@ -3,7 +3,7 @@
 OpenSpec ref: ``openspec/changes/paradigm-smoke-full-tier/specs/
 training-architecture/spec.md`` invariant A1.6.
 
-Verifies the full `tools.run configs/dmc/smoke_full.toml` driver path:
+Verifies the full `tools.runs.train configs/dmc/smoke_full.toml` driver path:
 
 - Subprocess train run completes (terminates per total_frames=2500 →
   ~190 step on Mac CPU ~2.5 min wall, well under 15 min hard cap)

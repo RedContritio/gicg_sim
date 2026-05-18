@@ -54,9 +54,11 @@ def run_pipeline(
         max_steps: cap state.step for tests (None = unlimited).
         artifacts_timestamp_utc: optional `%Y%m%d%H%M` prefix for the
             artifacts dir; defaults to ``datetime.now()`` inside
-            CheckpointManager. Pass through from ``tools.run --run-id``
-            (derived from RunMetadata.timestamp) to single-source the
-            timestamp across register + ckpt dir.
+            CheckpointManager. Pass through from the legacy
+            ``tools.run --run-id`` path retired in T-23 (post-redesign
+            ``tools.runs.train`` uses ``prebuilt_artifacts_dir``
+            instead — Phase A allocates + mkdir's the per-run dir
+            atomically before dispatch).
         prebuilt_artifacts_dir: optional existing dir created by the
             caller — Phase A of ``tools.runs.train`` already mkdir's the
             atomic per-run dir (``artifacts/<ts>_<NNN>_<label>/``) and

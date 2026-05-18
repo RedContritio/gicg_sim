@@ -1,8 +1,9 @@
 """Paradigm registry — name → Paradigm class.
 
-`tools/run.py` dispatches by `cfg.meta.paradigm`. P3-B ship DMC;P4
-ship AZ / BC / PPO / CFR(并行 dispatch,registry consolidation 由
-controller 一次性 commit).
+`tools.runs.train` (post 2026-05-18 clean-slate redesign; pre-redesign
+`tools/run.py` deleted in T-23) dispatches by `cfg.meta.paradigm`. P3-B
+ship DMC;P4 ship AZ / BC / PPO / CFR(并行 dispatch,registry
+consolidation 由 controller 一次性 commit).
 """
 
 from __future__ import annotations

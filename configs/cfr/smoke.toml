@@ -52,10 +52,11 @@ dropout = 0.0
 [paradigm.cfr.traversal]
 sampling_mode = "os"
 epsilon = 0.1
-# 500 matches cfr smoke_full; legacy smoke value 30 relied on `tools/run.py
-# --max-steps` driver cap (deleted by T-11 spec C-1) — CFR traversals run
-# until terminal and regularly exceed 30 steps, tripping the RuntimeError
-# before any ckpt save. Pre-existing smoke_full comment confirms 30 too tight.
+# 500 matches cfr smoke_full; legacy smoke value 30 relied on the predecessor
+# `tools/run.py --max-steps` driver cap (deleted by T-11 spec C-1 + T-23
+# deletion of `tools/run.py` itself) — CFR traversals run until terminal and
+# regularly exceed 30 steps, tripping the RuntimeError before any ckpt save.
+# Pre-existing smoke_full comment confirms 30 too tight.
 max_game_steps = 500
 importance_weight_max = 100.0
 traverser_alternation = "alternate"

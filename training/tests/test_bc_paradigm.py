@@ -391,7 +391,7 @@ def test_bc_paradigm_make_episode_policy_deterministic_default():
 
 
 def test_bc_paradigm_make_opponent_pool_none():
-    """BC has no opponent — static dataset。tools/run.py SHALL skip
+    """BC has no opponent — static dataset。tools.runs.train SHALL skip
     opponent for BC paradigm。"""
     p = BCParadigm()
     cfg = _build_minimal_cfg()

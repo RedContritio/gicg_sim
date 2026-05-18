@@ -1,7 +1,7 @@
 # AZ smoke cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
 #
-# Minimum viable cfg (~5min Mac CPU wall) for `tools/run.py` pipeline
-# alive verify. NOT for production runs.
+# Minimum viable cfg (~5min Mac CPU wall) for `tools.runs.train` pipeline
+# alive verify (T-23 deleted predecessor `tools/run.py`). NOT for production runs.
 #
 # Hybrid TOML structure (N6): [shape] omitted — paradigm.az.agent override
 # pulls from make_az_default_shape() factory (per N6.4 / CC-305), then
@@ -36,9 +36,10 @@ weight_decay = 0.0
 batch_size = 8
 buffer_cap = 500
 priority_weight = 3.0
-# 100 matches az smoke_full; legacy smoke value 30 relied on `tools/run.py
-# --max-steps` driver cap (deleted by T-11 spec C-1) — actual games regularly
-# exceed 30 steps and would trip selfplay's RuntimeError before any ckpt save.
+# 100 matches az smoke_full; legacy smoke value 30 relied on the predecessor
+# `tools/run.py --max-steps` driver cap (deleted by T-11 spec C-1 + T-23 deletion
+# of `tools/run.py` itself) — actual games regularly exceed 30 steps and would
+# trip selfplay's RuntimeError before any ckpt save.
 max_game_steps = 100
 total_games = 2
 train_steps_per_game = 1

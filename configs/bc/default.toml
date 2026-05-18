@@ -4,7 +4,7 @@
 # unified pipeline cfg schema. BC pre-train on expert dataset
 # (CE hard target / d_model=32 / 60 epochs).
 #
-# Routed through `tools/run.py → core.pipeline.run_pipeline → BCParadigm`.
+# Routed through `tools.runs.train → core.pipeline.run_pipeline → BCParadigm`.
 # Dataset path SHALL be set via CLI --override paradigm.bc.dataset_path=...;
 # this default leaves empty (collector raise if not overridden).
 #

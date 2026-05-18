@@ -5,8 +5,9 @@ Self-contained adapter package: all AZ implementation modules
 ``train_az``, ``inference_pool``, ``inference_worker``, ``determinize``,
 ``arena``, ``config``, ``config_loader``) live at this package
 top-level. The pre-rewrite ``legacy/`` subdir has been git-removed
-(az-paradigm-rewrite Phase 5, 2026-05-16). ``python -m tools.run`` is the
-sole entry; the unified pipeline driver
+(az-paradigm-rewrite Phase 5, 2026-05-16). ``python -m tools.runs.train``
+is the sole entry post 2026-05-18 clean-slate redesign (T-23 deleted
+the predecessor ``tools.run``); the unified pipeline driver
 (``training.core.pipeline.run_pipeline``) drives this adapter through
 the ``core.protocols.Paradigm`` interface.
 

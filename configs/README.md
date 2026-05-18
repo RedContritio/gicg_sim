@@ -48,7 +48,7 @@ DMC 历史(dmc_mp_smoke 等)在 P3.5 阶段已直接删除(见 docs/5_history/dm
 
 - Hardcoded 测试路径 — 包含子目录,如 `configs/smoke/dmc_stage3_smoke_v2.toml`
 - 通配测试 — 用 `Path('configs').rglob('*.toml')` 递归 glob
-- Tools entry 命令 — `tools/run.py configs/active/<label>.toml`(子目录显式)
+- Tools entry 命令 — `python -m tools.runs.train configs/<paradigm>/<label>.toml`(子目录显式;T-23 删 `tools/run.py` 后唯一入口)
 
 `docs/5_history/runs_pre_redesign_2026_05_17.md`(post `core-network-generic-promotion`
 2026-05-17 archive)内历史 run 记录的 cfg path 是历史 reference,不 mv path(保留

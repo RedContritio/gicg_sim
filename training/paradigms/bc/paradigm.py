@@ -119,7 +119,7 @@ class BCParadigm:
         return BCArgmaxPolicy(deterministic=deterministic)
 
     def make_opponent_pool(self, cfg: Any, network: Any) -> Any:
-        """BC has no opponent — static dataset training。tools/run.py
+        """BC has no opponent — static dataset training。tools.runs.train
         SHALL NOT call this for BC paradigm,but expose stub for
         protocol uniformity。"""
         del cfg, network

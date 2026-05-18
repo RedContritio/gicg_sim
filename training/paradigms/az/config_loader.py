@@ -41,7 +41,7 @@ BASE_PRESETS = {
 
 # Top-level fields consumed by tools._meta.multi_seed_launch
 # (not AZConfig). The post-FU-W2A wrapper passes them through to
-# tools.run as overrides instead of stripping, but direct legacy
+# tools.runs.train as overrides instead of stripping, but direct legacy
 # loaders (test_config_loader / one-off scripts) hand the raw TOML to
 # load_config — drop the fields here so those callers don't have to
 # special-case them.

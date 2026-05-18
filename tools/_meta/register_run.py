@@ -13,10 +13,11 @@ callers and historical reference; subject to git-rm in a future
 cleanup change.
 
 Eliminates the "forgot to register before launching" drift: the
-launcher(`tools.run` paradigm dispatch)calls this at startup and the
-row lands with `status=pending`. On completion the launcher (or the
-human) flips status + fills the result cell; the ID is the return
-value.
+launcher(legacy `tools.run` paradigm dispatch; T-23 deleted that entry,
+its replacement `tools.runs.train` does NOT call this module — Phase A
+writes metadata.toml directly)calls this at startup and the row lands
+with `status=pending`. On completion the launcher (or the human) flips
+status + fills the result cell; the ID is the return value.
 
 CLI:
     .venv/bin/python -m tools.register_run --type r \\

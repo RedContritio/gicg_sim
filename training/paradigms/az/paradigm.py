@@ -106,7 +106,7 @@ class AZParadigm:
     def make_collector(self, cfg: Any, env_factory: Any, network: Any, opp_pool: Any) -> Any:
         """Serial selfplay collector (spec A5).
 
-        env_factory: callable(game_idx) → GicgEnv, built by tools/run.py.
+        env_factory: callable(game_idx) → GicgEnv, built by tools.runs.train.
         opp_pool: AZ paradigm does NOT use an opponent pool in selfplay
             (A5.2 — both sides share the same network). The kwarg is
             accepted for protocol uniformity + ignored.

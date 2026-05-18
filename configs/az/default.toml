@@ -4,7 +4,7 @@
 # pipeline cfg schema. AZ historical 1v1 baseline (赤蝶 vs 墨客)
 # d_model=128 + MCTS rollouts=200 + lambda anneal 1500 games.
 #
-# Routed through `tools/run.py → core.pipeline.run_pipeline → AZParadigm`.
+# Routed through `tools.runs.train → core.pipeline.run_pipeline → AZParadigm`.
 #
 # Hybrid TOML structure (N6): [shape] shared obs schema + [paradigm.az.X]
 # paradigm-scoped sub-sections. [shape] base, [paradigm.az.agent] override

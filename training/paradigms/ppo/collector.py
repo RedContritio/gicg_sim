@@ -115,7 +115,7 @@ class PPORolloutCollector:
         paradigm_cfg: PPOParadigmConfig.
         network: PPONetwork (the trainer-side network — sync, no stale
             weights in serial mode).
-        env_factory: callable(game_idx) → GicgEnv (built by tools/run.py).
+        env_factory: callable(game_idx) → GicgEnv (built by tools.runs.train).
             Not used by the inlined rollout body (env construction is
             scenario-driven), kept on the ctor for protocol parity.
             Required (None raises).

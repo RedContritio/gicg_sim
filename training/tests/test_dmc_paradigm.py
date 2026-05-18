@@ -1,8 +1,8 @@
 """Unit tests for DMC paradigm adapter (P3-B).
 
 Covers Paradigm protocol conformance + policy/loss/buffer adapters.
-End-to-end smoke verify done out-of-band via `tools/run.py` on
-configs/smoke/dmc_stage3_smoke_v2.toml (not run here; takes ~5 min).
+End-to-end smoke verify done out-of-band via `tools.runs.train` on
+configs/dmc/smoke.toml (not run here; takes ~5 min).
 """
 
 from __future__ import annotations

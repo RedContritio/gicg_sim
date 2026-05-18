@@ -59,8 +59,10 @@ class CheckpointManager:
         the dir-name prefix; defaults to ``datetime.now().strftime``
         (local tz — only used in the no-metadata fallback path).
         Pass an injected value (typically derived from
-        ``RunMetadata.timestamp`` via ``tools.run --run-id``,
-        converted to UTC strftime) to make the dir-name timestamp
+        ``RunMetadata.timestamp`` via the legacy ``tools.run --run-id``
+        path retired in T-23; post-redesign ``tools.runs.train`` Phase
+        A sets ``prebuilt_artifacts_dir`` directly so this kwarg
+        becomes unused on that path) to make the dir-name timestamp
         identical to the register-time UTC timestamp — single-sourced,
         sync-safe across machines.
 

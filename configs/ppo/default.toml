@@ -1,6 +1,6 @@
 # PPO production default cfg — `cfg-toml-restructure-paradigm-scoped` N5/N6.
 #
-# Routed through `tools/run.py → core.pipeline.run_pipeline → PPOParadigm`.
+# Routed through `tools.runs.train → core.pipeline.run_pipeline → PPOParadigm`.
 #
 # Post `ppo-structural-backbone-migration` (#4): PPO uses generic
 # ActorCritic with structural fields (n_counter_slots / n_hooks /

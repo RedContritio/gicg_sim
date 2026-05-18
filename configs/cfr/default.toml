@@ -3,7 +3,7 @@
 # CFR frozen-research tier (paradigm-cfr/spec.md C6.1) defaults
 # (advantage / strategy / value buffer 100k-200k;100 iter × 64 traversals).
 #
-# Routed through `tools/run.py → core.pipeline.run_pipeline → CFRParadigm`.
+# Routed through `tools.runs.train → core.pipeline.run_pipeline → CFRParadigm`.
 #
 # Hybrid TOML structure (N6): [shape] = CFR historical defaults (d_model=64).
 

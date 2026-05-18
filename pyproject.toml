@@ -19,7 +19,7 @@ quote-style = 'single'
 # `smoke_full` — second-tier full smoke contract per
 # openspec/changes/paradigm-smoke-full-tier spec training-architecture
 # A1.6: every paradigm SHALL provide `test_<paradigm>_smoke_full.py`
-# with this marker, covering full `tools.run` driver path + ≥ 100 step
+# with this marker, covering full `tools.runs.train` driver path + ≥ 100 step
 # train + ≥ 2 ckpt save + standalone resume-from-ckpt verify. Default
 # pytest collection EXCLUDES this tier via `addopts = -m "not smoke_full"`
 # (~5-8 min per paradigm wall; opt-in via `pytest -m smoke_full` 大版本前跑)。

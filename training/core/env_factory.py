@@ -3,7 +3,7 @@
 Canonical 3-arg signature per `env-factory-unification` change (ship
 2026-05-17). Replaces both the prior 2-arg orphan `core/env_factory.py`
 form and the 1-arg `core/env_factory_legacy.py` (now removed). All
-callers (AZ async_loop / tools/run.py / tests) thread `obs_config_json`
+callers (AZ async_loop / tools.runs.train / tests) thread `obs_config_json`
 + `master_seed` explicitly — no magic seed extraction from cfg, no
 implicit `cfg.obs.to_engine_json()` fallback.
 

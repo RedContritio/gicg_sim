@@ -7,29 +7,38 @@ This module owns the 3 subprocess helpers used by 5 paradigm
 ``test_<paradigm>_smoke_full.py`` files:
 
 1. ``run_paradigm_train_via_driver(cfg, artifacts_root)`` —
-   subprocess-invoke ``python -m tools.run <cfg> --override
+   subprocess-invoke ``python -m tools.runs.train <cfg> --override
    checkpoint.artifacts_root=<tmp>`` per SF-101 / SF-106. Returns the
    driver-created artifacts dir.
 2. ``verify_ckpt_files(artifacts, expected_min_count)`` — assert
    ``ckpt_*.pt`` files + ``latest.pt`` written by ``CheckpointManager``
    per A1.6.2.
 3. ``resume_and_continue(ckpt_file)`` — subprocess-invoke
-   ``python -m tools.run <cfg> --resume <ckpt>``,returns new ckpt
-   list post-resume per A1.6.3 / SF-102 (functional only,not
+   ``python -m tools.runs.train <cfg> --resume <ckpt>``,returns new
+   ckpt list post-resume per A1.6.3 / SF-102 (functional only,not
    bit-identical).
 
 REUSE FIRST per D-601 revision: zero new ckpt save/load/dispatch
-logic. Full subprocess调用 production ``tools.run`` driver +
+logic. Full subprocess调用 production ``tools.runs.train`` driver +
 ``training/core/checkpoint.py::CheckpointManager``.
 
+T-23 migration note (2026-05-18 tools/runs/ clean-slate redesign):
+the subprocess module name flipped from ``tools.run`` (deleted) to
+``tools.runs.train`` here for grep cleanliness, but the helpers in
+this file still pass ``--override checkpoint.artifacts_root=<tmp>``
+and ``--max-steps`` flags that ``tools.runs.train`` does NOT honor
+(its Phase A allocates ``cwd/artifacts/<ts>_<NNN>_<label>/`` directly
+and the ``--max-steps`` flag was abolished per spec 行 74). The full
+workspace-isolation + cfg-fixture cap rewrite is T-25 scope; until
+then the 5 ``test_<paradigm>_smoke_full.py`` will fail when invoked
+with ``-m smoke_full``. Default ``smoke`` tier is unaffected.
+
 Scope caveat (M5 single-sourced timestamp):
-smoke_full tests subprocess-invoke `tools.run` WITHOUT `--run-id` (no
-register/complete round-trip — tmp_path artifacts dir is throwaway).
-The dir prefix therefore uses `datetime.now()` local, NOT a metadata-
-sourced UTC timestamp. This is intentional — there's no cross-host
-metadata consumer for these dirs, so single-sourcing has no value
-here. Production runs use `tools.run --run-id <id>` and get the
-UTC-strftime single-source path.
+smoke_full tests subprocess-invoke `tools.runs.train` (no
+``--run-id`` analogue post-redesign — Phase A auto-allocates NNN
+inline + writes metadata atomically). The dir prefix uses Phase A's
+UTC ``datetime.now(timezone.utc)`` which IS the single source for
+both dir-name ``<ts>`` and ``metadata.timestamp`` (spec 行 70).
 """
 
 from __future__ import annotations
@@ -46,7 +55,7 @@ from typing import Optional
 # `gicg_engine/` (canonical repo marker). Compatible with worktree
 # layout (`.claude/worktrees/.../training/tests/`) — parents[2] in
 # worktree resolves to worktree root, not main repo. Tests run with
-# `cwd=worktree_root` so `tools.run` resolves relative paths correctly.
+# `cwd=worktree_root` so `tools.runs.train` resolves relative paths correctly.
 def _find_repo_root() -> Path:
     here = Path(__file__).resolve()
     for p in here.parents:
@@ -72,7 +81,7 @@ def run_paradigm_train_via_driver(
     extra_env: Optional[dict] = None,
     max_steps: Optional[int] = None,
 ) -> Path:
-    """Subprocess `tools.run <cfg>` with checkpoint.artifacts_root redirected.
+    """Subprocess `tools.runs.train <cfg>` with checkpoint.artifacts_root redirected.
 
     Args:
         cfg_path: smoke_full toml (absolute or relative to REPO_ROOT).
@@ -83,25 +92,28 @@ def run_paradigm_train_via_driver(
         extra_overrides: paradigm-specific `key.path=value` overrides
             appended after the mandatory ``checkpoint.artifacts_root``
             override (each prefixed with its own ``--override`` flag,
-            since ``tools.run`` uses ``action='append'``). Backward-
-            compatible: default ``None`` → behaviour unchanged. Used by
-            BC smoke_full to inject the on-the-fly NPZ dataset path
-            (``paradigm.bc.dataset_path=<tmp>/dataset.npz``) per
+            since ``tools.runs.train`` uses ``action='append'``).
+            Backward-compatible: default ``None`` → behaviour unchanged.
+            Used by BC smoke_full to inject the on-the-fly NPZ dataset
+            path (``paradigm.bc.dataset_path=<tmp>/dataset.npz``) per
             ``bc-smoke-dataset-fixture``.
         extra_env: optional dict merged into subprocess env (e.g.
             ``{'GICG_CFR_SMOKE_STUB_BUFFER': '1'}`` for CFR stub buffer
             injection per cfr-driver-buffer-multihead-fix C6.4). Parent
             process env untouched.
-        max_steps: optional ``tools.run --max-steps N`` override for
-            paradigm whose terminus is step-based (e.g. CFR
-            ``n_iterations``) — lets initial run stop early so resume
-            can produce strictly new ckpt files at later steps.
+        max_steps: optional legacy ``tools.run --max-steps N`` cap from
+            the pre-T-23 driver. T-23 deleted ``tools.run`` and
+            ``tools.runs.train`` rejects this flag (spec 行 74 abolished
+            it; cap via ``--override paradigm.X.total_frames=N`` etc).
+            The kwarg signature is preserved for caller compatibility but
+            the value is currently IGNORED — T-25 rewrites the 5 paradigm
+            smoke_full tests to pass cfg-fixture caps instead.
 
     Returns:
         The unique artifacts subdir created by driver.
 
     Raises:
-        subprocess.CalledProcessError if `tools.run` exits non-zero.
+        subprocess.CalledProcessError if `tools.runs.train` exits non-zero.
         RuntimeError if driver did not create exactly one artifacts dir.
     """
     cfg_abs = cfg_path if cfg_path.is_absolute() else REPO_ROOT / cfg_path
@@ -111,15 +123,17 @@ def run_paradigm_train_via_driver(
     cmd = [
         sys.executable,
         '-m',
-        'tools.run',
+        'tools.runs.train',
         str(cfg_abs),
         '--override',
         f'checkpoint.artifacts_root={tmp_root_abs}',
     ]
     for ov in extra_overrides or []:
         cmd.extend(['--override', ov])
-    if max_steps is not None:
-        cmd.extend(['--max-steps', str(max_steps)])
+    # T-23 note: --max-steps flag deleted with tools.run; the kwarg is
+    # accepted to preserve caller signature but no longer threaded into
+    # the subprocess (T-25 owns the rewrite to cfg-fixture caps).
+    _ = max_steps
     env = os.environ.copy()
     if extra_env:
         env.update(extra_env)
@@ -173,7 +187,7 @@ def resume_and_continue(
     extra_overrides: list[str] | None = None,
     extra_env: Optional[dict] = None,
 ) -> list[Path]:
-    """Subprocess `tools.run <cfg> --resume <ckpt>` + verify new ckpts.
+    """Subprocess `tools.runs.train <cfg> --resume <ckpt>` + verify new ckpts.
 
     Recovers the paradigm + smoke_full cfg path from the artifacts dir's
     `cfg_snapshot.json` (CheckpointManager writes this at init).
@@ -194,7 +208,8 @@ def resume_and_continue(
             NPZ dataset_path here so the resumed run can re-load the
             same fixture dataset (cfg_snapshot.json captures the merged
             cfg but the actual ``--override`` flag must be re-supplied
-            since ``tools.run --resume`` re-loads the cfg from disk).
+            since ``tools.runs.train --resume`` re-loads the cfg from
+            disk via ``load_with_extends`` per resume.py 行 144).
 
     Returns:
         Sorted ckpt list post-resume.
@@ -220,7 +235,7 @@ def resume_and_continue(
     cmd = [
         sys.executable,
         '-m',
-        'tools.run',
+        'tools.runs.train',
         str(cfg_path),
         '--resume',
         str(ckpt_file),

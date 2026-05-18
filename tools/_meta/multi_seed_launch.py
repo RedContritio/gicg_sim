@@ -1,8 +1,10 @@
 """Multi-seed launcher — paradigm-agnostic.
 
-Wraps the unified ``tools.run`` entry (P3-B ship): for each seed
-listed in the TOML, dispatches one ``python -m tools.run <cfg> --override
-meta.seed=<s> --override meta.run_label=<base>_seed<s>`` invocation.
+Wraps the unified ``tools.runs.train`` entry (2026-05-18 clean-slate
+redesign; pre-redesign launcher was ``tools.run``, deleted in T-23):
+for each seed listed in the TOML, dispatches one
+``python -m tools.runs.train <cfg> --override meta.seed=<s>
+--override meta.run_label=<base>_seed<s>`` invocation.
 
 Replaces the previous AZ-specific wrapper that subprocess-invoked the
 legacy ``launch_config`` entry (since archive-removed) directly — that
@@ -23,8 +25,8 @@ rest = ``<type><NNN>_<slug>_seed<N>``).
 The cfg itself must already declare ``[meta]`` with ``paradigm``,
 ``seed`` and ``run_label`` (FU-W1B schema). The wrapper overrides only
 ``meta.seed`` / ``meta.run_label`` per invocation; everything else
-passes through tools.run untouched (inheritance / paradigm dispatch /
-pipeline mode all handled by the standard loader).
+passes through tools.runs.train untouched (inheritance / paradigm
+dispatch / pipeline mode all handled by the standard loader).
 
 After all seeds finish, aggregates ``gauntlet_results.jsonl`` from each
 ``artifacts/*_<seed_label>/`` dir into mean ± std per baseline and
@@ -102,14 +104,14 @@ def _register(type_prefix: str, label: str, summary: str) -> str:
 
 
 def _launch_one(cfg_path: Path, seed: int, label: str, host: bool) -> int:
-    """Dispatch one seed through tools.run with overrides.
+    """Dispatch one seed through tools.runs.train with overrides.
 
     Uses ``meta.seed`` + ``meta.run_label`` overrides per TrainingConfig
     schema (FU-W1B). Container vs host-native chosen by ``--host``;
     container path uses an anonymous DOCKER_CONFIG so public-image pulls
     work in keychain-locked Claude sessions (per dc.sh wrapper)."""
     log_path = Path(f'/tmp/{label}.log')
-    base = f'python -u -m tools.run {cfg_path.as_posix()} --override meta.seed={seed} --override meta.run_label={label}'
+    base = f'python -u -m tools.runs.train {cfg_path.as_posix()} --override meta.seed={seed} --override meta.run_label={label}'
     if host:
         # Host-native: container PyTorch on arm64 Linux is 2-12× slower
         # than host (likely missing Apple Accelerate / NEON BLAS).

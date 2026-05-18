@@ -5,7 +5,7 @@
 # ε-greedy 0.05, d_model=32, 100M frames pilot — defaults here are
 # downscaled to single-process serial mode).
 #
-# Routed through `tools/run.py → core.pipeline.run_pipeline → DMCParadigm`.
+# Routed through `tools.runs.train → core.pipeline.run_pipeline → DMCParadigm`.
 #
 # Hybrid TOML structure (N6): [shape] = DMC historical defaults (d_model=32).
 
