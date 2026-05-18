@@ -282,7 +282,8 @@ Swap p0/p1 asymmetry(0.25 vs 0.00):p0 = agent=赤蝶 / opp=墨客;p1 反过来�
 | 3.4.5.2 CPU affinity (actors + learner) | ✅ DONE (eval deferred) | 9663e0a |
 | 3.4.5.3 JIT trace infrastructure | ✅ DONE (DMC runtime NO-OP) | 2a896f8 |
 | 3.4.5.4 Shared mem replay | ✅ DONE (pre-existing) | n/a |
-| 3.4.5.6 cProfile harness + Mac baseline | ✅ DONE | c26b0bb |
+| 3.4.5.6 cProfile harness + Mac baseline (collector-only) | ✅ DONE | c26b0bb |
+| 3.4.5.6+ cProfile harness + Mac baseline (full-train) | ✅ DONE | (本提交) |
 | 3.4.5.7 Throughput PASS criteria verify | ⏸ PENDING (Windows) | T-3.4.5e/f |
 
 See `PLAN.md "Phase 3.4.5 actionable plan"` for follow-ups.
@@ -339,6 +340,75 @@ See `PLAN.md "Phase 3.4.5 actionable plan"` for follow-ups.
 - Run same tool on Windows: `ssh dev@192.168.31.56 'cd D:\gicg_dev && .\.venv\Scripts\python.exe -m tools.dmc.profile_actor --cfg configs\dmc\smoke.toml --duration-seconds 300'`
 - Target: per-actor fps ≥ 1200 + multi-actor total ≥ 28k (24 actor) per PLAN.md §3.4.5.7.
 - Compare hotspot list vs Mac baseline above — expect NN forward proportion to grow (faster opponent self-play + V-Cache hit) and opp self-play proportion to shrink.
+
+### Mac M-series full-train baseline (2026-05-18, profile_train.py initial run)
+
+**Setup:** single-process serial DMC (`configs/dmc/smoke.toml`), 600s total wall with 3-phase window:
+- Warmup 60s (buffer fill + JIT/import warmup, discarded)
+- **Measure 478.69s (cProfile + counters, ~99.7% of plan)**
+- Tail 60s (run-out, discarded)
+
+Tool: `tools/dmc/profile_train.py`. `harden_child_env` applied (OMP/MKL/BLAS=1, torch.set_num_threads(1), torch.set_num_interop_threads(1)). In-memory `cfg.paradigm.total_frames` overridden to 1e12 (benchmark mode — smoke cfg ships `total_frames=1000` which is hit in warmup and silences step_schedule for the rest of the run; the override keeps the loop productive across the wall window; benchmark writes no artifacts).
+
+**Throughput (measure window only):**
+
+| Metric | Value |
+|---|---|
+| n_collect_calls | 225 |
+| n_transitions | 3046 |
+| n_train_steps | 900 |
+| transitions_per_s | 6.36 |
+| train_steps_per_s | 1.88 |
+| trans_per_train_step | 3.38 |
+
+`trans_per_train_step = 3.38` vs `train_ratio=4 × batch_size=16 / batch_size=16` ideal 4.0 — slight undershoot reflects collect-bound moments where buffer.sample needs the next collect to top up.
+
+**Top 10 hotspots (cumulative time):**
+
+| # | Function | cumtime (s) | ncalls | % wall |
+|---|---|---|---|---|
+| 1 | tools.dmc.profile_train:_run_one_iter | 478.68 | 225 | 100% |
+| 2 | torch.autograd:backward (engine_run_backward) | 280.65 | 900 | **58.6%** |
+| 3 | torch.nn.modules.module:_wrapped_call_impl | 189.40 | 444497 | 39.6% (forward umbrella) |
+| 4 | training.paradigms.dmc.loss:compute | 183.46 | 900 | **38.3%** |
+| 5 | training.paradigms.dmc.network:forward_batch | 183.41 | 900 | 38.3% |
+| 6 | training.paradigms.dmc._agent:forward_batch | 183.40 | 900 | 38.3% |
+| 7 | training.core.network.encoder:forward | 179.25 | 1125 | 37.4% |
+| 8 | torch.nn.modules.transformer:encoder.forward | 177.38 | 1125 | 37.0% |
+| 9 | torch.nn.modules.transformer:layer.forward | 177.29 | 2250 | 37.0% |
+| 10 | torch.nn.functional:multi_head_attention_forward | 158.29 | 9692 | **33.1%** |
+
+**Interpretation (Mac CPU full-train dominant cost = train compute):**
+
+- **`backward()` 58.6% + train forward 38.3% = ~97% of wall on train_step compute.** Collect drops to ~3% of wall (vs 100% in collector-only profile).
+- **Multi-head attention forward 33.1% of wall** is the single hottest leaf — transformer encoder dominates both train forward AND inference path (act_with_logit), but at training time the batch=16 × backward through transformer is the bigger share.
+- **Per train_step latency:** 312 ms backward + 204 ms forward + ~0.2 ms optimizer = ~516 ms total. Matches observed `train_steps_per_s = 1.88` ↔ 1/0.516 = 1.94 step/s upper bound.
+- **F1-D2 opponent disappears from top 15:** in collector-only profile it was 37% of wall (deepest hotspot). In full-train, the train compute dwarfs collector cost → opp self-play overhead is folded into the 3% collect slice.
+- **Engine ctypes invisible:** confirms engine overhead is small head (per PLAN.md §3.4.5.5).
+
+**Red-line checks (per PLAN.md §3.4.5.6):**
+
+- [x] No BLAS/OMP threading sync in hot path (no `mkl_*` / `omp_*` symbols visible).
+- [x] No pickle/unpickle in hot path (serial mode, N/A).
+- [x] No frequent `.to('cuda')` / `.cpu()` (cpu device confirmed).
+
+**Comparison anchor table (Mac M-series steady-state):**
+
+| Tool | transitions/s | train_steps/s | dominant hotspot |
+|---|---|---|---|
+| profile_actor (collector-only, 60s) | 274.0 | — | F1-D2 opp self-play 37% + NN inference forward 32% |
+| profile_train (full pipeline, 600s) | 6.36 | 1.88 | backward 58.6% + train forward 38.3% (transformer) |
+
+Two profiles measure orthogonal regimes:
+- **collector-only**: per-actor episode rollout throughput → Windows X3D ≥ 1200 fps gate (multi-actor scale).
+- **full-train**: end-to-end pipeline throughput, learner-bound regime. On Mac CPU, every train_step takes ~0.5s on smoke cfg (d_model=32, batch=16, 2 transformer layers). Stage 3 production cfg (default.toml) uses larger d_model + batch + layers → expect proportionally slower train_steps_per_s on Mac; Windows X3D + 5070 Ti GPU train_step on actual production cfg is the relevant target.
+
+**Mac-side capacity envelope (extrapolated for smoke cfg):**
+
+- 1.88 train_steps/s × 16 batch = 30 trans/s consumed by learner (with sampling-with-replacement, each trans visited ~7× given collector emits 6.4/s)
+- 16-h Mac smoke walltime → ~108k train_steps + ~366k transitions collected. Below Phase 3.5 Stage 3 budget of 2e9 frames by 4 orders of magnitude → **Mac CPU is unsuitable for production train**; Mac is dev + smoke + hotspot identification only, per PLAN §3.5.1 spec.
+
+**Windows X3D follow-up:** same `profile_train.py` tool, 600s wall — anchors `train_steps_per_s` improvement from V-Cache hit + 9950X3D IPC. Comparison delta + GPU train_step rate (on `configs/dmc/default.toml`) are the meaningful Phase 3.5 perf gates.
 
 ---
 
