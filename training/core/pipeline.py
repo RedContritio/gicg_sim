@@ -37,6 +37,7 @@ def run_pipeline(
     train_provider: Any = None,
     max_steps: Optional[int] = None,
     artifacts_timestamp_utc: Optional[str] = None,
+    prebuilt_artifacts_dir: Optional[Path] = None,
 ) -> PipelineState:
     """Main driver loop.
 
@@ -56,6 +57,13 @@ def run_pipeline(
             CheckpointManager. Pass through from ``tools.run --run-id``
             (derived from RunMetadata.timestamp) to single-source the
             timestamp across register + ckpt dir.
+        prebuilt_artifacts_dir: optional existing dir created by the
+            caller — Phase A of ``tools.runs.train`` already mkdir's the
+            atomic per-run dir (``artifacts/<ts>_<NNN>_<label>/``) and
+            hands it down so the driver does not re-derive a different
+            name from ``cfg.checkpoint.artifacts_root`` + run_label
+            (which lacks NNN). Mutually exclusive with both
+            ``resume_from`` and ``artifacts_timestamp_utc``.
     Returns:
         final PipelineState (also persisted by CheckpointManager).
     """
@@ -69,6 +77,7 @@ def run_pipeline(
     artifacts_dir = ckpt_mgr.init_artifacts_dir(
         resume_from=resume_from,
         timestamp_utc=artifacts_timestamp_utc,
+        prebuilt=prebuilt_artifacts_dir,
     )
     ckpt_mgr.save_cfg_snapshot()
     logger = MetricsLogger(artifacts_dir)

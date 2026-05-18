@@ -3,8 +3,11 @@
 Internal module — callers must use :mod:`tools.runs.train` (the public
 entry shell). Implements lifecycle steps 6 and 7:
 
-- step 6  run train (T-10 stub ``_run_train_placeholder``; T-11 swaps in
-          real paradigm dispatch over the same call site)
+- step 6  run train via :func:`_run_train_placeholder` (T-11 — real
+          paradigm dispatch: ``load_cfg`` from cfg_resolved.toml →
+          paradigm registry → ``run_pipeline``; symbol name retained
+          from T-10 stub so test monkeypatches on the call site keep
+          working without renames)
 - step 7  acquire per-run metadata_lock, **read metadata.status before
           overwrite**, update status to ``done``/``failed`` (or leave
           alone if externally marked), write ``wall_seconds`` +
@@ -55,24 +58,27 @@ from pathlib import Path
 
 from tools.runs import schema
 from tools.runs._helpers.locks import acquire_metadata_lock
+from tools.runs._train import dispatch
 from tools.runs._train.setup import SetupState
 
 
 def _run_train_placeholder(state: SetupState) -> None:
-    """T-10 stub for the step-6 train call.
+    """Step 6 — paradigm dispatch + run_pipeline (T-11).
 
-    No-op by design so Phase C's close logic can be exercised in
-    isolation (tests inject failures via ``monkeypatch.setattr`` on
-    this symbol — see ``test_train_close.py``). T-11 replaces this body
-    with real paradigm dispatch (``load_cfg`` → paradigm registry →
-    ``run_pipeline``) consuming ``state.cfg_resolved`` +
-    ``state.artifacts_dir``.
+    Delegates to :func:`tools.runs._train.dispatch.run_paradigm_train`
+    which owns the cfg → paradigm → ``run_pipeline`` wiring. Symbol
+    name retained from the T-10 stub on purpose: Phase C tests in
+    ``test_train_close.py`` monkeypatch this exact name to inject
+    failures / external-mark simulations; renaming would silently
+    invalidate those tests.
 
-    Receives the full :class:`SetupState` rather than individual fields
-    so T-11's larger dispatch can read whatever it needs without
-    breaking this signature.
+    The actual dispatch lives in :mod:`tools.runs._train.dispatch`
+    (split per CLAUDE.md 300-line pre-commit budget — Phase C close
+    logic + paradigm dispatch don't fit in one file). The wrapper here
+    is intentionally one line so a future maintainer cannot accidentally
+    add behaviour that test monkeypatches would silently bypass.
     """
-    _ = state  # T-11 will use; explicit binding silences "unused arg"
+    dispatch.run_paradigm_train(state)
 
 
 def phase_c_run_train_and_close(state: SetupState) -> int:

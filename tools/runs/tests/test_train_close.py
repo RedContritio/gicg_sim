@@ -78,6 +78,21 @@ def _setup_running_run(tmp_path: Path, run_label: str = 'close_test') -> Any:
     return state
 
 
+@pytest.fixture(autouse=True)
+def _stub_placeholder(monkeypatch: pytest.MonkeyPatch) -> None:
+    """T-11 baseline: ``_run_train_placeholder`` is now a real dispatch
+    shim into :func:`tools.runs._train.dispatch.run_paradigm_train`.
+    These tests' minimal cfgs (one ``[meta]`` block — no scenario,
+    pipeline, or paradigm sub-table) would fail at ``load_cfg`` schema
+    validate inside the dispatch. The Phase C close-logic suite predates
+    the dispatch and is scoped to "given a no-op train, does close work";
+    we keep that scope intact by stubbing the placeholder back to a no-op
+    by default. Tests that inject failures override this stub via their
+    own ``monkeypatch.setattr`` call on the same symbol.
+    """
+    monkeypatch.setattr(run_mod, '_run_train_placeholder', lambda _state: None)
+
+
 def _read_metadata(artifacts_dir: Path) -> schema.RunMetadata:
     return schema.load_file(artifacts_dir / 'metadata.toml')
 

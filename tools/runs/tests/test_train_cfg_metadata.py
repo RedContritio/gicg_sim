@@ -440,7 +440,12 @@ def test_phase_b_propagates_systemexit_unwrapped(tmp_path: Path, monkeypatch: py
 # --- Phase A + B integration via main() --------------------------------------
 
 
-def test_main_runs_phase_a_and_b_and_writes_all_three_files(tmp_path: Path) -> None:
+def test_main_runs_phase_a_and_b_and_writes_all_three_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # T-11: stub real-dispatch placeholder; this test scopes to "A+B+close",
+    # paradigm dispatch e2e lives in test_train_dispatch_smoke.py.
+    from tools.runs._train import run as run_mod
+
+    monkeypatch.setattr(run_mod, '_run_train_placeholder', lambda _state: None)
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'integration')
     rc = train_mod.main([str(cfg)])
     assert rc == 0
@@ -477,13 +482,8 @@ def test_main_exits_2_when_phase_b_fails(tmp_path: Path, monkeypatch: pytest.Mon
     assert not [c for c in art_dirs if c.is_dir()]
 
 
-# --- Round-trip verify safety net --------------------------------------------
-#
-# Emitter unit tests (edge cases — bad key types, unsupported values,
-# escape handling) live in test_train_cfg_toml.py. The two checks here
-# cover the wrapper in this module: that the verify helper itself
-# catches both a parse failure and a value mismatch (defense-in-depth
-# against an emitter bug silently producing wrong output).
+# --- Round-trip verify safety net (emitter unit tests in test_train_cfg_toml.py;
+# checks below cover the wrapper's catch of parse failure + value mismatch). ---
 
 
 def test_round_trip_verify_catches_mismatch() -> None:

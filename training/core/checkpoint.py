@@ -51,6 +51,7 @@ class CheckpointManager:
         resume_from: Optional[Path] = None,
         *,
         timestamp_utc: Optional[str] = None,
+        prebuilt: Optional[Path] = None,
     ) -> Path:
         """Materialize the artifacts dir.
 
@@ -61,7 +62,33 @@ class CheckpointManager:
         ``RunMetadata.timestamp`` via ``tools.run --run-id``,
         converted to UTC strftime) to make the dir-name timestamp
         identical to the register-time UTC timestamp — single-sourced,
-        sync-safe across machines."""
+        sync-safe across machines.
+
+        ``prebuilt``: if provided, the dir is treated as already created
+        by the caller (e.g. ``tools.runs.train`` Phase A's allocator
+        mkdir under ``artifacts/<ts>_<NNN>_<label>/``). The manager just
+        adopts it as ``self.artifacts_dir`` — no mkdir, no name
+        derivation, no ``cfg.checkpoint.artifacts_root`` lookup. Mutually
+        exclusive with ``resume_from`` and ``timestamp_utc`` (passing
+        both is a caller bug — raise). Per spec §Architecture CRIT-X-1
+        (`docs/superpowers/specs/2026-05-18-tools-runs-redesign-design
+        .md` 行 28-32): the atomic lifecycle owns NNN allocation and dir
+        creation; this manager merely writes into the dir handed to it.
+        """
+        if prebuilt is not None:
+            if resume_from is not None:
+                raise ValueError(
+                    'CheckpointManager.init_artifacts_dir: prebuilt and resume_from are mutually exclusive'
+                )
+            if timestamp_utc is not None:
+                raise ValueError(
+                    'CheckpointManager.init_artifacts_dir: prebuilt and timestamp_utc are mutually exclusive '
+                    '(prebuilt dir name already determined by caller)'
+                )
+            if not prebuilt.is_dir():
+                raise FileNotFoundError(f'CheckpointManager: prebuilt {prebuilt} is not an existing dir')
+            self.artifacts_dir = prebuilt
+            return prebuilt
         if resume_from is not None:
             # ckpts live in `<artifacts_dir>/ckpts/<file>.pt` — strip `ckpts/`.
             ckpts_dir = Path(resume_from).parent

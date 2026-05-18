@@ -26,6 +26,7 @@ from pathlib import Path
 import pytest
 
 from tools.runs import train as train_mod
+from tools.runs._train import run as run_mod
 
 
 # --- Fixtures (mirror test_train_setup.py to keep tests hermetic) -------------
@@ -40,6 +41,18 @@ def _isolate_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     (tmp_path / 'tools' / 'runs').mkdir(parents=True)
     monkeypatch.chdir(tmp_path)
     return tmp_path
+
+
+@pytest.fixture(autouse=True)
+def _stub_placeholder(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Same rationale as the test_train_close.py stub fixture: the T-11
+    placeholder is a real paradigm dispatch shim; this file's minimal
+    cfgs (``[meta]``-only) would fail dispatch validate. Stub back to a
+    no-op so main() integration scope here stays "argparse + Phase A/B/C
+    glue", not "5-paradigm end-to-end". The 5-paradigm e2e lives in
+    test_train_dispatch_smoke.py.
+    """
+    monkeypatch.setattr(run_mod, '_run_train_placeholder', lambda _state: None)
 
 
 def _write_cfg(path: Path, run_label: str) -> Path:
