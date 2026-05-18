@@ -4,7 +4,7 @@ Usage (Mac dev):
 
     .venv/bin/python -m tools.dmc.profile_actor --cfg configs/dmc/smoke.toml --duration-seconds 60
 
-Usage (Windows X3D — the real target per PLAN.md §3.4.5.5-7):
+Usage (Windows X3D — the real target for ≥ 1200 fps):
 
     ssh dev@<windows-host> 'cd D:\\gicg_dev && .\\.venv\\Scripts\\python.exe -m tools.dmc.profile_actor --cfg configs\\dmc\\smoke.toml --duration-seconds 300'
 
@@ -12,8 +12,8 @@ Outputs:
 - ``actor.prof`` (cProfile binary) — view with ``snakeviz actor.prof``
 - stdout: per-actor fps + top 15 cumulative-time hotspots
 
-Target verify (Windows X3D only per PLAN.md §3.4.5.7):
-- Per-actor fps ≥ 1200 → 3.4.5 PASS criteria
+Target verify (Windows X3D only):
+- Per-actor fps ≥ 1200 → PASS criteria
 
 Mac data: baseline for hotspot identification + cross-platform delta,
 NOT the production fps target.
@@ -119,11 +119,12 @@ def main() -> None:
     profiler = cProfile.Profile()
     profiler.enable()
     t_start = time.monotonic()
-    n_trans, n_calls = _run_one_actor_for_duration(cfg, args.duration_seconds)
-    wall = time.monotonic() - t_start
-    profiler.disable()
-
-    profiler.dump_stats(args.prof_output)
+    try:
+        n_trans, n_calls = _run_one_actor_for_duration(cfg, args.duration_seconds)
+    finally:
+        wall = time.monotonic() - t_start
+        profiler.disable()
+        profiler.dump_stats(args.prof_output)
 
     fps = n_trans / wall if wall > 0 else 0.0
     print()

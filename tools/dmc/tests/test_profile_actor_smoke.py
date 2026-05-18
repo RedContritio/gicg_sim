@@ -2,7 +2,7 @@
 
 5-second subprocess invocation against the DMC smoke cfg. Goal: catch
 tool-breakage regressions in CI without paying the 60s baseline cost
-the human runs once for the notes.md hotspot table (Phase 3.4.5).
+the human runs once for the notes.md hotspot table.
 """
 
 from __future__ import annotations
