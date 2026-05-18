@@ -360,16 +360,11 @@ def test_phase_c_final_write_failure_returns_3(
     # Inject failure at the os.replace boundary — temp file write
     # already succeeded so we exercise the IO path most exposed to
     # cross-mount / disk-full / permission failures in production.
-    real_replace = run_mod.os.replace
-
     def _failing_replace(*a: Any, **kw: Any) -> Any:
         raise OSError('simulated atomic rename failure')
 
     monkeypatch.setattr(run_mod.os, 'replace', _failing_replace)
-    try:
-        rc = run_mod.phase_c_run_train_and_close(state)
-    finally:
-        monkeypatch.setattr(run_mod.os, 'replace', real_replace)
+    rc = run_mod.phase_c_run_train_and_close(state)
 
     assert rc == 3
     err = capsys.readouterr().err
