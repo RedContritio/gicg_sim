@@ -107,13 +107,11 @@ class DmcConfig(TrainingConfig):
     # Discount: DMC uses γ=1 (sparse terminal reward, no bootstrap).
     gamma: float = 1.0
 
-    # CPU optimization, per decision #9. Each actor process sets
-    # OMP_NUM_THREADS=1 etc. at startup; affinity pins are tried but
-    # skipped if psutil missing or platform doesn't support.
-    cpu_single_thread: bool = True
-    cpu_affinity_actors: Optional[list[int]] = None  # e.g. [0,1,...,15] for X3D CCD0
-    cpu_affinity_learner: Optional[list[int]] = None
-    cpu_affinity_eval: Optional[list[int]] = None
+    # JIT-traced forward path for the actor's inference graph. Smoke off,
+    # full train on. CPU-affinity / single-thread fields previously sat
+    # next to this knob but were dead (no readers) — relocated to the
+    # live ``DMCParadigmConfig`` in 2026-05-18 T-3.4.5b once they got
+    # actual wiring; ``use_jit_trace`` stays here until Task 4 moves it.
     use_jit_trace: bool = False  # smoke off, full train on
 
     write_artifacts: bool = True
@@ -175,7 +173,6 @@ def smoke_config(data_dir: Optional[str] = None) -> DmcConfig:
         artifacts_root='artifacts',
         run_label='dmc_smoke',
         write_artifacts=True,
-        cpu_single_thread=True,
         use_jit_trace=False,
     )
 

@@ -27,7 +27,45 @@ Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.
 
 from __future__ import annotations
 
+from typing import Any
+
 from tools.runs._train.setup import SetupState
+
+
+def _apply_learner_affinity(cfg: Any) -> None:
+    """Apply ``cfg.paradigm.cpu_affinity_learner`` to the main training process.
+
+    Paradigm-aware via ``getattr`` (only DMC defines this field today;
+    other paradigms have no such key in their ``DMCParadigmConfig``-shaped
+    schema, so the function silently returns). Same dict-or-typed shape
+    handling as ``training.core.actor.actor_process._resolve_actor_affinity``
+    — runtime cfgs carry a flat ``paradigm_flat`` dict per
+    ``training/core/config/loader.py:_build_dataclass``.
+
+    Silently skipped on platforms without ``cpu_affinity`` (Mac). Per
+    PLAN.md §3.4.5.2: affinity is an optimization hint, not a correctness
+    requirement.
+    """
+    paradigm = getattr(cfg, 'paradigm', None)
+    if paradigm is None:
+        return
+    if hasattr(paradigm, 'cpu_affinity_learner'):
+        affinity = paradigm.cpu_affinity_learner
+    elif isinstance(paradigm, dict):
+        affinity = paradigm.get('cpu_affinity_learner')
+    else:
+        return
+    if affinity is None:
+        return
+    try:
+        import psutil
+
+        psutil.Process().cpu_affinity(affinity)
+    except (ImportError, AttributeError, OSError):
+        # Mac has no cpu_affinity on psutil.Process; missing psutil and
+        # kernel rejection are silenced for the same hint-not-contract
+        # reason as the actor-side application in _mp_helpers.py.
+        pass
 
 
 def run_paradigm_train(state: SetupState) -> None:
@@ -74,6 +112,12 @@ def run_paradigm_train(state: SetupState) -> None:
     # Fresh path uses the unsuffixed ``cfg_resolved.toml``.
     cfg_resolved_path = state.artifacts_dir / _current_cfg_resolved_filename(state)
     cfg = load_cfg(cfg_resolved_path, overrides=[])
+
+    # T-3.4.5b: pin learner-process CPU affinity *before* any heavy
+    # paradigm setup so child threads spawned by torch/buffer allocators
+    # inherit the cpuset. No-op on Mac and on cfgs that don't set the
+    # field.
+    _apply_learner_affinity(cfg)
 
     paradigm = resolve_paradigm(cfg.meta.paradigm)
 

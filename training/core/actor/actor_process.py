@@ -27,6 +27,26 @@ from training.core.config.inheritance import derive_seed
 from training.core.protocols import EpisodeSpec
 
 
+def _resolve_actor_affinity(cfg: Any) -> Optional[list[int]]:
+    """Read ``cfg.paradigm.cpu_affinity_actors`` if present (paradigm-aware).
+
+    Returns ``None`` for paradigms that don't define this field — affinity
+    is a per-paradigm opt-in (DMC Phase 3.4.5 introduces it). Robust to
+    both shapes of ``cfg.paradigm`` we observed in the loader (see
+    ``training/core/config/loader.py:_build_dataclass``): runtime cfgs
+    carry a flat dict (paradigm_flat) while in-process construction in
+    tests may set a typed ``DMCParadigmConfig`` instance.
+    """
+    paradigm = getattr(cfg, 'paradigm', None)
+    if paradigm is None:
+        return None
+    if hasattr(paradigm, 'cpu_affinity_actors'):
+        return paradigm.cpu_affinity_actors
+    if isinstance(paradigm, dict):
+        return paradigm.get('cpu_affinity_actors')
+    return None
+
+
 def resolve_builder(path: str) -> Callable:
     """Import ``module.attr`` → return the attr. Raise ImportError /
     AttributeError up to the caller for early validation."""
@@ -69,7 +89,8 @@ def actor_main(
     Stop signalling: either ``should_stop`` callable OR an mp.Event
     ``stop_event`` (preferred for spawned workers).
     """
-    harden_child_env()
+    affinity = _resolve_actor_affinity(cfg)
+    harden_child_env(affinity=affinity)
     if stop_event is not None:
         install_quiet_sigterm(stop_event)
 

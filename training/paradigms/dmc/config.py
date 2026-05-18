@@ -20,6 +20,7 @@ cfg-schema-unification:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from training.core.cfg import ObsShape, ParadigmConfigBase, build_shape_from_toml, make_dmc_default_shape
 
@@ -85,6 +86,27 @@ class DMCParadigmConfig(ParadigmConfigBase):
     eval_interval_episodes: int = 30
     eval_n_scenarios: int = 8
     eval_baselines: tuple = ('F1-D2',)
+
+    # CPU affinity hints for the DMC training pipeline (PLAN.md §3.4.5.2).
+    # Lists of logical CPU IDs, e.g. [0,1,...,15] for X3D CCD0. Silently
+    # skipped on platforms without cpu_affinity support (macOS) — the
+    # field declarations stand as portable cfg shape, the runtime apply
+    # site decides what's actionable per host.
+    # - ``cpu_affinity_actors``: pinned in each spawned actor process via
+    #   ``training/core/actor/actor_process.py:actor_main`` →
+    #   ``harden_child_env(affinity=...)``.
+    # - ``cpu_affinity_learner``: pinned in the main training process via
+    #   ``tools/runs/_train/dispatch.py:_apply_learner_affinity`` before
+    #   the paradigm pipeline starts.
+    # - ``cpu_affinity_eval``: DOCUMENTATION-ONLY here — the runtime
+    #   actor for evals is the separate ``tools/remote/eval_service.py``
+    #   process, which cannot read DMCParadigmConfig at runtime. The
+    #   intent is to feed this value into an eval_service ``--cpu-affinity``
+    #   CLI flag in a follow-up task; for now this field exists so the
+    #   canonical X3D core-assignment intent lives next to its siblings.
+    cpu_affinity_actors: Optional[list[int]] = None
+    cpu_affinity_learner: Optional[list[int]] = None
+    cpu_affinity_eval: Optional[list[int]] = None
 
     @classmethod
     def from_dict(cls, d: dict) -> 'DMCParadigmConfig':
