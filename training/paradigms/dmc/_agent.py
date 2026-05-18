@@ -15,7 +15,7 @@ adopted the adapter import path; no behavioural change.
 from __future__ import annotations
 
 import random
-from typing import Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -151,6 +151,82 @@ class DmcAgent(AgentBase):
             )
             # Generic ActorCritic returns dict; DMC uses 'q' head (logit-as-Q).
             return out['q'][0, :n_legal].clone()
+
+    # --- Provider-backed inference --------------------------------- #
+
+    def build_obs_dict(self, env: GicgEnv) -> dict:
+        """Pack all 15 tensors needed by ActorCritic.forward.
+
+        Combines cached static fields (from game_start) with dynamic
+        fields parsed at this turn. Returns a dict ready for
+        DMCInferenceNet.forward(obs). Caller must call game_start first
+        and verify n_legal>0 before slicing the returned logits.
+        """
+        if self._hook_emb is None:
+            raise RuntimeError(
+                'DmcAgent.build_obs_dict called before game_start — call game_start(env.static_obs) at episode start.'
+            )
+        dyn_obs = env._get_obs()
+        refs_np = env.get_action_refs()
+        pay_np = env.get_legal_action_payments()
+
+        refs_padded = pad_action_refs(refs_np, self.cfg.max_actions)
+        pay_padded = pad_action_payments(pay_np, self.cfg.max_actions)
+
+        (
+            counter_values,
+            meta,
+            card_buckets,
+            enemy_sizes,
+            recent_damage,
+            prepare_skill,
+            modifier_log,
+        ) = self._parse_dynamic_single(dyn_obs)
+
+        refs_t = torch.tensor(refs_padded, dtype=torch.long, device=self.device).unsqueeze(0)
+        pay_t = torch.tensor(pay_padded, dtype=torch.float32, device=self.device).unsqueeze(0)
+        structural_values = compute_structural_values(counter_values, self._structural_obspos)
+
+        return {
+            'counter_values': counter_values,
+            'counter_sids': self._counter_sids,
+            'active_slot_mask': self._active_slot_mask,
+            'hook_emb': self._hook_emb,
+            'hook_mask': self._hook_mask,
+            'card_buckets': card_buckets,
+            'enemy_sizes': enemy_sizes,
+            'meta': meta,
+            'action_refs': refs_t,
+            'action_payments': pay_t,
+            'structural_values': structural_values,
+            'char_skill_refs': self._char_skill_refs,
+            'recent_damage': recent_damage,
+            'prepare_skill': prepare_skill,
+            'modifier_log': modifier_log,
+        }
+
+    def act_via_provider(self, env: GicgEnv, provider: Any) -> tuple[int, float]:
+        """Provider-backed act_with_logit; same ε-greedy contract.
+
+        Used by serial play_one_episode via DMCSerialCollector. Provider
+        wrapping DMCInferenceNet in-proc is equivalent to act_with_logit;
+        RemoteNetworkProvider routes forward to a GPU InferenceServer.
+        """
+        kinds, _ = env.get_legal_actions()
+        n_legal = int(len(kinds))
+        if n_legal == 0:
+            return 0, 0.0
+
+        obs_dict = self.build_obs_dict(env)
+        with torch.no_grad():
+            logits_full = provider.forward(obs_dict, mask=None)
+        legal_logits = logits_full[0, :n_legal].clone()
+
+        if self.epsilon > 0.0 and self.rng.random() < self.epsilon:
+            idx = self.rng.randrange(n_legal)
+        else:
+            idx = int(legal_logits.argmax().item())
+        return idx, float(legal_logits[idx].item())
 
     # --- Training interface ---------------------------------------- #
 

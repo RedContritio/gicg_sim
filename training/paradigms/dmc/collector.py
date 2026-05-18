@@ -1,20 +1,8 @@
-"""DMC collectors — serial + (FU-W3b-DMC) multi-process.
+"""DMC collectors — serial + multi-process (see per-class docstrings).
 
-Serial collector wraps the legacy `training.dmc._episode.play_one_episode`
-loop unchanged: GicgEnv + DmcAgent + OpponentPool, one episode per
-`collect(n_episodes=1, ...)` call. We preserve obs capture's reliance
-on DmcAgent's static cache (`game_start(env.static_obs)`) — the typed
-EpisodeRunner in `core.actor` doesn't yet model that state, so P3-B
-stays with the legacy episode driver in serial mode.
-
-FU-W3b-DMC: ``DMCMultiProcessCollector`` (alias ``DMCAsyncCollector``)
-wires real mp via :class:`training.core.actor.runtime.Runtime` — owns
-WeightsSHM + ActorProcess pool + SHMRing for transition handoff. Top-
-level builder dispatchers below resolve paradigm-supplied factories
-(picklable dotted paths) inside spawned children. End-to-end production
-use still requires DMC to migrate from `play_one_episode` (DmcAgent
-static obs cache) to the typed `EpisodePolicy`; this task contracts the
-API surface only — unit tests cover lifecycle with a mocked Runtime.
+Module-level builder dispatchers (``_dmc_build_*``) resolve paradigm-
+supplied factories (picklable dotted paths) inside spawned children;
+required by ``DMCMultiProcessCollector``'s actor bootstrap.
 """
 
 from __future__ import annotations
@@ -41,7 +29,15 @@ def derive_seed(master_seed: int, *labels: Any) -> int:
 
 
 class DMCSerialCollector:
-    """Single-process episode collector for DMC adapter."""
+    """Single-process DMC episode collector.
+
+    Inference routes through a lazily-built
+    LocalNetworkProvider(DMCInferenceNet(agent.net)). The pipeline-
+    supplied ``provider`` arg to ``collect`` is ignored — the driver's
+    generic provider does not match DMC's 15-tensor obs_dict contract.
+    Equivalent in-proc forward to the prior in-agent path; indirection
+    unblocks GPU collector inference + torch.compile.
+    """
 
     requires_network_in_collect = True
 
@@ -55,9 +51,22 @@ class DMCSerialCollector:
         self._master_seed = int(cfg.meta.seed)
         self._rng_side = random.Random(derive_seed(self._master_seed, 'side'))
         self._rng_action = random.Random(derive_seed(self._master_seed, 'explore-action'))
+        self._dmc_provider: Optional[Any] = None
+
+    def _ensure_dmc_provider(self) -> Any:
+        # Lazy-build LocalNetworkProvider(DMCInferenceNet(agent.net));
+        # same nn.Module so optimizer.step() updates are visible.
+        if self._dmc_provider is None:
+            from training.core.actor.network_provider import LocalNetworkProvider
+            from training.paradigms.dmc.inference_net import DMCInferenceNet
+
+            infer_net = DMCInferenceNet(self.agent.net).to(self.agent.device).eval()
+            self._dmc_provider = LocalNetworkProvider(infer_net, device=str(self.agent.device))
+        return self._dmc_provider
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
-        del provider  # serial mode: in-process forward
+        del provider  # ignored — see class docstring
+        dmc_provider = self._ensure_dmc_provider()
         episodes_for_buffer: list = []
         episode_stats: list = []
         n_trans_total = 0
@@ -76,6 +85,7 @@ class DMCSerialCollector:
                 agent_side=agent_side,
                 max_steps=self.pcfg.max_game_steps,
                 rng_action=self._rng_action,
+                provider=dmc_provider,
             )
 
             if transitions:
@@ -178,16 +188,9 @@ def _dmc_spec_sampler(cfg: Any, actor_id: int):
 
 
 class DMCMultiProcessCollector:
-    """DMC async collector — N actor processes + SHM ring + WeightsSHM.
-
-    Owns a :class:`Runtime` orchestrating ActorProcess pool + WeightsSHM
-    lifecycle. ``collect()`` drains the SHM ring; ``sync_weights()``
-    re-publishes; ``close()`` terminates.
-
-    End-to-end production use depends on the future DMC migration from
-    legacy `play_one_episode` (DmcAgent static obs cache) to typed
-    `EpisodePolicy`. This task contracts the API surface per W3a spec.
-    """
+    """DMC async collector — N actor procs + SHM ring + WeightsSHM.
+    ``collect`` drains the ring; ``sync_weights`` re-publishes; ``close``
+    terminates. Production use needs DmcAgent → typed-EpisodePolicy."""
 
     requires_network_in_collect = True
 
@@ -234,9 +237,9 @@ class DMCMultiProcessCollector:
         self._spawned = True
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
-        """Drain SHM ring → CollectorOutput. ``n_episodes`` interpreted
-        as max actor-pushed records to pull this iter; actors run
-        continuously between drains."""
+        """Drain SHM ring → CollectorOutput. ``n_episodes`` = max
+        actor-pushed records to pull this iter; actors run continuously
+        between drains."""
         del provider  # mp mode: actors own their own providers
         self._bootstrap()
         episodes_for_buffer: list = []

@@ -14,7 +14,7 @@ from the agent's perspective (γ=1, ±1 terminal).
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 import torch
@@ -100,11 +100,19 @@ def play_one_episode(
     agent_side: int,
     max_steps: int,
     rng_action: random.Random,
+    provider: Optional[Any] = None,
 ) -> tuple[list['DmcTransition'], float, int]:
     """Play one full episode; agent controls ``agent_side`` (0 or 1).
 
     Returns ``(transitions, G, n_steps)``: agent-side decisions, MC return
     in ±1, total env step count.
+
+    If ``provider`` is supplied, the agent's per-turn inference routes
+    through ``agent.act_via_provider(env, provider)`` — used by the
+    unified NetworkProvider abstraction (LocalNetworkProvider wrapping a
+    DMCInferenceNet, or RemoteNetworkProvider for cross-process / GPU
+    inference). When ``provider is None`` (default), falls back to the
+    in-proc ``agent.act_with_logit(env)`` path for backward compat.
     """
     # Late import to avoid cycle with buffer.py.
     from training.paradigms.dmc.buffer import DmcTransition
@@ -131,7 +139,10 @@ def play_one_episode(
             obs = capture_obs(env, agent)
             if not obs:
                 break
-            action_idx, _logit = agent.act_with_logit(env)
+            if provider is not None:
+                action_idx, _logit = agent.act_via_provider(env, provider)
+            else:
+                action_idx, _logit = agent.act_with_logit(env)
             transitions.append(DmcTransition(obs_dict=obs, action_idx=int(action_idx), G=0.0))
         else:
             action_idx = opponent.select_action(env)
