@@ -36,6 +36,27 @@ type Op struct {
 	Op3    int16
 }
 
+// WriteObsInts implements the engine.HookRepresentation contract: serialize
+// MainOps into the caller-provided obs slot (5 int32 per op, NOP-padded to
+// engine.ObsMaxOpsPerHook). Lambdas are written sequentially after MainOps
+// when there's room — IR-2.b will formalize layout when the encoder lands.
+func (h CompiledHook) WriteObsInts(out []int32) {
+	maxOps := len(out) / 5
+	n := min(len(h.MainOps), maxOps)
+	for i := range n {
+		op := h.MainOps[i]
+		out[i*5+0] = int32(op.Opcode)
+		out[i*5+1] = int32(op.Dst)
+		out[i*5+2] = int32(op.Op1)
+		out[i*5+3] = int32(op.Op2)
+		out[i*5+4] = int32(op.Op3)
+	}
+	// Remaining slots stay zero — OpNop-padded, which the encoder masks.
+}
+
+// IsEmpty: CompiledHook is "empty" when its MainOps slice is zero-length.
+func (h CompiledHook) IsEmpty() bool { return len(h.MainOps) == 0 }
+
 // Opcodes. Encoder (Python) treats Opcode as embedding index so values are frozen.
 const (
 	OpNop       int16 = 0

@@ -9,6 +9,21 @@ const (
 
 type HookFn func(g *Game, ctx *EventContext)
 
+// HookRepresentation is the observation-side encoding of a hook's body.
+// Implementations live outside the engine package (e.g. interp/ir.CompiledHook)
+// to keep the engine package free of compiler-stage dependencies. Engine's
+// observation layer reads through this interface only — assignment to
+// Hook.Repr happens at the DSL-load finalization layer (e.g. capi/).
+type HookRepresentation interface {
+	// WriteObsInts serializes this hook representation into the obs buffer
+	// slice. Caller-provided slot is exactly OBS_INTS_PER_HOOK ints. The
+	// implementation pads/truncates to fit.
+	WriteObsInts(out []int32)
+	// IsEmpty reports whether this hook has any meaningful ops. Used by
+	// the obs filter to skip empty hooks during indexing.
+	IsEmpty() bool
+}
+
 type Hook struct {
 	ID          int
 	Type        HookType
@@ -19,13 +34,27 @@ type Hook struct {
 	OwnerChar   int
 	Enabled     bool
 	Priority    int
-	Tokens      []TokenPair // DSL token sequence of the hook body
+	// Repr is the IR observation representation (set by the DSL-load
+	// finalization step). Nil during transition (legacy token path).
+	// Tokens kept in parallel until full obs-schema cutover (IR-2.b).
+	Repr   HookRepresentation
+	Tokens []TokenPair // DSL token sequence of the hook body (legacy)
 	// Source is a short tag identifying which DSL file registered this
 	// hook (e.g. "铁剑", "赤蝶_蝶火", "round"). Used by the visualizer to
 	// disambiguate the dozens of on_card_play / on_damage_boost hooks
 	// registered by different files. Empty if not tracked.
 	Source string
 }
+
+// ObsIntsPerHook is the fixed-size slot in the static observation buffer
+// for each hook's IR representation. Computed from
+// ObsMaxOpsPerHook × ObsFieldsPerOp. Python encoder must use the same
+// constant to slice the obs buffer.
+const (
+	ObsMaxOpsPerHook = 64
+	ObsFieldsPerOp   = 5
+	ObsIntsPerHook   = ObsMaxOpsPerHook * ObsFieldsPerOp
+)
 
 type writeKey struct {
 	CounterID int

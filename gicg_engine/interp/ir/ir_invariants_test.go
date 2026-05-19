@@ -165,6 +165,38 @@ func TestInvariant_AddrKindsExact(t *testing.T) {
 	}
 }
 
+// IR-2.a: CompiledHook satisfies engine.HookRepresentation interface
+// (Go structural — checked at compile time via type assignment).
+func TestInvariant_CompiledHookImplementsRepr(t *testing.T) {
+	var _ engine.HookRepresentation = CompiledHook{}
+}
+
+// IR-2.a: WriteObsInts serializes ops into 5 int32 per op, zero-pads remainder.
+func TestInvariant_WriteObsInts(t *testing.T) {
+	h := CompiledHook{
+		MainOps: []Op{
+			{Opcode: OpLoadImm, Dst: 0, Op1: 42},
+			{Opcode: OpReturn},
+		},
+	}
+	out := make([]int32, 25) // 5 op slots
+	h.WriteObsInts(out)
+	// Op 0: LoadImm 42 → r0.
+	if out[0] != int32(OpLoadImm) || out[1] != 0 || out[2] != 42 {
+		t.Errorf("op0 mismatch: got %v", out[:5])
+	}
+	// Op 1: Return.
+	if out[5] != int32(OpReturn) {
+		t.Errorf("op1 mismatch: got %v", out[5:10])
+	}
+	// Remainder zero-padded.
+	for i := 10; i < 25; i++ {
+		if out[i] != 0 {
+			t.Errorf("expected pad-zero at %d, got %d", i, out[i])
+		}
+	}
+}
+
 // C-011: BinOpKind {1..12} distinct; UnaryOpKind {1..2} distinct.
 // Both reside in Op1 of OpBinOp/OpUnaryOp respectively so no inter-set
 // collision constraint, but each set must be internally unique.
