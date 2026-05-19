@@ -53,3 +53,34 @@ func LookupBridge(name string) (int16, bool) {
 	id, ok := bridgeMap[name]
 	return int16(id), ok
 }
+
+// ReverseLookup inverts a name→id map; used by diagnostic / showcase tools
+// that decode IR ops back to source-level names. Returns ("", false) if
+// no name maps to id. Kind selects which map to scan.
+//
+// Kind values: "builtin" / "ctx_field" / "enum" / "method" / "kwarg" / "bridge".
+func ReverseLookup(kind string, id int16) (string, bool) {
+	var m map[string]int
+	switch kind {
+	case "builtin":
+		m = tokenMap
+	case "ctx_field":
+		m = ctxFieldMap
+	case "enum":
+		m = enumMap
+	case "method":
+		m = methodMap
+	case "kwarg":
+		m = kwArgMap
+	case "bridge":
+		m = bridgeMap
+	default:
+		return "", false
+	}
+	for name, candidate := range m {
+		if int16(candidate) == id {
+			return name, true
+		}
+	}
+	return "", false
+}
