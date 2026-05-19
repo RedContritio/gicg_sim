@@ -42,7 +42,6 @@ type Hook struct {
 	// engine package stays free of interp/ir dependencies. The
 	// finalization step casts it back.
 	BodyAny any
-	Tokens  []TokenPair // DSL token sequence of the hook body (legacy)
 	// Source is a short tag identifying which DSL file registered this
 	// hook (e.g. "铁剑", "赤蝶_蝶火", "round"). Used by the visualizer to
 	// disambiguate the dozens of on_card_play / on_damage_boost hooks
@@ -59,6 +58,36 @@ const (
 	ObsFieldsPerOp   = 5
 	ObsIntsPerHook   = ObsMaxOpsPerHook * ObsFieldsPerOp
 )
+
+// canonicalReprOpLoadImm mirrors ir.OpLoadImm = 1. Kept here so engine
+// can synthesize canonical hooks (procedurally registered, not from DSL)
+// without importing interp/ir. Invariant guarded by an ir-side test:
+// TestInvariant_CanonicalReprOpcodeMatch.
+const canonicalReprOpLoadImm int32 = 1
+
+// CanonicalHookRepr is a synthetic HookRepresentation for procedurally
+// registered hooks (canonical card_play / canonical skill_use, see
+// interp/builtins_card.go + builtins_skill.go). These hooks don't come
+// from DSL AST — they exist as pointer-net dispatch markers. The
+// representation is a single OpLoadImm carrying the Ref/Skill-ID marker
+// so the encoder can still identify the hook slot.
+type CanonicalHookRepr struct {
+	Marker int16
+}
+
+// WriteObsInts: emit a single OpLoadImm dst=0 imm=Marker. Remaining
+// slots stay zero-padded (OpNop), which the encoder masks.
+func (c CanonicalHookRepr) WriteObsInts(out []int32) {
+	if len(out) >= 3 {
+		out[0] = canonicalReprOpLoadImm
+		out[1] = 0
+		out[2] = int32(c.Marker)
+	}
+}
+
+// IsEmpty: canonical hooks always count as present (they're the
+// pointer-net dispatch targets). Never empty.
+func (CanonicalHookRepr) IsEmpty() bool { return false }
 
 type writeKey struct {
 	CounterID int

@@ -30,9 +30,6 @@ type Runtime struct {
 	// Deferred functions
 	DeferredFns []*Closure
 
-	// Hook token sequences for observation layer
-	PendingTokens [][]engine.TokenPair
-
 	// LoadedFiles accumulates the file paths fed through ExecFileSandboxed
 	// (in load order). Used by the IR-2.b finalization step to walk the
 	// cached AST chunks and extract per-file closure bindings.
@@ -170,7 +167,6 @@ func (rt *Runtime) ResetDynamicWithSeeds(diceSeed int64, deckSeeds [2]int64) {
 	rt.CurrentCardTargetPlayer = 0
 	rt.CurrentCardTargetChar = 0
 	rt.DeferredFns = nil
-	rt.PendingTokens = nil
 	rt.lastError = nil
 
 	for pi := 0; pi < 2; pi++ {

@@ -58,13 +58,16 @@ func obsCounterSlots() int {
 	return 2*ObsMaxChars*ObsCharSlots + 2*ObsPlayerSlots + ObsGlobalSlots
 }
 
-// StaticObsSize: counter metadata + char-skill refs + hook tokens +
+// StaticObsSize: counter metadata + char-skill refs + hook IR ops +
 // char element IDs (computed once per episode).
+// IR-2.b.2 cutover: hook segment changed from token-pair encoding
+// (ObsMaxTokensPerHook × 2) to IR-op encoding (ObsIntsPerHook =
+// ObsMaxOpsPerHook × ObsFieldsPerOp).
 func StaticObsSize() int {
 	counterMeta := obsCounterSlots() * 3 // (min, max, sid) per slot
 	charSkillRefs := 2 * ObsMaxChars * ObsMaxSkillsPerChar
-	hookTokens := ObsMaxHooks * ObsMaxTokensPerHook * 2
-	return counterMeta + charSkillRefs + hookTokens + ObsCharElementSlots
+	hookOps := ObsMaxHooks * ObsIntsPerHook
+	return counterMeta + charSkillRefs + hookOps + ObsCharElementSlots
 }
 
 // DynamicObsSize: counter values + hand cards + meta + recent damage +
@@ -174,7 +177,10 @@ func (g *Game) BuildStaticObs() []int32 {
 		}
 	}
 
-	// Hook tokens
+	// Hook IR ops (IR-2.b.2 cutover — replaced token-pair segment).
+	// Each slot is ObsIntsPerHook int32 = ObsMaxOpsPerHook × ObsFieldsPerOp.
+	// Empty / nil Repr leaves the slot zero (which the encoder masks via
+	// OpNop).
 	allHooks := g.Hooks.AllHooks()
 	for hi := 0; hi < ObsMaxHooks; hi++ {
 		src := hi
@@ -182,19 +188,12 @@ func (g *Game) BuildStaticObs() []int32 {
 			src = g.HookPerm[hi]
 		}
 		if src < len(allHooks) {
-			hook := allHooks[src]
-			if hook.Tokens != nil {
-				nTok := len(hook.Tokens)
-				if nTok > ObsMaxTokensPerHook {
-					nTok = ObsMaxTokensPerHook
-				}
-				for ti := 0; ti < nTok; ti++ {
-					obs[offset+ti*2] = int32(hook.Tokens[ti].Type)
-					obs[offset+ti*2+1] = int32(hook.Tokens[ti].Value)
-				}
+			h := allHooks[src]
+			if h.Repr != nil && !h.Repr.IsEmpty() {
+				h.Repr.WriteObsInts(obs[offset : offset+ObsIntsPerHook])
 			}
 		}
-		offset += ObsMaxTokensPerHook * 2
+		offset += ObsIntsPerHook
 	}
 
 	// Char element IDs: per (player, char slot) the Element enum value

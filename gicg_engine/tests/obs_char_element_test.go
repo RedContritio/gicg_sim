@@ -11,7 +11,7 @@ import (
 //
 //	[CounterMeta : obsCounterSlots() * 3]
 //	[CharSkillRefs : 2 * ObsMaxChars * ObsMaxSkillsPerChar]
-//	[HookTokens : ObsMaxHooks * ObsMaxTokensPerHook * 2]
+//	[HookIROps  : ObsMaxHooks * ObsIntsPerHook]   (IR-2.b.2 cutover)
 //	[CharElementIDs : 2 * ObsMaxChars]   ← this block
 //
 // Each int32 at offset (charElemStart + pi*ObsMaxChars + ci) holds the
@@ -21,8 +21,8 @@ func charElementRegion(g *engine.Game) [2][engine.ObsMaxChars]int32 {
 	counterMetaSize := (2*engine.ObsMaxChars*engine.ObsCharSlots +
 		2*engine.ObsPlayerSlots + engine.ObsGlobalSlots) * 3
 	skillRefsSize := 2 * engine.ObsMaxChars * engine.ObsMaxSkillsPerChar
-	hookTokensSize := engine.ObsMaxHooks * engine.ObsMaxTokensPerHook * 2
-	offset := counterMetaSize + skillRefsSize + hookTokensSize
+	hookIRSize := engine.ObsMaxHooks * engine.ObsIntsPerHook
+	offset := counterMetaSize + skillRefsSize + hookIRSize
 	var out [2][engine.ObsMaxChars]int32
 	for pi := 0; pi < 2; pi++ {
 		for ci := 0; ci < engine.ObsMaxChars; ci++ {
@@ -93,10 +93,10 @@ func TestCharElement_ObsSizeIncludesBlock(t *testing.T) {
 	counterMeta := (2*engine.ObsMaxChars*engine.ObsCharSlots +
 		2*engine.ObsPlayerSlots + engine.ObsGlobalSlots) * 3
 	skillRefs := 2 * engine.ObsMaxChars * engine.ObsMaxSkillsPerChar
-	hookTokens := engine.ObsMaxHooks * engine.ObsMaxTokensPerHook * 2
-	expected := counterMeta + skillRefs + hookTokens + engine.ObsCharElementSlots
+	hookIR := engine.ObsMaxHooks * engine.ObsIntsPerHook
+	expected := counterMeta + skillRefs + hookIR + engine.ObsCharElementSlots
 	if engine.StaticObsSize() != expected {
-		t.Errorf("StaticObsSize(): want %d (meta+skill+hooks+12), got %d",
+		t.Errorf("StaticObsSize(): want %d (meta+skill+hookIR+12), got %d",
 			expected, engine.StaticObsSize())
 	}
 }

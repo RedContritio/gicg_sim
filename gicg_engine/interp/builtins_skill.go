@@ -217,20 +217,14 @@ func (rt *Runtime) registerSkillHooks(skillID int, cost engine.Cost, charEntry *
 	// This engine-native hook also serves as the *canonical* on_skill_use
 	// hook for this (slot, skill) pair — the pointer-net policy head uses
 	// its index in the active hook list to fetch a semantic embedding
-	// for the action. Synthetic Tokens are attached so the hook encoder
-	// sees it as non-empty (skillID as value makes the embedding unique
-	// per skill).
-	canonicalTokens := []engine.TokenPair{
-		{Type: int16(engine.TokOnSkillUse), Value: int16(skillID)},
-		{Type: int16(engine.TokDealDamage), Value: int16(cost.TotalDice())},
-		{Type: int16(engine.TokGainEnergy), Value: int16(energyCost)},
-	}
+	// for the action. IR-2.b.2: CanonicalHookRepr carries skillID as
+	// the marker so the encoder slot stays distinct per skill.
 	hookID := rt.registerHook(engine.Hook{
 		Type:        engine.HookSkillUse,
 		Priority:    1000, // high priority, runs before DSL hooks
 		OwnerPlayer: slotPlayer,
 		OwnerChar:   slotChar,
-		Tokens:      canonicalTokens,
+		Repr:        engine.CanonicalHookRepr{Marker: int16(skillID)},
 		Fn: func(g *engine.Game, ctx *engine.EventContext) {
 			if ctx.ActorPlayer != slotPlayer || ctx.ActorChar != slotChar {
 				return

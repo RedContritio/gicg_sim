@@ -202,12 +202,6 @@ func (rt *Runtime) ExecFileSandboxed(path string) error {
 	}
 	rt.LoadedFiles = append(rt.LoadedFiles, path)
 
-	// Hook bodies are consumed by registerHook calls during chunk
-	// execution. The backing slice belongs to the cache entry and
-	// is never mutated — assignment advances rt.PendingTokens by
-	// reslicing only, so concurrent runtimes can all share it.
-	rt.PendingTokens = pf.bodies
-
 	// Track which file is being executed so registerHook can stamp the
 	// resulting Hook entries with their source + per-file index. Reset
 	// the per-file hook counter so each file load starts at #0.
@@ -224,17 +218,12 @@ func (rt *Runtime) ExecFileSandboxed(path string) error {
 	env := NewEnv(rt.Interp.Global)
 	err = rt.Interp.ExecChunk(rt, pf.chunk, env)
 
-	rt.PendingTokens = nil
 	rt.CurrentSourceFile = prevSource
 	rt.CurrentSourceHookIdx = prevIdx
 	rt.CurrentFileTalentOwner = prevTalent
 	rt.CurrentFileCharOwner = prevCharOwner
 	return err
 }
-
-// PendingTokens for hook token emission (observation layer).
-// Set before file execution, consumed by hook registration.
-var _ = 0 // placeholder — PendingTokens is stored on Runtime
 
 // Dependency resolution (sortedFile + topoSortWithMeta) lives in
 // loader_topo.go.

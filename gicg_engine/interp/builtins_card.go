@@ -245,14 +245,10 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 
 	// card_play: canonical hook for the pointer-net (see registerSkillHooks).
 	// No side effects — dice are paid by engine's PayDice before this fires.
-	canonicalTokens := []engine.TokenPair{
-		{Type: int16(engine.TokOnCardPlay), Value: int16(entry.Ref)},
-		{Type: int16(engine.TokDealDamage), Value: int16(entry.Cost.TotalDice())},
-	}
 	hookID := rt.registerHook(engine.Hook{
 		Type:     engine.HookCardPlay,
 		Priority: 1000,
-		Tokens:   canonicalTokens,
+		Repr:     engine.CanonicalHookRepr{Marker: int16(entry.Ref)},
 		Fn: func(g *engine.Game, ctx *engine.EventContext) {
 			// intentionally empty: canonical hook exists for policy head
 			// embedding lookup, not for gameplay side effects

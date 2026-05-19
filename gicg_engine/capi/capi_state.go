@@ -326,6 +326,27 @@ func GameGetTypedObsConstants(out *C.int) {
 	arr[7] = 2 // OBS_ENEMY_SIZES — enemy hand/deck size scalars
 }
 
+// GameGetIRLayoutConstants exports the IR-2.b.2 hook obs layout
+// constants (replaces the legacy ObsMaxTokensPerHook × 2 token-pair
+// segment). Python uses these to slice the hook section of static obs
+// into (n_hooks, max_ops, fields) for the IR encoder.
+//
+// Output array layout (4 * sizeof(int)):
+//
+//	[0] OBS_MAX_HOOKS               — hook slot count
+//	[1] OBS_MAX_OPS_PER_HOOK        — max IR ops per hook
+//	[2] OBS_FIELDS_PER_OP           — int32 fields per op (= 5)
+//	[3] OBS_INTS_PER_HOOK           — slot size = OPS × FIELDS
+//
+//export GameGetIRLayoutConstants
+func GameGetIRLayoutConstants(out *C.int) {
+	arr := unsafe.Slice((*C.int)(unsafe.Pointer(out)), 4)
+	arr[0] = C.int(engine.ObsMaxHooks)
+	arr[1] = C.int(engine.ObsMaxOpsPerHook)
+	arr[2] = C.int(engine.ObsFieldsPerOp)
+	arr[3] = C.int(engine.ObsIntsPerHook)
+}
+
 //export GameGetStaticObs
 func GameGetStaticObs(id C.int, out *C.int) {
 	h := getHandle(int(id))

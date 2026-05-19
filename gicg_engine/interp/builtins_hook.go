@@ -187,19 +187,12 @@ func (rt *Runtime) registerHookFunctions() {
 				return nil, fmt.Errorf("%s: expected function argument", name)
 			}
 			hookFn := rt.makeHookFn(fn, nil)
-			// Consume pending tokens for observation layer
-			var tokens []engine.TokenPair
-			if len(rt.PendingTokens) > 0 {
-				tokens = rt.PendingTokens[0]
-				rt.PendingTokens = rt.PendingTokens[1:]
-			}
 			id := rt.registerHook(engine.Hook{
 				Type:        ht,
 				Fn:          hookFn,
 				OwnerPlayer: rt.CurrentOwnerPlayer,
 				OwnerChar:   rt.CurrentOwnerChar,
 				Priority:    priority,
-				Tokens:      tokens,
 				BodyAny:     fn.Body, // *Chunk; engine treats as opaque
 			})
 			return id, nil

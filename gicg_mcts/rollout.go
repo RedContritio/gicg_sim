@@ -69,7 +69,6 @@ func startRollout2(
 	rt.CurrentOwnerChar = -1
 	rt.CurrentContextPlayer = int(game.Turn)
 	rt.DeferredFns = nil
-	rt.PendingTokens = nil
 	addNS(prof, prof_restoreNS, t0)
 	if prof != nil {
 		prof.NRestore.Add(1)

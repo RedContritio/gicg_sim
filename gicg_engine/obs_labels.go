@@ -91,7 +91,7 @@ func (g *Game) BuildRawToActiveHookIdx() map[int]int {
 			continue
 		}
 		hook := allHooks[src]
-		if len(hook.Tokens) == 0 {
+		if hook.Repr == nil || hook.Repr.IsEmpty() {
 			continue
 		}
 		m[hook.ID] = active
@@ -121,7 +121,7 @@ func (g *Game) ActiveHookLabels() []string {
 			continue
 		}
 		hook := allHooks[src]
-		if len(hook.Tokens) == 0 {
+		if hook.Repr == nil || hook.Repr.IsEmpty() {
 			continue
 		}
 		labels = append(labels, describeHook(g, hook))
