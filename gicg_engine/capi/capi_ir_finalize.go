@@ -9,6 +9,8 @@ package main
 // where importing both is allowed.
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -42,6 +44,7 @@ func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
 		fileBindings[base] = extractTopLevelBindings(chunk, &nextID)
 	}
 
+	diag := os.Getenv("IR_DIAG") != ""
 	for _, h := range g.Hooks.AllHooks() {
 		body, ok := h.BodyAny.(*interp.Chunk)
 		if !ok || body == nil {
@@ -51,6 +54,9 @@ func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
 		compiled, err := ir.CompileHookIR(body, bindings)
 		if err != nil {
 			failN++
+			if diag {
+				fmt.Fprintf(os.Stderr, "[IR-DIAG-FAIL] source=%q nbindings=%d err=%v\n", h.Source, len(bindings), err)
+			}
 			continue
 		}
 		h.Repr = compiled

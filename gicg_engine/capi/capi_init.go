@@ -267,8 +267,24 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 	}
 
 	// IR-2.b: compile each hook body AST → ir.CompiledHook and attach
-	// to Hook.Repr. Failures are non-fatal (legacy Tokens path stays).
-	finalizeHookIRs(g, rt)
+	// to Hook.Repr. Post-IR-cutover (IR-2.b.2), obs hook section is
+	// IR-encoded — Repr-nil hooks contribute all-zero, which the encoder
+	// masks. That silent fall-back hid a 0% compile success rate before
+	// G1 landed; threshold below fail-loud on any future schema drift.
+	okN, failN := finalizeHookIRs(g, rt)
+	if os.Getenv("IR_DIAG") != "" {
+		fmt.Fprintf(os.Stderr, "[IR-DIAG] finalizeHookIRs: ok=%d fail=%d total=%d\n", okN, failN, okN+failN)
+	}
+	total := okN + failN
+	if total > 0 {
+		failRate := float64(failN) / float64(total)
+		if failRate > 0.02 {
+			return nil, fmt.Errorf(
+				"IR finalize failure rate %.1f%% (ok=%d fail=%d) exceeds 2%% — schema mismatch or builtin coverage gap (set IR_DIAG=1 for per-failure detail)",
+				failRate*100, okN, failN,
+			)
+		}
+	}
 
 	// Enable event log for replay inspection
 	g.Log = engine.NewEventLog()
