@@ -21,13 +21,12 @@ from training.tests._typed_obs_fixtures import (  # noqa: E402
 )
 
 
-def _fake_static(n_slots=128, n_hooks=8, d_model=16, max_tokens=12):
+def _fake_static(n_slots=128, n_hooks=8, d_model=16, max_ops=12, fields_per_op=5):
     # d_model kept as parameter for API compat but no longer stored in
-    # static — tokens are stored, hook_emb is re-encoded in forward_batch.
+    # static — IR ops are stored, hook_emb is re-encoded in forward_batch.
     del d_model
     return {
-        'hook_types': np.random.randint(1, 100, (n_hooks, max_tokens), dtype=np.int64),
-        'hook_values': np.zeros((n_hooks, max_tokens), dtype=np.float32),
+        'hook_ir': np.random.randint(1, 14, (n_hooks, max_ops, fields_per_op), dtype=np.int64),
         'hook_mask': np.ones(n_hooks, dtype=bool),
         'counter_sids': np.arange(n_slots, dtype=np.int64),
         'active_slot_mask': np.ones(n_slots, dtype=bool),
@@ -92,8 +91,7 @@ class TestBufferAddSample:
         rng = random.Random(42)
         batch = rb.sample(batch_size=3, rng=rng)
         assert batch['counter_values'].shape == (3, 128)
-        assert batch['hook_types'].shape == (3, 8, 12)
-        assert batch['hook_values'].shape == (3, 8, 12)
+        assert batch['hook_ir'].shape == (3, 8, 12, 5)
         assert batch['hook_mask'].shape == (3, 8)
         assert batch['counter_sids'].shape == (3, 128)
         assert batch['card_buckets'].shape == (3, 4, 80)

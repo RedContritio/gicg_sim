@@ -1,0 +1,28 @@
+# Micro pilot — serial mode + 1k frames + d128 GPU train.
+# Smallest viable Stage 3 pipeline validation (~1 min wall).
+
+[meta]
+extends = "smoke.toml"
+paradigm = "dmc"
+run_label = "dmc_stage3_micro"
+device = "cuda"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[paradigm.dmc]
+total_frames = 1000
+batch_size = 32
+buffer_cap = 1000
+lr = 5e-5
+max_grad_norm = 1.0
+
+[paradigm.dmc.agent]
+d_model = 128
+n_cross_layers = 2
+
+[checkpoint]
+save_every = 500
+keep_last_n = 2
+artifacts_root = "artifacts"

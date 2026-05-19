@@ -190,11 +190,11 @@ class CFRReservoirBase(StaticDedupBufferBase):
 
         self._game_static = {}
         for key in data.files:
-            if key.startswith('game_') and key.endswith('_hook_types'):
+            # IR-4: hook_ir replaces hook_types/hook_values (single int64 tensor).
+            if key.startswith('game_') and key.endswith('_hook_ir'):
                 gid = int(key.split('_')[1])
                 self._game_static[gid] = _GameStatic(
-                    hook_types=data[f'game_{gid}_hook_types'],
-                    hook_values=data[f'game_{gid}_hook_values'],
+                    hook_ir=data[f'game_{gid}_hook_ir'],
                     hook_mask=data[f'game_{gid}_hook_mask'].astype(bool),
                     counter_sids=data[f'game_{gid}_counter_sids'],
                     active_slot_mask=data[f'game_{gid}_active_slot_mask'].astype(bool),

@@ -102,5 +102,5 @@ def test_paradigm_config_agent_shared_base_shape():
         cfg = cls()
         assert cfg.agent.n_counter_slots == 2 * 6 * 128 + 2 * 140 + 16
         assert cfg.agent.n_hooks == 900
-        assert cfg.agent.max_ops_per_hook == 120
+        assert cfg.agent.max_ops_per_hook == 64
         assert cfg.agent.max_actions == 2048

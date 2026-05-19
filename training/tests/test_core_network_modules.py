@@ -34,12 +34,11 @@ D = 32
 
 
 def test_hook_encoder_shape():
-    enc = HookEncoder(token_dim=D, max_tokens=10)
+    enc = HookEncoder(token_dim=D, max_ops=10)
     B, N, T = 2, 3, 10
-    types = torch.randint(0, 100, (B, N, T))
-    values = torch.randn(B, N, T)
+    hook_ir = torch.randint(1, 14, (B, N, T, 5))
     mask = torch.ones(B, N, dtype=torch.bool)
-    out = enc(types, values, mask)
+    out = enc(hook_ir, mask)
     assert out.shape == (B, N, D)
 
 

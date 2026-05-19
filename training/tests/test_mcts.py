@@ -43,7 +43,7 @@ OBS_PLAYER_SLOTS = 140
 OBS_GLOBAL_SLOTS = 16
 N_COUNTER_SLOTS = 2 * OBS_MAX_CHARS * OBS_CHAR_SLOTS + 2 * OBS_PLAYER_SLOTS + OBS_GLOBAL_SLOTS
 N_HOOKS = 900
-MAX_TOKENS = 120
+MAX_TOKENS = 64
 # 256 covers the widest legal list observed under a 1v1 mirror with
 # full dice-payment fan-out (empirically ~154). 3v3 may need more;
 # tune in task #148 when the production config lands.

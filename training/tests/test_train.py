@@ -56,8 +56,7 @@ def _agent(seed: int = 0) -> Agent:
 
 def _game_static(rng: np.random.RandomState):
     return {
-        'hook_types': rng.randint(1, 100, (N_HOOKS, MAX_TOK)).astype(np.int64),
-        'hook_values': np.zeros((N_HOOKS, MAX_TOK), dtype=np.float32),
+        'hook_ir': rng.randint(1, 14, (N_HOOKS, MAX_TOK, 5)).astype(np.int64),
         'hook_mask': np.ones(N_HOOKS, dtype=bool),
         'counter_sids': np.arange(N_SLOTS, dtype=np.int64),
         'active_slot_mask': np.ones(N_SLOTS, dtype=bool),

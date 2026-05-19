@@ -4,7 +4,7 @@
 #
 # Post `ppo-structural-backbone-migration` (#4): PPO uses generic
 # ActorCritic with structural fields (n_counter_slots / n_hooks /
-# max_tokens_per_hook / max_actions + d_model / n_cross_layers /
+# max_ops_per_hook / max_actions + d_model / n_cross_layers /
 # dropout) aligned with 4 paradigm shape schema. PPO config dataclass
 # remains PPOAgentShapeCfg (not yet ObsShape; future migration), but
 # toml structure uses hybrid layout per CC-309.
@@ -37,7 +37,7 @@ data_dir = "data"
 [shape]
 n_counter_slots = 1832
 n_hooks = 900
-max_tokens_per_hook = 120
+max_ops_per_hook = 64
 max_actions = 2048
 d_model = 128
 n_cross_layers = 2

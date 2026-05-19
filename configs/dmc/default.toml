@@ -37,7 +37,7 @@ data_dir = "data"
 [shape]
 n_counter_slots = 1832
 n_hooks = 900
-max_tokens_per_hook = 120
+max_ops_per_hook = 64
 max_actions = 2048
 d_model = 32
 n_cross_layers = 1

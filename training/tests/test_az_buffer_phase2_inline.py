@@ -33,10 +33,9 @@ from training.tests._typed_obs_fixtures import (
 )
 
 
-def _fake_static(n_slots=64, n_hooks=4, max_tokens=8):
+def _fake_static(n_slots=64, n_hooks=4, max_ops=8, fields_per_op=5):
     return {
-        'hook_types': np.random.randint(1, 100, (n_hooks, max_tokens), dtype=np.int64),
-        'hook_values': np.zeros((n_hooks, max_tokens), dtype=np.float32),
+        'hook_ir': np.random.randint(1, 14, (n_hooks, max_ops, fields_per_op), dtype=np.int64),
         'hook_mask': np.ones(n_hooks, dtype=bool),
         'counter_sids': np.arange(n_slots, dtype=np.int64),
         'active_slot_mask': np.ones(n_slots, dtype=bool),
@@ -129,7 +128,7 @@ class TestRoundtripSmoke:
         assert batch['z_target'].shape == (3,)
         assert (batch['z_target'] == 1.0).all()
         # Static deduped — all sampled rows share game 0's static.
-        assert batch['hook_types'].shape == (3, 4, 8)
+        assert batch['hook_ir'].shape == (3, 4, 8, 5)
 
     def test_capacity_bound_raises_on_zero(self):
         with pytest.raises(ValueError, match='capacity'):

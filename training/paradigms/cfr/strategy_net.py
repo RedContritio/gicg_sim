@@ -40,6 +40,7 @@ class CFRNetConfig:
     n_hooks: int
     max_ops_per_hook: int
     max_actions: int
+    fields_per_op: int = 5
     d_model: int = 64
     dropout: float = 0.0
     n_cross_layers: int = 2

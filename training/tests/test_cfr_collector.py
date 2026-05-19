@@ -33,9 +33,12 @@ N_STRUCTURAL = 4
 
 
 def _game_static(k: int = 0) -> dict:
+    # IR-4: hook_ir replaces hook_types/hook_values; per-op opcode is the
+    # first field (non-zero marks an active op). Use k+1 to keep "k=0"
+    # samples distinguishable while still being a valid non-NOP opcode.
+    op_value = max(1, k + 1)
     return {
-        'hook_types': np.full((MAX_HOOKS, MAX_TOKENS), k, dtype=np.int64),
-        'hook_values': np.full((MAX_HOOKS, MAX_TOKENS), float(k), dtype=np.float32),
+        'hook_ir': np.full((MAX_HOOKS, MAX_TOKENS, 5), op_value, dtype=np.int64),
         'hook_mask': np.array([True, True, False]),
         'counter_sids': np.arange(N_SLOTS, dtype=np.int64),
         'active_slot_mask': np.ones(N_SLOTS, dtype=bool),
@@ -83,8 +86,8 @@ class TestCollectorBuffer:
     def test_missing_static_key_raises(self):
         c = CollectorBuffer()
         bad = _game_static()
-        del bad['hook_types']
-        with pytest.raises(KeyError, match='hook_types'):
+        del bad['hook_ir']
+        with pytest.raises(KeyError, match='hook_ir'):
             c.register_game(bad)
 
     def test_unknown_game_id_raises(self):
@@ -111,8 +114,8 @@ class TestCollectorBuffer:
         assert len(batches) == 3
         for i, (static, samples) in enumerate(batches):
             assert len(samples) == 1
-            # hook_types entries were filled with k=i in _game_static
-            assert int(static['hook_types'][0, 0]) == i
+            # hook_ir entries were filled with k+1 (op_value) in _game_static
+            assert int(static['hook_ir'][0, 0, 0]) == i + 1
             # target was _regret(i) filled with i
             assert float(samples[0][1][0]) == float(i)
 
@@ -212,8 +215,8 @@ class TestPickleRoundTrip:
         restored = pickle.loads(pickle.dumps(batch))
         assert restored.n_samples() == batch.n_samples()
         np.testing.assert_array_equal(
-            restored.static['hook_types'],
-            batch.static['hook_types'],
+            restored.static['hook_ir'],
+            batch.static['hook_ir'],
         )
         np.testing.assert_array_equal(
             restored.advantage_samples_per_player[0][0][1],

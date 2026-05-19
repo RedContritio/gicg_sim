@@ -30,11 +30,12 @@ def _make_cfg() -> AgentConfig:
 
 def _make_hook_encoder(d_model: int = 16) -> HookEncoder:
     return HookEncoder(
-        vocab_size=256,
+        opcode_vocab=16,
+        operand_vocab=2048,
         token_dim=d_model,
         n_heads=4,
         n_layers=1,
-        max_tokens=4,
+        max_ops=4,
     )
 
 
@@ -62,7 +63,7 @@ def test_no_self_net_required_at_init():
     from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
 
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
     static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
     # mark one slot active by setting min/max non-zero
     static[0] = 1.0  # slot 0 min
@@ -89,14 +90,13 @@ def test_game_start_returns_cache_dict():
     from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
 
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
     static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
     static[0] = 1.0
     static[1] = 10.0
     cache = agent.game_start(static)
     assert set(cache.keys()) == {
-        'hook_types',
-        'hook_values',
+        'hook_ir',
         'hook_mask',
         'counter_sids',
         'active_slot_mask',
@@ -117,9 +117,9 @@ def test_mock_hook_encoder_injection():
     cfg = _make_cfg()
 
     class IdentityHookEncoder(nn.Module):
-        def forward(self, types, values, mask):
+        def forward(self, hook_ir, mask):
             # Return (B, N, d_model) with random init for shape only
-            B, N = types.shape[0], types.shape[1]
+            B, N = hook_ir.shape[0], hook_ir.shape[1]
             return torch.zeros(B, N, cfg.d_model)
 
     he = IdentityHookEncoder()
@@ -128,7 +128,7 @@ def test_mock_hook_encoder_injection():
     from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
 
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
     static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
     # active hook token to force forward path
     static[meta_size + OBS_CHAR_SKILL_REFS_SIZE] = 5.0  # hook[0][0] type=5

@@ -1,0 +1,41 @@
+# DMC Stage 3 pilot — Windows GPU box, 16-actor mp GPU collector + GPU train.
+#
+# Extends smoke.toml shape, scales total_frames to 5M for pilot (~6-10h
+# wall at MP-5 16-actor batched throughput ~400 fps system on Win
+# 9950X3D + 5070 Ti per gpu_async_win_16.toml benchmark).
+#
+# d_model=128 production shape (vs smoke's 32) — Stage 3 spec per
+# archived dmc_stage3.toml.
+#
+# Eval cadence + ckpt interval tuned for pilot validation (catch NaN
+# early; eval every ~30 min wall to monitor learning signal).
+
+[meta]
+extends = "smoke.toml"
+paradigm = "dmc"
+run_label = "dmc_stage3_pilot"
+device = "cuda"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[paradigm.dmc]
+total_frames = 100_000
+batch_size = 32
+buffer_cap = 100_000
+lr = 5e-5
+max_grad_norm = 1.0
+
+[paradigm.dmc.agent]
+d_model = 128
+n_cross_layers = 2
+
+[checkpoint]
+save_every = 5_000          # ~30-60 min at 392 fps
+keep_last_n = 5
+artifacts_root = "artifacts"
+
+[eval]
+n_workers = 1
+schedule = "every_1000_steps"

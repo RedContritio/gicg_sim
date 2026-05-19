@@ -28,7 +28,7 @@ def _make_cfg() -> AgentConfig:
 
 
 def _make_agent(cfg: AgentConfig) -> AgentBase:
-    he = HookEncoder(token_dim=cfg.d_model, max_tokens=cfg.max_ops_per_hook, n_heads=4, n_layers=1)
+    he = HookEncoder(token_dim=cfg.d_model, max_ops=cfg.max_ops_per_hook, n_heads=4, n_layers=1)
 
     class _MockNet(nn.Module):
         def __init__(self):

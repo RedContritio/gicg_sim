@@ -1,0 +1,18 @@
+# DMC d_model=128 benchmark cfg — production-scale shape for V-Cache stress.
+#
+# Mirrors archived dmc_stage3.toml agent shape (d_model=128, n_cross_layers=2)
+# but extends the post-2026-05-17 smoke template (paradigm-scoped sections).
+# Purpose: benchmark-only — Windows X3D V-Cache benefit only visible when
+# working set exceeds L1; smoke d_model=32 fits L1 easily so V-Cache irrelevant.
+#
+# Use with tools.dmc.profile_actor / profile_train. NOT for actual training
+# (eval/ckpt cadence inherited from smoke is wrong for production).
+
+[meta]
+extends = "smoke.toml"
+paradigm = "dmc"
+run_label = "dmc_d128_benchmark"
+
+[paradigm.dmc.agent]
+d_model = 128
+n_cross_layers = 2

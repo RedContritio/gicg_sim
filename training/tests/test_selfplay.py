@@ -109,11 +109,11 @@ class TestPlaySelfGame:
                 n_counter_slots=N_COUNTER_SLOTS,
                 max_actions=MAX_ACTIONS,
             )
-            for key in ('hook_types', 'hook_values', 'hook_mask', 'counter_sids'):
+            for key in ('hook_ir', 'hook_mask', 'counter_sids'):
                 assert key in result.game_static
-            # (n_active_hooks, max_tokens)
-            assert result.game_static['hook_types'].ndim == 2
-            assert result.game_static['hook_values'].shape == result.game_static['hook_types'].shape
+            # IR-4: (n_active_hooks, max_ops, fields_per_op)
+            assert result.game_static['hook_ir'].ndim == 3
+            assert result.game_static['hook_ir'].shape[2] == 5
             assert result.game_static['hook_mask'].ndim == 1
             assert result.game_static['counter_sids'].ndim == 1
         finally:
@@ -243,8 +243,7 @@ class TestFeedsBuffer:
         for k in (
             'counter_values',
             'counter_sids',
-            'hook_types',
-            'hook_values',
+            'hook_ir',
             'hook_mask',
             'card_buckets',
             'enemy_sizes',

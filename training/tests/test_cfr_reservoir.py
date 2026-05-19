@@ -29,9 +29,11 @@ N_STRUCTURAL = 4
 
 
 def _game_static(k: int = 0) -> dict:
+    # IR-4: opcode must be non-zero to count as a real op; k+1 keeps k=0
+    # distinguishable from NOP padding.
+    op_value = max(1, k + 1)
     return {
-        'hook_types': np.full((MAX_HOOKS, MAX_TOKENS), k, dtype=np.int64),
-        'hook_values': np.full((MAX_HOOKS, MAX_TOKENS), float(k), dtype=np.float32),
+        'hook_ir': np.full((MAX_HOOKS, MAX_TOKENS, 5), op_value, dtype=np.int64),
         'hook_mask': np.array([True, True, False]),
         'counter_sids': np.arange(N_SLOTS, dtype=np.int64),
         'active_slot_mask': np.ones(N_SLOTS, dtype=bool),

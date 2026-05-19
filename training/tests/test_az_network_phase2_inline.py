@@ -55,16 +55,16 @@ def _synthetic_static_obs(cfg: AgentConfig) -> np.ndarray:
     (counter meta + char_skill_refs + hook tokens)."""
     meta_size = cfg.n_counter_slots * 3
     refs_size = OBS_CHAR_SKILL_REFS_SIZE
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
     obs = np.zeros(meta_size + refs_size + hook_size, dtype=np.float32)
     for i in range(cfg.n_counter_slots):
         obs[i * 3 + 2] = float(i)  # distinct SIDs
     obs[meta_size : meta_size + refs_size] = -1.0
     hook_start = meta_size + refs_size
-    stride = cfg.max_ops_per_hook * 2
+    stride = cfg.max_ops_per_hook * cfg.fields_per_op
     for h in range(cfg.n_hooks):
-        obs[hook_start + h * stride + 0] = 1.0  # type
-        obs[hook_start + h * stride + 1] = 0.5  # value
+        # First field of first op = opcode (non-zero marks hook active).
+        obs[hook_start + h * stride + 0] = 1.0
     return obs
 
 
@@ -160,7 +160,7 @@ def test_inline_agent_lifecycle_game_start_end():
 
     out = agent.game_start(static)
     assert isinstance(out, dict)
-    for key in ('hook_types', 'hook_values', 'hook_mask', 'counter_sids', 'active_slot_mask', 'char_skill_refs'):
+    for key in ('hook_ir', 'hook_mask', 'counter_sids', 'active_slot_mask', 'char_skill_refs'):
         assert key in out, f'game_start return dict missing {key!r}'
     # Cache now populated
     assert agent._hook_emb is not None

@@ -146,28 +146,27 @@ class TestAgent:
         """Build a static obs array with the layout expected by
         encode_static: N_slots*(min,max,sid) meta, then
         2*MaxChars*MaxSkillsPerChar char_skill_refs, then
-        N_hooks * max_tokens * (type, value) pairs. All hooks get one
-        non-zero token so every hook is 'active'. char_skill_refs set
-        to -1 (no skills)."""
+        N_hooks * max_ops_per_hook * fields_per_op (IR-4 ops). Every hook
+        gets one non-NOP opcode at op-slot 0 so the hook counts as
+        active. char_skill_refs set to -1 (no skills)."""
         from training.core.obs_constants import (
             OBS_CHAR_SKILL_REFS_SIZE,
         )
 
         meta_size = cfg.n_counter_slots * 3
         refs_size = OBS_CHAR_SKILL_REFS_SIZE
-        hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
+        hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
         obs = np.zeros(meta_size + refs_size + hook_size, dtype=np.float32)
         # Counter meta: give each slot a distinct SID
         for i in range(cfg.n_counter_slots):
             obs[i * 3 + 2] = float(i)
         # char_skill_refs: all -1 (empty slots)
         obs[meta_size : meta_size + refs_size] = -1.0
-        # Hook data: first token of each hook is a non-zero type
+        # Hook data: first field (opcode) of first op in each hook is non-zero
         hook_start = meta_size + refs_size
-        stride = cfg.max_ops_per_hook * 2
+        stride = cfg.max_ops_per_hook * cfg.fields_per_op
         for h in range(cfg.n_hooks):
-            obs[hook_start + h * stride + 0] = 1.0  # type
-            obs[hook_start + h * stride + 1] = 0.5  # value
+            obs[hook_start + h * stride + 0] = 1.0  # opcode
         return obs
 
     def _synthetic_dynamic_obs(self, cfg: AgentConfig) -> np.ndarray:
@@ -253,7 +252,7 @@ class TestAgent:
             )
 
     def test_game_start_returns_game_static(self):
-        """game_start returns raw hook tokens (hook_types/hook_values)
+        """game_start returns raw hook IR ops (single hook_ir tensor)
         so train_step can re-encode with gradients. Fast-path inference
         still uses Agent._hook_emb cache."""
         cfg = self._cfg()
@@ -261,21 +260,21 @@ class TestAgent:
         static = self._synthetic_static_obs(cfg)
         game_static = agent.game_start(static)
         assert set(game_static.keys()) == {
-            'hook_types',
-            'hook_values',
+            'hook_ir',
             'hook_mask',
             'counter_sids',
             'active_slot_mask',
             'char_skill_refs',
         }
-        assert game_static['hook_types'].dtype == np.int64
-        assert game_static['hook_values'].dtype == np.float32
+        assert game_static['hook_ir'].dtype == np.int64
         assert game_static['hook_mask'].dtype == bool
         assert game_static['counter_sids'].dtype == np.int64
         assert game_static['active_slot_mask'].dtype == bool
-        assert game_static['hook_types'].ndim == 2  # (n_active, max_tokens)
-        assert game_static['hook_values'].shape == game_static['hook_types'].shape
-        assert game_static['hook_mask'].shape[0] == game_static['hook_types'].shape[0]
+        # (n_active, max_ops, fields_per_op)
+        assert game_static['hook_ir'].ndim == 3
+        assert game_static['hook_ir'].shape[1] == cfg.max_ops_per_hook
+        assert game_static['hook_ir'].shape[2] == cfg.fields_per_op
+        assert game_static['hook_mask'].shape[0] == game_static['hook_ir'].shape[0]
 
     def test_forward_batch_shape(self):
         cfg = self._cfg()
@@ -288,19 +287,15 @@ class TestAgent:
             max_actions=cfg.max_actions,
             n_legal_per_row=3,
         )
-        # forward_batch now reads hook_types/hook_values (not hook_emb).
-        # _random_batch produces hook_emb for ActorCritic.forward tests;
-        # synthesize tokens on the fly for this test.
+        # forward_batch now reads hook_ir (not hook_emb). _random_batch
+        # produces hook_emb for ActorCritic.forward tests; synthesize
+        # IR ops on the fly for this test.
         B, N = 3, cfg.n_hooks
-        batch['hook_types'] = np.random.randint(
+        batch['hook_ir'] = np.random.randint(
             1,
-            100,
-            (B, N, cfg.max_ops_per_hook),
+            14,
+            (B, N, cfg.max_ops_per_hook, cfg.fields_per_op),
         ).astype(np.int64)
-        batch['hook_values'] = np.zeros(
-            (B, N, cfg.max_ops_per_hook),
-            dtype=np.float32,
-        )
         logits, value, _ = agent.forward_batch(batch)
         assert logits.shape == (3, cfg.max_actions)
         assert value.shape == (3,)
@@ -322,15 +317,11 @@ class TestAgent:
             n_legal_per_row=3,
         )
         B, N = 2, cfg.n_hooks
-        batch['hook_types'] = np.random.randint(
+        batch['hook_ir'] = np.random.randint(
             1,
-            100,
-            (B, N, cfg.max_ops_per_hook),
+            14,
+            (B, N, cfg.max_ops_per_hook, cfg.fields_per_op),
         ).astype(np.int64)
-        batch['hook_values'] = np.zeros(
-            (B, N, cfg.max_ops_per_hook),
-            dtype=np.float32,
-        )
         logits, value, _ = agent.forward_batch(batch)
         loss = value.sum() + logits.sum()
         agent.net.zero_grad()
