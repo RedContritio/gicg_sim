@@ -14,7 +14,7 @@ import (
 )
 
 func (c *compiler) compileMethodCall(e *interp.MethodCall) (int16, error) {
-	if _, ok := counterMethodArity[e.Method]; ok {
+	if _, ok := counterMethods[e.Method]; ok {
 		return c.compileCounterMethod(e)
 	}
 	if _, ok := charAttrMethods[e.Method]; ok {
@@ -35,9 +35,7 @@ func (c *compiler) compileCounterMethod(e *interp.MethodCall) (int16, error) {
 	if b.Kind != BindingCounter {
 		return 0, wrapErr(e, "identifier %q kind=%s is not a counter (for :%s)", obj.Name, b.Kind, e.Method)
 	}
-	if want := counterMethodArity[e.Method]; len(e.Args) != want {
-		return 0, wrapErr(e, "counter :%s expects %d args, got %d", e.Method, want, len(e.Args))
-	}
+	// Arity validation removed in IR-1.6 — see counterMethods doc comment.
 	cid := b.ID
 
 	// Pure load/store subset → addressed memory ops. Everything else
@@ -113,7 +111,105 @@ func (c *compiler) compileCall(e *interp.Call) (int16, error) {
 	if !ok {
 		return 0, wrapErr(e, "unknown builtin %q", ident.Name)
 	}
-	base, err := c.gatherArgs(e.Args)
+
+	// Special: defer_fn(function() ... end) — emit OpDeferFn + populate Lambdas
+	// instead of OpCall. The FuncLit body compiles into a sub-IR appended to
+	// c.lambdas; the OpDeferFn op carries the lambda index.
+	if ident.Name == "defer_fn" && len(e.Args) == 1 {
+		if fl, isFn := e.Args[0].(*interp.FuncLit); isFn {
+			return c.compileDeferFn(e, fl)
+		}
+	}
+
+	// Optional trailing TableCtor = kwargs. Separate from positional.
+	posArgs := e.Args
+	var kwargs *interp.TableCtor
+	if n := len(posArgs); n > 0 {
+		if tc, isTable := posArgs[n-1].(*interp.TableCtor); isTable {
+			kwargs = tc
+			posArgs = posArgs[:n-1]
+		}
+	}
+
+	base, err := c.gatherArgs(posArgs)
+	if err != nil {
+		return 0, err
+	}
+	if kwargs != nil {
+		if err := c.emitKwArgs(ident.Name, kwargs); err != nil {
+			return 0, err
+		}
+	}
+	dst, err := c.allocReg()
+	if err != nil {
+		return 0, err
+	}
+	c.emit(Op{Opcode: OpCall, Dst: dst, Op1: fid, Op2: int16(len(posArgs)), Op3: base})
+	return dst, nil
+}
+
+// emitKwArgs emits one OpKwArg per TableCtor field — keys looked up
+// in kwArgMap, values compiled to regs. Must run immediately before
+// the consuming OpCall (IR-3 reads pending kwargs at OpCall dispatch).
+func (c *compiler) emitKwArgs(callerName string, tc *interp.TableCtor) error {
+	for _, fld := range tc.Fields {
+		keyTok, ok := engine.LookupKwArg(fld.Key)
+		if !ok {
+			return wrapErr(tc, "unknown kwarg key %q for %s", fld.Key, callerName)
+		}
+		valReg, err := c.compileExpr(fld.Value)
+		if err != nil {
+			return err
+		}
+		c.emit(Op{Opcode: OpKwArg, Op1: keyTok, Op2: valReg})
+	}
+	return nil
+}
+
+// compileDeferFn compiles a `defer_fn(function() ... end)` call into
+// an OpDeferFn op + lambda body in c.lambdas. The lambda gets a fresh
+// scope (Lua-style closures over outer locals not supported; audit
+// confirms current 3 defer_fn uses don't reference outer locals) but
+// shares closure-captured bindings from the parent hook.
+func (c *compiler) compileDeferFn(e *interp.Call, fl *interp.FuncLit) (int16, error) {
+	sub := &compiler{
+		scope:              map[string]int16{},
+		currentChunkLocals: map[string]struct{}{},
+		bindings:           c.bindings,
+	}
+	if err := sub.compileChunk(fl.Body); err != nil {
+		return 0, wrapErr(e, "compiling defer_fn lambda: %v", err)
+	}
+	lambdaIdx := int16(len(c.lambdas))
+	c.lambdas = append(c.lambdas, sub.ops)
+	c.emit(Op{Opcode: OpDeferFn, Op1: lambdaIdx})
+	return NullReg, nil
+}
+
+// compileIndexAccess: only the engine bridge globals (_chars[i],
+// _char_by_slot[p][c]) are supported. Compiler emits OpCall with the
+// bridge's token ID; IR-3 dispatches to runtime bridge resolution.
+// Other IndexAccess shapes (object indexing, table indexing, ...) reject.
+func (c *compiler) compileIndexAccess(e *interp.IndexAccess) (int16, error) {
+	var args []interp.Node
+	var bridgeName string
+	if obj, ok := e.Object.(*interp.Ident); ok {
+		bridgeName = obj.Name
+		args = []interp.Node{e.Index}
+	} else if innerIdx, ok := e.Object.(*interp.IndexAccess); ok {
+		if innerObj, ok := innerIdx.Object.(*interp.Ident); ok {
+			bridgeName = innerObj.Name
+			args = []interp.Node{innerIdx.Index, e.Index}
+		}
+	}
+	if bridgeName == "" {
+		return 0, wrapErr(e, "unsupported IndexAccess on %T", e.Object)
+	}
+	bridgeTok, ok := engine.LookupBridge(bridgeName)
+	if !ok {
+		return 0, wrapErr(e, "unknown bridge global %q", bridgeName)
+	}
+	base, err := c.gatherArgs(args)
 	if err != nil {
 		return 0, err
 	}
@@ -121,7 +217,7 @@ func (c *compiler) compileCall(e *interp.Call) (int16, error) {
 	if err != nil {
 		return 0, err
 	}
-	c.emit(Op{Opcode: OpCall, Dst: dst, Op1: fid, Op2: int16(len(e.Args)), Op3: base})
+	c.emit(Op{Opcode: OpCall, Dst: dst, Op1: bridgeTok, Op2: int16(len(args)), Op3: base})
 	return dst, nil
 }
 

@@ -103,7 +103,7 @@ func TestCompilerContracts(t *testing.T) {
 			got, err := CompileHookIR(chunk, tc.bindings)
 			if tc.wantErr != "" {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil (ops=%v)", tc.wantErr, got)
+					t.Fatalf("expected error containing %q, got nil (ops=%v)", tc.wantErr, got.MainOps)
 				}
 				if !strings.Contains(err.Error(), tc.wantErr) {
 					t.Fatalf("expected error containing %q, got %q", tc.wantErr, err.Error())
@@ -113,8 +113,8 @@ func TestCompilerContracts(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-			if !reflect.DeepEqual(got, tc.wantOps) {
-				t.Fatalf("ops mismatch\nwant: %s\n got: %s", formatOps(tc.wantOps), formatOps(got))
+			if !reflect.DeepEqual(got.MainOps, tc.wantOps) {
+				t.Fatalf("ops mismatch\nwant: %s\n got: %s", formatOps(tc.wantOps), formatOps(got.MainOps))
 			}
 		})
 	}

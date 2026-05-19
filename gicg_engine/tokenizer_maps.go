@@ -121,3 +121,22 @@ var methodMap = map[string]int{
 	"owner_player": TokMOwnerPlayer, "owner_char": TokMOwnerChar,
 	"name": TokMName, "element": TokMElement, "weapon": TokMWeapon,
 }
+
+// kwArgMap — TableCtor field keys used as kwargs to builtin calls in
+// hook bodies. Compiler maps these strings to TokKw* tokens for
+// OpKwArg ops. Audit shows deal_damage is the only hook-body caller
+// using TableCtor; the listed keys cover its observed kwargs.
+var kwArgMap = map[string]int{
+	"source":    TokKwSource,
+	"element":   TokKwElement,
+	"target":    TokKwTarget,
+	"penetrate": TokKwPenetrate,
+	"react":     TokKwReact,
+}
+
+// bridgeMap — engine-managed Lua global table names that compiler
+// pattern-matches into OpCall with one of these token IDs.
+var bridgeMap = map[string]int{
+	"_chars":        TokBridgeChars,
+	"_char_by_slot": TokBridgeCharBySlot,
+}

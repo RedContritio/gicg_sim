@@ -49,6 +49,10 @@ const (
 	OpCJump     int16 = 8
 	OpJump      int16 = 9
 	OpReturn    int16 = 10
+	// IR-1.6 additions
+	OpKwArg   int16 = 11 // Op1=key_token, Op2=value_reg — immediate prefix to next OpCall
+	OpDeferFn int16 = 12 // Op1=lambda_idx into CompiledHook.Lambdas
+	OpLoadNil int16 = 13 // Dst=reg — distinct from OpLoadImm 0 (engine may distinguish nil from 0)
 )
 
 // AddrKind — memory address class for OpLoadAddr / OpStoreAddr.
@@ -110,15 +114,21 @@ var unaryOpKindByString = map[string]int16{
 	"-":   UnaryNeg,
 }
 
-// counterMethodArity — recognized counter method names mapped to
-// non-receiver arg count. Methods absent here are rejected as unknown.
-// The load/store subset (get/set/get_at/set_at) lowers to OpLoadAddr /
-// OpStoreAddr; the rest lower to a single OpCall (see Op2 dual
-// interpretation above).
-var counterMethodArity = map[string]int{
-	"get": 0, "set": 1, "get_at": 1, "set_at": 2,
-	"add": 1, "sub": 1, "add_at": 2, "sub_at": 2,
-	"cmin": 1, "cmax": 1, "decay_all": 0, "fill_all": 1,
+// counterMethods — recognized counter method names. Methods absent here
+// are rejected as unknown. The load/store subset (get/set/get_at/set_at)
+// lowers to OpLoadAddr / OpStoreAddr; the rest lower to a single OpCall
+// (see Op2 dual interpretation above).
+//
+// Arity validation removed in IR-1.6: real-DSL audit confirmed counter
+// scope (PerPlayer / PerChar / ActiveStatus / Self) varies arg count per
+// method (PerChar adds an explicit char index), and ~50% of usage is
+// "Unknown scope" (chained `get_counter(...):add(...)` where receiver
+// isn't a top-level binding so the compiler can't know scope at all).
+// The IR-3 runtime interpreter has the actual proxy and validates arity.
+var counterMethods = map[string]struct{}{
+	"get": {}, "set": {}, "get_at": {}, "set_at": {},
+	"add": {}, "sub": {}, "add_at": {}, "sub_at": {},
+	"cmin": {}, "cmax": {}, "decay_all": {}, "fill_all": {},
 }
 
 // charAttrMethods — names dispatched in compileCharAttrMethod (pure

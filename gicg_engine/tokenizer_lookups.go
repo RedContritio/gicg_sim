@@ -37,3 +37,19 @@ func LookupBuiltin(name string) (int16, bool) {
 	id, ok := tokenMap[name]
 	return int16(id), ok
 }
+
+// LookupKwArg returns the token ID for a TableCtor field key used as a
+// kwarg to a builtin call (TokKwSource, TokKwElement, …) or
+// (0, false) if not registered.
+func LookupKwArg(key string) (int16, bool) {
+	id, ok := kwArgMap[key]
+	return int16(id), ok
+}
+
+// LookupBridge returns the token ID for an engine-managed global table
+// name (_chars → TokBridgeChars, _char_by_slot → TokBridgeCharBySlot)
+// or (0, false) if not registered.
+func LookupBridge(name string) (int16, bool) {
+	id, ok := bridgeMap[name]
+	return int16(id), ok
+}

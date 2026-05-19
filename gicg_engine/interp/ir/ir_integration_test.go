@@ -55,11 +55,11 @@ func TestCompileHookIR_RealHookTestBasic(t *testing.T) {
 	}
 	for _, hook := range []string{"on_card_play", "on_damage_mul"} {
 		body := extractHookBody(t, string(src), hook)
-		ops, err := CompileHookIR(body, bindings)
+		ch, err := CompileHookIR(body, bindings)
 		if err != nil {
 			t.Fatalf("hook %s: compile error: %v", hook, err)
 		}
-		if len(ops) == 0 {
+		if len(ch.MainOps) == 0 {
 			t.Fatalf("hook %s: empty op slice", hook)
 		}
 	}
@@ -76,11 +76,11 @@ func TestCompileHookIR_RealHookLegacy(t *testing.T) {
 		"ref":    {Kind: BindingCard, ID: 200},
 		"active": {Kind: BindingCounter, ID: 11},
 	}
-	ops, err := CompileHookIR(body, bindings)
+	ch, err := CompileHookIR(body, bindings)
 	if err != nil {
 		t.Fatalf("compile error: %v", err)
 	}
-	if len(ops) == 0 {
+	if len(ch.MainOps) == 0 {
 		t.Fatalf("empty op slice")
 	}
 }

@@ -223,7 +223,23 @@ const (
 	// References (250-252)
 	TokVarRef = 250 // local variable reference (next = var index in scope)
 
-	TokVocabSize = 256
+	// IR-1.6 kwarg keys (260-279) — TableCtor field keys used as
+	// kwargs to builtin calls in hook bodies (deal_damage etc.).
+	// Compiler emits OpKwArg(key=TokKw*, value=reg) immediately before
+	// the OpCall that consumes them.
+	TokKwSource    = 260
+	TokKwElement   = 261
+	TokKwTarget    = 262
+	TokKwPenetrate = 263
+	TokKwReact     = 264
+
+	// IR-1.6 bridge global accessors (290-299) — Lua tables populated at
+	// engine init (_chars[i], _char_by_slot[p][c]); compiler pattern-matches
+	// IndexAccess on these names into OpCall with one of these token IDs.
+	TokBridgeChars      = 290
+	TokBridgeCharBySlot = 291
+
+	TokVocabSize = 512
 )
 
 // TokenPair is (token_type, token_value)

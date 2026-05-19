@@ -9,29 +9,34 @@ import (
 	"gicg_mono/gicg_engine/interp"
 )
 
-// CompileHookIR walks a hook-body AST and emits 3-address-code IR.
-// declareBindings supplies typed IDs for closure-captured idents; the
-// map is treated read-only and caller retains ownership.
-func CompileHookIR(body *interp.Chunk, declareBindings map[string]TypedBinding) ([]Op, error) {
+// CompiledHook = MainOps + per-defer_fn Lambdas; OpDeferFn in MainOps indexes Lambdas.
+type CompiledHook struct {
+	MainOps []Op
+	Lambdas [][]Op
+}
+
+// CompileHookIR walks a hook-body AST → 3-address-code IR.
+// declareBindings: closure-captured ident → typed ID; read-only.
+func CompileHookIR(body *interp.Chunk, declareBindings map[string]TypedBinding) (CompiledHook, error) {
 	c := &compiler{
 		scope:              map[string]int16{},
 		currentChunkLocals: map[string]struct{}{},
 		bindings:           declareBindings,
 	}
 	if err := c.compileChunk(body); err != nil {
-		return nil, err
+		return CompiledHook{}, err
 	}
-	return c.ops, nil
+	return CompiledHook{MainOps: c.ops, Lambdas: c.lambdas}, nil
 }
 
 type compiler struct {
 	regNext int16
 	scope   map[string]int16
-	// currentChunkLocals = names LocalDecl'd in the current chunk; cross-block
-	// reassignment of outer locals is rejected (SSA model can't propagate the write).
+	// currentChunkLocals = names LocalDecl'd in this chunk; cross-block reassign rejected.
 	currentChunkLocals map[string]struct{}
 	bindings           map[string]TypedBinding
 	ops                []Op
+	lambdas            [][]Op
 }
 
 // --- low-level emit helpers --------------------------------------------------
@@ -139,81 +144,7 @@ func (c *compiler) compileStmt(n interp.Node) error {
 	}
 }
 
-func (c *compiler) compileAssign(a *interp.Assign) error {
-	r, err := c.compileExpr(a.Value)
-	if err != nil {
-		return err
-	}
-	switch t := a.Target.(type) {
-	case *interp.DotAccess:
-		return c.compileAssignDotAccess(a, t, r)
-	case *interp.Ident:
-		if _, sameChunk := c.currentChunkLocals[t.Name]; sameChunk {
-			c.scope[t.Name] = r
-			return nil
-		}
-		if _, outerScope := c.scope[t.Name]; outerScope {
-			return wrapErr(a, "reassignment to outer-scope local %q not supported (declare a fresh local instead)", t.Name)
-		}
-		if _, captured := c.bindings[t.Name]; captured {
-			return wrapErr(a, "cannot assign to closure-captured ident %q", t.Name)
-		}
-		return wrapErr(a, "assign to undefined identifier %q (implicit global not allowed)", t.Name)
-	default:
-		return wrapErr(a, "unsupported assign target %T", a.Target)
-	}
-}
-
-func (c *compiler) compileAssignDotAccess(a *interp.Assign, t *interp.DotAccess, valReg int16) error {
-	obj, ok := t.Object.(*interp.Ident)
-	if !ok || obj.Name != "ctx" {
-		return wrapErr(a, "assign to DotAccess on non-ctx receiver")
-	}
-	id, ok := engine.LookupCtxField(t.Field)
-	if !ok {
-		return wrapErr(a, "unknown ctx field %q", t.Field)
-	}
-	c.emit(Op{Opcode: OpStoreAddr, Dst: valReg, Op1: AddrCtxField, Op2: id, Op3: NullReg})
-	return nil
-}
-
-func (c *compiler) compileIf(s *interp.IfStmt) error {
-	// Each arm: cond → CJump-false (target = next arm) → body → Jump (target = end).
-	var endJumps []int
-	emitArm := func(cond interp.Node, body *interp.Chunk) error {
-		condReg, err := c.compileExpr(cond)
-		if err != nil {
-			return err
-		}
-		cjIdx := len(c.ops)
-		c.emit(Op{Opcode: OpCJump, Op1: condReg, Op2: 0})
-		if err := c.compileChunk(body); err != nil {
-			return err
-		}
-		endJumps = append(endJumps, len(c.ops))
-		c.emit(Op{Opcode: OpJump, Op1: 0})
-		c.ops[cjIdx].Op2 = int16(len(c.ops))
-		return nil
-	}
-	if err := emitArm(s.Cond, s.Body); err != nil {
-		return err
-	}
-	for _, ei := range s.ElseIfs {
-		if err := emitArm(ei.Cond, ei.Body); err != nil {
-			return err
-		}
-	}
-	if s.ElseBody != nil {
-		if err := c.compileChunk(s.ElseBody); err != nil {
-			return err
-		}
-	}
-	end := int16(len(c.ops))
-	for _, j := range endJumps {
-		c.ops[j].Op1 = end
-	}
-	return nil
-}
+// Stmt-level lowering for Assign + If lives in stmts.go.
 
 // --- expressions -------------------------------------------------------------
 
@@ -231,9 +162,13 @@ func (c *compiler) compileExpr(n interp.Node) (int16, error) {
 		}
 		return c.emitLoadImm(v)
 	case *interp.NilLit:
-		// nil / false / 0 collapse intentionally: the IR-3 interpreter
-		// only checks truthiness, never distinguishes the three encodings.
-		return c.emitLoadImm(0)
+		// nil ≠ 0 / false — engine distinguishes "unset" (e.g. fill_all(p, nil)).
+		r, err := c.allocReg()
+		if err != nil {
+			return 0, err
+		}
+		c.emit(Op{Opcode: OpLoadNil, Dst: r})
+		return r, nil
 	case *interp.Ident:
 		if r, ok := c.scope[e.Name]; ok {
 			return r, nil
@@ -268,12 +203,14 @@ func (c *compiler) compileExpr(n interp.Node) (int16, error) {
 		return c.emitArithOp(OpUnaryOp, kind, re, 0)
 	case *interp.DotAccess:
 		return c.compileDotAccess(e)
+	case *interp.IndexAccess:
+		return c.compileIndexAccess(e)
 	case *interp.MethodCall:
 		return c.compileMethodCall(e)
 	case *interp.Call:
 		return c.compileCall(e)
 	default:
-		return 0, wrapErr(n, "unsupported expression node")
+		return 0, wrapErr(n, "unsupported expression node %T", n)
 	}
 }
 
