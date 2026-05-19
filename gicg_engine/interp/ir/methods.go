@@ -15,12 +15,62 @@ import (
 
 func (c *compiler) compileMethodCall(e *interp.MethodCall) (int16, error) {
 	if _, ok := counterMethods[e.Method]; ok {
+		// RC2: chained MethodCall receiver (e.g. `char:hp():get()` or
+		// `get_counter_group(Tag.Summon):set_at(...)`). When the receiver
+		// isn't a bare Ident we can't look up the counter ID statically,
+		// but we can still lower to a generic OpCall whose arg frame
+		// holds the dynamically-resolved receiver in slot 0. IR-3 runtime
+		// dispatches on the method token (Op1) and reads the receiver +
+		// remaining args from registers. Encoder sees a uniform shape.
+		switch e.Object.(type) {
+		case *interp.MethodCall, *interp.Call:
+			return c.compileDynamicMethod(e)
+		}
+		// RC2: hook-body LocalDecl shape `local enemy_alive =
+		// get_counter(...)`. The ident lives in c.scope (chunk-local
+		// reg) but NOT in c.bindings (which only holds file-top decls);
+		// compileCounterMethod's static dispatch can't find a counter
+		// ID. Fall through to dynamic dispatch — same shape as chained
+		// MethodCall (receiver is a scope-resolved reg).
+		if id, isIdent := e.Object.(*interp.Ident); isIdent {
+			if _, inScope := c.scope[id.Name]; inScope {
+				if _, inBindings := c.bindings[id.Name]; !inBindings {
+					return c.compileDynamicMethod(e)
+				}
+			}
+		}
 		return c.compileCounterMethod(e)
 	}
 	if _, ok := charAttrMethods[e.Method]; ok {
 		return c.compileCharAttrMethod(e)
 	}
 	return 0, wrapErr(e, "unsupported method :%s", e.Method)
+}
+
+// compileDynamicMethod lowers `<expr>:method(args...)` where <expr> is
+// itself a call returning a proxy. The receiver compiles to a reg
+// placed in the arg frame slot 0; remaining args follow. Emitted as
+// OpCall(method_token, n_args+1, frame_base). NOTE: this path is only
+// used when static dispatch is impossible — RC2 specifically targets
+// chained-method patterns the existing static fast-paths reject.
+func (c *compiler) compileDynamicMethod(e *interp.MethodCall) (int16, error) {
+	mid, ok := engine.LookupMethod(e.Method)
+	if !ok {
+		return 0, wrapErr(e, "unknown method :%s (dynamic dispatch)", e.Method)
+	}
+	allArgs := make([]interp.Node, 0, len(e.Args)+1)
+	allArgs = append(allArgs, e.Object)
+	allArgs = append(allArgs, e.Args...)
+	base, err := c.gatherArgs(allArgs)
+	if err != nil {
+		return 0, err
+	}
+	dst, err := c.allocReg()
+	if err != nil {
+		return 0, err
+	}
+	c.emit(Op{Opcode: OpCall, Dst: dst, Op1: mid, Op2: int16(len(allArgs)), Op3: base})
+	return dst, nil
 }
 
 func (c *compiler) compileCounterMethod(e *interp.MethodCall) (int16, error) {
@@ -180,13 +230,27 @@ func (c *compiler) emitKwArgs(callerName string, tc *interp.TableCtor) error {
 }
 
 // compileDeferFn compiles a `defer_fn(function() ... end)` call into
-// an OpDeferFn op + lambda body in c.lambdas. The lambda gets a fresh
-// scope (Lua-style closures over outer locals not supported; audit
-// confirms current 3 defer_fn uses don't reference outer locals) but
-// shares closure-captured bindings from the parent hook.
+// an OpDeferFn op + lambda body in c.lambdas.
+//
+// RC2: reactions/结晶 + reactions/超载 capture outer-scope locals
+// (e.g. `local actor = ctx.actor_player` then defer_fn body uses
+// `actor`). Lua closure semantics: lambda sees parent locals. We clone
+// parent's scope map (name → reg index) into the sub-compiler; regs
+// allocated INSIDE the lambda start at parent's regNext to avoid
+// stepping on outer assignments. The lambda is emitted into its own
+// op buffer (CompiledHook.Lambdas[idx]) — at obs encode time it's a
+// separate stream, so reg index space doesn't have to be globally
+// unique, but locally consistent reads of outer-scope locals do.
+// Closure bindings (declareBindings) are always shared via the bindings
+// map pointer.
 func (c *compiler) compileDeferFn(e *interp.Call, fl *interp.FuncLit) (int16, error) {
+	subScope := map[string]int16{}
+	for k, v := range c.scope {
+		subScope[k] = v
+	}
 	sub := &compiler{
-		scope:              map[string]int16{},
+		regNext:            c.regNext, // continue numbering past parent — outer reads see consistent ids
+		scope:              subScope,
 		currentChunkLocals: map[string]struct{}{},
 		bindings:           c.bindings,
 		lambdas:            c.lambdas, // shared pointer — nested defer_fn lands in the root list

@@ -53,6 +53,22 @@ func init() {
 		"on_damage_immunity":    TokOnDamageImmunity,
 		// ADR-0019 §A.4 — 调和 hook
 		"on_tune": TokOnTune,
+
+		// RC2 — DSL builtins absent from the IR compiler's tokenMap
+		// caused finalizeHookIRs to reject 40%+ of hook bodies. These
+		// dispatch through OpCall on the Op1 token (same path as
+		// deal_damage etc.); IR-3 runtime looks the name back up via
+		// engine.LookupBuiltin → handler table at execution time.
+		"roll_dice":            TokRollDice,
+		"clear_dice_pool":      TokClearDicePool,
+		"set_reaction_kind":    TokSetReactionKind,
+		"cost_total":           TokCostTotal,
+		"cost_mod":             TokCostMod,
+		"was_applied":          TokWasApplied,
+		"add_dice":             TokAddDice,
+		"set_preparing":        TokSetPreparing,
+		"has_card_in_own_hand": TokHasCardInOwnHand,
+		"remove_support":       TokRemoveSupport,
 	}
 }
 
@@ -98,6 +114,19 @@ var enumMap = map[string]int{
 	"Zone.Hand": TokZoneHand, "Zone.Deck": TokZoneDeck,
 
 	"Action.Switch": TokActionKindSwitch, // alias
+
+	// RC2: CostSlot (cost_mod second arg) + DiceColor (add_dice
+	// second arg) reach into hook bodies in v_legacy + v_phase2 cards.
+	"CostSlot.Fire": TokCostSlotFire, "CostSlot.Ice": TokCostSlotIce,
+	"CostSlot.Water": TokCostSlotWater, "CostSlot.Electro": TokCostSlotElectro,
+	"CostSlot.Geo": TokCostSlotGeo, "CostSlot.Anemo": TokCostSlotAnemo,
+	"CostSlot.Dendro": TokCostSlotDendro, "CostSlot.Match": TokCostSlotMatch,
+	"CostSlot.Any": TokCostSlotAny, "CostSlot.All": TokCostSlotAll,
+
+	"DiceColor.Fire": TokDiceColorFire, "DiceColor.Ice": TokDiceColorIce,
+	"DiceColor.Water": TokDiceColorWater, "DiceColor.Electro": TokDiceColorElectro,
+	"DiceColor.Geo": TokDiceColorGeo, "DiceColor.Anemo": TokDiceColorAnemo,
+	"DiceColor.Dendro": TokDiceColorDendro, "DiceColor.Omni": TokDiceColorOmni,
 }
 
 var ctxFieldMap = map[string]int{
@@ -120,6 +149,7 @@ var methodMap = map[string]int{
 	"hp": TokMHp, "energy": TokMEnergy, "alive": TokMAlive,
 	"owner_player": TokMOwnerPlayer, "owner_char": TokMOwnerChar,
 	"name": TokMName, "element": TokMElement, "weapon": TokMWeapon,
+	"normal_attack": TokMNormalAttack, // RC2 — `c.normal_attack` char-attr read
 }
 
 // kwArgMap — TableCtor field keys used as kwargs to builtin calls in

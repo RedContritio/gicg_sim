@@ -74,13 +74,33 @@ func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
 	return okN, failN
 }
 
-// extractTopLevelBindings scans a parsed file chunk for top-level
-// `local X = declare_<kind>(...)` / `local X = get_<kind>(...)` patterns
-// and assigns sequential placeholder IDs. Mirrors the test helper at
-// gicg_engine/interp/ir/ir_integration_test.go but lives here so capi
-// doesn't depend on _test.go files.
+// extractTopLevelBindings scans a parsed file chunk for top-level locals
+// that hook bodies close over. Three shapes recognized:
+//
+//  1. `local X = declare_<kind>(...)` / `local X = get_<kind>(...)` —
+//     domain bindings (counter / card / char / skill / reaction). The
+//     compiler treats X as opaque AddrLocalVar with an engine-assigned
+//     ID; the encoder embeds the ID as a categorical token.
+//
+//  2. `local X = <NumberLit>` / `local X = <BoolLit>` (RC2) — file-top
+//     numeric/bool constant like `local INITIAL_HAND = 5`. Compiler
+//     inlines the value as OpLoadImm at every read site, so the
+//     constant is visible as a literal to the encoder.
+//
+//  3. `local X = <RecvIdent>:<method>(...)` (RC2) — bound to a known
+//     char/counter binding's method, e.g. `local my_player =
+//     赤蝶:owner_player()`. We don't statically resolve the value, so
+//     X gets an opaque BindingChar placeholder ID; the IR compiler
+//     treats every X reference as AddrLocalVar load.
+//
+// Anything else (general expressions, unknown method receivers) is
+// skipped — the hook body will fail-loudly with "undefined identifier"
+// if it tries to read those names, which is the desired behavior so the
+// G2 coverage test catches new patterns at audit time.
 func extractTopLevelBindings(chunk *interp.Chunk, nextID *int16) map[string]ir.TypedBinding {
 	out := map[string]ir.TypedBinding{}
+	// First pass: collect declare_*/get_* style bindings (need their
+	// IDs available when the second pass classifies MethodCall extras).
 	for _, stmt := range chunk.Stmts {
 		ld, ok := stmt.(*interp.LocalDecl)
 		if !ok {
@@ -90,7 +110,41 @@ func extractTopLevelBindings(chunk *interp.Chunk, nextID *int16) map[string]ir.T
 			if i >= len(ld.Exprs) {
 				continue
 			}
-			call, ok := ld.Exprs[i].(*interp.Call)
+			expr := ld.Exprs[i]
+
+			// Shape 2: numeric / bool constant — inline at compile time.
+			if numLit, ok := expr.(*interp.NumberLit); ok {
+				v := numLit.Value
+				if v >= -32768 && v <= 32767 {
+					out[name] = ir.TypedBinding{Kind: ir.BindingConst, ConstValue: int16(v)}
+				}
+				continue
+			}
+			if boolLit, ok := expr.(*interp.BoolLit); ok {
+				v := int16(0)
+				if boolLit.Value {
+					v = 1
+				}
+				out[name] = ir.TypedBinding{Kind: ir.BindingConst, ConstValue: v}
+				continue
+			}
+
+			// Shape 3: method-call placeholder (`local my_player = X:owner_player()`).
+			// Only register if the receiver itself is a known binding to
+			// avoid catching unknown identifiers; we don't care what the
+			// value is — encoder treats it opaquely.
+			if mc, ok := expr.(*interp.MethodCall); ok {
+				if recvID, isIdent := mc.Object.(*interp.Ident); isIdent {
+					if _, recvBound := out[recvID.Name]; recvBound {
+						out[name] = ir.TypedBinding{Kind: ir.BindingChar, ID: *nextID}
+						*nextID++
+						continue
+					}
+				}
+			}
+
+			// Shape 1: declare_*/get_* call.
+			call, ok := expr.(*interp.Call)
 			if !ok {
 				continue
 			}
@@ -99,20 +153,27 @@ func extractTopLevelBindings(chunk *interp.Chunk, nextID *int16) map[string]ir.T
 				continue
 			}
 			var kind ir.TypedBindingKind
-			switch ident.Name {
-			case "declare_counter", "get_counter":
+			switch {
+			case ident.Name == "declare_counter", ident.Name == "get_counter":
 				kind = ir.BindingCounter
-			case "declare_card", "get_card":
+			case ident.Name == "declare_card", ident.Name == "get_card":
 				kind = ir.BindingCard
-			case "declare_char", "get_char":
+			case ident.Name == "declare_char", ident.Name == "get_char":
 				kind = ir.BindingChar
-			case "declare_skill", "get_skill":
+			case ident.Name == "declare_skill", ident.Name == "get_skill":
 				kind = ir.BindingSkill
-			case "declare_reaction":
+			case ident.Name == "declare_reaction":
 				// Reactions don't have a get_*: they're declared once per
 				// reaction key in data/system/reactions/*.lua and the
 				// handle is passed verbatim to set_reaction_kind(...).
 				kind = ir.BindingReaction
+			case strings.HasPrefix(ident.Name, "on_"):
+				// RC2: `local prepare_id = on_action_prepare(function(ctx) ... end)`
+				// captures the hook's runtime ID for later `was_applied(ctx, prepare_id)`
+				// queries. The ID is an opaque int — encoder treats it as
+				// a Skill-kind placeholder (any opaque kind would do; Skill
+				// is the closest semantic).
+				kind = ir.BindingSkill
 			default:
 				continue
 			}

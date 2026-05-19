@@ -78,12 +78,15 @@ func TestInvariant_CounterMethodsExact(t *testing.T) {
 }
 
 // C-005: charAttrMethods set exactly = {hp, energy, alive, owner_player,
-// owner_char, name, element, weapon}.
+// owner_char, name, element, weapon, normal_attack}.
+// RC2 added normal_attack to support `c.normal_attack ~= ctx.skill_index`
+// queries in 速速茶点 / 急救等 cards (compares active normal-attack id).
 func TestInvariant_CharAttrMethodsExact(t *testing.T) {
 	want := map[string]struct{}{
 		"hp": {}, "energy": {}, "alive": {},
 		"owner_player": {}, "owner_char": {},
 		"name": {}, "element": {}, "weapon": {},
+		"normal_attack": {},
 	}
 	if len(charAttrMethods) != len(want) {
 		t.Fatalf("charAttrMethods size = %d, want %d", len(charAttrMethods), len(want))

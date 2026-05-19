@@ -173,4 +173,5 @@ var charAttrMethods = map[string]struct{}{
 	"hp": {}, "energy": {}, "alive": {},
 	"owner_player": {}, "owner_char": {},
 	"name": {}, "element": {}, "weapon": {},
+	"normal_attack": {}, // RC2 — `c.normal_attack` read (= active normal-attack skill index)
 }

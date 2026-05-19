@@ -239,6 +239,50 @@ const (
 	TokBridgeChars      = 290
 	TokBridgeCharBySlot = 291
 
+	// RC2 builtins (300-319) — DSL builtins that hooks call but the IR
+	// compiler had no token for, causing finalizeHookIRs to reject 40%+
+	// of hooks. Added as opaque OpCall tokens (no new opcode needed —
+	// pure dispatch on Op1).
+	TokRollDice         = 300
+	TokClearDicePool    = 301
+	TokSetReactionKind  = 302
+	TokCostTotal        = 303
+	TokCostMod          = 304
+	TokWasApplied       = 305
+	TokAddDice          = 306
+	TokSetPreparing     = 307
+	TokHasCardInOwnHand = 308
+	TokRemoveSupport    = 309
+
+	// RC2 char-attr method extension (319) — `c.normal_attack` reads the
+	// char's normal-attack skill index. Same shape as TokMHp etc. (lives
+	// in method-token space to share AddrCharAttr lookup).
+	TokMNormalAttack = 319
+
+	// RC2 enum extensions (320-349) — CostSlot / DiceColor namespaces.
+	// Compiler resolves <NS>.<Field> via enumMap; these IDs are opaque
+	// embeddings for the Python obs encoder (same treatment as
+	// TokElementFire etc.).
+	TokCostSlotFire    = 320
+	TokCostSlotIce     = 321
+	TokCostSlotWater   = 322
+	TokCostSlotElectro = 323
+	TokCostSlotGeo     = 324
+	TokCostSlotAnemo   = 325
+	TokCostSlotDendro  = 326
+	TokCostSlotMatch   = 327
+	TokCostSlotAny     = 328
+	TokCostSlotAll     = 329
+
+	TokDiceColorFire    = 330
+	TokDiceColorIce     = 331
+	TokDiceColorWater   = 332
+	TokDiceColorElectro = 333
+	TokDiceColorGeo     = 334
+	TokDiceColorAnemo   = 335
+	TokDiceColorDendro  = 336
+	TokDiceColorOmni    = 337
+
 	TokVocabSize = 512
 )
 

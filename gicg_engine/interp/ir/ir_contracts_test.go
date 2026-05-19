@@ -178,10 +178,17 @@ func TestCompilerContracts(t *testing.T) {
 			},
 		},
 		{
-			// T-183 negative: TableCtor outside Call context rejected.
-			name:    "tablector_outside_call_rejected",
-			src:     `local t = { foo = 1 }`,
-			wantErr: "unsupported expression node",
+			// T-183: TableCtor outside Call context. RC2 relaxes the
+			// rejection — table-literal positional args appear in v_legacy
+			// (清洁时间 `set_at({player = Player.All}, 0)`). The table's
+			// content is opaque to the obs encoder, so we lower to
+			// OpLoadImm 0 (same treatment as StringLit). The receiving
+			// builtin gets a placeholder reg in its arg frame.
+			name: "tablector_outside_call_lowered_to_imm0",
+			src:  `local t = { foo = 1 }`,
+			wantOps: []Op{
+				{Opcode: OpLoadImm, Dst: 0, Op1: 0},
+			},
 		},
 	}
 

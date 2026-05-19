@@ -183,12 +183,45 @@ func (c *compiler) compileExpr(n interp.Node) (int16, error) {
 		}
 		c.emit(Op{Opcode: OpLoadNil, Dst: r})
 		return r, nil
+	case *interp.StringLit:
+		// RC2: string literals appear in hook bodies as get_counter name
+		// args ("alive_count") and similar lookup keys. The actual string
+		// content is opaque to the obs encoder (no embedding budget for
+		// per-string-content tokens), so lower to OpLoadImm 0 — a stable
+		// placeholder. The semantic info that matters for the encoder
+		// (the builtin being called and surrounding control flow) is
+		// preserved in the surrounding OpCall.
+		return c.emitLoadImm(0)
+	case *interp.TableCtor:
+		// RC2: positional-arg TableCtor (not the trailing-kwargs slot —
+		// that path is handled in compileCall before gatherArgs). E.g.
+		// `set_at({player = Player.All}, 0)` passes a literal table as
+		// first positional. The table content is opaque to the obs
+		// encoder, so lower to OpLoadNil — encoder distinguishes
+		// "table arg present" from "missing arg" via NullReg.
+		return c.emitLoadImm(0)
 	case *interp.Ident:
 		if r, ok := c.scope[e.Name]; ok {
 			return r, nil
 		}
 		if b, ok := c.bindings[e.Name]; ok {
+			// RC2: file-top numeric/bool constants (e.g. `local INITIAL_HAND = 5`)
+			// inline at every read as OpLoadImm — keeps the value visible to
+			// the encoder as a literal embedding rather than an opaque
+			// AddrLocalVar load (which would be a single token for all
+			// constants in the file).
+			if b.Kind == BindingConst {
+				return c.emitLoadImm(b.ConstValue)
+			}
 			return c.emitLoadAddr(AddrLocalVar, b.ID, NullReg)
+		}
+		// RC2: bare `ctx` — every hook body's enclosing FuncLit has
+		// `ctx` as its sole parameter (the hook context proxy). Bare
+		// references (`cost_total(ctx)`, `cost_mod(ctx, ...)`) lower to
+		// an AddrCtxField load with sentinel addr_id=0 meaning "ctx self".
+		// `ctx.field` style is unaffected (compileDotAccess short-circuits).
+		if e.Name == "ctx" {
+			return c.emitLoadAddr(AddrCtxField, 0, NullReg)
 		}
 		return 0, wrapErr(n, "undefined identifier %q", e.Name)
 	case *interp.BinOp:
@@ -255,6 +288,18 @@ func (c *compiler) compileDotAccess(e *interp.DotAccess) (int16, error) {
 				return 0, err
 			}
 			return c.emitLoadAddr(AddrCharAttr, mid, recv)
+		}
+	}
+	// RC2: scope-local char-attr field-style. `local c = _char_by_slot[p][i];
+	// c.weapon` — `c` is a hook-body local (lives in c.scope) holding a
+	// char proxy; field access on a known char-attr method lowers to
+	// AddrCharAttr with the scope-local reg as receiver. Without this
+	// path the compiler rejected ~10 v_legacy weapon/energy/element/
+	// normal_attack reads through `_char_by_slot` lookups.
+	if recvReg, isScopeLocal := c.scope[obj.Name]; isScopeLocal {
+		if _, isAttr := charAttrMethods[e.Field]; isAttr {
+			mid, _ := engine.LookupMethod(e.Field)
+			return c.emitLoadAddr(AddrCharAttr, mid, recvReg)
 		}
 	}
 	return 0, wrapErr(e, "unsupported DotAccess on %s.%s", obj.Name, e.Field)
