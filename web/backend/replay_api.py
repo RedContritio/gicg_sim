@@ -81,12 +81,13 @@ def make_router(store: ReplayStore) -> APIRouter:
                 f'step {step} exceeds total {info["total_steps"]}',
             )
         # Replays may reference cards/chars from any pool (historical
-        # 赤蝶_vs_刻师傅.yaml mixes prod chars with 测试卡 e.g.). Union
-        # the bootstrap pools so any pre-ADR-0011 replay still loads.
+        # 赤蝶_vs_刻师傅.yaml mixes prod chars with 测试卡 + v_phase2 卡
+        # like 最好的伙伴！/ 派蒙 / 旅行剑). Union all 3 bootstrap pools
+        # so any pre-ADR-0011 replay still loads.
         env = GicgEnv(
             info['teams'][0],
             info['teams'][1],
-            pool=['v_legacy', 'test_basic'],
+            pool=['v_legacy', 'test_basic', 'v_phase2'],
         )
         try:
             try:
