@@ -38,19 +38,25 @@ func (c *compiler) compileCounterMethod(e *interp.MethodCall) (int16, error) {
 	// Arity validation removed in IR-1.6 — see counterMethods doc comment.
 	cid := b.ID
 
-	// Pure load/store subset → addressed memory ops. Everything else
-	// falls through to OpCall (the compiler does not lower :add to
-	// load-binop-store — that's the IR-3 interpreter's policy).
-	switch e.Method {
-	case "get":
+	// Pure load/store subset → addressed memory ops:
+	//   :get               (0-arg)          → OpLoadAddr  (idx=NullReg)
+	//   :set(v)            (1-arg)          → OpStoreAddr (idx=NullReg, src=v)
+	//   :get_at(i)         (1-arg PerPlayer) → OpLoadAddr  (idx=i)
+	//   :set_at(i,v)       (2-arg PerPlayer) → OpStoreAddr (idx=i, src=v)
+	// Multi-index (PerChar) :get_at(p,c) / :set_at(p,c,v) fall through to
+	// OpCall — single-idx OpLoadAddr can't carry the extra index.
+	switch {
+	case e.Method == "get" && len(e.Args) == 0:
 		return c.emitLoadAddr(AddrCounter, cid, NullReg)
-	case "get_at":
+	case e.Method == "get_at" && len(e.Args) == 1:
 		ri, err := c.compileExpr(e.Args[0])
 		if err != nil {
 			return 0, err
 		}
 		return c.emitLoadAddr(AddrCounter, cid, ri)
-	case "set", "set_at":
+	case e.Method == "set" && len(e.Args) == 1:
+		return c.emitCounterStore(e, cid)
+	case e.Method == "set_at" && len(e.Args) == 2:
 		return c.emitCounterStore(e, cid)
 	}
 
