@@ -5,10 +5,11 @@ package ir
 type TypedBindingKind int16
 
 const (
-	BindingCounter TypedBindingKind = 1
-	BindingCard    TypedBindingKind = 2
-	BindingChar    TypedBindingKind = 3
-	BindingSkill   TypedBindingKind = 4
+	BindingCounter  TypedBindingKind = 1
+	BindingCard     TypedBindingKind = 2
+	BindingChar     TypedBindingKind = 3
+	BindingSkill    TypedBindingKind = 4
+	BindingReaction TypedBindingKind = 5
 )
 
 // String — readable name for error messages (default %d would print raw int).
@@ -22,6 +23,8 @@ func (k TypedBindingKind) String() string {
 		return "Char"
 	case BindingSkill:
 		return "Skill"
+	case BindingReaction:
+		return "Reaction"
 	}
 	return "Unknown"
 }

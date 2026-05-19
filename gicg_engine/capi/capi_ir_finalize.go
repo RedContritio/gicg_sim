@@ -50,7 +50,16 @@ func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
 		if !ok || body == nil {
 			continue
 		}
-		bindings := fileBindings[h.Source]
+		// h.Source is "<file>#<idx>" (per builtins_counter_hooks.go:65-71)
+		// to disambig multiple hooks within one file for the visualizer.
+		// fileBindings is keyed by file basename (bindings are file-scoped
+		// — every hook in the same file sees the same captured locals),
+		// so strip the #idx suffix before lookup.
+		sourceKey := h.Source
+		if i := strings.IndexByte(sourceKey, '#'); i >= 0 {
+			sourceKey = sourceKey[:i]
+		}
+		bindings := fileBindings[sourceKey]
 		compiled, err := ir.CompileHookIR(body, bindings)
 		if err != nil {
 			failN++
@@ -99,6 +108,11 @@ func extractTopLevelBindings(chunk *interp.Chunk, nextID *int16) map[string]ir.T
 				kind = ir.BindingChar
 			case "declare_skill", "get_skill":
 				kind = ir.BindingSkill
+			case "declare_reaction":
+				// Reactions don't have a get_*: they're declared once per
+				// reaction key in data/system/reactions/*.lua and the
+				// handle is passed verbatim to set_reaction_kind(...).
+				kind = ir.BindingReaction
 			default:
 				continue
 			}
