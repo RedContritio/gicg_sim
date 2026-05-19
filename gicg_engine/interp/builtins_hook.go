@@ -200,6 +200,7 @@ func (rt *Runtime) registerHookFunctions() {
 				OwnerChar:   rt.CurrentOwnerChar,
 				Priority:    priority,
 				Tokens:      tokens,
+				BodyAny:     fn.Body, // *Chunk; engine treats as opaque
 			})
 			return id, nil
 		}))

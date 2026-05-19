@@ -266,6 +266,10 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 		}
 	}
 
+	// IR-2.b: compile each hook body AST → ir.CompiledHook and attach
+	// to Hook.Repr. Failures are non-fatal (legacy Tokens path stays).
+	finalizeHookIRs(g, rt)
+
 	// Enable event log for replay inspection
 	g.Log = engine.NewEventLog()
 

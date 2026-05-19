@@ -34,11 +34,15 @@ type Hook struct {
 	OwnerChar   int
 	Enabled     bool
 	Priority    int
-	// Repr is the IR observation representation (set by the DSL-load
-	// finalization step). Nil during transition (legacy token path).
-	// Tokens kept in parallel until full obs-schema cutover (IR-2.b).
-	Repr   HookRepresentation
-	Tokens []TokenPair // DSL token sequence of the hook body (legacy)
+	// Repr is the IR observation representation, set by the DSL-load
+	// finalization step (capi.FinalizeHookIRs). Hooks registered before
+	// finalization (or whose body fails to compile) leave Repr nil.
+	Repr HookRepresentation
+	// BodyAny holds the closure body AST (*interp.Chunk) untyped, so the
+	// engine package stays free of interp/ir dependencies. The
+	// finalization step casts it back.
+	BodyAny any
+	Tokens  []TokenPair // DSL token sequence of the hook body (legacy)
 	// Source is a short tag identifying which DSL file registered this
 	// hook (e.g. "铁剑", "赤蝶_蝶火", "round"). Used by the visualizer to
 	// disambiguate the dozens of on_card_play / on_damage_boost hooks

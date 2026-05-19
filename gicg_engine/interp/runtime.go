@@ -33,6 +33,11 @@ type Runtime struct {
 	// Hook token sequences for observation layer
 	PendingTokens [][]engine.TokenPair
 
+	// LoadedFiles accumulates the file paths fed through ExecFileSandboxed
+	// (in load order). Used by the IR-2.b finalization step to walk the
+	// cached AST chunks and extract per-file closure bindings.
+	LoadedFiles []string
+
 	// Debug
 	traceEnabled bool
 	lastError    error

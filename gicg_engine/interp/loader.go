@@ -166,6 +166,18 @@ func loadParsedDSL(path string) (*parsedDSLFile, error) {
 	return pf, nil
 }
 
+// CachedChunk returns the parsed AST chunk for a previously-loaded
+// file, or nil if not cached. Caller must not mutate the returned chunk
+// (it is shared across game instances).
+func CachedChunk(path string) *Chunk {
+	dslCacheMu.RLock()
+	defer dslCacheMu.RUnlock()
+	if pf, ok := dslCache[path]; ok {
+		return pf.chunk
+	}
+	return nil
+}
+
 // PreloadDSLFiles warms the DSL parse cache for a batch of paths.
 // Intended to be called once at process startup (e.g. by the
 // training launcher before any GameNew) so the first game creation
@@ -188,6 +200,7 @@ func (rt *Runtime) ExecFileSandboxed(path string) error {
 	if err != nil {
 		return err
 	}
+	rt.LoadedFiles = append(rt.LoadedFiles, path)
 
 	// Hook bodies are consumed by registerHook calls during chunk
 	// execution. The backing slice belongs to the cache entry and
