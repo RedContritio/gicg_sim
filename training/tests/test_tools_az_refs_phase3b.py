@@ -1,20 +1,24 @@
 """Import-topology guard for tools/{debug,probe,profile} AZ refs (Phase 3b).
 
 After the Phase 3b batch update (OpenSpec change ``az-paradigm-rewrite/``
-T3b), the 9 active diag/probe/profile tools MUST import all AZ symbols
-from the adapter top-level (``training.paradigms.az.*``); none may carry
+T3b), active diag/probe/profile tools MUST import all AZ symbols from
+the adapter top-level (``training.paradigms.az.*``); none may carry
 ``training.paradigms.az.legacy.*`` import paths.
 
 Coverage:
     * AST scan — verify zero ``training.paradigms.az.legacy`` imports in
-      the 9 in-scope files (allows the historical "legacy" string token
-      to remain in error messages / docstrings).
+      the in-scope files (allows the historical "legacy" string token to
+      remain in error messages / docstrings).
     * Import smoke — each module imports without ImportError, exercising
       the new adapter paths through Python's real loader.
 
 The covered tools are diag-only (not production blocking) but break loudly
 if their imports rot, so this guard runs in Phase 1 gate alongside the
 adapter unit tests.
+
+IR cutover (2026-05-19) deleted ``diag_hook_path`` + ``probe_numeric_sensitivity``
++ ``probe_numeric_sensitivity_core`` — they probed the obsolete (hook_types,
+hook_values) token-pair schema, replaced by IR ops in the static obs.
 """
 
 from __future__ import annotations
@@ -27,12 +31,9 @@ import pytest
 
 TOOLS = (
     'tools.debug.diag_champion_strength',
-    'tools.debug.diag_hook_path',
     'tools.debug.diag_is_mcts_baseline',
     'tools.debug.diag_is_mcts_with_rollout',
     'tools.debug.diag_net_plus_mcts',
-    'tools.probe.probe_numeric_sensitivity',
-    'tools.probe.probe_numeric_sensitivity_core',
     'tools.profile.profile_parallel',
     'tools.profile.profile_smoke',
 )

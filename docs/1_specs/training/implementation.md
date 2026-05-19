@@ -399,8 +399,6 @@ tools/
 ├── eval_service.py            ← 全局 gauntlet 服务
 ├── send_gauntlet.py           ← 发 gauntlet 请求
 ├── sanity_sid_pin.py          ← 结构性 sid 校验
-├── diag_hook_path.py          ← hook 通路诊断
-├── probe_numeric_sensitivity.py ← 数值扰动敏感度
 ├── mcts_player.py             ← 最小 MCTS 玩家 + vs-random 验证
 ├── bench_snapshot.py          ← snapshot/restore 吞吐基准
 └── watch_run.py               ← 运行监控

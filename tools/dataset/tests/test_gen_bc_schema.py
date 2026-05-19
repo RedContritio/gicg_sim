@@ -179,7 +179,7 @@ def test_collect_produces_az_shape_only() -> None:
             npz_path,
             n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
             n_hooks=900,
-            max_tokens_per_hook=120,
+            max_ops_per_hook=64,
         )
         assert len(ds) == n, f'BCDataset reports {len(ds)} decisions, gen_bc produced {n}'
         # build_batch on first index should not raise

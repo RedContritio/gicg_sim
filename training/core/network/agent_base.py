@@ -160,10 +160,9 @@ class AgentBase:
         torch.Tensor,
         torch.Tensor,
         torch.Tensor,
-        torch.Tensor,
     ]:
         """Returns ``(hook_emb, hook_mask, counter_sids, active_slot_mask,
-        hook_types, hook_values, char_skill_refs)``."""
+        hook_ir, char_skill_refs)``."""
         with torch.no_grad():
             static = torch.tensor(static_obs_np, dtype=torch.float32, device=self.device)
 

@@ -282,7 +282,7 @@ class TestLiveWebSocket:
         artifacts/, start a WS game, verify the round-trip."""
         import torch
         import shutil
-        from training.cfr.network import CFRNetConfig, CFRStrategyNet
+        from training.paradigms.cfr import CFRNetConfig, CFRStrategyNet
 
         # Save under artifacts/ so the path whitelist accepts it
         artifacts_dir = Path('artifacts') / f'test_cfr_live_{os.getpid()}'
@@ -294,7 +294,7 @@ class TestLiveWebSocket:
                 CFRNetConfig(
                     n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
                     n_hooks=900,
-                    max_tokens_per_hook=120,
+                    max_ops_per_hook=64,
                     max_actions=2048,
                     d_model=8,
                     n_cross_layers=1,

@@ -251,7 +251,7 @@ def make_tiny_agent_cfg(
 
 def make_structural_batch_dict(agent_cfg: Any, *, batch_size: int = 2, seed: int = 0) -> dict:
     """Build a single forward_batch dict matching the structural backbone
-    contract (counter_values / hook_types / typed_damage / ...). Used by
+    contract (counter_values / hook_ir / typed_damage / ...). Used by
     AZ / BC / DMC builders. CFR pre-forwards so it doesn't need this.
     """
     import numpy as np

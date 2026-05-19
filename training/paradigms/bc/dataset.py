@@ -101,10 +101,10 @@ def stack_static_batch(statics: list[dict], max_ops_per_hook: int) -> dict:
 class BCDataset:
     """Loads NPZ + caches per-game parsed static.
 
-    game_static_obs is HUGE (4629 games × 221k floats ≈ 4 GB for our
-    Stage 3 dataset because of 900 hooks × 120 tokens). We parse all
-    games immediately into compact (n_active × max_tokens) arrays and
-    drop the raw static obs to keep RAM bounded.
+    game_static_obs is HUGE (4629 games × 293k int32 ≈ 5 GB for our
+    Stage 3 dataset because of 900 hooks × 64 IR ops × 5 fields). We
+    parse all games immediately into compact (n_active × max_ops × 5)
+    arrays and drop the raw static obs to keep RAM bounded.
     """
 
     def __init__(self, npz_path: Path, n_counter_slots: int, n_hooks: int, max_ops_per_hook: int):
