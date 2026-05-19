@@ -154,16 +154,15 @@ func TestCompileHookIR(t *testing.T) {
 			},
 		},
 		{
-			// :cmin similarly — receiver in OpCall.Op2, single arg in
-			// the contiguous block at Op3. Regression guard against
-			// re-introducing the old 3-op load-binop-store pattern.
+			// :cmin returns a value (counterMethodsReturnValue includes
+			// cmin/cmax). Dst = freshly allocated reg.
 			name:     "counter_cmin_now_one_op",
 			src:      `buff:cmin(5)`,
 			bindings: map[string]TypedBinding{"buff": {Kind: BindingCounter, ID: 7}},
 			wantOps: []Op{
 				{Opcode: OpLoadImm, Dst: 0, Op1: 5},
 				{Opcode: OpLoadReg, Dst: 1, Op1: 0},
-				{Opcode: OpCall, Dst: nr, Op1: tokMCmin, Op2: 7, Op3: 1},
+				{Opcode: OpCall, Dst: 2, Op1: tokMCmin, Op2: 7, Op3: 1},
 			},
 		},
 		{

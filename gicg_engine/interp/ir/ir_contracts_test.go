@@ -36,11 +36,17 @@ func TestCompilerContracts(t *testing.T) {
 			wantErr: "implicit global not allowed",
 		},
 		{
-			// Lua-style cross-block reassign of outer local — SSA model
-			// can't propagate; reject at compile.
-			name:    "outer_local_reassign_rejected",
-			src:     `local x = 1 if ctx.hit then x = 5 end`,
-			wantErr: "reassignment to outer-scope",
+			// Outer-scope reassignment from inner block is ALLOWED (Lua
+			// semantics; real DSL guard-flag pattern).
+			name: "outer_local_reassign_propagates",
+			src:  `local x = 1 if ctx.hit then x = 5 end`,
+			wantOps: []Op{
+				{Opcode: OpLoadImm, Dst: 0, Op1: 1},
+				{Opcode: OpLoadAddr, Dst: 1, Op1: ctxF, Op2: tokHit, Op3: nr},
+				{Opcode: OpCJump, Op1: 1, Op2: 5},
+				{Opcode: OpLoadImm, Dst: 2, Op1: 5},
+				{Opcode: OpJump, Op1: 5},
+			},
 		},
 		{
 			// Same-chunk reassign — OK, rebinds name to fresh register.
@@ -52,7 +58,7 @@ func TestCompilerContracts(t *testing.T) {
 			},
 		},
 		{
-			// Inner `local x` shadows outer — falls out of scope at chunk exit.
+			// Inner `local x` shadows outer; falls out at chunk exit.
 			name: "inner_local_shadow_ok",
 			src:  `local x = 1 if ctx.hit then local x = 5 end`,
 			wantOps: []Op{
@@ -64,8 +70,7 @@ func TestCompilerContracts(t *testing.T) {
 			},
 		},
 		{
-			// Counter method on non-counter binding — error must show the
-			// kind name (via TypedBindingKind.String), not raw int.
+			// Counter method on non-counter binding; error shows kind name.
 			name:     "kind_mismatch_not_counter",
 			src:      `card:set_at(0, 1)`,
 			bindings: map[string]TypedBinding{"card": {Kind: BindingCard, ID: 100}},
@@ -250,48 +255,4 @@ func TestDeferFnLambdas(t *testing.T) {
 	}
 }
 
-// C-001: methodMap ∩ tokenMap = ∅ (OpCall.Op2 dual semantics unambiguous).
-func TestContract_OpCallDispatchDisjoint(t *testing.T) {
-	methods := []string{"get", "set", "add", "sub", "cmin", "cmax", "get_at", "set_at",
-		"add_at", "sub_at", "decay_all", "fill_all", "hp", "energy", "alive",
-		"owner_player", "owner_char", "name", "element", "weapon"}
-	builtins := []string{"declare_counter", "get_counter", "declare_char", "get_char",
-		"declare_skill", "get_skill", "invoke_skill", "declare_card", "get_card",
-		"add_card", "deal_damage", "heal", "defer_fn", "get_active_char",
-		"context_player", "gain_energy", "consume_energy", "min", "max"}
-	methodIDs := map[int16]string{}
-	for _, m := range methods {
-		id, ok := engine.LookupMethod(m)
-		if !ok {
-			t.Fatalf("methodMap missing %q", m)
-		}
-		methodIDs[id] = m
-	}
-	for _, b := range builtins {
-		id, ok := engine.LookupBuiltin(b)
-		if !ok {
-			t.Fatalf("tokenMap missing %q", b)
-		}
-		if m, dup := methodIDs[id]; dup {
-			t.Errorf("token id %d collision: builtin %q and method %q (breaks OpCall Op2 dispatch)", id, b, m)
-		}
-	}
-}
-
-// C-002: every name in counterMethods/charAttrMethods resolves to a
-// non-zero token via LookupMethod. Otherwise compiler silently emits
-// OpCall(Op1=0=OpNop).
-func TestContract_MethodSetsResolve(t *testing.T) {
-	for name := range counterMethods {
-		id, ok := engine.LookupMethod(name)
-		if !ok || id == 0 {
-			t.Errorf("counterMethods[%q]: LookupMethod returned (%d, %v); want (non-zero, true)", name, id, ok)
-		}
-	}
-	for name := range charAttrMethods {
-		id, ok := engine.LookupMethod(name)
-		if !ok || id == 0 {
-			t.Errorf("charAttrMethods[%q]: LookupMethod returned (%d, %v); want (non-zero, true)", name, id, ok)
-		}
-	}
-}
+// C-001/C-002 contract invariants moved to ir_invariants_test.go.

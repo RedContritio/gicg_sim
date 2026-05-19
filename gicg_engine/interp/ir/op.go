@@ -88,8 +88,9 @@ const NullReg int16 = -1
 
 // MaxRegs — hard cap on register count per hook (IR observation slot budget).
 // Exported so the IR-3 interpreter + Python encoder validate against the same
-// constant rather than the literal 32.
-const MaxRegs = 32
+// constant. Bumped to 64 in IR-1.6 after audit revealed real-DSL hooks (玄冰
+// on_reaction_damage) cap-out at 33 regs in SSA-style allocation.
+const MaxRegs = 64
 
 // binOpKindByString — Lua operator string → BinOp kind. Pure data table;
 // compiler reads via a single lookup + ok check.
@@ -129,6 +130,17 @@ var counterMethods = map[string]struct{}{
 	"get": {}, "set": {}, "get_at": {}, "set_at": {},
 	"add": {}, "sub": {}, "add_at": {}, "sub_at": {},
 	"cmin": {}, "cmax": {}, "decay_all": {}, "fill_all": {},
+}
+
+// counterMethodsReturnValue — subset of counterMethods whose OpCall
+// fall-through path returns a usable value (Dst = allocated reg).
+// Everything else (add/sub/add_at/sub_at/decay_all/fill_all) is
+// statement-style with Dst=NullReg. :get/:set/:get_at(1-arg)/:set_at(2-arg)
+// use the LoadAddr/StoreAddr fast path so they don't reach this table.
+var counterMethodsReturnValue = map[string]struct{}{
+	"get_at": {}, // 2-arg PerChar form
+	"cmin":   {},
+	"cmax":   {},
 }
 
 // charAttrMethods — names dispatched in compileCharAttrMethod (pure

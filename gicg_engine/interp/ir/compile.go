@@ -18,15 +18,17 @@ type CompiledHook struct {
 // CompileHookIR walks a hook-body AST → 3-address-code IR.
 // declareBindings: closure-captured ident → typed ID; read-only.
 func CompileHookIR(body *interp.Chunk, declareBindings map[string]TypedBinding) (CompiledHook, error) {
+	lambdas := [][]Op{}
 	c := &compiler{
 		scope:              map[string]int16{},
 		currentChunkLocals: map[string]struct{}{},
 		bindings:           declareBindings,
+		lambdas:            &lambdas,
 	}
 	if err := c.compileChunk(body); err != nil {
 		return CompiledHook{}, err
 	}
-	return CompiledHook{MainOps: c.ops, Lambdas: c.lambdas}, nil
+	return CompiledHook{MainOps: c.ops, Lambdas: lambdas}, nil
 }
 
 type compiler struct {
@@ -36,7 +38,10 @@ type compiler struct {
 	currentChunkLocals map[string]struct{}
 	bindings           map[string]TypedBinding
 	ops                []Op
-	lambdas            [][]Op
+	// lambdas is a SHARED pointer to the root compiler's lambda list —
+	// sub-compilers for nested defer_fn append to the same flat slice so
+	// every OpDeferFn anywhere in the tree carries a global lambda index.
+	lambdas *[][]Op
 }
 
 // --- low-level emit helpers --------------------------------------------------
@@ -95,7 +100,10 @@ func (c *compiler) emitArithOp(opcode, kind int16, op1, op2 int16) (int16, error
 // --- statements --------------------------------------------------------------
 
 func (c *compiler) compileChunk(ch *interp.Chunk) error {
-	// Snapshot+restore both scope and currentChunkLocals across the chunk boundary.
+	// Chunk-boundary scope: outer-scope reassignments propagate (Lua semantics —
+	// `local x; if cond then x = 5 end` must update x post-block); only LOCALly
+	// declared names fall out of scope at exit. Shadowing (inner `local x`
+	// over outer `x`) restores outer's binding on exit.
 	savedScope := maps.Clone(c.scope)
 	savedLocals := c.currentChunkLocals
 	c.currentChunkLocals = map[string]struct{}{}
@@ -104,7 +112,13 @@ func (c *compiler) compileChunk(ch *interp.Chunk) error {
 			return err
 		}
 	}
-	c.scope = savedScope
+	for name := range c.currentChunkLocals {
+		if old, was := savedScope[name]; was {
+			c.scope[name] = old // restore shadowed outer
+		} else {
+			delete(c.scope, name) // remove inner-only local
+		}
+	}
 	c.currentChunkLocals = savedLocals
 	return nil
 }
@@ -228,6 +242,20 @@ func (c *compiler) compileDotAccess(e *interp.DotAccess) (int16, error) {
 	}
 	if id, ok := engine.LookupEnum(obj.Name + "." + e.Field); ok {
 		return c.emitLoadAddr(AddrEnum, id, NullReg)
+	}
+	// OQ-3: char-attr field-style. `ch.hp` ≡ `ch:hp()` when `ch` is a
+	// Char-binding receiver. Audit confirms field-style usage in
+	// v_legacy (以牙还牙, 星愿). Method-style continues to work via
+	// compileMethodCall.
+	if b, bok := c.bindings[obj.Name]; bok && b.Kind == BindingChar {
+		if _, isAttr := charAttrMethods[e.Field]; isAttr {
+			mid, _ := engine.LookupMethod(e.Field)
+			recv, err := c.emitLoadAddr(AddrLocalVar, b.ID, NullReg)
+			if err != nil {
+				return 0, err
+			}
+			return c.emitLoadAddr(AddrCharAttr, mid, recv)
+		}
 	}
 	return 0, wrapErr(e, "unsupported DotAccess on %s.%s", obj.Name, e.Field)
 }

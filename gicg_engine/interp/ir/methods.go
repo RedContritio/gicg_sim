@@ -60,16 +60,23 @@ func (c *compiler) compileCounterMethod(e *interp.MethodCall) (int16, error) {
 		return c.emitCounterStore(e, cid)
 	}
 
-	// counterMethodArity keys are a strict subset of methodMap keys
-	// (both populated in tokenizer_maps.go) — invariant maintained at
-	// the source; the lookup cannot fail. No defensive !ok branch.
+	// counterMethods keys are a strict subset of methodMap keys
+	// (both populated in tokenizer_maps.go) — invariant guarded by
+	// TestContract_MethodSetsResolve; no defensive !ok branch needed.
 	mid, _ := engine.LookupMethod(e.Method)
 	base, err := c.gatherArgs(e.Args)
 	if err != nil {
 		return 0, err
 	}
-	c.emit(Op{Opcode: OpCall, Dst: NullReg, Op1: mid, Op2: cid, Op3: base})
-	return NullReg, nil
+	dst := int16(NullReg)
+	if _, returns := counterMethodsReturnValue[e.Method]; returns {
+		dst, err = c.allocReg()
+		if err != nil {
+			return 0, err
+		}
+	}
+	c.emit(Op{Opcode: OpCall, Dst: dst, Op1: mid, Op2: cid, Op3: base})
+	return dst, nil
 }
 
 // emitCounterStore covers :set and :set_at. Lua-style return: the call
@@ -182,12 +189,13 @@ func (c *compiler) compileDeferFn(e *interp.Call, fl *interp.FuncLit) (int16, er
 		scope:              map[string]int16{},
 		currentChunkLocals: map[string]struct{}{},
 		bindings:           c.bindings,
+		lambdas:            c.lambdas, // shared pointer — nested defer_fn lands in the root list
 	}
 	if err := sub.compileChunk(fl.Body); err != nil {
 		return 0, wrapErr(e, "compiling defer_fn lambda: %v", err)
 	}
-	lambdaIdx := int16(len(c.lambdas))
-	c.lambdas = append(c.lambdas, sub.ops)
+	lambdaIdx := int16(len(*c.lambdas))
+	*c.lambdas = append(*c.lambdas, sub.ops)
 	c.emit(Op{Opcode: OpDeferFn, Op1: lambdaIdx})
 	return NullReg, nil
 }

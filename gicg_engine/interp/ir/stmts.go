@@ -21,12 +21,13 @@ func (c *compiler) compileAssign(a *interp.Assign) error {
 	case *interp.DotAccess:
 		return c.compileAssignDotAccess(a, t, r)
 	case *interp.Ident:
-		if _, sameChunk := c.currentChunkLocals[t.Name]; sameChunk {
+		// Outer-scope reassignment is allowed (Lua semantics — guard-flag
+		// pattern `local triggered=false; if ... then triggered=true end` is
+		// common in real DSL). chunk-exit restore in compileChunk preserves
+		// outer mutations and only resets inner-declared locals.
+		if _, inScope := c.scope[t.Name]; inScope {
 			c.scope[t.Name] = r
 			return nil
-		}
-		if _, outerScope := c.scope[t.Name]; outerScope {
-			return wrapErr(a, "reassignment to outer-scope local %q not supported (declare a fresh local instead)", t.Name)
 		}
 		if _, captured := c.bindings[t.Name]; captured {
 			return wrapErr(a, "cannot assign to closure-captured ident %q", t.Name)
