@@ -25,7 +25,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 # the engine's capacity (set at engine build time: 900 hooks, 120 tokens
 # per hook) — the static obs layout encodes that size exactly.
 D_MODEL = 8
-MAX_TOK = 120
+MAX_TOK = 64
 N_HOOKS_CAP = 900
 MAX_ACTIONS = 2048
 BUFFER_CAP = 2048
@@ -40,7 +40,7 @@ def _make_traverser(seed: int = 0):
     cfg = CFRNetConfig(
         n_counter_slots=n_counter_slots,
         n_hooks=N_HOOKS_CAP,
-        max_tokens_per_hook=MAX_TOK,
+        max_ops_per_hook=MAX_TOK,
         max_actions=MAX_ACTIONS,
         d_model=D_MODEL,
         n_cross_layers=1,
@@ -52,7 +52,7 @@ def _make_traverser(seed: int = 0):
     return CFRTraverser(
         advantage_nets=[net, AdvantageNet(cfg)],
         n_counter_slots=n_counter_slots,
-        max_tokens_per_hook=MAX_TOK,
+        max_ops_per_hook=MAX_TOK,
         n_hooks_capacity=N_HOOKS_CAP,
         max_actions=MAX_ACTIONS,
         advantage_buffers=[
@@ -193,7 +193,7 @@ class TestSampleAction:
         cfg = CFRNetConfig(
             n_counter_slots=16,
             n_hooks=16,
-            max_tokens_per_hook=4,
+            max_ops_per_hook=4,
             max_actions=4,
             d_model=D_MODEL,
             n_cross_layers=1,
@@ -203,7 +203,7 @@ class TestSampleAction:
         return CFRTraverser(
             advantage_nets=[net, AdvantageNet(cfg)],
             n_counter_slots=16,
-            max_tokens_per_hook=4,
+            max_ops_per_hook=4,
             n_hooks_capacity=16,
             max_actions=4,
             advantage_buffers=[
@@ -245,7 +245,7 @@ class TestSamplingDistValidation:
         cfg = CFRNetConfig(
             n_counter_slots=16,
             n_hooks=16,
-            max_tokens_per_hook=4,
+            max_ops_per_hook=4,
             max_actions=4,
             d_model=D_MODEL,
             n_cross_layers=1,
@@ -255,7 +255,7 @@ class TestSamplingDistValidation:
         return CFRTraverser(
             advantage_nets=[net, AdvantageNet(cfg)],
             n_counter_slots=16,
-            max_tokens_per_hook=4,
+            max_ops_per_hook=4,
             n_hooks_capacity=16,
             max_actions=4,
             advantage_buffers=[

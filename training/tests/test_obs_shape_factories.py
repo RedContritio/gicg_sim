@@ -2,7 +2,7 @@
 
 Verifies each factory returns an ObsShape with paradigm 历史 d_model +
 n_cross_layers defaults, plus shared base shape fields (n_counter_slots
-/ n_hooks / max_tokens_per_hook / max_actions / dropout).
+/ n_hooks / max_ops_per_hook / max_actions / dropout).
 
 Spec ref: config-schema/spec.md § 7 N1.2.
 """
@@ -30,7 +30,7 @@ def _assert_base_shape(shape: ObsShape) -> None:
     """Assert paradigm-shared base fields."""
     assert shape.n_counter_slots == _BASE_N_COUNTER_SLOTS
     assert shape.n_hooks == _BASE_N_HOOKS
-    assert shape.max_tokens_per_hook == _BASE_MAX_TOKENS_PER_HOOK
+    assert shape.max_ops_per_hook == _BASE_MAX_TOKENS_PER_HOOK
     assert shape.max_actions == _BASE_MAX_ACTIONS
     assert shape.dropout == _BASE_DROPOUT
 

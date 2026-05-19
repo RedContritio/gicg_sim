@@ -35,7 +35,7 @@ def _make_net(*, d_model=16, n_slots=128, n_hooks=8, max_tok=12, max_actions=6):
     return ActorCritic(
         n_counter_slots=n_slots,
         n_hooks=n_hooks,
-        max_tokens_per_hook=max_tok,
+        max_ops_per_hook=max_tok,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=1,
@@ -135,7 +135,7 @@ class TestAgent:
         return AgentConfig(
             n_counter_slots=128,
             n_hooks=8,
-            max_tokens_per_hook=12,
+            max_ops_per_hook=12,
             max_actions=6,
             d_model=16,
             n_cross_layers=1,
@@ -155,7 +155,7 @@ class TestAgent:
 
         meta_size = cfg.n_counter_slots * 3
         refs_size = OBS_CHAR_SKILL_REFS_SIZE
-        hook_size = cfg.n_hooks * cfg.max_tokens_per_hook * 2
+        hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
         obs = np.zeros(meta_size + refs_size + hook_size, dtype=np.float32)
         # Counter meta: give each slot a distinct SID
         for i in range(cfg.n_counter_slots):
@@ -164,7 +164,7 @@ class TestAgent:
         obs[meta_size : meta_size + refs_size] = -1.0
         # Hook data: first token of each hook is a non-zero type
         hook_start = meta_size + refs_size
-        stride = cfg.max_tokens_per_hook * 2
+        stride = cfg.max_ops_per_hook * 2
         for h in range(cfg.n_hooks):
             obs[hook_start + h * stride + 0] = 1.0  # type
             obs[hook_start + h * stride + 1] = 0.5  # value
@@ -295,10 +295,10 @@ class TestAgent:
         batch['hook_types'] = np.random.randint(
             1,
             100,
-            (B, N, cfg.max_tokens_per_hook),
+            (B, N, cfg.max_ops_per_hook),
         ).astype(np.int64)
         batch['hook_values'] = np.zeros(
-            (B, N, cfg.max_tokens_per_hook),
+            (B, N, cfg.max_ops_per_hook),
             dtype=np.float32,
         )
         logits, value, _ = agent.forward_batch(batch)
@@ -325,10 +325,10 @@ class TestAgent:
         batch['hook_types'] = np.random.randint(
             1,
             100,
-            (B, N, cfg.max_tokens_per_hook),
+            (B, N, cfg.max_ops_per_hook),
         ).astype(np.int64)
         batch['hook_values'] = np.zeros(
-            (B, N, cfg.max_tokens_per_hook),
+            (B, N, cfg.max_ops_per_hook),
             dtype=np.float32,
         )
         logits, value, _ = agent.forward_batch(batch)

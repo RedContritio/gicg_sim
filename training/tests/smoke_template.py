@@ -221,7 +221,7 @@ def make_tiny_agent_cfg(
     *,
     n_counter_slots: int = 128,  # SHALL be >= N_STRUCTURAL (66) — struct_readout slices [:, :N_STRUCTURAL]
     n_hooks: int = 4,
-    max_tokens_per_hook: int = 8,
+    max_ops_per_hook: int = 8,
     max_actions: int = 6,
     d_model: int = 16,
     n_cross_layers: int = 1,
@@ -241,7 +241,7 @@ def make_tiny_agent_cfg(
     return AgentConfig(
         n_counter_slots=n_counter_slots,
         n_hooks=n_hooks,
-        max_tokens_per_hook=max_tokens_per_hook,
+        max_ops_per_hook=max_ops_per_hook,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=n_cross_layers,
@@ -278,13 +278,13 @@ def make_structural_batch_dict(agent_cfg: Any, *, batch_size: int = 2, seed: int
     B = batch_size
     ncs = agent_cfg.n_counter_slots
     nh = agent_cfg.n_hooks
-    mt = agent_cfg.max_tokens_per_hook
+    mt = agent_cfg.max_ops_per_hook
     ma = agent_cfg.max_actions
 
-    # Hook types must be in [0, n_hooks) so the HookEncoder embedding
-    # lookup is valid; matches test_az_buffer_phase2_inline pattern.
-    hook_types = rng.integers(0, nh, size=(B, nh, mt)).astype(np.int64)
-    hook_values = rng.standard_normal((B, nh, mt)).astype(np.float32)
+    # IR-4: hook obs is now (B, nh, max_ops, fields_per_op=5) IR-op tensor.
+    # Opcodes in [1, 14] (1-14 are real opcodes, 0 is OpNop pad).
+    fpo = agent_cfg.fields_per_op
+    hook_ir = rng.integers(1, 14, size=(B, nh, mt, fpo)).astype(np.int64)
     hook_mask = np.ones((B, nh), dtype=bool)
 
     # Padded recent_damage / modifier_log per typed_obs convention.
@@ -307,8 +307,7 @@ def make_structural_batch_dict(agent_cfg: Any, *, batch_size: int = 2, seed: int
         'counter_values': counter_values,
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
-        'hook_types': hook_types,
-        'hook_values': hook_values,
+        'hook_ir': hook_ir,
         'hook_mask': hook_mask,
         'card_buckets': rng.standard_normal((B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES)).astype(np.float32),
         'enemy_sizes': rng.standard_normal((B, OBS_ENEMY_SIZES)).astype(np.float32),

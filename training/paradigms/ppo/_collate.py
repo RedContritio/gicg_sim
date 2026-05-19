@@ -91,11 +91,9 @@ def transitions_to_collated(
         char_skill_refs_cached,
         (B,) + char_skill_refs_cached.shape,
     ).copy()
-    hook_types_cached = agent._hook_types_cache.cpu().numpy()
-    hook_values_cached = agent._hook_values_cache.cpu().numpy()
+    hook_ir_cached = agent._hook_ir_cache.cpu().numpy()
     hook_mask_cached = agent._hook_mask.squeeze(0).cpu().numpy()
-    hook_types = np.broadcast_to(hook_types_cached, (B,) + hook_types_cached.shape).copy()
-    hook_values = np.broadcast_to(hook_values_cached, (B,) + hook_values_cached.shape).copy()
+    hook_ir = np.broadcast_to(hook_ir_cached, (B,) + hook_ir_cached.shape).copy()
     hook_mask = np.broadcast_to(hook_mask_cached, (B,) + hook_mask_cached.shape).copy()
 
     return {
@@ -112,7 +110,6 @@ def transitions_to_collated(
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
         'char_skill_refs': char_skill_refs,
-        'hook_types': hook_types,
-        'hook_values': hook_values,
+        'hook_ir': hook_ir,
         'hook_mask': hook_mask,
     }

@@ -26,7 +26,7 @@ def _cfg() -> CFRNetConfig:
     return CFRNetConfig(
         n_counter_slots=N_COUNTER_SLOTS,
         n_hooks=100,  # declared max; actual cached is smaller
-        max_tokens_per_hook=MAX_TOKENS,
+        max_ops_per_hook=MAX_TOKENS,
         max_actions=MAX_ACTIONS,
         d_model=D_MODEL,
         dropout=0.0,
@@ -253,7 +253,7 @@ class TestLargeDModelStability:
         return CFRNetConfig(
             n_counter_slots=N_COUNTER_SLOTS,
             n_hooks=100,
-            max_tokens_per_hook=MAX_TOKENS,
+            max_ops_per_hook=MAX_TOKENS,
             max_actions=MAX_ACTIONS,
             d_model=64,
             dropout=0.0,

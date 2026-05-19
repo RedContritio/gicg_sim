@@ -55,7 +55,7 @@ class AZSmokeBuilder:
                 'agent': {
                     'n_counter_slots': 128,
                     'n_hooks': 4,
-                    'max_tokens_per_hook': 8,
+                    'max_ops_per_hook': 8,
                     'max_actions': 6,
                     'd_model': 16,
                     'n_cross_layers': 1,

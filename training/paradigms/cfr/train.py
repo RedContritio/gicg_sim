@@ -127,7 +127,7 @@ class CFRTrainer:
         self.traverser = CFRTraverser(
             advantage_nets=self.advantage_nets,
             n_counter_slots=net_cfg.n_counter_slots,
-            max_tokens_per_hook=net_cfg.max_tokens_per_hook,
+            max_ops_per_hook=net_cfg.max_ops_per_hook,
             n_hooks_capacity=net_cfg.n_hooks,
             max_actions=net_cfg.max_actions,
             advantage_buffers=self.advantage_buffers,

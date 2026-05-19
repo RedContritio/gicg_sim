@@ -59,8 +59,10 @@ class AgentConfig:
 
     n_counter_slots: int
     n_hooks: int
-    max_tokens_per_hook: int
+    max_ops_per_hook: int
     max_actions: int
+    # IR-4: per-op field count in obs (opcode, dst, op1, op2, op3 = 5).
+    fields_per_op: int = 5
     d_model: int = 64
     dropout: float = 0.0
     n_cross_layers: int = 2
@@ -91,8 +93,8 @@ class AgentBase:
         self._counter_sids: Optional[torch.Tensor] = None  # (1, n_slots)
         self._active_slot_mask: Optional[torch.Tensor] = None  # (1, n_slots) bool
         self._char_skill_refs: Optional[torch.Tensor] = None  # (1, 2, MC, MSPC)
-        self._hook_types_cache: Optional[torch.Tensor] = None
-        self._hook_values_cache: Optional[torch.Tensor] = None
+        # IR-4: replaced hook_types/hook_values caches with single hook_ir cache.
+        self._hook_ir_cache: Optional[torch.Tensor] = None  # (n_active, max_ops, 5) long
         self._structural_obspos: Optional[torch.Tensor] = None
         self._static_hash: Optional[str] = None
 
@@ -126,8 +128,7 @@ class AgentBase:
             hook_mask,
             counter_sids,
             active_slot_mask,
-            hook_types,
-            hook_values,
+            hook_ir,
             char_skill_refs,
         ) = self.encode_static_tensors_with_tokens(static_obs_np)
         self._hook_emb = hook_emb.unsqueeze(0)
@@ -139,15 +140,14 @@ class AgentBase:
             self._counter_sids,
             self._active_slot_mask,
         )
-        self._hook_types_cache = hook_types
-        self._hook_values_cache = hook_values
+        self._hook_ir_cache = hook_ir
 
     def encode_static_tensors(
         self,
         static_obs_np: np.ndarray,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Stateless 3-tuple variant — for the inference server's per-game cache."""
-        hook_emb, hook_mask, counter_sids, _, _, _, _ = self.encode_static_tensors_with_tokens(static_obs_np)
+        hook_emb, hook_mask, counter_sids, _, _, _ = self.encode_static_tensors_with_tokens(static_obs_np)
         return hook_emb, hook_mask, counter_sids
 
     def encode_static_tensors_with_tokens(
@@ -183,41 +183,34 @@ class AgentBase:
                 .long()
             )
 
-            hook_size = self.cfg.n_hooks * self.cfg.max_tokens_per_hook * 2
-            hook_data = static[meta_size + refs_size : meta_size + refs_size + hook_size].reshape(
-                self.cfg.n_hooks,
-                self.cfg.max_tokens_per_hook,
-                2,
+            # IR-4: hook section = (n_hooks, max_ops, fields_per_op=5) int32.
+            # Each op is (opcode, dst, op1, op2, op3). Active hook = opcode!=0
+            # in any op position (NOP-padded slots are zero).
+            ops_per_hook = self.cfg.max_ops_per_hook
+            fields_per_op = self.cfg.fields_per_op
+            hook_size = self.cfg.n_hooks * ops_per_hook * fields_per_op
+            hook_ir_all = (
+                static[meta_size + refs_size : meta_size + refs_size + hook_size]
+                .reshape(self.cfg.n_hooks, ops_per_hook, fields_per_op)
+                .long()
             )
-            hook_types_all = hook_data[:, :, 0].long()
-            hook_values_all = hook_data[:, :, 1].float()
-            non_empty = hook_types_all.sum(dim=-1) != 0
+            opcodes_all = hook_ir_all[:, :, 0]
+            non_empty = (opcodes_all != 0).any(dim=-1)
             n_active = int(non_empty.sum().item())
 
             if n_active > 0:
-                active_types = hook_types_all[non_empty]
-                active_values = hook_values_all[non_empty]
+                active_ir = hook_ir_all[non_empty]  # (n_active, max_ops, 5)
                 active_mask = torch.ones(1, n_active, dtype=torch.bool, device=self.device)
-                # DI: call injected hook_encoder (was self.net.hook_encoder in legacy)
-                hook_emb = self._hook_encoder(
-                    active_types.unsqueeze(0),
-                    active_values.unsqueeze(0),
-                    active_mask,
-                ).squeeze(0)
+                hook_emb = self._hook_encoder(active_ir.unsqueeze(0), active_mask).squeeze(0)
                 hook_mask = torch.ones(n_active, dtype=torch.bool, device=self.device)
             else:
                 hook_emb = torch.zeros(1, self.cfg.d_model, device=self.device)
                 hook_mask = torch.zeros(1, dtype=torch.bool, device=self.device)
-                active_types = torch.zeros(
+                active_ir = torch.zeros(
                     1,
-                    self.cfg.max_tokens_per_hook,
+                    ops_per_hook,
+                    fields_per_op,
                     dtype=torch.long,
-                    device=self.device,
-                )
-                active_values = torch.zeros(
-                    1,
-                    self.cfg.max_tokens_per_hook,
-                    dtype=torch.float32,
                     device=self.device,
                 )
 
@@ -226,8 +219,7 @@ class AgentBase:
             hook_mask,
             counter_sids,
             active_slot_mask,
-            active_types,
-            active_values,
+            active_ir,
             char_skill_refs,
         )
 
@@ -268,8 +260,7 @@ class AgentBase:
         """Evaluator protocol: encode + cache static, return per-game dict for replay buffer."""
         self.encode_static(static_obs_np)
         return {
-            'hook_types': self._hook_types_cache.detach().cpu().numpy().astype(np.int64),
-            'hook_values': self._hook_values_cache.detach().cpu().numpy().astype(np.float32),
+            'hook_ir': self._hook_ir_cache.detach().cpu().numpy().astype(np.int64),
             'hook_mask': self._hook_mask.squeeze(0).detach().cpu().numpy().astype(bool),
             'counter_sids': self._counter_sids.squeeze(0).detach().cpu().numpy().astype(np.int64),
             'active_slot_mask': self._active_slot_mask.squeeze(0).detach().cpu().numpy().astype(bool),

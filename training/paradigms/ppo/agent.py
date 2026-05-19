@@ -203,8 +203,7 @@ class PPOAgent(AgentBase):
         counter_values = _t('counter_values', torch.float32)
         counter_sids = _t('counter_sids', torch.long)
         active_slot_mask = _t('active_slot_mask', torch.bool)
-        hook_types = _t('hook_types', torch.long)
-        hook_values = _t('hook_values', torch.float32)
+        hook_ir = _t('hook_ir', torch.long)
         hook_mask = _t('hook_mask', torch.bool)
         card_buckets = _t('card_buckets', torch.float32)
         enemy_sizes = _t('enemy_sizes', torch.float32)
@@ -216,7 +215,7 @@ class PPOAgent(AgentBase):
         prepare_skill = _t('prepare_skill', torch.float32)
         modifier_log = _t('modifier_log', torch.float32)
 
-        hook_emb = self.net.hook_encoder(hook_types, hook_values, hook_mask)
+        hook_emb = self.net.hook_encoder(hook_ir, hook_mask)
         structural_obspos = compute_structural_obspos(counter_sids, active_slot_mask)
         structural_values = compute_structural_values(counter_values, structural_obspos)
 

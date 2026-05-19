@@ -16,10 +16,10 @@ from training.core.cfg import ObsShape, ParadigmConfigBase
 
 
 def test_obs_shape_required_fields():
-    s = ObsShape(n_counter_slots=10, n_hooks=4, max_tokens_per_hook=8, max_actions=16)
+    s = ObsShape(n_counter_slots=10, n_hooks=4, max_ops_per_hook=8, max_actions=16)
     assert s.n_counter_slots == 10
     assert s.n_hooks == 4
-    assert s.max_tokens_per_hook == 8
+    assert s.max_ops_per_hook == 8
     assert s.max_actions == 16
     assert s.d_model == 128
     assert s.dropout == 0.0
@@ -27,7 +27,7 @@ def test_obs_shape_required_fields():
 
 
 def test_obs_shape_frozen():
-    s = ObsShape(n_counter_slots=10, n_hooks=4, max_tokens_per_hook=8, max_actions=16)
+    s = ObsShape(n_counter_slots=10, n_hooks=4, max_ops_per_hook=8, max_actions=16)
     with pytest.raises(Exception):  # FrozenInstanceError or AttributeError
         s.n_counter_slots = 99  # type: ignore
 
@@ -36,7 +36,7 @@ def test_obs_shape_d_model_override():
     s = ObsShape(
         n_counter_slots=10,
         n_hooks=4,
-        max_tokens_per_hook=8,
+        max_ops_per_hook=8,
         max_actions=16,
         d_model=64,
         n_cross_layers=3,
@@ -66,7 +66,7 @@ def test_paradigm_config_base_compose_via_subclass():
             default_factory=lambda: ObsShape(
                 n_counter_slots=16,
                 n_hooks=4,
-                max_tokens_per_hook=8,
+                max_ops_per_hook=8,
                 max_actions=10,
             )
         )

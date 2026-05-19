@@ -35,8 +35,7 @@ def forward_cfr_batch(
     counter_values = _t('counter_values', torch.float32)
     counter_sids = _t('counter_sids', torch.long)
     active_slot_mask = _t('active_slot_mask', torch.bool)
-    hook_types = _t('hook_types', torch.long)
-    hook_values = _t('hook_values', torch.float32)
+    hook_ir = _t('hook_ir', torch.long)
     hook_mask = _t('hook_mask', torch.bool)
     card_buckets = _t('card_buckets', torch.float32)
     enemy_sizes = _t('enemy_sizes', torch.float32)
@@ -45,11 +44,7 @@ def forward_cfr_batch(
     action_payments = _t('action_payments', torch.float32)
     char_skill_refs = _t('char_skill_refs', torch.long)
 
-    hook_emb = net.trunk.hook_encoder(
-        hook_types,
-        hook_values,
-        hook_mask,
-    )
+    hook_emb = net.trunk.hook_encoder(hook_ir, hook_mask)
     structural_obspos = compute_structural_obspos(
         counter_sids,
         active_slot_mask,

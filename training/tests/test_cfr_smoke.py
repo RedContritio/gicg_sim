@@ -58,8 +58,7 @@ def _forward_cfr(cfr_module, obs_dict) -> torch.Tensor:
     counter_values = _t('counter_values', torch.float32)
     counter_sids = _t('counter_sids', torch.long)
     active_slot_mask = _t('active_slot_mask', torch.bool)
-    hook_types = _t('hook_types', torch.long)
-    hook_values = _t('hook_values', torch.float32)
+    hook_ir = _t('hook_ir', torch.long)
     hook_mask = _t('hook_mask', torch.bool)
     card_buckets = _t('card_buckets', torch.float32)
     enemy_sizes = _t('enemy_sizes', torch.float32)
@@ -69,7 +68,7 @@ def _forward_cfr(cfr_module, obs_dict) -> torch.Tensor:
     char_skill_refs = _t('char_skill_refs', torch.long)
 
     hook_encoder = cfr_module.hook_encoder if hasattr(cfr_module, 'hook_encoder') else cfr_module.trunk.hook_encoder
-    hook_emb = hook_encoder(hook_types, hook_values, hook_mask)
+    hook_emb = hook_encoder(hook_ir, hook_mask)
     structural_obspos = compute_structural_obspos(counter_sids, active_slot_mask)
     structural_values = compute_structural_values(counter_values, structural_obspos)
     out = cfr_module(
@@ -110,7 +109,7 @@ class CFRSmokeBuilder:
                 'agent': {
                     'n_counter_slots': 128,
                     'n_hooks': 4,
-                    'max_tokens_per_hook': 8,
+                    'max_ops_per_hook': 8,
                     'max_actions': 6,
                     'd_model': 16,
                     'n_cross_layers': 1,

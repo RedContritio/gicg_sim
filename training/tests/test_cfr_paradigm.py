@@ -177,7 +177,7 @@ def _small_agent_cfg() -> CFRAgentShapeCfg:
     return CFRAgentShapeCfg(
         n_counter_slots=64,
         n_hooks=8,
-        max_tokens_per_hook=4,
+        max_ops_per_hook=4,
         max_actions=4,
         d_model=8,
         dropout=0.0,
@@ -224,7 +224,7 @@ def _paradigm_dict_small() -> dict:
         'agent': {
             'n_counter_slots': 64,
             'n_hooks': 8,
-            'max_tokens_per_hook': 4,
+            'max_ops_per_hook': 4,
             'max_actions': 4,
             'd_model': 8,
             'n_cross_layers': 1,

@@ -23,14 +23,14 @@ def parse_static_obs_np(
     static_obs: np.ndarray,
     n_counter_slots: int,
     n_hooks: int,
-    max_tokens_per_hook: int,
+    max_ops_per_hook: int,
 ) -> dict:
     """NumPy-only parse of one game's static_obs into the 6 raw fields
     needed by ActorCritic (mirrors agent_base.encode_static_tensors_with_tokens
     but stays offline / no encoder forward).
 
-    Returns dict with keys: hook_types, hook_values, hook_mask,
-    counter_sids, active_slot_mask, char_skill_refs.
+    Returns dict with keys: hook_ir, hook_mask, counter_sids,
+    active_slot_mask, char_skill_refs. (IR-4: token-pair → IR ops.)
     """
     s = np.asarray(static_obs)
     meta_size = n_counter_slots * 3
@@ -43,22 +43,20 @@ def parse_static_obs_np(
         s[meta_size : meta_size + refs_size].reshape(2, OBS_MAX_CHARS, OBS_MAX_SKILLS_PER_CHAR).astype(np.int64)
     )
 
-    hook_size = n_hooks * max_tokens_per_hook * 2
-    hook_data = s[meta_size + refs_size : meta_size + refs_size + hook_size].reshape(
-        n_hooks,
-        max_tokens_per_hook,
-        2,
+    fields_per_op = 5
+    hook_size = n_hooks * max_ops_per_hook * fields_per_op
+    hook_ir_all = (
+        s[meta_size + refs_size : meta_size + refs_size + hook_size]
+        .reshape(n_hooks, max_ops_per_hook, fields_per_op)
+        .astype(np.int64)
     )
-    hook_types_all = hook_data[:, :, 0].astype(np.int64)
-    hook_values_all = hook_data[:, :, 1].astype(np.float32)
-    non_empty = hook_types_all.sum(axis=-1) != 0
-    active_types = hook_types_all[non_empty]
-    active_values = hook_values_all[non_empty]
-    n_active = active_types.shape[0]
+    opcodes_all = hook_ir_all[:, :, 0]
+    non_empty = (opcodes_all != 0).any(axis=-1)
+    active_ir = hook_ir_all[non_empty]
+    n_active = active_ir.shape[0]
     hook_mask = np.ones(n_active, dtype=bool) if n_active > 0 else np.zeros(0, dtype=bool)
     return {
-        'hook_types': active_types,
-        'hook_values': active_values,
+        'hook_ir': active_ir,
         'hook_mask': hook_mask,
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
@@ -66,34 +64,33 @@ def parse_static_obs_np(
     }
 
 
-def stack_static_batch(statics: list[dict], max_tokens_per_hook: int) -> dict:
-    """Pad + stack a list of per-game static dicts to a batch dict."""
+def stack_static_batch(statics: list[dict], max_ops_per_hook: int) -> dict:
+    """Pad + stack a list of per-game static dicts to a batch dict.
+    IR-4: per-hook = (max_ops, 5) ops, no longer (max_tokens, 2) pairs."""
     B = len(statics)
-    max_n_active = max((s['hook_types'].shape[0] for s in statics), default=1)
+    max_n_active = max((s['hook_ir'].shape[0] for s in statics), default=1)
     max_n_active = max(max_n_active, 1)
     n_slots = statics[0]['counter_sids'].shape[0]
     csr_shape = statics[0]['char_skill_refs'].shape
+    fields_per_op = 5
 
-    hook_types = np.zeros((B, max_n_active, max_tokens_per_hook), dtype=np.int64)
-    hook_values = np.zeros((B, max_n_active, max_tokens_per_hook), dtype=np.float32)
+    hook_ir = np.zeros((B, max_n_active, max_ops_per_hook, fields_per_op), dtype=np.int64)
     hook_mask = np.zeros((B, max_n_active), dtype=bool)
     counter_sids = np.zeros((B, n_slots), dtype=np.int64)
     active_slot_mask = np.zeros((B, n_slots), dtype=bool)
     char_skill_refs = np.zeros((B,) + csr_shape, dtype=np.int64)
 
     for i, s in enumerate(statics):
-        n = s['hook_types'].shape[0]
+        n = s['hook_ir'].shape[0]
         if n > 0:
-            hook_types[i, :n] = s['hook_types']
-            hook_values[i, :n] = s['hook_values']
+            hook_ir[i, :n] = s['hook_ir']
             hook_mask[i, :n] = s['hook_mask']
         counter_sids[i] = s['counter_sids']
         active_slot_mask[i] = s['active_slot_mask']
         char_skill_refs[i] = s['char_skill_refs']
 
     return {
-        'hook_types': hook_types,
-        'hook_values': hook_values,
+        'hook_ir': hook_ir,
         'hook_mask': hook_mask,
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
@@ -110,7 +107,7 @@ class BCDataset:
     drop the raw static obs to keep RAM bounded.
     """
 
-    def __init__(self, npz_path: Path, n_counter_slots: int, n_hooks: int, max_tokens_per_hook: int):
+    def __init__(self, npz_path: Path, n_counter_slots: int, n_hooks: int, max_ops_per_hook: int):
         d = np.load(npz_path)
         self.game_id = np.ascontiguousarray(d['game_id'])
         self.dyn_obs = np.ascontiguousarray(d['dyn_obs'])
@@ -123,7 +120,7 @@ class BCDataset:
         self.n_decisions = self.chosen_action.shape[0]
         self.n_counter_slots = n_counter_slots
         self.n_hooks = n_hooks
-        self.max_tokens_per_hook = max_tokens_per_hook
+        self.max_ops_per_hook = max_ops_per_hook
 
         unique_gids = np.unique(self.game_id)
         raw_static_arr = d['game_static_obs']
@@ -133,7 +130,7 @@ class BCDataset:
                 raw_static_arr[int(gid)],
                 n_counter_slots,
                 n_hooks,
-                max_tokens_per_hook,
+                max_ops_per_hook,
             )
         del raw_static_arr
         d.close()
@@ -148,7 +145,7 @@ class BCDataset:
         """Construct the 12+ field batch dict for ActorCritic.forward_batch
         from a list of decision indices."""
         statics = [self._parsed_statics[int(self.game_id[i])] for i in indices]
-        static_batch = stack_static_batch(statics, self.max_tokens_per_hook)
+        static_batch = stack_static_batch(statics, self.max_ops_per_hook)
 
         B = len(indices)
         counter_values = np.zeros((B, self.n_counter_slots), dtype=np.float32)

@@ -29,7 +29,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 # Small shapes matching the bundled 赤蝶 smoke scenario.
 N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16
 N_HOOKS = 900
-MAX_TOK = 120
+MAX_TOK = 64
 MAX_ACTIONS = 256
 D_MODEL = 16
 
@@ -38,7 +38,7 @@ def _cfg() -> AgentConfig:
     return AgentConfig(
         n_counter_slots=N_COUNTER_SLOTS,
         n_hooks=N_HOOKS,
-        max_tokens_per_hook=MAX_TOK,
+        max_ops_per_hook=MAX_TOK,
         max_actions=MAX_ACTIONS,
         d_model=D_MODEL,
         n_cross_layers=1,
@@ -103,8 +103,7 @@ class TestInferenceServerLifecycle:
             assert resp['kind'] == 'game_start_ack'
             gs = resp['game_static']
             assert set(gs.keys()) == {
-                'hook_types',
-                'hook_values',
+                'hook_ir',
                 'hook_mask',
                 'counter_sids',
                 'active_slot_mask',

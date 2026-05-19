@@ -71,11 +71,8 @@ def capture_obs(env: GicgEnv, agent: DmcAgent) -> dict:
         'counter_sids': agent._counter_sids.squeeze(0).cpu().numpy().astype(np.int64),
         'active_slot_mask': agent._active_slot_mask.squeeze(0).cpu().numpy().astype(bool),
         'char_skill_refs': agent._char_skill_refs.squeeze(0).cpu().numpy().astype(np.int64),
-        'hook_types': agent._hook_types_cache.cpu().numpy().astype(np.int64)
-        if agent._hook_types_cache is not None
-        else None,
-        'hook_values': agent._hook_values_cache.cpu().numpy().astype(np.float32)
-        if agent._hook_values_cache is not None
+        'hook_ir': agent._hook_ir_cache.cpu().numpy().astype(np.int64)
+        if agent._hook_ir_cache is not None
         else None,
         'hook_mask': agent._hook_mask.squeeze(0).cpu().numpy().astype(bool),
     }
@@ -185,22 +182,19 @@ def collate_batch(transitions: list['DmcTransition'], device: str = 'cpu') -> tu
     for k in fixed_keys:
         out[k] = np.stack([t.obs_dict[k] for t in transitions], axis=0)
 
-    hook_types_list = [t.obs_dict['hook_types'] for t in transitions]
-    hook_values_list = [t.obs_dict['hook_values'] for t in transitions]
+    hook_ir_list = [t.obs_dict['hook_ir'] for t in transitions]
     hook_mask_list = [t.obs_dict['hook_mask'] for t in transitions]
-    max_n_active = max(ht.shape[0] for ht in hook_types_list)
-    max_tokens = hook_types_list[0].shape[1]
+    max_n_active = max(h.shape[0] for h in hook_ir_list)
+    max_ops = hook_ir_list[0].shape[1]
+    fields_per_op = hook_ir_list[0].shape[2]
 
-    hook_types = np.zeros((B, max_n_active, max_tokens), dtype=np.int64)
-    hook_values = np.zeros((B, max_n_active, max_tokens), dtype=np.float32)
+    hook_ir = np.zeros((B, max_n_active, max_ops, fields_per_op), dtype=np.int64)
     hook_mask = np.zeros((B, max_n_active), dtype=bool)
-    for i, (ht, hv, hm) in enumerate(zip(hook_types_list, hook_values_list, hook_mask_list)):
-        n_act = ht.shape[0]
-        hook_types[i, :n_act] = ht
-        hook_values[i, :n_act] = hv
+    for i, (h, hm) in enumerate(zip(hook_ir_list, hook_mask_list)):
+        n_act = h.shape[0]
+        hook_ir[i, :n_act] = h
         hook_mask[i, :n_act] = hm
-    out['hook_types'] = hook_types
-    out['hook_values'] = hook_values
+    out['hook_ir'] = hook_ir
     out['hook_mask'] = hook_mask
 
     action_idx = torch.tensor([t.action_idx for t in transitions], dtype=torch.long, device=device)

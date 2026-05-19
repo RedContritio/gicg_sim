@@ -43,7 +43,7 @@ def _tiny_agent_cfg(max_actions: int = 6, d_model: int = 16) -> AgentConfig:
     return AgentConfig(
         n_counter_slots=128,
         n_hooks=4,
-        max_tokens_per_hook=8,
+        max_ops_per_hook=8,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=1,

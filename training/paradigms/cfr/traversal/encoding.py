@@ -40,7 +40,7 @@ def encode_static_for_traversal(
     net,
     static_obs_np: np.ndarray,
     n_counter_slots: int,
-    max_tokens_per_hook: int,
+    max_ops_per_hook: int,
     n_hooks_capacity: int,
     device: torch.device,
 ) -> _StaticBundle:
@@ -64,44 +64,27 @@ def encode_static_for_traversal(
         # OBS_CHAR_ELEMENT_SLOTS ints (char element IDs) after the
         # hook block. Without an explicit upper bound the reshape
         # would include them and fail with an off-by-12 size mismatch.
-        hook_size = n_hooks_capacity * max_tokens_per_hook * 2
-        hook_data = static[
-            meta_size + OBS_CHAR_SKILL_REFS_SIZE : meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size
-        ].reshape(
-            n_hooks_capacity,
-            max_tokens_per_hook,
-            2,
+        # IR-4: hook section is (n_hooks, max_ops, 5) int32.
+        fields_per_op = 5
+        hook_size = n_hooks_capacity * max_ops_per_hook * fields_per_op
+        hook_ir_all = (
+            static[meta_size + OBS_CHAR_SKILL_REFS_SIZE : meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size]
+            .reshape(n_hooks_capacity, max_ops_per_hook, fields_per_op)
+            .long()
         )
-        hook_types_all = hook_data[:, :, 0].long()
-        hook_values_all = hook_data[:, :, 1].float()
-        non_empty = hook_types_all.sum(dim=-1) != 0
+        opcodes_all = hook_ir_all[:, :, 0]
+        non_empty = (opcodes_all != 0).any(dim=-1)
         n_active = int(non_empty.sum().item())
 
         if n_active > 0:
-            active_types = hook_types_all[non_empty]
-            active_values = hook_values_all[non_empty]
+            active_ir = hook_ir_all[non_empty]
             mask_1d = torch.ones(1, n_active, dtype=torch.bool, device=device)
-            hook_emb = net.trunk.hook_encoder(
-                active_types.unsqueeze(0),
-                active_values.unsqueeze(0),
-                mask_1d,
-            ).squeeze(0)
+            hook_emb = net.trunk.hook_encoder(active_ir.unsqueeze(0), mask_1d).squeeze(0)
             hook_mask = torch.ones(n_active, dtype=torch.bool, device=device)
         else:
             hook_emb = torch.zeros(1, net.cfg.d_model, device=device)
             hook_mask = torch.zeros(1, dtype=torch.bool, device=device)
-            active_types = torch.zeros(
-                1,
-                max_tokens_per_hook,
-                dtype=torch.long,
-                device=device,
-            )
-            active_values = torch.zeros(
-                1,
-                max_tokens_per_hook,
-                dtype=torch.float32,
-                device=device,
-            )
+            active_ir = torch.zeros(1, max_ops_per_hook, fields_per_op, dtype=torch.long, device=device)
 
     active_slot_mask_1 = active_slot_mask.unsqueeze(0)
     counter_sids_1 = counter_sids.unsqueeze(0)
@@ -112,8 +95,7 @@ def encode_static_for_traversal(
     )
 
     static_np = {
-        'hook_types': active_types.detach().cpu().numpy().astype(np.int64),
-        'hook_values': active_values.detach().cpu().numpy().astype(np.float32),
+        'hook_ir': active_ir.detach().cpu().numpy().astype(np.int64),
         'hook_mask': hook_mask.detach().cpu().numpy().astype(bool),
         'counter_sids': counter_sids.detach().cpu().numpy().astype(np.int64),
         'active_slot_mask': active_slot_mask.detach().cpu().numpy().astype(bool),

@@ -105,7 +105,7 @@ def cfr_worker_main(
     traverser = CFRTraverser(
         advantage_nets=nets,
         n_counter_slots=cfg.net_cfg.n_counter_slots,
-        max_tokens_per_hook=cfg.net_cfg.max_tokens_per_hook,
+        max_ops_per_hook=cfg.net_cfg.max_ops_per_hook,
         n_hooks_capacity=cfg.net_cfg.n_hooks,
         max_actions=cfg.net_cfg.max_actions,
         advantage_buffers=adv_cols,  # type: ignore[arg-type]

@@ -22,22 +22,40 @@ from training.core.obs_constants import (
 
 
 class HookEncoder(nn.Module):
-    """Per-hook Transformer encoder. Returns (B, n_hooks, token_dim)
-    pooled embeddings after key-padding-masked attention."""
+    """IR-4 per-hook Transformer encoder (replaces the IR-1.6 legacy
+    token-pair encoder). Consumes the IR obs format:
+
+      hook_ir: (B, N, max_ops, fields_per_op=5) int — opcode/dst/op1/op2/op3
+      hook_mask: (B, N) bool — which hook slots are active
+
+    Returns (B, N, token_dim) — one embedding per hook. Inside a hook,
+    each op is embedded as (opcode_embed + sum-of-operand_embed + pos_embed);
+    Transformer attends across ops; mean-pooled over non-NOP ops.
+
+    The vocab for operand_embed is sized to cover the union of all
+    operand semantic spaces (reg indices 0..MaxRegs, ctx-field/enum/
+    method/builtin/kwarg/bridge token IDs in range 0..~512 per
+    tokenizer_tokens.go). Negative operand values (NullReg=-1) are
+    clamped to 0 — the encoder masks unused operand slots via opcode.
+    """
 
     def __init__(
         self,
-        vocab_size: int = 256,
+        opcode_vocab: int = 16,
+        operand_vocab: int = 2048,
         token_dim: int = 64,
         n_heads: int = 4,
         n_layers: int = 2,
-        max_tokens: int = 120,
+        max_ops: int = 64,
         dropout: float = 0.1,
     ) -> None:
         super().__init__()
-        self.token_embed = nn.Embedding(vocab_size, token_dim)
-        self.value_proj = nn.Linear(1, token_dim)
-        self.pos_embed = nn.Embedding(max_tokens, token_dim)
+        self.opcode_embed = nn.Embedding(opcode_vocab, token_dim)
+        # Single shared embedding table for all 4 operand slots (dst+op1+op2+op3).
+        # Operand semantics depend on opcode; the encoder learns to dispatch
+        # implicitly via the opcode_embed signal.
+        self.operand_embed = nn.Embedding(operand_vocab, token_dim)
+        self.pos_embed = nn.Embedding(max_ops, token_dim)
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=token_dim,
             nhead=n_heads,
@@ -45,26 +63,32 @@ class HookEncoder(nn.Module):
             batch_first=True,
             dropout=dropout,
         )
-        # MPS-compat: nested-tensor fast path uses an op not implemented on MPS.
         self.transformer = nn.TransformerEncoder(
             encoder_layer,
             num_layers=n_layers,
             enable_nested_tensor=False,
         )
         self.token_dim = token_dim
-        self.max_tokens = max_tokens
+        self.max_ops = max_ops
+        self.opcode_vocab = opcode_vocab
+        self.operand_vocab = operand_vocab
 
-    def forward(self, hook_types, hook_values, hook_mask):
-        B, N, T = hook_types.shape
-        types_flat = hook_types.reshape(B * N, T)
-        values_flat = hook_values.reshape(B * N, T).unsqueeze(-1)
-        pos = torch.arange(T, device=types_flat.device).unsqueeze(0).expand(B * N, -1)
-        tok_emb = self.token_embed(types_flat.clamp(0, 255)) + self.value_proj(values_flat) + self.pos_embed(pos)
-        pad_mask = types_flat == 0
-        out = self.transformer(tok_emb, src_key_padding_mask=pad_mask)
-        mask_expand = (~pad_mask).unsqueeze(-1).float()
-        denom = mask_expand.sum(dim=1).clamp(min=1)
-        pooled = (out * mask_expand).sum(dim=1) / denom
+    def forward(self, hook_ir, hook_mask):
+        """hook_ir: (B, N, max_ops, 5) int long; hook_mask: (B, N) bool (unused
+        — per-op padding handled internally by opcode==0 mask)."""
+        B, N, T, F = hook_ir.shape  # F=5
+        flat = hook_ir.reshape(B * N, T, F).long()
+        opcode = flat[..., 0].clamp(min=0, max=self.opcode_vocab - 1)
+        operands = flat[..., 1:5].clamp(min=0, max=self.operand_vocab - 1)
+        pos = torch.arange(T, device=flat.device).unsqueeze(0).expand(B * N, -1)
+        # Per-op embedding = opcode + sum(4 operands) + pos.
+        op_emb = self.opcode_embed(opcode)
+        operand_emb = self.operand_embed(operands).sum(dim=-2)
+        tok = op_emb + operand_emb + self.pos_embed(pos)
+        pad_mask = flat[..., 0] == 0  # OpNop padding
+        out = self.transformer(tok, src_key_padding_mask=pad_mask)
+        valid = (~pad_mask).unsqueeze(-1).float()
+        pooled = (out * valid).sum(dim=1) / valid.sum(dim=1).clamp(min=1)
         pooled = torch.nan_to_num(pooled, 0.0)
         return pooled.reshape(B, N, self.token_dim)
 

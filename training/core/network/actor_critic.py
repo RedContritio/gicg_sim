@@ -80,7 +80,7 @@ class ActorCritic(nn.Module):
         self,
         n_counter_slots: int,
         n_hooks: int,
-        max_tokens_per_hook: int,
+        max_ops_per_hook: int,
         max_actions: int,
         heads: nn.ModuleDict,
         d_model: int = 128,
@@ -94,12 +94,16 @@ class ActorCritic(nn.Module):
         self.max_actions = max_actions
         self.dropout = dropout
 
+        # IR-4: HookEncoder consumes (B, N, max_ops, 5) IR tensor instead of
+        # token pairs. opcode_vocab=16 (we have 14 ops), operand_vocab=2048
+        # (covers ctx_field/enum/method/builtin/kwarg/bridge/counter ranges).
         self.hook_encoder = HookEncoder(
-            vocab_size=256,
+            opcode_vocab=16,
+            operand_vocab=2048,
             token_dim=d_model,
             n_heads=4,
             n_layers=2,
-            max_tokens=max_tokens_per_hook,
+            max_ops=max_ops_per_hook,
             dropout=dropout,
         )
         self.counter_encoder = CounterEncoder(max_slots=2000, embed_dim=d_model)
@@ -287,7 +291,7 @@ def make_actor_critic(
     return ActorCritic(
         n_counter_slots=cfg.n_counter_slots,
         n_hooks=cfg.n_hooks,
-        max_tokens_per_hook=cfg.max_tokens_per_hook,
+        max_ops_per_hook=cfg.max_ops_per_hook,
         max_actions=cfg.max_actions,
         heads=heads,
         d_model=cfg.d_model,

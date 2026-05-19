@@ -128,7 +128,7 @@ def test_actor_critic_forward_shape():
     net = ActorCritic(
         n_counter_slots=n_counter_slots,
         n_hooks=n_hooks,
-        max_tokens_per_hook=max_tokens,
+        max_ops_per_hook=max_tokens,
         max_actions=max_actions,
         heads=heads,
         d_model=d_model,

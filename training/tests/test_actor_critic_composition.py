@@ -37,7 +37,7 @@ def _shape(d_model: int = 32) -> ObsShape:
     return ObsShape(
         n_counter_slots=16,
         n_hooks=4,
-        max_tokens_per_hook=8,
+        max_ops_per_hook=8,
         max_actions=6,
         d_model=d_model,
     )

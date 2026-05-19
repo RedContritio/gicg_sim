@@ -153,7 +153,7 @@ class CFRParadigm:
         net_cfg = CFRNetConfig(
             n_counter_slots=pcfg.agent.n_counter_slots,
             n_hooks=pcfg.agent.n_hooks,
-            max_tokens_per_hook=pcfg.agent.max_tokens_per_hook,
+            max_ops_per_hook=pcfg.agent.max_ops_per_hook,
             max_actions=pcfg.agent.max_actions,
             d_model=pcfg.agent.d_model,
             dropout=pcfg.agent.dropout,

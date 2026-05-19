@@ -117,7 +117,7 @@ def _make_az_net(d_model=16, n_slots=64, n_hooks=8, max_tokens=12, max_actions=6
     cfg = AgentConfig(
         n_counter_slots=n_slots,
         n_hooks=n_hooks,
-        max_tokens_per_hook=max_tokens,
+        max_ops_per_hook=max_tokens,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=1,

@@ -315,7 +315,7 @@ def test_round_trip_ppo_hybrid_matches_direct_from_dict():
         'shape': {
             'n_counter_slots': 1832,
             'n_hooks': 900,
-            'max_tokens_per_hook': 120,
+            'max_ops_per_hook': 120,
             'max_actions': 2048,
             'd_model': 128,
             'n_cross_layers': 2,
@@ -337,7 +337,7 @@ def test_round_trip_ppo_hybrid_matches_direct_from_dict():
             'agent': {
                 'n_counter_slots': 1832,
                 'n_hooks': 900,
-                'max_tokens_per_hook': 120,
+                'max_ops_per_hook': 120,
                 'max_actions': 2048,
                 'd_model': 256,  # agent override
                 'n_cross_layers': 2,

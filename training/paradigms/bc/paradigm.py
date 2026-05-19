@@ -62,7 +62,7 @@ class BCParadigm:
                 dataset_path=pcfg.dataset_path,
                 n_counter_slots=pcfg.agent.n_counter_slots,
                 n_hooks=pcfg.agent.n_hooks,
-                max_tokens_per_hook=pcfg.agent.max_tokens_per_hook,
+                max_ops_per_hook=pcfg.agent.max_ops_per_hook,
             )
         return self._collector
 

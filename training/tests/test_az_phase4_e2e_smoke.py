@@ -99,7 +99,7 @@ def test_r009_ckpt_blob_readable():
     assert isinstance(cfg, dict)
     # AgentConfig required fields — same set the loaders.py path will
     # unpack via ``AgentConfig(**blob['cfg'])``.
-    for required in ('n_counter_slots', 'n_hooks', 'max_tokens_per_hook', 'max_actions', 'd_model'):
+    for required in ('n_counter_slots', 'n_hooks', 'max_ops_per_hook', 'max_actions', 'd_model'):
         assert required in cfg, f'r009 cfg missing required key {required!r}'
 
 

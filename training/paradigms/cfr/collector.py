@@ -96,7 +96,7 @@ class CFRTraversalCollector:
         self.traverser = CFRTraverser(
             advantage_nets=[network.advantage_head(0), network.advantage_head(1)],
             n_counter_slots=agent_cfg.n_counter_slots,
-            max_tokens_per_hook=agent_cfg.max_tokens_per_hook,
+            max_ops_per_hook=agent_cfg.max_ops_per_hook,
             n_hooks_capacity=agent_cfg.n_hooks,
             max_actions=agent_cfg.max_actions,
             advantage_buffers=self._adv_cols,  # type: ignore[arg-type]

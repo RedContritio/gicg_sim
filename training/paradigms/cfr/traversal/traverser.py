@@ -27,7 +27,7 @@ class TraverserBase:
         self,
         advantage_nets,
         n_counter_slots: int,
-        max_tokens_per_hook: int,
+        max_ops_per_hook: int,
         n_hooks_capacity: int,
         max_actions: int,
         advantage_buffers,
@@ -46,7 +46,7 @@ class TraverserBase:
         self.advantage_nets = list(advantage_nets)
         self.advantage_buffers = list(advantage_buffers)
         self.n_counter_slots = n_counter_slots
-        self.max_tokens_per_hook = max_tokens_per_hook
+        self.max_ops_per_hook = max_ops_per_hook
         self.n_hooks_capacity = n_hooks_capacity
         self.max_actions = max_actions
         self.strategy_buffer = strategy_buffer
@@ -63,7 +63,7 @@ class TraverserBase:
             self.advantage_nets[0],
             env.static_obs,
             n_counter_slots=self.n_counter_slots,
-            max_tokens_per_hook=self.max_tokens_per_hook,
+            max_ops_per_hook=self.max_ops_per_hook,
             n_hooks_capacity=self.n_hooks_capacity,
             device=self.device,
         )

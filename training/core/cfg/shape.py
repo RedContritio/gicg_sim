@@ -23,8 +23,13 @@ class ObsShape:
 
     n_counter_slots: int
     n_hooks: int
-    max_tokens_per_hook: int
+    max_ops_per_hook: int
     max_actions: int
+
+    # IR-4: per-op field count in the raw obs layout. Each hook slot is
+    # (max_ops_per_hook × fields_per_op) int32. Constant 5 mirrors
+    # engine.ObsFieldsPerOp (op = opcode, dst, op1, op2, op3).
+    fields_per_op: int = 5
 
     d_model: int = 128
     dropout: float = 0.0

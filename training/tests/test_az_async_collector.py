@@ -274,7 +274,7 @@ def test_az_async_collector_paradigm_dispatch_async_mode():
             'agent': {
                 'n_counter_slots': 8,
                 'n_hooks': 4,
-                'max_tokens_per_hook': 4,
+                'max_ops_per_hook': 4,
                 'max_actions': 8,
                 'd_model': 8,
                 'n_cross_layers': 1,
@@ -346,7 +346,7 @@ def test_az_async_collector_build_policy_returns_AZEpisodePolicy():
             'agent': {
                 'n_counter_slots': 8,
                 'n_hooks': 4,
-                'max_tokens_per_hook': 4,
+                'max_ops_per_hook': 4,
                 'max_actions': 8,
                 'd_model': 8,
                 'n_cross_layers': 1,

@@ -151,7 +151,7 @@ def main() -> None:
 
     n_counter_slots = int(cfg['n_counter_slots'])
     n_hooks = int(cfg['n_hooks'])
-    max_tokens_per_hook = int(cfg['max_tokens_per_hook'])
+    max_ops_per_hook = int(cfg['max_ops_per_hook'])
     max_actions = int(cfg['max_actions'])
     d_model = int(cfg['d_model'])
     n_cross_layers = int(cfg.get('n_cross_layers', 2))
@@ -165,7 +165,7 @@ def main() -> None:
 
     dataset_path = Path(cfg['dataset_path'])
     print(f'[bc_train] loading {dataset_path}')
-    ds = BCDataset(dataset_path, n_counter_slots, n_hooks, max_tokens_per_hook)
+    ds = BCDataset(dataset_path, n_counter_slots, n_hooks, max_ops_per_hook)
     print(f'[bc_train] dataset: {len(ds)} decisions, {len(ds._parsed_statics)} games')
 
     rng = np.random.default_rng(seed)
@@ -180,7 +180,7 @@ def main() -> None:
     shape = ObsShape(
         n_counter_slots=n_counter_slots,
         n_hooks=n_hooks,
-        max_tokens_per_hook=max_tokens_per_hook,
+        max_ops_per_hook=max_ops_per_hook,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=n_cross_layers,
@@ -205,7 +205,7 @@ def main() -> None:
     agent_cfg = {
         'n_counter_slots': n_counter_slots,
         'n_hooks': n_hooks,
-        'max_tokens_per_hook': max_tokens_per_hook,
+        'max_ops_per_hook': max_ops_per_hook,
         'max_actions': max_actions,
         'd_model': d_model,
         'dropout': dropout,

@@ -92,8 +92,7 @@ def _handle_game_start(agent, cache, req, pipe, state) -> None:
         hook_mask,
         counter_sids,
         active_slot_mask,
-        hook_types,
-        hook_values,
+        hook_ir,
         char_skill_refs,
     ) = agent.encode_static_tensors_with_tokens(static_obs)
     cache[(wid, gid)] = {
@@ -108,8 +107,7 @@ def _handle_game_start(agent, cache, req, pipe, state) -> None:
             'kind': 'game_start_ack',
             'weight_version': state.weight_version,
             'game_static': {
-                'hook_types': hook_types.detach().cpu().numpy().astype(np.int64),
-                'hook_values': hook_values.detach().cpu().numpy().astype(np.float32),
+                'hook_ir': hook_ir.detach().cpu().numpy().astype(np.int64),
                 'hook_mask': hook_mask.detach().cpu().numpy().astype(bool),
                 'counter_sids': counter_sids.detach().cpu().numpy().astype(np.int64),
                 'active_slot_mask': active_slot_mask.detach().cpu().numpy().astype(bool),

@@ -22,7 +22,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
 
 D_MODEL = 8
-MAX_TOK = 120
+MAX_TOK = 64
 N_HOOKS_CAP = 900
 MAX_ACTIONS = 2048
 N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16  # = 1832
@@ -38,7 +38,7 @@ def _net_cfg() -> CFRNetConfig:
     return CFRNetConfig(
         n_counter_slots=N_COUNTER_SLOTS,
         n_hooks=N_HOOKS_CAP,
-        max_tokens_per_hook=MAX_TOK,
+        max_ops_per_hook=MAX_TOK,
         max_actions=MAX_ACTIONS,
         d_model=D_MODEL,
         n_cross_layers=1,

@@ -42,7 +42,7 @@ REQUIRED_TOP_FIELDS: set[str] = {
 REQUIRED_AGENT_FIELDS: set[str] = {
     'n_counter_slots',
     'n_hooks',
-    'max_tokens_per_hook',
+    'max_ops_per_hook',
     'max_actions',
     'd_model',
     'n_cross_layers',
@@ -151,7 +151,7 @@ def test_az_paradigm_config_runtime_attribute_access():
             'agent': {
                 'n_counter_slots': 16,
                 'n_hooks': 4,
-                'max_tokens_per_hook': 4,
+                'max_ops_per_hook': 4,
                 'max_actions': 8,
                 'd_model': 8,
                 'n_cross_layers': 1,
@@ -173,7 +173,7 @@ def test_az_paradigm_config_runtime_attribute_access():
     _ = cfg.init_from_ckpt
     _ = cfg.agent.n_counter_slots
     _ = cfg.agent.n_hooks
-    _ = cfg.agent.max_tokens_per_hook
+    _ = cfg.agent.max_ops_per_hook
     _ = cfg.agent.max_actions
     _ = cfg.agent.d_model
     _ = cfg.agent.dropout

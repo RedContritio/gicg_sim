@@ -42,7 +42,7 @@ def _tiny_cfg() -> AgentConfig:
     return AgentConfig(
         n_counter_slots=16,
         n_hooks=4,
-        max_tokens_per_hook=4,
+        max_ops_per_hook=4,
         max_actions=4,
         d_model=8,
         n_cross_layers=1,
@@ -55,13 +55,13 @@ def _synthetic_static_obs(cfg: AgentConfig) -> np.ndarray:
     (counter meta + char_skill_refs + hook tokens)."""
     meta_size = cfg.n_counter_slots * 3
     refs_size = OBS_CHAR_SKILL_REFS_SIZE
-    hook_size = cfg.n_hooks * cfg.max_tokens_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
     obs = np.zeros(meta_size + refs_size + hook_size, dtype=np.float32)
     for i in range(cfg.n_counter_slots):
         obs[i * 3 + 2] = float(i)  # distinct SIDs
     obs[meta_size : meta_size + refs_size] = -1.0
     hook_start = meta_size + refs_size
-    stride = cfg.max_tokens_per_hook * 2
+    stride = cfg.max_ops_per_hook * 2
     for h in range(cfg.n_hooks):
         obs[hook_start + h * stride + 0] = 1.0  # type
         obs[hook_start + h * stride + 1] = 0.5  # value

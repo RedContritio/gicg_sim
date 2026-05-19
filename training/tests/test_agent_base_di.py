@@ -22,7 +22,7 @@ def _make_cfg() -> AgentConfig:
     return AgentConfig(
         n_counter_slots=8,
         n_hooks=4,
-        max_tokens_per_hook=4,
+        max_ops_per_hook=4,
         max_actions=6,
         d_model=16,
     )
@@ -62,7 +62,7 @@ def test_no_self_net_required_at_init():
     from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
 
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_tokens_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
     static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
     # mark one slot active by setting min/max non-zero
     static[0] = 1.0  # slot 0 min
@@ -89,7 +89,7 @@ def test_game_start_returns_cache_dict():
     from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
 
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_tokens_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
     static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
     static[0] = 1.0
     static[1] = 10.0
@@ -128,7 +128,7 @@ def test_mock_hook_encoder_injection():
     from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
 
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_tokens_per_hook * 2
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * 2
     static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
     # active hook token to force forward path
     static[meta_size + OBS_CHAR_SKILL_REFS_SIZE] = 5.0  # hook[0][0] type=5

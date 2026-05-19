@@ -199,7 +199,7 @@ def test_ppo_async_n_actors_validation_and_paradigm_dispatch():
     agent_cfg = AgentConfig(
         n_counter_slots=128,
         n_hooks=4,
-        max_tokens_per_hook=8,
+        max_ops_per_hook=8,
         max_actions=4,
         d_model=8,
         n_cross_layers=1,

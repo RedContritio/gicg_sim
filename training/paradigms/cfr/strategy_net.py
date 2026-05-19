@@ -38,7 +38,7 @@ class CFRNetConfig:
 
     n_counter_slots: int
     n_hooks: int
-    max_tokens_per_hook: int
+    max_ops_per_hook: int
     max_actions: int
     d_model: int = 64
     dropout: float = 0.0
@@ -54,11 +54,12 @@ class _CFRTrunk(nn.Module):
         d = cfg.d_model
 
         self.hook_encoder = HookEncoder(
-            vocab_size=256,
+            opcode_vocab=16,
+            operand_vocab=2048,
             token_dim=d,
             n_heads=4,
             n_layers=2,
-            max_tokens=cfg.max_tokens_per_hook,
+            max_ops=cfg.max_ops_per_hook,
             dropout=cfg.dropout,
         )
         self.counter_encoder = CounterEncoder(max_slots=2000, embed_dim=d)

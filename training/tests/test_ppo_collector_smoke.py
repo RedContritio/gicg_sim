@@ -58,7 +58,7 @@ def _real_env_agent_cfg(max_actions: int = 64, d_model: int = 16) -> AgentConfig
     return AgentConfig(
         n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
         n_hooks=900,
-        max_tokens_per_hook=120,
+        max_ops_per_hook=64,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=1,
@@ -73,7 +73,7 @@ def test_collector_self_play_emits_transitions_with_gae() -> None:
             'agent': {
                 'n_counter_slots': 128,
                 'n_hooks': 4,
-                'max_tokens_per_hook': 8,
+                'max_ops_per_hook': 8,
                 'max_actions': 64,
                 'd_model': 16,
                 'n_cross_layers': 1,
@@ -105,7 +105,7 @@ def test_collector_asymmetric_random_opponent_only_collects_p0() -> None:
             'agent': {
                 'n_counter_slots': 128,
                 'n_hooks': 4,
-                'max_tokens_per_hook': 8,
+                'max_ops_per_hook': 8,
                 'max_actions': 64,
                 'd_model': 16,
                 'n_cross_layers': 1,
@@ -161,7 +161,7 @@ def test_collector_transition_loss_round_trip() -> None:
             'agent': {
                 'n_counter_slots': 128,
                 'n_hooks': 4,
-                'max_tokens_per_hook': 8,
+                'max_ops_per_hook': 8,
                 'max_actions': 64,
                 'd_model': 16,
                 'n_cross_layers': 1,

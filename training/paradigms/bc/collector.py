@@ -26,7 +26,7 @@ class DatasetCollector:
 
     Args:
         dataset_path: NPZ path(BCDataset format)。
-        n_counter_slots / n_hooks / max_tokens_per_hook: ActorCritic
+        n_counter_slots / n_hooks / max_ops_per_hook: ActorCritic
             shape;sed dataset 静态 obs 解码。
     """
 
@@ -37,7 +37,7 @@ class DatasetCollector:
         dataset_path: str,
         n_counter_slots: int,
         n_hooks: int,
-        max_tokens_per_hook: int,
+        max_ops_per_hook: int,
     ) -> None:
         if not dataset_path:
             raise ValueError('DatasetCollector: dataset_path must be non-empty')
@@ -48,7 +48,7 @@ class DatasetCollector:
         # Lazy import to keep collector module light;BCDataset 触发 NPZ load。
         from training.paradigms.bc.dataset import BCDataset
 
-        self._dataset = BCDataset(p, n_counter_slots, n_hooks, max_tokens_per_hook)
+        self._dataset = BCDataset(p, n_counter_slots, n_hooks, max_ops_per_hook)
         self._exhausted = False
         self._n_transitions = len(self._dataset)
 

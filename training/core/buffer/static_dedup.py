@@ -1,9 +1,14 @@
 """StaticDedupBufferBase — game-static refcount + dedup table.
 
 Copied + adapted from training/framework/buffer/base.py. Shared by
-AZ replay + CFR reservoir to avoid re-storing 50KB of hook tokens
+AZ replay + CFR reservoir to avoid re-storing 50KB of hook IR ops
 per step (per-game static fields shared across all transitions of
-that game,refcounted)."""
+that game, refcounted).
+
+IR-4 cutover: per-hook representation changed from (token_type,
+token_value) pairs to (opcode, dst, op1, op2, op3) IR ops. The
+`hook_ir` field has shape (n_active_hooks, max_ops, 5) int64.
+"""
 
 from __future__ import annotations
 
@@ -13,8 +18,7 @@ import numpy as np
 
 
 GAME_STATIC_KEYS = (
-    'hook_types',
-    'hook_values',
+    'hook_ir',
     'hook_mask',
     'counter_sids',
     'active_slot_mask',
@@ -24,8 +28,7 @@ GAME_STATIC_KEYS = (
 
 @dataclass
 class _GameStatic:
-    hook_types: np.ndarray
-    hook_values: np.ndarray
+    hook_ir: np.ndarray
     hook_mask: np.ndarray
     counter_sids: np.ndarray
     active_slot_mask: np.ndarray
@@ -48,8 +51,7 @@ class StaticDedupBufferBase:
         gid = self._next_game_id
         self._next_game_id += 1
         self._game_static[gid] = _GameStatic(
-            hook_types=np.asarray(static['hook_types'], dtype=np.int64),
-            hook_values=np.asarray(static['hook_values'], dtype=np.float32),
+            hook_ir=np.asarray(static['hook_ir'], dtype=np.int64),
             hook_mask=np.asarray(static['hook_mask'], dtype=bool),
             counter_sids=np.asarray(static['counter_sids'], dtype=np.int64),
             active_slot_mask=np.asarray(static['active_slot_mask'], dtype=bool),
@@ -81,27 +83,25 @@ class StaticDedupBufferBase:
     def _stack_game_static(self, game_ids: list) -> dict:
         B = len(game_ids)
         statics = [self._game_static[gid] for gid in game_ids]
-        max_hooks = max(s.hook_types.shape[0] for s in statics)
-        max_tokens = statics[0].hook_types.shape[1]
+        max_hooks = max(s.hook_ir.shape[0] for s in statics)
+        max_ops = statics[0].hook_ir.shape[1]
+        fields_per_op = statics[0].hook_ir.shape[2]
         n_slots = statics[0].counter_sids.shape[0]
-        hook_types = np.zeros((B, max_hooks, max_tokens), dtype=np.int64)
-        hook_values = np.zeros((B, max_hooks, max_tokens), dtype=np.float32)
+        hook_ir = np.zeros((B, max_hooks, max_ops, fields_per_op), dtype=np.int64)
         hook_mask = np.zeros((B, max_hooks), dtype=bool)
         counter_sids = np.zeros((B, n_slots), dtype=np.int64)
         active_slot_mask = np.zeros((B, n_slots), dtype=bool)
         csr_shape = statics[0].char_skill_refs.shape
         char_skill_refs = np.zeros((B,) + csr_shape, dtype=np.int64)
         for i, s in enumerate(statics):
-            n_active = s.hook_types.shape[0]
-            hook_types[i, :n_active] = s.hook_types
-            hook_values[i, :n_active] = s.hook_values
+            n_active = s.hook_ir.shape[0]
+            hook_ir[i, :n_active] = s.hook_ir
             hook_mask[i, :n_active] = s.hook_mask
             counter_sids[i] = s.counter_sids
             active_slot_mask[i] = s.active_slot_mask
             char_skill_refs[i] = s.char_skill_refs
         return {
-            'hook_types': hook_types,
-            'hook_values': hook_values,
+            'hook_ir': hook_ir,
             'hook_mask': hook_mask,
             'counter_sids': counter_sids,
             'active_slot_mask': active_slot_mask,

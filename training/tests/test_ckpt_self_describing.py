@@ -24,11 +24,11 @@ from training.core.network.encoder import HookEncoder
 
 
 def _make_cfg() -> AgentConfig:
-    return AgentConfig(n_counter_slots=8, n_hooks=4, max_tokens_per_hook=4, max_actions=6, d_model=16)
+    return AgentConfig(n_counter_slots=8, n_hooks=4, max_ops_per_hook=4, max_actions=6, d_model=16)
 
 
 def _make_agent(cfg: AgentConfig) -> AgentBase:
-    he = HookEncoder(token_dim=cfg.d_model, max_tokens=cfg.max_tokens_per_hook, n_heads=4, n_layers=1)
+    he = HookEncoder(token_dim=cfg.d_model, max_tokens=cfg.max_ops_per_hook, n_heads=4, n_layers=1)
 
     class _MockNet(nn.Module):
         def __init__(self):
