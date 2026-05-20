@@ -5,6 +5,7 @@ with env-var override(``GICG_REMOTE_HOST`` / ``GICG_REMOTE_ROOT_WIN``
 
 from __future__ import annotations
 
+import base64
 import os
 import subprocess
 import tomllib
@@ -17,6 +18,7 @@ _DEFAULTS = {
     # `/d/`(`scp: failed to upload file ... to /d/gicg_dev/...`),用
     # drive-letter + forward slash 才 OK。ssh shell 接受 `D:\\` 或 `D:/`。
     'root_posix': 'D:/gicg_dev',
+    'gcc_path': r'C:\Strawberry\c\bin',
 }
 
 
@@ -32,6 +34,7 @@ def _load_config() -> dict:
     cfg['host'] = os.environ.get('GICG_REMOTE_HOST', cfg['host'])
     cfg['root_win'] = os.environ.get('GICG_REMOTE_ROOT_WIN', cfg['root_win'])
     cfg['root_posix'] = os.environ.get('GICG_REMOTE_ROOT_POSIX', cfg['root_posix'])
+    cfg['gcc_path'] = os.environ.get('GICG_REMOTE_GCC_PATH', cfg['gcc_path'])
     return cfg
 
 
@@ -39,14 +42,38 @@ _CONFIG = _load_config()
 REMOTE = _CONFIG['host']
 REMOTE_ROOT_WIN = _CONFIG['root_win']
 REMOTE_ROOT_POSIX = _CONFIG['root_posix']
+REMOTE_GCC_PATH = _CONFIG['gcc_path']
 
 DEFAULT_SSH_TIMEOUT = 60
 
 
+def ssh_encoded_argv(ps_script: str) -> list[str]:
+    """ssh argv that runs PS via ``-EncodedCommand`` (base64 UTF-16-LE).
+    Bypasses Win OpenSSH cmd.exe wrapper which otherwise eats PS ``|`` /
+    ``>`` / ``&`` as cmd metacharacters. ``-OutputFormat Text`` + 注入
+    ``$ProgressPreference='SilentlyContinue'`` 消 CLIXML serialize 与 PS
+    startup ``Preparing modules`` progress noise。"""
+    wrapped = "$ProgressPreference='SilentlyContinue'; " + ps_script
+    encoded = base64.b64encode(wrapped.encode('utf-16-le')).decode('ascii')
+    return [
+        'ssh',
+        REMOTE,
+        'powershell',
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-OutputFormat',
+        'Text',
+        '-EncodedCommand',
+        encoded,
+    ]
+
+
 def ssh_run(ps_script: str, timeout: int = DEFAULT_SSH_TIMEOUT) -> subprocess.CompletedProcess:
     """Run a PowerShell snippet on remote via ssh. stderr decode='replace'(cp936)."""
-    cmd = ['ssh', REMOTE, 'powershell', '-ExecutionPolicy', 'Bypass', '-Command', ps_script]
-    return subprocess.run(cmd, capture_output=True, text=True, errors='replace', timeout=timeout)
+    return subprocess.run(
+        ssh_encoded_argv(ps_script), capture_output=True, text=True, errors='replace', timeout=timeout
+    )
 
 
 def scp_to(local: Path, remote_rel: str, timeout: int = 120) -> subprocess.CompletedProcess:

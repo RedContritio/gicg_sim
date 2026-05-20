@@ -1,5 +1,6 @@
 """Build libgicg.dll on Windows GPU box (cgo c-shared). CGO_ENABLED=1 +
-CC=gcc (MSYS) + PATH 含 MSYS bin. Output -> D:\\gicg_dev\\gicg_env\\libgicg.dll.
+CC=gcc (Strawberry Perl ships gcc) + PATH 含 gcc bin. Output ->
+<REMOTE_ROOT_WIN>\\gicg_env\\libgicg.dll.
 
 Usage::
 
@@ -10,12 +11,16 @@ from __future__ import annotations
 
 import sys
 
-from tools.remote._common import REMOTE_ROOT_WIN, ssh_run
+from tools.remote._common import REMOTE_GCC_PATH, REMOTE_ROOT_WIN, ssh_run
 
+# single-quote 包 env var value — Windows OpenSSH 的 cmd.exe wrapper 会 strip
+# 未 escape 的 double quote(同 tools/remote/run.py line 91-94)。
 PS = (
-    '$env:CGO_ENABLED=1; $env:CC="gcc"; '
-    '$env:PATH="C:\\msys64\\mingw64\\bin;" + $env:PATH; '
+    "$env:CGO_ENABLED=1; $env:CC='gcc'; "
+    f"$env:PATH='{REMOTE_GCC_PATH};' + $env:PATH; "
     f'cd "{REMOTE_ROOT_WIN}"; '
+    'gcc --version 2>$null; '
+    f'if ($LASTEXITCODE -ne 0) {{ Write-Error "gcc not found at {REMOTE_GCC_PATH}, override via GICG_REMOTE_GCC_PATH env var"; exit 1 }}; '
     'go build -buildmode=c-shared -o gicg_env\\libgicg.dll .\\gicg_engine\\capi\\'
 )
 

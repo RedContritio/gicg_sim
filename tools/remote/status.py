@@ -27,10 +27,11 @@ import sys
 import time
 from datetime import datetime
 
-REMOTE = 'dev@192.168.31.56'
-ART_ROOT_WIN = r'D:\gicg_dev\artifacts'
+from tools.remote._common import REMOTE, REMOTE_ROOT_WIN
+
+ART_ROOT_WIN = f'{REMOTE_ROOT_WIN}\\artifacts'
 # PS script lives on Windows side (synced once via scp tools/remote/status.ps1).
-PS_SCRIPT_PATH = r'D:\gicg_dev\tools\remote\status.ps1'
+PS_SCRIPT_PATH = f'{REMOTE_ROOT_WIN}\\tools\\remote\\status.ps1'
 
 
 def ssh_query(run_label: str = '') -> str:

@@ -20,7 +20,7 @@ import threading
 import time
 from typing import IO
 
-from tools.remote._common import REMOTE, REMOTE_ROOT_WIN, ps_quote, ssh_run
+from tools.remote._common import REMOTE, REMOTE_ROOT_WIN, ps_quote, ssh_encoded_argv, ssh_run
 
 
 def _build_ps(cmd_tokens: list[str], cwd: str) -> tuple[str, str]:
@@ -46,7 +46,7 @@ def _pump(stream: IO[str], sink: IO[str]) -> None:
 def _run_stream(ps_script: str, timeout: int) -> int:
     """Popen ssh + line-buffer pump stdout/stderr to local. timeout is
     wall-clock; on expiry SIGTERM the child."""
-    cmd = ['ssh', REMOTE, 'powershell', '-ExecutionPolicy', 'Bypass', '-Command', ps_script]
+    cmd = ssh_encoded_argv(ps_script)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors='replace', bufsize=1)
     t_out = threading.Thread(target=_pump, args=(proc.stdout, sys.stdout), daemon=True)
     t_err = threading.Thread(target=_pump, args=(proc.stderr, sys.stderr), daemon=True)
