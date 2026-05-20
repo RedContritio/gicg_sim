@@ -23,6 +23,7 @@ from training.core.config.base import TrainingConfig
 from training.core.eval.periodic import PeriodicEvalScheduler
 from training.core.logging import MetricsLogger
 from training.core.nan_guard import NaNGuard
+from training.core.perf import trace
 from training.core.protocols import Paradigm, PipelineState
 
 
@@ -111,18 +112,23 @@ def run_pipeline(
                 # `n_episodes > 0` when collect=True → bit-identical
                 # behavior. See specs/training-architecture/pipeline.md §3 #7.
                 provider = train_provider or _default_provider(network, cfg)
-                out = collector.collect(plan.n_episodes, provider)
-                buffer.push(out)
+                with trace.span('pipeline.collect'):
+                    out = collector.collect(plan.n_episodes, provider)
+                with trace.span('pipeline.buffer_push'):
+                    buffer.push(out)
                 state.after_collect(out)
 
             if plan.train and plan.n_train_batches > 0:
                 for _ in range(plan.n_train_batches):
                     if len(buffer) < plan.batch_size:
                         break
-                    batch = buffer.sample(plan.batch_size)
+                    with trace.span('pipeline.buffer_sample'):
+                        batch = buffer.sample(plan.batch_size)
                     optimizer.zero_grad()
-                    loss_result = loss_fn.compute(network, batch)
-                    loss_result.loss.backward()
+                    with trace.span('pipeline.loss_compute'):
+                        loss_result = loss_fn.compute(network, batch)
+                    with trace.span('pipeline.backward'):
+                        loss_result.loss.backward()
                     grad_norm = torch.nn.utils.clip_grad_norm_(
                         network.parameters(),
                         cfg.paradigm.get('max_grad_norm', 1.0),
@@ -136,7 +142,8 @@ def run_pipeline(
                         state_snapshot=state.snapshot(),
                         train_step=state.train_steps,
                     )
-                    optimizer.step()
+                    with trace.span('pipeline.optim_step'):
+                        optimizer.step()
                     state.after_train(loss_result.breakdown)
                     logger.add_scalar('train/loss', float(loss_result.loss.item()), state.train_steps)
 
@@ -171,6 +178,7 @@ def run_pipeline(
         ckpt_mgr.save(state)
         collector.close()
         logger.close()
+        trace.close()
 
     return state
 

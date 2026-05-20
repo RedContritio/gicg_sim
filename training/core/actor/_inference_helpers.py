@@ -24,6 +24,8 @@ from typing import Any
 
 import torch
 
+from training.core.perf import trace
+
 
 class _AccelState:
     """Lazy compile/trace state for ``_server_loop``.
@@ -112,26 +114,28 @@ def _run_batched_path(network, batch: list, device_str: str, response_qs: list) 
     shape the per-request path returns.
     """
     decoded: list = []
-    for msg in batch:
-        _kind, client_id, req_id, obs_bytes, mask_bytes = msg
-        try:
-            obs = _from_bytes(obs_bytes)
-            obs = _to_device(obs, device_str)
-            # mask is unused by DMC batched_forward (caller slices
-            # n_legal externally); decode-and-discard for parity with
-            # per-request path so a malformed mask still surfaces as
-            # an err for that client only.
-            if mask_bytes is not None:
-                _ = _from_bytes(mask_bytes)
-            decoded.append((client_id, req_id, obs))
-        except Exception as exc:
-            response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
+    with trace.span('inf_server.decode'):
+        for msg in batch:
+            _kind, client_id, req_id, obs_bytes, mask_bytes = msg
+            try:
+                obs = _from_bytes(obs_bytes)
+                obs = _to_device(obs, device_str)
+                # mask is unused by DMC batched_forward (caller slices
+                # n_legal externally); decode-and-discard for parity with
+                # per-request path so a malformed mask still surfaces as
+                # an err for that client only.
+                if mask_bytes is not None:
+                    _ = _from_bytes(mask_bytes)
+                decoded.append((client_id, req_id, obs))
+            except Exception as exc:
+                response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
     if not decoded:
         return
     try:
-        with torch.inference_mode():
-            batched_out = network.batched_forward([d[2] for d in decoded])
-        batched_out = _to_device(batched_out, 'cpu')
+        with trace.span('inf_server.batched_forward_inner'):
+            with torch.inference_mode():
+                batched_out = network.batched_forward([d[2] for d in decoded])
+            batched_out = _to_device(batched_out, 'cpu')
     except Exception as exc:
         err_msg = f'{type(exc).__name__}: {exc}'
         for client_id, req_id, _obs in decoded:
@@ -140,9 +144,10 @@ def _run_batched_path(network, batch: list, device_str: str, response_qs: list) 
             except Exception:
                 pass
         return
-    for i, (client_id, req_id, _obs) in enumerate(decoded):
-        row = batched_out[i : i + 1]
-        try:
-            response_qs[client_id].put(('ok', req_id, _to_bytes(row)))
-        except Exception as exc:  # pragma: no cover — queue closed
-            print(f'[InferenceServer] response_q put failed: {exc}')
+    with trace.span('inf_server.dispatch'):
+        for i, (client_id, req_id, _obs) in enumerate(decoded):
+            row = batched_out[i : i + 1]
+            try:
+                response_qs[client_id].put(('ok', req_id, _to_bytes(row)))
+            except Exception as exc:  # pragma: no cover — queue closed
+                print(f'[InferenceServer] response_q put failed: {exc}')

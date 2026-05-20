@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from training.core.perf import trace
 from training.core.protocols import (
     EpisodePolicy,
     EpisodeRecord,
@@ -69,31 +70,39 @@ class EpisodeRunner:
                 break
             cur = getattr(env, 'current_player', 0)
             if cur == our_player:
-                obs = self._get_obs(env)
-                mask = self._get_legal_mask(env)
+                with trace.span('episode_runner.get_obs'):
+                    obs = self._get_obs(env)
+                with trace.span('episode_runner.get_legal_mask'):
+                    mask = self._get_legal_mask(env)
                 # Optional duck-typed hook: paradigm-specific providers
                 # that need the env reference for obs encoding (e.g.
                 # DMC's obs_dict adapter) can observe it here before
                 # policy.act forwards through them.
                 if hasattr(provider, 'observe_env'):
-                    provider.observe_env(env)
-                action, meta = policy.act(obs, mask, provider)
-                step_out = env.step(action)
+                    with trace.span('episode_runner.observe_env'):
+                        provider.observe_env(env)
+                with trace.span('episode_runner.policy_act'):
+                    action, meta = policy.act(obs, mask, provider)
+                with trace.span('episode_runner.env_step_our'):
+                    step_out = env.step(action)
                 reward = self._reward_from_step(step_out)
                 done = bool(getattr(env, 'done', False))
-                transitions.append(
-                    Transition(
-                        obs=obs,
-                        action=int(action),
-                        legal_mask=mask,
-                        reward=float(reward),
-                        done=done,
-                        payload=meta,
+                with trace.span('episode_runner.transition_build'):
+                    transitions.append(
+                        Transition(
+                            obs=obs,
+                            action=int(action),
+                            legal_mask=mask,
+                            reward=float(reward),
+                            done=done,
+                            payload=meta,
+                        )
                     )
-                )
             else:
-                opp_action = opp.select_action(env)
-                env.step(int(opp_action))
+                with trace.span('episode_runner.opp_select_action'):
+                    opp_action = opp.select_action(env)
+                with trace.span('episode_runner.env_step_opp'):
+                    env.step(int(opp_action))
             steps += 1
         else:
             winner = self._winner(env)

@@ -24,6 +24,7 @@ from training.core.actor._mp_helpers import (
 )
 from training.core.actor.episode_runner import EpisodeRunner
 from training.core.config.inheritance import derive_seed
+from training.core.perf import trace as _perf_trace
 from training.core.protocols import EpisodeSpec
 
 
@@ -110,6 +111,7 @@ def actor_main(
     harden_child_env(affinity=affinity)
     if stop_event is not None:
         install_quiet_sigterm(stop_event)
+    _perf_trace.configure(role='actor', id=actor_id)
 
     # Per-actor file logging: mp child stdout/stderr is unreliable —
     # pytest captures it, ssh strips it, sandboxes suppress it. Tee
@@ -199,6 +201,7 @@ def actor_main(
             except Exception as exc:
                 print(f'[actor {actor_id}] provider.update_weights err: {type(exc).__name__}: {exc}')
     finally:
+        _perf_trace.close()
         # Cancel mp.Queue feeder-join atexit deadlock: any cross-process
         # queue handle the actor inherited (transition_queue,
         # inference_client.{request,response}_queue) may have a

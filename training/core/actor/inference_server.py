@@ -40,6 +40,7 @@ from training.core.actor._mp_helpers import (
     harden_child_env,
     install_quiet_sigterm,
 )
+from training.core.perf import trace
 
 _VALID_ACCEL = ('none', 'trace', 'compile')
 
@@ -65,6 +66,7 @@ def _server_loop(
     """
     harden_child_env()
     install_quiet_sigterm(stop_event)
+    trace.configure(role='inf_server', id=0)
     try:
         network = pickle.loads(network_bytes).to(device_str).eval()
     except Exception as exc:  # pragma: no cover — startup failure surface
@@ -97,25 +99,27 @@ def _server_loop(
             continue
         batch.append(first)
         deadline = time.perf_counter() + timeout_s
-        while len(batch) < max_batch:
-            remaining = deadline - time.perf_counter()
-            if remaining <= 0:
-                break
-            try:
-                msg = request_q.get(timeout=remaining)
-            except _queue.Empty:
-                break
-            if msg[0] == 'stop':
-                stop_event.set()
-                break
-            if msg[0] == 'weights':
+        with trace.span('inf_server.fill_wait'):
+            while len(batch) < max_batch:
+                remaining = deadline - time.perf_counter()
+                if remaining <= 0:
+                    break
                 try:
-                    network.load_state_dict(msg[1])
-                    accel.invalidate_trace()
-                except Exception as exc:  # pragma: no cover
-                    print(f'[InferenceServer] weight load failed: {exc}')
-                continue
-            batch.append(msg)
+                    msg = request_q.get(timeout=remaining)
+                except _queue.Empty:
+                    break
+                if msg[0] == 'stop':
+                    stop_event.set()
+                    break
+                if msg[0] == 'weights':
+                    try:
+                        network.load_state_dict(msg[1])
+                        accel.invalidate_trace()
+                    except Exception as exc:  # pragma: no cover
+                        print(f'[InferenceServer] weight load failed: {exc}')
+                    continue
+                batch.append(msg)
+        trace.value('inf_server.batch_size', float(len(batch)))
         # Paradigm-aware batched path: if network exposes batched_forward
         # AND there's >1 request, one ActorCritic.forward + scatter back
         # via _run_batched_path. Networks without batched_forward (legacy
@@ -123,26 +127,30 @@ def _server_loop(
         # per-request loop below, which is also the only path that
         # exercises the trace / compile accel layers (single-forward only).
         if hasattr(network, 'batched_forward') and len(batch) > 1:
-            _run_batched_path(network, batch, device_str, response_qs)
+            with trace.span('inf_server.batched_forward'):
+                _run_batched_path(network, batch, device_str, response_qs)
             continue
 
         for msg in batch:
             _kind, client_id, req_id, obs_bytes, mask_bytes = msg
             try:
-                obs = _from_bytes(obs_bytes)
-                mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
-                # Move obs to server device — IPC delivers CPU-pickled
-                # tensors; network may live on cuda. Mirror back to cpu
-                # before pickling response so client-side unpickle works
-                # on hosts without a matching cuda runtime.
-                obs = _to_device(obs, device_str)
-                if mask is not None:
-                    mask = _to_device(mask, device_str)
+                with trace.span('inf_server.decode'):
+                    obs = _from_bytes(obs_bytes)
+                    mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
+                    # Move obs to server device — IPC delivers CPU-pickled
+                    # tensors; network may live on cuda. Mirror back to cpu
+                    # before pickling response so client-side unpickle works
+                    # on hosts without a matching cuda runtime.
+                    obs = _to_device(obs, device_str)
+                    if mask is not None:
+                        mask = _to_device(mask, device_str)
                 net = accel.select(obs, mask)
-                with torch.inference_mode():
-                    out = net(obs, mask) if mask is not None else net(obs)
-                out = _to_device(out, 'cpu')
-                response_qs[client_id].put(('ok', req_id, _to_bytes(out)))
+                with trace.span('inf_server.forward'):
+                    with torch.inference_mode():
+                        out = net(obs, mask) if mask is not None else net(obs)
+                with trace.span('inf_server.dispatch'):
+                    out = _to_device(out, 'cpu')
+                    response_qs[client_id].put(('ok', req_id, _to_bytes(out)))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
 

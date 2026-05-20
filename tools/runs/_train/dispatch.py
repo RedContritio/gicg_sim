@@ -92,8 +92,14 @@ def run_paradigm_train(state: SetupState) -> None:
     # this branch and pays the import once per process.
     from training.core.config.loader import load_cfg
     from training.core.env_factory import make_env_factory
+    from training.core.perf import trace as _perf_trace
     from training.core.pipeline import run_pipeline
     from training.paradigms import resolve as resolve_paradigm
+
+    # Configure perf tracing for the pipeline (learner) process. Actors
+    # + inference server each call configure() in their own spawn target.
+    # No-op when PERF_TRACE env var is unset.
+    _perf_trace.configure(role='pipeline', id=0)
 
     # cfg_resolved.toml is the immutable post-extends + post --override
     # snapshot Phase B wrote. Loading via load_cfg routes it through the
