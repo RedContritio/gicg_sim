@@ -81,6 +81,16 @@ def _server_loop(
     harden_child_env()
     install_quiet_sigterm(stop_event)
     trace.configure(role='inf_server', id=0)
+    # PyTorch CUDA allocator 默认 caching 不释放,长跑后 InfServer RSS 飙
+    # 到 25-35 GB(per 2026-05-20 production run 078 实测,~10 GB/h 涨)。
+    # expandable_segments:True 让 allocator 用 vmem reservation 而非物理,
+    # 不用时操作系统能 reclaim。Win + CUDA 12.x+ 支持。
+    # max_split_size_mb 限单个 allocation 上限 → 减少碎片,小模型更友好。
+    import os as _os
+    _os.environ.setdefault(
+        'PYTORCH_CUDA_ALLOC_CONF',
+        'expandable_segments:True,max_split_size_mb:128',
+    )
     try:
         network = pickle.loads(network_bytes).to(device_str).eval()
     except Exception as exc:  # pragma: no cover — startup failure surface
@@ -109,6 +119,13 @@ def _server_loop(
     accel = _AccelState(network, inference_acceleration)
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
+    # 每 N batch 一次 cuda allocator empty_cache + gc.collect — 长跑 leak
+    # 防御。InfServer 单进程,allocator pool 长期累积是 mem 主因。N 不能
+    # 太小(每次 empty_cache 有 100-300ms 开销),也不能太大(防御无效)。
+    # 500 batch = ~30-60s 间隔(batched_forward ~60ms × 500 = 30s)。
+    is_cuda = 'cuda' in device_str.lower()
+    cleanup_every = 500
+    batches_since_cleanup = 0
 
     while not stop_event.is_set():
         batch = []
@@ -165,6 +182,14 @@ def _server_loop(
                     shared_cache,
                     return_numpy=return_numpy,
                 )
+            batches_since_cleanup += 1
+            if is_cuda and batches_since_cleanup >= cleanup_every:
+                with trace.span('inf_server.empty_cache'):
+                    import gc
+
+                    gc.collect()
+                    torch.cuda.empty_cache()
+                batches_since_cleanup = 0
             continue
 
         for msg in batch:
