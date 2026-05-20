@@ -102,6 +102,32 @@ def actor_main(
     if stop_event is not None:
         install_quiet_sigterm(stop_event)
 
+    # Per-actor file logging: mp child stdout/stderr is unreliable —
+    # pytest captures it, ssh strips it, sandboxes suppress it. Tee
+    # everything to artifacts/_actor_logs/actor_<id>.log so debugging
+    # mp crashes / silent hangs / "0 transitions" wedges is possible
+    # by reading the file after the fact. Gated on env var so unit
+    # tests that already capture stdout via assertions don't trip.
+    import os as _os
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    log_dir_env = _os.getenv('ACTOR_LOG_DIR', 'artifacts/_actor_logs')
+    log_dir = _Path(log_dir_env)
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / f'actor_{actor_id}.log'
+        # line-buffered so each print() is visible immediately even on crash
+        _log_f = open(log_path, 'w', buffering=1, encoding='utf-8')
+        _sys.stdout = _log_f
+        _sys.stderr = _log_f
+        print(f'[actor {actor_id}] log start pid={_os.getpid()} cfg.paradigm={getattr(cfg.meta, "paradigm", "?")}', flush=True)
+    except Exception as exc:  # noqa: BLE001
+        # If logging setup fails, fall back to original stdout — at least
+        # the actor still runs. The setup-time exception goes to the
+        # original stderr so the parent process can see SOMETHING.
+        print(f'[actor {actor_id}] log setup failed: {type(exc).__name__}: {exc}', file=_sys.__stderr__)
+
     if build_env_factory is None and build_env_factory_path is not None:
         build_env_factory = resolve_builder(build_env_factory_path)
     if build_opp_registry is None and build_opp_registry_path is not None:
