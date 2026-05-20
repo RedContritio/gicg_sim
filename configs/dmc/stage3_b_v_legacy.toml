@@ -16,7 +16,10 @@ device = "cuda"
 
 [pipeline]
 mode = "async"
-num_actors = 8
+# bench 2026-05-20:N=16 是 Win 9950X3D 上 fps + mem 最优(37.4 fps,
+# 12.6 GB)。N=8 也 work(33.1 fps,8 GB)。N=24 因 CPU oversub OS
+# scheduler thrash 倒退到 17 fps,**勿用**。详 backlog I26。
+num_actors = 16
 
 [scenario]
 team_0 = ["赤蝶"]
