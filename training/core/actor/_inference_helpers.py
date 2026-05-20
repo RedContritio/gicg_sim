@@ -85,6 +85,39 @@ def _to_bytes(t: Any) -> bytes:
     return pickle.dumps(t, protocol=pickle.HIGHEST_PROTOCOL)
 
 
+def _to_bytes_numpy(t: Any) -> bytes:
+    """Pickle response as a numpy array — actor unpickle stays torch-free.
+
+    Used on the decoder-path (DMC mp) where the actor process is
+    intentionally numpy-only: returning a pickled torch.Tensor would
+    force the actor's ``pickle.loads`` to ``import torch``, which mmaps
+    ~400 MB of CUDA libs per actor (the actual reason the I25 cutover
+    exists — see ``training/paradigms/dmc/mp_factories.py`` docstring).
+
+    Torch tensors are converted via ``detach().cpu().numpy()``. Anything
+    that already lacks ``detach`` (numpy arrays, lists of either) falls
+    through to ``_to_bytes``. Dicts / tuples / lists are walked
+    recursively so structured outputs (head dicts) survive intact.
+    """
+    return pickle.dumps(_as_numpy(t), protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def _as_numpy(obj: Any) -> Any:
+    """Recurse into dict / tuple / list / Tensor; cast tensors to numpy.
+
+    Mirrors ``_to_device`` recursion shape. Non-tensor leaf values pass
+    through unchanged so a numpy array or python scalar already in the
+    structure stays as-is.
+    """
+    if isinstance(obj, torch.Tensor):
+        return obj.detach().cpu().numpy()
+    if isinstance(obj, dict):
+        return {k: _as_numpy(v) for k, v in obj.items()}
+    if isinstance(obj, (tuple, list)):
+        return type(obj)(_as_numpy(v) for v in obj)
+    return obj
+
+
 def _from_bytes(b: bytes) -> Any:
     return pickle.loads(b)
 
@@ -111,6 +144,7 @@ def _run_batched_path(
     response_qs: list,
     request_decoder=None,
     shared_cache: Any = None,
+    return_numpy: bool = False,
 ) -> None:
     """Decode all obs once, run ``network.batched_forward``, scatter rows.
 
@@ -125,6 +159,10 @@ def _run_batched_path(
     ``shared_cache`` is a single server-wide dict the decoder internally
     keys by content hash — multiple clients sharing the same scenario
     therefore hit the same cache entry.
+
+    When ``return_numpy=True``, the row is converted to numpy bytes via
+    :func:`_to_bytes_numpy` so the client process can unpickle without
+    importing torch (I25 — decoder-path actors stay torch-free).
     """
     decoded: list = []
     with trace.span('inf_server.decode'):
@@ -160,10 +198,11 @@ def _run_batched_path(
             except Exception:
                 pass
         return
+    encode = _to_bytes_numpy if return_numpy else _to_bytes
     with trace.span('inf_server.dispatch'):
         for i, (client_id, req_id, _obs) in enumerate(decoded):
             row = batched_out[i : i + 1]
             try:
-                response_qs[client_id].put(('ok', req_id, _to_bytes(row)))
+                response_qs[client_id].put(('ok', req_id, encode(row)))
             except Exception as exc:  # pragma: no cover — queue closed
                 print(f'[InferenceServer] response_q put failed: {exc}')

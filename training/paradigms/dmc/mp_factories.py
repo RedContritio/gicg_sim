@@ -6,16 +6,23 @@ parent constructs a shared :class:`InferenceServer` (with
 attaches N :class:`InferenceClient` handles, and threads each client to
 the corresponding actor through the ``inference_client`` kwarg.
 
-**Architecture (post 2026-05-20 decode-offload)**: the actor side is
-intentionally torch-free. The actor builds a small numpy payload (raw
-``static_obs`` + ``dyn_obs`` + action refs/payments — ~10 KB) and pickles
-it over IPC. The server-side decoder unpickles the numpy payload,
-re-uses a per-client static cache for the expensive per-game encoding
-(hook IR → hook_emb via :class:`HookIREncoder` forward), parses the
-dynamic obs into the 7 typed tensors, builds the full 15-tensor
-obs_dict, and hands it back to the normal batched/per-request forward
-path. Server-side encode lives inside ``inf_server.decode`` so the perf
-breakdown stays interpretable.
+**Architecture (post 2026-05-20 decode-offload + I25 response-numpy)**:
+the actor side is intentionally torch-free *both ways*. The actor
+builds a small numpy payload (raw ``static_obs`` + ``dyn_obs`` + action
+refs/payments — ~10 KB) and pickles it over IPC. The server-side
+decoder unpickles the numpy payload, re-uses a per-client static cache
+for the expensive per-game encoding (hook IR → hook_emb via
+:class:`HookIREncoder` forward), parses the dynamic obs into the 7
+typed tensors, builds the full 15-tensor obs_dict, and hands it back
+to the normal batched/per-request forward path. Server-side encode
+lives inside ``inf_server.decode`` so the perf breakdown stays
+interpretable.
+
+I25 (2026-05-20) closes the symmetric loop: when ``request_decoder_path``
+is set, ``InferenceServer`` returns ``np.ndarray`` bytes instead of
+``torch.Tensor`` bytes. Actor unpickle no longer triggers ``import
+torch`` (which mmaps ~400 MB of CUDA libs per process); per-actor RSS
+drops from ~547 MB to ~150 MB on N=8 Win box bench.
 
 The decode-offload eliminates two costs measured in the N=4/N=8 actor
 scaling bench (2026-05-19): (a) torch import + DmcAgent construction in
@@ -201,17 +208,17 @@ class _DMCObsDictRemoteProvider:
         }
         self._static_dirty = False
         out = self.client.request(payload, None)
-        # Server returns q tensor (shape (1, max_actions)). DMC policy
-        # expects a {'logit_as_q': tensor} dict.
-        # Torch only imported here so actor never imports torch at module
-        # load time. Module import inside hot path is acceptable: torch
-        # is already imported in this process via InferenceClient (it
-        # unpickles tensors on response). We could defer further but the
-        # benefit is small once it's loaded.
-        import torch as _torch
-
-        if isinstance(out, _torch.Tensor):
+        # Server-side ``request_decoder_path`` path returns numpy bytes
+        # (I25 — actor stays torch-free, saves ~400 MB CUDA mmap RSS per
+        # actor). ``out`` is a ``np.ndarray`` of shape (1, max_actions).
+        # DMC policy expects ``{'logit_as_q': arr}``; ``arr[0]`` slices the
+        # batch dim away to match the in-proc forward's per-step shape.
+        if isinstance(out, np.ndarray):
             return {'logit_as_q': out[0]}
+        # Defensive: in case the server is rewired with no decoder path
+        # (legacy torch response) we still return ``out`` unwrapped so
+        # the policy's existing ``out['logit_as_q'] if dict else out``
+        # branch covers both response shapes without crashing.
         return out
 
     def update_weights(self, version_tag: Any = None, state_dict: Any = None) -> int:

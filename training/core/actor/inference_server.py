@@ -33,6 +33,7 @@ from training.core.actor._inference_helpers import (
     _from_bytes,
     _run_batched_path,
     _to_bytes,
+    _to_bytes_numpy,
     _to_device,
 )
 from training.core.actor._mp_helpers import (
@@ -69,6 +70,13 @@ def _server_loop(
     ``decoder(obs_bytes, mask_bytes, device, client_cache, network) ->
     (obs, mask)``. Per-client cache the decoder owns; server wipes on
     weight update. ``network`` exposed so decoder can reuse sub-modules.
+
+    Response encoding: when ``request_decoder_path`` is set the server
+    returns numpy bytes (torch tensor → ``detach().cpu().numpy()``) so
+    the actor process unpickles without importing torch (I25 cutover —
+    drops ~400 MB CUDA mmap RSS per actor). Legacy path keeps the
+    pickled-torch-tensor response so existing tests + non-DMC callers
+    are unchanged.
     """
     harden_child_env()
     install_quiet_sigterm(stop_event)
@@ -81,6 +89,10 @@ def _server_loop(
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
 
     request_decoder = None
+    # Decoder-path implies actor stays torch-free → response must be
+    # numpy bytes. Legacy callers (test nets, AZ-loopback fallback)
+    # keep the pickled torch tensor response.
+    return_numpy = bool(request_decoder_path)
     if request_decoder_path:
         from training.core.actor.actor_process import resolve_builder
 
@@ -144,7 +156,15 @@ def _server_loop(
         # (only path that exercises trace/compile accel).
         if hasattr(network, 'batched_forward') and len(batch) > 1:
             with trace.span('inf_server.batched_forward'):
-                _run_batched_path(network, batch, device_str, response_qs, request_decoder, shared_cache)
+                _run_batched_path(
+                    network,
+                    batch,
+                    device_str,
+                    response_qs,
+                    request_decoder,
+                    shared_cache,
+                    return_numpy=return_numpy,
+                )
             continue
 
         for msg in batch:
@@ -168,7 +188,8 @@ def _server_loop(
                         out = net(obs, mask) if mask is not None else net(obs)
                 with trace.span('inf_server.dispatch'):
                     out = _to_device(out, 'cpu')
-                    response_qs[client_id].put(('ok', req_id, _to_bytes(out)))
+                    payload_bytes = _to_bytes_numpy(out) if return_numpy else _to_bytes(out)
+                    response_qs[client_id].put(('ok', req_id, payload_bytes))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
 
