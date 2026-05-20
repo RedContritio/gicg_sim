@@ -69,21 +69,31 @@ def _run_stream(argv: list[str], timeout: int) -> int:
     t_out.start()
     t_err.start()
     deadline = time.monotonic() + timeout
-    while True:
-        rc = proc.poll()
-        if rc is not None:
-            break
-        if time.monotonic() > deadline:
-            sys.stderr.write(f'[remote.run] timeout after {timeout}s — SIGTERM\n')
-            proc.terminate()
-            try:
-                proc.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.wait()
-            rc = proc.returncode if proc.returncode is not None else 124
-            break
-        time.sleep(0.1)
+    try:
+        while True:
+            rc = proc.poll()
+            if rc is not None:
+                break
+            if time.monotonic() > deadline:
+                sys.stderr.write(f'[remote.run] timeout after {timeout}s — SIGTERM\n')
+                proc.terminate()
+                try:
+                    proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait()
+                rc = proc.returncode if proc.returncode is not None else 124
+                break
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        sys.stderr.write('[remote.run] SIGINT — terminating remote ssh proc\n')
+        proc.terminate()
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+        rc = proc.returncode if proc.returncode is not None else 130
     t_out.join(timeout=2)
     t_err.join(timeout=2)
     return rc
@@ -104,12 +114,26 @@ def ssh_forward(
     ``cfg_path`` is the *remote* cfg path — for now we assume the local
     repo tree is rsync'd to ``remote.root`` (per ``_remote_sync``), so
     relative cfg paths resolve identically on both sides。
+
+    Quoting: ``cfg_path`` + each ``extra_args`` token go through
+    ``ps_quote`` so user-controlled values that contain spaces, ``;``,
+    ``|``, ``&`` etc. cannot break out of the PS-encoded payload
+    (``--EncodedCommand`` already neutralizes cmd.exe metachars, but
+    inside the PS payload itself we still need single-quote wrapping to
+    prevent re-tokenization). ``py`` + ``tool_module`` are probe/literal
+    surfaces and not quoted — they only contain safe chars by
+    construction (interpreter path from ``discover_remote_python`` is a
+    venv path with no quoting hazards; ``tool_module`` is a literal
+    dotted name controlled by the calling tool).
     """
     py = discover_remote_python(remote)
     cfg_str = str(cfg_path).replace('\\', '/')
     cd_root = f'cd {ps_quote(remote.root_native)}'
-    parts = [py, '-X', 'utf8', '-u', '-m', tool_module, cfg_str, *extra_args]
-    inner = ' '.join(parts)
+    quoted_cfg = ps_quote(cfg_str)
+    quoted_extra = ' '.join(ps_quote(a) for a in extra_args)
+    inner = f'{py} -X utf8 -u -m {tool_module} {quoted_cfg}'
+    if quoted_extra:
+        inner = f'{inner} {quoted_extra}'
     ps = f'{cd_root}; {inner}'
     argv = ssh_encoded_argv(remote, ps)
     print(f'[remote.forward] {remote.ssh} >> {tool_module} {cfg_str} {" ".join(extra_args)}')

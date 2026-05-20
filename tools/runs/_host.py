@@ -80,10 +80,10 @@ def load_remote_from_cfg(cfg_path: Path) -> RemoteCfg | None:
 
 def is_local_host(remote: RemoteCfg | None) -> bool:
     """No remote cfg, or we're physically on the remote box(hostname
-    match)— skip ssh + just run locally。"""
+    match,case-insensitive — Windows gethostname() 常返大写,cfg 可能小写)。"""
     if remote is None:
         return True
-    return socket.gethostname() == remote.hostname
+    return socket.gethostname().lower() == remote.hostname.lower()
 
 
 # ---------------------------------------------------------------------------
