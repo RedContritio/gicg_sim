@@ -1,16 +1,29 @@
-"""Kill remote python processes on Windows GPU box via ssh.
+"""Kill remote python processes via ssh — cfg-driven dispatch。
 
-Replaces手动 `ssh ... Stop-Process -Name python -Force`。三选一模式:
---all 杀所有 python.exe / --pid <N> 单 PID / --match <substr> 进程名子串。
---dry-run 只列待杀进程不执行。
+CLI:
+
+    .venv/bin/python -m tools.runs.kill <cfg.toml> --all [--dry-run]
+    .venv/bin/python -m tools.runs.kill <cfg.toml> --pid 1234
+    .venv/bin/python -m tools.runs.kill <cfg.toml> --match foo
+
+cfg ``[meta].host`` decides local vs remote dispatch。Three mutually-
+exclusive modes(``--all`` / ``--pid <N>`` / ``--match <substr>``)+ optional
+``--dry-run``。
+
+Local mode currently only supports POSIX(`pgrep` / `kill`); on remote
+Windows it shells out via PowerShell ``Get-Process`` / ``Stop-Process``。
 """
 
 from __future__ import annotations
 
 import argparse
+import os
+import signal
+import subprocess
 import sys
+from pathlib import Path
 
-from tools.runs._host import ps_quote, ssh_run
+from tools.runs._host import is_local_host, load_remote_from_cfg, ps_quote, ssh_run
 
 
 def _build_ps(args: argparse.Namespace) -> str:
@@ -54,8 +67,9 @@ def _build_ps(args: argparse.Namespace) -> str:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    """argparse with mutex group(--all / --pid / --match)."""
-    p = argparse.ArgumentParser(description='Kill remote python processes via ssh.')
+    """argparse with cfg positional + mutex group(--all / --pid / --match)."""
+    p = argparse.ArgumentParser(description='Kill python processes via cfg-driven local/ssh dispatch.')
+    p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
     g = p.add_mutually_exclusive_group(required=True)
     g.add_argument('--all', action='store_true', help='kill all python.exe')
     g.add_argument('--pid', type=int, help='kill a single PID')
@@ -65,18 +79,63 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def main() -> int:
-    """Parse args → build PS → ssh_run → forward stdout/stderr + returncode."""
-    args = _build_parser().parse_args()
+def _local_pids_matching(args: argparse.Namespace) -> list[int]:
+    """Return PID list for the chosen mode(POSIX local)。"""
+    if args.pid is not None:
+        return [args.pid]
+    pattern = 'python' if args.all else args.match
+    r = subprocess.run(['pgrep', '-f', pattern], capture_output=True, text=True)
+    return [int(x) for x in r.stdout.split() if x.strip().isdigit()]
+
+
+def _run_local(args: argparse.Namespace) -> int:
+    """Local POSIX dispatch — ``pgrep`` enumerate + ``kill`` send SIGTERM。
+    Windows local not supported(use cfg with [remote].hostname=match for
+    in-box workflow)。"""
+    if sys.platform == 'win32':
+        sys.stderr.write(
+            'error: local Windows kill not implemented; on Windows GPU box, run with cfg whose [remote].hostname matches socket.gethostname().\n'
+        )
+        return 2
+    pids = _local_pids_matching(args)
+    tag = 'dry-run' if args.dry_run else 'kill'
+    print(f'[local.kill] ({tag}) matched {len(pids)} pid(s): {pids}')
+    if args.dry_run or not pids:
+        return 0
+    rc = 0
+    for pid in pids:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            continue
+        except PermissionError as e:
+            sys.stderr.write(f'[local.kill] pid {pid}: {e}\n')
+            rc = 1
+    return rc
+
+
+def _run_remote(remote, args: argparse.Namespace) -> int:
+    """Remote ssh dispatch — send PS body directly(not python -m self,which
+    would recurse)。"""
     ps = _build_ps(args)
     tag = 'dry-run' if args.dry_run else 'kill'
-    print(f'[remote.kill] ({tag}) >> {ps}')
-    r = ssh_run(ps, timeout=args.timeout)
+    print(f'[remote.kill] ({tag}) {remote.ssh} >> {ps}')
+    r = ssh_run(remote, ps, timeout=args.timeout)
     if r.stdout:
         sys.stdout.write(r.stdout)
     if r.stderr:
         sys.stderr.write(r.stderr)
     return r.returncode
+
+
+def main() -> int:
+    """Parse args → load cfg → local-or-remote dispatch。"""
+    args = _build_parser().parse_args()
+    remote = load_remote_from_cfg(args.cfg)
+    if is_local_host(remote):
+        return _run_local(args)
+    assert remote is not None
+    return _run_remote(remote, args)
 
 
 if __name__ == '__main__':

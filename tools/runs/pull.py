@@ -1,10 +1,20 @@
-"""Pull Windows → Mac via tar+scp(远端 Win 无 rsync,沿 ``sync.py`` 同款
-transport)。3 mutually exclusive modes:
+"""Pull remote → local via tar+scp(no rsync)— cfg-driven dispatch。
+
+CLI:
+
+    .venv/bin/python -m tools.runs.pull <cfg.toml> <run-label> [--all-ckpts]
+    .venv/bin/python -m tools.runs.pull <cfg.toml> --dir <remote-path>
+    .venv/bin/python -m tools.runs.pull <cfg.toml> --files <glob>
+
+3 mutually exclusive modes:
 
 - ``<run-label>`` legacy:pull ``artifacts/<run>/`` 默认排除 per-step ckpts
   (``ckpt_*.pt`` / ``gauntlet_*.pt``);``--all-ckpts`` 全拉。
 - ``--dir <remote>``:tar 整 dir。
 - ``--files <glob>``:ssh PS ``Get-ChildItem`` 解析 glob → tar list。
+
+If ``[meta].host == 'local'``(or hostname loopback)pull is a no-op
+since source = destination — emits a warning + returns 0。
 """
 
 from __future__ import annotations
@@ -16,11 +26,12 @@ import tempfile
 import uuid
 from pathlib import Path
 
-from tools.runs._host import REMOTE_ROOT_POSIX, REMOTE_ROOT_WIN, ps_quote, scp_from, ssh_run
+from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg, ps_quote, scp_from, ssh_run
 
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser()
+    p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
     p.add_argument('run_label', type=str, nargs='?', default=None)
     p.add_argument('--dir', dest='dir_', type=str, default=None, help='pull entire remote dir')
     p.add_argument('--files', type=str, default=None, help='glob pattern (resolved via PS Get-ChildItem)')
@@ -29,13 +40,14 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def _to_rel(remote_path: str) -> str:
-    """Path → REMOTE_ROOT_POSIX-relative(strip leading)。"""
+def _to_rel(remote: RemoteCfg, remote_path: str) -> str:
+    """Path → ``remote.root``-relative(strip leading)。"""
     norm = remote_path.replace('\\', '/').rstrip('/')
-    if norm.lower().startswith(REMOTE_ROOT_POSIX.lower()):
-        return norm[len(REMOTE_ROOT_POSIX) :].lstrip('/')
+    root = remote.root.rstrip('/')
+    if norm.lower().startswith(root.lower()):
+        return norm[len(root) :].lstrip('/')
     if ':' in norm:
-        raise ValueError(f'absolute path outside REMOTE_ROOT: {norm}')
+        raise ValueError(f'absolute path outside remote root {remote.root}: {norm}')
     return norm.lstrip('/')
 
 
@@ -49,6 +61,7 @@ def _local_mirror(remote_rel: str, local_root: str) -> Path:
 
 
 def _pull_via_tar(
+    remote: RemoteCfg,
     rel_paths: list[str],
     extract_root: Path,
     excludes: list[str] | None = None,
@@ -57,27 +70,27 @@ def _pull_via_tar(
 ) -> int:
     """ssh tar -czf X.tar.gz → scp_from → local untar。
 
-    rel_paths: paths relative to ``tar_cwd``(forward slash 接). tar_cwd:
-    远端 tar 工作目录,default ``REMOTE_ROOT_WIN``;legacy 用 ``<root>\\artifacts``
-    让 tar 内部 path 是 ``<run>/...`` 而非 ``artifacts/<run>/...``。excludes:
-    tar ``--exclude`` patterns(空 = 不排除)。extract_root: 本地 untar 目标。
-    tar 文件本身始终写到 ``REMOTE_ROOT_WIN``,与 cwd 解耦,scp_from + cleanup 路径不变。
+    rel_paths relative to ``tar_cwd``(forward-slash form). ``tar_cwd``
+    defaults to ``remote.root_native``;legacy uses ``<root>/artifacts``
+    so tar archive's internal paths drop the ``artifacts/`` prefix。
+    tar file 本身始终写到 ``remote.root_native``,scp_from + cleanup 路径不变。
     """
-    cwd = tar_cwd if tar_cwd is not None else REMOTE_ROOT_WIN
+    cwd = tar_cwd if tar_cwd is not None else remote.root_native
+    sep = '\\' if remote.os == 'windows' else '/'
     remote_tar = f'pull_{uuid.uuid4().hex[:8]}.tar.gz'
-    tar_abs = f'{REMOTE_ROOT_WIN}\\{remote_tar}'
+    tar_abs = f'{remote.root_native}{sep}{remote_tar}'
     paths_arg = ' '.join(ps_quote(p) for p in rel_paths)
     excl_args = ''.join(f' --exclude={ps_quote(e)}' for e in (excludes or []))
     ps = f'cd {ps_quote(cwd)}; tar -czf {ps_quote(tar_abs)}{excl_args} {paths_arg}'
     print(f'[pull] remote tar: {len(rel_paths)} path(s) → {remote_tar}')
-    r = ssh_run(ps, timeout=timeout)
+    r = ssh_run(remote, ps, timeout=timeout)
     if r.returncode != 0:
         print(f'[pull] remote tar failed: {r.stderr.strip()}', file=sys.stderr)
         return r.returncode
     with tempfile.NamedTemporaryFile(suffix='.tar.gz', delete=False) as fh:
         tar_path = Path(fh.name)
     try:
-        r = scp_from(remote_tar, tar_path, timeout=timeout)
+        r = scp_from(remote, remote_tar, tar_path, timeout=timeout)
         if r.returncode != 0:
             print(f'[pull] scp failed: {r.stderr.strip()}', file=sys.stderr)
             return r.returncode
@@ -90,41 +103,44 @@ def _pull_via_tar(
     finally:
         tar_path.unlink(missing_ok=True)
         ssh_run(
-            f'Remove-Item {ps_quote(f"{REMOTE_ROOT_WIN}\\{remote_tar}")} -Force -ErrorAction SilentlyContinue',
+            remote,
+            f'Remove-Item {ps_quote(f"{remote.root_native}{sep}{remote_tar}")} -Force -ErrorAction SilentlyContinue',
             timeout=30,
         )
 
 
-def _run_legacy(args) -> int:
+def _run_legacy(remote: RemoteCfg, args) -> int:
     excludes = [] if args.all_ckpts else ['ckpts/ckpt_*.pt', 'ckpts/gauntlet_*.pt']
+    sep = '\\' if remote.os == 'windows' else '/'
     return _pull_via_tar(
+        remote,
         [args.run_label],
         extract_root=Path(args.local_root),
         excludes=excludes,
-        tar_cwd=f'{REMOTE_ROOT_WIN}\\artifacts',
+        tar_cwd=f'{remote.root_native}{sep}artifacts',
     )
 
 
-def _run_dir(args) -> int:
-    rel = _to_rel(args.dir_.rstrip('/'))
+def _run_dir(remote: RemoteCfg, args) -> int:
+    rel = _to_rel(remote, args.dir_.rstrip('/'))
     dst = _local_mirror(args.dir_, args.local_root)
-    return _pull_via_tar([rel], extract_root=dst.parent)
+    return _pull_via_tar(remote, [rel], extract_root=dst.parent)
 
 
-def _resolve_glob(glob: str) -> list[str]:
-    """ssh PS ``Get-ChildItem`` 解析 glob → REMOTE_ROOT_POSIX-relative paths。"""
-    abs_glob = glob if ':' in glob else f'{REMOTE_ROOT_POSIX}/{glob.lstrip("/")}'
+def _resolve_glob(remote: RemoteCfg, glob: str) -> list[str]:
+    """ssh PS ``Get-ChildItem`` 解析 glob → ``remote.root``-relative paths。"""
+    abs_glob = glob if ':' in glob else f'{remote.root}/{glob.lstrip("/")}'
     ps = f'Get-ChildItem -Path {ps_quote(abs_glob)} -File | Select-Object -ExpandProperty FullName'
-    r = ssh_run(ps)
+    r = ssh_run(remote, ps)
     if r.returncode != 0:
         raise RuntimeError(f'remote glob ls failed: {r.stderr.strip()}')
     abs_paths = [ln.strip() for ln in r.stdout.splitlines() if ln.strip()]
-    return [_to_rel(p) for p in abs_paths]
+    return [_to_rel(remote, p) for p in abs_paths]
 
 
-def _run_files(args) -> int:
+def _run_files(remote: RemoteCfg, args) -> int:
     try:
-        rel_paths = _resolve_glob(args.files)
+        rel_paths = _resolve_glob(remote, args.files)
     except (RuntimeError, ValueError) as e:
         print(f'error: {e}', file=sys.stderr)
         return 1
@@ -132,7 +148,13 @@ def _run_files(args) -> int:
         print(f'error: no remote files matched glob: {args.files}', file=sys.stderr)
         return 1
     dst = _local_mirror(args.files, args.local_root).parent
-    return _pull_via_tar(rel_paths, extract_root=dst)
+    return _pull_via_tar(remote, rel_paths, extract_root=dst)
+
+
+def _run_local(args) -> int:
+    """Local mode no-op — source == destination。"""
+    print('[pull] cfg [meta].host=local (or loopback) — nothing to pull', file=sys.stderr)
+    return 0
 
 
 def main():
@@ -141,11 +163,15 @@ def main():
     if provided != 1:
         print('error: exactly one of: <run-label> | --dir | --files required', file=sys.stderr)
         return 2
+    remote = load_remote_from_cfg(args.cfg)
+    if is_local_host(remote):
+        return _run_local(args)
+    assert remote is not None
     if args.run_label:
-        return _run_legacy(args)
+        return _run_legacy(remote, args)
     if args.dir_:
-        return _run_dir(args)
-    return _run_files(args)
+        return _run_dir(remote, args)
+    return _run_files(remote, args)
 
 
 if __name__ == '__main__':

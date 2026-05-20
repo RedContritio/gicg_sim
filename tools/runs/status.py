@@ -1,21 +1,13 @@
-"""Quick status check for DMC training on Windows GPU box.
+"""Quick status check for training on remote GPU box — cfg-driven dispatch。
 
-Reads artifacts/<latest-run>/metrics.jsonl over ssh and shows:
-  - GPU util / mem
-  - Python proc CPU time
-  - Latest eval row(s)
-  - Latest episode row + fps + ETA to cfg.total_frames
+CLI:
 
-Usage::
+    .venv/bin/python -m tools.runs.status <cfg.toml> [--watch --interval N --run NAME]
 
-    # One-shot
-    .venv/bin/python -m tools.runs.status
-
-    # Watch every 30 s
-    .venv/bin/python -m tools.runs.status --watch
-
-    # Specific run dir
-    .venv/bin/python -m tools.runs.status --run 202605151019_dmc_stage3_pilot_20k
+cfg ``[meta].host`` decides local vs remote。Reads
+``artifacts/<latest-run>/metrics.jsonl`` over ssh + ``status.ps1`` (assumed
+synced to remote at ``<remote.root>/tools/runs/status.ps1``)。Shows GPU
+util/mem,Python proc CPU time,latest eval/train/episode rows + fps。
 """
 
 from __future__ import annotations
@@ -26,21 +18,20 @@ import subprocess
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 
-from tools.runs._host import REMOTE, REMOTE_ROOT_WIN
-
-ART_ROOT_WIN = f'{REMOTE_ROOT_WIN}\\artifacts'
-# PS script lives on Windows side (synced once via scp tools/runs/status.ps1).
-PS_SCRIPT_PATH = f'{REMOTE_ROOT_WIN}\\tools\\runs\\status.ps1'
+from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg
 
 
-def ssh_query(run_label: str = '') -> str:
+def ssh_query(remote: RemoteCfg, run_label: str = '') -> str:
     """Run the PS script over ssh, return stdout."""
+    sep = '\\' if remote.os == 'windows' else '/'
+    ps_script_path = f'{remote.root_native}{sep}tools{sep}runs{sep}status.ps1'
     arg = f' -RunName {run_label}' if run_label else ''
     cmd = [
         'ssh',
-        REMOTE,
-        f'powershell -ExecutionPolicy Bypass -File {PS_SCRIPT_PATH}{arg}',
+        remote.ssh,
+        f'powershell -ExecutionPolicy Bypass -File {ps_script_path}{arg}',
     ]
     try:
         result = subprocess.run(
@@ -160,17 +151,19 @@ def parse_and_format(raw: str, debug: bool = False) -> str:
     return '\n'.join(out)
 
 
-def main():
-    p = argparse.ArgumentParser(description='DMC Windows training status quick-check')
-    p.add_argument('--watch', action='store_true', help='loop every --interval seconds')
-    p.add_argument('--interval', type=int, default=30)
-    p.add_argument('--run', type=str, default='', help='specific run dir name (default: latest)')
-    p.add_argument('--debug', action='store_true', help='print raw ssh output')
-    args = p.parse_args()
+def _run_local(args) -> int:
+    """Local mode — currently delegates to direct file read of latest run.
+    For now, just emit a hint(production usage is remote-only)。"""
+    sys.stderr.write(
+        '[status] local mode not implemented — use `tools.runs.list` + `tools.runs.show <NNN>` for local inspection.\n'
+    )
+    return 1
 
+
+def _run_remote(remote: RemoteCfg, args) -> int:
     while True:
         ts = datetime.now().strftime('%H:%M:%S')
-        raw = ssh_query(args.run)
+        raw = ssh_query(remote, args.run)
         formatted = parse_and_format(raw, debug=args.debug)
         if args.watch:
             print(f'\n[{ts}]')
@@ -181,6 +174,21 @@ def main():
             print(f'[{ts}]')
             print(formatted)
             return 0
+
+
+def main():
+    p = argparse.ArgumentParser(description='Training status quick-check (cfg-driven local/remote)')
+    p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
+    p.add_argument('--watch', action='store_true', help='loop every --interval seconds')
+    p.add_argument('--interval', type=int, default=30)
+    p.add_argument('--run', type=str, default='', help='specific run dir name (default: latest)')
+    p.add_argument('--debug', action='store_true', help='print raw ssh output')
+    args = p.parse_args()
+    remote = load_remote_from_cfg(args.cfg)
+    if is_local_host(remote):
+        return _run_local(args)
+    assert remote is not None
+    return _run_remote(remote, args)
 
 
 if __name__ == '__main__':
