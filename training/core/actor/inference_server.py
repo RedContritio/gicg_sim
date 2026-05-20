@@ -119,13 +119,6 @@ def _server_loop(
     accel = _AccelState(network, inference_acceleration)
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
-    # 每 N batch 一次 cuda allocator empty_cache + gc.collect — 长跑 leak
-    # 防御。InfServer 单进程,allocator pool 长期累积是 mem 主因。N 不能
-    # 太小(每次 empty_cache 有 100-300ms 开销),也不能太大(防御无效)。
-    # 500 batch = ~30-60s 间隔(batched_forward ~60ms × 500 = 30s)。
-    is_cuda = 'cuda' in device_str.lower()
-    cleanup_every = 500
-    batches_since_cleanup = 0
 
     while not stop_event.is_set():
         batch = []
@@ -182,14 +175,6 @@ def _server_loop(
                     shared_cache,
                     return_numpy=return_numpy,
                 )
-            batches_since_cleanup += 1
-            if is_cuda and batches_since_cleanup >= cleanup_every:
-                with trace.span('inf_server.empty_cache'):
-                    import gc
-
-                    gc.collect()
-                    torch.cuda.empty_cache()
-                batches_since_cleanup = 0
             continue
 
         for msg in batch:
