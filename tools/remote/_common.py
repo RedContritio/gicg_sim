@@ -8,7 +8,10 @@ from pathlib import Path
 
 REMOTE = 'dev@192.168.31.56'
 REMOTE_ROOT_WIN = r'D:\gicg_dev'
-REMOTE_ROOT_POSIX = '/d/gicg_dev'
+# scp 远端路径用 `D:/` 前缀 — Windows OpenSSH scp 不识别 MSYS 风格 `/d/`
+# (`scp: failed to upload file ... to /d/gicg_dev/...`),用 drive-letter
+# + forward slash 才 OK。ssh shell 还是接受 `D:\\` 或 `D:/` 都行。
+REMOTE_ROOT_POSIX = 'D:/gicg_dev'
 
 DEFAULT_SSH_TIMEOUT = 60
 
