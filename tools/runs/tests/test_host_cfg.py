@@ -374,3 +374,33 @@ def test_discover_remote_binary_strips_trailing_newline():
     with patch('tools.runs._host.ssh_run', return_value=_cp(stdout='C:/x/gcc.exe\r\n')):
         found = discover_remote_binary(r, 'gcc')
     assert found == 'C:/x/gcc.exe'
+
+
+# ---------------------------------------------------------------------------
+# P4 schema strictness — empty ssh / hostname / mixed-separator root all raise
+# loudly. Each is a silent-bug surface the P4 audit caught (loopback false-
+# positive on empty hostname, scp drive-letter confusion on mixed slash).
+# ---------------------------------------------------------------------------
+
+
+def test_load_remote_empty_ssh_raises(tmp_path):
+    bad = tmp_path / 'empty_ssh.toml'
+    bad.write_text('[meta]\nhost = "remote"\n[remote]\nssh = ""\nroot = "D:/x"\nos = "windows"\nhostname = "h"\n')
+    with pytest.raises(ValueError, match=r'\[remote\]\.ssh must be non-empty'):
+        load_remote_from_cfg(bad)
+
+
+def test_load_remote_empty_hostname_raises(tmp_path):
+    bad = tmp_path / 'empty_hostname.toml'
+    bad.write_text('[meta]\nhost = "remote"\n[remote]\nssh = "x@y"\nroot = "D:/x"\nos = "windows"\nhostname = ""\n')
+    with pytest.raises(ValueError, match=r'\[remote\]\.hostname must be non-empty'):
+        load_remote_from_cfg(bad)
+
+
+def test_load_remote_mixed_slash_root_raises(tmp_path):
+    bad = tmp_path / 'mixed_slash.toml'
+    bad.write_text(
+        '[meta]\nhost = "remote"\n[remote]\nssh = "x@y"\nroot = "D:/foo\\\\bar"\nos = "windows"\nhostname = "h"\n'
+    )
+    with pytest.raises(ValueError, match=r'forward slashes only, got mixed'):
+        load_remote_from_cfg(bad)

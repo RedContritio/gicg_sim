@@ -236,3 +236,32 @@ def test_dispatch_remote_schema_error_propagates(tmp_path: Path):
     bad.write_text('[meta]\nhost = "remote"\nrun_label = "x"\n')
     with pytest.raises(ValueError, match=r'\[remote\] section missing'):
         train_mod.main([str(bad)])
+
+
+def test_cfg_path_missing_falls_through_to_phase_a(tmp_path: Path):
+    """cfg.is_file()=False → bypass load_remote_from_cfg → fall through to
+    Phase A's missing-cfg diagnostic(spec-worded SystemExit(2))。Locks the
+    P3 design where Phase A owns single source of "cfg file missing"。"""
+    fake_cfg = tmp_path / 'nope.toml'
+    assert not fake_cfg.is_file()
+    with patch.object(train_mod, '_phase_a_setup', side_effect=SystemExit(2)) as m:
+        with pytest.raises(SystemExit) as exc_info:
+            train_mod.main([str(fake_cfg)])
+    assert exc_info.value.code == 2
+    m.assert_called_once()
+
+
+def test_dispatch_remote_override_value_with_equals(tmp_path: Path):
+    """--override a.b=c=d=e — value 含多 `=` 不被切;原样 propagate
+    到远端 ssh_forward extra_args。argparse 默认 ``--override`` 是 append
+    string,不拆 `=`;_dispatch_remote 也不该拆。"""
+    cfg = _write_remote_cfg(tmp_path)
+    sync_ok = MagicMock(returncode=0)
+    with (
+        patch.object(train_mod.subprocess, 'run', return_value=sync_ok),
+        patch.object(train_mod, 'ssh_forward', return_value=0) as m_fwd,
+    ):
+        rc = train_mod.main([str(cfg), '--override', 'a.b=c=d=e'])
+    assert rc == 0
+    extra = m_fwd.call_args.args[3]
+    assert extra == ['--override', 'a.b=c=d=e']

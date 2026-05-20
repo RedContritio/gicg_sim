@@ -71,11 +71,25 @@ def load_remote_from_cfg(cfg_path: Path) -> RemoteCfg | None:
         raise ValueError(f'cfg [remote] missing required fields {missing} in {cfg_path}')
     if r['os'] not in ('windows', 'linux', 'darwin'):
         raise ValueError(f'cfg [remote].os must be windows/linux/darwin, got {r["os"]!r} in {cfg_path}')
-    if '/' not in r['root'] and '\\' in r['root']:
+    # P4 strictness: empty ssh / hostname / mixed root separators are all
+    # silent-bug surfaces; reject loud。``ssh = ""`` would still ssh into
+    # the loopback default user; ``hostname = ""`` would make ``is_local_host``
+    # falsely true on a fresh box(``socket.gethostname()`` rarely ""),and
+    # mixed slash ``D:/foo\bar`` confuses scp's drive-letter parser on
+    # Windows but probably passes through unnoticed elsewhere — pin to
+    # forward-slash form for both shapes。
+    if not str(r['ssh']).strip():
+        raise ValueError(f'cfg [remote].ssh must be non-empty in {cfg_path}')
+    if not str(r['hostname']).strip():
+        raise ValueError(f'cfg [remote].hostname must be non-empty in {cfg_path}')
+    root_s = str(r['root'])
+    if '/' in root_s and '\\' in root_s:
+        raise ValueError(f'cfg [remote].root must use forward slashes only, got mixed: {root_s!r} in {cfg_path}')
+    if '/' not in root_s and '\\' in root_s:
         raise ValueError(
-            f"cfg [remote].root must use forward slashes (got {r['root']!r}); Windows scp needs drive-letter + '/'."
+            f"cfg [remote].root must use forward slashes (got {root_s!r}); Windows scp needs drive-letter + '/'."
         )
-    return RemoteCfg(ssh=str(r['ssh']), root=str(r['root']), os=str(r['os']), hostname=str(r['hostname']))
+    return RemoteCfg(ssh=str(r['ssh']), root=root_s, os=str(r['os']), hostname=str(r['hostname']))
 
 
 def is_local_host(remote: RemoteCfg | None) -> bool:

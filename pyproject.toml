@@ -32,5 +32,6 @@ markers = [
     'smoke: paradigm e2e smoke (≤ 60s wall, real train + eval probe)',
     'smoke_full: paradigm full smoke (≤ 15min wall, 100+ step driver train + ckpt save/load verify)',
     'integration: live external-tool tests (rsync/ssh) — opt-in only',
+    'smoke_remote: real-ssh e2e smoke for tools.runs.* (post I30 P4) — opt-in (needs remote box + cfg [remote] section + key-based ssh)',
 ]
-addopts = "-m 'not smoke_full and not integration'"
+addopts = "-m 'not smoke_full and not integration and not smoke_remote'"
