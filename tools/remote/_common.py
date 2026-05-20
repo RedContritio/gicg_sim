@@ -1,17 +1,44 @@
 """tools/remote infra — paradigm-agnostic ssh/scp helpers for the
-Windows GPU box(dev@192.168.31.56 / D:\\gicg_dev)."""
+remote GPU host. Host + paths come from ``tools/remote/config.toml``
+with env-var override(``GICG_REMOTE_HOST`` / ``GICG_REMOTE_ROOT_WIN``
+/ ``GICG_REMOTE_ROOT_POSIX``)+ hardcoded fallback for safety."""
 
 from __future__ import annotations
 
+import os
 import subprocess
+import tomllib
 from pathlib import Path
 
-REMOTE = 'dev@192.168.31.56'
-REMOTE_ROOT_WIN = r'D:\gicg_dev'
-# scp 远端路径用 `D:/` 前缀 — Windows OpenSSH scp 不识别 MSYS 风格 `/d/`
-# (`scp: failed to upload file ... to /d/gicg_dev/...`),用 drive-letter
-# + forward slash 才 OK。ssh shell 还是接受 `D:\\` 或 `D:/` 都行。
-REMOTE_ROOT_POSIX = 'D:/gicg_dev'
+_DEFAULTS = {
+    'host': 'dev@192.168.31.56',
+    'root_win': r'D:\gicg_dev',
+    # scp 远端路径用 `D:/` 前缀 — Windows OpenSSH scp 不识别 MSYS 风格
+    # `/d/`(`scp: failed to upload file ... to /d/gicg_dev/...`),用
+    # drive-letter + forward slash 才 OK。ssh shell 接受 `D:\\` 或 `D:/`。
+    'root_posix': 'D:/gicg_dev',
+}
+
+
+def _load_config() -> dict:
+    """Read `tools/remote/config.toml` + apply env-var overrides.
+    Missing config file or keys → fall back to ``_DEFAULTS``."""
+    cfg_path = Path(__file__).parent / 'config.toml'
+    cfg = dict(_DEFAULTS)
+    if cfg_path.exists():
+        with cfg_path.open('rb') as f:
+            file_cfg = tomllib.load(f).get('remote', {})
+        cfg.update({k: file_cfg[k] for k in _DEFAULTS if k in file_cfg})
+    cfg['host'] = os.environ.get('GICG_REMOTE_HOST', cfg['host'])
+    cfg['root_win'] = os.environ.get('GICG_REMOTE_ROOT_WIN', cfg['root_win'])
+    cfg['root_posix'] = os.environ.get('GICG_REMOTE_ROOT_POSIX', cfg['root_posix'])
+    return cfg
+
+
+_CONFIG = _load_config()
+REMOTE = _CONFIG['host']
+REMOTE_ROOT_WIN = _CONFIG['root_win']
+REMOTE_ROOT_POSIX = _CONFIG['root_posix']
 
 DEFAULT_SSH_TIMEOUT = 60
 

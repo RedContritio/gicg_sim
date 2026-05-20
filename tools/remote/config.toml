@@ -1,0 +1,14 @@
+# Remote host config for tools/remote/* scripts.
+#
+# `_common.py` reads this file at module load. Env vars override:
+#   GICG_REMOTE_HOST       overrides `host`
+#   GICG_REMOTE_ROOT_WIN   overrides `root_win`
+#   GICG_REMOTE_ROOT_POSIX overrides `root_posix`
+#
+# Hardcoded fallback in `_common.py` matches these values for safety.
+# Don't put secrets here — committed; SSH auth uses key-based no-password.
+
+[remote]
+host = "dev@192.168.31.56"           # SSH target (user@host)
+root_win = "D:\\gicg_dev"            # ssh shell cwd / cd target (Windows path)
+root_posix = "D:/gicg_dev"           # scp remote path (Windows OpenSSH scp needs drive-letter + forward slash)
