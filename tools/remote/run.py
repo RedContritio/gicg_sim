@@ -22,10 +22,20 @@ def main():
     args = p.parse_args()
     if not args.cmd:
         p.error('no command given (use -- to separate)')
-    raw = ' '.join(ps_quote(c) for c in args.cmd if c != '--')
+    # Join cmd tokens without quoting — PowerShell parses a quoted first
+    # token as a literal string expression rather than a command name,
+    # and `& 'python'` from Windows ssh server hits an additional cmd.exe
+    # quote-doubling pass that breaks the invocation. Tokens with spaces
+    # are unsupported (our cwd / module / config paths have none).
+    #
+    # Use single quotes for env var values — Windows OpenSSH server's
+    # cmd.exe wrapper strips unescaped double quotes during argv → shell
+    # command join, so `$env:X="v"` arrives as `$env:X=v` (PS then tries
+    # to invoke `v` as a command and errors out).
+    raw = ' '.join(c for c in args.cmd if c != '--')
     ps = (
-        '$env:OMP_NUM_THREADS=1; $env:MKL_NUM_THREADS=1; '
-        '$env:PYTHONIOENCODING="utf-8"; $env:PYTHONUNBUFFERED=1; '
+        "$env:OMP_NUM_THREADS=1; $env:MKL_NUM_THREADS=1; "
+        "$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUNBUFFERED=1; "
         f'cd {ps_quote(args.cwd)}; {raw}'
     )
     print(f'[remote.run] {REMOTE} >> {raw}')

@@ -118,6 +118,20 @@ def phase_c_run_train_and_close(state: SetupState) -> int:
         _run_train_placeholder(state)
     except BaseException as exc:  # noqa: BLE001 — step 6 must catch all per spec 行 54
         train_exception = exc
+        # Print the traceback BEFORE classify/close so operators see what
+        # actually went wrong. Without this, the silent fall-through to
+        # status='failed' + exit_code=1 leaves zero diagnostic trail
+        # (training crashes look like "1.1s wall, exit 1, no stderr").
+        # SystemExit(0) is the "clean exit" sentinel — don't noise the
+        # log for it.
+        import traceback
+
+        if not (isinstance(exc, SystemExit) and (exc.code is None or exc.code == 0)):
+            print(
+                f'tools.runs.train: train raised {type(exc).__name__}; closing metadata as failed.',
+                file=sys.stderr,
+            )
+            traceback.print_exception(type(exc), exc, exc.__traceback__, file=sys.stderr)
 
     wall_seconds = time.monotonic() - start_monotonic
 
