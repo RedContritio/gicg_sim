@@ -48,7 +48,12 @@ class DMCEpisodePolicy:
                 interpret raw policy logits as Q values (D2.1).
         Returns:
             (action_idx, meta_dict). meta carries q_value of chosen
-            action + whether ε-explore fired (for diagnostics).
+            action + whether ε-explore fired (for diagnostics). When
+            the provider exposes ``last_obs_dict`` (mp path —
+            :class:`_DMCObsDictRemoteProvider` populates it on every
+            ``forward``), the numpy obs_dict is embedded under the
+            ``dmc_obs_dict`` key so the collector can reconstruct a
+            :class:`DmcTransition` from the actor push.
         """
         out = provider.forward(obs, mask)
         # Accept either dict head output or raw tensor logits.
@@ -71,17 +76,30 @@ class DMCEpisodePolicy:
         else:
             legal_indices = np.arange(flat.shape[0])
 
+        # mp path: provider stashes the numpy obs_dict needed to rebuild
+        # DmcTransition on the collector side. Serial path's
+        # LocalNetworkProvider does NOT expose this attribute (serial
+        # collector builds DmcTransition inline via play_one_episode), so
+        # absence is expected — no-op then.
+        dmc_obs_dict = getattr(provider, 'last_obs_dict', None)
+
+        def _meta(q_value: float, explore: bool, n_legal: int) -> dict:
+            m = {'q_value': q_value, 'explore': explore, 'n_legal': n_legal}
+            if dmc_obs_dict is not None:
+                m['dmc_obs_dict'] = dmc_obs_dict
+            return m
+
         if legal_indices.size == 0:
-            return 0, {'q_value': 0.0, 'explore': False, 'n_legal': 0}
+            return 0, _meta(0.0, False, 0)
 
         if not self.deterministic and self.epsilon > 0.0 and self.rng.random() < self.epsilon:
             action = int(self.rng.choice(legal_indices.tolist()))
-            return action, {'q_value': float(flat[action]), 'explore': True, 'n_legal': int(legal_indices.size)}
+            return action, _meta(float(flat[action]), True, int(legal_indices.size))
 
         sub = flat[legal_indices]
         local_idx = int(sub.argmax())
         action = int(legal_indices[local_idx])
-        return action, {'q_value': float(flat[action]), 'explore': False, 'n_legal': int(legal_indices.size)}
+        return action, _meta(float(flat[action]), False, int(legal_indices.size))
 
     def finalize_episode(self, transitions: list, winner: int, acting_player: int = 0) -> list:
         """Backfill MC return G on each recorded transition (D1.2, γ=1).

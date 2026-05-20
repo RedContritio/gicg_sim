@@ -143,11 +143,41 @@ def test_dmc_async_collector_bootstrap_publishes_then_spawns():
         coll.close()
 
 
+def _stub_episode(n_trans: int, winner: int = 0, action_base: int = 0):
+    """Build a minimal EpisodeRecord ring item: list[Transition] + winner.
+
+    Each Transition payload carries ``dmc_obs_dict`` (the only payload key
+    :func:`_adapt_episode_record` consumes). Obs payload is a sentinel
+    string — the adapter doesn't introspect contents, only presence.
+    """
+    from training.core.protocols import EpisodeRecord, Transition
+
+    trans = [
+        Transition(
+            obs=None,
+            action=action_base + i,
+            legal_mask=None,
+            reward=0.0,
+            done=(i == n_trans - 1),
+            payload={'dmc_obs_dict': f'obs_{action_base + i}'},
+        )
+        for i in range(n_trans)
+    ]
+    return EpisodeRecord(
+        transitions=trans,
+        final_reward=0.0,
+        length=n_trans,
+        winner=winner,
+        opponent_id='random',
+        scenario_seed=0,
+    )
+
+
 def test_dmc_async_collector_collect_drains_ring():
     from training.paradigms.dmc.collector import DMCMultiProcessCollector
 
-    # Put a couple of "transition lists" in the ring (what actor_main pushes).
-    items = [['t0a', 't0b', 't0c'], ['t1a', 't1b']]
+    # Ring items are EpisodeRecord (post mp-provider type-mismatch fix).
+    items = [_stub_episode(3, winner=0), _stub_episode(2, winner=1, action_base=10)]
     rt = _MockRuntime()
     ring = _MockRing(items=list(items))
     coll = DMCMultiProcessCollector(
@@ -164,7 +194,16 @@ def test_dmc_async_collector_collect_drains_ring():
         assert out.n_units == 5  # 3 + 2 transitions
         assert len(out.episode_stats) == 2
         assert out.runtime_metrics['n_pulled'] == 2
-        assert out.runtime_metrics['dmc_episodes'][0][0] == items[0]
+        assert out.runtime_metrics['n_dropped'] == 0
+        # First episode (winner=0, our_player=0) → G=+1; second → G=-1.
+        eps = out.runtime_metrics['dmc_episodes']
+        assert len(eps) == 2
+        assert eps[0][1] == 1.0
+        assert eps[1][1] == -1.0
+        assert len(eps[0][0]) == 3
+        # DmcTransition carries action_idx + obs_dict pulled from payload.
+        assert eps[0][0][0].action_idx == 0
+        assert eps[0][0][0].obs_dict == 'obs_0'
         # Subsequent collect with empty ring → 0 units, runtime not re-spawned.
         out2 = coll.collect(n_episodes=10, provider=None)
         assert out2.n_units == 0
@@ -176,7 +215,7 @@ def test_dmc_async_collector_collect_drains_ring():
 def test_dmc_async_collector_collect_respects_max_pull():
     from training.paradigms.dmc.collector import DMCMultiProcessCollector
 
-    items = [['a'], ['b'], ['c'], ['d']]
+    items = [_stub_episode(1, action_base=i) for i in range(4)]
     coll = DMCMultiProcessCollector(
         cfg=_async_cfg_obj(),
         paradigm_cfg=None,
@@ -189,6 +228,43 @@ def test_dmc_async_collector_collect_respects_max_pull():
     try:
         out = coll.collect(n_episodes=2, provider=None)
         assert out.runtime_metrics['n_pulled'] == 2  # capped by n_episodes
+    finally:
+        coll.close()
+
+
+def test_dmc_async_collector_collect_drops_missing_obs():
+    """Transitions without payload['dmc_obs_dict'] are dropped (defensive)."""
+    from training.core.protocols import EpisodeRecord, Transition
+    from training.paradigms.dmc.collector import DMCMultiProcessCollector
+
+    # 1 good + 1 bad transition in a single episode.
+    bad = EpisodeRecord(
+        transitions=[
+            Transition(obs=None, action=0, legal_mask=None, reward=0.0, done=False, payload={'dmc_obs_dict': 'good'}),
+            Transition(
+                obs=None, action=1, legal_mask=None, reward=0.0, done=True, payload={}
+            ),  # missing obs_dict → drop
+        ],
+        final_reward=0.0,
+        length=2,
+        winner=0,
+        opponent_id='random',
+        scenario_seed=0,
+    )
+    coll = DMCMultiProcessCollector(
+        cfg=_async_cfg_obj(),
+        paradigm_cfg=None,
+        network=_tiny_net(),
+        opp_pool=None,
+        env_factory=None,
+        runtime=_MockRuntime(),
+        ring=_MockRing(items=[bad]),
+    )
+    try:
+        out = coll.collect(n_episodes=1, provider=None)
+        assert out.n_units == 1
+        assert out.runtime_metrics['n_dropped'] == 1
+        assert out.episode_stats[0]['n_dropped'] == 1
     finally:
         coll.close()
 

@@ -73,3 +73,43 @@ def _dmc_spec_sampler(cfg: Any, actor_id: int):
     _DMC_ACTOR_EP_SEQ[actor_id] = _DMC_ACTOR_EP_SEQ.get(actor_id, 0) + 1
     seed = derive_seed(int(cfg.meta.seed), 'mp_ep', actor_id, _DMC_ACTOR_EP_SEQ[actor_id])
     return EpisodeSpec(scenario_seed=seed, opponent_id='random')
+
+
+def _adapt_episode_record(record: Any) -> tuple[list, int]:
+    """Convert core :class:`EpisodeRecord` (list[Transition] + winner)
+    pulled off the SHM ring into list[:class:`DmcTransition`] for the
+    DMC buffer. Returns ``(dmc_transitions, n_dropped)`` where dropped
+    counts transitions missing ``payload['dmc_obs_dict']`` — defensive,
+    since :class:`_DMCObsDictRemoteProvider` populates it on every
+    ``forward`` and ``observe_env`` fires before each ``policy.act`` in
+    :class:`EpisodeRunner`. A non-zero count is a wiring bug worth
+    surfacing on metrics, not silently swallowed.
+    """
+    # Late import: buffer → core.protocols → numpy stack — fine here
+    # since this runs at collect time, not module load.
+    from training.paradigms.dmc.buffer import DmcTransition
+
+    dmc_transitions: list = []
+    n_dropped = 0
+    transitions = getattr(record, 'transitions', record)  # tolerate raw list
+    for t in transitions:
+        payload = getattr(t, 'payload', None) or {}
+        obs_dict = payload.get('dmc_obs_dict')
+        if obs_dict is None:
+            n_dropped += 1
+            continue
+        dmc_transitions.append(DmcTransition(obs_dict=obs_dict, action_idx=int(t.action), G=0.0))
+    return dmc_transitions, n_dropped
+
+
+def _terminal_z(winner: int, our_player: int) -> float:
+    """Mirror :func:`training.paradigms.dmc._episode.terminal_z` —
+    +1 win, -1 lose, 0 draw / unknown. Inlined to avoid pulling
+    :mod:`_episode` at collector load (cycle with buffer.py)."""
+    if winner is None or winner < 0:
+        return 0.0
+    if winner == our_player:
+        return 1.0
+    if winner == 2:  # draw sentinel
+        return 0.0
+    return -1.0

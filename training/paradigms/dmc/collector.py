@@ -142,6 +142,7 @@ class DMCSerialCollector:
 # names the existing tests import via `from collector import ...`.
 from training.paradigms.dmc._mp_internal import (  # noqa: E402,F401
     _DMC_ACTOR_EP_SEQ,
+    _adapt_episode_record,
     _dmc_build_env_factory,
     _dmc_build_opp_registry,
     _dmc_build_policy,
@@ -149,6 +150,7 @@ from training.paradigms.dmc._mp_internal import (  # noqa: E402,F401
     _dmc_spec_sampler,
     _resolve_paradigm_factory,
     _spawn_inference_pool,
+    _terminal_z,
 )
 
 
@@ -175,7 +177,15 @@ class DMCMultiProcessCollector:
         self._episode_seq = 0
         self._weights_version = 0
         self.runtime = runtime if runtime is not None else Runtime(cfg)
-        self.ring = ring if ring is not None else SHMRing(capacity=1024, slot_payload_max=512 * 1024)
+        # SHMRing sizing: each DMC EpisodeRecord pickles to ~270 KB per
+        # transition (hook_ir + action_refs + action_payments dominate);
+        # episode length scales with card-pool size. Measured payloads:
+        # 4-5 MB for the 6-card smoke pool, 10-13 MB for v_legacy
+        # 26-card pool. We ship 32 MB × 64 slots = 2 GB SHM to keep
+        # headroom for outlier episodes (100+ transitions on richer
+        # pools). Capacity 64 caps queued backlog — actors backpressure
+        # via push==False yield rather than memory pressure.
+        self.ring = ring if ring is not None else SHMRing(capacity=64, slot_payload_max=32 * 1024 * 1024)
         self._spawned = False
         self._inference_server: Optional[Any] = None
         self._inference_clients: list = []
@@ -199,6 +209,11 @@ class DMCMultiProcessCollector:
             'build_provider_path': f'{mp}.build_dmc_provider',
             'spec_sampler_path': f'{coll}._dmc_spec_sampler',
             'transition_queue': self.ring,
+            # DMC mp consumes record.winner (for MC return G) +
+            # per-transition payload['dmc_obs_dict'] (rebuilt by the
+            # remote provider). Force EpisodeRecord push (vs the default
+            # bare transitions list other paradigms use).
+            'push_episode_record': True,
         }
         clients = self._inference_clients
         self.runtime.start_actors(
@@ -208,28 +223,44 @@ class DMCMultiProcessCollector:
         self._spawned = True
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
-        """Drain SHM ring → CollectorOutput. ``n_episodes`` caps pulls per iter."""
+        """Drain SHM ring → CollectorOutput. Ring item is an EpisodeRecord
+        (needs winner + payload['dmc_obs_dict']); n_dropped surfaces
+        wiring bugs (should always be 0 — observe_env precedes act)."""
         del provider  # mp mode: actors own their own providers
         self._bootstrap()
         episodes_for_buffer: list = []
         episode_stats: list = []
         n_trans_total = 0
+        n_dropped_total = 0
         n_pulled = 0
-        max_pull = max(1, int(n_episodes))
-        while n_pulled < max_pull:
+        for _ in range(max(1, int(n_episodes))):
             item = self.ring.try_pop()
             if item is None:
                 break
             self._episode_seq += 1
-            n_trans = len(item) if hasattr(item, '__len__') else 0
-            episodes_for_buffer.append((item, None))
+            dmc_trans, n_dropped = _adapt_episode_record(item)
+            winner = int(getattr(item, 'winner', -1))
+            G = _terminal_z(winner, our_player=0)
+            n_trans = len(dmc_trans)
+            if dmc_trans:
+                episodes_for_buffer.append((dmc_trans, G))
             n_trans_total += n_trans
-            episode_stats.append({'ep_idx': self._episode_seq, 'n_transitions': n_trans, 'source': 'mp_actor'})
+            n_dropped_total += n_dropped
+            episode_stats.append(
+                {
+                    'ep_idx': self._episode_seq,
+                    'n_transitions': n_trans,
+                    'n_dropped': n_dropped,
+                    'winner': winner,
+                    'G': float(G),
+                    'source': 'mp_actor',
+                }
+            )
             n_pulled += 1
         return CollectorOutput(
             transitions=[],
             episode_stats=episode_stats,
-            runtime_metrics={'dmc_episodes': episodes_for_buffer, 'n_pulled': n_pulled},
+            runtime_metrics={'dmc_episodes': episodes_for_buffer, 'n_pulled': n_pulled, 'n_dropped': n_dropped_total},
             n_units=n_trans_total,
         )
 

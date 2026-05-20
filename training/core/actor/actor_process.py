@@ -78,6 +78,7 @@ def actor_main(
     spec_sampler_path: Optional[str] = None,
     inference_client: Any = None,
     stop_event: Any = None,
+    push_episode_record: bool = False,
 ) -> None:
     """Actor loop — runs episodes until stop is requested.
 
@@ -93,6 +94,14 @@ def actor_main(
     construct a :class:`RemoteNetworkProvider` routed to a shared
     :class:`InferenceServer`. Backward compatible: old factories with
     signature ``(cfg, actor_id)`` are still called without the kwarg.
+
+    ``push_episode_record`` (default False): when False, pushes
+    ``record.transitions`` (list[Transition]) onto the queue — the
+    historical contract AZ + others rely on. When True, pushes the full
+    :class:`EpisodeRecord` so the collector can read ``record.winner``
+    + per-transition payload (DMC needs both to reconstruct
+    ``DmcTransition`` + backfill MC return G). Opt-in to avoid
+    perturbing existing paradigm collectors.
 
     Stop signalling: either ``should_stop`` callable OR an mp.Event
     ``stop_event`` (preferred for spawned workers).
@@ -121,7 +130,10 @@ def actor_main(
         _log_f = open(log_path, 'w', buffering=1, encoding='utf-8')
         _sys.stdout = _log_f
         _sys.stderr = _log_f
-        print(f'[actor {actor_id}] log start pid={_os.getpid()} cfg.paradigm={getattr(cfg.meta, "paradigm", "?")}', flush=True)
+        print(
+            f'[actor {actor_id}] log start pid={_os.getpid()} cfg.paradigm={getattr(cfg.meta, "paradigm", "?")}',
+            flush=True,
+        )
     except Exception as exc:  # noqa: BLE001
         # If logging setup fails, fall back to original stdout — at least
         # the actor still runs. The setup-time exception goes to the
@@ -167,15 +179,17 @@ def actor_main(
         while not should_stop():
             spec = spec_sampler(cfg, actor_id)
             record = runner.run(spec, policy, provider)
-            # Push transition list; ring/queue handles backpressure (drop on full).
+            # Push transition list (default) or full EpisodeRecord
+            # (DMC mp path needs record.winner + per-transition payload).
+            item = record if push_episode_record else record.transitions
             try:
                 if hasattr(transition_queue, 'push'):  # SHMRing
-                    ok = transition_queue.push(record.transitions)
+                    ok = transition_queue.push(item)
                     if not ok:
                         # Ring full — yield briefly so consumer drains.
                         time.sleep(0.001)
                 else:  # IPCQueue / mp.Queue
-                    transition_queue.put(record.transitions)
+                    transition_queue.put(item)
             except Exception as exc:
                 # Don't bring down the actor on a transient transport hiccup.
                 print(f'[actor {actor_id}] transport error: {type(exc).__name__}: {exc}')

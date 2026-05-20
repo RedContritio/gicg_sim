@@ -65,6 +65,16 @@ class _DMCObsDictRemoteProvider:
     cached at ``observe_env`` time; callers that bypass ``observe_env``
     fall back to building a minimal stub from the raw ndarray, which
     will fail loudly on the server side — that is intentional per CS4.
+
+    Buffer-side obs capture: ``forward`` ALSO computes the numpy-form
+    obs_dict via :func:`capture_obs` and stashes it on
+    ``self.last_obs_dict``. :class:`DMCEpisodePolicy` reads this back
+    into ``meta['dmc_obs_dict']`` so the collector can reconstruct a
+    proper :class:`DmcTransition` from each pushed transition. The two
+    obs_dict variants are not the same shape — server side wants
+    batched torch tensors via ``DmcAgent.build_obs_dict``; buffer side
+    wants squeezed numpy arrays via ``capture_obs``. Both run once per
+    actor step; ``capture_obs`` is cheap (numpy reshapes only).
     """
 
     transition_schema = 'dmc_transition'
@@ -91,6 +101,9 @@ class _DMCObsDictRemoteProvider:
         self._env_ref: Any = None
         self._last_static_id: int = -1
         self.version = 0
+        # Buffer-side obs cache — populated each forward() so the
+        # collector can rehydrate DmcTransition from the actor push.
+        self.last_obs_dict: Any = None
 
     def observe_env(self, env: Any) -> None:
         """Called by the actor loop hook before each policy.act to cache
@@ -110,6 +123,13 @@ class _DMCObsDictRemoteProvider:
                 '_DMCObsDictRemoteProvider.forward: observe_env(env) must be called per turn '
                 'before policy.act so the obs_dict can be encoded with cached static fields.'
             )
+        # Buffer-side: numpy obs_dict for DmcTransition reconstruction.
+        # Done BEFORE the server request so a server-side exception still
+        # leaves a valid obs cached for the next turn's debug trail.
+        from training.paradigms.dmc._episode import capture_obs
+
+        self.last_obs_dict = capture_obs(self._env_ref, self.agent)
+        # Server-side: torch obs_dict for DMCInferenceNet.forward.
         obs_dict = self.agent.build_obs_dict(self._env_ref)
         # Server returns the raw q tensor (shape (1, max_actions)).
         out = self.client.request(obs_dict, None)
