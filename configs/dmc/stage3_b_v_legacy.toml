@@ -1,0 +1,72 @@
+# DMC Stage 3 production — Option B(fixed 赤蝶 vs 墨客 1v1,扩 card_pool 到
+# 全 v_legacy 26 张),mp_provider 8-actor async cuda d=128,1M frames。
+#
+# 配套 IR cutover 2026-05-19 + RC2 + showcase 2026-05-20。pilot 100k
+# (000033)已验证 NaN-fix(train_steps cross 12342 无 inf),本 cfg 走
+# production scale + 更宽 card_pool 学 deck-building generalization。
+#
+# Opponent mix(user 2026-05-20 指定):
+#   random=0.20  f1d2=0.30  f1d4=0.20(学习上限)  historical=0.30
+
+[meta]
+extends = "smoke.toml"
+paradigm = "dmc"
+run_label = "dmc_stage3_b_v_legacy"
+device = "cuda"
+
+[pipeline]
+mode = "async"
+num_actors = 8
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["墨客"]
+card_pool = [
+    "乘胜追击", "以攻代守", "以牙还牙", "以逸待劳", "伏兵之术", "佛跳墙",
+    "刺刺猫爪", "占星", "反制", "发现静电", "守正", "星愿", "清洁时间",
+    "玄冰", "瞬身之术", "碌碌无为", "美味烧鸡", "荷花酥", "蝶鳞", "西风剑",
+    "西风长枪", "诅咒", "速速茶点", "铁剑", "铁弓", "铁枪",
+]
+team_size = 1
+max_rounds = 15
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy"]
+data_dir = "data"
+
+[paradigm.dmc]
+mp_env_factory_path = "training.paradigms.dmc.mp_factories.build_dmc_env_factory"
+mp_opp_registry_path = "training.paradigms.dmc.mp_factories.build_dmc_opp_registry"
+mp_provider_path = "training.paradigms.dmc.mp_factories.build_dmc_provider"
+
+total_frames = 1_000_000
+batch_size = 32
+buffer_cap = 200_000
+lr = 5e-5
+max_grad_norm = 1.0
+
+# Disable in-train eval — Mac-side workflow (rsync ckpts to Mac + eval there)
+eval_interval_episodes = 999_999_999
+eval_baselines = []
+
+[paradigm.dmc.agent]
+d_model = 128
+n_cross_layers = 2
+
+[paradigm.dmc.opponent_mix]
+random = 0.20
+f1d2 = 0.30
+f1d4 = 0.20
+historical = 0.30
+ring_size = 8
+
+[checkpoint]
+save_every = 30_000          # train_steps; ~9 ckpts over 1M frames
+keep_last_n = 10             # keep all of them so user can pick which to rsync
+artifacts_root = "artifacts"
+
+# [eval] section is schema-required for mode='async'(schema CS1.1)。设
+# 极大 schedule 让在线 gauntlet 实际不触发 — production gauntlet 走 Mac
+# (rsync ckpts/ to Mac + `tools.eval.ckpt`),Win 5070 Ti 全力训练。
+[eval]
+n_workers = 1
+schedule = "every_999999_steps"
