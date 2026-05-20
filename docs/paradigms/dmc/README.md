@@ -27,7 +27,7 @@ DMC(Deep Monte-Carlo)是 2026-05-12 以来 GICG RL 新主线,以 DouZero 路线�
 3. **Phase 3.3 eval 协议**(2026-05-14):gen_eval_scenarios + periodic_eval,smoke 4 round 验证。
 4. **Phase 3.4 Mac smoke + eval verify**(2026-05-14 03:44):136 ep / 5035 frames /
    549 train steps,loss 0.95→0.67,vs F1-D2 WP 0→0.125 directional。
-5. **Phase 3.5 infra refactor**(ship 2026-05-15):`tools/remote/` SSH 链 +
+5. **Phase 3.5 infra refactor**(ship 2026-05-15):`tools/runs/` SSH 链 +
    `tools/eval/` paradigm-agnostic dispatcher + `training/dmc/` 合并 single/mp entry +
    NaN guard。12 task ✓,详 [`docs/5_history/dmc_phase35_infra.md`](../../5_history/dmc_phase35_infra.md)。
 6. **2026-05-14 dmc_review.md 41 项 critique**:A(paradigm 错配)/ B(layout 破坏)/
@@ -128,5 +128,5 @@ register before launch,但 DMC Phase 3.4 smoke 走 ad-hoc artifact naming `20260
   FU-W4-DMC-pt2 后 `legacy/` retired via `73c6ed7`)
 - [`training/paradigms/dmc/paradigm.py`](../../../training/paradigms/dmc/paradigm.py) — DMCParadigm 入口
 - [`training/paradigms/dmc/collector.py`](../../../training/paradigms/dmc/collector.py) — actor / async collector
-- [`tools/remote/`](../../../tools/remote/) — Windows GPU box SSH 链(paradigm-agnostic)
+- [`tools/runs/`](../../../tools/runs/) — Windows GPU box SSH 链(paradigm-agnostic)
 - [`tools/eval/`](../../../tools/eval/) — paradigm-agnostic eval dispatcher

@@ -1,14 +1,14 @@
-"""Cross-platform TCP smoke for tools.remote.eval_service socket layer.
+"""Cross-platform TCP smoke for tools.eval.eval_service socket layer.
 
 Verifies AF_INET bind/accept/status-RPC roundtrip works on the current
 platform. Designed to be lightweight (no DSL preload, no gauntlet job)
 so it runs quickly on the Windows GPU box for migration certification:
 
     # Mac dev
-    .venv/bin/python -m pytest tools/remote/tests/test_socket_cross_platform.py -q
+    .venv/bin/python -m pytest tools/eval/tests/test_socket_cross_platform.py -q
 
     # Windows ssh (cross-platform verification gate)
-    ssh dev@<windows-host> 'cd D:\\gicg_dev && .\\.venv\\Scripts\\python.exe -m pytest tools\\remote\\tests\\test_socket_cross_platform.py -q'
+    ssh dev@<windows-host> 'cd D:\\gicg_dev && .\\.venv\\Scripts\\python.exe -m pytest tools\\eval\\tests\\test_socket_cross_platform.py -q'
 
 If this test PASSes on both Mac and Windows, the AF_UNIX -> AF_INET
 migration is platform-certified at the socket layer. Full eval_service
@@ -45,7 +45,7 @@ def _start_server(port: int):
     Returns (server, thread). Caller must call server.stop() and
     thread.join() to clean up.
     """
-    from tools.remote.eval_service_server import EvalServer
+    from tools.eval.eval_service_server import EvalServer
 
     server = EvalServer(host='localhost', port=port, max_workers=1)
     thread = threading.Thread(target=server.start, daemon=True)

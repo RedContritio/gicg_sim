@@ -1,4 +1,4 @@
-"""Unit tests for ``tools.remote.pull`` — tar+scp transport (no rsync).
+"""Unit tests for ``tools.runs.pull`` — tar+scp transport (no rsync).
 
 All-mock, no ssh / scp. Covers mode mutex, path helpers, legacy ckpt
 exclude logic, glob resolve, and PS shape generated for tar pack.
@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tools.remote.pull import (
+from tools.runs.pull import (
     _build_parser,
     _local_mirror,
     _pull_via_tar,
@@ -87,7 +87,7 @@ def _mk_args(**overrides):
 
 def test_legacy_default_excludes_per_step_ckpts():
     args = _mk_args(run_label='r1', all_ckpts=False)
-    with patch('tools.remote.pull._pull_via_tar', return_value=0) as m:
+    with patch('tools.runs.pull._pull_via_tar', return_value=0) as m:
         _run_legacy(args)
     excludes = m.call_args.kwargs.get('excludes', [])
     assert 'ckpts/ckpt_*.pt' in excludes
@@ -96,7 +96,7 @@ def test_legacy_default_excludes_per_step_ckpts():
 
 def test_legacy_all_ckpts_no_excludes():
     args = _mk_args(run_label='r1', all_ckpts=True)
-    with patch('tools.remote.pull._pull_via_tar', return_value=0) as m:
+    with patch('tools.runs.pull._pull_via_tar', return_value=0) as m:
         _run_legacy(args)
     assert m.call_args.kwargs.get('excludes', []) == []
 
@@ -104,7 +104,7 @@ def test_legacy_all_ckpts_no_excludes():
 def test_resolve_glob_empty(capsys):
     args = _mk_args(files='no/match/*.x')
     empty = subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-    with patch('tools.remote.pull.ssh_run', return_value=empty):
+    with patch('tools.runs.pull.ssh_run', return_value=empty):
         rc = _run_files(args)
     assert rc == 1
     assert 'no remote files matched' in capsys.readouterr().err
@@ -117,7 +117,7 @@ def test_resolve_glob_returns_relative():
         stdout='D:\\gicg_dev\\artifacts\\foo\\a.toml\nD:\\gicg_dev\\artifacts\\foo\\b.toml\n',
         stderr='',
     )
-    with patch('tools.remote.pull.ssh_run', return_value=fake):
+    with patch('tools.runs.pull.ssh_run', return_value=fake):
         rels = _resolve_glob('artifacts/foo/*.toml')
     assert rels == ['artifacts/foo/a.toml', 'artifacts/foo/b.toml']
 
@@ -136,8 +136,8 @@ def test_pull_via_tar_ps_contains_tar_and_cleanup(tmp_path):
         return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
 
     with (
-        patch('tools.remote.pull.ssh_run', side_effect=fake_ssh),
-        patch('tools.remote.pull.scp_from', side_effect=fake_scp),
+        patch('tools.runs.pull.ssh_run', side_effect=fake_ssh),
+        patch('tools.runs.pull.scp_from', side_effect=fake_scp),
     ):
         rc = _pull_via_tar(['artifacts/x'], extract_root=tmp_path)
     assert rc == 0

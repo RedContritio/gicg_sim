@@ -24,7 +24,7 @@ import tarfile
 import tempfile
 from pathlib import Path
 
-from tools.remote._common import REMOTE_ROOT_WIN, ps_quote, scp_to, ssh_run
+from tools.runs._host import REMOTE_ROOT_WIN, ps_quote, scp_to, ssh_run
 
 REPO_DIRS = ['gicg_engine', 'training', 'gicg_env', 'tools', 'data', 'configs']
 LAST_SHA_FILE = '.last_synced_sha'

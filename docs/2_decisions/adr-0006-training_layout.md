@@ -56,7 +56,7 @@ AZ ⟷ CFR 零互 import;两者都只 import framework。framework 不 import
   是层序倒置;MCTSPlayer 无 `training.*` 依赖,promote 到
   `framework/matchup/players.py`。
 - **DEFAULT_SOCKET_PATH 内联**:原 `_train_helpers` import
-  `tools.remote.eval_service.DEFAULT_SOCKET_PATH` 形成循环;framework/gauntlet.py
+  `tools.eval.eval_service.DEFAULT_SOCKET_PATH` 形成循环;framework/gauntlet.py
   内联常量断开。
 
 ## 无 shim

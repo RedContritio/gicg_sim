@@ -12,7 +12,7 @@ import threading
 import time
 from typing import IO
 
-from tools.remote._common import REMOTE_ROOT_POSIX, ps_quote, ssh_encoded_argv, ssh_run
+from tools.runs._host import REMOTE_ROOT_POSIX, ps_quote, ssh_encoded_argv, ssh_run
 
 
 def _normalize_path(path: str) -> str:
@@ -29,7 +29,7 @@ def _build_ps(path: str, lines: int, follow: bool) -> str:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog='tools.remote.tail')
+    p = argparse.ArgumentParser(prog='tools.runs.tail')
     p.add_argument('path', help='remote path (relative to REMOTE_ROOT_POSIX, or absolute D:\\...)')
     p.add_argument('--lines', type=int, default=20)
     p.add_argument('--follow', action='store_true', help='stream new lines (Get-Content -Wait)')

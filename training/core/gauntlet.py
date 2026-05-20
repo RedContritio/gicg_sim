@@ -1,7 +1,7 @@
 """Gauntlet dispatch + eval_service one-shot ACK helper.
 
 DEFAULT_HOST / DEFAULT_PORT are inlined here (not imported from
-tools.remote.eval_service) to avoid framework → tools cross-layer
+tools.eval.eval_service) to avoid framework → tools cross-layer
 import.
 """
 
@@ -15,7 +15,7 @@ from typing import Optional
 
 
 # Inlined to break the framework → tools back-import cycle. Mirrors
-# tools.remote.eval_service.DEFAULT_HOST / DEFAULT_PORT (env-var-aware
+# tools.eval.eval_service.DEFAULT_HOST / DEFAULT_PORT (env-var-aware
 # so container deployment mapping ``-p 9100:9100`` resolves the same
 # address on both ends).
 DEFAULT_HOST = os.environ.get('GICG_EVAL_HOST', 'localhost')

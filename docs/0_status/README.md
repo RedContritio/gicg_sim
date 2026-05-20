@@ -59,7 +59,7 @@ status: LIVE
 
 - **Phase 3.5 multi-process actor-learner**(commit `8cdd56c` DouZero pattern + `ce5049e` 合并 single/mp entry)
 - **NaN/inf fail-fast guard**(`5ae3f7c`):dump batch+ckpt+diag 后 raise RuntimeError
-- **`tools/eval` + `tools/remote` paradigm-agnostic refactor**(12 task 全 done,见 [`dmc_phase35_infra(archived)`](../5_history/dmc_phase35_infra.md))
+- **`tools/eval` + `tools/runs` paradigm-agnostic refactor**(12 task 全 done,见 [`dmc_phase35_infra(archived)`](../5_history/dmc_phase35_infra.md))
 - **41 项 DMC review critique 落盘**(2026-05-14,`docs/5_history/reviews/dmc_review.md`)
 
 ### 4. v_phase2 RL smoke + DSL v6 strict 仍 LIVE

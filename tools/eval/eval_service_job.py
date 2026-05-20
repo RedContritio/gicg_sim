@@ -1,6 +1,6 @@
-"""Job execution and service state for tools.remote.eval_service. Split
+"""Job execution and service state for tools.eval.eval_service. Split
 out to stay under the 300-line size cap. The public entry points
-re-exported by tools.remote.eval_service are :class:`ServiceState`,
+re-exported by tools.eval.eval_service are :class:`ServiceState`,
 :func:`validate_request`, and :func:`run_gauntlet_job`."""
 
 from __future__ import annotations

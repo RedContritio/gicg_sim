@@ -37,7 +37,7 @@ services:
     command:
       - python
       - -m
-      - tools.remote.eval_service
+      - tools.eval.eval_service
       - --socket
       - /var/run/gicg/eval.sock
       - --workers

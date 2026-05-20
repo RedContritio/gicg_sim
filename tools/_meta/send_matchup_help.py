@@ -7,7 +7,7 @@ pre-commit cap."""
 
 from __future__ import annotations
 
-from tools.remote.eval_service import DEFAULT_HOST, DEFAULT_PORT
+from tools.eval.eval_service import DEFAULT_HOST, DEFAULT_PORT
 from tools._meta.send_matchup_schema import resolve_ref
 
 
@@ -15,7 +15,7 @@ def help_from_schema(schema: dict) -> str:
     lines = [
         'Usage: python -m tools.send_matchup [OPTIONS]',
         '',
-        'Construct a request for tools.remote.eval_service and POST it over TCP.',
+        'Construct a request for tools.eval.eval_service and POST it over TCP.',
         'CLI flags mirror JSON fields (hyphens → underscores, dots for nesting).',
         '',
         'Global options:',

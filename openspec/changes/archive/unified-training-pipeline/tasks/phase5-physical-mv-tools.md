@@ -57,8 +57,8 @@ parent: ../tasks.md
 - [x] **P5-T3.9**:`git mv tools/inspect_bc_dataset.py tools/dataset/inspect.py`
 - [x] **P5-T3.10**:`git mv tools/az_arena.py tools/eval/arena.py`(adapter
   化:`--az-ckpt` → `--ckpt`)
-- [x] **P5-T3.11**:`git mv tools/send_matchup.py tools/remote/send_matchup.py`
-- [x] **P5-T3.12**:`git mv tools/push_ckpt.py tools/remote/push_ckpt.py`(若
+- [x] **P5-T3.11**:`git mv tools/send_matchup.py tools/runs/send_matchup.py`
+- [x] **P5-T3.12**:`git mv tools/push_ckpt.py tools/runs/push_ckpt.py`(若
   exists)
 - [x] **P5-T3.13**:删 `tools/launch_az.py` / `launch_config.py` / `run_cfr.py` /
   `ppo_launch.py` / `run_dmc.py`(被 `tools/run.py` 取代)

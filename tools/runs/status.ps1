@@ -1,4 +1,4 @@
-# DMC training status — Windows side. Called by Mac tools/remote/status.py.
+# DMC training status — Windows side. Called by Mac tools/runs/status.py.
 # Args:
 #   $args[0] = optional run dir name (default: latest *_dmc_* under artifacts)
 

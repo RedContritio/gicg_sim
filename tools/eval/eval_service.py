@@ -13,11 +13,11 @@ to host) wire the loopback port through the container runtime
 
 Start once, leave running across training sessions::
 
-    .venv/bin/python -m tools.remote.eval_service
-    .venv/bin/python -m tools.remote.eval_service --host localhost --port 9100 --workers 2
+    .venv/bin/python -m tools.eval.eval_service
+    .venv/bin/python -m tools.eval.eval_service --host localhost --port 9100 --workers 2
 
 The authoritative request schema lives in
-``tools/remote/eval_service_schema.json`` (JSON Schema 2020-12). The
+``tools/eval/eval_service_schema.json`` (JSON Schema 2020-12). The
 server validates every incoming request against that schema (plus
 runtime checks like ckpt file existence). Clients can query the schema
 via ``{"kind": "schema"}``; ``tools/_meta/send_matchup`` uses it to
@@ -48,8 +48,8 @@ import signal
 import sys
 from pathlib import Path
 
-from tools.remote.eval_service_job import make_validator
-from tools.remote.eval_service_server import EvalServer
+from tools.eval.eval_service_job import make_validator
+from tools.eval.eval_service_server import EvalServer
 
 # ---------------------------------------------------------------------------
 # Constants

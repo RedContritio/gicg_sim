@@ -380,7 +380,7 @@ total = value_loss + policy_loss + l2 - entropy_coef * entropy + delta_aux_coef 
 └────────────────────────┘
 ```
 
-另有独立进程 `tools.remote.eval_service`（固定 socket `/tmp/gicg_eval.sock`），主进程按 `games_per_gauntlet` 发 gauntlet request，service 跑完结果写回 run 的 `gauntlet_results.jsonl`。
+另有独立进程 `tools.eval.eval_service`（固定 socket `/tmp/gicg_eval.sock`），主进程按 `games_per_gauntlet` 发 gauntlet request，service 跑完结果写回 run 的 `gauntlet_results.jsonl`。
 
 ### Self-play worker 一局流程
 

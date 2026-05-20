@@ -1,4 +1,4 @@
-"""Tests for ``tools.remote.eval_service._apply_cpu_affinity`` parse + no-op paths.
+"""Tests for ``tools.eval.eval_service._apply_cpu_affinity`` parse + no-op paths.
 
 The "actually pin" path (psutil.Process().cpu_affinity success) is
 platform-dependent (Mac has no cpu_affinity) and is covered by the
@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from tools.remote.eval_service import _apply_cpu_affinity
+from tools.eval.eval_service import _apply_cpu_affinity
 
 
 def test_apply_cpu_affinity_none_is_noop():

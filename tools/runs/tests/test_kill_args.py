@@ -1,4 +1,4 @@
-"""Unit tests for ``tools.remote.kill`` — argparse + PS command generation.
+"""Unit tests for ``tools.runs.kill`` — argparse + PS command generation.
 
 All-mock, no ssh. Locks the mutex group, mode dispatch, and the exact
 PowerShell snippet shape so accidental regressions are caught."""
@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from tools.remote.kill import _build_parser, _build_ps
+from tools.runs.kill import _build_parser, _build_ps
 
 
 def test_parse_all():

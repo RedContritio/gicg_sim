@@ -1,8 +1,9 @@
-"""Run a Python module on Windows GPU box via ssh.
+"""Run a Python module on Windows GPU box via ssh (internal helper —
+no public CLI; invoked indirectly by higher-level orchestrators).
 
 Usage::
 
-    .venv/bin/python -m tools.remote.run -- python -m tools.dmc_train configs/dmc_stage3_pilot.toml
+    .venv/bin/python -m tools.runs._ssh -- python -m tools.dmc_train configs/dmc_stage3_pilot.toml
 
 `--` 分割 wrapper 参数与远程命令。PS prelude 设 OMP/MKL/PYTHONIOENCODING/PYTHONUNBUFFERED。
 
@@ -20,7 +21,7 @@ import threading
 import time
 from typing import IO
 
-from tools.remote._common import REMOTE, REMOTE_ROOT_WIN, ps_quote, ssh_encoded_argv, ssh_run
+from tools.runs._host import REMOTE, REMOTE_ROOT_WIN, ps_quote, ssh_encoded_argv, ssh_run
 
 
 def _build_ps(cmd_tokens: list[str], cwd: str) -> tuple[str, str]:

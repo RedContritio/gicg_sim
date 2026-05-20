@@ -1,12 +1,12 @@
-# Remote host config for tools/remote/* scripts.
+# Remote host config for tools/runs/* SSH wrappers.
 #
-# `_common.py` reads this file at module load. Env vars override:
+# `_host.py` reads this file at module load. Env vars override:
 #   GICG_REMOTE_HOST       overrides `host`
 #   GICG_REMOTE_ROOT_WIN   overrides `root_win`
 #   GICG_REMOTE_ROOT_POSIX overrides `root_posix`
 #   GICG_REMOTE_GCC_PATH   overrides `gcc_path`
 #
-# Hardcoded fallback in `_common.py` matches these values for safety.
+# Hardcoded fallback in `_host.py` matches these values for safety.
 # Don't put secrets here — committed; SSH auth uses key-based no-password.
 
 [remote]

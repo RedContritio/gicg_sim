@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from tools.remote._common import ps_quote, ssh_run
+from tools.runs._host import ps_quote, ssh_run
 
 
 def _build_ps(args: argparse.Namespace) -> str:

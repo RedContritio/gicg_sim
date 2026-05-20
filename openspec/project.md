@@ -36,7 +36,7 @@ RL / AZ / CFR / BC / DMC 等 paradigm 在 hidden-info + 大动作空间 + 长 ho
 | Python binding | Python 3.11 / ctypes | `libgicg.dylib` c-shared |
 | RL training | Python + PyTorch | `gicg_env`、`gymnasium`-compatible 接口 |
 | 容器化 | Docker Compose | Docker Desktop VM(9 CPU / 18 GB) |
-| 评测 | `tools/remote/eval_service` Unix socket daemon | DSL cache 复用 |
+| 评测 | `tools/eval/eval_service` Unix socket daemon | DSL cache 复用 |
 
 构建产物路径:`gicg_env/libgicg.dylib`(macOS)/ Linux 对应 `.so`,由 `go build
 -buildmode=c-shared` 出。

@@ -1,4 +1,4 @@
-"""Unit tests for ``tools.remote.tail`` — argparse + path normalize + PS shape.
+"""Unit tests for ``tools.runs.tail`` — argparse + path normalize + PS shape.
 
 All-mock, no ssh. Covers drive-letter detection (case-insensitive),
 relative-to-REMOTE_ROOT_POSIX prefix, and ``-Wait`` toggle for follow."""
@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tools.remote.tail import _build_parser, _build_ps, _normalize_path, main
+from tools.runs.tail import _build_parser, _build_ps, _normalize_path, main
 
 
 def test_parse_lines():
@@ -72,7 +72,7 @@ def test_ps_follow():
 def test_main_friendly_msg_on_not_found(capsys):
     """`Cannot find path` PS stderr → friendly 'remote file not found' + exit 1."""
     fake = subprocess.CompletedProcess(args=[], returncode=1, stdout='', stderr='Get-Content : Cannot find path X')
-    with patch('tools.remote.tail.ssh_run', return_value=fake):
+    with patch('tools.runs.tail.ssh_run', return_value=fake):
         with patch.object(sys, 'argv', ['tail.py', 'nonexistent.log']):
             rc = main()
     captured = capsys.readouterr()

@@ -4,17 +4,17 @@ CC=gcc (Strawberry Perl ships gcc) + PATH 含 gcc bin. Output ->
 
 Usage::
 
-    .venv/bin/python -m tools.remote.build_engine
+    .venv/bin/python -m tools.runs.build_engine
 """
 
 from __future__ import annotations
 
 import sys
 
-from tools.remote._common import REMOTE_GCC_PATH, REMOTE_ROOT_WIN, ssh_run
+from tools.runs._host import REMOTE_GCC_PATH, REMOTE_ROOT_WIN, ssh_run
 
 # single-quote 包 env var value — Windows OpenSSH 的 cmd.exe wrapper 会 strip
-# 未 escape 的 double quote(同 tools/remote/run.py line 91-94)。
+# 未 escape 的 double quote(同 tools/runs/_ssh.py line 91-94)。
 PS = (
     "$env:CGO_ENABLED=1; $env:CC='gcc'; "
     f"$env:PATH='{REMOTE_GCC_PATH};' + $env:PATH; "

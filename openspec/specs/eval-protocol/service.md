@@ -8,21 +8,21 @@ subtopic: service
 
 # Eval Service — socket daemon + paradigm-agnostic poll daemon
 
-> 本 subtopic 锚定 GICG eval service 协议 — `tools/remote/eval_service.py`
+> 本 subtopic 锚定 GICG eval service 协议 — `tools/eval/eval_service.py`
 > socket daemon(production,AZ / CFR 用)+ `tools/eval/daemon.py`
 > paradigm-agnostic poll daemon(DMC Phase 3.5 起新方向)。两者并
 > 存于 P1-P2 阶段,本 spec 同时治理,接口分歧由 transitional note 标
 > 出。
 >
-> 源 truth:`tools/remote/eval_service.py` + `tools/remote/eval_service_server.py`
-> + `tools/remote/eval_service_job.py` + `tools/remote/eval_service_schema.json` +
+> 源 truth:`tools/eval/eval_service.py` + `tools/eval/eval_service_server.py`
+> + `tools/eval/eval_service_job.py` + `tools/eval/eval_service_schema.json` +
 > `tools/eval/daemon.py` + `tools/eval/_paradigm.py`。
 
 ## 1. Scope
 
 本 subtopic 覆盖:
 
-- Legacy socket daemon(`tools/remote/eval_service.py`):socket bind / JSON
+- Legacy socket daemon(`tools/eval/eval_service.py`):socket bind / JSON
   request / DSL cache warm / dispatch / heartbeat / shutdown
 - JSON Schema 2020-12 验证(`eval_service_schema.json`):4 kinds
   (gauntlet / status / stop / schema)、player_spec oneOf、
@@ -40,7 +40,7 @@ subtopic: service
 - Baseline player 实施 — [`./baselines.md`](./baselines.md)
 - AZ arena ckpt 替换决定 — [`./arena.md`](./arena.md)
 
-## 2. Legacy socket daemon — `tools/remote/eval_service.py`
+## 2. Legacy socket daemon — `tools/eval/eval_service.py`
 
 ### 2.1 Process layout
 
@@ -82,7 +82,7 @@ per request(no persistent connection)。
 
 ### 3.1 Schema authority
 
-- File:`tools/remote/eval_service_schema.json`
+- File:`tools/eval/eval_service_schema.json`
 - Dialect:JSON Schema 2020-12(`Draft202012Validator`)
 - `$id`:`gicg/eval_service/v1`
 - 验证器:`jsonschema.Draft202012Validator` 在 `make_validator`
@@ -234,7 +234,7 @@ metrics.jsonl 用 tb 看 dual axis)。
 
 ### 7.1 现状
 
-- **Legacy socket daemon**(`tools/remote/eval_service.py`):AZ / CFR 训
+- **Legacy socket daemon**(`tools/eval/eval_service.py`):AZ / CFR 训
   练栈用,production 稳定,gauntlet job 通过 socket dispatch
 - **New poll daemon**(`tools/eval/daemon.py`):DMC Phase 3.5+ 用,
   rsync-based,paradigm-agnostic adapter,跨机训练(Windows train +
@@ -264,8 +264,8 @@ metrics.jsonl 用 tb 看 dual axis)。
 ## 9. Status
 
 - **Created**:2026-05-15(P1-T6)
-- **Source**:`tools/remote/eval_service.py` + `tools/remote/eval_service_server.py`
-  + `tools/remote/eval_service_job.py` + `tools/eval/daemon.py` +
+- **Source**:`tools/eval/eval_service.py` + `tools/eval/eval_service_server.py`
+  + `tools/eval/eval_service_job.py` + `tools/eval/daemon.py` +
   `tools/eval/_paradigm.py`
 - **Known transitional state**:legacy socket daemon vs new poll
   daemon 并存。`eval_service_schema.json` pool/deck_padding silent

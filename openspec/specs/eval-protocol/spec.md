@@ -7,22 +7,22 @@ capability: eval-protocol
 
 # Eval Protocol — gauntlet / arena / eval daemon 协议
 
-> 本 capability spec 治理 GICG 的评估栈接口契约 — `tools/remote/eval_service.py`
+> 本 capability spec 治理 GICG 的评估栈接口契约 — `tools/eval/eval_service.py`
 > 全局 socket daemon(production)、`tools/eval/` paradigm-agnostic
 > adapter(P0-T8 ship,新方向)、`training/framework/matchup/` 内
 > gauntlet / arena / baseline 实现。本 spec 治理**接口与协议**,具
 > 体 baseline 算法细节(F1-Dn feature 公式 / mcts_pure UCB 系数)由
 > 子 spec / 各 baseline dossier 承接。
 >
-> **过渡期混合**:legacy `tools/remote/eval_service*.py` 仍是 production
+> **过渡期混合**:legacy `tools/eval/eval_service*.py` 仍是 production
 > socket daemon(AZ / CFR / 早期 DMC 用);新方向 `tools/eval/*` 是
 > paradigm-agnostic poll-based daemon(DMC Phase 3.5 起新建)。两
 > 者并存于 P1-P2 阶段,本 spec 同时 SHALL 化二者,以 transitional
 > note 标差异。
 >
 > 本 spec 从 `docs/1_specs/eval/README.md`(原标 "WIP")reverse
-> engineer 写成 SHALL 形式,源 truth 是 `tools/remote/eval_service*.py` +
-> `tools/eval/*.py` + `tools/remote/eval_service_schema.json` +
+> engineer 写成 SHALL 形式,源 truth 是 `tools/eval/eval_service*.py` +
+> `tools/eval/*.py` + `tools/eval/eval_service_schema.json` +
 > `training/framework/matchup/*.py` 当前 shipped 代码。
 
 ## 1. Purpose
@@ -53,9 +53,9 @@ GICG 评估栈需被规约化,否则会出现:
 
 **In scope**:
 
-- `tools/remote/eval_service.py` socket daemon protocol(JSON message format,
+- `tools/eval/eval_service.py` socket daemon protocol(JSON message format,
   job dispatch,DSL cache,heartbeat)
-- `tools/remote/eval_service_schema.json` JSON Schema 2020-12(authoritative
+- `tools/eval/eval_service_schema.json` JSON Schema 2020-12(authoritative
   request schema)
 - `tools/eval/daemon.py` paradigm-agnostic poll-based daemon(rsync +
   ckpt mtime watch + PeriodicEvaluator 调用)
@@ -88,13 +88,13 @@ GICG 评估栈需被规约化,否则会出现:
 OpenSpec change 提案修订,而非在代码中静默偏离。
 
 1. **Eval service as separate process**:Production gauntlet eval
-   SHALL run as a separate process(socket daemon)— `tools/remote/eval_service.py`
+   SHALL run as a separate process(socket daemon)— `tools/eval/eval_service.py`
    listens on Unix socket(default `/tmp/gicg_eval.sock`,env var
    `GICG_EVAL_SOCKET` override),training runs 通过 JSON message 提交
    job。详 [`./service.md`](./service.md)。
 
 2. **JSON Schema authoritative**:Service SHALL validate every
-   incoming request against `tools/remote/eval_service_schema.json` (JSON
+   incoming request against `tools/eval/eval_service_schema.json` (JSON
    Schema 2020-12)。Schema is **single source of truth**;
    `tools/send_matchup` CLI 与 client 帮助文本 SHALL 由此 schema 生
    成。详 [`./service.md`](./service.md)。
@@ -152,7 +152,7 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
 本 capability 由本文件 + 4 个 subtopic 组成。每个 subtopic 专注一组
 正交规则。
 
-- [Eval service](./service.md) — `tools/remote/eval_service.py` socket
+- [Eval service](./service.md) — `tools/eval/eval_service.py` socket
   daemon + `tools/eval/daemon.py` paradigm-agnostic poll daemon、
   JSON Schema 验证、DSL cache、heartbeat、metrics.jsonl,transitional
   note 标二者并存
@@ -205,11 +205,11 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
 
 - **Created**:2026-05-15(P1-T6)
 - **Version**:0(初始落地,过渡期 transitional state)
-- **Source**:`tools/remote/eval_service*.py` + `tools/eval/*.py` +
+- **Source**:`tools/eval/eval_service*.py` + `tools/eval/*.py` +
   `training/framework/matchup/*.py` + `training/az/arena.py` shipped
   code
 - **Expected revision triggers**:
-  - Legacy `tools/remote/eval_service*.py` 与 `tools/eval/*.py` 合并(P2
+  - Legacy `tools/eval/eval_service*.py` 与 `tools/eval/*.py` 合并(P2
     unified-training-pipeline change 一部分)
   - Eval scenario spec 独立(`runs-registry` capability ship 后从本
     spec 抽离)
@@ -218,7 +218,7 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
   - F1-Dn baseline 算法精修(F6+ 或现有公式调整)→ baselines.md
     follow-up
 - **Known transitional state**(follow-up tracked):
-  - `tools/remote/eval_service.py` socket daemon 与 `tools/eval/daemon.py`
+  - `tools/eval/eval_service.py` socket daemon 与 `tools/eval/daemon.py`
     poll daemon **并存**,接口不互通。Spec 同时 SHALL 化,后续合
     并由 OpenSpec change 治理。
   - `eval_service_schema.json` pool / deck_padding 字段在

@@ -147,9 +147,9 @@ lib_path = os.path.join(os.path.dirname(__file__), f'libgicg.{ext}')
 
 ### 3.2.3 · TCP localhost replace Unix socket(~50 LOC)
 
-**路径校正(2026-05-18 audit)**:原 plan 指 `training/framework/inference/server_loop/server.py + client.py` 但该路径实际用 `multiprocessing.connection` Pipe(与 socket 无关)。**真正 Unix socket** 在 `tools/remote/eval_service.py:55`(client 读 `GICG_EVAL_SOCKET`)+ `tools/remote/eval_service_server.py:63`(`socket.AF_UNIX`)。
+**路径校正(2026-05-18 audit)**:原 plan 指 `training/framework/inference/server_loop/server.py + client.py` 但该路径实际用 `multiprocessing.connection` Pipe(与 socket 无关)。**真正 Unix socket** 在 `tools/eval/eval_service.py:55`(client 读 `GICG_EVAL_SOCKET`)+ `tools/eval/eval_service_server.py:63`(`socket.AF_UNIX`)。
 
-`tools/remote/eval_service{,_server}.py`:
+`tools/eval/eval_service{,_server}.py`:
 - `socket.AF_UNIX` → `socket.AF_INET`
 - 配置 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)替代 `GICG_EVAL_SOCKET` path
 - 不留 `AF_UNIX` fallback(per `feedback_no_compat_fallback` memory)
@@ -551,19 +551,19 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 |---|---|---|
 | 3.2.1 `libgicg.dll` Windows build | **DONE** | 2026-05-14 verify(per `reference_windows_gpu_box` memory)|
 | 3.2.2 Platform detect adapter | **DONE** | `gicg_env/engine.py:_find_lib` 已 `sys.platform` dispatch |
-| 3.2.3 TCP socket replace Unix | **DONE** | `tools/remote/eval_service{,_server}.py` AF_INET(commits 6e8f40c + 18338f5);cross-platform smoke at tools/remote/tests/(0f89583 + 0b3c709)|
+| 3.2.3 TCP socket replace Unix | **DONE** | `tools/eval/eval_service{,_server}.py` AF_INET(commits 6e8f40c + 18338f5);cross-platform smoke at tools/eval/tests/(0f89583 + 0b3c709)|
 
 #### Phase 3.2 剩余 actionable plan(~半天,~80-120 LOC)
 
 | Task | 说明 | LOC |
 |---|---|---|
 | **T-3.2a** | PLAN.md §3.2.3 路径校正(2026-05-18 已 done) | ~10 doc |
-| **T-3.2b** | `tools/remote/eval_service_server.py`: `AF_UNIX` → `AF_INET` + bind `(host, port)`,读 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)。不留 `AF_UNIX` fallback。 | ✅ ~30 — commit 6e8f40c |
-| **T-3.2c** | `tools/remote/eval_service.py` client 同步:`AF_INET` + 读同 env var。 | ✅ ~20 — commit 6e8f40c |
-| **T-3.2d** | `tools/remote/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 ssh 跑相同 test verify。 | ✅ ~30 — commits 0f89583 + 0b3c709 |
+| **T-3.2b** | `tools/eval/eval_service_server.py`: `AF_UNIX` → `AF_INET` + bind `(host, port)`,读 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)。不留 `AF_UNIX` fallback。 | ✅ ~30 — commit 6e8f40c |
+| **T-3.2c** | `tools/eval/eval_service.py` client 同步:`AF_INET` + 读同 env var。 | ✅ ~20 — commit 6e8f40c |
+| **T-3.2d** | `tools/eval/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 ssh 跑相同 test verify。 | ✅ ~30 — commits 0f89583 + 0b3c709 |
 | **T-3.2e** | 更新 `reference_windows_gpu_box` memory 加 `GICG_EVAL_PORT` env var 注释;PLAN.md 3.2 标 DONE。 | ✅ doc — 本提交 |
 
-**Verify gate**:Mac `pytest gicg_env/tests/ tools/remote/tests/ -q` + Windows ssh `pytest gicg_env/tests/ -q` 全 PASS。
+**Verify gate**:Mac `pytest gicg_env/tests/ tools/eval/tests/ -q` + Windows ssh `pytest gicg_env/tests/ -q` 全 PASS。
 
 ---
 
@@ -595,7 +595,7 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 
 | Task | 说明 | LOC | 触发 |
 |---|---|---|---|
-| **F-3.4.5b-eval** | `tools/remote/eval_service.py` 加 `--cpu-affinity` CLI flag(可选 env `GICG_EVAL_CPU_AFFINITY`)。`DMCParadigmConfig.cpu_affinity_eval` 是 documentation 字段,ops 启动 eval_service 时手动传给 `--cpu-affinity`。 | ✅ ~30 | Task 3 spec deferred(eval_service 是 separate process,DMC cfg 无法 runtime 触达) |
+| **F-3.4.5b-eval** | `tools/eval/eval_service.py` 加 `--cpu-affinity` CLI flag(可选 env `GICG_EVAL_CPU_AFFINITY`)。`DMCParadigmConfig.cpu_affinity_eval` 是 documentation 字段,ops 启动 eval_service 时手动传给 `--cpu-affinity`。 | ✅ ~30 | Task 3 spec deferred(eval_service 是 separate process,DMC cfg 无法 runtime 触达) |
 | **F-3.4.5c-test** | `training/tests/test_inference_server_jit_trace.py`(新):mp Process spawn smoke,verify `use_jit_trace=True` ctor flag → `_server_loop` 实际 trace + `'weights'` msg 触发 invalidation。 | ✅ ~50 | Task 4 review:`_server_loop` `use_jit_trace=True` path 零测试覆盖,只 LocalNetworkProvider 测了 |
 | **F-3.4.5c-factory** | `training/core/actor/provider_factory.build_network_provider` 扩展 `use_jit_trace` 参数,要求 `InferenceCfg` 加第 5 字段或别路径绕过 R7 4-字段契约。OR document that paradigms wanting trace 必须 bypass factory(现状)。**Decision (2026-05-18)**: Option B documented; paradigm-side `mp_provider_path` factory bypasses `build_network_provider` to activate trace. `InferenceCfg` R7 4-field contract preserved. | ✅ ~25 doc-only | Task 4 review:wiring 链 inert at factory site;DMC NO-OP 之外还有 generic gap |
 

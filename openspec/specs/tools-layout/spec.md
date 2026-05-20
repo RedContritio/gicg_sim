@@ -74,8 +74,10 @@ capability: tools-layout
 8. **TL3.1** `tools/eval/` SHALL contain paradigm-agnostic eval scripts
    (`ckpt.py` / `gauntlet.py` / `arena.py`);SHALL NOT 写 paradigm-named
    eval(per TL1.2)。
-9. **TL3.2** `tools/remote/` SHALL contain remote service utilities
-   (eval_service launch / inspect / SHM debugging);P0-T8 ship。
+9. **TL3.2** `tools/eval/` SHALL contain eval-service utilities
+   (eval_service launch / inspect / SHM debugging) and `tools/runs/`
+   SHALL contain remote-host SSH wrappers (sync / pull / tail / kill /
+   status / build_engine);P0-T8 ship + I30 P1 split。
 10. **TL3.3** `tools/debug/` SHALL contain `diag_*.py` 7 scripts(P5 mv
     from 顶层)— ad-hoc diagnostic,paradigm-agnostic by typed signal
     inspection。

@@ -1,4 +1,4 @@
-"""Integration test for tools/remote/eval_service.py.
+"""Integration test for tools/eval/eval_service.py.
 
 Starts an EvalServer in a background thread, sends a status request
 and a small matchup (kind=gauntlet) request via TCP localhost,
@@ -69,7 +69,7 @@ def _send_request(host: str, port: int, req: dict) -> dict:
 
 
 def _start_server(host: str, port: int):
-    from tools.remote.eval_service import EvalServer
+    from tools.eval.eval_service import EvalServer
 
     server = EvalServer(host=host, port=port, max_workers=1)
     t = threading.Thread(target=server.start, daemon=True)

@@ -1,4 +1,4 @@
-"""Thin schema-driven client for ``tools.remote.eval_service``.
+"""Thin schema-driven client for ``tools.eval.eval_service``.
 
 Fetches the service's JSON Schema at startup and uses it to:
 
@@ -73,7 +73,7 @@ import socket
 import sys
 from typing import List, Optional, Tuple
 
-from tools.remote.eval_service import DEFAULT_HOST, DEFAULT_PORT
+from tools.eval.eval_service import DEFAULT_HOST, DEFAULT_PORT
 from tools._meta.send_matchup_help import help_from_schema
 from tools._meta.send_matchup_parser import build_request
 from tools._meta.send_matchup_schema import fetch_schema
@@ -134,7 +134,7 @@ def main() -> int:
     except Exception as exc:
         print(f'ERROR: could not fetch schema from {host}:{port}: {exc}', file=sys.stderr)
         print(
-            '  Is eval_service running? Start with: python -m tools.remote.eval_service',
+            '  Is eval_service running? Start with: python -m tools.eval.eval_service',
             file=sys.stderr,
         )
         return 2

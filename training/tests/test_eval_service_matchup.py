@@ -1,4 +1,4 @@
-"""Integration test for tools/remote/eval_service.py.
+"""Integration test for tools/eval/eval_service.py.
 
 Starts an EvalServer in a background thread, sends a status request
 and a small matchup (kind=gauntlet) request via TCP localhost,
@@ -69,7 +69,7 @@ def _send_request(host: str, port: int, req: dict) -> dict:
 
 
 def _start_server(host: str, port: int):
-    from tools.remote.eval_service import EvalServer
+    from tools.eval.eval_service import EvalServer
 
     server = EvalServer(host=host, port=port, max_workers=1)
     t = threading.Thread(target=server.start, daemon=True)
@@ -83,7 +83,7 @@ class TestSendMatchupCLI:
     just feed a schema + argv and check the built request."""
 
     def _schema(self):
-        from tools.remote.eval_service import REQUEST_SCHEMA
+        from tools.eval.eval_service import REQUEST_SCHEMA
 
         return REQUEST_SCHEMA
 
@@ -259,7 +259,7 @@ class TestSendMatchupCLI:
 
         host = 'localhost'
         port = _alloc_port()
-        from tools.remote.eval_service import EvalServer
+        from tools.eval.eval_service import EvalServer
 
         server = EvalServer(host=host, port=port, max_workers=1)
         t = threading.Thread(target=server.start, daemon=True)
@@ -267,7 +267,7 @@ class TestSendMatchupCLI:
         time.sleep(0.5)
         try:
             from tools._meta.send_matchup_parser import build_request as _build_request
-            from tools.remote.eval_service import REQUEST_SCHEMA
+            from tools.eval.eval_service import REQUEST_SCHEMA
 
             req = _build_request(
                 REQUEST_SCHEMA,

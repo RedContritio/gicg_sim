@@ -29,7 +29,7 @@ subtopic: eval
   `runs-registry` capability spec + opponent-mix subtopic 承接
 - Gauntlet / tournament 评估流程的指标定义 — `tools/run_gauntlet*.py` 与
   `tools/eval_*` 实现层细节
-- 旧 `tools/remote/eval_service.py` 全局单例的协议 — 现状由
+- 旧 `tools/eval/eval_service.py` 全局单例的协议 — 现状由
   `memory project_eval_service_global` 承接,P2 后纳入本架构
 
 ## 2. 总体形态

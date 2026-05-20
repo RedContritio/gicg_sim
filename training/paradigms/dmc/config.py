@@ -99,7 +99,7 @@ class DMCParadigmConfig(ParadigmConfigBase):
     #   ``tools/runs/_train/dispatch.py:_apply_learner_affinity`` before
     #   the paradigm pipeline starts.
     # - ``cpu_affinity_eval``: DOCUMENTATION-ONLY here — the runtime
-    #   actor for evals is the separate ``tools/remote/eval_service.py``
+    #   actor for evals is the separate ``tools/eval/eval_service.py``
     #   process, which cannot read DMCParadigmConfig at runtime. The
     #   intent is to feed this value into an eval_service ``--cpu-affinity``
     #   CLI flag in a follow-up task; for now this field exists so the

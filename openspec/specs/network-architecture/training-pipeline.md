@@ -45,7 +45,7 @@ subtopic: training-pipeline
      orchestration + launcher
 2. Inference server SHALL run on a single dedicated proc(不与 trainer
    合并)— 防 train forward 与 inference forward 互相阻塞。
-3. Eval gauntlet SHALL run via independent `tools.remote.eval_service` proc
+3. Eval gauntlet SHALL run via independent `tools.eval.eval_service` proc
    (固定 socket `/tmp/gicg_eval.sock`),trainer 通过 socket 发
    gauntlet request,service 跑完结果写回 run 的 `gauntlet_results.jsonl`。
 4. Worker count N SHALL be cfg-driven(当前 default `n_workers=4`);
@@ -70,7 +70,7 @@ subtopic: training-pipeline
 └────────────────────────┘
 
    ┌────────────────────────────┐
-   │ tools.remote.eval_service  │   ← /tmp/gicg_eval.sock
+   │ tools.eval.eval_service  │   ← /tmp/gicg_eval.sock
    │     (independent proc)     │
    └────────────────────────────┘
 ```
@@ -262,7 +262,7 @@ stale_weights_ok`。
   顶层 driver loop;本 subtopic 描述 AZ 当前 shipped 拓扑作为参考
 - **Eval protocol**:
   [`openspec/specs/training-architecture/eval.md`](../training-architecture/eval.md) —
-  `tools.remote.eval_service` 接口与本 subtopic gauntlet trigger 衔接
+  `tools.eval.eval_service` 接口与本 subtopic gauntlet trigger 衔接
 - **Loss**:[`./loss.md`](./loss.md) — `train_step` 内 `AZLoss`
   调用细节(paradigm-local)
 - **Encoders**:[`./encoders.md`](./encoders.md) §2 — hook_encoder

@@ -1,4 +1,4 @@
-"""TCP-localhost server for tools.remote.eval_service. Split out of
+"""TCP-localhost server for tools.eval.eval_service. Split out of
 eval_service.py to stay under the 300-line size cap. :class:`EvalServer`
 owns the accept loop, connection dispatch, and status printer; job
 execution and schema validation live in eval_service_job."""
@@ -12,7 +12,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from tools.remote.eval_service_job import (
+from tools.eval.eval_service_job import (
     ServiceState,
     make_validator,
     run_gauntlet_job,

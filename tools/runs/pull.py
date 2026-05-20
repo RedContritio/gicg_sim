@@ -16,7 +16,7 @@ import tempfile
 import uuid
 from pathlib import Path
 
-from tools.remote._common import REMOTE_ROOT_POSIX, REMOTE_ROOT_WIN, ps_quote, scp_from, ssh_run
+from tools.runs._host import REMOTE_ROOT_POSIX, REMOTE_ROOT_WIN, ps_quote, scp_from, ssh_run
 
 
 def _build_parser() -> argparse.ArgumentParser:

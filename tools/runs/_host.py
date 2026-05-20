@@ -1,5 +1,5 @@
-"""tools/remote infra — paradigm-agnostic ssh/scp helpers for the
-remote GPU host. Host + paths come from ``tools/remote/config.toml``
+"""tools/runs ssh host infra — paradigm-agnostic ssh/scp helpers for the
+remote GPU host. Host + paths come from ``tools/runs/host.toml``
 with env-var override(``GICG_REMOTE_HOST`` / ``GICG_REMOTE_ROOT_WIN``
 / ``GICG_REMOTE_ROOT_POSIX``)+ hardcoded fallback for safety."""
 
@@ -23,9 +23,9 @@ _DEFAULTS = {
 
 
 def _load_config() -> dict:
-    """Read `tools/remote/config.toml` + apply env-var overrides.
+    """Read `tools/runs/host.toml` + apply env-var overrides.
     Missing config file or keys → fall back to ``_DEFAULTS``."""
-    cfg_path = Path(__file__).parent / 'config.toml'
+    cfg_path = Path(__file__).parent / 'host.toml'
     cfg = dict(_DEFAULTS)
     if cfg_path.exists():
         with cfg_path.open('rb') as f:
