@@ -72,6 +72,10 @@ Python's `-m` mode sets `sys.path[0]` to cwd, so imports like `from gicg_env imp
 .venv/bin/python -m tools.ckpt.info <path>.pt                            # paradigm/cfg/git_commit/state_dict 元数据
 ```
 
+## Remote training (Win GPU box)
+
+走 `tools/remote/*` 经 ssh,**不要手写 `tar | ssh` / `ssh ... powershell`**。配置 `tools/remote/config.toml`,env override `GICG_REMOTE_{HOST,ROOT_WIN,ROOT_POSIX}`。Production 序列:`git commit` → `tools.remote.sync`(默认 since-last-sync:uncommitted ∪ diff(remote_sha..HEAD);首次 → 全 ls-files;clean tree 推进 remote `.last_synced_sha`)→ `tools.remote.run --stream --timeout 86400 -- .venv/Scripts/python.exe -X utf8 -u -m tools.runs.train <cfg> > /tmp/<label>.log 2>&1 &`(`--stream` Popen 实时逐行透传,长跑必用;无 `--stream` 走 capture-then-print,仅短命令)→ 另一 shell `ssh ... 'powershell Get-Content ...\metrics.jsonl -Tail 1'` 监控。`sync` 其它 flag:`--dry-run`(打 plan 不 push) / `--git-changed`(legacy uncommitted-only) / `--tar-all` / `--single <p>` / `--from-sha <S>`。
+
 ## Pre-commit hooks (enforced on staged files)
 
 Enable once:
