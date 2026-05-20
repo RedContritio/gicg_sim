@@ -87,12 +87,20 @@ class ActorCritic(nn.Module):
         n_cross_layers: int = 2,
         dropout: float = 0.0,
         typed_damage: Optional[TypedDamageEncoder] = None,
+        fields_per_op: int = 5,
     ) -> None:
         super().__init__()
         self.d_model = d_model
         self.n_counter_slots = n_counter_slots
         self.max_actions = max_actions
         self.dropout = dropout
+        # Shape constants needed by external static-obs decoders (e.g. the
+        # DMC mp inference server's request decoder). Stored as plain
+        # attributes — not registered as buffers; surviving pickle is
+        # sufficient (these are ints / not parameters).
+        self.n_hooks = n_hooks
+        self.max_ops_per_hook = max_ops_per_hook
+        self.fields_per_op = fields_per_op
 
         # IR-4: HookEncoder consumes (B, N, max_ops, 5) IR tensor instead of
         # token pairs. opcode_vocab=16 (we have 14 ops), operand_vocab=2048
@@ -298,4 +306,5 @@ def make_actor_critic(
         n_cross_layers=cfg.n_cross_layers,
         dropout=cfg.dropout,
         typed_damage=typed_damage,
+        fields_per_op=cfg.fields_per_op,
     )

@@ -1,28 +1,47 @@
-"""DMC mp-mode factories — env, opp registry, provider.
+"""DMC mp-mode factories — env, opp registry, provider + server decoder.
 
 Wired into spawned actors via ``DMCMultiProcessCollector._bootstrap``:
-parent constructs a shared :class:`InferenceServer` (one per collector),
+parent constructs a shared :class:`InferenceServer` (with
+``request_decoder_path`` pointing at :func:`decode_dmc_request`) +
 attaches N :class:`InferenceClient` handles, and threads each client to
 the corresponding actor through the ``inference_client`` kwarg.
 
-Provider factory: returns :class:`_DMCObsDictRemoteProvider`, a thin
-adapter that owns a per-actor :class:`DmcAgent` for env-side static
-caching + 15-tensor obs encoding (mirroring
-``DMCSerialCollector._ensure_dmc_provider``) and forwards the encoded
-obs_dict to the shared inference server via the supplied client.
+**Architecture (post 2026-05-20 decode-offload)**: the actor side is
+intentionally torch-free. The actor builds a small numpy payload (raw
+``static_obs`` + ``dyn_obs`` + action refs/payments — ~10 KB) and pickles
+it over IPC. The server-side decoder unpickles the numpy payload,
+re-uses a per-client static cache for the expensive per-game encoding
+(hook IR → hook_emb via :class:`HookIREncoder` forward), parses the
+dynamic obs into the 7 typed tensors, builds the full 15-tensor
+obs_dict, and hands it back to the normal batched/per-request forward
+path. Server-side encode lives inside ``inf_server.decode`` so the perf
+breakdown stays interpretable.
+
+The decode-offload eliminates two costs measured in the N=4/N=8 actor
+scaling bench (2026-05-19): (a) torch import + DmcAgent construction in
+each actor (~1 GB RSS, ~5-10s startup), (b) torch obs_dict pickling
+(15 tensors / 4-13 MB per request → ~10 KB numpy). On N=8 the per-game
+static encoding amortises across the whole game (~30-60 steps).
+
 LocalNetworkProvider fallback is intentionally absent — for serial mode
 callers must use ``DMCSerialCollector`` directly.
-
-The factories live in their own module (not ``collector.py``) so the
-collector module stays focused on collect/sync loops and so the spawn
-target's import surface is minimal.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-import torch
+import numpy as np
+
+# Re-export server-side decoder + numpy helpers (split into _decoder.py
+# to keep this file under the 300-line budget). The dotted path
+# `training.paradigms.dmc.mp_factories.decode_dmc_request` still resolves
+# (existing wiring in `_spawn_inference_pool` + tests stays valid).
+from training.paradigms.dmc._decoder import (  # noqa: F401
+    _capture_obs_np,
+    _encode_static_np,
+    decode_dmc_request,
+)
 
 
 def build_dmc_env_factory(cfg: Any, seed: int):
@@ -51,36 +70,31 @@ def build_dmc_opp_registry(cfg: Any):
 
 
 class _DMCObsDictRemoteProvider:
-    """Per-actor provider routing DMC's 15-tensor obs_dict to a shared
-    :class:`InferenceServer` via :class:`InferenceClient`.
+    """Per-actor provider — pure-numpy obs encoding + numpy IPC payload.
 
-    The :class:`EpisodeRunner` contract is ``policy.act(obs, mask,
-    provider)``; obs is the raw ``env._get_obs()`` ndarray, not the
-    obs_dict that :class:`DMCInferenceNet` expects. This provider closes
-    the gap by owning a private :class:`DmcAgent` instance that caches
-    per-episode static fields (via ``game_start``) and encodes each turn's
-    dyn_obs into the full 15-tensor dict before sending it to the server.
+    No torch imports. Sends raw env data (static_obs only on game_start,
+    then dyn_obs + refs + payments per turn) to the server via
+    :class:`InferenceClient`; the server's ``request_decoder`` handles
+    static-cache encoding + tensor materialisation.
 
-    ``forward(obs, mask)`` rebuilds the obs_dict from the env reference
-    cached at ``observe_env`` time; callers that bypass ``observe_env``
-    fall back to building a minimal stub from the raw ndarray, which
-    will fail loudly on the server side — that is intentional per CS4.
+    Each :meth:`observe_env` call may trigger a game_start: detected by
+    ``id(env._engine)`` change. On game_start the next ``forward`` sends
+    a payload tagged ``static_obs_changed=True`` and embeds the raw
+    static_obs bytes; subsequent turns send ``static_obs_changed=False``
+    + the server pulls from its cache.
 
-    Buffer-side obs capture: ``forward`` ALSO computes the numpy-form
-    obs_dict via :func:`capture_obs` and stashes it on
-    ``self.last_obs_dict``. :class:`DMCEpisodePolicy` reads this back
-    into ``meta['dmc_obs_dict']`` so the collector can reconstruct a
-    proper :class:`DmcTransition` from each pushed transition. The two
-    obs_dict variants are not the same shape — server side wants
-    batched torch tensors via ``DmcAgent.build_obs_dict``; buffer side
-    wants squeezed numpy arrays via ``capture_obs``. Both run once per
-    actor step; ``capture_obs`` is cheap (numpy reshapes only).
+    Buffer-side obs capture: :meth:`forward` also computes the numpy
+    obs_dict via :func:`_capture_obs_np` and stashes it on
+    ``self.last_obs_dict``. :class:`DMCEpisodePolicy` reads it into
+    ``meta['dmc_obs_dict']`` so the collector reconstructs
+    :class:`DmcTransition` from the actor push. The two obs payloads are
+    independent: server-side payload routes to the GPU forward, buffer
+    payload routes to training (collator → forward_batch).
     """
 
     transition_schema = 'dmc_transition'
 
     def __init__(self, cfg: Any, actor_id: int, client: Any) -> None:
-        from training.paradigms.dmc._agent import DmcAgent
         from training.paradigms.dmc.config import DMCParadigmConfig
 
         self.cfg = cfg
@@ -88,33 +102,56 @@ class _DMCObsDictRemoteProvider:
         self.client = client
         pdict = cfg.paradigm if isinstance(cfg.paradigm, dict) else {}
         pcfg = DMCParadigmConfig.from_dict(pdict)
-        # Agent lives on cpu — only its parameters are used for obs
-        # encoding (counter_sids / hook_emb / etc. caches). Network
-        # forward never runs on this side; the server owns weights.
-        self.agent = DmcAgent(
-            cfg=pcfg.agent,
-            device='cpu',
-            lr=pcfg.lr,
-            weight_decay=pcfg.weight_decay,
-            epsilon=0.0,  # exploration owned by DMCEpisodePolicy
-        )
+        self.agent_cfg = pcfg.agent
+        self.n_counter_slots = int(pcfg.agent.n_counter_slots)
+        self.max_actions = int(pcfg.agent.max_actions)
+        self.n_hooks = int(pcfg.agent.n_hooks)
+        self.max_ops_per_hook = int(pcfg.agent.max_ops_per_hook)
+        self.fields_per_op = int(pcfg.agent.fields_per_op)
+
         self._env_ref: Any = None
         self._last_static_id: int = -1
+        self._static_obs_np: np.ndarray = None  # type: ignore[assignment]
+        # static_obs hash (16-byte blake2b) — server's shared_cache key.
+        # Same hash across actors/episodes sharing one scenario, so the
+        # server's hook_encoder runs ONCE for the whole fleet, not once
+        # per actor×episode. Computed on game_start; sent every forward.
+        self._static_obs_hash: bytes = b''
+        # Numpy-form static fields cached per game — used by buffer-side
+        # capture_obs (server holds its own torch cache for forward).
+        self._static_np_fields: dict = {}
+        # On the next forward, send static_obs bytes to server so its
+        # cache can rebuild the torch static tensors. Cleared after first
+        # forward of a new game.
+        self._static_dirty: bool = False
         self.version = 0
-        # Buffer-side obs cache — populated each forward() so the
-        # collector can rehydrate DmcTransition from the actor push.
         self.last_obs_dict: Any = None
 
     def observe_env(self, env: Any) -> None:
-        """Called by the actor loop hook before each policy.act to cache
-        the env reference + (re-)trigger DmcAgent.game_start when a new
-        episode begins. Detects fresh episodes via env._engine identity.
+        """Called by the actor loop hook before each policy.act. Caches
+        env reference + detects new episode via ``env._engine`` identity
+        change. On change, re-parse static fields into numpy and flag
+        ``_static_dirty`` so the next forward ships the static_obs.
         """
         self._env_ref = env
         eid = id(getattr(env, '_engine', env))
         if eid != self._last_static_id:
-            static_obs = env.static_obs if hasattr(env, 'static_obs') else env._get_static_obs()
-            self.agent.game_start(static_obs)
+            static = env.static_obs if hasattr(env, 'static_obs') else env._get_static_obs()
+            self._static_obs_np = np.ascontiguousarray(static, dtype=np.float32)
+            # Hash the canonical bytes (fixed dtype) so two actors with the
+            # same scenario produce the same key. 16-byte blake2b is fast
+            # (~3 ms on 1 MB) + collision-safe enough for this cache.
+            import hashlib
+
+            self._static_obs_hash = hashlib.blake2b(self._static_obs_np.tobytes(), digest_size=16).digest()
+            self._static_np_fields = _encode_static_np(
+                self._static_obs_np,
+                n_counter_slots=self.n_counter_slots,
+                n_hooks=self.n_hooks,
+                max_ops_per_hook=self.max_ops_per_hook,
+                fields_per_op=self.fields_per_op,
+            )
+            self._static_dirty = True
             self._last_static_id = eid
 
     def forward(self, obs: Any, mask: Any) -> Any:
@@ -123,32 +160,77 @@ class _DMCObsDictRemoteProvider:
                 '_DMCObsDictRemoteProvider.forward: observe_env(env) must be called per turn '
                 'before policy.act so the obs_dict can be encoded with cached static fields.'
             )
-        # Buffer-side: numpy obs_dict for DmcTransition reconstruction.
-        # Done BEFORE the server request so a server-side exception still
-        # leaves a valid obs cached for the next turn's debug trail.
-        from training.paradigms.dmc._episode import capture_obs
+        from training.core.step_encoding import (
+            pad_action_payments,
+            pad_action_refs,
+        )
 
-        self.last_obs_dict = capture_obs(self._env_ref, self.agent)
-        # Server-side: torch obs_dict for DMCInferenceNet.forward.
-        obs_dict = self.agent.build_obs_dict(self._env_ref)
-        # Server returns the raw q tensor (shape (1, max_actions)).
-        out = self.client.request(obs_dict, None)
-        # Match the DmcAgent return contract: 'q' head dict.
-        if isinstance(out, torch.Tensor):
+        env = self._env_ref
+        dyn_obs = np.ascontiguousarray(env._get_obs(), dtype=np.float32)
+        kinds, _ = env.get_legal_actions()
+        n_legal = int(len(kinds))
+        refs_np = env.get_action_refs()
+        pay_np = env.get_legal_action_payments()
+        refs_padded = pad_action_refs(refs_np, self.max_actions)
+        pay_padded = pad_action_payments(pay_np, self.max_actions)
+
+        # Buffer-side numpy obs_dict: must mirror DmcAgent.build_obs_dict
+        # shapes (pure numpy version of capture_obs).
+        self.last_obs_dict = _capture_obs_np(
+            dyn_obs=dyn_obs,
+            n_legal=n_legal,
+            refs_padded=refs_padded,
+            pay_padded=pay_padded,
+            max_actions=self.max_actions,
+            n_counter_slots=self.n_counter_slots,
+            static_np=self._static_np_fields,
+        )
+
+        # Server-side numpy payload — small (~10 KB vs ~4-13 MB torch).
+        # static_obs_hash is the server's shared_cache key (same across
+        # actors/episodes sharing the scenario → encode runs ONCE total).
+        # Embedded static_obs only on dirty turn (game_start) so the
+        # server can resolve cache misses without round-tripping back to
+        # the actor.
+        payload = {
+            'static_obs_hash': self._static_obs_hash,
+            'static_obs': self._static_obs_np if self._static_dirty else None,
+            'dyn_obs': dyn_obs,
+            'refs_padded': refs_padded.astype(np.int64),
+            'pay_padded': pay_padded.astype(np.float32),
+        }
+        self._static_dirty = False
+        out = self.client.request(payload, None)
+        # Server returns q tensor (shape (1, max_actions)). DMC policy
+        # expects a {'logit_as_q': tensor} dict.
+        # Torch only imported here so actor never imports torch at module
+        # load time. Module import inside hot path is acceptable: torch
+        # is already imported in this process via InferenceClient (it
+        # unpickles tensors on response). We could defer further but the
+        # benefit is small once it's loaded.
+        import torch as _torch
+
+        if isinstance(out, _torch.Tensor):
             return {'logit_as_q': out[0]}
         return out
 
     def update_weights(self, version_tag: Any = None, state_dict: Any = None) -> int:
-        # Server owns weights — no-op on the actor side.
+        # Server owns weights. Server also clears its per-client static
+        # cache on weight load (hook_emb depends on hook_encoder
+        # weights). Actor just bumps its own version counter.
+        self.version += 1 if version_tag is not None else 0
         return self.version
 
     def current_version(self) -> int:
         return self.version
 
-    def device(self) -> torch.device:
+    def device(self) -> Any:
+        # Actor doesn't import torch at top-level. Return a stringly
+        # typed device — callers either ignore this or pass it back into
+        # torch later (where torch is already loaded).
         if hasattr(self.client, 'server_device'):
-            return torch.device(self.client.server_device())
-        return torch.device('cpu')
+            return self.client.server_device()
+        return 'cpu'
 
     def close(self) -> None:
         if hasattr(self.client, 'close'):
@@ -173,3 +255,4 @@ def build_dmc_provider(cfg: Any, actor_id: int, *, inference_client: Any = None)
             f'and pass it via actor_kwargs_factory.'
         )
     return _DMCObsDictRemoteProvider(cfg=cfg, actor_id=actor_id, client=inference_client)
+

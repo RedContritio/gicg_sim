@@ -57,7 +57,16 @@ def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int) -> tuple:
 
     device = str(getattr(cfg.meta, 'device', 'cpu'))
     actor_critic = network.agent.net if hasattr(network, 'agent') else network
-    server = InferenceServer(DMCInferenceNet(actor_critic), device=device, max_batch=max(1, n_actors))
+    server = InferenceServer(
+        DMCInferenceNet(actor_critic),
+        device=device,
+        max_batch=max(1, n_actors),
+        # Decode-offload (2026-05-20): actor ships numpy payload, server
+        # decoder reuses live hook_encoder for static encoding + per-turn
+        # tensor materialisation. See module docstring of
+        # `training.paradigms.dmc.mp_factories`.
+        request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
+    )
     clients = [InferenceClient.attach_to_server(server, timeout_ms=30000) for _ in range(n_actors)]
     server.start(wait_ready_s=30.0)
     return server, clients

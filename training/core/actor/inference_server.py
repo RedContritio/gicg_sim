@@ -55,14 +55,20 @@ def _server_loop(
     ready_event,
     stop_event,
     inference_acceleration: str = 'none',
+    request_decoder_path: str = '',
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
     ``inference_acceleration``: ``'none'`` (raw) | ``'trace'`` (lazy
     first-batch jit.trace, invalidated on weight update) | ``'compile'``
-    (torch.compile once after pickle.loads — weight updates do NOT
-    invalidate since load_state_dict mutates in place). Trace + compile
-    both fall back to raw forward on construction failure.
+    (torch.compile once at startup; weight updates do NOT invalidate).
+    Trace/compile fall back to raw forward on failure.
+
+    ``request_decoder_path``: empty = legacy decode (unpickle torch obs
+    + tensor.to(device)). When set, dotted ``module.attr`` resolves to
+    ``decoder(obs_bytes, mask_bytes, device, client_cache, network) ->
+    (obs, mask)``. Per-client cache the decoder owns; server wipes on
+    weight update. ``network`` exposed so decoder can reuse sub-modules.
     """
     harden_child_env()
     install_quiet_sigterm(stop_event)
@@ -74,10 +80,20 @@ def _server_loop(
         stop_event.set()
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
 
-    # _AccelState builds compile-once net up-front (so first forward
-    # carries no compile penalty) and lazy-traces on the first request
-    # when mode == 'trace'. Both failures fall back to the raw network
-    # for the remainder of process lifetime.
+    request_decoder = None
+    if request_decoder_path:
+        from training.core.actor.actor_process import resolve_builder
+
+        request_decoder = resolve_builder(request_decoder_path)
+    # Server-wide decoder cache (shared across all clients). Decoder
+    # internally keys by static_obs hash so multiple actors sharing the
+    # same scenario hit the same cache entry — for fixed-scenario DMC,
+    # this means hook_encoder runs **once total**, not once per
+    # actor×episode. Server wipes on weight update.
+    shared_cache: dict = {}
+
+    # _AccelState builds compile-once net up-front + lazy-traces on first
+    # request when mode='trace'; both failures fall back to raw forward.
     accel = _AccelState(network, inference_acceleration)
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
@@ -94,6 +110,7 @@ def _server_loop(
             try:
                 network.load_state_dict(first[1])
                 accel.invalidate_trace()
+                shared_cache.clear()
             except Exception as exc:  # pragma: no cover
                 print(f'[InferenceServer] weight load failed: {exc}')
             continue
@@ -115,35 +132,36 @@ def _server_loop(
                     try:
                         network.load_state_dict(msg[1])
                         accel.invalidate_trace()
+                        shared_cache.clear()
                     except Exception as exc:  # pragma: no cover
                         print(f'[InferenceServer] weight load failed: {exc}')
                     continue
                 batch.append(msg)
         trace.value('inf_server.batch_size', float(len(batch)))
-        # Paradigm-aware batched path: if network exposes batched_forward
-        # AND there's >1 request, one ActorCritic.forward + scatter back
-        # via _run_batched_path. Networks without batched_forward (legacy
-        # AZ, plain test nets) + singleton batches fall through to the
-        # per-request loop below, which is also the only path that
-        # exercises the trace / compile accel layers (single-forward only).
+        # Paradigm-aware batched path: networks exposing batched_forward
+        # + batch>1 → one forward + scatter via _run_batched_path. Singletons
+        # + networks without batched_forward fall to the per-request loop
+        # (only path that exercises trace/compile accel).
         if hasattr(network, 'batched_forward') and len(batch) > 1:
             with trace.span('inf_server.batched_forward'):
-                _run_batched_path(network, batch, device_str, response_qs)
+                _run_batched_path(network, batch, device_str, response_qs, request_decoder, shared_cache)
             continue
 
         for msg in batch:
             _kind, client_id, req_id, obs_bytes, mask_bytes = msg
             try:
                 with trace.span('inf_server.decode'):
-                    obs = _from_bytes(obs_bytes)
-                    mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
-                    # Move obs to server device — IPC delivers CPU-pickled
-                    # tensors; network may live on cuda. Mirror back to cpu
-                    # before pickling response so client-side unpickle works
-                    # on hosts without a matching cuda runtime.
-                    obs = _to_device(obs, device_str)
-                    if mask is not None:
-                        mask = _to_device(mask, device_str)
+                    if request_decoder is not None:
+                        obs, mask = request_decoder(obs_bytes, mask_bytes, device_str, shared_cache, network)
+                    else:
+                        # IPC delivers CPU tensors; move to server device.
+                        # Response cast to cpu before pickling so client-side
+                        # unpickle works on hosts without matching cuda.
+                        obs = _from_bytes(obs_bytes)
+                        mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
+                        obs = _to_device(obs, device_str)
+                        if mask is not None:
+                            mask = _to_device(mask, device_str)
                 net = accel.select(obs, mask)
                 with trace.span('inf_server.forward'):
                     with torch.inference_mode():
@@ -170,6 +188,7 @@ class InferenceServer:
         batch_timeout_ms: int = 2,
         inference_acceleration: str = 'none',
         use_jit_trace: bool = False,
+        request_decoder_path: str = '',
     ) -> None:
         if use_jit_trace:
             if inference_acceleration != 'none':
@@ -194,6 +213,7 @@ class InferenceServer:
         self.max_batch = max_batch
         self.batch_timeout_ms = batch_timeout_ms
         self.inference_acceleration = inference_acceleration
+        self.request_decoder_path = request_decoder_path
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -233,6 +253,7 @@ class InferenceServer:
                 self._ready_event,
                 self._stop_event,
                 self.inference_acceleration,
+                self.request_decoder_path,
             ),
             daemon=False,
             name='InferenceServer',
@@ -267,10 +288,9 @@ class InferenceServer:
             self._proc.terminate()
             self._proc.join(timeout=2.0)
         self._proc = None
-        # cancel_join_thread before close: at shutdown the feeder thread
-        # may be blocked on a pipe write whose reader (the spawned server
-        # process) has died → join_thread would hang indefinitely. We do
-        # not care about in-flight messages at shutdown, so drop them.
+        # cancel_join_thread before close: feeder thread can block on a
+        # pipe write whose reader (dead server) hangs join_thread forever.
+        # In-flight messages at shutdown are dropped intentionally.
         try:
             self.request_queue.cancel_join_thread()
         except Exception:
@@ -279,8 +299,7 @@ class InferenceServer:
             self.request_queue.close()
         except Exception:
             pass
-        # Symmetric cleanup on per-client response queues; same deadlock
-        # surfaces if any reply is in-flight when shutdown trips.
+        # Symmetric cleanup on response queues — same deadlock surface.
         for q in self._response_qs:
             try:
                 q.cancel_join_thread()

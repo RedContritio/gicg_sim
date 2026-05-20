@@ -104,7 +104,14 @@ def _to_device(obj: Any, device: str) -> Any:
     return obj
 
 
-def _run_batched_path(network, batch: list, device_str: str, response_qs: list) -> None:
+def _run_batched_path(
+    network,
+    batch: list,
+    device_str: str,
+    response_qs: list,
+    request_decoder=None,
+    shared_cache: Any = None,
+) -> None:
     """Decode all obs once, run ``network.batched_forward``, scatter rows.
 
     Per-request decode failures surface as a single 'err' on that
@@ -112,20 +119,29 @@ def _run_batched_path(network, batch: list, device_str: str, response_qs: list) 
     every client whose obs was in the batch. Output is sliced
     ``[i : i + 1]`` so each client unpickles a tensor with the same
     shape the per-request path returns.
+
+    When ``request_decoder`` is supplied, each request is decoded via
+    ``decoder(obs_bytes, mask_bytes, device_str, shared_cache, network)``.
+    ``shared_cache`` is a single server-wide dict the decoder internally
+    keys by content hash — multiple clients sharing the same scenario
+    therefore hit the same cache entry.
     """
     decoded: list = []
     with trace.span('inf_server.decode'):
         for msg in batch:
             _kind, client_id, req_id, obs_bytes, mask_bytes = msg
             try:
-                obs = _from_bytes(obs_bytes)
-                obs = _to_device(obs, device_str)
-                # mask is unused by DMC batched_forward (caller slices
-                # n_legal externally); decode-and-discard for parity with
-                # per-request path so a malformed mask still surfaces as
-                # an err for that client only.
-                if mask_bytes is not None:
-                    _ = _from_bytes(mask_bytes)
+                if request_decoder is not None:
+                    obs, _mask = request_decoder(obs_bytes, mask_bytes, device_str, shared_cache, network)
+                else:
+                    obs = _from_bytes(obs_bytes)
+                    obs = _to_device(obs, device_str)
+                    # mask is unused by DMC batched_forward (caller slices
+                    # n_legal externally); decode-and-discard for parity with
+                    # per-request path so a malformed mask still surfaces as
+                    # an err for that client only.
+                    if mask_bytes is not None:
+                        _ = _from_bytes(mask_bytes)
                 decoded.append((client_id, req_id, obs))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
