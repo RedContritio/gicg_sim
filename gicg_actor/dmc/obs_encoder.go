@@ -14,8 +14,10 @@
 package dmc
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"fmt"
 	"unsafe"
 
 	"gicg_mono/gicg_actor"
@@ -163,18 +165,22 @@ func BuildInferRequest(g *engine.Game, staticHash [16]byte, clientID, reqID uint
 // DmcTransitionHeader — DMC paradigm transition payload 固定头(declarative schema)。
 //
 // binary.Write/Read 处理 byte offset,加字段在 struct 加一行即可,encode/decode 自动
-// follow。 同样 Python 端 _socket_decoder 用 struct format string 同步。
+// follow。 同样 Python 端 transition_sink_wire 用 struct format string 同步。
 //
 // 注意 Go struct field order = wire byte order,改顺序破坏协议。
+//
+// NDyn/NRefs/NPay/NStatic 走 u32(同 InferRequestHeader)— static_obs 实测可达 ~293K
+// int32(ObsMaxHooks × ObsIntsPerHook 主导,DSL 复杂场景),u16 65535 silent overflow
+// 已被实测发现(2026-05-22 perf smoke decode error 调查)。
 type DmcTransitionHeader struct {
 	ChosenAction uint32
 	StepInEp     uint32
 	RewardX1M    int32 // reward × 1e6 fixed-point (避 cross-lang nan-bits drift)
-	NLegal       uint16
-	NDyn         uint16
-	NRefs        uint16
-	NPay         uint16
-	NStatic      uint16 // 0 表示本 transition 不带 static_obs(Python 走 cache by StaticHash)
+	NLegal       uint32
+	NDyn         uint32
+	NRefs        uint32
+	NPay         uint32
+	NStatic      uint32 // 0 表示本 transition 不带 static_obs(Python 走 cache by StaticHash)
 	StaticHash   [16]byte
 }
 
@@ -203,53 +209,34 @@ func EncodeDmcTransitionPayload(
 		ChosenAction: chosenAction,
 		StepInEp:     step,
 		RewardX1M:    int32(reward * 1e6),
-		NLegal:       uint16(nLegal),
-		NDyn:         uint16(len(dynObs)),
-		NRefs:        uint16(len(refs)),
-		NPay:         uint16(len(pay)),
-		NStatic:      uint16(len(static)),
+		NLegal:       uint32(nLegal),
+		NDyn:         uint32(len(dynObs)),
+		NRefs:        uint32(len(refs)),
+		NPay:         uint32(len(pay)),
+		NStatic:      uint32(len(static)),
 		StaticHash:   staticHash,
 	}
 	headerSize := binary.Size(header)
 	body := headerSize + len(dynObs)*4 + len(refs)*8 + len(pay)*4 + len(static)*4
-	out := make([]byte, body)
-
-	// fixed header — 走 binary write to a bytes.Buffer 然后 copy。 也可用 unsafe.Pointer 一次 cast,
-	// 但 binary 路径跨架构/对齐 safer。
-	off := 0
-	binary.LittleEndian.PutUint32(out[off:], header.ChosenAction)
-	off += 4
-	binary.LittleEndian.PutUint32(out[off:], header.StepInEp)
-	off += 4
-	binary.LittleEndian.PutUint32(out[off:], uint32(header.RewardX1M))
-	off += 4
-	binary.LittleEndian.PutUint16(out[off:], header.NLegal)
-	off += 2
-	binary.LittleEndian.PutUint16(out[off:], header.NDyn)
-	off += 2
-	binary.LittleEndian.PutUint16(out[off:], header.NRefs)
-	off += 2
-	binary.LittleEndian.PutUint16(out[off:], header.NPay)
-	off += 2
-	binary.LittleEndian.PutUint16(out[off:], header.NStatic)
-	off += 2
-	copy(out[off:off+16], header.StaticHash[:])
-	off += 16
-	// body
+	var buf bytes.Buffer
+	buf.Grow(body)
+	// declarative:binary.Write 处理 struct field-by-field 写,加字段在 struct 上加一行
+	// 自动 follow,无需手动 byte offset arithmetic。
+	if err := binary.Write(&buf, binary.LittleEndian, &header); err != nil {
+		// 不应发生 — struct 全 fixed-size。 panic 以暴露 schema 漂移。
+		panic(fmt.Sprintf("EncodeDmcTransitionPayload header write: %v", err))
+	}
 	if len(dynObs) > 0 {
-		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&dynObs[0])), len(dynObs)*4))
-		off += len(dynObs) * 4
+		buf.Write(unsafe.Slice((*byte)(unsafe.Pointer(&dynObs[0])), len(dynObs)*4))
 	}
 	if len(refs) > 0 {
-		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&refs[0])), len(refs)*8))
-		off += len(refs) * 8
+		buf.Write(unsafe.Slice((*byte)(unsafe.Pointer(&refs[0])), len(refs)*8))
 	}
 	if len(pay) > 0 {
-		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&pay[0])), len(pay)*4))
-		off += len(pay) * 4
+		buf.Write(unsafe.Slice((*byte)(unsafe.Pointer(&pay[0])), len(pay)*4))
 	}
 	if len(static) > 0 {
-		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&static[0])), len(static)*4))
+		buf.Write(unsafe.Slice((*byte)(unsafe.Pointer(&static[0])), len(static)*4))
 	}
-	return out
+	return buf.Bytes()
 }

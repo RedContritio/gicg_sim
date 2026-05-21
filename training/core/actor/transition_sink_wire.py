@@ -44,7 +44,9 @@ TRANSITION_HEADER_SIZE = struct.calcsize(_HEADER_FMT)
 
 # DMC paradigm-specific payload schema(mirror Go DmcTransitionHeader)。
 # 加字段在 _DMC_PAYLOAD_FMT / _DMC_PAYLOAD_FIELDS 加一行即可。
-_DMC_PAYLOAD_FMT = '<I I i H H H H H 16s'
+# n_legal/n_dyn/n_refs/n_pay/n_static 走 u32(同 InferRequestHeader)— static_obs 实测
+# 可达 ~293K int32,u16 65535 silent overflow 历经实测(2026-05-22)。
+_DMC_PAYLOAD_FMT = '<I I i I I I I I 16s'
 _DMC_PAYLOAD_FIELDS = (
     'chosen_action',
     'step_in_episode',
