@@ -39,6 +39,22 @@ def _torch_cuda_mem_mb() -> tuple[float, float]:
     return alloc / 1024**2, reserved / 1024**2
 
 
+def _sample_cpu() -> dict:
+    """One-shot per-core CPU util snapshot.
+
+    psutil.cpu_percent 非阻塞模式(``interval=None``)需 prime — 第一次 call
+    返 0%(无 baseline);_CpuSamplerThread.run() prime 后,后续每次 call
+    返自 prev call 起的平均 utilization。
+    """
+    pct = psutil.cpu_percent(interval=None, percpu=True)
+    return {
+        'per_core_pct': [round(p, 1) for p in pct],
+        'avg_pct': round(sum(pct) / len(pct), 1) if pct else 0.0,
+        'max_pct': round(max(pct), 1) if pct else 0.0,
+        'n_cores': len(pct),
+    }
+
+
 def _sample_mem() -> dict:
     """One-shot mem snapshot — master RSS + children RSS + cuda + host."""
     me = psutil.Process(os.getpid())
@@ -67,16 +83,28 @@ def _sample_mem() -> dict:
     }
 
 
-class _MemSamplerThread(threading.Thread):
-    """Daemon thread emitting one ``kind="mem"`` row per ``interval_s``。
+class _ResourceSamplerThread(threading.Thread):
+    """Daemon thread emitting one ``kind=<kind>`` row per ``interval_s``。
 
-    Uses ``Event.wait()`` (not ``sleep``) so ``stop()`` returns promptly
-    on close instead of waiting up to a full interval。"""
+    Generic sampler — `sample_fn` returns payload dict,thread logs via
+    `logger.log(kind, payload)`。Uses ``Event.wait()`` (not ``sleep``) so
+    ``stop()`` returns promptly on close instead of waiting up to a full
+    interval。"""
 
-    def __init__(self, logger: 'MetricsLogger', interval_s: float) -> None:
-        super().__init__(name='MetricsLoggerMemSampler', daemon=True)
+    def __init__(
+        self,
+        logger: 'MetricsLogger',
+        kind: str,
+        interval_s: float,
+        sample_fn,
+        prime_fn=None,
+    ) -> None:
+        super().__init__(name=f'MetricsLogger{kind.capitalize()}Sampler', daemon=True)
         self._logger = logger
+        self._kind = kind
         self._interval_s = interval_s
+        self._sample_fn = sample_fn
+        self._prime_fn = prime_fn
         self._stop_event = threading.Event()
 
     def stop(self, timeout: float = 2.0) -> None:
@@ -85,6 +113,11 @@ class _MemSamplerThread(threading.Thread):
             self.join(timeout=timeout)
 
     def run(self) -> None:
+        if self._prime_fn is not None:
+            try:
+                self._prime_fn()
+            except Exception:  # noqa: BLE001
+                pass
         # Initial sample (so close-before-first-interval still emits ≥1 row).
         self._sample_once()
         while not self._stop_event.is_set():
@@ -94,29 +127,34 @@ class _MemSamplerThread(threading.Thread):
 
     def _sample_once(self) -> None:
         try:
-            payload = _sample_mem()
+            payload = self._sample_fn()
         except Exception:  # noqa: BLE001 — sampler must never kill train
             return
-        self._logger.log('mem', payload)
+        self._logger.log(self._kind, payload)
 
 
 class MetricsLogger:
     """Append-only metrics writer。``close()`` flushes + closes handles +
-    joins mem sampler thread。
+    joins sampler threads。
 
     ``mem_sample_interval_s``:每 N 秒采一次 mem(master + children + cuda
-    + host)写一行 kind="mem"。``None`` / ``<=0`` 关 sampler(对一些
-    unit test 简化场景有用)。 Default 10s — 长跑 train 可见每 minute ~6 行
-    mem 数据,容量微不足道(每行 ~250 B),hotpath 不打扰(daemon thread)。
+    + host)写一行 kind="mem"。Default 10s。
+    ``cpu_sample_interval_s``:每 N 秒采一次 per-core CPU util(psutil
+    non-blocking 模式 + prime)写一行 kind="cpu"。Default 5s。
+    任一 ``None`` / ``<=0`` 禁该 sampler(unit test 简化场景)。
+
+    每行 ~250 B,长跑 train 容量微不足道,hotpath 不打扰(daemon thread)。
     """
 
     DEFAULT_MEM_INTERVAL_S = 10.0
+    DEFAULT_CPU_INTERVAL_S = 5.0
 
     def __init__(
         self,
         artifacts_dir: Optional[Path],
         enable_tb: bool = True,
         mem_sample_interval_s: Optional[float] = None,
+        cpu_sample_interval_s: Optional[float] = None,
     ) -> None:
         self.artifacts_dir = Path(artifacts_dir) if artifacts_dir else None
         self.enable_tb = enable_tb
@@ -124,7 +162,7 @@ class MetricsLogger:
         self._tb_writer = None
         self._t_start = time.perf_counter()
         self._write_lock = threading.Lock()
-        self._mem_sampler: Optional[_MemSamplerThread] = None
+        self._samplers: list[_ResourceSamplerThread] = []
 
         if self.artifacts_dir is not None:
             self.artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -137,11 +175,25 @@ class MetricsLogger:
                 except ImportError:
                     self._tb_writer = None
 
-        # Start mem sampler after fh ready — needs to write through self.log.
-        interval = mem_sample_interval_s if mem_sample_interval_s is not None else self.DEFAULT_MEM_INTERVAL_S
-        if self._metrics_fh is not None and interval is not None and interval > 0:
-            self._mem_sampler = _MemSamplerThread(self, float(interval))
-            self._mem_sampler.start()
+        # Samplers after fh ready — write through self.log.
+        if self._metrics_fh is not None:
+            mem_iv = mem_sample_interval_s if mem_sample_interval_s is not None else self.DEFAULT_MEM_INTERVAL_S
+            if mem_iv is not None and mem_iv > 0:
+                t = _ResourceSamplerThread(self, 'mem', float(mem_iv), _sample_mem)
+                self._samplers.append(t)
+                t.start()
+            cpu_iv = cpu_sample_interval_s if cpu_sample_interval_s is not None else self.DEFAULT_CPU_INTERVAL_S
+            if cpu_iv is not None and cpu_iv > 0:
+                # psutil.cpu_percent non-blocking needs prime call (returns 0 first time).
+                t = _ResourceSamplerThread(
+                    self,
+                    'cpu',
+                    float(cpu_iv),
+                    _sample_cpu,
+                    prime_fn=lambda: psutil.cpu_percent(interval=None, percpu=True),
+                )
+                self._samplers.append(t)
+                t.start()
 
     def log(self, kind: str, payload: dict) -> None:
         """Append one row to metrics.jsonl with ``kind`` + payload +
@@ -181,10 +233,10 @@ class MetricsLogger:
             self._tb_writer.add_scalar(tag, value, step)
 
     def close(self) -> None:
-        # Stop sampler first so no concurrent write races the close().
-        if self._mem_sampler is not None:
-            self._mem_sampler.stop()
-            self._mem_sampler = None
+        # Stop samplers first so no concurrent write races the close().
+        for s in self._samplers:
+            s.stop()
+        self._samplers.clear()
         if self._metrics_fh is not None:
             with self._write_lock:
                 self._metrics_fh.close()

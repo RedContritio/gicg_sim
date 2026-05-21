@@ -12,11 +12,28 @@ from pathlib import Path
 
 import pytest
 
-from training.core.logging import MetricsLogger, _sample_mem
+from training.core.logging import MetricsLogger, _sample_cpu, _sample_mem
 
 
 def _read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
+
+
+def test_sample_cpu_schema():
+    """One-shot CPU sample 函数返必备字段 + 数值 sane。
+
+    Non-blocking psutil 首调返 0% baseline,后续 call 才返实际 — schema
+    检查不依赖具体数值。"""
+    import psutil
+
+    psutil.cpu_percent(interval=None, percpu=True)  # prime
+    s = _sample_cpu()
+    assert set(s.keys()) == {'per_core_pct', 'avg_pct', 'max_pct', 'n_cores'}
+    assert s['n_cores'] > 0
+    assert len(s['per_core_pct']) == s['n_cores']
+    assert all(0 <= p <= 100 for p in s['per_core_pct']), 'per-core util out of [0,100]'
+    assert 0 <= s['avg_pct'] <= 100
+    assert 0 <= s['max_pct'] <= 100
 
 
 def test_sample_mem_schema():
@@ -47,7 +64,9 @@ def test_sample_mem_schema():
 
 def test_sampler_emits_mem_rows_under_interval(tmp_path: Path):
     """0.2s interval → 1s wall 内应有 ≥ 4 行 mem(initial + 4 周期采)。"""
-    logger = MetricsLogger(tmp_path, enable_tb=False, mem_sample_interval_s=0.2)
+    logger = MetricsLogger(
+        tmp_path, enable_tb=False, mem_sample_interval_s=0.2, cpu_sample_interval_s=0
+    )
     try:
         time.sleep(1.0)
     finally:
@@ -66,15 +85,39 @@ def test_sampler_emits_mem_rows_under_interval(tmp_path: Path):
         assert r['master_rss_mb'] > 0
 
 
-def test_sampler_disabled_when_interval_none_or_zero(tmp_path: Path):
-    """``mem_sample_interval_s=None`` / 0 关 sampler — 仅 explicit log 行。"""
-    for interval in (None, 0, -1):
+def test_sampler_emits_cpu_rows_under_interval(tmp_path: Path):
+    """0.2s interval → 1s wall 内应有 ≥ 4 行 cpu(prime + initial + 周期采)。"""
+    logger = MetricsLogger(
+        tmp_path, enable_tb=False, mem_sample_interval_s=0, cpu_sample_interval_s=0.2
+    )
+    try:
+        time.sleep(1.0)
+    finally:
+        logger.close()
+
+    rows = _read_jsonl(tmp_path / 'metrics.jsonl')
+    cpu_rows = [r for r in rows if r['kind'] == 'cpu']
+    assert len(cpu_rows) >= 4, f'expected ≥4 cpu rows in 1s @ 0.2s interval, got {len(cpu_rows)}'
+
+    for r in cpu_rows:
+        assert 'per_core_pct' in r
+        assert 'avg_pct' in r
+        assert 'max_pct' in r
+        assert 'n_cores' in r
+        assert 'wall_s' in r
+        assert len(r['per_core_pct']) == r['n_cores']
+
+
+def test_sampler_disabled_when_interval_zero_or_negative(tmp_path: Path):
+    """``mem_sample_interval_s`` / ``cpu_sample_interval_s`` <= 0 关该 sampler — 仅 explicit log 行。"""
+    for interval in (0, -1):
         sub = tmp_path / f'd_{interval}'
-        if interval is None:
-            # None means "use default"; to disable, pass 0/<=0.
-            # We're guarding ``<=0`` here; default 行为 covered by其它 test。
-            continue
-        logger = MetricsLogger(sub, enable_tb=False, mem_sample_interval_s=interval)
+        logger = MetricsLogger(
+            sub,
+            enable_tb=False,
+            mem_sample_interval_s=interval,
+            cpu_sample_interval_s=interval,
+        )
         try:
             time.sleep(0.3)
             logger.log('iter', {'step': 0})
@@ -82,21 +125,26 @@ def test_sampler_disabled_when_interval_none_or_zero(tmp_path: Path):
             logger.close()
         rows = _read_jsonl(sub / 'metrics.jsonl')
         mem_rows = [r for r in rows if r['kind'] == 'mem']
+        cpu_rows = [r for r in rows if r['kind'] == 'cpu']
         iter_rows = [r for r in rows if r['kind'] == 'iter']
-        assert len(mem_rows) == 0, f'interval={interval} should disable sampler, got {len(mem_rows)} mem rows'
+        assert len(mem_rows) == 0, f'interval={interval} should disable mem sampler'
+        assert len(cpu_rows) == 0, f'interval={interval} should disable cpu sampler'
         assert len(iter_rows) == 1, 'explicit log must still work'
 
 
-def test_close_idempotent_and_thread_joined(tmp_path: Path):
-    """close() 后 sampler thread 必停 + 第二次 close 不抛。"""
-    logger = MetricsLogger(tmp_path, enable_tb=False, mem_sample_interval_s=0.05)
-    assert logger._mem_sampler is not None
-    sampler_ref = logger._mem_sampler
+def test_close_idempotent_and_threads_joined(tmp_path: Path):
+    """close() 后 sampler thread 必停 + 第二次 close 不抛。覆盖 mem + cpu 双 sampler。"""
+    logger = MetricsLogger(
+        tmp_path, enable_tb=False, mem_sample_interval_s=0.05, cpu_sample_interval_s=0.05
+    )
+    assert len(logger._samplers) == 2
+    sampler_refs = list(logger._samplers)
     time.sleep(0.15)
     logger.close()
-    # Thread must be joined within ≤ 2s (default stop timeout).
-    assert not sampler_ref.is_alive(), 'sampler thread must be joined on close'
-    assert logger._mem_sampler is None
+    # Threads must be joined within ≤ 2s (default stop timeout).
+    for s in sampler_refs:
+        assert not s.is_alive(), f'sampler {s.name} must be joined on close'
+    assert logger._samplers == []
     # Second close — no-op.
     logger.close()
 
@@ -105,8 +153,11 @@ def test_concurrent_log_does_not_race(tmp_path: Path):
     """Sampler thread + main thread.log() 并发写 — 同一文件不应交错破坏 jsonl。
 
     用极短 interval(0.01s)制造高争用,主线程同时 push 50 iter 行;
-    最终 metrics.jsonl 每行必须能 parse 为 JSON(无半行 / 拼接行)。"""
-    logger = MetricsLogger(tmp_path, enable_tb=False, mem_sample_interval_s=0.01)
+    最终 metrics.jsonl 每行必须能 parse 为 JSON(无半行 / 拼接行)。
+    覆盖 mem + cpu + iter 三 writer 同时写。"""
+    logger = MetricsLogger(
+        tmp_path, enable_tb=False, mem_sample_interval_s=0.01, cpu_sample_interval_s=0.01
+    )
     try:
         for i in range(50):
             logger.log('iter', {'step': i, 'frames': i * 5})
@@ -122,4 +173,4 @@ def test_concurrent_log_does_not_race(tmp_path: Path):
             row = json.loads(line)
         except json.JSONDecodeError as e:
             pytest.fail(f'line {line_no} not valid JSON (race?): {line!r} — {e}')
-        assert row['kind'] in ('iter', 'mem')
+        assert row['kind'] in ('iter', 'mem', 'cpu')
