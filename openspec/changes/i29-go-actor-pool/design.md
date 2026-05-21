@@ -1,0 +1,219 @@
+# Design — Go-native actor pool (c-shared lib)
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ Python master process (training/core/pipeline.py)            │
+│                                                              │
+│   MetricsLogger ──┐                                          │
+│                   │ attach_external_queue                    │
+│   collector ──┐   │                                          │
+│               │   │                                          │
+│    ┌──────────▼───▼──────────────────────────────────┐       │
+│    │ libgicg_actor.dll/.dylib (ctypes-loaded)        │       │
+│    │ ──────────────────────────────────────────────  │       │
+│    │ Go runtime (single, lazy-init on first call)    │       │
+│    │ ┌─────────────────────────────────────────────┐ │       │
+│    │ │ gicg_actor (RL,新顶层 package)              │ │       │
+│    │ │  ├─ pool.go (N goroutine 调度)              │ │       │
+│    │ │  ├─ episode.go (主 loop,跑 engine.Step)     │ │       │
+│    │ │  ├─ inference_client.go (socket → InfServer)│ │       │
+│    │ │  ├─ shm_ring.go (transition SHM writer)     │ │       │
+│    │ │  ├─ adapter.go (paradigm 注册表)            │ │       │
+│    │ │  └─ dmc/                                    │ │       │
+│    │ │      ├─ obs_encoder.go (DMC numpy 协议 port) │ │       │
+│    │ │      └─ greedy_player.go (F1-D2/D4 port)     │ │       │
+│    │ │                                              │ │       │
+│    │ │ import "<module>/gicg_engine" (单向)         │ │       │
+│    │ └─────────────────────────────────────────────┘ │       │
+│    │                                                  │       │
+│    │ Transition out:                                  │       │
+│    │  SHM ring buffer (Go writes, Python reads via    │       │
+│    │  ctypes get-ring-head + np.frombuffer view)      │       │
+│    └──────────────────────────────────────────────────┘       │
+│                                                              │
+│  libgicg.dll (现有,不动 — engine only,Python ctypes call)   │
+│                                                              │
+└─────────────────────────┬────────────────────────────────────┘
+                          │ socket (raw bytes + length prefix)
+                          ▼
+        ┌────────────────────────────────────────┐
+        │ Python InfServer subprocess (unchanged) │
+        │  — torch + cuda + batched_forward      │
+        └────────────────────────────────────────┘
+```
+
+## 边界原则
+
+**`gicg_engine = environment only`,RL-zero awareness**:engine package 不含 actor / opp / obs encoder /
+inference client 等任何 RL 概念。 这是硬约束,任何修改 design 时不可破。
+
+- `gicg_engine/`(现有,40k LOC Go)+ `gicg_engine/capi/`(现有 `libgicg.dll`): 不加文件、不改一行
+- 新 `gicg_actor/`(顶层目录,跟 `gicg_engine/` 并列): 所有 RL Go code
+- `gicg_actor` 内部 `import "<module>/gicg_engine"`(单向依赖)
+- `libgicg_actor.dll/.dylib` 独立于 `libgicg.dll`(各含 Go runtime ~10 MB,保边界的代价)
+
+## Core decisions(锁定)
+
+### D1 — Engine 复用:native Go import,no cgo
+
+Go actor 在 `gicg_actor/` 包内 `import "<module>/gicg_engine"`,直接调 `engine.Step()` /
+`engine.Clone()` 等 — native Go function call,无 cgo overhead(对比 Python ctypes ~1-5 μs / call)。
+
+理由:Python 调 `gicg_engine` 走 c-shared 仅因 Python 不能 import Go;Go-side 无此限制。 "纯 Go 5000+
+LOC 重写" 是错误 framing — engine 已经是 Go,actor 直接复用。
+
+### D2 — F1-D2/D4 opp:Go 全 port + **winrate gate** 验收
+
+`greedy_player` + `greedy_dice` + minimax tree → Go 重写,~500-800 LOC。 actor goroutine 内跑 opp
+self-play,**不 move 到 InfServer**(跨 paradigm boundary 风险大)。
+
+**验收用 winrate gate 而非数值等价**:
+
+- F1-D2 vs Python F1-D2:跑 n=128 swap matches against random,winrate 落 Python baseline 95% CI 内
+- F1-D4 vs Python F1-D2:跑 n=128 swap matches,Go-D4 winrate 应该接近 Python-D4 vs Python-D2 baseline
+- 完全绕过浮点 ordering / depth-4 路径依赖,直接行为等价
+
+理由:depth-4 minimax 浮点 score 累积 + tie-breaking 顺序在不同语言不可控,bit-exact 不实际。 行为等价
+是真正想要的 — RL signal 看 opp 强度,不看 micro-decision。
+
+### D3 — Paradigm scope:主体 paradigm-agnostic + per-paradigm adapter
+
+Go actor pool 主体(`gicg_actor/{pool,episode,inference_client,shm_ring,adapter}.go`)**本就 paradigm-
+agnostic**:
+
+- pool.go:N goroutine 调度,跟 RL 算法无关
+- episode.go:engine.Step() 主 loop,跟 paradigm 无关
+- inference_client.go:socket → Python InfServer,纯 IO
+- shm_ring.go:transition 写 SHM,跟 schema 无关
+- adapter.go:paradigm 注册表,提供 `ObsEncoder` + `OppBaseline` interface
+
+Paradigm-specific 只两块,各 paradigm 提供自己实现:
+
+- `ObsEncoder.Encode(engine_state) → []byte`(numpy ndarray raw bytes)— DMC 一种 schema,AZ / PPO /
+  CFR 各自不同 schema
+- `OppBaseline.SelectAction(state, role) → ActionRef` — DMC F1-D\*,AZ PUCT,PPO/CFR 各自
+
+**Phase 1 ship `gicg_actor/dmc/`**(DMC adapter — obs encoder + F1-D\*);**Phase 2 per-paradigm port**
+(`gicg_actor/{az,ppo,cfr,bc}/` 各一)。 Python 侧 `training/core/actor/backend.py` 加抽象 protocol
+`ActorBackend`(`PythonActorBackend` + `GoActorBackend`),collector 通过 cfg flag 选 backend。
+
+### D4 — Build:libgicg_actor 独立,不合并到 libgicg
+
+`gicg_actor/capi/` 新建 `package main` + `//export` C API + `cgo_export.go`,build:
+
+```bash
+go build -buildmode=c-shared -o gicg_env/libgicg_actor.dylib ./gicg_actor/capi
+# Win:
+go build -buildmode=c-shared -o gicg_env/libgicg_actor.dll ./gicg_actor/capi
+```
+
+Python master `ctypes.CDLL('libgicg_actor.dll')` load。 lifecycle 绑 Python master(Python exit →
+atexit hook → ctypes call `StopActorPool()` → Go runtime cleanup)。
+
+**为什么不合并到 `libgicg`**(我之前推荐过合并,user pushback 修正)— 因为 `gicg_engine` 是
+environment only,合并到 `libgicg` 会让 engine lib 含 RL code,破坏边界。 两个 lib 各自含一份 Go
+runtime ~10 MB 是保边界的代价,可接受。
+
+### D5 — IPC 协议:raw bytes + length prefix(research verified)
+
+Go actor ↔ Python InfServer 走 localhost TCP socket,wire format:
+
+```
+[2B ver][16B static_hash][4B client_id][4B req_id][2B n_dyn][2B n_refs][2B n_pay] | dyn_obs.bytes | refs.bytes | pay.bytes
+```
+
+Go 端:`binary.LittleEndian.PutUint16` 写 header + 3 个 `unsafe.Slice((*byte)(unsafe.Pointer(&arr[0])), n*4)`
+写 numpy contiguous bytes。 Python 端:`recv_into` 进预分配 4KB bytearray + 3 个 `np.frombuffer(buf, dtype=np.float32)`
+**zero-copy view**(不 copy)。
+
+**Research 验证**(IPC research agent 2026-05-21):
+
+| 方案 | 实测 RTT | 障碍 |
+|---|---|---|
+| **raw bytes(选定)** | <1μs | 无 |
+| Cap'n Proto | 2-5μs | Cap'n Python Win 3.13 wheel 刚 ship 2026-01,wheel 风险;Python builder API arcane |
+| Apache Arrow IPC | 10-50μs schema overhead per stream | 是 batch-oriented,4 KB single-request 粒度用错 |
+| protobuf | 5-15μs | numpy float array 走 `bytes` 字段是 copy(zero-copy 被吃)|
+| FlatBuffers | 3-8μs 读,Python 写 unusably slow(known issue #4668) | 写不达 5μs 预算 |
+| msgpack-numpy | 5-20μs | msgpack-numpy 库 12+ 月未维护 |
+
+5μs 预算下唯一 viable 是 raw bytes。 schema **本身就是** Go side header struct + Python side
+`struct.unpack` 对照 — 无 schema 抽象层。 跨语言客户端要 ≥ 3 种时再考虑 Cap'n Proto。
+
+### D6 — Phase 1 直接 production scale
+
+user pushback:不接受 random opp + zero-logits mock。 P1 即 production scale e2e,包含 F1-D2/D4 +
+真 InfServer + 真 obs encoder + N=16 production cfg Win 实测 fps gate。
+
+Phase 数从 7 压缩到 4(详 `tasks.md`):
+
+| Phase | scope | LOC | Verify gate |
+|---|---|---|---|
+| 0 scaffold | hello-world ctypes + Go SIGTERM handler + 跨平台 build + libgicg 不受影响 smoke | ~250 | 100 次连续 Mac+Win 不 hang;libgicg 现有 Python tests 全 PASS |
+| 1 production e2e | `gicg_actor/{pool,episode,inference_client,shm_ring,adapter}.go` + `gicg_actor/dmc/{obs_encoder,greedy_player}.go` + Python `GoActorBackend` ctypes wrapper + DMC collector 接 | ~2200 | obs encoder bit-exact 10k random + F1-D\* winrate gate + N=16 Win 实测 fps ≥ 70(2x baseline 35) |
+| 2 paradigm adapter port | `gicg_actor/{az,ppo,cfr,bc}/` 各 obs encoder + opp baseline(per-paradigm 单独 sub-PR) | ~300 + per-paradigm | 5 paradigm smoke + smoke_full 全 PASS |
+| 3 production train | stage3_b_v_legacy.toml 整局 1M frames N=64 + Mac gauntlet 验证收敛 | — | wp vs F1-D2 落 baseline 95% CI |
+
+### D7 — Transition push:SHM ring(reuse)
+
+reuse `training/core/actor/shm_ring.py` 现有 SHMRing 协议(Python 已用 2GB SHM ring 给 DMC mp
+collector)。 Go writer 端 mirror 同 layout,跨平台 mmap(Win `CreateFileMapping` + Unix `shm_open`)。
+zero-copy,~ns push。
+
+Python 端读路径不变(DMC collector 现已经从 SHMRing.read 取 transition),Go 侧只换 writer 实现。
+
+## ADR-agent 自定 trade-off(决定后内联)
+
+### 数值等价 tolerance
+
+- **obs encoder**:bit-exact(`np.array_equal`)— numpy 协议明确,Go port 用相同 typed segment offsets
+  + 相同 float32 ops,可保 bit-exact。 测试 10k random observation,Python vs Go byte-equal
+- **F1-D2/D4 opp**:winrate gate(详 D2),不做 bit-exact 也不做 ε-tolerance
+
+### Go package layout
+
+```
+gicg_actor/                          # 新 — 跟 gicg_engine/ 顶层并列
+├── go.mod (顶层 module,继承 gicg_engine 同 module 路径) 或 单独 sub-module
+├── pool.go                          # N goroutine 调度
+├── episode.go                       # episode 主 loop
+├── adapter.go                       # paradigm 注册表(ObsEncoder/OppBaseline interface)
+├── inference_client.go              # socket → Python InfServer (raw bytes)
+├── shm_ring.go                      # transition SHM writer
+├── *_test.go                        # Go unit tests
+├── capi/                            # c-shared export 入口
+│   ├── main.go                      # //export C API
+│   └── cgo_export.go                # type 转换 + 错误处理
+└── dmc/                             # P1 — DMC paradigm adapter
+    ├── obs_encoder.go               # numpy 协议 Go port
+    ├── greedy_player.go             # F1-D2/D4 Go port
+    └── *_test.go
+
+# P2 后扩展:gicg_actor/{az,ppo,cfr,bc}/  各 paradigm 各自
+```
+
+### Risk + mitigation
+
+| risk | mitigation |
+|---|---|
+| cgo + Python signal handler 互相影响(memory: `feedback_go_cgo_signal_handler`)| Go init 必装 `signal.Notify(c, syscall.SIGTERM); <-c; os.Exit(0)` no-op handler。 P0 hello-world 守 100 次连续不 hang |
+| Go runtime 在 c-shared 模式生命周期(no main goroutine,init order)| P0 hello-world 验证 Python load → ctypes call → goroutine 起 → ctypes call stop → join。 atexit hook 兜 cleanup |
+| obs encoder Go port 数值漂移 | bit-exact test 10k random observation,CI gate |
+| F1-D4 浮点 ordering 不可控 | winrate gate 验收(行为等价 > 数值等价) |
+| `libgicg` + `libgicg_actor` 双 lib Python 同时 load 时 ctypes symbol clash | 各 lib `//export` 函数名 prefix(`gicg_*` vs `gicg_actor_*`),编译 + load 测验证 |
+| Win c-shared mode mmap SHM 跨平台细节 | reuse 现有 Python `shm_ring.py` 跨平台模式,Go side mirror;P0 加 SHM round-trip smoke |
+| paradigm-agnostic boundary 重切 az/ppo/cfr/bc 适配工作 | Phase 2 单独 sub-PR per paradigm,本 ADR 仅 DMC adapter |
+
+## References
+
+- backlog I29 原始描述: `docs/3_plans/backlog.md` line 80
+- 2026-05-21 perf 验证 session 数据: `docs/3_plans/backlog.md` I26 (2026-05-21 reverse) + 本 session
+  metrics.jsonl
+- IPC protocol research(本 ADR design 阶段 dispatch): raw bytes 选定理由 (D5 表格)
+- memory `feedback_go_cgo_signal_handler` — c-shared Go SIGTERM handler 必装
+- memory `reference_genius_invokation_clone` — Guyutongxue/genius-invokation TS 实现可对照 F1-D\* algo
+- `training/core/actor/inference_server.py` — Python InfServer(Go actor 走 socket 接)
+- `training/core/actor/shm_ring.py` — 现 Python SHMRing 协议(Go writer 端 mirror)
+- `gicg_engine/capi/` — engine c-shared 现 layout(`gicg_actor/capi/` 模仿同模式)
