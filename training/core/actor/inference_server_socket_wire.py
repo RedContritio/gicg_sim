@@ -4,41 +4,75 @@ Mirror Go ``gicg_actor/wire_format.go`` 1:1 — same little-endian byte layout,�
 overhead,zero-copy via ``np.frombuffer`` view。 schema 详 design.md D5 + 实测 < 1μs RTT
 (IPC research agent 2026-05-21 验证)。
 
-Wire format(inference request):
+Schema is declarative — header layout described by a single ``struct`` format string,
+variable-length array sections described by a list of (name, dtype, count_field) tuples。
+Adding a new field = 1 line in ``_HEADER_FMT`` / ``_HEADER_FIELDS`` (固定字段) 或一行
+``_ARRAY_SPECS`` (可变长 array),encode/decode 自动 follow。 同样 Go 端的 fixed-size
+struct + binary.Write 模式。
 
-    [u16 ver][16B static_hash][u32 client_id][u32 req_id]
-    [u16 n_dyn_f32][u16 n_refs_i64][u16 n_pay_f32]
-    | dyn_obs (n_dyn_f32 × 4 bytes) | refs (n_refs_i64 × 8 bytes) | pay (n_pay_f32 × 4 bytes)
+Wire format(inference request,v2):
+
+    header   = struct.pack(_HEADER_FMT, ver, static_hash, client_id, req_id,
+                            n_dyn, n_refs, n_pay, n_static)
+    payload  = header || dyn_obs (f32 ×N) || refs (i64 ×N) || pay (f32 ×N) || static (i32 ×N)
+    outer    = [u32 len_le] || payload
+
+n_static_i32 = 0 表示 "本 request 不带 static_obs"(server 走 hash cache);> 0 时
+携带 raw int32 数组,server 端 cache by hash,后续 skip。
 
 Wire format(inference response):
 
-    [u8 status (0=ok, 1=err)][u16 n_logits_f32]
-    | logits (n_logits_f32 × 4 bytes)  // status=0 case
-    | err_msg bytes (no null terminator) // status=1 case
-
-Outer frame:``[u32 len_le][payload bytes]``,reader 先 read 4-byte len 决定 recv_into buf size。
+    [u8 status (0=ok, 1=err)][u16 n]
+    | logits (n × 4 bytes)   // status=0
+    | err_msg bytes          // status=1
 """
 
 from __future__ import annotations
 
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 import numpy as np
 
-WIRE_VERSION = 1
+
+def _empty_int32() -> np.ndarray:
+    return np.zeros(0, dtype=np.int32)
+
+# ─── Schema 常量 ─────────────────────────────────────────────────────────
+WIRE_VERSION = 2
 STATIC_HASH_SIZE = 16
-MAX_MESSAGE_BYTES = 16 * 1024 * 1024  # 16 MB defense against malformed length
+MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 INFER_STATUS_OK = 0
 INFER_STATUS_ERR = 1
-HEADER_SIZE = 2 + 16 + 4 + 4 + 2 + 2 + 2  # 32 bytes fixed
-RESPONSE_HEADER_SIZE = 1 + 2  # 3 bytes fixed
+
+# Header 固定字段:struct 格式 + 字段名序列。 加字段在两处同步加一行即可。
+_HEADER_FMT = '<H 16s I I H H H H'
+_HEADER_FIELDS = ('ver', 'static_hash', 'client_id', 'req_id', 'n_dyn', 'n_refs', 'n_pay', 'n_static')
+HEADER_SIZE = struct.calcsize(_HEADER_FMT)
+
+# Variable-length array sections following header (顺序固定 = 字节序)。
+# 每条:(struct 字段名, numpy dtype, header 计数字段名)。 加 array 在此加一行即可。
+_ARRAY_SPECS: tuple[tuple[str, np.dtype, str], ...] = (
+    ('dyn_obs', np.dtype(np.float32), 'n_dyn'),
+    ('refs', np.dtype(np.int64), 'n_refs'),
+    ('pay', np.dtype(np.float32), 'n_pay'),
+    ('static', np.dtype(np.int32), 'n_static'),
+)
+
+# Response 同样模式。
+_RESP_HEADER_FMT = '<B H'
+_RESP_HEADER_FIELDS = ('status', 'n')
+RESPONSE_HEADER_SIZE = struct.calcsize(_RESP_HEADER_FMT)
 
 
 @dataclass
 class InferRequest:
-    """Decoded request from Go actor。 dyn_obs/refs/pay are numpy view of buf(no copy)。"""
+    """Decoded request from Go actor。 dyn_obs/refs/pay/static 是 numpy zero-copy view。
+
+    static 可空(len=0)— actor 标记 "本 request 不带 static_obs"(server 走 cache by
+    static_hash);非空时 server 端 cache by hash + decode 后保留 decoded result。
+    """
 
     static_hash: bytes
     client_id: int
@@ -46,6 +80,8 @@ class InferRequest:
     dyn_obs: np.ndarray  # float32 shape (n_dyn,)
     refs: np.ndarray  # int64 shape (n_refs,)
     pay: np.ndarray  # float32 shape (n_pay,)
+    # static 默认空 — 调用方未传时等价于 "server 走 cache by static_hash"。
+    static: np.ndarray = field(default_factory=_empty_int32)
 
 
 @dataclass
@@ -59,99 +95,93 @@ def encode_infer_request(req: InferRequest) -> bytes:
     """Serialize InferRequest 含 outer length prefix。 mirror Go EncodeInferRequest。"""
     if len(req.static_hash) != STATIC_HASH_SIZE:
         raise ValueError(f'static_hash must be {STATIC_HASH_SIZE} bytes, got {len(req.static_hash)}')
-    dyn_bytes = req.dyn_obs.astype(np.float32, copy=False).tobytes()
-    refs_bytes = req.refs.astype(np.int64, copy=False).tobytes()
-    pay_bytes = req.pay.astype(np.float32, copy=False).tobytes()
-    n_dyn = len(req.dyn_obs)
-    n_refs = len(req.refs)
-    n_pay = len(req.pay)
-    if max(n_dyn, n_refs, n_pay) > 0xFFFF:
-        raise ValueError(f'array len > u16 max(n_dyn={n_dyn} n_refs={n_refs} n_pay={n_pay})')
-    payload_len = HEADER_SIZE + len(dyn_bytes) + len(refs_bytes) + len(pay_bytes)
-    parts = [
-        struct.pack('<I', payload_len),
-        struct.pack('<H', WIRE_VERSION),
-        req.static_hash,
-        struct.pack('<II', req.client_id, req.req_id),
-        struct.pack('<HHH', n_dyn, n_refs, n_pay),
-        dyn_bytes,
-        refs_bytes,
-        pay_bytes,
-    ]
+
+    arrays_data = {}
+    counts = {}
+    for name, dtype, count_field in _ARRAY_SPECS:
+        arr = getattr(req, name)
+        arr = np.ascontiguousarray(arr, dtype=dtype)
+        if len(arr) > 0xFFFF:
+            raise ValueError(f'{name} len {len(arr)} > u16 max')
+        arrays_data[name] = arr.tobytes() if len(arr) > 0 else b''
+        counts[count_field] = len(arr)
+
+    header_values = {
+        'ver': WIRE_VERSION,
+        'static_hash': req.static_hash,
+        'client_id': req.client_id,
+        'req_id': req.req_id,
+        **counts,
+    }
+    header = struct.pack(_HEADER_FMT, *(header_values[f] for f in _HEADER_FIELDS))
+
+    payload_len = len(header) + sum(len(b) for b in arrays_data.values())
+    parts = [struct.pack('<I', payload_len), header]
+    parts.extend(arrays_data[name] for name, _, _ in _ARRAY_SPECS)
     return b''.join(parts)
 
 
 def decode_infer_request(payload: bytes) -> InferRequest:
-    """Deserialize InferRequest payload(不含 outer length prefix)。 mirror Go
-    DecodeInferRequest。 numpy arrays are read-only views into ``payload``(zero-copy)。
+    """Deserialize InferRequest payload (不含 outer length prefix)。 mirror Go
+    DecodeInferRequest。 numpy arrays are read-only zero-copy views into payload。
     """
     if len(payload) < HEADER_SIZE:
         raise ValueError(f'payload {len(payload)} byte < header {HEADER_SIZE}')
-    (ver,) = struct.unpack_from('<H', payload, 0)
-    if ver != WIRE_VERSION:
-        raise ValueError(f'wire version mismatch: got {ver}, want {WIRE_VERSION}')
-    static_hash = bytes(payload[2:18])
-    client_id, req_id = struct.unpack_from('<II', payload, 18)
-    n_dyn, n_refs, n_pay = struct.unpack_from('<HHH', payload, 26)
-    expected_len = HEADER_SIZE + n_dyn * 4 + n_refs * 8 + n_pay * 4
+    header = dict(zip(_HEADER_FIELDS, struct.unpack_from(_HEADER_FMT, payload, 0)))
+    if header['ver'] != WIRE_VERSION:
+        raise ValueError(f'wire version mismatch: got {header["ver"]}, want {WIRE_VERSION}')
+
+    expected_len = HEADER_SIZE
+    for name, dtype, count_field in _ARRAY_SPECS:
+        expected_len += header[count_field] * dtype.itemsize
     if len(payload) != expected_len:
-        raise ValueError(
-            f'payload len {len(payload)} != expected {expected_len} (n_dyn={n_dyn} n_refs={n_refs} n_pay={n_pay})'
-        )
+        diagnostics = ' '.join(f'{cf}={header[cf]}' for _, _, cf in _ARRAY_SPECS)
+        raise ValueError(f'payload len {len(payload)} != expected {expected_len} ({diagnostics})')
+
+    arrays = {}
     off = HEADER_SIZE
-    dyn_obs = np.frombuffer(payload, dtype=np.float32, count=n_dyn, offset=off)
-    off += n_dyn * 4
-    refs = np.frombuffer(payload, dtype=np.int64, count=n_refs, offset=off)
-    off += n_refs * 8
-    pay = np.frombuffer(payload, dtype=np.float32, count=n_pay, offset=off)
+    for name, dtype, count_field in _ARRAY_SPECS:
+        n = header[count_field]
+        if n > 0:
+            arrays[name] = np.frombuffer(payload, dtype=dtype, count=n, offset=off)
+        else:
+            arrays[name] = np.zeros(0, dtype=dtype)
+        off += n * dtype.itemsize
+
     return InferRequest(
-        static_hash=static_hash,
-        client_id=client_id,
-        req_id=req_id,
-        dyn_obs=dyn_obs,
-        refs=refs,
-        pay=pay,
+        static_hash=header['static_hash'],
+        client_id=header['client_id'],
+        req_id=header['req_id'],
+        **arrays,
     )
 
 
 def encode_infer_response(resp: InferResponse) -> bytes:
     """Serialize InferResponse 含 outer length prefix。 mirror Go EncodeInferResponse。"""
     if resp.status == INFER_STATUS_OK:
-        if resp.logits is None:
-            logits_bytes = b''
-            n_logits = 0
-        else:
-            n_logits = len(resp.logits)
-            if n_logits > 0xFFFF:
-                raise ValueError(f'logits len {n_logits} > u16 max')
-            logits_bytes = resp.logits.astype(np.float32, copy=False).tobytes()
-        payload_len = RESPONSE_HEADER_SIZE + len(logits_bytes)
-        return b''.join(
-            [
-                struct.pack('<I', payload_len),
-                struct.pack('<BH', INFER_STATUS_OK, n_logits),
-                logits_bytes,
-            ]
-        )
-    # err path
-    err_bytes = resp.err_msg.encode('utf-8')
-    if len(err_bytes) > 0xFFFF:
-        raise ValueError(f'err_msg len {len(err_bytes)} > u16 max')
-    payload_len = RESPONSE_HEADER_SIZE + len(err_bytes)
-    return b''.join(
-        [
-            struct.pack('<I', payload_len),
-            struct.pack('<BH', INFER_STATUS_ERR, len(err_bytes)),
-            err_bytes,
-        ]
-    )
+        logits = resp.logits if resp.logits is not None else np.zeros(0, dtype=np.float32)
+        logits = np.ascontiguousarray(logits, dtype=np.float32)
+        if len(logits) > 0xFFFF:
+            raise ValueError(f'logits len {len(logits)} > u16 max')
+        body = logits.tobytes()
+        header = struct.pack(_RESP_HEADER_FMT, INFER_STATUS_OK, len(logits))
+    elif resp.status == INFER_STATUS_ERR:
+        body = resp.err_msg.encode('utf-8')
+        if len(body) > 0xFFFF:
+            raise ValueError(f'err_msg len {len(body)} > u16 max')
+        header = struct.pack(_RESP_HEADER_FMT, INFER_STATUS_ERR, len(body))
+    else:
+        raise ValueError(f'unknown response status {resp.status}')
+
+    payload_len = len(header) + len(body)
+    return b''.join([struct.pack('<I', payload_len), header, body])
 
 
 def decode_infer_response(payload: bytes) -> InferResponse:
     """Deserialize InferResponse payload(不含 outer length prefix)。"""
     if len(payload) < RESPONSE_HEADER_SIZE:
         raise ValueError(f'response payload {len(payload)} byte < header {RESPONSE_HEADER_SIZE}')
-    status, n = struct.unpack_from('<BH', payload, 0)
+    status, n = struct.unpack_from(_RESP_HEADER_FMT, payload, 0)
     if status == INFER_STATUS_OK:
         expected_len = RESPONSE_HEADER_SIZE + n * 4
         if len(payload) != expected_len:

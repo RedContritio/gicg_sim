@@ -41,6 +41,7 @@ def test_encode_decode_request_round_trip():
         dyn_obs=np.array([1.5, -2.5, 0.0, 3.14159], dtype=np.float32),
         refs=np.array([0, -1, 1 << 40, 9999], dtype=np.int64),
         pay=np.array([0.1, 0.2, 0.3, 0.4], dtype=np.float32),
+        static=np.array([7, -1, 1 << 20], dtype=np.int32),
     )
     encoded = encode_infer_request(orig)
     # Outer length prefix is first 4 bytes,payload follows。
@@ -54,6 +55,7 @@ def test_encode_decode_request_round_trip():
     assert np.array_equal(decoded.dyn_obs, orig.dyn_obs)
     assert np.array_equal(decoded.refs, orig.refs)
     assert np.array_equal(decoded.pay, orig.pay)
+    assert np.array_equal(decoded.static, orig.static)
 
 
 def test_encode_request_empty_arrays():
@@ -65,6 +67,7 @@ def test_encode_request_empty_arrays():
         dyn_obs=np.zeros(0, dtype=np.float32),
         refs=np.zeros(0, dtype=np.int64),
         pay=np.zeros(0, dtype=np.float32),
+        static=np.zeros(0, dtype=np.int32),
     )
     encoded = encode_infer_request(orig)
     expected_len = 4 + HEADER_SIZE  # outer prefix + header,0 data bytes
@@ -113,6 +116,7 @@ def test_read_length_prefixed_full_message():
         dyn_obs=np.array([1.0, 2.0, 3.0], dtype=np.float32),
         refs=np.zeros(0, dtype=np.int64),
         pay=np.zeros(0, dtype=np.float32),
+        static=np.zeros(0, dtype=np.int32),
     )
     encoded = encode_infer_request(req)
     reader = io.BytesIO(encoded)
@@ -148,6 +152,7 @@ def test_encode_request_bad_static_hash_size():
         dyn_obs=np.zeros(0, dtype=np.float32),
         refs=np.zeros(0, dtype=np.int64),
         pay=np.zeros(0, dtype=np.float32),
+        static=np.zeros(0, dtype=np.int32),
     )
     with pytest.raises(ValueError, match='static_hash must be 16'):
         encode_infer_request(req)
@@ -163,9 +168,11 @@ def test_decode_response_unknown_status_raises():
 def test_constants_match_go_layout():
     """Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
     drift 时一边改一边漏。"""
-    assert HEADER_SIZE == 32
+    # Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
+    # drift。 v2 schema: header = 2+16+4+4+2+2+2+2 = 34 bytes;v1 was 32.
+    assert HEADER_SIZE == 34
     assert RESPONSE_HEADER_SIZE == 3
     assert STATIC_HASH_SIZE == 16
-    assert WIRE_VERSION == 1
+    assert WIRE_VERSION == 2
     assert INFER_STATUS_OK == 0
     assert INFER_STATUS_ERR == 1
