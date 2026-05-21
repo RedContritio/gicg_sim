@@ -146,11 +146,14 @@ class _DMCObsDictRemoteProvider:
             static = env.static_obs if hasattr(env, 'static_obs') else env._get_static_obs()
             self._static_obs_np = np.ascontiguousarray(static, dtype=np.float32)
             # Hash the canonical bytes (fixed dtype) so two actors with the
-            # same scenario produce the same key. 16-byte blake2b is fast
-            # (~3 ms on 1 MB) + collision-safe enough for this cache.
+            # same scenario produce the same key. 16-byte sha256-truncated
+            # (sha256[:16]) used so Go actor side(I29)能用 crypto/sha256 stdlib
+            # 算同 hash 而不引入 blake2b external dep。 Collision-safe enough for
+            # this cache;2^64 birthday bound on 16-byte trunc remains > production
+            # scenario diversity by many OOMs。
             import hashlib
 
-            self._static_obs_hash = hashlib.blake2b(self._static_obs_np.tobytes(), digest_size=16).digest()
+            self._static_obs_hash = hashlib.sha256(self._static_obs_np.tobytes()).digest()[:16]
             self._static_np_fields = _encode_static_np(
                 self._static_obs_np,
                 n_counter_slots=self.n_counter_slots,
@@ -262,4 +265,3 @@ def build_dmc_provider(cfg: Any, actor_id: int, *, inference_client: Any = None)
             f'and pass it via actor_kwargs_factory.'
         )
     return _DMCObsDictRemoteProvider(cfg=cfg, actor_id=actor_id, client=inference_client)
-
