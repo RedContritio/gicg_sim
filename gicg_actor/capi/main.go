@@ -28,9 +28,12 @@ import "C"
 import (
 	"gicg_mono/gicg_actor"
 	// Side-effect imports: trigger per-paradigm registration via init()。
-	// 加 paradigm 在此加一行 import,自动注册;P2 ship 顺序:DMC ✓ AZ ✓ PPO / CFR / BC。
+	// 加 paradigm 在此加一行 import,自动注册。 I29 收敛 scope:DMC ✓ AZ scaffold
+	// PPO scaffold;CFR (frozen-research tier) + BC (dataset-driven 无 episode 生成)
+	// 不纳入 Go port(D12 决策 2026-05-22)。
 	_ "gicg_mono/gicg_actor/az"
 	_ "gicg_mono/gicg_actor/dmc"
+	_ "gicg_mono/gicg_actor/ppo"
 )
 
 // main 必需(go build -buildmode=c-shared 要求 main package),但 c-shared 模式下不执行。
