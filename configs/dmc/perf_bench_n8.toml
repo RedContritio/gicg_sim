@@ -1,0 +1,23 @@
+# DMC mp benchmark cfg — N=8 actor production scale。
+#
+# Extends stage3_b_v_legacy.toml(d_model=128, n_cross_layers=2, v_legacy 全 pool,
+# mp_*_path factories)。Override num_actors=8 + total_frames=10000 让 wall ~3-5 min,
+# 采 fps + mem 稳态。对照 backlog I24/I25:N=8 fps 29.5 → 33.1 + Total mem 37 → 8 GB。
+
+[meta]
+extends = "stage3_b_v_legacy.toml"
+paradigm = "dmc"
+run_label = "dmc_perf_bench_n8"
+host = "remote"
+
+[remote]
+ssh = "dev@192.168.31.56"
+root = "D:/gicg_dev"
+os = "windows"
+hostname = "DESKTOP-GHJCC7Q"
+
+[pipeline]
+num_actors = 8
+
+[paradigm.dmc]
+total_frames = 10_000
