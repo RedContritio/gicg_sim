@@ -47,16 +47,20 @@
       thread 在 InfServer 子进程内启动,闭包共享 network + shared_cache
 - [x] T-1.13 InfServer socket protocol 单测(test_inference_server_socket_integration.py)
 
-### P1.4 Python backend wiring(~700 LOC across 7 commits)— SUBSTANTIAL DONE
+### P1.4 Python backend wiring(~900 LOC across 9 commits)— DONE
 
 - [~] T-1.14 ActorBackend Protocol — DEFERRED 到 P2(DMC Go path 已闭环,Protocol 抽象 ROI 在
       P2 多 paradigm 时显现)
 - [~] T-1.15 PythonActorBackend — DEFERRED 同 T-1.14
 - [x] T-1.16 GoActorBackend.start_with_config — ctypes start_pool_v2 + paradigm_cfg JSON 传递
 - [x] T-1.17 transition_sink_wire + listener + DMC self-contained payload(自包含 transition
-      含 dyn + refs + pay + static for first transition,N* 字段 u32 防 overflow)
-- [x] T-1.18 schema 加字段 — DEFERRED 到完整 collector switch(实际 stage3 cfg 走 ParadigmConfigJSON
-      足够);DMC Go path 已可端到端通过 paradigm_cfg dict 启动
+      含 dyn + refs + pay + static for first transition,N* 字段 u32 防 overflow)+ Python
+      DmcTransitionAssembler 重组 episode → DmcTransition + winner
+- [x] **P1.4i**(2026-05-22):DMCGoActorCollector 闭环 — InferServer + socket listener +
+      GoActorBackend + TransitionSink + DmcTransitionAssembler 5 组件绑成 Collector,
+      实现完整 collect / sync_weights / close / state_dict 协议,e2e smoke 验证
+      DmcTransition obs_dict 16 字段全在 + winner ∈ {-1, 0, 1}
+- [~] T-1.18 cfg.pipeline.actor_backend schema — DEFERRED 到 P2 多 paradigm 时一起 ship
 
 ### P1.5 Mac smoke verify + Win box prep — MAC DONE / WIN 待 USER 实测
 
