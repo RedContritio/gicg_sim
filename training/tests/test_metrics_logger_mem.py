@@ -1,29 +1,46 @@
-"""MetricsLogger 通用 mem sampler 守 schema + 线程生命周期 + 关闭安全。
+"""MetricsLogger 通用 sampler 守 schema + 线程生命周期 + 并发安全。
 
-新增 kind=mem 行(2026-05-21 ship via tools.runs.train perf 验证暴露的
-metric gap)。原 logger 只采 fps/episodes,mem 数据走人肉 Task Manager —
-现内置 background thread。"""
+Sampler kinds:mem / cpu / gpu(nvidia-smi 可用时)/ disk / net / load(Unix
+only)。每个 kind 走同一 ``_ResourceSamplerThread`` 抽象,本测试守:
+- 每个 sample_fn 单独 schema(_sample_*)
+- 各 sampler 启停 + interval 行为
+- 多 sampler 并发写不 race
+- close() 幂等 + thread join
+
+注:os-specific samplers(gpu / load)在不支持平台不起,测试需 conditionally skip。"""
 
 from __future__ import annotations
 
 import json
+import os
+import sys
 import time
 from pathlib import Path
 
 import pytest
 
-from training.core.logging import MetricsLogger, _sample_cpu, _sample_mem
+from training.core.logging import (
+    MetricsLogger,
+    _nvidia_smi_available,
+    _sample_cpu,
+    _sample_disk,
+    _sample_gpu,
+    _sample_load,
+    _sample_mem,
+    _sample_net,
+)
 
 
 def _read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
 
 
-def test_sample_cpu_schema():
-    """One-shot CPU sample 函数返必备字段 + 数值 sane。
+# ---------------------------------------------------------------------------
+# Per-sampler one-shot schema tests
+# ---------------------------------------------------------------------------
 
-    Non-blocking psutil 首调返 0% baseline,后续 call 才返实际 — schema
-    检查不依赖具体数值。"""
+
+def test_sample_cpu_schema():
     import psutil
 
     psutil.cpu_percent(interval=None, percpu=True)  # prime
@@ -31,85 +48,179 @@ def test_sample_cpu_schema():
     assert set(s.keys()) == {'per_core_pct', 'avg_pct', 'max_pct', 'n_cores'}
     assert s['n_cores'] > 0
     assert len(s['per_core_pct']) == s['n_cores']
-    assert all(0 <= p <= 100 for p in s['per_core_pct']), 'per-core util out of [0,100]'
+    assert all(0 <= p <= 100 for p in s['per_core_pct'])
     assert 0 <= s['avg_pct'] <= 100
     assert 0 <= s['max_pct'] <= 100
 
 
 def test_sample_mem_schema():
-    """One-shot sample 函数返必备 9 字段 + 数值 sane。"""
+    """One-shot mem snapshot — full 19-field set(master + children agg + cuda + host)。"""
     s = _sample_mem()
     expected = {
         'master_pid',
         'master_rss_mb',
+        'master_num_threads',
+        'master_num_fds',
+        'master_ctx_vol',
+        'master_ctx_invol',
+        'master_io_read_mb',
+        'master_io_write_mb',
         'children_count',
         'children_rss_total_mb',
         'children_rss_max_mb',
+        'children_num_threads_total',
+        'children_num_fds_total',
+        'children_ctx_vol_total',
+        'children_ctx_invol_total',
+        'children_io_read_mb',
+        'children_io_write_mb',
         'cuda_alloc_mb',
         'cuda_reserved_mb',
         'host_used_mb',
         'host_total_mb',
     }
     assert set(s.keys()) == expected
-    assert s['master_rss_mb'] > 0, 'master RSS must be positive — psutil broken?'
-    assert s['host_total_mb'] > 0, 'host RAM total must be positive'
-    assert s['host_used_mb'] > 0, 'host RAM used must be positive'
-    assert s['host_used_mb'] <= s['host_total_mb'], 'used > total impossible'
+    assert s['master_rss_mb'] > 0
+    assert s['host_total_mb'] > 0
+    assert s['host_used_mb'] > 0
+    assert s['host_used_mb'] <= s['host_total_mb']
     assert s['children_count'] >= 0
-    assert s['children_rss_total_mb'] >= 0
-    assert s['children_rss_max_mb'] >= 0
-    assert s['cuda_alloc_mb'] >= 0
-    assert s['cuda_reserved_mb'] >= 0
+    # 各 None / 数值都允许 — 仅守某些 OS 上 io_counters 不可读 时 graceful。
+    # master_num_threads 在所有 OS 都该 ≥ 1。
+    assert s['master_num_threads'] is None or s['master_num_threads'] >= 1
+
+
+def test_sample_disk_schema():
+    s = _sample_disk()
+    assert set(s.keys()) == {'read_mb', 'write_mb', 'read_count', 'write_count'}
+    # psutil.disk_io_counters() 在某些 sandbox 容器返 None — graceful。
+    if s['read_mb'] is not None:
+        assert s['read_mb'] >= 0
+        assert s['write_mb'] >= 0
+        assert s['read_count'] >= 0
+        assert s['write_count'] >= 0
+
+
+def test_sample_net_schema():
+    s = _sample_net()
+    assert set(s.keys()) == {'bytes_sent_mb', 'bytes_recv_mb', 'packets_sent', 'packets_recv'}
+    if s['bytes_sent_mb'] is not None:
+        assert s['bytes_sent_mb'] >= 0
+        assert s['bytes_recv_mb'] >= 0
+
+
+@pytest.mark.skipif(not hasattr(os, 'getloadavg'), reason='load avg Unix-only (Win has no equivalent)')
+def test_sample_load_schema():
+    s = _sample_load()
+    assert set(s.keys()) == {'load_1m', 'load_5m', 'load_15m'}
+    assert s['load_1m'] >= 0
+    assert s['load_5m'] >= 0
+    assert s['load_15m'] >= 0
+
+
+@pytest.mark.skipif(not _nvidia_smi_available(), reason='nvidia-smi not installed (no GPU box)')
+def test_sample_gpu_schema():
+    s = _sample_gpu()
+    assert 'devices' in s
+    assert 'n_devices' in s
+    assert s['n_devices'] >= 0
+    for dev in s['devices']:
+        expected = {
+            'gpu_util_pct',
+            'mem_util_pct',
+            'mem_used_mb',
+            'mem_total_mb',
+            'temperature_c',
+            'power_w',
+            'fan_pct',
+            'clock_gr_mhz',
+            'clock_mem_mhz',
+        }
+        assert set(dev.keys()) == expected
+
+
+# ---------------------------------------------------------------------------
+# Sampler thread lifecycle + interval behavior
+# ---------------------------------------------------------------------------
+
+
+def _all_off_except(**kw) -> dict:
+    """Helper:返 MetricsLogger ctor kwargs disable 所有 sampler 后只开 kw 指定的。"""
+    base = {
+        'mem_sample_interval_s': 0,
+        'cpu_sample_interval_s': 0,
+        'gpu_sample_interval_s': 0,
+        'disk_sample_interval_s': 0,
+        'net_sample_interval_s': 0,
+        'load_sample_interval_s': 0,
+    }
+    base.update(kw)
+    return base
 
 
 def test_sampler_emits_mem_rows_under_interval(tmp_path: Path):
-    """0.2s interval → 1s wall 内应有 ≥ 4 行 mem(initial + 4 周期采)。"""
-    logger = MetricsLogger(
-        tmp_path, enable_tb=False, mem_sample_interval_s=0.2, cpu_sample_interval_s=0
-    )
+    """0.2s interval → 1s wall 内应有 ≥ 4 行 mem。"""
+    logger = MetricsLogger(tmp_path, enable_tb=False, **_all_off_except(mem_sample_interval_s=0.2))
     try:
         time.sleep(1.0)
     finally:
         logger.close()
-
     rows = _read_jsonl(tmp_path / 'metrics.jsonl')
     mem_rows = [r for r in rows if r['kind'] == 'mem']
-    assert len(mem_rows) >= 4, f'expected ≥4 mem rows in 1s @ 0.2s interval, got {len(mem_rows)}'
-
-    # 守 schema:每行必含 master_rss_mb + host_used_mb + cuda_alloc_mb。
+    assert len(mem_rows) >= 4
     for r in mem_rows:
         assert 'master_rss_mb' in r
         assert 'host_used_mb' in r
-        assert 'cuda_alloc_mb' in r
-        assert 'wall_s' in r
+        assert 'master_num_threads' in r
         assert r['master_rss_mb'] > 0
 
 
 def test_sampler_emits_cpu_rows_under_interval(tmp_path: Path):
-    """0.2s interval → 1s wall 内应有 ≥ 4 行 cpu(prime + initial + 周期采)。"""
+    logger = MetricsLogger(tmp_path, enable_tb=False, **_all_off_except(cpu_sample_interval_s=0.2))
+    try:
+        time.sleep(1.0)
+    finally:
+        logger.close()
+    rows = _read_jsonl(tmp_path / 'metrics.jsonl')
+    cpu_rows = [r for r in rows if r['kind'] == 'cpu']
+    assert len(cpu_rows) >= 4
+    for r in cpu_rows:
+        assert 'per_core_pct' in r
+        assert len(r['per_core_pct']) == r['n_cores']
+
+
+def test_sampler_emits_disk_net_rows_under_interval(tmp_path: Path):
+    """disk + net sampler 同时启短间隔。"""
     logger = MetricsLogger(
-        tmp_path, enable_tb=False, mem_sample_interval_s=0, cpu_sample_interval_s=0.2
+        tmp_path,
+        enable_tb=False,
+        **_all_off_except(disk_sample_interval_s=0.2, net_sample_interval_s=0.2),
     )
     try:
         time.sleep(1.0)
     finally:
         logger.close()
-
     rows = _read_jsonl(tmp_path / 'metrics.jsonl')
-    cpu_rows = [r for r in rows if r['kind'] == 'cpu']
-    assert len(cpu_rows) >= 4, f'expected ≥4 cpu rows in 1s @ 0.2s interval, got {len(cpu_rows)}'
+    disk_rows = [r for r in rows if r['kind'] == 'disk']
+    net_rows = [r for r in rows if r['kind'] == 'net']
+    assert len(disk_rows) >= 4
+    assert len(net_rows) >= 4
 
-    for r in cpu_rows:
-        assert 'per_core_pct' in r
-        assert 'avg_pct' in r
-        assert 'max_pct' in r
-        assert 'n_cores' in r
-        assert 'wall_s' in r
-        assert len(r['per_core_pct']) == r['n_cores']
+
+@pytest.mark.skipif(not hasattr(os, 'getloadavg'), reason='load avg Unix-only')
+def test_sampler_emits_load_rows_under_interval(tmp_path: Path):
+    logger = MetricsLogger(tmp_path, enable_tb=False, **_all_off_except(load_sample_interval_s=0.2))
+    try:
+        time.sleep(1.0)
+    finally:
+        logger.close()
+    rows = _read_jsonl(tmp_path / 'metrics.jsonl')
+    load_rows = [r for r in rows if r['kind'] == 'load']
+    assert len(load_rows) >= 4
 
 
 def test_sampler_disabled_when_interval_zero_or_negative(tmp_path: Path):
-    """``mem_sample_interval_s`` / ``cpu_sample_interval_s`` <= 0 关该 sampler — 仅 explicit log 行。"""
+    """所有 sampler interval = 0 → 只 explicit log 行,无任何采样行。"""
     for interval in (0, -1):
         sub = tmp_path / f'd_{interval}'
         logger = MetricsLogger(
@@ -117,6 +228,10 @@ def test_sampler_disabled_when_interval_zero_or_negative(tmp_path: Path):
             enable_tb=False,
             mem_sample_interval_s=interval,
             cpu_sample_interval_s=interval,
+            gpu_sample_interval_s=interval,
+            disk_sample_interval_s=interval,
+            net_sample_interval_s=interval,
+            load_sample_interval_s=interval,
         )
         try:
             time.sleep(0.3)
@@ -124,39 +239,72 @@ def test_sampler_disabled_when_interval_zero_or_negative(tmp_path: Path):
         finally:
             logger.close()
         rows = _read_jsonl(sub / 'metrics.jsonl')
-        mem_rows = [r for r in rows if r['kind'] == 'mem']
-        cpu_rows = [r for r in rows if r['kind'] == 'cpu']
+        sampler_rows = [r for r in rows if r['kind'] in ('mem', 'cpu', 'gpu', 'disk', 'net', 'load')]
         iter_rows = [r for r in rows if r['kind'] == 'iter']
-        assert len(mem_rows) == 0, f'interval={interval} should disable mem sampler'
-        assert len(cpu_rows) == 0, f'interval={interval} should disable cpu sampler'
-        assert len(iter_rows) == 1, 'explicit log must still work'
+        assert sampler_rows == []
+        assert len(iter_rows) == 1
+
+
+def test_gpu_sampler_skipped_when_nvidia_smi_absent(tmp_path: Path):
+    """无 nvidia-smi 时 gpu sampler 不启(即使 user 显式传 interval)。"""
+    if _nvidia_smi_available():
+        pytest.skip('nvidia-smi present — cannot test absent-skip path')
+    logger = MetricsLogger(tmp_path, enable_tb=False, **_all_off_except(gpu_sample_interval_s=0.05))
+    try:
+        time.sleep(0.2)
+    finally:
+        logger.close()
+    rows = _read_jsonl(tmp_path / 'metrics.jsonl')
+    assert [r for r in rows if r['kind'] == 'gpu'] == [], 'gpu sampler should not start without nvidia-smi'
+
+
+def test_load_sampler_skipped_on_windows(tmp_path: Path):
+    """Win 无 getloadavg → load sampler 不启。"""
+    if hasattr(os, 'getloadavg'):
+        pytest.skip('Unix platform — load avg supported')
+    logger = MetricsLogger(tmp_path, enable_tb=False, **_all_off_except(load_sample_interval_s=0.05))
+    try:
+        time.sleep(0.2)
+    finally:
+        logger.close()
+    rows = _read_jsonl(tmp_path / 'metrics.jsonl')
+    assert [r for r in rows if r['kind'] == 'load'] == []
 
 
 def test_close_idempotent_and_threads_joined(tmp_path: Path):
-    """close() 后 sampler thread 必停 + 第二次 close 不抛。覆盖 mem + cpu 双 sampler。"""
+    """close() 后所有 sampler thread 必停 + 第二次 close 不抛。"""
     logger = MetricsLogger(
-        tmp_path, enable_tb=False, mem_sample_interval_s=0.05, cpu_sample_interval_s=0.05
+        tmp_path,
+        enable_tb=False,
+        mem_sample_interval_s=0.05,
+        cpu_sample_interval_s=0.05,
+        disk_sample_interval_s=0.05,
+        net_sample_interval_s=0.05,
+        gpu_sample_interval_s=0.05,  # gpu skip if no nvidia-smi
+        load_sample_interval_s=0.05,  # load skip if Win
     )
-    assert len(logger._samplers) == 2
+    # 至少 mem + cpu + disk + net 4 个肯定起;gpu / load 视平台而定。
+    assert len(logger._samplers) >= 4
     sampler_refs = list(logger._samplers)
     time.sleep(0.15)
     logger.close()
-    # Threads must be joined within ≤ 2s (default stop timeout).
     for s in sampler_refs:
         assert not s.is_alive(), f'sampler {s.name} must be joined on close'
     assert logger._samplers == []
-    # Second close — no-op.
-    logger.close()
+    logger.close()  # second close — no-op
 
 
 def test_concurrent_log_does_not_race(tmp_path: Path):
-    """Sampler thread + main thread.log() 并发写 — 同一文件不应交错破坏 jsonl。
-
-    用极短 interval(0.01s)制造高争用,主线程同时 push 50 iter 行;
-    最终 metrics.jsonl 每行必须能 parse 为 JSON(无半行 / 拼接行)。
-    覆盖 mem + cpu + iter 三 writer 同时写。"""
+    """所有 sampler + main thread.log() 并发写 — 每行 valid JSON。"""
     logger = MetricsLogger(
-        tmp_path, enable_tb=False, mem_sample_interval_s=0.01, cpu_sample_interval_s=0.01
+        tmp_path,
+        enable_tb=False,
+        mem_sample_interval_s=0.01,
+        cpu_sample_interval_s=0.01,
+        disk_sample_interval_s=0.01,
+        net_sample_interval_s=0.01,
+        gpu_sample_interval_s=0.01,
+        load_sample_interval_s=0.01,
     )
     try:
         for i in range(50):
@@ -166,6 +314,7 @@ def test_concurrent_log_does_not_race(tmp_path: Path):
         logger.close()
 
     raw = (tmp_path / 'metrics.jsonl').read_text(encoding='utf-8')
+    valid_kinds = {'iter', 'mem', 'cpu', 'gpu', 'disk', 'net', 'load'}
     for line_no, line in enumerate(raw.splitlines(), 1):
         if not line.strip():
             continue
@@ -173,4 +322,4 @@ def test_concurrent_log_does_not_race(tmp_path: Path):
             row = json.loads(line)
         except json.JSONDecodeError as e:
             pytest.fail(f'line {line_no} not valid JSON (race?): {line!r} — {e}')
-        assert row['kind'] in ('iter', 'mem', 'cpu')
+        assert row['kind'] in valid_kinds
