@@ -160,27 +160,96 @@ func BuildInferRequest(g *engine.Game, staticHash [16]byte, clientID, reqID uint
 	}
 }
 
-// EncodeMinimalTransitionPayload — minimal transition payload schema for Phase 1:
+// DmcTransitionHeader — DMC paradigm transition payload 固定头(declarative schema)。
 //
-//	[u32 chosen_action_idx][u32 step_in_episode][i32 reward_x1m] | dyn_obs raw bytes
+// binary.Write/Read 处理 byte offset,加字段在 struct 加一行即可,encode/decode 自动
+// follow。 同样 Python 端 _socket_decoder 用 struct format string 同步。
 //
-// Python collector 端 reconstruct DmcTransition by:
-//   - 从 static_obs_hash lookup static fields cache
-//   - dyn_obs raw bytes → np.frombuffer view
-//   - reward = reward_x1m / 1e6
-//   - 跟 Python `_capture_obs_np` 同 layout 拼装完整 obs_dict
+// 注意 Go struct field order = wire byte order,改顺序破坏协议。
+type DmcTransitionHeader struct {
+	ChosenAction uint32
+	StepInEp     uint32
+	RewardX1M    int32 // reward × 1e6 fixed-point (避 cross-lang nan-bits drift)
+	NLegal       uint16
+	NDyn         uint16
+	NRefs        uint16
+	NPay         uint16
+	NStatic      uint16 // 0 表示本 transition 不带 static_obs(Python 走 cache by StaticHash)
+	StaticHash   [16]byte
+}
+
+// EncodeDmcTransitionPayload — self-contained transition payload(每条 transition 包含
+// 所有 Python 重建 DmcTransition 所需 — dyn_obs + refs + pay + n_legal + chosen + reward
+// + static_hash;static_obs raw 仅在 episode 第一条 transition 携带,后续 NStatic=0
+// 让 Python 走 hash cache)。
 //
-// Phase 1 简化:每条 transition 只发 dyn_obs(不重发 refs/pay,Python 端从 hash cache 取
-// 上次 inference 用的 refs/pay)。 但本 schema 跟 Python 端配合需 P1.4 端到端验证 — 这里
-// 先 ship encoding 函数 + Go 单测,P1.4 时 Python 端 decode 对接。
-func EncodeMinimalTransitionPayload(dynObs []float32, chosenAction uint32, step uint32, reward float32) []byte {
-	out := make([]byte, 4+4+4+len(dynObs)*4)
-	binary.LittleEndian.PutUint32(out[0:4], chosenAction)
-	binary.LittleEndian.PutUint32(out[4:8], step)
-	rewardMicroI32 := int32(reward * 1e6)
-	binary.LittleEndian.PutUint32(out[8:12], uint32(rewardMicroI32))
+// Schema:
+//
+//	header = binary-encoded DmcTransitionHeader{ChosenAction, StepInEp, RewardX1M, NLegal,
+//	                                            NDyn, NRefs, NPay, NStatic, StaticHash}
+//	body   = dyn_obs (f32 ×N) || refs (i64 ×N) || pay (f32 ×N) || static (i32 ×N)
+func EncodeDmcTransitionPayload(
+	chosenAction uint32,
+	step uint32,
+	reward float32,
+	nLegal int,
+	dynObs []float32,
+	refs []int64,
+	pay []float32,
+	static []int32,
+	staticHash [16]byte,
+) []byte {
+	header := DmcTransitionHeader{
+		ChosenAction: chosenAction,
+		StepInEp:     step,
+		RewardX1M:    int32(reward * 1e6),
+		NLegal:       uint16(nLegal),
+		NDyn:         uint16(len(dynObs)),
+		NRefs:        uint16(len(refs)),
+		NPay:         uint16(len(pay)),
+		NStatic:      uint16(len(static)),
+		StaticHash:   staticHash,
+	}
+	headerSize := binary.Size(header)
+	body := headerSize + len(dynObs)*4 + len(refs)*8 + len(pay)*4 + len(static)*4
+	out := make([]byte, body)
+
+	// fixed header — 走 binary write to a bytes.Buffer 然后 copy。 也可用 unsafe.Pointer 一次 cast,
+	// 但 binary 路径跨架构/对齐 safer。
+	off := 0
+	binary.LittleEndian.PutUint32(out[off:], header.ChosenAction)
+	off += 4
+	binary.LittleEndian.PutUint32(out[off:], header.StepInEp)
+	off += 4
+	binary.LittleEndian.PutUint32(out[off:], uint32(header.RewardX1M))
+	off += 4
+	binary.LittleEndian.PutUint16(out[off:], header.NLegal)
+	off += 2
+	binary.LittleEndian.PutUint16(out[off:], header.NDyn)
+	off += 2
+	binary.LittleEndian.PutUint16(out[off:], header.NRefs)
+	off += 2
+	binary.LittleEndian.PutUint16(out[off:], header.NPay)
+	off += 2
+	binary.LittleEndian.PutUint16(out[off:], header.NStatic)
+	off += 2
+	copy(out[off:off+16], header.StaticHash[:])
+	off += 16
+	// body
 	if len(dynObs) > 0 {
-		copy(out[12:], unsafe.Slice((*byte)(unsafe.Pointer(&dynObs[0])), len(dynObs)*4))
+		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&dynObs[0])), len(dynObs)*4))
+		off += len(dynObs) * 4
+	}
+	if len(refs) > 0 {
+		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&refs[0])), len(refs)*8))
+		off += len(refs) * 8
+	}
+	if len(pay) > 0 {
+		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&pay[0])), len(pay)*4))
+		off += len(pay) * 4
+	}
+	if len(static) > 0 {
+		copy(out[off:], unsafe.Slice((*byte)(unsafe.Pointer(&static[0])), len(static)*4))
 	}
 	return out
 }

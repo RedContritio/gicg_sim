@@ -162,8 +162,8 @@ def test_listener_multi_client():
 
 
 def test_listener_dmc_payload_decode():
-    """Push DMC payload encoded bytes → callback 收到 → decode_dmc_payload 解出。"""
-    import struct
+    """Push DMC self-contained payload → callback 收到 → decode_dmc_payload 解出。"""
+    from training.core.actor.transition_sink_wire import encode_dmc_payload
 
     port = _free_port()
     received: list[Transition] = []
@@ -181,10 +181,18 @@ def test_listener_dmc_payload_decode():
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(('127.0.0.1', port))
         dyn = np.array([0.1, 0.2, 0.3], dtype=np.float32)
-        # DMC paradigm payload schema: [u32 chosen][u32 step][i32 reward_x1m] | dyn raw
-        dmc_payload = (
-            struct.pack('<II', 4, 2) + struct.pack('<i', 500_000) + dyn.tobytes()
-        )  # reward=0.5
+        refs = np.array([0, 1, 2], dtype=np.int64)
+        pay = np.array([0.5], dtype=np.float32)
+        dmc_payload = encode_dmc_payload(
+            chosen_action=4,
+            step_in_episode=2,
+            reward=0.5,
+            n_legal=2,
+            static_hash=b'\xde' * 16,
+            dyn_obs=dyn,
+            refs=refs,
+            pay=pay,
+        )
         t = Transition(client_id=0, episode_id=1, step=2, done=True, payload=dmc_payload)
         client.sendall(encode_transition(t))
         deadline = time.time() + 1.0
@@ -201,7 +209,10 @@ def test_listener_dmc_payload_decode():
         assert dmc.chosen_action == 4
         assert dmc.step_in_episode == 2
         assert dmc.reward == pytest.approx(0.5)
+        assert dmc.n_legal == 2
         np.testing.assert_array_equal(dmc.dyn_obs, dyn)
+        np.testing.assert_array_equal(dmc.refs, refs)
+        np.testing.assert_array_equal(dmc.pay, pay)
     finally:
         stop_listener(stop, thr)
 

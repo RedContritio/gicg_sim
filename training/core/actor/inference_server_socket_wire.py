@@ -47,7 +47,9 @@ INFER_STATUS_OK = 0
 INFER_STATUS_ERR = 1
 
 # Header 固定字段:struct 格式 + 字段名序列。 加字段在两处同步加一行即可。
-_HEADER_FMT = '<H 16s I I H H H H'
+# n_dyn/n_refs/n_pay/n_static 走 u32 — static_obs ~293K int32 超 u16,统一 u32 减
+# mixed schema burden(详 Go InferRequestHeader 注释)。
+_HEADER_FMT = '<H 16s I I I I I I'
 _HEADER_FIELDS = ('ver', 'static_hash', 'client_id', 'req_id', 'n_dyn', 'n_refs', 'n_pay', 'n_static')
 HEADER_SIZE = struct.calcsize(_HEADER_FMT)
 
@@ -101,8 +103,8 @@ def encode_infer_request(req: InferRequest) -> bytes:
     for name, dtype, count_field in _ARRAY_SPECS:
         arr = getattr(req, name)
         arr = np.ascontiguousarray(arr, dtype=dtype)
-        if len(arr) > 0xFFFF:
-            raise ValueError(f'{name} len {len(arr)} > u16 max')
+        if len(arr) > 0xFFFFFFFF:
+            raise ValueError(f'{name} len {len(arr)} > u32 max')
         arrays_data[name] = arr.tobytes() if len(arr) > 0 else b''
         counts[count_field] = len(arr)
 

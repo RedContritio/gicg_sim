@@ -56,33 +56,55 @@ func TestComputeStaticHash_EmptyInput(t *testing.T) {
 	_ = ComputeStaticHash([]int32{0})
 }
 
-// TestEncodeMinimalTransitionPayload_RoundTrip 守 transition payload 编码 layout。
-func TestEncodeMinimalTransitionPayload_RoundTrip(t *testing.T) {
+// TestEncodeDmcTransitionPayload_RoundTrip 守 self-contained transition payload 编码 layout。
+//
+// Schema:DmcTransitionHeader(38 bytes:chosen+step+reward+5×u16+16-byte hash)+
+// body(dyn + refs + pay + static)。
+func TestEncodeDmcTransitionPayload_RoundTrip(t *testing.T) {
 	dyn := []float32{1.5, -2.5, 0.0, 3.14}
-	payload := EncodeMinimalTransitionPayload(dyn, 7, 42, 0.001234)
+	refs := []int64{0, -1, 100, 200, 300, 400}
+	pay := []float32{0.1, 0.2, 0.3, 0.4}
+	static := []int32{42, -1, 7}
+	hash := [16]byte{0xaa, 0xbb}
 
-	// Layout: [4B action][4B step][4B reward_x1m_i32] | dyn raw bytes
-	expectedLen := 12 + len(dyn)*4
+	payload := EncodeDmcTransitionPayload(7, 42, 0.001234, 5, dyn, refs, pay, static, hash)
+
+	headerSize := binary.Size(DmcTransitionHeader{})
+	expectedLen := headerSize + len(dyn)*4 + len(refs)*8 + len(pay)*4 + len(static)*4
 	if len(payload) != expectedLen {
 		t.Fatalf("len: got %d, want %d", len(payload), expectedLen)
 	}
 	gotAction := binary.LittleEndian.Uint32(payload[0:4])
 	gotStep := binary.LittleEndian.Uint32(payload[4:8])
 	gotRewardMicro := int32(binary.LittleEndian.Uint32(payload[8:12]))
-	if gotAction != 7 {
-		t.Errorf("action: got %d, want 7", gotAction)
-	}
-	if gotStep != 42 {
-		t.Errorf("step: got %d, want 42", gotStep)
+	gotNLegal := binary.LittleEndian.Uint16(payload[12:14])
+	gotNDyn := binary.LittleEndian.Uint16(payload[14:16])
+	gotNRefs := binary.LittleEndian.Uint16(payload[16:18])
+	gotNPay := binary.LittleEndian.Uint16(payload[18:20])
+	gotNStatic := binary.LittleEndian.Uint16(payload[20:22])
+	if gotAction != 7 || gotStep != 42 {
+		t.Errorf("chosen/step: got (%d,%d), want (7,42)", gotAction, gotStep)
 	}
 	wantRewardMicro := int32(0.001234 * 1e6)
 	if gotRewardMicro != wantRewardMicro {
 		t.Errorf("reward_micro: got %d, want %d", gotRewardMicro, wantRewardMicro)
 	}
-	// dyn bytes round-trip
+	if int(gotNLegal) != 5 || int(gotNDyn) != len(dyn) || int(gotNRefs) != len(refs) ||
+		int(gotNPay) != len(pay) || int(gotNStatic) != len(static) {
+		t.Errorf("counts: got (legal=%d, dyn=%d, refs=%d, pay=%d, static=%d), want (5,%d,%d,%d,%d)",
+			gotNLegal, gotNDyn, gotNRefs, gotNPay, gotNStatic,
+			len(dyn), len(refs), len(pay), len(static))
+	}
+	// static_hash position 22..38
+	for i, b := range hash {
+		if payload[22+i] != b {
+			t.Errorf("static_hash[%d]: got %x, want %x", i, payload[22+i], b)
+		}
+	}
+	// dyn bytes round-trip(skip refs/pay/static — same bit-pattern test pattern)
+	off := headerSize
 	for i, v := range dyn {
-		off := 12 + i*4
-		gotBits := binary.LittleEndian.Uint32(payload[off : off+4])
+		gotBits := binary.LittleEndian.Uint32(payload[off+i*4 : off+i*4+4])
 		if gotBits != math.Float32bits(v) {
 			t.Errorf("dyn[%d]: got bits %x, want %x", i, gotBits, math.Float32bits(v))
 		}

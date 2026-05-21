@@ -53,15 +53,19 @@ const (
 // InferRequestHeader 是 wire 上的固定头(无 array body)。 binary.Read/Write
 // 处理 offset — 加字段在此 struct 加一行,encode/decode 自动 follow。
 // 注意 Go struct field order = wire byte order,改顺序破坏协议。
+//
+// NDyn/NRefs/NPay/NStatic 走 u32 — static_obs 实测可达 ~293K int32(ObsMaxHooks ×
+// ObsIntsPerHook 主导,DSL 复杂场景),u16 65535 不够。 统一 u32 而非 mixed u16/u32
+// 减少协议设计 burden,4 字节/header 微不足道。
 type InferRequestHeader struct {
 	Ver        uint16
 	StaticHash [16]byte
 	ClientID   uint32
 	ReqID      uint32
-	NDyn       uint16
-	NRefs      uint16
-	NPay       uint16
-	NStatic    uint16
+	NDyn       uint32
+	NRefs      uint32
+	NPay       uint32
+	NStatic    uint32
 }
 
 // HeaderSize is derived from the struct layout (no manual byte counting)。
@@ -98,27 +102,15 @@ type InferResponse struct {
 // EncodeInferRequest 把 InferRequest 序列化成 raw bytes(含 outer length prefix)。
 // 走 binary.Write 写 fixed header(无 byte counting)+ raw bytes append 写 array bodies。
 func EncodeInferRequest(req *InferRequest) ([]byte, error) {
-	if len(req.DynObs) > 0xFFFF {
-		return nil, fmt.Errorf("encode: dyn_obs len %d > u16 max", len(req.DynObs))
-	}
-	if len(req.Refs) > 0xFFFF {
-		return nil, fmt.Errorf("encode: refs len %d > u16 max", len(req.Refs))
-	}
-	if len(req.Pay) > 0xFFFF {
-		return nil, fmt.Errorf("encode: pay len %d > u16 max", len(req.Pay))
-	}
-	if len(req.Static) > 0xFFFF {
-		return nil, fmt.Errorf("encode: static len %d > u16 max", len(req.Static))
-	}
 	header := InferRequestHeader{
 		Ver:        WireVersion,
 		StaticHash: req.StaticHash,
 		ClientID:   req.ClientID,
 		ReqID:      req.ReqID,
-		NDyn:       uint16(len(req.DynObs)),
-		NRefs:      uint16(len(req.Refs)),
-		NPay:       uint16(len(req.Pay)),
-		NStatic:    uint16(len(req.Static)),
+		NDyn:       uint32(len(req.DynObs)),
+		NRefs:      uint32(len(req.Refs)),
+		NPay:       uint32(len(req.Pay)),
+		NStatic:    uint32(len(req.Static)),
 	}
 
 	var buf bytes.Buffer

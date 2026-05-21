@@ -169,8 +169,8 @@ def test_constants_match_go_layout():
     """Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
     drift 时一边改一边漏。"""
     # Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
-    # drift。 v2 schema: header = 2+16+4+4+2+2+2+2 = 34 bytes;v1 was 32.
-    assert HEADER_SIZE == 34
+    # drift。 v2 schema u32 array lens: header = 2+16+4+4+4+4+4+4 = 42 bytes。
+    assert HEADER_SIZE == 42
     assert RESPONSE_HEADER_SIZE == 3
     assert STATIC_HASH_SIZE == 16
     assert WIRE_VERSION == 2

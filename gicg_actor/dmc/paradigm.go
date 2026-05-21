@@ -206,6 +206,13 @@ func (p *DMCParadigm) runEpisode(
 		acting := g.ActingPlayer()
 		var chosen int
 		var pushTrans bool
+		// preStep* 在 actor turn 时捕获 pre-step obs/refs/pay/n_legal,Step 之后 push
+		// transition 用(Python DMC trainer 需 pre-step state + chosen action + post-step
+		// reward 重建 DmcTransition)。 opp turn 时 nil — 不 push transition for opp。
+		var preStepDyn []float32
+		var preStepRefs []int64
+		var preStepPay []float32
+		var preStepNLegal int
 		if acting == me {
 			if infCli == nil {
 				return fmt.Errorf("inference client nil on actor turn")
@@ -228,6 +235,12 @@ func (p *DMCParadigm) runEpisode(
 			if chosen < 0 || chosen >= len(actions) {
 				return fmt.Errorf("action selection produced out-of-range idx=%d (n=%d)", chosen, len(actions))
 			}
+			// 捕获 pre-step state for transition push(BuildInferRequest 已算了 dyn/refs/pay,
+			// 复用 req fields 而非二次算 — 跟 inference 用同一份 obs guarantee 一致)。
+			preStepDyn = req.DynObs
+			preStepRefs = req.Refs
+			preStepPay = req.Pay
+			preStepNLegal = len(actions)
 			pushTrans = transWri != nil
 		} else {
 			c, err := gp.SelectAction(rt)
@@ -235,14 +248,6 @@ func (p *DMCParadigm) runEpisode(
 				return fmt.Errorf("opp greedy step=%d: %w", step, err)
 			}
 			chosen = c
-		}
-
-		// reward 计 step pre/post(only for actor's own steps);DMC reward 用 terminal 0/+1/-1
-		// + 中途 0,所以 transition push 时 reward=0 — final transition 用 winner 推。
-		dynInt32 := g.BuildDynamicObs(me)
-		dynF32 := make([]float32, len(dynInt32))
-		for i, v := range dynInt32 {
-			dynF32[i] = float32(v)
 		}
 
 		g.Step(chosen)
@@ -253,7 +258,16 @@ func (p *DMCParadigm) runEpisode(
 			if done {
 				reward = terminalReward(g, me)
 			}
-			payload := EncodeMinimalTransitionPayload(dynF32, uint32(chosen), step, reward)
+			// First transition per episode 携带 static_obs raw int32;后续 NStatic=0 由
+			// Python 端 cache by static_hash 解。 跟 InferRequest 的 cache 策略 mirror。
+			var staticForTrans []int32
+			if step == 0 {
+				staticForTrans = staticInt32
+			}
+			payload := EncodeDmcTransitionPayload(
+				uint32(chosen), step, reward, preStepNLegal,
+				preStepDyn, preStepRefs, preStepPay, staticForTrans, staticHash,
+			)
 			tx := &gicg_actor.Transition{
 				ClientID:  clientID,
 				EpisodeID: episodeID,
