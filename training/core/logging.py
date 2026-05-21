@@ -311,6 +311,48 @@ class _ResourceSamplerThread(threading.Thread):
         self._logger.log(self._kind, payload)
 
 
+class _QueueDrainerThread(threading.Thread):
+    """Daemon thread draining (kind, payload) tuples from a cross-process
+    queue + forwarding each to ``logger.log(kind, payload)``。
+
+    用于跨进程 stats push:子进程(InfServer / actor)主动 push 自己采的指标
+    到这条 mp.Queue,master process 的 logger 起本 thread drain,无需子进程
+    直接持 metrics.jsonl 文件句柄 — 文件 locking 跨进程在 Win 不可靠,本
+    模式让所有写都在 master 走 _write_lock。
+
+    支持的 queue 接口:任何 ``get(timeout=N)`` / ``empty()`` 兼容(mp.Queue,
+    queue.Queue,Manager.Queue 都行)。empty 时 thread 用 0.1s timeout
+    polling — 不阻塞 stop()。stop() 设 Event,run() loop 每 iter 检。
+
+    Queue item 形状必须是 ``(kind: str, payload: dict)`` 二元组;不合规
+    silently drop(防 stats push 端 bug kill drainer)。"""
+
+    def __init__(self, logger: 'MetricsLogger', queue, name: str = 'external') -> None:
+        super().__init__(name=f'MetricsLoggerQueueDrainer-{name}', daemon=True)
+        self._logger = logger
+        self._queue = queue
+        self._source_name = name
+        self._stop_event = threading.Event()
+
+    def stop(self, timeout: float = 2.0) -> None:
+        self._stop_event.set()
+        if self.is_alive():
+            self.join(timeout=timeout)
+
+    def run(self) -> None:
+        while not self._stop_event.is_set():
+            try:
+                item = self._queue.get(timeout=0.1)
+            except Exception:  # noqa: BLE001 — queue.Empty / OSError / EOFError
+                continue
+            if not isinstance(item, tuple) or len(item) != 2:
+                continue
+            kind, payload = item
+            if not isinstance(kind, str) or not isinstance(payload, dict):
+                continue
+            self._logger.log(kind, payload)
+
+
 # ---------------------------------------------------------------------------
 # MetricsLogger
 # ---------------------------------------------------------------------------
@@ -357,6 +399,7 @@ class MetricsLogger:
         self._t_start = time.perf_counter()
         self._write_lock = threading.Lock()
         self._samplers: list[_ResourceSamplerThread] = []
+        self._drainers: list[_QueueDrainerThread] = []
 
         if self.artifacts_dir is not None:
             self.artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -386,6 +429,19 @@ class MetricsLogger:
             # Load avg only on Unix.
             if hasattr(os, 'getloadavg'):
                 self._maybe_start_sampler('load', load_sample_interval_s, self.DEFAULT_LOAD_INTERVAL_S, _sample_load)
+
+    def attach_external_queue(self, queue, name: str = 'external') -> None:
+        """Register a cross-process queue + spawn a drainer thread。 子进程
+        (e.g. InferenceServer)主动 push ``(kind, payload)`` tuple 到该
+        queue,本 thread drain 并写入 metrics.jsonl(同 ``_write_lock`` 保护)。
+
+        ``name`` 仅用于 thread name 调试,不影响 metrics.jsonl 内容(kind
+        由 push 端决定)。"""
+        if self._metrics_fh is None:
+            return
+        t = _QueueDrainerThread(self, queue, name=name)
+        self._drainers.append(t)
+        t.start()
 
     def _maybe_start_sampler(
         self,
@@ -440,10 +496,13 @@ class MetricsLogger:
             self._tb_writer.add_scalar(tag, value, step)
 
     def close(self) -> None:
-        # Stop samplers first so no concurrent write races the close().
+        # Stop samplers + drainers first so no concurrent write races the close().
         for s in self._samplers:
             s.stop()
         self._samplers.clear()
+        for d in self._drainers:
+            d.stop()
+        self._drainers.clear()
         if self._metrics_fh is not None:
             with self._write_lock:
                 self._metrics_fh.close()

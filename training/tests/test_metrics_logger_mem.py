@@ -294,6 +294,36 @@ def test_close_idempotent_and_threads_joined(tmp_path: Path):
     logger.close()  # second close — no-op
 
 
+def test_attach_external_queue_drains_to_metrics_jsonl(tmp_path: Path):
+    """attach_external_queue + push tuple → drainer thread 写入 metrics.jsonl。
+
+    用标准库 ``queue.Queue`` 替代 mp.Queue(线程版,接口兼容,测试不用 spawn
+    subprocess)。守 (kind, payload) 格式行抵达 + 错误 item 被 silently dropped。"""
+    import queue as q_mod
+
+    q = q_mod.Queue()
+    logger = MetricsLogger(tmp_path, enable_tb=False, **_all_off_except())
+    logger.attach_external_queue(q, name='unit_test')
+    try:
+        q.put(('inf_server', {'queue_depth_avg': 3.5, 'batch_size_avg': 8.0}))
+        q.put(('inf_server', {'queue_depth_avg': 4.0, 'batch_size_avg': 9.0}))
+        # Garbage shapes — should be silently dropped:
+        q.put('not_a_tuple')
+        q.put(('bad', 'payload_not_dict'))
+        q.put(('only_one_field',))
+        time.sleep(0.3)  # drainer poll = 0.1s
+    finally:
+        logger.close()
+
+    rows = _read_jsonl(tmp_path / 'metrics.jsonl')
+    inf_rows = [r for r in rows if r['kind'] == 'inf_server']
+    assert len(inf_rows) == 2
+    assert inf_rows[0]['queue_depth_avg'] == 3.5
+    assert inf_rows[1]['batch_size_avg'] == 9.0
+    # 不该有 garbage 行。
+    assert all(r['kind'] in ('inf_server',) for r in rows)
+
+
 def test_concurrent_log_does_not_race(tmp_path: Path):
     """所有 sampler + main thread.log() 并发写 — 每行 valid JSON。"""
     logger = MetricsLogger(

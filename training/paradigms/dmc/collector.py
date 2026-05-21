@@ -189,6 +189,18 @@ class DMCMultiProcessCollector:
         self._spawned = False
         self._inference_server: Optional[Any] = None
         self._inference_clients: list = []
+        # InfServer stats hook — set via attach_metrics_logger(); _bootstrap
+        # wires a mp.Queue between InfServer 子进程 + master logger drainer。
+        self._metrics_logger: Optional[Any] = None
+
+    def attach_metrics_logger(self, logger: Any) -> None:
+        """Wire master MetricsLogger to drain InfServer stats — kind="inf_server"
+        rows入 metrics.jsonl(queue_depth / batch_size / process_ms / batches_per_sec
+        etc.,每 5s aggregate)。 Idempotent before _bootstrap;after spawn
+        无效(InfServer 已起,stats_q 已固定)。"""
+        if self._spawned:
+            return
+        self._metrics_logger = logger
 
     def _bootstrap(self) -> None:
         """Publish initial weights, stand up shared InferenceServer + N
@@ -199,7 +211,9 @@ class DMCMultiProcessCollector:
         sd_cpu = {k: v.detach().cpu() for k, v in self.network.state_dict().items()}
         self.runtime.publish_weights(sd_cpu, version=self._weights_version)
         n_actors = int(getattr(self.cfg.pipeline, 'num_actors', 1))
-        self._inference_server, self._inference_clients = _spawn_inference_pool(self.cfg, self.network, n_actors)
+        self._inference_server, self._inference_clients = _spawn_inference_pool(
+            self.cfg, self.network, n_actors, metrics_logger=self._metrics_logger
+        )
         mp = 'training.paradigms.dmc.mp_factories'
         coll = 'training.paradigms.dmc.collector'
         base = {

@@ -50,13 +50,24 @@ def _dmc_build_provider(cfg: Any, actor_id: int):
     return _resolve_paradigm_factory(cfg, 'mp_provider_path')(cfg, actor_id)
 
 
-def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int) -> tuple:
+def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int, metrics_logger: Any = None) -> tuple:
+    from training.core.actor._mp_helpers import get_ctx
     from training.core.actor.inference_client import InferenceClient
     from training.core.actor.inference_server import InferenceServer
     from training.paradigms.dmc.inference_net import DMCInferenceNet
 
     device = str(getattr(cfg.meta, 'device', 'cpu'))
     actor_critic = network.agent.net if hasattr(network, 'agent') else network
+
+    # Stats wiring — 创建 cross-process queue 给 InfServer push 周期 aggregate
+    # 数据,master logger drainer thread 读 + log kind="inf_server" 行入
+    # metrics.jsonl(实测 perf 瓶颈位置的关键信号:queue_depth_avg /
+    # batching_efficiency / process_ms_avg)。
+    stats_q = None
+    if metrics_logger is not None:
+        stats_q = get_ctx().Queue(maxsize=1024)
+        metrics_logger.attach_external_queue(stats_q, name='inf_server')
+
     server = InferenceServer(
         DMCInferenceNet(actor_critic),
         device=device,
@@ -66,6 +77,8 @@ def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int) -> tuple:
         # tensor materialisation. See module docstring of
         # `training.paradigms.dmc.mp_factories`.
         request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
+        stats_q=stats_q,
+        stats_interval_s=5.0,
     )
     clients = [InferenceClient.attach_to_server(server, timeout_ms=30000) for _ in range(n_actors)]
     server.start(wait_ready_s=30.0)

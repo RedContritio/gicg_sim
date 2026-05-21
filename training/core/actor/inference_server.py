@@ -57,6 +57,8 @@ def _server_loop(
     stop_event,
     inference_acceleration: str = 'none',
     request_decoder_path: str = '',
+    stats_q=None,
+    stats_interval_s: float = 5.0,
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
@@ -87,6 +89,7 @@ def _server_loop(
     # 不用时操作系统能 reclaim。Win + CUDA 12.x+ 支持。
     # max_split_size_mb 限单个 allocation 上限 → 减少碎片,小模型更友好。
     import os as _os
+
     _os.environ.setdefault(
         'PYTORCH_CUDA_ALLOC_CONF',
         'expandable_segments:True,max_split_size_mb:128',
@@ -120,7 +123,77 @@ def _server_loop(
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
 
+    # Stats counters — 周期 aggregate 后 push 到 stats_q,master MetricsLogger
+    # 起 drainer thread 入 metrics.jsonl as kind="inf_server"。无 stats_q
+    # (test / 非 mp 路径)skip 所有 stats overhead。
+    stats_enabled = stats_q is not None and stats_interval_s > 0
+    stats_n_batches = 0
+    stats_n_requests = 0
+    stats_sum_batch_size = 0
+    stats_max_batch_size = 0
+    stats_sum_qsize = 0
+    stats_max_qsize = 0
+    stats_qsize_samples = 0
+    stats_sum_process_ms = 0.0  # 每 batch 整体 process wall (decode+forward+dispatch).
+    stats_sum_fillwait_ms = 0.0
+    stats_t_last_emit = time.perf_counter()
+
+    def _maybe_emit_stats():
+        nonlocal stats_n_batches, stats_n_requests, stats_sum_batch_size, stats_max_batch_size
+        nonlocal stats_sum_qsize, stats_max_qsize, stats_qsize_samples
+        nonlocal stats_sum_process_ms, stats_sum_fillwait_ms
+        nonlocal stats_t_last_emit
+        if not stats_enabled:
+            return
+        now = time.perf_counter()
+        elapsed = now - stats_t_last_emit
+        if elapsed < stats_interval_s:
+            return
+        batches = max(1, stats_n_batches)
+        qs_samples = max(1, stats_qsize_samples)
+        payload = {
+            'n_batches': stats_n_batches,
+            'n_requests': stats_n_requests,
+            'batch_size_avg': round(stats_sum_batch_size / batches, 2) if stats_n_batches else 0.0,
+            'batch_size_max': stats_max_batch_size,
+            'max_batch_cfg': max_batch,
+            'batching_efficiency': round(stats_sum_batch_size / (batches * max_batch), 3) if stats_n_batches else 0.0,
+            'queue_depth_avg': round(stats_sum_qsize / qs_samples, 2),
+            'queue_depth_max': stats_max_qsize,
+            'process_ms_avg': round(stats_sum_process_ms / batches, 3) if stats_n_batches else 0.0,
+            'fillwait_ms_avg': round(stats_sum_fillwait_ms / batches, 3) if stats_n_batches else 0.0,
+            'batches_per_sec': round(stats_n_batches / elapsed, 2),
+            'requests_per_sec': round(stats_n_requests / elapsed, 2),
+            'window_s': round(elapsed, 3),
+        }
+        try:
+            stats_q.put_nowait(('inf_server', payload))
+        except Exception:  # noqa: BLE001 — full queue or pipe broken;sampler must never kill server
+            pass
+        # Reset.
+        stats_n_batches = 0
+        stats_n_requests = 0
+        stats_sum_batch_size = 0
+        stats_max_batch_size = 0
+        stats_sum_qsize = 0
+        stats_max_qsize = 0
+        stats_qsize_samples = 0
+        stats_sum_process_ms = 0.0
+        stats_sum_fillwait_ms = 0.0
+        stats_t_last_emit = now
+
+    def _try_qsize() -> int:
+        try:
+            return request_q.qsize()
+        except (NotImplementedError, AttributeError):
+            return 0
+
     while not stop_event.is_set():
+        if stats_enabled:
+            qs = _try_qsize()
+            stats_sum_qsize += qs
+            stats_max_qsize = max(stats_max_qsize, qs)
+            stats_qsize_samples += 1
         batch = []
         try:
             first = request_q.get(timeout=0.1)
@@ -138,6 +211,7 @@ def _server_loop(
             continue
         batch.append(first)
         deadline = time.perf_counter() + timeout_s
+        t_fillwait_start = time.perf_counter() if stats_enabled else 0.0
         with trace.span('inf_server.fill_wait'):
             while len(batch) < max_batch:
                 remaining = deadline - time.perf_counter()
@@ -160,6 +234,13 @@ def _server_loop(
                     continue
                 batch.append(msg)
         trace.value('inf_server.batch_size', float(len(batch)))
+        if stats_enabled:
+            stats_n_batches += 1
+            stats_n_requests += len(batch)
+            stats_sum_batch_size += len(batch)
+            stats_max_batch_size = max(stats_max_batch_size, len(batch))
+            stats_sum_fillwait_ms += (time.perf_counter() - t_fillwait_start) * 1000.0
+        t_process_start = time.perf_counter() if stats_enabled else 0.0
         # Paradigm-aware batched path: networks exposing batched_forward
         # + batch>1 → one forward + scatter via _run_batched_path. Singletons
         # + networks without batched_forward fall to the per-request loop
@@ -175,6 +256,9 @@ def _server_loop(
                     shared_cache,
                     return_numpy=return_numpy,
                 )
+            if stats_enabled:
+                stats_sum_process_ms += (time.perf_counter() - t_process_start) * 1000.0
+                _maybe_emit_stats()
             continue
 
         for msg in batch:
@@ -202,6 +286,9 @@ def _server_loop(
                     response_qs[client_id].put(('ok', req_id, payload_bytes))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
+        if stats_enabled:
+            stats_sum_process_ms += (time.perf_counter() - t_process_start) * 1000.0
+            _maybe_emit_stats()
 
 
 class InferenceServer:
@@ -220,6 +307,8 @@ class InferenceServer:
         inference_acceleration: str = 'none',
         use_jit_trace: bool = False,
         request_decoder_path: str = '',
+        stats_q=None,
+        stats_interval_s: float = 5.0,
     ) -> None:
         if use_jit_trace:
             if inference_acceleration != 'none':
@@ -245,6 +334,8 @@ class InferenceServer:
         self.batch_timeout_ms = batch_timeout_ms
         self.inference_acceleration = inference_acceleration
         self.request_decoder_path = request_decoder_path
+        self.stats_q = stats_q
+        self.stats_interval_s = stats_interval_s
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -285,6 +376,8 @@ class InferenceServer:
                 self._stop_event,
                 self.inference_acceleration,
                 self.request_decoder_path,
+                self.stats_q,
+                self.stats_interval_s,
             ),
             daemon=False,
             name='InferenceServer',

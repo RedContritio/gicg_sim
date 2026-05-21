@@ -84,6 +84,11 @@ def run_pipeline(
     )
     ckpt_mgr.save_cfg_snapshot()
     logger = MetricsLogger(artifacts_dir)
+    # Wire optional collector → logger stats hook(currently DMCMultiProcessCollector
+    # uses this to drain InfServer stats — see attach_metrics_logger docstring)。
+    # 其它 collector 不实现该 method,hasattr-guarded 防 break。
+    if hasattr(collector, 'attach_metrics_logger'):
+        collector.attach_metrics_logger(logger)
     nan_guard = NaNGuard(artifacts_dir)
 
     eval_scheduler = None
