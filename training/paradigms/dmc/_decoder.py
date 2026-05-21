@@ -125,6 +125,148 @@ def decode_dmc_request(
     return obs_dict, None
 
 
+def decode_dmc_requests(
+    payloads: list,
+    device_str: str,
+    shared_cache: dict,
+    network: Any,
+) -> tuple[dict, Any]:
+    """Batched server-side decoder — N requests → 1 obs_dict with batch dim N。
+
+    数值等价于 ``torch.cat([decode_dmc_request(p, ...)[0][k] for p in payloads], dim=0)``
+    per key, 但只跑 1 次 ``torch.from_numpy + .to(device)`` per stacked tensor
+    (而非 N 次)。production 2026-05-21 实测 InfServer decode 35.7 ms / batch=14
+    (69% wall),wins 主要来自 H2D + GPU op launch overhead 砍 N×。
+
+    ``payloads`` items 是 (obs_bytes, mask_bytes) tuple — 与 ``request_decoder``
+    单 request 接口对齐(server 把整 batch 传给 batched_decoder 而不是 N 次
+    单 decode)。 mask 在 DMC 路径上不消费,忽略。
+
+    Assumption:N requests 共享 ``static_obs_hash``(production single-scenario
+    保证 — 全 actor 同 team / 同 card_pool)。 缓存异构 fallback 退化为
+    per-request 决策(罕见 — 例:weight update 跨多个 actor mid-game,部分
+    actor 已 evict cache 部分未)。
+
+    Returns ``(obs_dict_batched, None)``。
+    """
+    import torch
+
+    from training.core.obs_constants import (
+        OBS_HAND_BUCKETS,
+        OBS_MAX_CARD_TYPES,
+        OBS_META_SIZE,
+        OBS_MODIFIER_LOG_FIELD_COUNT,
+        OBS_MODIFIER_LOG_K_MOD,
+        OBS_RECENT_DAMAGE_EVENTS,
+        OBS_RECENT_DAMAGE_FIELD_COUNT,
+    )
+    from training.core.step_encoding import typed_segment_offsets
+    from training.core.structural import compute_structural_values
+
+    n = len(payloads)
+    if n == 0:
+        raise ValueError('decode_dmc_requests: empty payloads')
+    device = torch.device(device_str)
+
+    # 1. CPU unpickle all + resolve static cache per-request.
+    unpickled = [pickle.loads(obs_bytes) for (obs_bytes, _mask) in payloads]
+    static_caches: list = []
+    for p in unpickled:
+        static_obs_hash = p.get('static_obs_hash')
+        if static_obs_hash is None:
+            raise RuntimeError('decode_dmc_requests: payload missing static_obs_hash')
+        sc = shared_cache.get(static_obs_hash)
+        if sc is None:
+            static_obs_np = p.get('static_obs')
+            if static_obs_np is None:
+                raise RuntimeError(
+                    f'decode_dmc_requests: cache miss for hash={static_obs_hash.hex()[:12]}... '
+                    f'with no embedded static_obs. Actor must resend static_obs after weight update.'
+                )
+            sc = _server_encode_static(static_obs_np, device, network)
+            shared_cache[static_obs_hash] = sc
+        static_caches.append(sc)
+
+    # 2. Heterogeneous static cache fallback — production 极罕见,直接 per-request
+    # decode + cat。 不复杂但仍 N× launch overhead — 罕见路径接受次优。
+    same_static = all(sc is static_caches[0] for sc in static_caches)
+    if not same_static:
+        # Fallback: decode each + cat. Imports lazy。
+        per_request_dicts = []
+        for (obs_bytes, mask_bytes), _sc in zip(payloads, static_caches):
+            d, _ = decode_dmc_request(obs_bytes, mask_bytes, device_str, shared_cache, network)
+            per_request_dicts.append(d)
+        # cat all keys along batch dim 0(各 dict 各字段 first dim=1)。
+        keys = list(per_request_dicts[0].keys())
+        return {k: torch.cat([d[k] for d in per_request_dicts], dim=0) for k in keys}, None
+
+    sc0 = static_caches[0]
+    n_counter_slots = sc0['n_counter_slots']
+
+    # 3. Stack dyn / refs / pay numpy arrays → single tensor each (1 H2D each).
+    dyn_np = np.stack(
+        [np.ascontiguousarray(p['dyn_obs'], dtype=np.float32) for p in unpickled],
+        axis=0,
+    )  # (N, dyn_dim)
+    refs_np = np.stack(
+        [np.ascontiguousarray(p['refs_padded'], dtype=np.int64) for p in unpickled],
+        axis=0,
+    )
+    pay_np = np.stack(
+        [np.ascontiguousarray(p['pay_padded'], dtype=np.float32) for p in unpickled],
+        axis=0,
+    )
+    dyn = torch.from_numpy(dyn_np).to(device)
+    refs_t = torch.from_numpy(refs_np).to(device)
+    pay_t = torch.from_numpy(pay_np).to(device)
+
+    # 4. Slice dynamic obs into typed (N, ...) tensors — same offsets as
+    # decode_dmc_request 单 request 路径,只是 batch dim N。
+    meta = dyn[:, :OBS_META_SIZE]
+    c_end = OBS_META_SIZE + n_counter_slots
+    counter_values = dyn[:, OBS_META_SIZE:c_end]
+    hand_end = c_end + OBS_HAND_BUCKETS * OBS_MAX_CARD_TYPES
+    card_buckets = dyn[:, c_end:hand_end].view(n, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES)
+    off = typed_segment_offsets(n_counter_slots)
+    enemy_sizes = dyn[:, hand_end : off['enemy_end']]
+    recent_damage = dyn[:, off['enemy_end'] : off['rd_end']].view(
+        n, OBS_RECENT_DAMAGE_EVENTS, OBS_RECENT_DAMAGE_FIELD_COUNT
+    )
+    prepare_skill = dyn[:, off['rd_end'] : off['ps_end']].view(n, 2, 2)
+    modifier_log = dyn[:, off['ps_end'] : off['ml_end']].view(
+        n, OBS_RECENT_DAMAGE_EVENTS, OBS_MODIFIER_LOG_K_MOD, OBS_MODIFIER_LOG_FIELD_COUNT
+    )
+
+    # 5. Static fields:全 N request 共 cache → expand 到 batch dim N 无 copy。
+    counter_sids = sc0['counter_sids'].expand(n, -1)
+    active_slot_mask = sc0['active_slot_mask'].expand(n, -1)
+    hook_emb = sc0['hook_emb'].expand(n, -1, -1)
+    hook_mask = sc0['hook_mask'].expand(n, -1)
+    char_skill_refs = sc0['char_skill_refs'].expand(n, -1, -1, -1)
+    structural_obspos_b = sc0['structural_obspos'].expand(n, -1)
+
+    structural_values = compute_structural_values(counter_values, structural_obspos_b)
+
+    obs_dict = {
+        'counter_values': counter_values,
+        'counter_sids': counter_sids,
+        'active_slot_mask': active_slot_mask,
+        'hook_emb': hook_emb,
+        'hook_mask': hook_mask,
+        'card_buckets': card_buckets,
+        'enemy_sizes': enemy_sizes,
+        'meta': meta,
+        'action_refs': refs_t,
+        'action_payments': pay_t,
+        'structural_values': structural_values,
+        'char_skill_refs': char_skill_refs,
+        'recent_damage': recent_damage,
+        'prepare_skill': prepare_skill,
+        'modifier_log': modifier_log,
+    }
+    return obs_dict, None
+
+
 def _server_encode_static(static_obs_np: np.ndarray, device: Any, network: Any) -> dict:
     """Encode static obs server-side, reusing ``network.net.hook_encoder``
     (the server's live :class:`HookIREncoder`) so static embeddings
@@ -158,9 +300,7 @@ def _server_encode_static(static_obs_np: np.ndarray, device: Any, network: Any) 
 
         refs_size = OBS_CHAR_SKILL_REFS_SIZE
         char_skill_refs = (
-            static[meta_size : meta_size + refs_size]
-            .reshape(2, OBS_MAX_CHARS, OBS_MAX_SKILLS_PER_CHAR)
-            .long()
+            static[meta_size : meta_size + refs_size].reshape(2, OBS_MAX_CHARS, OBS_MAX_SKILLS_PER_CHAR).long()
         )
 
         hook_size = n_hooks * max_ops_per_hook * fields_per_op

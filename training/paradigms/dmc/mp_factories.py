@@ -48,6 +48,7 @@ from training.paradigms.dmc._decoder import (  # noqa: F401
     _capture_obs_np,
     _encode_static_np,
     decode_dmc_request,
+    decode_dmc_requests,
 )
 
 
@@ -262,4 +263,3 @@ def build_dmc_provider(cfg: Any, actor_id: int, *, inference_client: Any = None)
             f'and pass it via actor_kwargs_factory.'
         )
     return _DMCObsDictRemoteProvider(cfg=cfg, actor_id=actor_id, client=inference_client)
-
