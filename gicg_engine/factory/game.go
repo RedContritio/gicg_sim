@@ -1,4 +1,4 @@
-package main
+package factory
 
 import (
 	"fmt"
@@ -6,135 +6,30 @@ import (
 	"gicg_mono/gicg_engine/interp"
 	"math/rand"
 	"os"
-	"path/filepath"
-	"regexp"
-	"sort"
 	"strings"
 )
 
-func findDataDir() string {
-	candidates := []string{"data", "../data", "../../data"}
-	for _, c := range candidates {
-		if fi, err := os.Stat(c); err == nil && fi.IsDir() {
-			abs, _ := filepath.Abs(c)
-			return abs
-		}
-	}
-	return "data"
+// GameHandle holds a game instance with its interpreter runtime.
+// It is the unit of state managed by the capi handle table and by
+// Go-native consumers (gicg_actor pool goroutines).
+type GameHandle struct {
+	Game *engine.Game
+	RT   *interp.Runtime
+	// SuspendedLog holds g.Log while ``GameLogSuspend`` has detached it
+	// from the live game (nil when logging is active). See the
+	// suspend/resume API for the MCTS-rollout use case.
+	SuspendedLog *engine.EventLog
 }
 
-// systemFiles returns the ordered list of system DSL files to load.
-func systemFiles(dataDir string) []string {
-	ordered := []string{
-		"system/round.lua", "system/dice.lua", "system/alive.lua", "system/draw.lua",
-		"system/element.lua", "system/frozen.lua", "system/food.lua",
-		"system/equip.lua", "system/timeout.lua",
-		"system/arche.lua", // ADR-0019 §A.3 Phase 1: Arkhe enum + marker counter
-	}
-	reactDir := filepath.Join(dataDir, "system", "reactions")
-	entries, _ := os.ReadDir(reactDir)
-	for _, e := range entries {
-		if filepath.Ext(e.Name()) == ".lua" {
-			ordered = append(ordered, "system/reactions/"+e.Name())
-		}
-	}
-	ordered = append(ordered, "system/reaction.lua")
-
-	var out []string
-	for _, n := range ordered {
-		p := filepath.Join(dataDir, n)
-		if _, err := os.Stat(p); err == nil {
-			out = append(out, p)
-		}
-	}
-	return out
-}
-
-// filterTalentCardsForSlotUniqueness drops shared card files whose
-// `requires_char = "X"` marker refers to a char that no side of the
-// match has. Any X in at least one team's roster is kept (including
-// mirror, where both sides have X) — the shared-load talent path uses
-// per-slot SelfSlotProxy + LazyCharProxy / LazySkillRef to lazy-resolve
-// owner slots at hook-fire time, so mirror is supported without a
-// per-binding load. See gicg_engine/tests/helpers_test.go for the
-// matching implementation used by Go tests.
-func filterTalentCardsForSlotUniqueness(paths []string, teams [2][]string) []string {
-	slotCount := map[string]int{}
-	for pi := 0; pi < 2; pi++ {
-		for _, name := range teams[pi] {
-			slotCount[name]++
-		}
-	}
-	requiresRe := regexp.MustCompile(`requires_char\s*=\s*"([^"]+)"`)
-	out := make([]string, 0, len(paths))
-	for _, p := range paths {
-		data, err := os.ReadFile(p)
-		if err != nil {
-			out = append(out, p)
-			continue
-		}
-		m := requiresRe.FindStringSubmatch(string(data))
-		if m == nil {
-			out = append(out, p)
-			continue
-		}
-		if slotCount[m[1]] > 0 {
-			out = append(out, p)
-		}
-	}
-	return out
-}
-
-// collectDSLPaths assembles the char-dsl + card file list for one
-// game by reading from the (cached) pool resolution. teams names the
-// chars each side wants; only those chars' skill files are loaded
-// (declare files are loaded separately by initGame). cardPool filters
-// the pool's cards by name: nil = all pool cards, empty slice = no
-// cards. paddingCard, when non-empty, is always added to the allowed
-// set so BuildDeck's padding spec resolves even if cardPool excluded
-// it. No filesystem access on this path — paths come from PoolResolution.
-func collectDSLPaths(pool *interp.PoolResolution, teams [2][]string, cardPool []string, paddingCard string) []string {
-	seen := map[string]bool{}
-	var paths []string
-	for pi := 0; pi < 2; pi++ {
-		for _, name := range teams[pi] {
-			entry := pool.Chars[name]
-			if entry == nil {
-				continue
-			}
-			for _, p := range entry.Skills {
-				if !seen[p] {
-					seen[p] = true
-					paths = append(paths, p)
-				}
-			}
-		}
-	}
-
-	allowAll := cardPool == nil
-	allowed := map[string]bool{}
-	if paddingCard != "" {
-		allowed[paddingCard] = true
-	}
-	for _, n := range cardPool {
-		allowed[n] = true
-	}
-
-	for name, p := range pool.Cards {
-		if !allowAll && !allowed[name] {
-			continue
-		}
-		paths = append(paths, p)
-	}
-
-	sort.Strings(paths)
-	return paths
-}
-
-func initGame(cfg GameConfig) (*GameHandle, error) {
+// NewGame constructs a fully-initialized GameHandle from a GameConfig.
+// This is the canonical game factory used by both the c-shared capi
+// shim and the Go-native actor pool — keeping a single initialization
+// path means the two callers can never drift apart (e.g. on hook IR
+// finalization or pool resolution).
+func NewGame(cfg GameConfig) (*GameHandle, error) {
 	dataDir := cfg.DataDir
 	if dataDir == "" {
-		dataDir = findDataDir()
+		dataDir = FindDataDir()
 	}
 
 	g := &engine.Game{
@@ -151,7 +46,7 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 		DeckSeeds: [2]int64{cfg.Seed, cfg.Seed},
 		Winner:    -1,
 		FirstEnd:  -1,
-		Obs:       resolveObsConfig(cfg.Obs),
+		Obs:       ResolveObsConfig(cfg.Obs),
 		MaxRounds: cfg.MaxRounds,
 		FixDice:   cfg.FixDice,
 	}
@@ -185,14 +80,12 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 		return nil, err
 	}
 
-	// System files
-	for _, f := range systemFiles(dataDir) {
+	for _, f := range SystemFiles(dataDir) {
 		if err := rt.ExecFileSandboxed(f); err != nil {
-			return nil, fmt.Errorf("load %s: %w", filepath.Base(f), err)
+			return nil, fmt.Errorf("load %s: %w", f, err)
 		}
 	}
 
-	// Character declaration + bind
 	for pi := 0; pi < 2; pi++ {
 		for ci, name := range teams[pi] {
 			entry := pool.Chars[name]
@@ -212,17 +105,13 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 	rt.CurrentOwnerPlayer = -1
 	rt.CurrentOwnerChar = -1
 
-	// DSL files: split char-specific (loaded per binding) from shared cards
-	// (loaded once via global topo). Per-binding loading lets each slot
-	// register its own player-filtered skill hooks and capture its own
-	// CharProxy in closures, which is required for mirror matches.
 	paddingCard := ""
 	if cfg.DeckPadding != nil {
 		paddingCard = cfg.DeckPadding.Card
 	}
-	dslPaths := collectDSLPaths(pool, teams, cfg.CardPool, paddingCard)
+	dslPaths := CollectDSLPaths(pool, teams, cfg.CardPool, paddingCard)
 	charFiles, sharedFiles := interp.SplitCharFiles(pool.Chars, dslPaths)
-	sharedFiles = filterTalentCardsForSlotUniqueness(sharedFiles, teams)
+	sharedFiles = FilterTalentCardsForSlotUniqueness(sharedFiles, teams)
 	// buildPre collects the topo-sort "preExisting" list. It must be called
 	// both before per-binding char loading AND again before the shared
 	// cards load, so counters/skills/cards declared during per-binding
@@ -286,10 +175,8 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 		}
 	}
 
-	// Enable event log for replay inspection
 	g.Log = engine.NewEventLog()
 
-	// Build decks (initial hand is dealt by system/draw.lua on round 1 start)
 	for pi := 0; pi < 2; pi++ {
 		rt.BuildDeck(pi)
 	}
@@ -309,7 +196,6 @@ func initGame(cfg GameConfig) (*GameHandle, error) {
 	// semantics stays stable across team_size configurations.
 	g.StructuralSids = rt.BuildStructuralCounterIDs(g)
 
-	// Shuffle for RL observation
 	g.InitShuffle(g.Rng)
 
 	return &GameHandle{Game: g, RT: rt}, nil
