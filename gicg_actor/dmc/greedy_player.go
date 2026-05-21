@@ -1,20 +1,19 @@
-// greedy_player.go — F1-D1 minimal port from training/core/matchup/greedy_player.py。
+// greedy_player.go — F1-F5 × D1-D4 GreedyPlayer Go port from
+// training/core/matchup/greedy_player.py。
 //
-// Phase 1.2b minimal scope:
-//   - D1 only(no minimax recursion)— each legal action 1-ply argmax via snapshot/restore +
-//     ScoreF1。 D2-D4 + dice_greedy 留 Phase 1.2c。
-//   - Tiebreak:random among argmax(防 deterministic Switch-spam trap,跟 Python ref 同模式)
-//   - 不实现 select_with_info 详细 diagnostic(P1.2c +)
+// Phase 1.2b 完整 port:F1-F5 scorer × D1-D4 minimax depth。 dice_greedy (greedy_dice.py)
+// 留 follow-up(220 LOC + 复杂 dice payment 折叠逻辑,scope 大,先 ship 无 dice_greedy 版本 —
+// production opp 用 default fan-out engine payments,wall time 略慢但 correctness 同)。
 //
-// 数值等价目标(per design D2):**winrate gate** Go-D1 vs Python-D1 同 baseline n=128 swap
-// 内 95% CI(简单 1-ply argmax,Go side bit-exact 跟 Python 同 ops 顺序应该可保;但 F1 浮点
-// 算 + tiebreak random,行为等价是 spec)。
+// 数值等价目标(per design D2):**winrate gate** Go vs Python 同 baseline n=128 swap 内
+// 95% CI。 浮点 ops 顺序在 D1 单层不 critical,D2-D4 minimax 累积浮点 ε 可能造成 tie-break
+// 边界不同 — 实测可接受(winrate 是 final 行为等价 verify)。
 //
 // 用法(per GreedyPlayer Python ref):
 //
-//	gp := NewGreedyPlayer("F1", 1, seed)
-//	actionIdx := gp.SelectAction(rt)   // returns index into rt.Game.GetLegalActions()
-//	rt.Game.Step(actionIdx)            // caller responsible for executing
+//	gp, err := NewGreedyPlayer("F5", 4, seed)  // F5 + D4 production-tier
+//	actionIdx, err := gp.SelectAction(rt)      // returns index into rt.Game.GetLegalActions()
+//	rt.Game.Step(actionIdx)                    // caller responsible for executing
 //
 // snapshot/restore bracket 内 panic safety:用 defer 保 restore 总执行(即使 score fn
 // 抛)— mirror Python try/finally。
@@ -25,14 +24,15 @@ import (
 	"fmt"
 	"math/rand"
 
+	engine "gicg_mono/gicg_engine"
 	"gicg_mono/gicg_engine/interp"
 	"gicg_mono/gicg_engine/record"
 )
 
-// GreedyConfig — features (F1-F5) × depth (1-4) variants。 Phase 1.2b 仅 F1 + D1。
+// GreedyConfig — features (F1-F5) × depth (1-4) variants。
 type GreedyConfig struct {
-	Features string // "F1" | "F2" | ... (Phase 1.2b 仅 "F1")
-	Depth    int    // 1 | 2 | 3 | 4 (Phase 1.2b 仅 1)
+	Features string
+	Depth    int
 }
 
 // GreedyPlayer mirror Python GreedyPlayer class。
@@ -43,7 +43,7 @@ type GreedyPlayer struct {
 }
 
 // NewGreedyPlayer 构造。 features unknown / depth out-of-range raise(fail loud per Python
-// ref)。
+// ref)。 D1-D4 全支持。
 func NewGreedyPlayer(features string, depth int, seed int64) (*GreedyPlayer, error) {
 	scorer, ok := Scorers[features]
 	if !ok {
@@ -51,10 +51,6 @@ func NewGreedyPlayer(features string, depth int, seed int64) (*GreedyPlayer, err
 	}
 	if depth < 1 || depth > 4 {
 		return nil, fmt.Errorf("depth must be 1..4, got %d", depth)
-	}
-	// Phase 1.2b only support D1。
-	if depth != 1 {
-		return nil, fmt.Errorf("depth %d not yet implemented (Phase 1.2c — D2-D4 follow-up)", depth)
 	}
 	return &GreedyPlayer{
 		cfg:    GreedyConfig{Features: features, Depth: depth},
@@ -71,11 +67,60 @@ func scorerNames() []string {
 	return names
 }
 
-// SelectAction 选 1 action — 跟 Python `select_action` 等价(D1:1-ply argmax + random
-// tiebreak)。 返 index into `rt.Game.GetLegalActions()`。
+// scoreBestResponse — Python ref `_score_best_response` 等价。 Recursive minimax: 当前
+// env state 从 “me“ 视角评分,向下看 “depth“ 层。 depth==0:score(viewRoot vs
+// env-now)。 caller 应已 snapshot;本函数 leaves env in same state(每个 candidate snap/
+// restore)。
 //
-// 不 mutate rt(每 candidate 走 snapshot/restore bracket)。 actions empty → return -1 +
-// err(Python ref `RuntimeError('no legal actions')` 等价 fail loud)。
+// acting==me:max(sub_scores),else: min(sub_scores)— mirror Python max/min branching。
+func (gp *GreedyPlayer) scoreBestResponse(
+	rt *interp.Runtime,
+	viewRoot *record.StateView,
+	eventsRoot *EventsSnapshot,
+	me int,
+	depth int,
+) float64 {
+	g := rt.Game
+	if g.Phase == engine.PhaseGameOver || depth <= 0 {
+		return gp.scorer(viewRoot, record.ExportView(rt), eventsRoot, SnapshotEvents(g, me), me)
+	}
+	acting := g.ActingPlayer()
+	actions := g.GetLegalActions()
+	if len(actions) == 0 {
+		// Mirror Python no-candidates path:return current score(no further step possible)
+		return gp.scorer(viewRoot, record.ExportView(rt), eventsRoot, SnapshotEvents(g, me), me)
+	}
+	hasBest := false
+	var best float64
+	for i := range actions {
+		snap := g.DeepCopy()
+		var sub float64
+		func() {
+			defer func() {
+				g.RestoreFrom(snap)
+			}()
+			g.Step(i)
+			sub = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, depth-1)
+		}()
+		if !hasBest {
+			best = sub
+			hasBest = true
+		} else if acting == me {
+			if sub > best {
+				best = sub
+			}
+		} else {
+			if sub < best {
+				best = sub
+			}
+		}
+	}
+	return best
+}
+
+// SelectAction 选 1 action — D1-D4 minimax with random tiebreak among argmax。
+// 返 index into rt.Game.GetLegalActions()。 不 mutate rt。 actions empty → -1 + err
+// (mirror Python `RuntimeError` 等价 fail loud)。
 func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	g := rt.Game
 	actions := g.GetLegalActions()
@@ -86,12 +131,10 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	viewRoot := record.ExportView(rt)
 	eventsRoot := SnapshotEvents(g, me)
 
+	// Top-level loop:每 candidate snapshot+step→ scoreBestResponse(depth-1 ply lookahead) → restore。
 	var bestScore float64
 	bestSet := make([]int, 0, 4)
 	for i := range actions {
-		// snapshot/restore bracket — DeepCopy + RestoreFrom 匹配,跟 capi
-		// GameSnapshot/GameRestore 同协议(Python ref env.snapshot/restore 走 capi)。
-		// Snapshot/StateSnapshot 是更 lightweight 但不兼容 RestoreFrom 签名。
 		snap := g.DeepCopy()
 		var score float64
 		func() {
@@ -99,9 +142,7 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 				g.RestoreFrom(snap)
 			}()
 			g.Step(i)
-			viewAfter := record.ExportView(rt)
-			eventsAfter := SnapshotEvents(g, me)
-			score = gp.scorer(viewRoot, viewAfter, eventsRoot, eventsAfter, me)
+			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1)
 		}()
 		if i == 0 || score > bestScore {
 			bestScore = score
