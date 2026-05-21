@@ -194,9 +194,15 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
 
     pipe_d = cfg['pipeline']
     learner_d = pipe_d.get('learner') or {}
+    actor_backend = pipe_d.get('actor_backend', 'python')
+    if actor_backend not in ('python', 'go'):
+        raise ValueError(
+            f'pipeline.actor_backend must be "python" or "go", got {actor_backend!r}'
+        )
     pipeline = PipelineCfg(
         mode=pipe_d.get('mode', 'serial'),
         num_actors=pipe_d.get('num_actors', 1),
+        actor_backend=actor_backend,
         inference=_build_inference(pipe_d.get('inference')),
         learner=LearnerCfg(device=learner_d.get('device'), seed=learner_d.get('seed')),
         actor_seed=pipe_d.get('actor_seed'),

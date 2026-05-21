@@ -65,10 +65,17 @@ class LearnerCfg:
 
 @dataclass(frozen=True)
 class PipelineCfg:
-    """[pipeline] section. mode = 'serial' | 'async'."""
+    """[pipeline] section. mode = 'serial' | 'async'.
+
+    actor_backend = 'python' (默认 Python mp.Process pool,DMCMultiProcessCollector)
+    | 'go' (I29 Go-native goroutine pool,DMCGoActorCollector,1.5-2x speedup vs
+    Python baseline,Win box N=16 fps≥70 + mem≤2 GB gate)。 仅 DMC paradigm 完整支持,
+    AZ/PPO scaffold ship,production 暂走 'python'。
+    """
 
     mode: str = 'serial'
     num_actors: int = 1
+    actor_backend: str = 'python'  # 'python' | 'go'
     inference: Optional[InferenceCfg] = None
     learner: Optional[LearnerCfg] = None
     actor_seed: Optional[int] = None  # derived per-instance via INHERITED_FIELDS
