@@ -145,7 +145,6 @@ def _run_batched_path(
     request_decoder=None,
     shared_cache: Any = None,
     return_numpy: bool = False,
-    batched_decoder=None,
 ) -> dict:
     """Decode all obs once, run ``network.batched_forward``, scatter rows.
 
@@ -172,55 +171,28 @@ def _run_batched_path(
     import time as _time
 
     t0 = _time.perf_counter()
-
-    # 优先 batched_decoder 路径 — 一次 H2D / op launch 替代 N×。 失败时 fall
-    # back per-request decode 路径(保留 fault isolation:某 request payload
-    # malformed 不该 kill 整 batch)。
-    if batched_decoder is not None and len(batch) > 1:
-        payloads = [(msg[3], msg[4]) for msg in batch]
-        client_ids = [(msg[1], msg[2]) for msg in batch]
-        try:
-            obs_batched, _mask = batched_decoder(payloads, device_str, shared_cache, network)
-            decoded = client_ids  # all rows mapped 1:1 by index
-            t1 = _time.perf_counter()
-        except Exception as exc:
-            err_msg = f'{type(exc).__name__}: {exc}'
-            for client_id, req_id in client_ids:
-                try:
-                    response_qs[client_id].put(('err', req_id, err_msg))
-                except Exception:
-                    pass
-            t1 = _time.perf_counter()
-            return {'decode_ms': (t1 - t0) * 1000.0, 'forward_ms': 0.0, 'dispatch_ms': 0.0}
-        # batched_forward 接的是 list of obs_dict (1, ...)。 batched_decoder
-        # 已经返 batch dim N 的单一 dict — split 出 N 个 (1, ...) 喂
-        # batched_forward 即可(零 copy view)。
-        decoded_dicts = [{k: v[i : i + 1] for k, v in obs_batched.items()} for i in range(len(batch))]
-    else:
-        decoded_dicts = []
-        decoded = []
-        with trace.span('inf_server.decode'):
-            for msg in batch:
-                _kind, client_id, req_id, obs_bytes, mask_bytes = msg
-                try:
-                    if request_decoder is not None:
-                        obs, _mask = request_decoder(obs_bytes, mask_bytes, device_str, shared_cache, network)
-                    else:
-                        obs = _from_bytes(obs_bytes)
-                        obs = _to_device(obs, device_str)
-                        if mask_bytes is not None:
-                            _ = _from_bytes(mask_bytes)
-                    decoded.append((client_id, req_id))
-                    decoded_dicts.append(obs)
-                except Exception as exc:
-                    response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
-        t1 = _time.perf_counter()
-    if not decoded_dicts:
+    decoded: list = []
+    with trace.span('inf_server.decode'):
+        for msg in batch:
+            _kind, client_id, req_id, obs_bytes, mask_bytes = msg
+            try:
+                if request_decoder is not None:
+                    obs, _mask = request_decoder(obs_bytes, mask_bytes, device_str, shared_cache, network)
+                else:
+                    obs = _from_bytes(obs_bytes)
+                    obs = _to_device(obs, device_str)
+                    if mask_bytes is not None:
+                        _ = _from_bytes(mask_bytes)
+                decoded.append((client_id, req_id, obs))
+            except Exception as exc:
+                response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
+    t1 = _time.perf_counter()
+    if not decoded:
         return {'decode_ms': (t1 - t0) * 1000.0, 'forward_ms': 0.0, 'dispatch_ms': 0.0}
     try:
         with trace.span('inf_server.batched_forward_inner'):
             with torch.inference_mode():
-                batched_out = network.batched_forward(decoded_dicts)
+                batched_out = network.batched_forward([d[2] for d in decoded])
             # CUDA sync 显式 — 否则 .to('cpu') 触发 sync 把 forward 时间
             # 算到 dispatch 里,GPU forward wall 看起来假性低。
             if device_str.startswith('cuda'):
@@ -228,7 +200,7 @@ def _run_batched_path(
             batched_out = _to_device(batched_out, 'cpu')
     except Exception as exc:
         err_msg = f'{type(exc).__name__}: {exc}'
-        for client_id, req_id in decoded:
+        for client_id, req_id, _obs in decoded:
             try:
                 response_qs[client_id].put(('err', req_id, err_msg))
             except Exception:
@@ -237,7 +209,7 @@ def _run_batched_path(
     t2 = _time.perf_counter()
     encode = _to_bytes_numpy if return_numpy else _to_bytes
     with trace.span('inf_server.dispatch'):
-        for i, (client_id, req_id) in enumerate(decoded):
+        for i, (client_id, req_id, _obs) in enumerate(decoded):
             row = batched_out[i : i + 1]
             try:
                 response_qs[client_id].put(('ok', req_id, encode(row)))

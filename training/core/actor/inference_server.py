@@ -57,7 +57,6 @@ def _server_loop(
     stop_event,
     inference_acceleration: str = 'none',
     request_decoder_path: str = '',
-    batched_request_decoder_path: str = '',
     stats_q=None,
     stats_interval_s: float = 5.0,
 ) -> None:
@@ -103,7 +102,6 @@ def _server_loop(
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
 
     request_decoder = None
-    batched_decoder = None
     # Decoder-path implies actor stays torch-free → response must be
     # numpy bytes. Legacy callers (test nets, AZ-loopback fallback)
     # keep the pickled torch tensor response.
@@ -112,10 +110,6 @@ def _server_loop(
         from training.core.actor.actor_process import resolve_builder
 
         request_decoder = resolve_builder(request_decoder_path)
-    if batched_request_decoder_path:
-        from training.core.actor.actor_process import resolve_builder
-
-        batched_decoder = resolve_builder(batched_request_decoder_path)
     # Server-wide decoder cache (shared across all clients). Decoder
     # internally keys by static_obs hash so multiple actors sharing the
     # same scenario hit the same cache entry — for fixed-scenario DMC,
@@ -269,7 +263,6 @@ def _server_loop(
                     request_decoder,
                     shared_cache,
                     return_numpy=return_numpy,
-                    batched_decoder=batched_decoder,
                 )
             if stats_enabled and timing:
                 stats_sum_decode_ms += timing.get('decode_ms', 0.0)
@@ -333,7 +326,6 @@ class InferenceServer:
         inference_acceleration: str = 'none',
         use_jit_trace: bool = False,
         request_decoder_path: str = '',
-        batched_request_decoder_path: str = '',
         stats_q=None,
         stats_interval_s: float = 5.0,
     ) -> None:
@@ -361,7 +353,6 @@ class InferenceServer:
         self.batch_timeout_ms = batch_timeout_ms
         self.inference_acceleration = inference_acceleration
         self.request_decoder_path = request_decoder_path
-        self.batched_request_decoder_path = batched_request_decoder_path
         self.stats_q = stats_q
         self.stats_interval_s = stats_interval_s
         ctx = get_ctx()
@@ -404,7 +395,6 @@ class InferenceServer:
                 self._stop_event,
                 self.inference_acceleration,
                 self.request_decoder_path,
-                self.batched_request_decoder_path,
                 self.stats_q,
                 self.stats_interval_s,
             ),

@@ -77,11 +77,6 @@ def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int, metrics_logger:
         # tensor materialisation. See module docstring of
         # `training.paradigms.dmc.mp_factories`.
         request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
-        # Batched decode (2026-05-21):一次 numpy stack + 1 次 H2D /
-        # tensor 替代 N×串行 decode。production Win N=16 实测前 decode 占
-        # InfServer wall 69.6% (35.7 ms / batch),batched 化降到预估
-        # 5-8 ms。 server 优先走 batched 路径,失败 fall back single decode。
-        batched_request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_requests',
         stats_q=stats_q,
         stats_interval_s=5.0,
     )
