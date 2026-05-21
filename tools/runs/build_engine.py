@@ -1,4 +1,4 @@
-"""Build libgicg.dll on remote box via cgo c-shared — cfg-driven dispatch。
+"""Build all c-shared libs(libgicg + libgicg_actor)on remote box via cgo — cfg-driven dispatch。
 
 CLI:
 
@@ -8,9 +8,12 @@ Probes ``go`` + ``gcc`` on the remote PATH(``discover_remote_binary``);
 both must already be installed + on PATH。 ``gcc`` path is no longer
 prepended — that's a deploy-side concern。
 
-Output:
-  - Windows  → ``<remote.root>\\gicg_env\\libgicg.dll``
-  - POSIX    → ``<remote.root>/gicg_env/libgicg.so``
+Outputs:
+  - Windows  → ``<remote.root>\\gicg_env\\libgicg.dll`` + ``libgicg_actor.dll``
+  - POSIX    → ``<remote.root>/gicg_env/libgicg.so`` + ``libgicg_actor.so``
+
+Build 顺序:engine 先 → actor(import gicg_engine 单向依赖)。 任一失败 fail loud +
+后续 lib 不 build(防混淆状态)。
 """
 
 from __future__ import annotations
@@ -29,18 +32,38 @@ from tools.runs._host import (
 )
 
 
+# Lib targets — (output_filename_no_ext, source_path)。 build 顺序遵循依赖图:engine
+# 先(actor 内 import gicg_engine)。 加新 lib 在此列表追加即可,_build_ps_windows /
+# _build_sh_posix 自动迭代。
+_LIB_TARGETS = [
+    ('libgicg', './gicg_engine/capi/'),
+    ('libgicg_actor', './gicg_actor/capi/'),
+]
+
+
 def _build_ps_windows(remote: RemoteCfg) -> str:
     """Single-quote env var value — Win OpenSSH cmd.exe wrapper strips
-    unescaped double quotes(同 ``_ssh.py`` 注释)。"""
-    return (
-        "$env:CGO_ENABLED=1; $env:CC='gcc'; "
-        f'cd "{remote.root_native}"; '
-        'go build -buildmode=c-shared -o gicg_env\\libgicg.dll .\\gicg_engine\\capi\\'
-    )
+    unescaped double quotes(同 ``_ssh.py`` 注释)。 链式 build 用 `;` + `if (LASTEXITCODE -ne 0) {exit ...}`
+    保证任一失败立即退出。"""
+    parts = [
+        '$env:CGO_ENABLED=1',
+        "$env:CC='gcc'",
+        f'cd "{remote.root_native}"',
+    ]
+    for name, src in _LIB_TARGETS:
+        # Win src 路径用反斜杠 — 同 _LIB_TARGETS 来源是 POSIX 风格,这里转换。
+        src_win = src.replace('/', '\\').rstrip('\\')
+        parts.append(f'go build -buildmode=c-shared -o gicg_env\\{name}.dll {src_win}')
+        parts.append('if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }')
+    return '; '.join(parts)
 
 
 def _build_sh_posix(remote: RemoteCfg) -> str:
-    return f'cd {remote.root} && CGO_ENABLED=1 go build -buildmode=c-shared -o gicg_env/libgicg.so ./gicg_engine/capi/'
+    parts = [f'cd {remote.root}', 'CGO_ENABLED=1']
+    for name, src in _LIB_TARGETS:
+        parts.append(f'go build -buildmode=c-shared -o gicg_env/{name}.so {src}')
+    # `set -e`-like:` && ` 链接保证任一失败短路。
+    return ' && '.join(parts)
 
 
 def _run_remote(remote: RemoteCfg, timeout: int) -> int:
@@ -67,8 +90,9 @@ def _run_local(args) -> int:
     """Local — defer to user's normal build command(makes no sense to
     re-implement here)。"""
     sys.stderr.write(
-        '[build_engine] cfg [meta].host=local (or loopback); '
-        'use `go build -buildmode=c-shared -o gicg_env/libgicg.dylib ./gicg_engine/capi/` directly.\n'
+        '[build_engine] cfg [meta].host=local (or loopback); build directly:\n'
+        '  go build -buildmode=c-shared -o gicg_env/libgicg.dylib ./gicg_engine/capi/\n'
+        '  go build -buildmode=c-shared -o gicg_env/libgicg_actor.dylib ./gicg_actor/capi/\n'
     )
     return 1
 

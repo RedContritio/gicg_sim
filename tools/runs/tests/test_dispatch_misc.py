@@ -134,6 +134,35 @@ def test_build_engine_missing_section_raises(tmp_path):
             be_main()
 
 
+def test_build_engine_windows_command_includes_all_libs(tmp_path):
+    """Win PS 命令必含 libgicg.dll + libgicg_actor.dll(I29 P0:engine + actor 同 build)。"""
+    from tools.runs._host import RemoteCfg
+    from tools.runs.build_engine import _build_ps_windows
+
+    remote = RemoteCfg(ssh='dev@x', root='D:/gicg_dev', os='windows', hostname='DESKTOP')
+    ps = _build_ps_windows(remote)
+    assert 'libgicg.dll' in ps
+    assert 'libgicg_actor.dll' in ps
+    assert './gicg_engine/capi/'.replace('/', '\\').rstrip('\\') in ps or 'gicg_engine\\capi' in ps
+    assert 'gicg_actor\\capi' in ps
+    # short-circuit on failure(任一 lib build 失败立即退出)
+    assert 'LASTEXITCODE' in ps
+
+
+def test_build_engine_posix_command_includes_all_libs(tmp_path):
+    from tools.runs._host import RemoteCfg
+    from tools.runs.build_engine import _build_sh_posix
+
+    remote = RemoteCfg(ssh='dev@x', root='/srv/gicg_dev', os='linux', hostname='boxlin')
+    sh = _build_sh_posix(remote)
+    assert 'libgicg.so' in sh
+    assert 'libgicg_actor.so' in sh
+    assert './gicg_engine/capi/' in sh
+    assert './gicg_actor/capi/' in sh
+    # short-circuit on failure。
+    assert '&&' in sh
+
+
 # ---------------------------------------------------------------------------
 # status dispatch
 # ---------------------------------------------------------------------------
