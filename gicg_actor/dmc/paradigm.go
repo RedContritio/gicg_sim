@@ -184,9 +184,13 @@ func (p *DMCParadigm) runEpisode(
 	g := h.Game
 	rt := h.RT
 
-	// static_hash 缓存(整 episode 不变)
+	// static_obs 缓存(整 episode 不变)+ hash 派生。 第一次 acting==me request 携带
+	// raw static int32 数组喂 InfServer cache,后续 request Static=nil(server 走
+	// hash lookup)。 InfServer 同 scenario 多 actor 共享 cache 命中率高,后续 N-1 个
+	// request 节省 ~12 KB/req(static_obs 平均尺寸)。
 	staticInt32 := g.BuildStaticObs()
 	staticHash := ComputeStaticHash(staticInt32)
+	staticSentThisEpisode := false
 
 	var step uint32
 	var reqID uint32
@@ -208,6 +212,10 @@ func (p *DMCParadigm) runEpisode(
 			}
 			reqID++
 			req := BuildInferRequest(g, staticHash, clientID, reqID, p.cfg.MaxActions)
+			if !staticSentThisEpisode {
+				req.Static = staticInt32
+				staticSentThisEpisode = true
+			}
 			resp, err := infCli.Request(req)
 			if err != nil {
 				return fmt.Errorf("inference request step=%d: %w", step, err)

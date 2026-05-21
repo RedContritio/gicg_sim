@@ -24,7 +24,7 @@ import queue as _queue
 import time
 import traceback
 import warnings
-from typing import Any
+from typing import Any, Optional
 
 import torch
 
@@ -59,6 +59,9 @@ def _server_loop(
     request_decoder_path: str = '',
     stats_q=None,
     stats_interval_s: float = 5.0,
+    socket_port: int = 0,
+    socket_forward_builder_path: str = '',
+    socket_forward_builder_kwargs: Optional[dict] = None,
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
@@ -120,6 +123,36 @@ def _server_loop(
     # _AccelState builds compile-once net up-front + lazy-traces on first
     # request when mode='trace'; both failures fall back to raw forward.
     accel = _AccelState(network, inference_acceleration)
+
+    # Optional socket listener:Go-native actor pool 走 socket 路径 — listener thread
+    # 在本 InfServer process 内启动,共享 ``network`` + ``shared_cache`` 闭包变量。 weight
+    # update / cache wipe 走 main loop 的 in-place mutate,listener callback 闭包读最新
+    # 值无需额外同步(Python GIL 保 dict/state_dict 原子)。
+    socket_listener_thr = None
+    socket_listener_stop = None
+    if socket_port > 0:
+        if not socket_forward_builder_path:
+            ready_event.set()
+            stop_event.set()
+            raise RuntimeError('_server_loop: socket_port > 0 requires socket_forward_builder_path')
+        from training.core.actor.actor_process import resolve_builder
+        from training.core.actor.inference_server_socket_listener import (
+            start_listener_in_thread as _start_socket_listener,
+        )
+        import threading as _threading
+
+        builder = resolve_builder(socket_forward_builder_path)
+        kwargs = dict(socket_forward_builder_kwargs or {})
+        forward_cb = builder(device_str=device_str, shared_cache=shared_cache, network=network, **kwargs)
+        socket_listener_ready = _threading.Event()
+        socket_listener_stop = _threading.Event()
+        socket_listener_thr = _start_socket_listener(
+            socket_port, forward_cb, socket_listener_ready, socket_listener_stop
+        )
+        if not socket_listener_ready.wait(timeout=5.0):
+            stop_event.set()
+            raise RuntimeError(f'InferenceServer socket listener bind timeout on port {socket_port}')
+
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
 
@@ -309,6 +342,13 @@ def _server_loop(
         if stats_enabled:
             _maybe_emit_stats()
 
+    # Cleanup socket listener if active(loop 退出前)。 listener thread daemon=True
+    # 是 fallback,正常 shutdown 走显式 stop + join < 2s。
+    if socket_listener_stop is not None:
+        socket_listener_stop.set()
+        if socket_listener_thr is not None and socket_listener_thr.is_alive():
+            socket_listener_thr.join(timeout=2.0)
+
 
 class InferenceServer:
     """Spawn-ctx batched inference server. Workflow: construct →
@@ -328,6 +368,9 @@ class InferenceServer:
         request_decoder_path: str = '',
         stats_q=None,
         stats_interval_s: float = 5.0,
+        socket_port: int = 0,
+        socket_forward_builder_path: str = '',
+        socket_forward_builder_kwargs: Optional[dict] = None,
     ) -> None:
         if use_jit_trace:
             if inference_acceleration != 'none':
@@ -355,6 +398,9 @@ class InferenceServer:
         self.request_decoder_path = request_decoder_path
         self.stats_q = stats_q
         self.stats_interval_s = stats_interval_s
+        self.socket_port = int(socket_port)
+        self.socket_forward_builder_path = socket_forward_builder_path
+        self.socket_forward_builder_kwargs = socket_forward_builder_kwargs
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -397,6 +443,9 @@ class InferenceServer:
                 self.request_decoder_path,
                 self.stats_q,
                 self.stats_interval_s,
+                self.socket_port,
+                self.socket_forward_builder_path,
+                self.socket_forward_builder_kwargs,
             ),
             daemon=False,
             name='InferenceServer',
