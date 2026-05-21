@@ -83,15 +83,23 @@ class DMCParadigm:
         return DMCLogitAsQLoss(pcfg)
 
     def make_collector(self, cfg: Any, env_factory: Any, network: Any, opp_pool: Any) -> Any:
-        """Serial or async collector based on cfg.pipeline.mode.
+        """Serial / Python mp / Go-native collector based on cfg.pipeline.{mode,actor_backend}.
 
         env_factory: callable(game_idx) → GicgEnv, built by tools.runs.train.
-        opp_pool: paradigm-built OpponentPool from
-            ``make_opponent_pool`` (driver does not directly know this
-            type — but accepts the param for forwarding).
+        opp_pool: paradigm-built OpponentPool from ``make_opponent_pool``。
+
+        Dispatch matrix:
+        - mode='serial':DMCSerialCollector(Python in-proc,no actor pool)
+        - mode='async' + actor_backend='python'(默认):DMCMultiProcessCollector
+          (现 Python mp.Process pool)
+        - mode='async' + actor_backend='go'(I29):DMCGoActorCollector
+          (Go-native goroutine pool via libgicg_actor)
         """
         pcfg = self._resolve_pcfg(cfg)
         if cfg.pipeline.mode == 'async':
+            actor_backend = getattr(cfg.pipeline, 'actor_backend', 'python')
+            if actor_backend == 'go':
+                return self._make_go_collector(cfg, pcfg, network)
             return DMCMultiProcessCollector(cfg, pcfg, network, opp_pool, env_factory)
         # Serial default
         if env_factory is None:
@@ -99,6 +107,48 @@ class DMCParadigm:
         env = env_factory(0)
         agent = network.agent if hasattr(network, 'agent') else network
         return DMCSerialCollector(cfg, pcfg, agent, opp_pool, env)
+
+    def _make_go_collector(self, cfg: Any, pcfg: Any, network: Any) -> Any:
+        """Build DMCGoActorCollector with paradigm_cfg_dict assembled from cfg + pcfg。
+
+        Scenario / opp 配置 walk cfg.scenario + pcfg(epsilon / opp_features /
+        opp_depth from opponent_mix 简化:取 F1-D2 默认)。
+        """
+        from training.paradigms.dmc.go_collector import DMCGoActorCollector
+
+        sc = cfg.scenario
+        game_spec = {
+            'pools': [sc.pool] if isinstance(sc.pool, str) else sc.pool or ['v_legacy'],
+            'seed': cfg.meta.seed,
+            'players': [
+                {'chars': [{'name': n} for n in sc.team_0]},
+                {'chars': [{'name': n} for n in sc.team_1]},
+            ],
+        }
+        if sc.card_pool is not None:
+            game_spec['card_pool'] = sc.card_pool
+        if sc.deck_padding is not None:
+            game_spec['deck_padding'] = sc.deck_padding
+        if sc.max_rounds:
+            game_spec['max_rounds'] = sc.max_rounds
+
+        paradigm_cfg = {
+            'game_spec': game_spec,
+            'opp_features': 'F1',
+            'opp_depth': 2,
+            'max_actions': int(getattr(pcfg, 'max_actions', 30)),
+            'max_episode_steps': int(getattr(pcfg, 'max_game_steps', 360)),
+            'my_player_strategy': 'alternate',
+            'base_seed': int(cfg.meta.seed),
+            'epsilon': float(getattr(pcfg, 'epsilon', 0.05)),
+        }
+        n_actors = int(getattr(cfg.pipeline, 'num_actors', 1))
+        return DMCGoActorCollector(
+            cfg=cfg,
+            network=network,
+            paradigm_cfg_dict=paradigm_cfg,
+            n_actors=n_actors,
+        )
 
     def make_episode_policy(self, cfg: Any, instance_id: int = 0, deterministic: bool = False) -> Any:
         pcfg = self._resolve_pcfg(cfg)
