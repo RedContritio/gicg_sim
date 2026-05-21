@@ -134,14 +134,16 @@ def _server_loop(
     stats_sum_qsize = 0
     stats_max_qsize = 0
     stats_qsize_samples = 0
-    stats_sum_process_ms = 0.0  # 每 batch 整体 process wall (decode+forward+dispatch).
+    stats_sum_decode_ms = 0.0
+    stats_sum_forward_ms = 0.0
+    stats_sum_dispatch_ms = 0.0
     stats_sum_fillwait_ms = 0.0
     stats_t_last_emit = time.perf_counter()
 
     def _maybe_emit_stats():
         nonlocal stats_n_batches, stats_n_requests, stats_sum_batch_size, stats_max_batch_size
         nonlocal stats_sum_qsize, stats_max_qsize, stats_qsize_samples
-        nonlocal stats_sum_process_ms, stats_sum_fillwait_ms
+        nonlocal stats_sum_decode_ms, stats_sum_forward_ms, stats_sum_dispatch_ms, stats_sum_fillwait_ms
         nonlocal stats_t_last_emit
         if not stats_enabled:
             return
@@ -160,7 +162,12 @@ def _server_loop(
             'batching_efficiency': round(stats_sum_batch_size / (batches * max_batch), 3) if stats_n_batches else 0.0,
             'queue_depth_avg': round(stats_sum_qsize / qs_samples, 2),
             'queue_depth_max': stats_max_qsize,
-            'process_ms_avg': round(stats_sum_process_ms / batches, 3) if stats_n_batches else 0.0,
+            'decode_ms_avg': round(stats_sum_decode_ms / batches, 3) if stats_n_batches else 0.0,
+            'forward_ms_avg': round(stats_sum_forward_ms / batches, 3) if stats_n_batches else 0.0,
+            'dispatch_ms_avg': round(stats_sum_dispatch_ms / batches, 3) if stats_n_batches else 0.0,
+            'process_ms_avg': round((stats_sum_decode_ms + stats_sum_forward_ms + stats_sum_dispatch_ms) / batches, 3)
+            if stats_n_batches
+            else 0.0,
             'fillwait_ms_avg': round(stats_sum_fillwait_ms / batches, 3) if stats_n_batches else 0.0,
             'batches_per_sec': round(stats_n_batches / elapsed, 2),
             'requests_per_sec': round(stats_n_requests / elapsed, 2),
@@ -178,7 +185,9 @@ def _server_loop(
         stats_sum_qsize = 0
         stats_max_qsize = 0
         stats_qsize_samples = 0
-        stats_sum_process_ms = 0.0
+        stats_sum_decode_ms = 0.0
+        stats_sum_forward_ms = 0.0
+        stats_sum_dispatch_ms = 0.0
         stats_sum_fillwait_ms = 0.0
         stats_t_last_emit = now
 
@@ -240,14 +249,13 @@ def _server_loop(
             stats_sum_batch_size += len(batch)
             stats_max_batch_size = max(stats_max_batch_size, len(batch))
             stats_sum_fillwait_ms += (time.perf_counter() - t_fillwait_start) * 1000.0
-        t_process_start = time.perf_counter() if stats_enabled else 0.0
         # Paradigm-aware batched path: networks exposing batched_forward
         # + batch>1 → one forward + scatter via _run_batched_path. Singletons
         # + networks without batched_forward fall to the per-request loop
         # (only path that exercises trace/compile accel).
         if hasattr(network, 'batched_forward') and len(batch) > 1:
             with trace.span('inf_server.batched_forward'):
-                _run_batched_path(
+                timing = _run_batched_path(
                     network,
                     batch,
                     device_str,
@@ -256,38 +264,49 @@ def _server_loop(
                     shared_cache,
                     return_numpy=return_numpy,
                 )
-            if stats_enabled:
-                stats_sum_process_ms += (time.perf_counter() - t_process_start) * 1000.0
+            if stats_enabled and timing:
+                stats_sum_decode_ms += timing.get('decode_ms', 0.0)
+                stats_sum_forward_ms += timing.get('forward_ms', 0.0)
+                stats_sum_dispatch_ms += timing.get('dispatch_ms', 0.0)
                 _maybe_emit_stats()
             continue
 
         for msg in batch:
             _kind, client_id, req_id, obs_bytes, mask_bytes = msg
+            tt0 = time.perf_counter() if stats_enabled else 0.0
             try:
                 with trace.span('inf_server.decode'):
                     if request_decoder is not None:
                         obs, mask = request_decoder(obs_bytes, mask_bytes, device_str, shared_cache, network)
                     else:
-                        # IPC delivers CPU tensors; move to server device.
-                        # Response cast to cpu before pickling so client-side
-                        # unpickle works on hosts without matching cuda.
                         obs = _from_bytes(obs_bytes)
                         mask = _from_bytes(mask_bytes) if mask_bytes is not None else None
                         obs = _to_device(obs, device_str)
                         if mask is not None:
                             mask = _to_device(mask, device_str)
+                tt1 = time.perf_counter() if stats_enabled else 0.0
                 net = accel.select(obs, mask)
                 with trace.span('inf_server.forward'):
                     with torch.inference_mode():
                         out = net(obs, mask) if mask is not None else net(obs)
+                    if stats_enabled and device_str.startswith('cuda'):
+                        # 强制 sync 使 forward 时间不被 .to('cpu') 吞 — 否则
+                        # .cpu() 触发 cudaStreamSynchronize 把 GPU compute
+                        # 算到 dispatch 段。
+                        torch.cuda.synchronize()
+                tt2 = time.perf_counter() if stats_enabled else 0.0
                 with trace.span('inf_server.dispatch'):
                     out = _to_device(out, 'cpu')
                     payload_bytes = _to_bytes_numpy(out) if return_numpy else _to_bytes(out)
                     response_qs[client_id].put(('ok', req_id, payload_bytes))
+                if stats_enabled:
+                    tt3 = time.perf_counter()
+                    stats_sum_decode_ms += (tt1 - tt0) * 1000.0
+                    stats_sum_forward_ms += (tt2 - tt1) * 1000.0
+                    stats_sum_dispatch_ms += (tt3 - tt2) * 1000.0
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
         if stats_enabled:
-            stats_sum_process_ms += (time.perf_counter() - t_process_start) * 1000.0
             _maybe_emit_stats()
 
 

@@ -145,7 +145,7 @@ def _run_batched_path(
     request_decoder=None,
     shared_cache: Any = None,
     return_numpy: bool = False,
-) -> None:
+) -> dict:
     """Decode all obs once, run ``network.batched_forward``, scatter rows.
 
     Per-request decode failures surface as a single 'err' on that
@@ -163,7 +163,14 @@ def _run_batched_path(
     When ``return_numpy=True``, the row is converted to numpy bytes via
     :func:`_to_bytes_numpy` so the client process can unpickle without
     importing torch (I25 — decoder-path actors stay torch-free).
+
+    Returns timing dict ``{decode_ms, forward_ms, dispatch_ms}`` so caller
+    can accumulate per-phase stats(2026-05-21 — verify "GPU 38ms forward"
+    hypothesis via实证 phase 拆分,而不是合并 process_ms 一个字段)。
     """
+    import time as _time
+
+    t0 = _time.perf_counter()
     decoded: list = []
     with trace.span('inf_server.decode'):
         for msg in batch:
@@ -174,21 +181,22 @@ def _run_batched_path(
                 else:
                     obs = _from_bytes(obs_bytes)
                     obs = _to_device(obs, device_str)
-                    # mask is unused by DMC batched_forward (caller slices
-                    # n_legal externally); decode-and-discard for parity with
-                    # per-request path so a malformed mask still surfaces as
-                    # an err for that client only.
                     if mask_bytes is not None:
                         _ = _from_bytes(mask_bytes)
                 decoded.append((client_id, req_id, obs))
             except Exception as exc:
                 response_qs[client_id].put(('err', req_id, f'{type(exc).__name__}: {exc}'))
+    t1 = _time.perf_counter()
     if not decoded:
-        return
+        return {'decode_ms': (t1 - t0) * 1000.0, 'forward_ms': 0.0, 'dispatch_ms': 0.0}
     try:
         with trace.span('inf_server.batched_forward_inner'):
             with torch.inference_mode():
                 batched_out = network.batched_forward([d[2] for d in decoded])
+            # CUDA sync 显式 — 否则 .to('cpu') 触发 sync 把 forward 时间
+            # 算到 dispatch 里,GPU forward wall 看起来假性低。
+            if device_str.startswith('cuda'):
+                torch.cuda.synchronize()
             batched_out = _to_device(batched_out, 'cpu')
     except Exception as exc:
         err_msg = f'{type(exc).__name__}: {exc}'
@@ -197,7 +205,8 @@ def _run_batched_path(
                 response_qs[client_id].put(('err', req_id, err_msg))
             except Exception:
                 pass
-        return
+        return {'decode_ms': (t1 - t0) * 1000.0, 'forward_ms': 0.0, 'dispatch_ms': 0.0}
+    t2 = _time.perf_counter()
     encode = _to_bytes_numpy if return_numpy else _to_bytes
     with trace.span('inf_server.dispatch'):
         for i, (client_id, req_id, _obs) in enumerate(decoded):
@@ -206,3 +215,9 @@ def _run_batched_path(
                 response_qs[client_id].put(('ok', req_id, encode(row)))
             except Exception as exc:  # pragma: no cover — queue closed
                 print(f'[InferenceServer] response_q put failed: {exc}')
+    t3 = _time.perf_counter()
+    return {
+        'decode_ms': (t1 - t0) * 1000.0,
+        'forward_ms': (t2 - t1) * 1000.0,
+        'dispatch_ms': (t3 - t2) * 1000.0,
+    }
