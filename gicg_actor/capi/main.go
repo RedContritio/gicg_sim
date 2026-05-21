@@ -23,6 +23,9 @@ import "C"
 
 import (
 	"gicg_mono/gicg_actor"
+	// Side-effect: triggers DMC paradigm registration (init() in dmc package).
+	// P2:add 4 more paradigm imports(az/ppo/cfr/bc)同模式触发各自 init() 注册。
+	_ "gicg_mono/gicg_actor/dmc"
 )
 
 // main 必需(go build -buildmode=c-shared 要求 main package),但 c-shared 模式下不执行。
