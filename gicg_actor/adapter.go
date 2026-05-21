@@ -27,8 +27,13 @@ import (
 //
 // Run 返 err 表示 fatal — actor goroutine 退出,主体 log + 不重启(P1.1b 简化)。
 // ctx.Done() 表示 stop_pool 信号,paradigm 必须及时退出(检查频率 ≥ 每 episode)。
+//
+// Configure 在 pool spawn actor 之前调一次,传 paradigm-specific JSON cfg。 paradigm 自
+// 反序列化(scenario spec / opp 参数 / max_actions 等)。 Configure 失败 → StartPool 返
+// error code,actor 不 spawn。 主体 paradigm-agnostic,不知 cfg schema。
 type Paradigm interface {
 	Name() string
+	Configure(jsonCfg string) error
 	Run(ctx context.Context, actorID int, infCli *InferenceClient, transWri *TransitionWriter) error
 }
 

@@ -18,7 +18,11 @@
 // (参 openspec/changes/i29-go-actor-pool/design.md D4)。
 package main
 
-// #include <stdint.h>
+/*
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+*/
 import "C"
 
 import (
@@ -45,6 +49,41 @@ func gicg_actor_hello() C.int {
 //export gicg_actor_start_pool
 func gicg_actor_start_pool(n C.int) C.int {
 	return C.int(gicg_actor.StartPool(int(n)))
+}
+
+// 起 N actor goroutine 跑指定 paradigm + 配 InfServer / TransSink socket addresses。
+// Production 入口(P1.4 起):Python master 先 build 完 paradigm config JSON (DMC schema 见
+// gicg_actor/dmc/paradigm.go:DMCConfig),然后调本 API 起 pool。
+//
+// 参数:
+//
+//	paradigm_name:registry lookup("dmc" / 后续 "az" "ppo" ...)
+//	n_actors:goroutine 数
+//	inf_addr:"host:port" InferenceServer 监听地址,空字符串则 skip(单测用)
+//	trans_addr:"host:port" Python transition sink,空字符串则 skip(单测用)
+//	paradigm_cfg_json:透传给 paradigm.Configure,paradigm 自反序列化
+//	io_timeout_ms:socket I/O timeout,0 = 默认 30000
+//
+// 返码:见 gicg_actor/pool.go:StartPoolWithConfig 注释。
+//
+//export gicg_actor_start_pool_v2
+func gicg_actor_start_pool_v2(
+	paradigmName *C.char,
+	nActors C.int,
+	infAddr *C.char,
+	transAddr *C.char,
+	paradigmCfgJSON *C.char,
+	ioTimeoutMs C.int,
+) C.int {
+	cfg := gicg_actor.Config{
+		NActors:            int(nActors),
+		ParadigmName:       C.GoString(paradigmName),
+		InfServerAddr:      C.GoString(infAddr),
+		TransSinkAddr:      C.GoString(transAddr),
+		IOTimeoutMs:        int(ioTimeoutMs),
+		ParadigmConfigJSON: C.GoString(paradigmCfgJSON),
+	}
+	return C.int(gicg_actor.StartPoolWithConfig(cfg))
 }
 
 // 优雅停 + join 所有 actor goroutine。 返 0 = success,1 = not running。

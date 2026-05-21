@@ -1,9 +1,11 @@
-"""GoActorBackend — Python ctypes wrapper for libgicg_actor (I29 P0 scaffold).
+"""GoActorBackend — Python ctypes wrapper for libgicg_actor (I29 P0/P1.4)。
 
 Loads ``libgicg_actor.dll/.dylib`` (built from ``gicg_actor/capi/``) and exposes
-``start_pool(n)`` / ``stop_pool()`` / ``hello()`` C API。 Phase 0 仅 hello-world
-+ 起停;Phase 1 扩 production episode loop + transition SHM read + InfServer
-socket 配置。
+``hello`` / ``start_pool(n)`` / ``start_pool_v2(...)`` / ``stop_pool`` C API。
+
+P0 入口:``start(n_actors)`` 起 N goroutine 占位(hello-world 用)。
+P1.4 production 入口:``start_with_config(paradigm, n_actors, inf_addr, trans_addr,
+paradigm_cfg)`` 起完整 episode loop pool。
 
 边界(参 openspec/changes/i29-go-actor-pool/design.md):
 - 本 wrapper 不引入 RL 概念到 ``gicg_engine``;libgicg_actor 独立 c-shared,
@@ -17,10 +19,11 @@ from __future__ import annotations
 
 import atexit
 import ctypes
+import json
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 
 def _lib_filename() -> str:
@@ -71,6 +74,15 @@ class GoActorBackend:
             lib.gicg_actor_hello.argtypes = []
             lib.gicg_actor_start_pool.restype = ctypes.c_int
             lib.gicg_actor_start_pool.argtypes = [ctypes.c_int]
+            lib.gicg_actor_start_pool_v2.restype = ctypes.c_int
+            lib.gicg_actor_start_pool_v2.argtypes = [
+                ctypes.c_char_p,  # paradigm_name
+                ctypes.c_int,  # n_actors
+                ctypes.c_char_p,  # inf_addr
+                ctypes.c_char_p,  # trans_addr
+                ctypes.c_char_p,  # paradigm_cfg_json
+                ctypes.c_int,  # io_timeout_ms
+            ]
             lib.gicg_actor_stop_pool.restype = ctypes.c_int
             lib.gicg_actor_stop_pool.argtypes = []
             GoActorBackend._lib = lib
@@ -83,7 +95,7 @@ class GoActorBackend:
         return int(GoActorBackend._lib.gicg_actor_hello())
 
     def start(self, n_actors: int) -> None:
-        """Spawn N actor goroutine。 重复 start 抛。"""
+        """Spawn N actor goroutine — P0 占位入口(hello-world only)。 重复 start 抛。"""
         if n_actors <= 0:
             raise ValueError(f'GoActorBackend.start: n_actors must be positive, got {n_actors}')
         if self._started:
@@ -91,6 +103,60 @@ class GoActorBackend:
         rc = int(GoActorBackend._lib.gicg_actor_start_pool(n_actors))
         if rc != 0:
             raise RuntimeError(f'gicg_actor_start_pool({n_actors}) failed: rc={rc}')
+        self._started = True
+
+    def start_with_config(
+        self,
+        *,
+        paradigm: str,
+        n_actors: int,
+        inf_addr: str,
+        trans_addr: str,
+        paradigm_cfg: dict[str, Any],
+        io_timeout_ms: int = 30000,
+    ) -> None:
+        """Production 入口(P1.4 起)— spawn N actor 走指定 paradigm + InfServer / TransSink。
+
+        paradigm_cfg 是 paradigm-specific config dict — 序列化成 JSON 透传给 Go side
+        paradigm.Configure。 DMC schema(gicg_actor/dmc/paradigm.go:DMCConfig):
+            {
+              "game_spec": {pools, players[][chars][{name}], seed, ...},  # factory.GameConfig
+              "opp_features": "F1" | "F2" | ...,
+              "opp_depth": 1..4,
+              "max_actions": 30,
+              "max_episode_steps": 360,
+              "my_player_strategy": "alternate" | "fixed_0" | "fixed_1",
+              "base_seed": int,
+              "epsilon": 0.05
+            }
+
+        rc 含义(参 gicg_actor/pool.go):
+            1=already_running,2=invalid_n,3=unknown_paradigm,4=inf_connect_fail,
+            5=trans_connect_fail,6=paradigm_configure_fail。
+        """
+        if n_actors <= 0:
+            raise ValueError(f'GoActorBackend.start_with_config: n_actors must be positive, got {n_actors}')
+        if self._started:
+            raise RuntimeError('GoActorBackend.start_with_config: already started, call stop() first')
+        if not paradigm:
+            raise ValueError('GoActorBackend.start_with_config: paradigm name required')
+        cfg_json = json.dumps(paradigm_cfg)
+        rc = int(
+            GoActorBackend._lib.gicg_actor_start_pool_v2(
+                paradigm.encode('utf-8'),
+                n_actors,
+                (inf_addr or '').encode('utf-8'),
+                (trans_addr or '').encode('utf-8'),
+                cfg_json.encode('utf-8'),
+                io_timeout_ms,
+            )
+        )
+        if rc != 0:
+            raise RuntimeError(
+                f'gicg_actor_start_pool_v2(paradigm={paradigm}, n={n_actors}) failed: rc={rc}\n'
+                f'  rc=1 already_running, 2 invalid_n, 3 unknown_paradigm, 4 inf_connect_fail, '
+                f'5 trans_connect_fail, 6 paradigm_configure_fail'
+            )
         self._started = True
 
     def stop(self) -> None:

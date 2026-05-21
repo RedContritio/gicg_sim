@@ -26,6 +26,9 @@ type Config struct {
 	InfServerAddr string // "host:port" — Go socket connect Python InfServer
 	TransSinkAddr string // "host:port" — Go socket connect Python trainer transition sink
 	IOTimeoutMs   int    // 默认 30000 ms
+	// ParadigmConfigJSON 透传给 paradigm.Configure(). paradigm 自反序列化 — 主体不知 schema.
+	// DMC schema 见 gicg_actor/dmc/paradigm.go:DMCConfig。
+	ParadigmConfigJSON string
 }
 
 // pool 是全局单例。 Python master 同一时刻只起一组 actor pool;ctypes API 是 stateless
@@ -70,6 +73,7 @@ func initSignalHandler() {
 //	3 = unknown paradigm name
 //	4 = inference client connect failed
 //	5 = transition writer connect failed
+//	6 = paradigm.Configure failed (bad JSON / unknown field)
 func StartPool(n int) int {
 	return StartPoolWithConfig(Config{NActors: n})
 }
@@ -94,6 +98,11 @@ func StartPoolWithConfig(cfg Config) int {
 		if paradigm == nil {
 			cancelFn()
 			return 3
+		}
+		if err := paradigm.Configure(cfg.ParadigmConfigJSON); err != nil {
+			fmt.Fprintf(os.Stderr, "[gicg_actor] paradigm configure failed: %v\n", err)
+			cancelFn()
+			return 6
 		}
 		// Connect InfServer + TransSink upfront — fail-loud if address bad,actor
 		// goroutine 起跑后才发现 socket 不通会有 N 个 partial-init 状态。
