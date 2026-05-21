@@ -27,8 +27,9 @@ import "C"
 
 import (
 	"gicg_mono/gicg_actor"
-	// Side-effect: triggers DMC paradigm registration (init() in dmc package).
-	// P2:add 4 more paradigm imports(az/ppo/cfr/bc)同模式触发各自 init() 注册。
+	// Side-effect imports: trigger per-paradigm registration via init()。
+	// 加 paradigm 在此加一行 import,自动注册;P2 ship 顺序:DMC ✓ AZ ✓ PPO / CFR / BC。
+	_ "gicg_mono/gicg_actor/az"
 	_ "gicg_mono/gicg_actor/dmc"
 )
 
