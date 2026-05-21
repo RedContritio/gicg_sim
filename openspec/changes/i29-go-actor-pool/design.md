@@ -156,13 +156,24 @@ Phase 数从 7 压缩到 4(详 `tasks.md`):
 | 2 paradigm adapter port | `gicg_actor/{az,ppo,cfr,bc}/` 各 obs encoder + opp baseline(per-paradigm 单独 sub-PR) | ~300 + per-paradigm | 5 paradigm smoke + smoke_full 全 PASS |
 | 3 production train | stage3_b_v_legacy.toml 整局 1M frames N=64 + Mac gauntlet 验证收敛 | — | wp vs F1-D2 落 baseline 95% CI |
 
-### D7 — Transition push:SHM ring(reuse)
+### D7 — Transition push:localhost socket(raw bytes + length prefix)
 
-reuse `training/core/actor/shm_ring.py` 现有 SHMRing 协议(Python 已用 2GB SHM ring 给 DMC mp
-collector)。 Go writer 端 mirror 同 layout,跨平台 mmap(Win `CreateFileMapping` + Unix `shm_open`)。
-zero-copy,~ns push。
+**修正(2026-05-21,P1.1 implementation 阶段发现)**:原 design 默认 "reuse SHMRing 协议"
+不可行 — `training/core/actor/ipc/ring.py` 用 `mp.Lock` + `mp.Value` 是 Python multiprocessing
+specific(POSIX semaphore / Win Mutex 的 Python wrapper,internal layout 不 documented),Go 端
+无法可靠 mirror sync primitive。 用 raw mmap + atomic ops + custom spinlock 重设计跨语言 SHM 协议
+是 ~500 LOC + 跨平台测试,scope 大风险中。
 
-Python 端读路径不变(DMC collector 现已经从 SHMRing.read 取 transition),Go 侧只换 writer 实现。
+改默认:**localhost socket(同 D5 IPC 协议同向)**。 Go writer → Python reader 走第二条 socket
+(独立于 D5 InfServer socket),raw bytes + length prefix wire format。 RTT ~3μs sub-ms,production
+N=16 实测 transition aggregate ~20/s,socket 完全够。
+
+defer 真 SHM 优化到 Phase 3 perf 数据驱动:若 P1.5 Win 实测 transition push 真成瓶颈再重设计协议;
+不然 socket 是更 KISS 选择(同 IPC 一份 wire format codebase,无第二种 sync primitive)。
+
+Python 端 collector 适配:`training/core/actor/go_backend.py` 加 transition socket listener +
+reader thread → push 进 paradigm collector 的 transition queue(现 DMC collector 用 SHMRing reader,
+Go backend 换成 socket reader,collector interface 不变)。
 
 ## ADR-agent 自定 trade-off(决定后内联)
 

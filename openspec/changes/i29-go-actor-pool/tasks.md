@@ -48,8 +48,10 @@
 - [ ] T-1.3 `gicg_actor/adapter.go`:`ObsEncoder` + `OppBaseline` interface + paradigm 注册表
 - [ ] T-1.4 `gicg_actor/inference_client.go`:TCP localhost socket 客户端,raw bytes wire format
       (D5 schema)
-- [ ] T-1.5 `gicg_actor/shm_ring.go`:transition SHM writer,mirror `training/core/actor/shm_ring.py`
-      协议(cross-platform mmap)
+- [ ] T-1.5 `gicg_actor/transition_writer.go`:transition push 走第二条 localhost socket
+      (raw bytes + length prefix,~3μs RTT)。 **D7 修正**:原默认 SHM ring 不可行(Python
+      SHMRing 用 mp.Lock/mp.Value 跨语言不可靠);socket KISS 同 IPC 一份 wire format。
+      Defer SHM 到 P3 perf 驱动
 - [ ] T-1.6 `gicg_actor/{pool,episode,adapter,inference_client,shm_ring}_test.go`:Go unit tests
       (单 goroutine episode + socket roundtrip mock + SHM round-trip)
 
