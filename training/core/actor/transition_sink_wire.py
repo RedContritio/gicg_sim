@@ -68,6 +68,32 @@ _DMC_PAYLOAD_ARRAYS: tuple[tuple[str, np.dtype, str], ...] = (
     ('static', np.dtype(np.int32), 'n_static'),
 )
 
+# AZ paradigm-specific payload schema(mirror Go AzTransitionHeader)。
+# 跟 DMC 同模式 + 加 root_value (MCTS bootstrap target) + visits (action prob dist)。
+_AZ_PAYLOAD_FMT = '<I I i i I I I I I I 16s'
+_AZ_PAYLOAD_FIELDS = (
+    'chosen_action',
+    'step_in_episode',
+    'reward_x1m',
+    'root_value_x1m',
+    'n_legal',
+    'n_dyn',
+    'n_refs',
+    'n_pay',
+    'n_static',
+    'n_visits',
+    'static_hash',
+)
+_AZ_PAYLOAD_HEADER_SIZE = struct.calcsize(_AZ_PAYLOAD_FMT)
+
+_AZ_PAYLOAD_ARRAYS: tuple[tuple[str, np.dtype, str], ...] = (
+    ('dyn_obs', np.dtype(np.float32), 'n_dyn'),
+    ('refs', np.dtype(np.int64), 'n_refs'),
+    ('pay', np.dtype(np.float32), 'n_pay'),
+    ('static', np.dtype(np.int32), 'n_static'),
+    ('visits', np.dtype(np.float32), 'n_visits'),
+)
+
 
 @dataclass
 class Transition:
@@ -78,6 +104,28 @@ class Transition:
     step: int
     done: bool
     payload: bytes
+
+
+@dataclass
+class AzTransitionPayload:
+    """AZ paradigm-specific payload after decoding ``Transition.payload``。
+
+    visits 是 MCTS root visits distribution(normalized to sum 1 over legal actions),
+    用作 policy gradient training target。 root_value 是 network V(s) at root, GAE-
+    equivalent bootstrap target。
+    """
+
+    chosen_action: int
+    step_in_episode: int
+    reward: float
+    root_value: float
+    n_legal: int
+    static_hash: bytes
+    dyn_obs: np.ndarray
+    refs: np.ndarray
+    pay: np.ndarray
+    static: np.ndarray
+    visits: np.ndarray  # float32 normalized prob dist
 
 
 @dataclass
@@ -233,6 +281,92 @@ def decode_dmc_payload(blob: bytes, *, dyn_obs_len: Optional[int] = None) -> Dmc
         chosen_action=header['chosen_action'],
         step_in_episode=header['step_in_episode'],
         reward=header['reward_x1m'] / 1e6,
+        n_legal=header['n_legal'],
+        static_hash=header['static_hash'],
+        **arrays,
+    )
+
+
+def encode_az_payload(
+    *,
+    chosen_action: int,
+    step_in_episode: int,
+    reward: float,
+    root_value: float,
+    n_legal: int,
+    static_hash: bytes,
+    dyn_obs: np.ndarray,
+    refs: np.ndarray,
+    pay: np.ndarray,
+    static: Optional[np.ndarray] = None,
+    visits: Optional[np.ndarray] = None,
+) -> bytes:
+    """Encode AZ paradigm payload bytes(mirror Go EncodeAzTransitionPayload)。 Test
+    用 mirror — production Go side encode + Python side decode。"""
+    if len(static_hash) != 16:
+        raise ValueError(f'static_hash must be 16 bytes, got {len(static_hash)}')
+    static_arr = static if static is not None else np.zeros(0, dtype=np.int32)
+    visits_arr = visits if visits is not None else np.zeros(0, dtype=np.float32)
+
+    arrays = {
+        'dyn_obs': np.ascontiguousarray(dyn_obs, dtype=np.float32),
+        'refs': np.ascontiguousarray(refs, dtype=np.int64),
+        'pay': np.ascontiguousarray(pay, dtype=np.float32),
+        'static': np.ascontiguousarray(static_arr, dtype=np.int32),
+        'visits': np.ascontiguousarray(visits_arr, dtype=np.float32),
+    }
+    counts = {
+        'n_dyn': len(arrays['dyn_obs']),
+        'n_refs': len(arrays['refs']),
+        'n_pay': len(arrays['pay']),
+        'n_static': len(arrays['static']),
+        'n_visits': len(arrays['visits']),
+    }
+    header_values = {
+        'chosen_action': chosen_action,
+        'step_in_episode': step_in_episode,
+        'reward_x1m': int(reward * 1e6),
+        'root_value_x1m': int(root_value * 1e6),
+        'n_legal': n_legal,
+        'static_hash': static_hash,
+        **counts,
+    }
+    header = struct.pack(_AZ_PAYLOAD_FMT, *(header_values[f] for f in _AZ_PAYLOAD_FIELDS))
+    parts = [header]
+    for name, _, _ in _AZ_PAYLOAD_ARRAYS:
+        arr = arrays[name]
+        if arr.size > 0:
+            parts.append(arr.tobytes())
+    return b''.join(parts)
+
+
+def decode_az_payload(blob: bytes) -> AzTransitionPayload:
+    """Decode AZ paradigm payload bytes(``Transition.payload``)。"""
+    if len(blob) < _AZ_PAYLOAD_HEADER_SIZE:
+        raise ValueError(f'AZ payload {len(blob)} byte < header {_AZ_PAYLOAD_HEADER_SIZE}')
+    header = dict(zip(_AZ_PAYLOAD_FIELDS, struct.unpack_from(_AZ_PAYLOAD_FMT, blob, 0)))
+    expected_len = _AZ_PAYLOAD_HEADER_SIZE
+    for _, dtype, count_field in _AZ_PAYLOAD_ARRAYS:
+        expected_len += header[count_field] * dtype.itemsize
+    if len(blob) != expected_len:
+        diagnostics = ' '.join(f'{cf}={header[cf]}' for _, _, cf in _AZ_PAYLOAD_ARRAYS)
+        raise ValueError(f'AZ payload len {len(blob)} != expected {expected_len} ({diagnostics})')
+
+    arrays = {}
+    off = _AZ_PAYLOAD_HEADER_SIZE
+    for name, dtype, count_field in _AZ_PAYLOAD_ARRAYS:
+        n = header[count_field]
+        if n > 0:
+            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off)
+        else:
+            arrays[name] = np.zeros(0, dtype=dtype)
+        off += n * dtype.itemsize
+
+    return AzTransitionPayload(
+        chosen_action=header['chosen_action'],
+        step_in_episode=header['step_in_episode'],
+        reward=header['reward_x1m'] / 1e6,
+        root_value=header['root_value_x1m'] / 1e6,
         n_legal=header['n_legal'],
         static_hash=header['static_hash'],
         **arrays,
