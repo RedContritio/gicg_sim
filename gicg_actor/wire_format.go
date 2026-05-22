@@ -72,9 +72,17 @@ type InferRequestHeader struct {
 var HeaderSize = binary.Size(InferRequestHeader{})
 
 // InferResponseHeader 同样固定头。 加字段在此加一行。
+//
+// OK 路径(Status=0):body = logits[NLogits] f32 + value[NValue] f32。 NValue 通常
+// 0(DMC 不用 value head)或 1(AZ/PPO 单 scalar V(s))。
+// Err 路径(Status=1):body = err_msg bytes,NLogits = err_msg byte length,NValue=0。
+//
+// u32 统一(同 InferRequestHeader)— logits 实际 ≤ max_actions=30,但 u32 防 future
+// 扩展 + protocol uniformity。
 type InferResponseHeader struct {
-	Status uint8
-	N      uint16
+	Status  uint8
+	NLogits uint32
+	NValue  uint32
 }
 
 // ResponseHeaderSize 派生自 struct,no hardcoded byte count。
@@ -92,10 +100,12 @@ type InferRequest struct {
 	Static []int32
 }
 
-// InferResponse 是 server 端返的 logits / 错误信息。
+// InferResponse 是 server 端返的 logits / value(optional)/ 错误信息。
+// Value 长度 0 表示 "无 value head"(DMC 路径);长度 1 表示 scalar V(s)(AZ/PPO 路径)。
 type InferResponse struct {
 	Status uint8
 	Logits []float32
+	Value  []float32 // 长度 0 (DMC) 或 1 (AZ/PPO 单 scalar V(s))
 	ErrMsg string
 }
 
@@ -173,17 +183,19 @@ func EncodeInferResponse(resp *InferResponse) ([]byte, error) {
 	var body []byte
 	switch resp.Status {
 	case InferStatusOK:
-		if len(resp.Logits) > 0xFFFF {
-			return nil, fmt.Errorf("encode: logits len %d > u16 max", len(resp.Logits))
+		header = InferResponseHeader{
+			Status:  InferStatusOK,
+			NLogits: uint32(len(resp.Logits)),
+			NValue:  uint32(len(resp.Value)),
 		}
-		header = InferResponseHeader{Status: InferStatusOK, N: uint16(len(resp.Logits))}
-		body = f32Bytes(resp.Logits)
+		body = append(f32Bytes(resp.Logits), f32Bytes(resp.Value)...)
 	case InferStatusErr:
 		errBytes := []byte(resp.ErrMsg)
-		if len(errBytes) > 0xFFFF {
-			return nil, fmt.Errorf("encode: err_msg len %d > u16 max", len(errBytes))
+		header = InferResponseHeader{
+			Status:  InferStatusErr,
+			NLogits: uint32(len(errBytes)),
+			NValue:  0,
 		}
-		header = InferResponseHeader{Status: InferStatusErr, N: uint16(len(errBytes))}
 		body = errBytes
 	default:
 		return nil, fmt.Errorf("encode: unknown status %d", resp.Status)
@@ -210,17 +222,21 @@ func DecodeInferResponse(payload []byte) (*InferResponse, error) {
 	resp := &InferResponse{Status: header.Status}
 	switch header.Status {
 	case InferStatusOK:
-		expected := ResponseHeaderSize + int(header.N)*4
+		expected := ResponseHeaderSize + int(header.NLogits)*4 + int(header.NValue)*4
 		if len(payload) != expected {
-			return nil, fmt.Errorf("ok response len %d != expected %d (n_logits=%d)", len(payload), expected, header.N)
+			return nil, fmt.Errorf("ok response len %d != expected %d (n_logits=%d n_value=%d)",
+				len(payload), expected, header.NLogits, header.NValue)
 		}
-		resp.Logits, _ = readF32(payload, ResponseHeaderSize, int(header.N))
+		off := ResponseHeaderSize
+		resp.Logits, off = readF32(payload, off, int(header.NLogits))
+		resp.Value, _ = readF32(payload, off, int(header.NValue))
 	case InferStatusErr:
-		expected := ResponseHeaderSize + int(header.N)
+		expected := ResponseHeaderSize + int(header.NLogits)
 		if len(payload) != expected {
-			return nil, fmt.Errorf("err response len %d != expected %d (n_msg=%d)", len(payload), expected, header.N)
+			return nil, fmt.Errorf("err response len %d != expected %d (n_msg=%d)",
+				len(payload), expected, header.NLogits)
 		}
-		resp.ErrMsg = string(payload[ResponseHeaderSize : ResponseHeaderSize+int(header.N)])
+		resp.ErrMsg = string(payload[ResponseHeaderSize : ResponseHeaderSize+int(header.NLogits)])
 	default:
 		return nil, fmt.Errorf("unknown response status %d", header.Status)
 	}

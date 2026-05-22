@@ -160,7 +160,7 @@ def test_encode_request_bad_static_hash_size():
 
 def test_decode_response_unknown_status_raises():
     """Unknown status byte → fail loud(防 Go side ship 新 status forget 同步 Python)。"""
-    payload = bytes([99]) + struct.pack('<H', 0)
+    payload = bytes([99]) + struct.pack('<II', 0, 0)  # status=99 + n_logits=0 + n_value=0
     with pytest.raises(ValueError, match='unknown response status'):
         decode_infer_response(payload)
 
@@ -170,8 +170,9 @@ def test_constants_match_go_layout():
     drift 时一边改一边漏。"""
     # Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
     # drift。 v2 schema u32 array lens: header = 2+16+4+4+4+4+4+4 = 42 bytes。
+    # ResponseHeader v3: u8 status + u32 n_logits + u32 n_value = 9 bytes。
     assert HEADER_SIZE == 42
-    assert RESPONSE_HEADER_SIZE == 3
+    assert RESPONSE_HEADER_SIZE == 9
     assert STATIC_HASH_SIZE == 16
     assert WIRE_VERSION == 2
     assert INFER_STATUS_OK == 0
