@@ -31,7 +31,17 @@ import tarfile
 import tempfile
 from pathlib import Path
 
-from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg, ps_quote, scp_to, ssh_run
+import shlex
+
+from tools.runs._host import (
+    RemoteCfg,
+    is_local_host,
+    load_remote_from_cfg,
+    ps_quote,
+    scp_to,
+    ssh_run,
+    ssh_run_bash,
+)
 
 REPO_DIRS = ['gicg_engine', 'training', 'gicg_env', 'tools', 'data', 'configs']
 LAST_SHA_FILE = '.last_synced_sha'
@@ -70,6 +80,56 @@ def _committed_diff(base_sha: str | None) -> list[Path]:
         if p.exists() and p.is_file():
             out.append(p)
     return out
+
+
+def _deleted_since_commit(base_sha: str | None) -> list[Path]:
+    """Files deleted/renamed-away between ``base_sha`` and HEAD。 tar-based sync 只
+    upsert,git 删/改名的旧路径在远端永久残留 —— 本函数返回的路径需在 remote 显式 rm。
+
+    用 ``--diff-filter=D --name-only`` 抓 D 状态;**不开 -M**,使 rename 走 D+A
+    (旧路径在 D 集合内),开 -M 则 rename 走 R 漏掉旧名。 base=None(首次 sync)→
+    无 base 可 diff,返 []。
+    """
+    if base_sha is None:
+        return []
+    raw = _git('diff', '--diff-filter=D', '--name-only', f'{base_sha}..HEAD')
+    return [Path(s.strip()) for s in raw.splitlines() if s.strip()]
+
+
+def _uncommitted_deletions() -> list[Path]:
+    """`git status -s` 中 D 状态行(staged `D ` / unstaged ` D` / both `DD`)。
+    `_uncommitted_files` 过滤掉了不存在的路径 → 不包含删除;本函数补集。"""
+    out: list[Path] = []
+    for line in _git('status', '-s').splitlines():
+        if len(line) < 4:
+            continue
+        x, y = line[0], line[1]
+        if x == 'D' or y == 'D':
+            out.append(Path(line[3:].strip()))
+    return out
+
+
+def _ssh_delete_paths(remote: RemoteCfg, paths: list[Path]) -> int:
+    """Remove the listed (repo-relative) paths on remote。 Win → PowerShell
+    `Remove-Item -LiteralPath @(...) -Force -ErrorAction SilentlyContinue`;
+    POSIX → `rm -f`。 容忍缺失(idempotent)。 空 list → no-op。"""
+    if not paths:
+        return 0
+    if remote.os == 'windows':
+        # Win 路径反斜杠;PowerShell array literal `@('a','b')`。
+        ps_paths = ', '.join(ps_quote(str(p).replace('/', '\\')) for p in paths)
+        ps = (
+            f'cd {ps_quote(remote.root_native)}; '
+            f'Remove-Item -LiteralPath @({ps_paths}) -Force -ErrorAction SilentlyContinue'
+        )
+        r = ssh_run(remote, ps)
+    else:
+        files = ' '.join(shlex.quote(str(p)) for p in paths)
+        sh = f'cd {shlex.quote(remote.root)} && rm -f {files}'
+        r = ssh_run_bash(remote, sh)
+    if r.returncode != 0:
+        print(f'[sync] remote delete failed: {r.stderr}', file=sys.stderr)
+    return r.returncode
 
 
 def _read_remote_sha(remote: RemoteCfg) -> str | None:
@@ -122,7 +182,8 @@ def _print_plan(label: str, paths: list[Path], base_sha: str | None, head: str, 
 
 
 def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) -> int:
-    """Default mode — uncommitted ∪ committed_diff(remote_sha → HEAD)。"""
+    """Default mode — uncommitted ∪ committed_diff(remote_sha → HEAD)+ remote-side
+    deletion of paths git 删/改名 since last sync(tar 只 upsert,不删)。"""
     head = _git('rev-parse', 'HEAD').strip()
     base = base_sha_override if base_sha_override is not None else _read_remote_sha(remote)
     uncommitted = _uncommitted_files()
@@ -134,17 +195,38 @@ def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) 
         if p not in seen:
             seen.add(p)
             paths.append(p)
-    clean = not uncommitted
+    # Deletions:committed deletions(base..HEAD)+ uncommitted deletions(workdir/index)。
+    committed_dels = _deleted_since_commit(base)
+    uncommitted_dels = _uncommitted_deletions()
+    seen_d: set[Path] = set()
+    deletions: list[Path] = []
+    for p in (*committed_dels, *uncommitted_dels):
+        if p not in seen_d:
+            seen_d.add(p)
+            deletions.append(p)
+    # clean tree = 无 modified + 无 deleted(原 `not uncommitted` 漏 deletion 子集;
+    # 纯删除场景下旧逻辑把 dirty tree 误判 clean → sha 错误前进)。
+    clean = not uncommitted and not uncommitted_dels
     label = 'auto (first-sync, ls-files)' if base is None else f'auto (diff {base[:12]}..HEAD)'
     if dry_run:
         _print_plan(label, paths, base, head, clean)
+        if deletions:
+            print(f'[sync:dry-run] + {len(deletions)} files to delete on remote:')
+            for p in deletions:
+                print(f'  - {p}')
         return 0
-    if not paths:
+    if not paths and not deletions:
         print(f'[sync] nothing to push (remote already at {head[:12]})')
         return 0
-    rc = _tar_and_send(remote, paths, label)
-    if rc != 0:
-        return rc
+    if paths:
+        rc = _tar_and_send(remote, paths, label)
+        if rc != 0:
+            return rc
+    if deletions:
+        print(f'[sync] deleting {len(deletions)} stale remote file(s) (git removed/renamed since last sync)')
+        rc = _ssh_delete_paths(remote, deletions)
+        if rc != 0:
+            return rc
     # Only advance sha pointer on clean trees — uncommitted means the next
     # push must re-include the same committed diff + still-dirty files,
     # so don't move the base.
