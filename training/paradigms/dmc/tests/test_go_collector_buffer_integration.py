@@ -4,6 +4,9 @@
 G-backfill + sample 路径,与 Python actor pool 产 DmcTransition 行为一致。 这是
 Go path producing trainable data 的端到端 verification。
 
+I29 T-RR.4(Route A)后无 socket forward builder — collector 内部用真 DMCNetwork,
+InfServer 走 request_q 批处理 + decode_dmc_request。
+
 Mac-only(libgicg_actor.dylib 路径)。 Win 同测在 P1.5 stress 跑 build dll 验证。
 
 Pipeline tested:
@@ -17,27 +20,31 @@ from __future__ import annotations
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
-import torch
-import torch.nn as nn
 
 from training.paradigms.dmc.buffer import DmcReplayBuffer
 from training.paradigms.dmc.go_collector import DMCGoActorCollector
 
 
-class _StubInferenceNet(nn.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.n_counter_slots = 1832
-        self.n_hooks = 900
-        self.max_ops_per_hook = 64
-        self.fields_per_op = 5
-        self.d_model = 64
-        self.dummy = nn.Linear(1, 30)
+def _build_dmc_network() -> Any:
+    """Build a production-shape DMCNetwork。 Route A 后 collector wrap network.net
+    进 DMCInferenceNet 喂 InfServer。 结构维度取 IR obs schema 固定常量。"""
+    from training.core.network import AgentConfig
+    from training.core.cfg import make_dmc_default_shape
+    from training.paradigms.dmc.network import DMCNetwork
 
-    def forward(self, obs_dict):  # noqa: ARG002
-        return {'logit_as_q': torch.zeros(1, 30)}
+    shape = make_dmc_default_shape()
+    agent_cfg = AgentConfig(
+        n_counter_slots=shape.n_counter_slots,
+        n_hooks=shape.n_hooks,
+        max_ops_per_hook=shape.max_ops_per_hook,
+        max_actions=shape.max_actions,
+        d_model=128,
+        n_cross_layers=2,
+    )
+    return DMCNetwork(agent_cfg, device='cpu', epsilon=0.05)
 
 
 class _StubCfg:
@@ -46,17 +53,6 @@ class _StubCfg:
         inference_batch_timeout_ms = 2
 
     pipeline = _Pipeline()
-
-
-def build_stub_zero_forward(*, device_str, shared_cache, network, max_actions=30):  # noqa: ARG001
-    import numpy as np
-
-    from training.core.actor.inference_server_socket_wire import INFER_STATUS_OK, InferResponse
-
-    def cb(req):  # noqa: ARG001
-        return InferResponse(status=INFER_STATUS_OK, logits=np.zeros(max_actions, dtype=np.float32))
-
-    return cb
 
 
 def _libs_built() -> bool:
@@ -79,22 +75,20 @@ def test_go_collector_to_buffer_integration():
             ],
         },
         'opponent_mix': {'random': 1.0},
-        'max_actions': 30,
+        # 生产 max_actions=2048 —— 必须 == 网络 action 容量(make_dmc_default_shape);
+        # v_legacy 真实 nLegal 可超 30,过小会触发 pickActionEpsilonGreedy fail-loud panic。
+        'max_actions': 2048,
         'max_episode_steps': 360,
         'my_player_strategy': 'fixed_0',
         'base_seed': 42,
         'epsilon': 0.05,
     }
-    net = _StubInferenceNet()
+    net = _build_dmc_network()
     collector = DMCGoActorCollector(
         cfg=_StubCfg(),
         network=net,
         paradigm_cfg_dict=paradigm_cfg,
         n_actors=2,
-        socket_forward_builder_path=(
-            'training.paradigms.dmc.tests.test_go_collector_buffer_integration.build_stub_zero_forward'
-        ),
-        socket_forward_builder_kwargs={'max_actions': 30},
     )
     buffer = DmcReplayBuffer(capacity=10_000, seed=42)
 

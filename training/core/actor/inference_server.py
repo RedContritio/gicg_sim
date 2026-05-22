@@ -24,7 +24,7 @@ import queue as _queue
 import time
 import traceback
 import warnings
-from typing import Any, Optional
+from typing import Any
 
 import torch
 
@@ -60,8 +60,7 @@ def _server_loop(
     stats_q=None,
     stats_interval_s: float = 5.0,
     socket_port: int = 0,
-    socket_forward_builder_path: str = '',
-    socket_forward_builder_kwargs: Optional[dict] = None,
+    socket_max_actions: int = 0,
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
@@ -125,25 +124,78 @@ def _server_loop(
     accel = _AccelState(network, inference_acceleration)
 
     # Optional socket listener:Go-native actor pool 走 socket 路径 — listener thread
-    # 在本 InfServer process 内启动,共享 ``network`` + ``shared_cache`` 闭包变量。 weight
-    # update / cache wipe 走 main loop 的 in-place mutate,listener callback 闭包读最新
-    # 值无需额外同步(Python GIL 保 dict/state_dict 原子)。
+    # 在本 InfServer process 内启动。 I29 T-RR.4 — Route A:listener 的 per-conn
+    # ``forward_cb`` 不再自行 decode+forward(旧 socket-direct-forward 路径,绕过批处理),
+    # 而是把请求 ``put`` 进 ``request_q``,与 mp.Queue 客户端共用 main loop 的批处理 +
+    # ``response_qs`` 回程。 socket client 的 ``client_id`` 由 Go actor id (0..N-1) 给定,
+    # 对应预注册的 ``response_qs[client_id]``(``InferenceServer`` ``socket_clients`` 参数)。
     socket_listener_thr = None
     socket_listener_stop = None
     if socket_port > 0:
-        if not socket_forward_builder_path:
+        if socket_max_actions <= 0 or request_decoder is None:
             ready_event.set()
             stop_event.set()
-            raise RuntimeError('_server_loop: socket_port > 0 requires socket_forward_builder_path')
-        from training.core.actor.actor_process import resolve_builder
+            raise RuntimeError(
+                '_server_loop: socket_port > 0 (Route A) requires socket_max_actions > 0 and request_decoder_path set'
+            )
         from training.core.actor.inference_server_socket_listener import (
             start_listener_in_thread as _start_socket_listener,
         )
+        from training.core.actor.inference_server_socket_wire import (
+            INFER_STATUS_ERR,
+            INFER_STATUS_OK,
+            InferRequest as _SocketInferRequest,
+            InferResponse as _SocketInferResponse,
+        )
+        from training.paradigms.dmc._socket_decoder import socket_request_to_pickled_payload
+        import numpy as _np
+        import sys as _sys
         import threading as _threading
 
-        builder = resolve_builder(socket_forward_builder_path)
-        kwargs = dict(socket_forward_builder_kwargs or {})
-        forward_cb = builder(device_str=device_str, shared_cache=shared_cache, network=network, **kwargs)
+        def forward_cb(req: '_SocketInferRequest') -> '_SocketInferResponse':
+            """Route A — socket request 走 ``request_q`` 批处理。
+
+            per-conn handler thread 调用本闭包:adapt socket InferRequest →
+            pickled payload → ``request_q.put`` → 阻塞读对应 ``response_qs[client_id]``。
+            main loop 与 mp.Queue 客户端一视同仁 batch + forward。
+            """
+            cid = req.client_id
+            # client_id 越界 fail-loud:Go actor id 应 ∈ [0, socket_clients) —— 越界 =
+            # socket_clients 配置 ≠ 实际 Go actor 数(I29 T-RR.4 review #3),裸
+            # IndexError 不指向根因。
+            if cid < 0 or cid >= len(response_qs):
+                raise ValueError(
+                    f'socket forward: client_id {cid} 越界 [0,{len(response_qs)}) — socket_clients 与 Go actor 数不一致'
+                )
+            obs_bytes = socket_request_to_pickled_payload(req, max_actions=socket_max_actions)
+            request_q.put(('infer', cid, req.req_id, obs_bytes, b''))
+            # 带 timeout 轮询读响应 —— main loop 在 stop 后 break,残留 'infer' 请求不再
+            # 被处理,无 timeout 会让本 handler thread 永久阻塞(review #2)。 req_id 不符
+            # = 上一条超时请求遗留的 stale 响应:丢弃续等正确的,绝不能把 stale logits
+            # 当本请求结果返回(review #1;per-conn 单 in-flight 下正常必匹配)。
+            while not stop_event.is_set():
+                try:
+                    kind, rid, payload = response_qs[cid].get(timeout=0.5)
+                except _queue.Empty:
+                    continue
+                if rid != req.req_id:
+                    print(
+                        f'[InferenceServer] socket forward 丢弃 stale 响应 client={cid} '
+                        f'got req_id={rid} want={req.req_id}',
+                        file=_sys.stderr,
+                        flush=True,
+                    )
+                    continue
+                if kind == 'ok':
+                    arr = _from_bytes(payload)
+                    logits = _np.asarray(arr, dtype=_np.float32).ravel()
+                    return _SocketInferResponse(status=INFER_STATUS_OK, logits=logits)
+                if kind == 'err':
+                    return _SocketInferResponse(status=INFER_STATUS_ERR, err_msg=str(payload))
+                raise ValueError(f'socket forward: 未知 response kind {kind!r}')
+            # stop_event set —— 关停中,返 err 让 handler 干净退出,不永久阻塞。
+            return _SocketInferResponse(status=INFER_STATUS_ERR, err_msg='inference server stopping')
+
         socket_listener_ready = _threading.Event()
         socket_listener_stop = _threading.Event()
         socket_listener_thr = _start_socket_listener(
@@ -369,8 +421,8 @@ class InferenceServer:
         stats_q=None,
         stats_interval_s: float = 5.0,
         socket_port: int = 0,
-        socket_forward_builder_path: str = '',
-        socket_forward_builder_kwargs: Optional[dict] = None,
+        socket_max_actions: int = 0,
+        socket_clients: int = 0,
     ) -> None:
         if use_jit_trace:
             if inference_acceleration != 'none':
@@ -399,14 +451,19 @@ class InferenceServer:
         self.stats_q = stats_q
         self.stats_interval_s = stats_interval_s
         self.socket_port = int(socket_port)
-        self.socket_forward_builder_path = socket_forward_builder_path
-        self.socket_forward_builder_kwargs = socket_forward_builder_kwargs
+        self.socket_max_actions = int(socket_max_actions)
+        self.socket_clients = int(socket_clients)
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
         self._stop_event = ctx.Event()
         self._response_qs: list = []
         self._proc = None
+        # Route A — socket client(Go actor id 0..N-1)的 response queue 预注册。
+        # socket forward_cb 用 req.client_id 直接索引 response_qs;与 mp.Queue 客户端
+        # 共用同一 list,故 socket client 必须在 [0, socket_clients) 占据头部槽位。
+        for _ in range(self.socket_clients):
+            self.register_client(ctx.Queue())
 
     @property
     def use_jit_trace(self) -> bool:
@@ -444,8 +501,7 @@ class InferenceServer:
                 self.stats_q,
                 self.stats_interval_s,
                 self.socket_port,
-                self.socket_forward_builder_path,
-                self.socket_forward_builder_kwargs,
+                self.socket_max_actions,
             ),
             daemon=False,
             name='InferenceServer',

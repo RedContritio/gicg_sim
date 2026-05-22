@@ -9,8 +9,8 @@ Architecture(对应 design.md):
     ┌─ Python master ────────────────────────────────────────────────────┐
     │                                                                    │
     │  InferenceServer (mp.Process)                                      │
-    │   ├─ socket listener thread (Go → forward → response)              │
-    │   └─ embedded forward_callback走 decode_dmc_request                │
+    │   ├─ socket listener thread (Go → request_q → response)            │
+    │   └─ main loop batches socket + mp requests (Route A, T-RR.4)      │
     │                                                                    │
     │  Transition sink listener (in master thread) → assembler.ingest    │
     │                                                                    │
@@ -121,8 +121,6 @@ class DMCGoActorCollector:
         inf_port: Optional[int] = None,
         trans_port: Optional[int] = None,
         io_timeout_ms: int = 30_000,
-        socket_forward_builder_path: Optional[str] = None,
-        socket_forward_builder_kwargs: Optional[dict] = None,
         trans_queue_maxsize: int = 4096,
     ) -> None:
         self.cfg = cfg
@@ -132,12 +130,6 @@ class DMCGoActorCollector:
         self.inf_port = inf_port if inf_port is not None else _free_port()
         self.trans_port = trans_port if trans_port is not None else _free_port()
         self.io_timeout_ms = int(io_timeout_ms)
-        # Builder path defaults to production DMC socket decoder;test can override with
-        # a stub that bypasses decode_dmc_request(no hook_encoder needed)。
-        self._socket_forward_builder_path = (
-            socket_forward_builder_path or 'training.paradigms.dmc._socket_decoder.build_dmc_socket_forward_callback'
-        )
-        self._socket_forward_builder_kwargs = socket_forward_builder_kwargs
         self._weights_version = 0
         self._episode_seq = 0
         self._spawned = False
@@ -173,21 +165,26 @@ class DMCGoActorCollector:
         if self._spawned:
             return
 
-        # InferenceServer with socket listener + DMC forward callback。
+        # InferenceServer — Route A(I29 T-RR.4):socket 请求走 ``request_q`` 批处理。
+        # 网络必须是 ``DMCInferenceNet``(``DMCNetwork.__call__`` 故意 raise
+        # NotImplementedError;raw ``DMCNetwork`` 不能作 InfServer network)。 镜像
+        # ``_mp_internal._spawn_inference_pool`` 的构造:``DMCInferenceNet(actor_critic)``
+        # + ``request_decoder_path`` 指向 ``decode_dmc_request`` + ``max_batch`` =
+        # n_actors,使 N 个 socket client 的并发请求能批到一起。
+        from training.paradigms.dmc.inference_net import DMCInferenceNet
+
+        actor_critic = self.network.net if hasattr(self.network, 'net') else self.network
         self._server = InferenceServer(
-            network=self.network,
+            network=DMCInferenceNet(actor_critic),
             device=str(next(self.network.parameters()).device),
-            max_batch=int(getattr(self.cfg.pipeline, 'inference_max_batch', 1)) if hasattr(self.cfg, 'pipeline') else 1,
+            max_batch=max(1, self.n_actors),
             batch_timeout_ms=int(getattr(self.cfg.pipeline, 'inference_batch_timeout_ms', 2))
             if hasattr(self.cfg, 'pipeline')
             else 2,
+            request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
             socket_port=self.inf_port,
-            socket_forward_builder_path=self._socket_forward_builder_path,
-            socket_forward_builder_kwargs=(
-                self._socket_forward_builder_kwargs
-                if self._socket_forward_builder_kwargs is not None
-                else {'max_actions': self._max_actions}
-            ),
+            socket_max_actions=self._max_actions,
+            socket_clients=self.n_actors,
         )
         self._server.start(wait_ready_s=15.0)
 
@@ -281,10 +278,15 @@ class DMCGoActorCollector:
         )
 
     def sync_weights(self, network: Any) -> int:
-        """Publish learner weights to InfServer (via mp.Queue path,socket
-        listener 走 same closure-shared network 自动看到新权重)。"""
+        """Publish learner weights to InfServer (via mp.Queue 'weights' path)。
+
+        InfServer 的 network 是 ``DMCInferenceNet(actor_critic)`` —— 其 state_dict
+        key 带 ``net.`` 前缀(``DMCInferenceNet`` 通过 ``add_module('net', ...)`` 注册
+        ActorCritic)。 故这里推 ``net.``-前缀的 actor_critic state_dict,与 InfServer
+        network.load_state_dict 的 key 命名空间对齐。"""
         self._weights_version += 1
-        sd_cpu = {k: v.detach().cpu() for k, v in network.state_dict().items()}
+        actor_critic = network.net if hasattr(network, 'net') else network
+        sd_cpu = {'net.' + k: v.detach().cpu() for k, v in actor_critic.state_dict().items()}
         if self._server is not None:
             self._server.update_network(sd_cpu)
         return self._weights_version

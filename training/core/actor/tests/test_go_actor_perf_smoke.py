@@ -1,8 +1,9 @@
 """I29 — Mac perf smoke: Go actor pool sustained throughput + memory baseline。
 
 测试目标:15s wall window,N=4 actor Mac baseline,验证:
-- production decode→forward 路径端到端真通 — 真 DMCNetwork(d_model=128)+ 真
-  build_dmc_socket_forward_callback(T-R2:此前 Phase 1 smoke 全用 stub 绕过)
+- production decode→forward 路径端到端真通 — 真 DMCNetwork(d_model=128)经
+  DMCInferenceNet wrap + Route A socket inference(I29 T-RR.4:socket 请求走
+  request_q 批处理 + decode_dmc_request,此前 Phase 1 smoke 全用 stub 绕过)
 - fps/actor ≥ 2.5(实测真网络 max_actions=2048,正常 5.6-7.0;偶发不稳定见 gate 注释)
 - mem delta < 1100 MB(D4 minimax DeepCopy GC churn;非 leak)
 - 15s 跑完无 deadlock / fatal,decode_errors == 0
@@ -44,10 +45,10 @@ _MAX_ACTIONS = make_dmc_default_shape().max_actions
 def _build_dmc_network() -> Any:
     """Build a production-shape DMCNetwork for the perf smoke。
 
-    T-R2:perf smoke 不再用 stub forward。 走真 DMCNetwork + 真
-    ``build_dmc_socket_forward_callback`` — 端到端验证 production decode→forward
-    路径(socket InferRequest → decode_dmc_request → DMCInferenceNet.forward),
-    此前 Phase 1 Mac smoke 全用 stub 绕过该路径。
+    perf smoke 走真 DMCNetwork(wrap 进 DMCInferenceNet)+ Route A socket
+    inference — 端到端验证 production decode→forward 路径(socket InferRequest →
+    request_q 批处理 → decode_dmc_request → DMCInferenceNet.forward),此前
+    Phase 1 Mac smoke 全用 stub 绕过该路径。
 
     结构维度取 IR obs schema 固定常量(``make_dmc_default_shape``);d_model /
     n_cross_layers 用 Stage3 生产值(stage3_b_v_legacy.toml:128 / 2),使 Mac
@@ -93,16 +94,21 @@ def test_go_actor_perf_smoke_30s():
     inf_port = _free_port()
     trans_port = _free_port()
 
-    # InferServer with production socket forward — 真 DMCNetwork + 真
-    # build_dmc_socket_forward_callback(socket decode → DMCInferenceNet.forward)。
+    # InferServer with Route A socket inference(I29 T-RR.4)— 真 DMCNetwork wrap
+    # 进 DMCInferenceNet,socket 请求经 request_q 批处理 + decode_dmc_request。
     net = _build_dmc_network()
+    from training.paradigms.dmc.inference_net import DMCInferenceNet
+
+    N_ACTORS = 4
+    actor_critic = net.net if hasattr(net, 'net') else net
     server = InferenceServer(
-        network=net,
+        network=DMCInferenceNet(actor_critic),
         device='cpu',
-        max_batch=1,
+        max_batch=max(1, N_ACTORS),
+        request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
         socket_port=inf_port,
-        socket_forward_builder_path='training.paradigms.dmc._socket_decoder.build_dmc_socket_forward_callback',
-        socket_forward_builder_kwargs={'max_actions': _MAX_ACTIONS},
+        socket_max_actions=_MAX_ACTIONS,
+        socket_clients=N_ACTORS,
     )
     server.start(wait_ready_s=10.0)
 
@@ -155,7 +161,6 @@ def test_go_actor_perf_smoke_30s():
         'base_seed': 42,
         'epsilon': 0.05,
     }
-    N_ACTORS = 4
     RUN_SECONDS = 15.0  # Mac smoke 15s 足够 viability signal,30s 留 Win stress
 
     proc = psutil.Process(os.getpid())
@@ -205,7 +210,7 @@ def test_go_actor_perf_smoke_30s():
         f'decode_errors={n_errs}',
     )
     if sample_decode_errors:
-        print(f'[perf smoke] sample decode errors:\n  ' + '\n  '.join(sample_decode_errors))
+        print('[perf smoke] sample decode errors:\n  ' + '\n  '.join(sample_decode_errors))
 
     # Assertions — Mac viability gates,远低于 Phase 1.5 Win box production gate(N=16
     # fps≥70 = 4.4/actor):

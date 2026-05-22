@@ -159,8 +159,14 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
 
 ### 簇 2 — inference 真 batching(0.4 eps/s 主因,fps 闸门关键路径)
 
-- [ ] T-RR.4 InfServer socket listener 接 `request_q` batching + per-conn response
-      路由(完成 docstring deferred 的 P1.3c)。 socket 协议加 `req_id`。 配 batching test
+- [x] T-RR.4 InfServer socket inference 走 `request_q` 批处理(Route A):socket listener
+      的 `forward_cb` 改为「`socket_request_to_pickled_payload` → `request_q.put` → 等
+      `response_qs[client_id]`」,与 mp 客户端共用 `_server_loop` 已验证的 batching。
+      InfServer network 改 `DMCInferenceNet`(镜像 `_mp_internal`);`socket_forward_builder
+      _path/_kwargs` → `socket_max_actions` + `socket_clients`;旧 socket-direct-forward
+      路径(`build_dmc_socket_forward_callback`)删。 `req_id` 已在 wire 协议无需新增。
+      review 修:`forward_cb` 加 client_id 越界 fail-loud + `get` timeout + stop 检查 +
+      req_id 校验丢 stale。 配 socket_clients>1 并发测试
 - [x] T-RR.5 Go 端 inference 并发:`pool.go` 建 N 个 per-actor `InferenceClient`(各一条
       socket conn),`actorLoop` 走 `currentInfs[id]`。 选 Option A(per-actor conn)非
       Option B(单 conn + req_id 乱序)—— 简单且每 conn 单 in-flight 无需乱序协议。

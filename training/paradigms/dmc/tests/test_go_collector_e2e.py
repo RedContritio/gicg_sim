@@ -1,7 +1,9 @@
 """DMCGoActorCollector e2e smoke — verify full Go path produces buffer-ready episodes。
 
 跑 collector.collect → 拿 runtime_metrics['dmc_episodes'] → 验证 DmcTransition shape
-+ winner 可用。 不跑真 DMCInferenceNet(用 stub),验证 wiring 不验证 RL signal。
++ winner 可用。 I29 T-RR.4(Route A)后无 socket forward builder — collector 内部
+用真 DMCNetwork,InfServer 走 ``request_q`` 批处理 + ``decode_dmc_request``,故本测试
+端到端覆盖 production socket inference 路径(此前 stub forward bypass 该路径)。
 
 Mac-only(libgicg_actor.dylib 路径)。 Win 同测在 P1.5 stress test 跑 build dll。
 """
@@ -11,35 +13,34 @@ from __future__ import annotations
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
-import torch
-import torch.nn as nn
 
 from training.paradigms.dmc.go_collector import DMCGoActorCollector
 
 
-class _StubInferenceNet(nn.Module):
-    """Stub DMCInferenceNet — 暴露 actor_critic-like attributes the collector reads。
+def _build_dmc_network() -> Any:
+    """Build a production-shape DMCNetwork for the e2e smoke。
 
-    architecture params 设为 scenario 实际值(StaticObsSize parse 需精准 sizing,不能
-    随便填)— 这些必须匹配 gicg_engine/hook.go(ObsMaxHooks=900,ObsMaxOpsPerHook=64,
-    ObsFieldsPerOp=5)+ 实测 stage3 scenario StaticObsSize:n_counter_slots 推算 1832。
-    此 stub forward 返 zero logits over max_actions。
+    Route A(T-RR.4)后 collector 把 ``network.net``(ActorCritic)wrap 进
+    ``DMCInferenceNet`` 喂 InfServer。 结构维度取 IR obs schema 固定常量
+    (``make_dmc_default_shape``),与 ``test_go_actor_perf_smoke`` 同。
     """
+    from training.core.network import AgentConfig
+    from training.core.cfg import make_dmc_default_shape
+    from training.paradigms.dmc.network import DMCNetwork
 
-    def __init__(self) -> None:
-        super().__init__()
-        # 匹配 Go engine constants(gicg_engine/hook.go + observation.go):
-        self.n_counter_slots = 1832  # 推算自 stage3 实测 StaticObsSize=293628
-        self.n_hooks = 900  # gicg_engine ObsMaxHooks
-        self.max_ops_per_hook = 64  # gicg_engine ObsMaxOpsPerHook
-        self.fields_per_op = 5  # gicg_engine ObsFieldsPerOp
-        self.d_model = 64
-        self.dummy = nn.Linear(1, 2048)
-
-    def forward(self, obs_dict):  # noqa: ARG002
-        return {'logit_as_q': torch.zeros(1, 2048)}
+    shape = make_dmc_default_shape()
+    agent_cfg = AgentConfig(
+        n_counter_slots=shape.n_counter_slots,
+        n_hooks=shape.n_hooks,
+        max_ops_per_hook=shape.max_ops_per_hook,
+        max_actions=shape.max_actions,
+        d_model=128,
+        n_cross_layers=2,
+    )
+    return DMCNetwork(agent_cfg, device='cpu', epsilon=0.05)
 
 
 def _libs_built() -> bool:
@@ -49,7 +50,7 @@ def _libs_built() -> bool:
 
 
 class _StubCfg:
-    """Minimal cfg shape DMCGoActorCollector reads(pipeline.inference_max_batch etc.)。"""
+    """Minimal cfg shape DMCGoActorCollector reads(pipeline.inference_batch_timeout_ms etc.)。"""
 
     class _Pipeline:
         inference_max_batch = 1
@@ -58,25 +59,13 @@ class _StubCfg:
     pipeline = _Pipeline()
 
 
-def build_stub_zero_forward(*, device_str, shared_cache, network, max_actions=2048):  # noqa: ARG001
-    """Test-only forward callback:zero logits 不走 decode_dmc_request,无 hook_encoder
-    依赖。 collector wiring 测试用,production 路径走 build_dmc_socket_forward_callback。"""
-    import numpy as np
-
-    from training.core.actor.inference_server_socket_wire import INFER_STATUS_OK, InferResponse
-
-    def cb(req):  # noqa: ARG001
-        return InferResponse(status=INFER_STATUS_OK, logits=np.zeros(max_actions, dtype=np.float32))
-
-    return cb
-
-
 @pytest.mark.smoke_full
 @pytest.mark.skipif(not _libs_built(), reason='libgicg{,_actor} not built')
 def test_dmc_go_collector_e2e_smoke():
     """Start collector,let actors run ~5s,verify ≥1 episode assembled with DmcTransition shape。
 
-    Uses stub net (zero logits) — pipeline 验证,not RL signal。
+    走真 DMCNetwork(T-RR.4 Route A:socket 请求经 request_q 批处理)— pipeline 验证,
+    not RL signal。
     """
     paradigm_cfg = {
         'game_spec': {
@@ -96,15 +85,12 @@ def test_dmc_go_collector_e2e_smoke():
         'base_seed': 42,
         'epsilon': 0.05,
     }
-    net = _StubInferenceNet()
+    net = _build_dmc_network()
     collector = DMCGoActorCollector(
         cfg=_StubCfg(),
         network=net,
         paradigm_cfg_dict=paradigm_cfg,
         n_actors=2,
-        # Test stub forward — bypass decode_dmc_request(production path needs hook_encoder)
-        socket_forward_builder_path='training.paradigms.dmc.tests.test_go_collector_e2e.build_stub_zero_forward',
-        socket_forward_builder_kwargs={'max_actions': 2048},
     )
     try:
         # T-RR.3 后 collect() lazy-ingest:阻塞至 n_episodes 个 episode 组装完 或 10s
