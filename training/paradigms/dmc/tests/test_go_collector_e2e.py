@@ -105,15 +105,16 @@ def test_dmc_go_collector_e2e_smoke():
         socket_forward_builder_kwargs={'max_actions': 30},
     )
     try:
-        # First collect call:bootstrap + drain 0(actors just started)
-        out0 = collector.collect(n_episodes=10, provider=None)
-        assert out0.n_episodes == 0  # no episodes ready yet
-
-        # Let actors run a bit — Mac F1-D2 ~7 fps/actor → 2 actor in 5s ≈ 70 transitions ≈ ~3-5 episodes
-        time.sleep(5.0)
-
-        out = collector.collect(n_episodes=100, provider=None)
-        assert out.n_episodes >= 1, f'no episodes drained after 5s (got {out.n_episodes})'
+        # T-RR.3 后 collect() lazy-ingest:阻塞至 n_episodes 个 episode 组装完 或 10s
+        # deadline。 首次 collect 含 bootstrap(起 InfServer / listener / Go pool),期间
+        # actor 已开跑;collect 多轮累积,确保拿到 ≥1 个 assembled episode 验 shape。
+        out = collector.collect(n_episodes=5, provider=None)
+        for _ in range(5):
+            if out.n_episodes >= 1:
+                break
+            time.sleep(2.0)
+            out = collector.collect(n_episodes=5, provider=None)
+        assert out.n_episodes >= 1, f'no episodes drained (got {out.n_episodes})'
 
         # Verify episode_stats shape + dmc_episodes payload structure
         for stat in out.episode_stats:
