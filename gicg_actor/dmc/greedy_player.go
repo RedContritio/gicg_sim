@@ -1,9 +1,9 @@
 // greedy_player.go — F1-F5 × D1-D4 GreedyPlayer Go port from
 // training/core/matchup/greedy_player.py。
 //
-// Phase 1.2b 完整 port:F1-F5 scorer × D1-D4 minimax depth。 dice_greedy (greedy_dice.py)
-// 留 follow-up(220 LOC + 复杂 dice payment 折叠逻辑,scope 大,先 ship 无 dice_greedy 版本 —
-// production opp 用 default fan-out engine payments,wall time 略慢但 correctness 同)。
+// Phase 1.2b 完整 port:F1-F5 scorer × D1-D4 minimax depth。 dice_greedy 折叠
+// (dice_greedy.go)已 port:minimax 迭代前调 filterLogicalActions 把 dice-payment
+// fan-out 折叠成每逻辑动作 1 个 top-payment(N → N_logical),消除 O(N^depth) 爆炸。
 //
 // 数值等价目标(per design D2):**winrate gate** Go vs Python 同 baseline n=128 swap 内
 // 95% CI。 浮点 ops 顺序在 D1 单层不 critical,D2-D4 minimax 累积浮点 ε 可能造成 tie-break
@@ -85,14 +85,17 @@ func (gp *GreedyPlayer) scoreBestResponse(
 		return gp.scorer(viewRoot, record.ExportView(rt), eventsRoot, SnapshotEvents(g, me), me)
 	}
 	acting := g.ActingPlayer()
-	actions := g.GetLegalActions()
-	if len(actions) == 0 {
+	// dice_greedy fold:把 dice-payment fan-out 折叠成每逻辑动作 1 个 top-payment,
+	// minimax 只迭代折叠后的 index 子集(N → N_logical),避免 O(N^depth) 爆炸。
+	// 返回的 index 仍是 index into GetLegalActions(),g.Step(idx) 不变。
+	candidates := filterLogicalActions(g)
+	if len(candidates) == 0 {
 		// Mirror Python no-candidates path:return current score(no further step possible)
 		return gp.scorer(viewRoot, record.ExportView(rt), eventsRoot, SnapshotEvents(g, me), me)
 	}
 	hasBest := false
 	var best float64
-	for i := range actions {
+	for _, i := range candidates {
 		snap := g.DeepCopy()
 		var sub float64
 		func() {
@@ -123,18 +126,23 @@ func (gp *GreedyPlayer) scoreBestResponse(
 // (mirror Python `RuntimeError` 等价 fail loud)。
 func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	g := rt.Game
-	actions := g.GetLegalActions()
-	if len(actions) == 0 {
+	if len(g.GetLegalActions()) == 0 {
 		return -1, fmt.Errorf("GreedyPlayer: env has no legal actions")
 	}
 	me := g.ActingPlayer()
 	viewRoot := record.ExportView(rt)
 	eventsRoot := SnapshotEvents(g, me)
 
+	// dice_greedy fold:折叠 dice-payment fan-out 后只迭代逻辑动作子集
+	// (index into GetLegalActions(),g.Step 不变)。 GetLegalActions() 非空 →
+	// filterLogicalActions 至少返 1 个 candidate(end_turn 总在)。
+	candidates := filterLogicalActions(g)
+
 	// Top-level loop:每 candidate snapshot+step→ scoreBestResponse(depth-1 ply lookahead) → restore。
 	var bestScore float64
 	bestSet := make([]int, 0, 4)
-	for i := range actions {
+	first := true
+	for _, i := range candidates {
 		snap := g.DeepCopy()
 		var score float64
 		func() {
@@ -144,7 +152,8 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 			g.Step(i)
 			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1)
 		}()
-		if i == 0 || score > bestScore {
+		if first || score > bestScore {
+			first = false
 			bestScore = score
 			bestSet = bestSet[:0]
 			bestSet = append(bestSet, i)
