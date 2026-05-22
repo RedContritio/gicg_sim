@@ -166,9 +166,11 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
 
 ### 独立修复(可并行,不阻塞主链)
 
-- [ ] T-RR.6 静默路径改 fail-loud:`_socket_decoder.py`/`_go_assembler.py` reshape size
-      mismatch 改 raise;`pickActionEpsilonGreedy` logits-nLegal 不一致改 raise;listener
-      bind 失败不再静默 set `ready_event`
+- [x] T-RR.6 静默路径改 fail-loud:`_socket_decoder.py`/`_go_assembler.py` reshape size
+      mismatch → raise(marker n_legal=0 豁免);`pickActionEpsilonGreedy` nLegal>logits →
+      panic(配置错,fail-fast);两 listener bind 失败 → 不 set `ready_event` + stderr。
+      panic 暴露 3 个 e2e 测试旧用 `max_actions=30`(v_legacy 真实 nLegal 超之、旧静默
+      截断掩盖)→ 改生产值 2048
 - [ ] T-RR.7 actor 死亡可见性:`pool.go` actor goroutine fatal 上报(alive count 经
       C API 暴露);perf smoke 加"结束时 N actor 全活"断言
 - [ ] T-RR.8 wire header struct version/size 运行时交叉校验(transition + infer 两路)

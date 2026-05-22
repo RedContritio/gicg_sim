@@ -150,6 +150,19 @@ func TestPickActionEpsilonGreedy_MaskInvalid(t *testing.T) {
 	}
 }
 
+// TestPickActionEpsilonGreedy_PanicsOnTooFewLogits 守 I29 T-RR.6:nLegal > len(logits)
+// = 网络 action 容量 < 合法动作数(max_actions 配置错)→ fail-loud panic,不静默
+// 截断 argmax 范围(旧逻辑 limit=len(logits) 静默缩小动作空间)。
+func TestPickActionEpsilonGreedy_PanicsOnTooFewLogits(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Error("expected panic: nLegal=5 > len(logits)=2")
+		}
+	}()
+	rng := rand.New(rand.NewSource(1))
+	pickActionEpsilonGreedy([]float32{0.1, 0.2}, 5, 0.0, rng) // 5 legal but only 2 logits
+}
+
 func TestPickActionEpsilonGreedy_Explore(t *testing.T) {
 	logits := []float32{0.1, 0.9, 0.5}
 	rng := rand.New(rand.NewSource(0))
@@ -299,7 +312,10 @@ func startMockTransSinkChan(t *testing.T) (addr string, recv <-chan *gicg_actor.
 // 故有效性不依赖样本恰好含 opp-final-blow episode。 RED 验证:pre-T-RR.1 代码本测试
 // 失败(seed 7 下 episode 1/2/3/11 各 0 条 Done=true)。
 func TestRunEpisode_EveryEpisodeTerminates(t *testing.T) {
-	const maxActions = 30
+	// 生产 max_actions=2048(make_dmc_default_shape)。 v_legacy 真实 nLegal 在此值下
+	// 不溢出(perf smoke 验证)—— 用 30 会触发 pickActionEpsilonGreedy 的 nLegal>logits
+	// panic(T-RR.6 fail-loud)。
+	const maxActions = 2048
 	infAddr, stopInf := startMockInfServerZeros(t, maxActions)
 	defer stopInf()
 	sinkAddr, recv, stopSink := startMockTransSinkChan(t)
@@ -401,7 +417,10 @@ collect:
 // (socket 抖动 / consumer 死 / 超 transitionWriteTimeout)不致死 actor —— runEpisode
 // 返 nil(episode 中止),Run loop 得以继续下个 episode,不可逆减员被消除。
 func TestRunEpisode_PushFailureNotFatal(t *testing.T) {
-	const maxActions = 30
+	// 生产 max_actions=2048(make_dmc_default_shape)。 v_legacy 真实 nLegal 在此值下
+	// 不溢出(perf smoke 验证)—— 用 30 会触发 pickActionEpsilonGreedy 的 nLegal>logits
+	// panic(T-RR.6 fail-loud)。
+	const maxActions = 2048
 	infAddr, stopInf := startMockInfServerZeros(t, maxActions)
 	defer stopInf()
 

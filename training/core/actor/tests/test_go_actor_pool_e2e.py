@@ -71,11 +71,14 @@ def test_go_actor_pool_e2e_smoke():
     inf_port = _free_port()
     trans_port = _free_port()
 
-    # Echo-zeros forward callback: respond with logits of length max_actions(30) all zeros.
+    # Echo-zeros forward callback: respond with logits of length max_actions all zeros。
+    # max_actions 取生产值 2048(make_dmc_default_shape)—— v_legacy 真实 nLegal 可
+    # 超 30,logits 窄于 nLegal 会触发 pickActionEpsilonGreedy 的 fail-loud panic
+    # (I29 T-RR.6;旧逻辑静默截断 argmax 范围,掩盖了 max_actions 配置过小)。
     def echo_zero_logits(req: InferRequest) -> InferResponse:
         return InferResponse(
             status=INFER_STATUS_OK,
-            logits=np.zeros(30, dtype=np.float32),
+            logits=np.zeros(2048, dtype=np.float32),
         )
 
     received_transitions: list[Transition] = []
@@ -106,7 +109,7 @@ def test_go_actor_pool_e2e_smoke():
             ],
         },
         'opponent_mix': {'random': 1.0},
-        'max_actions': 30,
+        'max_actions': 2048,
         'max_episode_steps': 360,
         'my_player_strategy': 'fixed_0',
         'base_seed': 42,

@@ -34,6 +34,19 @@ def _free_port() -> int:
     return port
 
 
+def test_listener_bind_failure_does_not_set_ready():
+    """Bind 失败 → ready_event **不** set(I29 T-RR.6 fail-loud)。
+
+    旧逻辑 bind 失败仍 set ready_event,让 caller(go_collector._bootstrap)误以为
+    transition listener 已起 → Go transition push 全连不上而无人知。 用 privileged
+    port 1 可靠触发 bind 失败(非 root bind <1024 → PermissionError ⊂ OSError)。"""
+    ready = threading.Event()
+    stop = threading.Event()
+    thr = start_listener_in_thread(1, lambda t: None, ready, stop)
+    assert not ready.wait(timeout=1.0), 'bind failed but ready_event was set (caller would false-proceed)'
+    stop_listener(stop, thr)
+
+
 def test_listener_single_transition_roundtrip():
     """单 conn,1 transition push → callback 收到。"""
     port = _free_port()

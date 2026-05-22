@@ -36,10 +36,10 @@ class _StubInferenceNet(nn.Module):
         self.max_ops_per_hook = 64  # gicg_engine ObsMaxOpsPerHook
         self.fields_per_op = 5  # gicg_engine ObsFieldsPerOp
         self.d_model = 64
-        self.dummy = nn.Linear(1, 30)
+        self.dummy = nn.Linear(1, 2048)
 
     def forward(self, obs_dict):  # noqa: ARG002
-        return {'logit_as_q': torch.zeros(1, 30)}
+        return {'logit_as_q': torch.zeros(1, 2048)}
 
 
 def _libs_built() -> bool:
@@ -58,7 +58,7 @@ class _StubCfg:
     pipeline = _Pipeline()
 
 
-def build_stub_zero_forward(*, device_str, shared_cache, network, max_actions=30):  # noqa: ARG001
+def build_stub_zero_forward(*, device_str, shared_cache, network, max_actions=2048):  # noqa: ARG001
     """Test-only forward callback:zero logits 不走 decode_dmc_request,无 hook_encoder
     依赖。 collector wiring 测试用,production 路径走 build_dmc_socket_forward_callback。"""
     import numpy as np
@@ -88,7 +88,9 @@ def test_dmc_go_collector_e2e_smoke():
             ],
         },
         'opponent_mix': {'random': 1.0},
-        'max_actions': 30,
+        # 生产 max_actions=2048 —— v_legacy 真实 nLegal 可超 30,过小会触发
+        # pickActionEpsilonGreedy 的 fail-loud panic(I29 T-RR.6)。
+        'max_actions': 2048,
         'max_episode_steps': 360,
         'my_player_strategy': 'fixed_0',
         'base_seed': 42,
@@ -102,7 +104,7 @@ def test_dmc_go_collector_e2e_smoke():
         n_actors=2,
         # Test stub forward — bypass decode_dmc_request(production path needs hook_encoder)
         socket_forward_builder_path='training.paradigms.dmc.tests.test_go_collector_e2e.build_stub_zero_forward',
-        socket_forward_builder_kwargs={'max_actions': 30},
+        socket_forward_builder_kwargs={'max_actions': 2048},
     )
     try:
         # T-RR.3 后 collect() lazy-ingest:阻塞至 n_episodes 个 episode 组装完 或 10s

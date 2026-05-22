@@ -269,3 +269,22 @@ def test_socket_forward_handles_test_stub_with_logit_as_q_key():
     resp = cb_stub(req2)
     assert resp.status == INFER_STATUS_OK, f'stub forward failed: {resp.err_msg!r}'
     assert len(resp.logits) == _MAX_ACTIONS
+
+
+def test_socket_request_refs_size_mismatch_raises():
+    """refs/pay size != max_actions padded → fail-loud ValueError(I29 T-RR.6)。
+
+    旧逻辑 ``refs.reshape(...) if size==max_actions*3 else refs`` 静默退化为 1D ——
+    wire/max_actions 配置不一致被掩盖,下游 obs shape 错。 改为 size 不符即 raise。
+    """
+    bad_req = SocketInferRequest(
+        static_hash=b'\x00' * 16,
+        client_id=0,
+        req_id=1,
+        dyn_obs=np.zeros(16, dtype=np.float32),
+        refs=np.zeros(10, dtype=np.int64),  # 错:10 != _MAX_ACTIONS*3
+        pay=np.zeros(_MAX_ACTIONS * 8, dtype=np.float32),
+        static=np.zeros(0, dtype=np.int32),
+    )
+    with pytest.raises(ValueError, match='refs size'):
+        socket_request_to_pickled_payload(bad_req, max_actions=_MAX_ACTIONS)

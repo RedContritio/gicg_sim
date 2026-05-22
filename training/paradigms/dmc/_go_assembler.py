@@ -183,8 +183,19 @@ class DmcTransitionAssembler:
 
         transitions: list[DmcTransition] = []
         for dmc in buf.payloads:
-            refs_2d = dmc.refs.reshape(self.max_actions, 3) if dmc.refs.size == self.max_actions * 3 else dmc.refs
-            pay_2d = dmc.pay.reshape(self.max_actions, 8) if dmc.pay.size == self.max_actions * 8 else dmc.pay
+            if dmc.n_legal == 0:
+                # terminal marker(I29 T-RR.1)—— NLegal=0 无 obs,不产 DmcTransition。
+                continue
+            # refs/pay 必为 max_actions padded shape。 size 不符 = wire/max_actions 配置
+            # 不一致 —— fail-loud,不静默退化为 1D(I29 T-RR.6)。
+            if dmc.refs.size != self.max_actions * 3 or dmc.pay.size != self.max_actions * 8:
+                raise ValueError(
+                    f'DMC transition refs/pay size mismatch client={client_id} ep={episode_id}: '
+                    f'refs={dmc.refs.size} (want {self.max_actions * 3}) '
+                    f'pay={dmc.pay.size} (want {self.max_actions * 8}) — wire/max_actions mismatch'
+                )
+            refs_2d = dmc.refs.reshape(self.max_actions, 3)
+            pay_2d = dmc.pay.reshape(self.max_actions, 8)
             obs_dict = _capture_obs_np(
                 dyn_obs=dmc.dyn_obs,
                 n_legal=dmc.n_legal,
@@ -195,7 +206,6 @@ class DmcTransitionAssembler:
                 static_np=static_np,
             )
             if not obs_dict:
-                # n_legal=0 case — skip(matches Python flow)
                 continue
             transitions.append(
                 DmcTransition(

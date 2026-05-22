@@ -141,16 +141,21 @@ func pickActionEpsilonGreedy(logits []float32, nLegal int, epsilon float32, rng 
 	if nLegal <= 0 {
 		return -1
 	}
+	// nLegal > len(logits) = 网络 action 容量 < 合法动作数(max_actions 配置错)。
+	// 旧逻辑静默截断 limit=len(logits) → argmax 只在前 len(logits) 个里选,静默缩小
+	// 动作空间。 fail-loud panic —— 这是 systematic 配置 bug,必须立即暴露(I29 T-RR.6)。
+	// 校验在 ε 分支**之前** —— 否则 ε-explore 路径(rng.Intn(nLegal))会绕过校验,
+	// 同一配置 bug 下 ~95% step 崩、~5% 静默过,fail-loud 变非确定性(review fix)。
+	if nLegal > len(logits) {
+		panic(fmt.Sprintf("pickActionEpsilonGreedy: nLegal=%d > len(logits)=%d — "+
+			"network action capacity < legal action count (max_actions misconfigured)", nLegal, len(logits)))
+	}
 	if epsilon > 0 && rng.Float32() < epsilon {
 		return rng.Intn(nLegal)
 	}
 	bestIdx := 0
 	bestVal := float32(-1e30)
-	limit := nLegal
-	if limit > len(logits) {
-		limit = len(logits)
-	}
-	for i := 0; i < limit; i++ {
+	for i := 0; i < nLegal; i++ {
 		if logits[i] > bestVal {
 			bestVal = logits[i]
 			bestIdx = i

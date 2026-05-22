@@ -364,6 +364,31 @@ def test_assembler_buffers_inflight_cap_evicts_least_recently_active(capsys):
     assert 'ep=2' in captured.err
 
 
+def test_assembler_refs_size_mismatch_raises():
+    """真 transition(n_legal>0)refs/pay size != max_actions padded → _try_assemble
+    fail-loud ValueError(I29 T-RR.6)。 旧逻辑静默退化为 1D,wire/max_actions 错配被掩盖。
+    """
+    a = DmcTransitionAssembler(**_SCENARIO)
+    bad = encode_dmc_payload(
+        chosen_action=0,
+        step_in_episode=0,
+        reward=1.0,
+        n_legal=5,  # >0 → 真 transition,需校验(marker n_legal=0 才豁免)
+        static_hash=b'\x88' * 16,
+        dyn_obs=_build_dyn_obs(_SCENARIO['n_counter_slots']),
+        refs=np.zeros(10, dtype=np.int64),  # 错:10 != max_actions*3
+        pay=np.zeros(_SCENARIO['max_actions'] * 8, dtype=np.float32),
+        static=_build_static_obs(
+            _SCENARIO['n_counter_slots'],
+            _SCENARIO['n_hooks'],
+            _SCENARIO['max_ops_per_hook'],
+            _SCENARIO['fields_per_op'],
+        ),
+    )
+    with pytest.raises(ValueError, match='refs/pay size mismatch'):
+        a.ingest(Transition(client_id=0, episode_id=1, step=0, done=True, payload=bad))
+
+
 def test_assembler_decode_error_does_not_crash(capsys):
     """Wire 解码失败 → drop transition + stderr 报错,不 raise。"""
     a = DmcTransitionAssembler(**_SCENARIO)

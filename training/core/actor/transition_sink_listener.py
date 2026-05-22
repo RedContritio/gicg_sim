@@ -20,6 +20,7 @@ Limitation(P1.4 minimum):
 from __future__ import annotations
 
 import socket
+import sys
 import threading
 from typing import Callable, Optional
 
@@ -77,8 +78,11 @@ def _listener_loop(
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         sock.bind((host, port))
-    except OSError:
-        ready_event.set()
+    except OSError as exc:
+        # Bind 失败 → fail-loud:打印 stderr + **不** set ready_event。 旧逻辑 set 之
+        # 让 caller 误以为 listener 已起(实际无),后续 Go transition push 全连不上而
+        # 无人知。 不 set → caller 的 ready.wait() 超时 → caller raise(I29 T-RR.6)。
+        print(f'[TransitionSinkListener] bind {host}:{port} failed: {exc}', file=sys.stderr, flush=True)
         return
     sock.listen(128)
     sock.settimeout(accept_poll_s)
@@ -125,8 +129,6 @@ def _per_conn_handler(
                 t = decode_transition(payload)
                 sink_callback(t)
             except Exception as exc:  # noqa: BLE001 — sink 失败不该 kill conn
-                import sys
-
                 print(
                     f'[TransitionSink] decode/sink error: {type(exc).__name__}: {exc}',
                     file=sys.stderr,

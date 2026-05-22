@@ -23,6 +23,7 @@ Limitation(P1.3b minimum):
 from __future__ import annotations
 
 import socket
+import sys
 import threading
 from typing import Callable, Optional
 
@@ -95,9 +96,11 @@ def _listener_loop(
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         sock.bind((host, port))
-    except OSError:
-        # Bind fail — set ready anyway 让 caller 不死等;实际无 listener。
-        ready_event.set()
+    except OSError as exc:
+        # Bind 失败 → fail-loud:打印 stderr + **不** set ready_event。 旧逻辑 set 之
+        # 让 caller(InfServer _server_loop)误以为 listener 已起 → Go inference 全
+        # 连不上而无人知。 不 set → caller 的 ready.wait() 超时 → raise(I29 T-RR.6)。
+        print(f'[InfServerSocketListener] bind {host}:{port} failed: {exc}', file=sys.stderr, flush=True)
         return
     sock.listen(128)  # backlog 128 — N=16 actor 充足
     sock.settimeout(accept_poll_s)
@@ -148,6 +151,14 @@ def _per_conn_handler(
                 req = decode_infer_request(payload)
                 resp = forward_callback(req)
             except Exception as exc:  # noqa: BLE001 — forward 失败不该 kill conn
+                # fail-loud:打印 stderr —— forward 异常(如 wire/max_actions 配置错)
+                # 经 ERR response 回 actor 致其退出,但 InfServer 端也须留日志,否则
+                # systematic bug 排查时 InfServer 侧一无所获(I29 T-RR.6 review)。
+                print(
+                    f'[InfServerSocketListener] forward error: {type(exc).__name__}: {exc}',
+                    file=sys.stderr,
+                    flush=True,
+                )
                 resp = InferResponse(status=1, err_msg=f'{type(exc).__name__}: {exc}')
             try:
                 conn.sendall(encode_infer_response(resp))

@@ -217,20 +217,15 @@ def test_listener_stop_after_idle_period():
     assert not thr.is_alive()
 
 
-def test_listener_bind_fail_sets_ready_anyway():
-    """重复 bind 同 port → 第二 listener bind 失败但 ready_event 仍 set(caller 不死等)。"""
-    port = _free_port()
-    ready1 = threading.Event()
-    stop1 = threading.Event()
-    thr1 = start_listener_in_thread(port, _echo_logits_callback, ready1, stop1)
-    assert ready1.wait(timeout=2.0)
+def test_listener_bind_failure_does_not_set_ready():
+    """Bind 失败 → ready_event **不** set(I29 T-RR.6 fail-loud)。
 
-    ready2 = threading.Event()
-    stop2 = threading.Event()
-    # SO_REUSEADDR 让 macOS bind 不冲突;但 Linux 等可能 still fail。
-    # 总之 ready 必须 set(无论 success / fail),caller 不该死等。
-    thr2 = start_listener_in_thread(port, _echo_logits_callback, ready2, stop2)
-    assert ready2.wait(timeout=2.0), 'second listener ready event never set despite bind outcome'
-
-    stop_listener(stop1, thr1)
-    stop_listener(stop2, thr2)
+    旧逻辑 bind 失败仍 set ready_event,让 caller 误以为 listener 已起 → 后续 Go
+    inference 全连不上而无人知。 新逻辑:bind 失败打印 stderr + 不 set ready → caller
+    的 ready.wait() 超时 → caller raise。 用 privileged port 1 可靠触发 bind 失败
+    (非 root bind <1024 → PermissionError ⊂ OSError)。"""
+    ready = threading.Event()
+    stop = threading.Event()
+    thr = start_listener_in_thread(1, _echo_logits_callback, ready, stop)
+    assert not ready.wait(timeout=1.0), 'bind failed but ready_event was set (caller would false-proceed)'
+    stop_listener(stop, thr)
