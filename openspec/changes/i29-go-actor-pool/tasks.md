@@ -136,9 +136,10 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
 
 ### 簇 3 — episode 终结契约(先做:小、独立、修正确性 bug + 减泄漏)
 
-- [ ] T-RR.1 `paradigm.go` `MaxEpisodeSteps` 截断时给最后一条 transition 置 `Done=true`
-      (或补发 terminal transition);`_go_assembler.py` winner 从 engine `Winner`/`Phase`
-      取,不靠 `payloads[-1].reward`。 配 Go test(截断场景)+ assembler test
+- [x] T-RR.1 `paradigm.go` episode loop 退出后统一推 terminal marker(`Done=true`,
+      `NLegal=0`)—— 覆盖 opp-final-blow / 截断 / me-final-blow 全路径(旧逻辑仅
+      me-final-blow 置 done,~半数 episode 漏 → assembler 永不 finalize)。 marker 走
+      `n_legal==0` 路径,assembler/wire 无需改。 Go integration test + assembler 契约测试
 
 ### 簇 1 — backpressure + 队列有界化(RSS 10.5GB 机制)
 

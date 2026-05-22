@@ -249,6 +249,7 @@ func (p *DMCParadigm) runEpisode(
 
 	var step uint32
 	var reqID uint32
+	var pushedAny bool
 	for step = 0; step < uint32(p.cfg.MaxEpisodeSteps); step++ {
 		select {
 		case <-ctx.Done():
@@ -343,42 +344,73 @@ func (p *DMCParadigm) runEpisode(
 		g.Step(chosen)
 
 		if pushTrans {
-			done := g.Phase == engine.PhaseGameOver
-			reward := float32(0)
-			if done {
-				reward = terminalReward(g, me)
-			}
+			// 所有 in-loop transition Done=false / reward=0 —— episode 终结由 loop 后的
+			// terminal marker 统一表达(详下方 marker 注释)。
 			// 第一条被 push 的 transition 携带 static_obs raw int32;后续 NStatic=0 由
 			// Python 端 cache by static_hash 解。 用 staticTracker 而非 step==0 —— transition
 			// 只在 me 回合 push,对手先手时 step 0 不 push(详 episodeStaticTracker)。
 			staticForTrans := staticTracker.take(staticInt32)
 			payload := EncodeDmcTransitionPayload(
-				uint32(chosen), step, reward, preStepNLegal,
+				uint32(chosen), step, 0, preStepNLegal,
 				preStepDyn, preStepRefs, preStepPay, staticForTrans, staticHash,
 			)
 			tx := &gicg_actor.Transition{
 				ClientID:  clientID,
 				EpisodeID: episodeID,
 				Step:      step,
-				Done:      done,
+				Done:      false,
 				Payload:   payload,
 			}
 			if err := transWri.Push(tx); err != nil {
 				return fmt.Errorf("transition push step=%d: %w", step, err)
 			}
+			pushedAny = true
+		}
+	}
+
+	// Episode 终结 marker:loop 退出后(GameOver 或 MaxEpisodeSteps 截断)推一条
+	// Done=true 的 terminal transition。 必须独立于 in-loop push —— transition 只在 me
+	// 回合 push,对手打出致命一击 / 截断时最后一条 me-transition 不是终局,旧逻辑整个
+	// episode 无 Done=true → Python assembler 永不 finalize → _buffers 泄漏 + episode
+	// 数据丢失(I29 T-RR.1,~半数 episode 中招)。 marker NLegal=0:assembler 的
+	// _capture_obs_np 对 n_legal==0 返 {} → 不产 DmcTransition,marker 仅作 done 信号 +
+	// winner 载体(reward = terminalReward 从 engine g.Winner 算)。
+	//
+	// pushedAny==false(me 整局未行动 —— 对手在 me 首次行动前即结束游戏,极端情况)→
+	// 不推 marker:assembler 端从无此 episode 的任何 transition,不会泄漏;该 episode
+	// 无 me 决策、无训练价值,有意丢弃(语义保真 Python play_one_episode 的空 episode)。
+	if pushedAny && transWri != nil {
+		markerPayload := EncodeDmcTransitionPayload(
+			0, step, terminalReward(g, me), 0, // chosen=0, nLegal=0
+			nil, nil, nil, nil, staticHash,
+		)
+		marker := &gicg_actor.Transition{
+			ClientID:  clientID,
+			EpisodeID: episodeID,
+			Step:      step,
+			Done:      true,
+			Payload:   markerPayload,
+		}
+		if err := transWri.Push(marker); err != nil {
+			return fmt.Errorf("terminal marker push: %w", err)
 		}
 	}
 	return nil
 }
 
+// terminalReward 返回 episode 终局 me 视角的 reward。 g.Winner 取值:0/1=对应玩家胜,
+// 2=engine 判定平局,-1=进行中(Go 侧 MaxEpisodeSteps 截断、engine 未达 GameOver)。
+// 截断与平局同归 0 —— 语义保真 Python terminal_z(training/paradigms/dmc/_episode.py,
+// winner<0 → 0.0)。
 func terminalReward(g *engine.Game, me int) float32 {
-	if g.Winner == me {
+	switch g.Winner {
+	case me:
 		return 1.0
-	}
-	if g.Winner == 1-me {
+	case 1 - me:
 		return -1.0
+	default: // 2=draw,-1=truncated —— 均 0
+		return 0.0
 	}
-	return 0.0 // draw / timeout
 }
 
 // 一次性 register(package init 触发)+ mutex 防 重复 import 时 race。 Real-world 单 process

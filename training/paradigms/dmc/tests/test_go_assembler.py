@@ -262,6 +262,57 @@ def test_assembler_static_cache_miss_drops(capsys):
     assert a.n_ready() == 0
 
 
+def test_assembler_terminal_marker_n_legal_zero():
+    """Terminal marker(n_legal=0, done=True)finalize episode 但不产 DmcTransition。
+
+    契约回归 for I29 T-RR.1:Go runEpisode 对所有 in-loop transition 置 Done=false,
+    episode 末尾统一推一条 n_legal=0 的 terminal marker(Done=true)。 assembler 必须:
+    assemble episode、winner 取自 marker reward、marker 自身不产 DmcTransition(因
+    _capture_obs_np 对 n_legal==0 返 {})、_buffers 释放(no leak)。
+    """
+    hash_ = b'\x77' * 16
+    a = DmcTransitionAssembler(**_SCENARIO)
+    # 2 条真 transition,Done=false
+    a.ingest(
+        Transition(
+            client_id=3,
+            episode_id=9,
+            step=0,
+            done=False,
+            payload=_build_payload(step=0, reward=0.0, static_hash=hash_, with_static=True),
+        )
+    )
+    a.ingest(
+        Transition(
+            client_id=3,
+            episode_id=9,
+            step=1,
+            done=False,
+            payload=_build_payload(step=1, reward=0.0, static_hash=hash_, with_static=False),
+        )
+    )
+    # terminal marker — n_legal=0, done=True, reward=+1
+    marker = encode_dmc_payload(
+        chosen_action=0,
+        step_in_episode=2,
+        reward=1.0,
+        n_legal=0,
+        static_hash=hash_,
+        dyn_obs=np.zeros(0, dtype=np.float32),
+        refs=np.zeros(0, dtype=np.int64),
+        pay=np.zeros(0, dtype=np.float32),
+        static=None,
+    )
+    a.ingest(Transition(client_id=3, episode_id=9, step=2, done=True, payload=marker))
+
+    ready = a.drain_ready()
+    assert len(ready) == 1
+    ep = ready[0]
+    assert ep.winner == 1  # winner 取自 marker reward
+    assert len(ep.transitions) == 2  # marker 不产 DmcTransition
+    assert a.n_pending() == 0  # _buffers 释放 — 无泄漏
+
+
 def test_assembler_decode_error_does_not_crash(capsys):
     """Wire 解码失败 → drop transition + stderr 报错,不 raise。"""
     a = DmcTransitionAssembler(**_SCENARIO)
