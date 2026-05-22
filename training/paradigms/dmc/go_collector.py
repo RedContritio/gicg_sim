@@ -173,7 +173,17 @@ class DMCGoActorCollector:
         del provider
         self._bootstrap()
 
+        # 异步 Go collector:drain_ready 即时返回当前 assembled。 空时必须 poll-with-
+        # sleep 而非立即返回 —— driver 拿空会立刻再调 collect,热自旋持 GIL 饿死同进程
+        # transition listener 线程 → assembler ingest 不到 → episodes 卡 0(I29 T-R3
+        # 实测 driver 1091 iter/s)。 sleep 释放 GIL 让 listener 跑。
+        import time
+
+        _deadline = time.monotonic() + 10.0
         ready = self.assembler.drain_ready()
+        while not ready and time.monotonic() < _deadline:
+            time.sleep(0.1)
+            ready = self.assembler.drain_ready()
         if not ready:
             return CollectorOutput(transitions=[], episode_stats=[], runtime_metrics={'n_dmc_episodes': 0})
 
