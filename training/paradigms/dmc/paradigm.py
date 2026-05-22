@@ -136,7 +136,11 @@ class DMCParadigm:
             'game_spec': game_spec,
             'opp_features': 'F1',
             'opp_depth': 2,
-            'max_actions': int(getattr(pcfg, 'max_actions', 30)),
+            # Go actor obs / assembler / logits 宽度 — 必须 == 网络 action 容量
+            # (AgentConfig.max_actions),否则 n_legal > max_actions 时 chosen_action
+            # 越出 logits 宽 → 训练 gather OOB。 与 Python mp 路径(mp_factories.py)
+            # 同取 pcfg.agent.max_actions。
+            'max_actions': int(pcfg.agent.max_actions),
             'max_episode_steps': int(getattr(pcfg, 'max_game_steps', 360)),
             'my_player_strategy': 'alternate',
             'base_seed': int(cfg.meta.seed),

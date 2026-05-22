@@ -107,7 +107,9 @@ class DMCGoActorCollector:
 
         # Extract net architecture params for assembler.
         actor_critic = network.net if hasattr(network, 'net') else network
-        self._max_actions = int(paradigm_cfg_dict.get('max_actions', 30))
+        # Required — 无默认。 静默默认 30 会与网络 action 容量不一致 → 训练 gather OOB
+        # (I29 T-R3 bug)。 caller(_make_go_collector / 测试)必须显式提供。
+        self._max_actions = int(paradigm_cfg_dict['max_actions'])
         self.assembler = DmcTransitionAssembler(
             n_counter_slots=int(actor_critic.n_counter_slots),
             n_hooks=int(actor_critic.n_hooks),
@@ -129,9 +131,7 @@ class DMCGoActorCollector:
         self._server = InferenceServer(
             network=self.network,
             device=str(next(self.network.parameters()).device),
-            max_batch=int(getattr(self.cfg.pipeline, 'inference_max_batch', 1))
-            if hasattr(self.cfg, 'pipeline')
-            else 1,
+            max_batch=int(getattr(self.cfg.pipeline, 'inference_max_batch', 1)) if hasattr(self.cfg, 'pipeline') else 1,
             batch_timeout_ms=int(getattr(self.cfg.pipeline, 'inference_batch_timeout_ms', 2))
             if hasattr(self.cfg, 'pipeline')
             else 2,

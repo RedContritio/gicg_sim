@@ -3,7 +3,7 @@
 测试目标:15s wall window,N=4 actor Mac baseline,验证:
 - production decode→forward 路径端到端真通 — 真 DMCNetwork(d_model=128)+ 真
   build_dmc_socket_forward_callback(T-R2:此前 Phase 1 smoke 全用 stub 绕过)
-- fps/actor ≥ 2.5(实测真网络 cold 3.5 / warm 5.8-6.2,N=4 Mac CPU)
+- fps/actor ≥ 2.5(实测真网络 max_actions=2048,正常 5.6-7.0;偶发不稳定见 gate 注释)
 - mem delta < 500 MB(无 leak)
 - 15s 跑完无 deadlock / fatal,decode_errors == 0
 
@@ -34,6 +34,11 @@ from training.core.actor.transition_sink_listener import (
     stop_listener as stop_trans_listener,
 )
 from training.core.actor.transition_sink_wire import Transition, decode_dmc_payload
+from training.core.cfg import make_dmc_default_shape
+
+# Go actor obs / logits 宽度 — 必须 == _build_dmc_network 的网络 action 容量,否则
+# 真实 n_legal > 此值时 chosen_action 越出 logits 宽 → 训练 gather OOB(I29 T-R3 bug)。
+_MAX_ACTIONS = make_dmc_default_shape().max_actions
 
 
 def _build_dmc_network() -> Any:
@@ -48,7 +53,6 @@ def _build_dmc_network() -> Any:
     n_cross_layers 用 Stage3 生产值(stage3_b_v_legacy.toml:128 / 2),使 Mac
     perf 数据反映真实模型规模而非 toy。
     """
-    from training.core.cfg import make_dmc_default_shape
     from training.core.network import AgentConfig
     from training.paradigms.dmc.network import DMCNetwork
 
@@ -98,7 +102,7 @@ def test_go_actor_perf_smoke_30s():
         max_batch=1,
         socket_port=inf_port,
         socket_forward_builder_path='training.paradigms.dmc._socket_decoder.build_dmc_socket_forward_callback',
-        socket_forward_builder_kwargs={'max_actions': 30},
+        socket_forward_builder_kwargs={'max_actions': _MAX_ACTIONS},
     )
     server.start(wait_ready_s=10.0)
 
@@ -146,7 +150,7 @@ def test_go_actor_perf_smoke_30s():
         },
         'opp_features': 'F1',
         'opp_depth': 2,
-        'max_actions': 30,
+        'max_actions': _MAX_ACTIONS,
         'max_episode_steps': 360,
         'my_player_strategy': 'fixed_0',
         'base_seed': 42,
@@ -205,9 +209,9 @@ def test_go_actor_perf_smoke_30s():
     assert n_errs == 0, f'DMC payload decode error count > 0: {n_errs}(wire 协议 drift)'
     assert total > 0, 'no transitions arrived — pipeline broken'
     fps_per_actor = total / elapsed / N_ACTORS
-    # T-R2 实测(真 DMCNetwork d_model=128,N=4 Mac,3 run):cold-start 3.53 +
-    # warm 5.83 / 6.24 fps/actor。 gate 2.5 在 cold-start 之下留 margin — 低于此
-    # = pipeline stall 或 forward 路径回归,非正常 run-to-run variance。
+    # 实测(真 DMCNetwork d_model=128,N=4 Mac,max_actions=2048):正常 ~5.6-7.0
+    # fps/actor。 gate 2.5 是回归 floor。 已知 intermittent 不稳定(偶发 mem 膨胀 →
+    # fps 骤降,I29 T-R5 follow-up 待查)会触发此 gate — 属预期信号,非误报。
     assert fps_per_actor >= 2.5, (
         f'fps/actor={fps_per_actor:.2f} < 2.5 Mac real-net baseline — perf regression or pipeline stall'
     )
