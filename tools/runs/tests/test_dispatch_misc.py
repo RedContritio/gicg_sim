@@ -119,10 +119,64 @@ def test_build_engine_remote_probe_failure_raises(tmp_path):
     from tools.runs import build_engine
 
     cfg = _remote_cfg(tmp_path)
-    with patch.object(build_engine, 'discover_remote_binary', side_effect=FileNotFoundError('no go')):
+    with (
+        patch.object(build_engine, '_auto_sync', return_value=0),
+        patch.object(build_engine, 'discover_remote_binary', side_effect=FileNotFoundError('no go')),
+    ):
         with patch.object(sys, 'argv', ['build_engine.py', str(cfg)]):
             with pytest.raises(FileNotFoundError, match='no go'):
                 build_engine.main()
+
+
+def test_build_engine_auto_syncs_source_before_build(tmp_path):
+    """build_engine 默认 build 前 auto-sync 源码 —— 避免 build stale dll
+    (I29 follow-up,user 旧 workflow 须手动 `_remote_sync` + `build_engine`)。"""
+    import subprocess as _sp
+    from tools.runs import build_engine
+
+    cfg = _remote_cfg(tmp_path)
+    ok = _sp.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+    with (
+        patch.object(build_engine, '_auto_sync', return_value=0) as sync,
+        patch.object(build_engine, 'discover_remote_binary', return_value='C:/x/go.exe'),
+        patch.object(build_engine, 'ssh_run', return_value=ok),
+    ):
+        with patch.object(sys, 'argv', ['build_engine.py', str(cfg)]):
+            assert build_engine.main() == 0
+    sync.assert_called_once()
+
+
+def test_build_engine_no_sync_flag_skips_sync(tmp_path):
+    """--no-sync 显式跳过 auto-sync(user 偶尔需 isolate 「只 build 不动源」时用)。"""
+    import subprocess as _sp
+    from tools.runs import build_engine
+
+    cfg = _remote_cfg(tmp_path)
+    ok = _sp.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+    with (
+        patch.object(build_engine, '_auto_sync') as sync,
+        patch.object(build_engine, 'discover_remote_binary', return_value='C:/x/go.exe'),
+        patch.object(build_engine, 'ssh_run', return_value=ok),
+    ):
+        with patch.object(sys, 'argv', ['build_engine.py', str(cfg), '--no-sync']):
+            assert build_engine.main() == 0
+    sync.assert_not_called()
+
+
+def test_build_engine_sync_failure_aborts_build(tmp_path):
+    """_auto_sync 非 0 → 立即 return(不 probe / 不 ssh build)—— 防 build stale dll。"""
+    from tools.runs import build_engine
+
+    cfg = _remote_cfg(tmp_path)
+    with (
+        patch.object(build_engine, '_auto_sync', return_value=2),
+        patch.object(build_engine, 'discover_remote_binary') as probe,
+        patch.object(build_engine, 'ssh_run') as ssh,
+    ):
+        with patch.object(sys, 'argv', ['build_engine.py', str(cfg)]):
+            assert build_engine.main() == 2
+    probe.assert_not_called()
+    ssh.assert_not_called()
 
 
 def test_build_engine_missing_section_raises(tmp_path):

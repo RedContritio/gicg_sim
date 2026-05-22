@@ -30,6 +30,7 @@ from tools.runs._host import (
     ssh_run,
     ssh_run_bash,
 )
+from tools.runs._remote_sync import _auto_sync
 
 
 # Lib targets — (output_filename_no_ext, source_path)。 build 顺序遵循依赖图:engine
@@ -74,7 +75,15 @@ def _build_sh_posix(remote: RemoteCfg) -> str:
     return ' && '.join(parts)
 
 
-def _run_remote(remote: RemoteCfg, timeout: int) -> int:
+def _run_remote(remote: RemoteCfg, timeout: int, *, no_sync: bool = False) -> int:
+    # Auto-sync source before build —— 旧 workflow user 须手动 `tools.runs._remote_sync`
+    # 再 `build_engine`,否则 build stale dll(memory `tooling 教训`,I29 follow-up)。
+    # --no-sync 显式跳过(rare:user 想 isolate「只 build 不动源」)。
+    if not no_sync:
+        sync_rc = _auto_sync(remote, dry_run=False, base_sha_override=None)
+        if sync_rc != 0:
+            print(f'[build_engine] pre-build sync failed (rc={sync_rc}); abort', file=sys.stderr)
+            return sync_rc
     # Probe-first — fail loud + actionable if go or gcc absent。
     discover_remote_binary(remote, 'go')
     if remote.os == 'windows':
@@ -109,12 +118,17 @@ def main():
     p = argparse.ArgumentParser(description='cgo build libgicg shared lib on the cfg-selected host.')
     p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
     p.add_argument('--timeout', type=int, default=300, help='ssh wall-clock seconds, default 300')
+    p.add_argument(
+        '--no-sync',
+        action='store_true',
+        help='Skip pre-build source auto-sync (default: auto-sync via _remote_sync._auto_sync)',
+    )
     args = p.parse_args()
     remote = load_remote_from_cfg(args.cfg)
     if is_local_host(remote):
         return _run_local(args)
     assert remote is not None
-    return _run_remote(remote, timeout=args.timeout)
+    return _run_remote(remote, timeout=args.timeout, no_sync=args.no_sync)
 
 
 if __name__ == '__main__':
