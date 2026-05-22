@@ -163,6 +163,36 @@ def test_build_engine_posix_command_includes_all_libs(tmp_path):
     assert '&&' in sh
 
 
+def test_build_engine_windows_command_uses_force_rebuild_flag():
+    """``go build -a`` forces rebuild of all packages — 绕过 Go cache stale on
+    cgo ``//export`` changes(I29 P1.5 fix:加 export func 后 dll 表 mismatch
+    源,ctypes symbol-not-found)。 -a 是较小 hammer(~5-10s 代价)vs `go clean
+    -cache` (clears 全 cache,后续 build 重头开始)。
+    """
+    from tools.runs._host import RemoteCfg
+    from tools.runs.build_engine import _LIB_TARGETS, _build_ps_windows
+
+    remote = RemoteCfg(ssh='dev@x', root='D:/gicg_dev', os='windows', hostname='DESKTOP')
+    ps = _build_ps_windows(remote)
+    # 每 lib 必含 `-a` 紧跟在 `go build` 后,防 cgo cache stale。
+    for _name, _src in _LIB_TARGETS:
+        assert ps.count('go build -a -buildmode=c-shared') == len(_LIB_TARGETS), (
+            f'expected every lib build to use `go build -a` (force rebuild); cmd was:\n{ps}'
+        )
+        break
+
+
+def test_build_engine_posix_command_uses_force_rebuild_flag():
+    from tools.runs._host import RemoteCfg
+    from tools.runs.build_engine import _LIB_TARGETS, _build_sh_posix
+
+    remote = RemoteCfg(ssh='dev@x', root='/srv/gicg_dev', os='linux', hostname='boxlin')
+    sh = _build_sh_posix(remote)
+    assert sh.count('go build -a -buildmode=c-shared') == len(_LIB_TARGETS), (
+        f'expected every lib build to use `go build -a` (force rebuild); cmd was:\n{sh}'
+    )
+
+
 # ---------------------------------------------------------------------------
 # status dispatch
 # ---------------------------------------------------------------------------

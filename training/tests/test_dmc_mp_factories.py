@@ -129,7 +129,7 @@ def test_decode_dmc_request_matches_legacy_torch_path():
     import hashlib
 
     static_obs_np = np.ascontiguousarray(env.static_obs, dtype=np.float32)
-    static_obs_hash = hashlib.blake2b(static_obs_np.tobytes(), digest_size=16).digest()
+    static_obs_hash = hashlib.sha256(static_obs_np.tobytes()).digest()[:16]
     dyn_obs_np = np.ascontiguousarray(env._get_obs(), dtype=np.float32)
     refs_np = env.get_action_refs()
     pay_np = env.get_legal_action_payments()

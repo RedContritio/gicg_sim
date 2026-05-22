@@ -119,7 +119,7 @@ class _DMCObsDictRemoteProvider:
         self._env_ref: Any = None
         self._last_static_id: int = -1
         self._static_obs_np: np.ndarray = None  # type: ignore[assignment]
-        # static_obs hash (16-byte blake2b) — server's shared_cache key.
+        # static_obs hash (16-byte sha256-truncated) — server's shared_cache key.
         # Same hash across actors/episodes sharing one scenario, so the
         # server's hook_encoder runs ONCE for the whole fleet, not once
         # per actor×episode. Computed on game_start; sent every forward.

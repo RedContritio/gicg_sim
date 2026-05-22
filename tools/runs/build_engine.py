@@ -44,7 +44,14 @@ _LIB_TARGETS = [
 def _build_ps_windows(remote: RemoteCfg) -> str:
     """Single-quote env var value — Win OpenSSH cmd.exe wrapper strips
     unescaped double quotes(同 ``_ssh.py`` 注释)。 链式 build 用 `;` + `if (LASTEXITCODE -ne 0) {exit ...}`
-    保证任一失败立即退出。"""
+    保证任一失败立即退出。
+
+    ``go build -a``:force rebuild of all packages,绕过 Go build cache。 没有 -a 时
+    cgo ``//export`` 表变更(加 / 改 export func)Go cache 可能 stale,生成的 dll
+    export 表 与新源不一致 → ctypes call 找不到 symbol(I29 P1.5 Win box 实测踩坑)。
+    -a 代价 ~5-10s/lib,P1.5 stress 时省下 manual ``go clean -cache`` 心智 + 防 silent
+    corrupt build。
+    """
     parts = [
         '$env:CGO_ENABLED=1',
         "$env:CC='gcc'",
@@ -53,15 +60,16 @@ def _build_ps_windows(remote: RemoteCfg) -> str:
     for name, src in _LIB_TARGETS:
         # Win src 路径用反斜杠 — 同 _LIB_TARGETS 来源是 POSIX 风格,这里转换。
         src_win = src.replace('/', '\\').rstrip('\\')
-        parts.append(f'go build -buildmode=c-shared -o gicg_env\\{name}.dll {src_win}')
+        parts.append(f'go build -a -buildmode=c-shared -o gicg_env\\{name}.dll {src_win}')
         parts.append('if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }')
     return '; '.join(parts)
 
 
 def _build_sh_posix(remote: RemoteCfg) -> str:
+    """Same -a rationale as Windows path — 防 cgo ``//export`` cache stale。"""
     parts = [f'cd {remote.root}', 'CGO_ENABLED=1']
     for name, src in _LIB_TARGETS:
-        parts.append(f'go build -buildmode=c-shared -o gicg_env/{name}.so {src}')
+        parts.append(f'go build -a -buildmode=c-shared -o gicg_env/{name}.so {src}')
     # `set -e`-like:` && ` 链接保证任一失败短路。
     return ' && '.join(parts)
 

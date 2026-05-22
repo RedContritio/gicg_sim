@@ -56,27 +56,60 @@ def build_dmc_socket_forward_callback(
 ) -> Any:
     """Return a forward_callback function 适用 InferServer socket listener。
 
-    callback 接 socket InferRequest → adapt → decode_dmc_request → network.forward →
-    InferResponse。 Per-call thread-safe via Python GIL(forward not parallel
+    callback 接 socket InferRequest → adapt → decode_dmc_request → forward_net.forward
+    → InferResponse。 Per-call thread-safe via Python GIL(forward not parallel
     within a process)。
 
-    network 的 forward 期望 obs_dict + 返 logits;DMC InferenceNet 走
-    `forward(obs_dict)['logit_as_q']` 返 shape (1, max_actions)。
+    Paradigm dispatch:``DMCNetwork.__call__`` 故意 raise NotImplementedError
+    (driver / loss 走 ``forward_batch(collated)``,Player 走 ``select_action(env)``,
+    bare ``__call__(obs_dict)`` 没合法 semantics)。 Socket inference 必须用
+    ``DMCInferenceNet`` wrap underlying ActorCritic — 与 Python mp 路径
+    (``mp_factories.py`` / ``test_dmc_mp_factories.py:113``)走同一 dispatch
+    契约,不在 DMCNetwork 上 shadow ``__call__`` 以免破坏既有 invariant。
+
+    Test stubs(``_ZeroLogitsNet`` etc)直接接 ``obs_dict``,无需 wrap — 通过
+    ``isinstance(network, DMCNetwork)`` 区分。 Wrap 不复制权重(``DMCInferenceNet``
+    通过 ``add_module`` 共享 ActorCritic),weight update via main loop
+    ``network.load_state_dict`` in-place mutate 共享 reference 自动看到新权重。
     """
     import torch
 
     from training.paradigms.dmc._decoder import decode_dmc_request
+    from training.paradigms.dmc.inference_net import DMCInferenceNet
+    from training.paradigms.dmc.network import DMCNetwork
     from training.core.actor.inference_server_socket_wire import (
         INFER_STATUS_OK,
         InferResponse,
     )
 
+    # Resolve forward callable once at build time(spawned InfServer child)。
+    # DMCNetwork(production driver):wrap underlying ActorCritic with
+    # DMCInferenceNet so forward(obs_dict) → dict-with-'q'-head works。
+    # 其它 nn.Module(test stubs / future paradigm):trust 直接 callable。
+    if isinstance(network, DMCNetwork):
+        forward_net: Any = DMCInferenceNet(network.net).to(device_str).eval()
+    else:
+        forward_net = network
+
     def forward_callback(req: SocketInferRequest) -> InferResponse:
         obs_bytes = socket_request_to_pickled_payload(req, max_actions=max_actions)
         obs_dict, _mask = decode_dmc_request(obs_bytes, b'', device_str, shared_cache, network)
         with torch.no_grad():
-            out = network(obs_dict)
-            logits = out['logit_as_q'] if isinstance(out, dict) else out
+            out = forward_net(obs_dict)
+            if isinstance(out, dict):
+                # DMCInferenceNet returns ActorCritic dict keyed by head;
+                # DMC uses 'q' (DMC_HEAD_KINDS = {'q'})。 Test stubs may
+                # legacy-return 'logit_as_q';accept both, fail loud otherwise。
+                if 'q' in out:
+                    logits = out['q']
+                elif 'logit_as_q' in out:
+                    logits = out['logit_as_q']
+                else:
+                    raise KeyError(
+                        f'DMC socket forward: net output dict has no q / logit_as_q key (keys={sorted(out.keys())})'
+                    )
+            else:
+                logits = out
             logits_np = logits.detach().cpu().numpy().astype(np.float32).ravel()
         return InferResponse(status=INFER_STATUS_OK, logits=logits_np)
 
