@@ -116,6 +116,9 @@ class DMCGoActorCollector:
             max_ops_per_hook=int(actor_critic.max_ops_per_hook),
             fields_per_op=int(actor_critic.fields_per_op),
             max_actions=self._max_actions,
+            # 在途 episode 上限 — 健康运行 ≈ n_actors,32x 给足 headroom;超限说明
+            # orphaned episode 堆积(actor 死亡遗留),驱逐最久未活跃防泄漏(I29 T-RR.2)。
+            max_inflight_episodes=max(256, 32 * self.n_actors),
         )
 
         self._server: Optional[InferenceServer] = None

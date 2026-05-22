@@ -22,8 +22,9 @@ Pipeline:
 
 from __future__ import annotations
 
+import sys
 import threading
-from collections import defaultdict
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
@@ -75,18 +76,26 @@ class DmcTransitionAssembler:
         max_ops_per_hook: int,
         fields_per_op: int,
         max_actions: int,
+        max_inflight_episodes: int = 1024,
     ) -> None:
         self.n_counter_slots = n_counter_slots
         self.n_hooks = n_hooks
         self.max_ops_per_hook = max_ops_per_hook
         self.fields_per_op = fields_per_op
         self.max_actions = max_actions
+        # 在途 episode 上限 — 健康运行下 _buffers ≈ n_actors(每 actor 1 个在途
+        # episode);超限说明有 orphaned episode(actor 死亡 / conn reset 遗留永不 done
+        # 的 _EpisodeBuf)堆积。 超限驱逐最旧(最可能 orphaned)防无界泄漏(I29 T-RR.2)。
+        self._max_inflight = int(max_inflight_episodes)
 
         self._lock = threading.Lock()
-        self._buffers: dict[tuple[int, int], _EpisodeBuf] = defaultdict(_EpisodeBuf)
+        # OrderedDict — 按插入序,在途上限超时 popitem(last=False) 驱逐最旧。
+        self._buffers: 'OrderedDict[tuple[int, int], _EpisodeBuf]' = OrderedDict()
         self._ready: list[AssembledEpisode] = []
         # Static obs decoded numpy fields,keyed by 16-byte hash。 N actor 同 scenario 共享
         # 1 entry — 'fixed-scenario DMC 编 1 次' (mirror server-side shared_cache 设计)。
+        # 有意不设上界:fixed-scenario 假设下恒 1 entry。 若未来 scenario / obs schema
+        # 跨 run 变化致 hash 漂移,此 cache 会单调增长 —— 届时需配 LRU(目前 out of scope)。
         self._static_cache: dict[bytes, dict] = {}
 
     def ingest(self, t: Transition) -> None:
@@ -98,15 +107,37 @@ class DmcTransitionAssembler:
             dmc = decode_dmc_payload(t.payload)
         except ValueError as exc:
             # Wire 解码失败 → 报错但不 crash assembler — drop this transition
-            import sys
-
-            print(f'[DmcAssembler] decode error client={t.client_id} ep={t.episode_id} step={t.step}: {exc}',
-                  file=sys.stderr, flush=True)
+            print(
+                f'[DmcAssembler] decode error client={t.client_id} ep={t.episode_id} step={t.step}: {exc}',
+                file=sys.stderr,
+                flush=True,
+            )
             return
 
         key = (t.client_id, t.episode_id)
         with self._lock:
-            buf = self._buffers[key]
+            buf = self._buffers.get(key)
+            if buf is None:
+                # 新 episode key — 在途上限检查,超限先驱逐「最久未活跃」episode。
+                # _buffers 是 LRU OrderedDict:活跃 episode 每收一条 transition 即
+                # move_to_end(见下 else 分支),故 popitem(last=False) 取的是最久没收到
+                # transition 的 —— 只要存在 orphan(actor 死亡 / conn reset 后永不再
+                # push),它的活跃度必低于任何健康 episode → 被优先驱逐,健康长 episode
+                # (GICG 单局可数百 step)不会被误杀。
+                if len(self._buffers) >= self._max_inflight:
+                    old_key, _old = self._buffers.popitem(last=False)
+                    print(
+                        f'[DmcAssembler] inflight cap {self._max_inflight} reached — '
+                        f'evicting least-recently-active in-flight episode '
+                        f'client={old_key[0]} ep={old_key[1]} (likely orphaned)',
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                buf = _EpisodeBuf()
+                self._buffers[key] = buf
+            else:
+                # 活跃 episode 收到新 transition → 移到 LRU 尾,使其不被误驱逐。
+                self._buffers.move_to_end(key)
             if buf.static_hash is None:
                 buf.static_hash = dmc.static_hash
             # static_obs cache populate (only first transition per episode carries it)
@@ -132,8 +163,6 @@ class DmcTransitionAssembler:
         """Build DmcTransition[] + winner。 Returns None when static cache miss(scenario 第一 episode
         漏了 static — caller 上游应保证 first transition step 0 携带 static)。"""
         if buf.static_hash is None or buf.static_hash not in self._static_cache:
-            import sys
-
             print(
                 f'[DmcAssembler] static cache miss client={client_id} ep={episode_id} hash={(buf.static_hash or b"").hex()[:12]} — dropping episode',
                 file=sys.stderr,

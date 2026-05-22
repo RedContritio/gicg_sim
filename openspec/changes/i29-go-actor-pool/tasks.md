@@ -143,13 +143,15 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
 
 ### 簇 1 — backpressure + 队列有界化(RSS 10.5GB 机制)
 
-- [ ] T-RR.2 assembler 队列有界化 + collector 不丢弃:`collect()` 去掉 cap-后-丢弃
-      (`go_collector.py:191`),leftover 留到下次 drain;`_buffers` 加在途上限/TTL
-      清理。 配 assembler test(over-produce 不丢 / 在途上限)
-- [ ] T-RR.3 backpressure 端到端:listener thread 减负(只 recv + 解 envelope + `put`
-      有界 queue),`_capture_obs_np` 重组装移到 driver 线程 `collect()` 内;有界 queue
-      满 → socket 回压 → Go `Push` 阻塞。 **配套 #12**:Go `Push` 30s 写超时 vs 回压阻塞
-      —— 去 deadline 或 Go 重试不致死 actor。 依赖 T-RR.2
+- [x] T-RR.2 `_buffers` 在途上限 —— LRU OrderedDict,超限驱逐「最久未活跃」episode
+      (orphaned:actor 死亡 / conn reset 后永不 done)。 ingest 时 `move_to_end` 使活跃
+      episode 不被误杀。 `collect 不丢弃` 因与 `_ready` 有界化耦合(单独做会把无界增长
+      从 `_buffers` 搬到 `_ready`),并入 T-RR.3。 assembler LRU 驱逐测试
+- [ ] T-RR.3 backpressure 端到端 + collect 不丢弃:listener thread 减负(只 recv + 解
+      envelope + `put` 有界 queue),`_capture_obs_np` 重组装移到 driver 线程 `collect()`;
+      有界 queue 满 → socket 回压 → Go `Push` 阻塞;`_ready` 经此有界化后,`collect()` 去掉
+      cap-后-丢弃(`drain_ready(max_n)`,leftover 留 `_ready` 不丢)。 **配套 #12**:Go
+      `Push` 30s 写超时 vs 回压阻塞 —— 去 deadline 或 Go 重试不致死 actor。 依赖 T-RR.2
 
 ### 簇 2 — inference 真 batching(0.4 eps/s 主因,fps 闸门关键路径)
 

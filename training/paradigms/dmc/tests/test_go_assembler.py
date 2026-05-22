@@ -313,6 +313,57 @@ def test_assembler_terminal_marker_n_legal_zero():
     assert a.n_pending() == 0  # _buffers 释放 — 无泄漏
 
 
+def test_assembler_buffers_inflight_cap_evicts_least_recently_active(capsys):
+    """_buffers 在途上限 — 超限驱逐「最久未活跃」episode(LRU),不误杀健康长 episode。
+
+    I29 T-RR.2 / reviewer #10:episode 若永不 done(actor 死亡 / conn reset),其
+    _EpisodeBuf 永久滞留 → 无界泄漏。 加在途上限驱逐。 关键:驱逐判据是「最久未收到
+    transition」而非「最早插入」—— 健康长 episode(GICG 单局数百 step)从 step 0 起
+    就是插入最早的 entry,若按 insert-order 驱逐会恰好误杀它。 LRU(ingest 时
+    move_to_end)保证只要存在 orphan 就先驱逐 orphan。
+    """
+    cap = 4
+    h = b'\x02' * 16
+    a = DmcTransitionAssembler(**_SCENARIO, max_inflight_episodes=cap)
+    # 4 个在途 episode ep1..ep4,各 step0 not-done
+    for ep in range(1, 5):
+        a.ingest(
+            Transition(
+                client_id=0,
+                episode_id=ep,
+                step=0,
+                done=False,
+                payload=_build_payload(step=0, reward=0.0, static_hash=h, with_static=True),
+            )
+        )
+    # ep1 收到新 transition → 变最近活跃(insert-order 仍最早,LRU 移到尾)。
+    a.ingest(
+        Transition(
+            client_id=0,
+            episode_id=1,
+            step=1,
+            done=False,
+            payload=_build_payload(step=1, reward=0.0, static_hash=h, with_static=False),
+        )
+    )
+    # ep5 触发驱逐 — 应驱逐 ep2(最久未活跃),而非 insert-最早的 ep1。
+    a.ingest(
+        Transition(
+            client_id=0,
+            episode_id=5,
+            step=0,
+            done=False,
+            payload=_build_payload(step=0, reward=0.0, static_hash=h, with_static=True),
+        )
+    )
+    assert a.n_pending() == cap  # 精确 == cap
+    keys = set(a._buffers.keys())
+    assert keys == {(0, 1), (0, 3), (0, 4), (0, 5)}  # ep2 被驱逐;ep1(刚活跃)保留
+    captured = capsys.readouterr()
+    assert 'least-recently-active' in captured.err
+    assert 'ep=2' in captured.err
+
+
 def test_assembler_decode_error_does_not_crash(capsys):
     """Wire 解码失败 → drop transition + stderr 报错,不 raise。"""
     a = DmcTransitionAssembler(**_SCENARIO)
