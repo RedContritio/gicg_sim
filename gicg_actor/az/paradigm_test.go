@@ -22,10 +22,12 @@ func TestAZParadigm_RegisteredOnImport(t *testing.T) {
 
 func TestAZConfigure_Valid(t *testing.T) {
 	cfg := AZConfig{
-		GameSpec:         json.RawMessage(`{"pools":["v_legacy"],"seed":1,"players":[{"chars":[{"name":"赤蝶"}]},{"chars":[{"name":"墨客"}]}]}`),
-		MaxActions:       30,
-		MaxEpisodeSteps:  360,
-		BaseSeed:         42,
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec:        json.RawMessage(`{"pools":["v_legacy"],"seed":1,"players":[{"chars":[{"name":"赤蝶"}]},{"chars":[{"name":"墨客"}]}]}`),
+			MaxActions:      30,
+			MaxEpisodeSteps: 360,
+			BaseSeed:        42,
+		},
 		NRollouts:        100,
 		ParallelRollouts: 4,
 		CPuct:            1.5,
@@ -52,22 +54,22 @@ func TestAZConfigure_Errors(t *testing.T) {
 	}{
 		{
 			name:    "missing game_spec",
-			cfg:     AZConfig{MaxActions: 10, MaxEpisodeSteps: 100, NRollouts: 10, CPuct: 1.0},
+			cfg:     AZConfig{BaseActorConfig: gicg_actor.BaseActorConfig{MaxActions: 10, MaxEpisodeSteps: 100}, NRollouts: 10, CPuct: 1.0},
 			wantSub: "game_spec missing",
 		},
 		{
 			name:    "bad n_rollouts",
-			cfg:     AZConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, CPuct: 1.0},
+			cfg:     AZConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, CPuct: 1.0},
 			wantSub: "n_rollouts=0",
 		},
 		{
 			name:    "bad c_puct",
-			cfg:     AZConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, NRollouts: 10, CPuct: 0},
+			cfg:     AZConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, NRollouts: 10, CPuct: 0},
 			wantSub: "c_puct",
 		},
 		{
 			name:    "bad max_actions",
-			cfg:     AZConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 0, MaxEpisodeSteps: 100, NRollouts: 10, CPuct: 1.0},
+			cfg:     AZConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 0, MaxEpisodeSteps: 100}, NRollouts: 10, CPuct: 1.0},
 			wantSub: "max_actions=0",
 		},
 	}
@@ -88,11 +90,13 @@ func TestAZConfigure_Errors(t *testing.T) {
 
 func TestAZConfigure_DefaultsApplied(t *testing.T) {
 	cfg := AZConfig{
-		GameSpec:        json.RawMessage(`{}`),
-		MaxActions:      10,
-		MaxEpisodeSteps: 100,
-		NRollouts:       10,
-		CPuct:           1.0,
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec:        json.RawMessage(`{}`),
+			MaxActions:      10,
+			MaxEpisodeSteps: 100,
+		},
+		NRollouts: 10,
+		CPuct:     1.0,
 		// ParallelRollouts / TemperatureValue omitted — should default
 	}
 	bs, _ := json.Marshal(cfg)

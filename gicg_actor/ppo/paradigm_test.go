@@ -22,10 +22,12 @@ func TestPPOParadigm_RegisteredOnImport(t *testing.T) {
 
 func TestPPOConfigure_Valid(t *testing.T) {
 	cfg := PPOConfig{
-		GameSpec:         json.RawMessage(`{"pools":["v_legacy"],"seed":1,"players":[{"chars":[{"name":"赤蝶"}]},{"chars":[{"name":"墨客"}]}]}`),
-		MaxActions:       30,
-		MaxEpisodeSteps:  360,
-		BaseSeed:         42,
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec:        json.RawMessage(`{"pools":["v_legacy"],"seed":1,"players":[{"chars":[{"name":"赤蝶"}]},{"chars":[{"name":"墨客"}]}]}`),
+			MaxActions:      30,
+			MaxEpisodeSteps: 360,
+			BaseSeed:        42,
+		},
 		RolloutOpponent:  "F1-D2",
 		Gamma:            0.99,
 		GAELambda:        0.95,
@@ -50,32 +52,32 @@ func TestPPOConfigure_Errors(t *testing.T) {
 	}{
 		{
 			name:    "missing game_spec",
-			cfg:     PPOConfig{MaxActions: 10, MaxEpisodeSteps: 100, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0.95},
+			cfg:     PPOConfig{BaseActorConfig: gicg_actor.BaseActorConfig{MaxActions: 10, MaxEpisodeSteps: 100}, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0.95},
 			wantSub: "game_spec missing",
 		},
 		{
 			name:    "missing rollout_opponent",
-			cfg:     PPOConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, Gamma: 0.99, GAELambda: 0.95},
+			cfg:     PPOConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, Gamma: 0.99, GAELambda: 0.95},
 			wantSub: "rollout_opponent missing",
 		},
 		{
 			name:    "bad gamma",
-			cfg:     PPOConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, RolloutOpponent: "self", Gamma: 1.5, GAELambda: 0.95},
+			cfg:     PPOConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, RolloutOpponent: "self", Gamma: 1.5, GAELambda: 0.95},
 			wantSub: "gamma=1.5",
 		},
 		{
 			name:    "bad gae_lambda",
-			cfg:     PPOConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0},
+			cfg:     PPOConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0},
 			wantSub: "gae_lambda=0",
 		},
 		{
 			name:    "negative temperature",
-			cfg:     PPOConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0.95, Temperature: -0.1},
+			cfg:     PPOConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0.95, Temperature: -0.1},
 			wantSub: "temperature",
 		},
 		{
 			name:    "unknown my_player_strategy",
-			cfg:     PPOConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0.95, MyPlayerStrategy: "bogus"},
+			cfg:     PPOConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}, RolloutOpponent: "self", Gamma: 0.99, GAELambda: 0.95, MyPlayerStrategy: "bogus"},
 			wantSub: "unknown my_player_strategy",
 		},
 	}
@@ -96,9 +98,11 @@ func TestPPOConfigure_Errors(t *testing.T) {
 
 func TestPPOConfigure_DefaultsApplied(t *testing.T) {
 	cfg := PPOConfig{
-		GameSpec:        json.RawMessage(`{}`),
-		MaxActions:      10,
-		MaxEpisodeSteps: 100,
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec:        json.RawMessage(`{}`),
+			MaxActions:      10,
+			MaxEpisodeSteps: 100,
+		},
 		RolloutOpponent: "random",
 		Gamma:           0.99,
 		GAELambda:       0.95,

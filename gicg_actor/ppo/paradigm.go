@@ -31,11 +31,9 @@ import (
 
 // PPOConfig — paradigm config JSON schema。 加 rollout_opponent + GAE 参数 vs DMC。
 type PPOConfig struct {
-	GameSpec         json.RawMessage `json:"game_spec"`
-	MaxActions       int             `json:"max_actions"`
-	MaxEpisodeSteps  int             `json:"max_episode_steps"`
-	BaseSeed         int64           `json:"base_seed"`
-	MyPlayerStrategy string          `json:"my_player_strategy"` // alternate | fixed_0 | fixed_1
+	gicg_actor.BaseActorConfig
+
+	MyPlayerStrategy string `json:"my_player_strategy"` // alternate | fixed_0 | fixed_1
 
 	// PPO-specific
 	RolloutOpponent string  `json:"rollout_opponent"` // 'self' | 'random' | 'F{i}-D{j}[-nogreedy]'
@@ -62,17 +60,11 @@ func (p *PPOParadigm) Configure(jsonCfg string) error {
 	if err := json.Unmarshal([]byte(jsonCfg), &c); err != nil {
 		return fmt.Errorf("PPOParadigm.Configure: unmarshal PPOConfig: %w", err)
 	}
-	if len(c.GameSpec) == 0 || string(c.GameSpec) == "null" {
-		return fmt.Errorf("PPOParadigm.Configure: game_spec missing")
+	if err := c.Validate(); err != nil {
+		return fmt.Errorf("PPOParadigm.Configure: %w", err)
 	}
 	if c.RolloutOpponent == "" {
 		return fmt.Errorf("PPOParadigm.Configure: rollout_opponent missing(self|random|F{i}-D{j})")
-	}
-	if c.MaxActions <= 0 {
-		return fmt.Errorf("PPOParadigm.Configure: max_actions=%d must be positive", c.MaxActions)
-	}
-	if c.MaxEpisodeSteps <= 0 {
-		return fmt.Errorf("PPOParadigm.Configure: max_episode_steps=%d must be positive", c.MaxEpisodeSteps)
 	}
 	if c.Gamma <= 0 || c.Gamma > 1 {
 		return fmt.Errorf("PPOParadigm.Configure: gamma=%f must be in (0,1]", c.Gamma)

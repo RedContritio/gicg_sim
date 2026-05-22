@@ -35,19 +35,16 @@ import (
 
 // AZConfig — paradigm config JSON schema。 跟 DMCConfig 类似但加 MCTS 配置。
 type AZConfig struct {
-	GameSpec         json.RawMessage `json:"game_spec"`
-	MaxActions       int             `json:"max_actions"`
-	MaxEpisodeSteps  int             `json:"max_episode_steps"`
-	BaseSeed         int64           `json:"base_seed"`
+	gicg_actor.BaseActorConfig
 
 	// MCTS-specific
-	NRollouts         int     `json:"n_rollouts"`          // per move,1-1024 typical
-	ParallelRollouts  int     `json:"parallel_rollouts"`   // concurrent rollout goroutines
-	CPuct             float32 `json:"c_puct"`              // exploration constant
-	DirichletAlpha    float32 `json:"dirichlet_alpha"`     // root noise alpha
-	DirichletWeight   float32 `json:"dirichlet_weight"`    // (1-w)*prior + w*Dir(alpha)
-	TemperatureMoves  int     `json:"temperature_moves"`   // first N moves sample by visits^(1/T)
-	TemperatureValue  float32 `json:"temperature_value"`   // T value(>0;1.0 默认)
+	NRollouts        int     `json:"n_rollouts"`        // per move,1-1024 typical
+	ParallelRollouts int     `json:"parallel_rollouts"` // concurrent rollout goroutines
+	CPuct            float32 `json:"c_puct"`            // exploration constant
+	DirichletAlpha   float32 `json:"dirichlet_alpha"`   // root noise alpha
+	DirichletWeight  float32 `json:"dirichlet_weight"`  // (1-w)*prior + w*Dir(alpha)
+	TemperatureMoves int     `json:"temperature_moves"` // first N moves sample by visits^(1/T)
+	TemperatureValue float32 `json:"temperature_value"` // T value(>0;1.0 默认)
 }
 
 // AZParadigm — gicg_actor.Paradigm impl。
@@ -69,14 +66,8 @@ func (p *AZParadigm) Configure(jsonCfg string) error {
 	if err := json.Unmarshal([]byte(jsonCfg), &c); err != nil {
 		return fmt.Errorf("AZParadigm.Configure: unmarshal AZConfig: %w", err)
 	}
-	if len(c.GameSpec) == 0 || string(c.GameSpec) == "null" {
-		return fmt.Errorf("AZParadigm.Configure: game_spec missing")
-	}
-	if c.MaxActions <= 0 {
-		return fmt.Errorf("AZParadigm.Configure: max_actions=%d must be positive", c.MaxActions)
-	}
-	if c.MaxEpisodeSteps <= 0 {
-		return fmt.Errorf("AZParadigm.Configure: max_episode_steps=%d must be positive", c.MaxEpisodeSteps)
+	if err := c.Validate(); err != nil {
+		return fmt.Errorf("AZParadigm.Configure: %w", err)
 	}
 	if c.NRollouts <= 0 {
 		return fmt.Errorf("AZParadigm.Configure: n_rollouts=%d must be positive", c.NRollouts)
