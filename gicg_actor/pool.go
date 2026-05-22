@@ -78,6 +78,13 @@ func StartPool(n int) int {
 	return StartPoolWithConfig(Config{NActors: n})
 }
 
+// transitionWriteTimeout — transition push 的 socket write deadline。 远长于 inference
+// 的 IOTimeoutMs:transition 是 fire-and-forget,backpressure 下 write 阻塞是正常的
+// (Python 端有界 queue 满 → listener 停 drain socket → TCP 回压),不该触发 deadline
+// 把 actor 当 fatal 杀掉。 此值只兜底「consumer 真死」—— driver 健康时每个 collect
+// 周期(秒级)就 drain queue,绝不逼近 5 min(I29 T-RR.3 #12)。
+const transitionWriteTimeout = 5 * time.Minute
+
 // StartPoolWithConfig — production 入口(ctypes API 调本函数)。
 func StartPoolWithConfig(cfg Config) int {
 	mu.Lock()
@@ -116,7 +123,9 @@ func StartPoolWithConfig(cfg Config) int {
 			}
 		}
 		if cfg.TransSinkAddr != "" {
-			currentTW = NewTransitionWriter(cfg.TransSinkAddr, timeout)
+			// transitionWriteTimeout(5 min)而非 inference 的 timeout(IOTimeoutMs):
+			// backpressure 下 transition write 阻塞是正常的,不该触发 deadline 杀 actor。
+			currentTW = NewTransitionWriter(cfg.TransSinkAddr, transitionWriteTimeout)
 			if err := currentTW.Connect(); err != nil {
 				fmt.Fprintf(os.Stderr, "[gicg_actor] trans connect failed: %v\n", err)
 				cancelFn()

@@ -147,11 +147,15 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
       (orphaned:actor 死亡 / conn reset 后永不 done)。 ingest 时 `move_to_end` 使活跃
       episode 不被误杀。 `collect 不丢弃` 因与 `_ready` 有界化耦合(单独做会把无界增长
       从 `_buffers` 搬到 `_ready`),并入 T-RR.3。 assembler LRU 驱逐测试
-- [ ] T-RR.3 backpressure 端到端 + collect 不丢弃:listener thread 减负(只 recv + 解
-      envelope + `put` 有界 queue),`_capture_obs_np` 重组装移到 driver 线程 `collect()`;
-      有界 queue 满 → socket 回压 → Go `Push` 阻塞;`_ready` 经此有界化后,`collect()` 去掉
-      cap-后-丢弃(`drain_ready(max_n)`,leftover 留 `_ready` 不丢)。 **配套 #12**:Go
-      `Push` 30s 写超时 vs 回压阻塞 —— 去 deadline 或 Go 重试不致死 actor。 依赖 T-RR.2
+- [x] T-RR.3 backpressure 端到端 + collect 不丢弃:listener `sink_callback` 改 `_enqueue`
+      推有界 `queue.Queue(maxsize)`;`collect()` 调 `_drain_queue_assemble` 从 queue
+      **lazy-ingest** —— 只取够 `n_episodes` 的 transition,余下留 queue(queue 即唯一
+      backlog 蓄水池,满 → listener 阻塞 put → socket 回压 → Go 限流;`_capture_obs_np`
+      重组装随 ingest 移到 driver 线程,不再饿死 listener)。 lazy-ingest 天然不 over-drain
+      → 无 leftover-丢弃问题。 **#12**:Go `TransitionWriter` 5min 写超时(回压阻塞不触发)
+      + `Push` 失败中止 episode 不致死 actor。 `close()` 重排(先 set listener stop →
+      `_enqueue` 丢弃 → 解 socket 回压)。 collector 全栈(close 无 hang / 真 backpressure)
+      走 T-RR.9 Win stress 验证
 
 ### 簇 2 — inference 真 batching(0.4 eps/s 主因,fps 闸门关键路径)
 

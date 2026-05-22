@@ -397,6 +397,58 @@ collect:
 	t.Logf("episodes=%d total_transitions=%d", len(got), total)
 }
 
+// TestRunEpisode_PushFailureNotFatal 守 I29 T-RR.3 audit #5:transition Push 失败
+// (socket 抖动 / consumer 死 / 超 transitionWriteTimeout)不致死 actor —— runEpisode
+// 返 nil(episode 中止),Run loop 得以继续下个 episode,不可逆减员被消除。
+func TestRunEpisode_PushFailureNotFatal(t *testing.T) {
+	const maxActions = 30
+	infAddr, stopInf := startMockInfServerZeros(t, maxActions)
+	defer stopInf()
+
+	gameCfg := factory.GameConfig{Pools: []string{"v_legacy"}, Seed: 1}
+	gameCfg.Players[0].Chars = []factory.CharDef{{Name: "赤蝶"}}
+	gameCfg.Players[1].Chars = []factory.CharDef{{Name: "墨客"}}
+	gameSpec, _ := json.Marshal(gameCfg)
+	cfg := DMCConfig{
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec: gameSpec, MaxActions: maxActions, MaxEpisodeSteps: 360, BaseSeed: 1,
+		},
+		OpponentMix:      OpponentMix{Random: 1.0},
+		MyPlayerStrategy: "fixed_0",
+		Epsilon:          0.0,
+	}
+	cfgBytes, _ := json.Marshal(cfg)
+	p := &DMCParadigm{}
+	if err := p.Configure(string(cfgBytes)); err != nil {
+		t.Fatalf("Configure: %v", err)
+	}
+
+	infCli := gicg_actor.NewInferenceClient(infAddr, 5*time.Second)
+	if err := infCli.Connect(); err != nil {
+		t.Fatalf("inf connect: %v", err)
+	}
+	defer infCli.Close()
+
+	// transWri 指向无人监听的端口 → Push lazy-dial 失败(connection refused)。
+	tw := gicg_actor.NewTransitionWriter("127.0.0.1:1", 1*time.Second)
+	defer tw.Close()
+
+	rng := rand.New(rand.NewSource(7))
+	gpD2, err := NewGreedyPlayer("F1", 2, 1)
+	if err != nil {
+		t.Fatalf("greedy D2: %v", err)
+	}
+	gpD4, err := NewGreedyPlayer("F1", 4, 2)
+	if err != nil {
+		t.Fatalf("greedy D4: %v", err)
+	}
+
+	// Push 必失败(dead addr)→ runEpisode 应返 nil(actor 存活),非 fatal error。
+	if err := p.runEpisode(context.Background(), oppRandom, gpD2, gpD4, rng, infCli, tw, 0, 1, 0); err != nil {
+		t.Fatalf("runEpisode should return nil on Push failure (actor must survive), got: %v", err)
+	}
+}
+
 // TestSampleOpponentKind 守 OpponentMix 权重抽样:纯单权重 → 恒定;混合 → 经验
 // 分布匹配权重。 I29 T-R3:对手按 opponent_mix 抽,替代旧硬编码 100% F1-D2。
 func TestSampleOpponentKind(t *testing.T) {

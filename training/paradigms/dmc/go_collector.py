@@ -36,8 +36,10 @@ P1.4 ship 阶段 spec(对照 DMCMultiProcessCollector):
 
 from __future__ import annotations
 
+import queue
 import socket
 import threading
+import time
 from typing import Any, Optional
 
 import torch
@@ -51,6 +53,40 @@ from training.core.actor.transition_sink_listener import (
 from training.core.actor.transition_sink_wire import Transition as _Transition
 from training.core.protocols import CollectorOutput
 from training.paradigms.dmc._go_assembler import AssembledEpisode, DmcTransitionAssembler
+
+
+def _drain_queue_assemble(
+    q: 'queue.Queue[_Transition]',
+    assembler: DmcTransitionAssembler,
+    target: int,
+    *,
+    deadline_s: float,
+) -> list[AssembledEpisode]:
+    """从有界 transition queue lazy-ingest 到 assembler,直到组装出 ``target`` 个完整
+    episode(或 ``deadline_s`` 墙钟超时)。
+
+    I29 T-RR.3 backpressure 的消费端:**只 ingest 够 target 的数量** —— 余下 raw
+    transition 留在 ``q`` 里。 这是 backpressure 成立的关键:``q`` 是唯一 backlog
+    蓄水池,collect 不抽干它,故 producer 快于 consumer 时 ``q`` 会涨到 maxsize →
+    listener 阻塞 put → socket 回压 → Go actor 限流。 若 collect 把 ``q`` 抽干则无界
+    增长只是从 ``q`` 搬到 ``_ready``,backpressure 失效。
+
+    ``assembler.ingest`` 含重 numpy 组装(``_capture_obs_np``),在此(driver 线程)
+    跑 —— 不再像旧架构在 listener 线程跑而饿死 driver(穷举审计 #14)。
+
+    deadline 检查在循环顶 **无条件** 执行 —— 即便 ``q`` 持续非空(producer 高速)也
+    保证 collect 墙钟有界返回(不只在 ``q`` 空时才检查)。
+    """
+    deadline = time.monotonic() + deadline_s
+    while assembler.n_ready() < target:
+        if time.monotonic() >= deadline:
+            break
+        try:
+            t = q.get(timeout=0.1)
+        except queue.Empty:
+            continue
+        assembler.ingest(t)
+    return assembler.drain_ready()
 
 
 def _free_port() -> int:
@@ -87,6 +123,7 @@ class DMCGoActorCollector:
         io_timeout_ms: int = 30_000,
         socket_forward_builder_path: Optional[str] = None,
         socket_forward_builder_kwargs: Optional[dict] = None,
+        trans_queue_maxsize: int = 4096,
     ) -> None:
         self.cfg = cfg
         self.network = network
@@ -104,6 +141,12 @@ class DMCGoActorCollector:
         self._weights_version = 0
         self._episode_seq = 0
         self._spawned = False
+        # 有界 transition queue — listener thread put,collect()(driver thread)get。
+        # 满 → listener 阻塞 put → 停 drain socket → TCP 回压 → Go TransitionWriter.Push
+        # 阻塞 → 全 pool 暂停生产。 backlog 内存 O(maxsize):queue 本身 ≤ maxsize 条 raw
+        # transition,assembler `_buffers` 持有的在途部分是其组装态、同量级,均有界(对比
+        # 旧架构 `_ready` 无界堆 → RSS 10.5GB,I29 T-RR.3 backpressure)。
+        self._trans_queue: 'queue.Queue[_Transition]' = queue.Queue(maxsize=int(trans_queue_maxsize))
 
         # Extract net architecture params for assembler.
         actor_critic = network.net if hasattr(network, 'net') else network
@@ -148,11 +191,13 @@ class DMCGoActorCollector:
         )
         self._server.start(wait_ready_s=15.0)
 
-        # Transition sink listener — feeds assembler。
+        # Transition sink listener — feeds 有界 queue(非直接 assembler.ingest)。
+        # listener thread 只做轻活(recv + 解 envelope + put);重组装(_capture_obs_np)
+        # 移到 collect() 的 driver 线程,不再饿死 driver(I29 T-RR.3 / 审计 #14)。
         ready = threading.Event()
         self._trans_listener_stop = threading.Event()
         self._trans_listener_thr = start_trans_listener(
-            self.trans_port, self.assembler.ingest, ready, self._trans_listener_stop
+            self.trans_port, self._enqueue, ready, self._trans_listener_stop
         )
         if not ready.wait(timeout=5.0):
             raise RuntimeError(f'transition sink listener bind timeout port={self.trans_port}')
@@ -170,28 +215,36 @@ class DMCGoActorCollector:
 
         self._spawned = True
 
+    def _enqueue(self, t: _Transition) -> None:
+        """Transition sink listener callback — raw transition 推进有界 queue。
+
+        queue 满 → 阻塞重试(= backpressure:listener 停 drain socket → Go Push 阻塞)。
+        stop event(close 中 set)→ 丢弃返回,使 listener handler 不被卡死、socket 得以
+        drain、Go Push 解阻塞,StopPool 的 wg.Wait() 不 hang。
+        """
+        stop = self._trans_listener_stop
+        while True:
+            # stop is None —— listener 已拆除(close 末置 None);视同停机,丢弃。
+            if stop is None or stop.is_set():
+                return  # shutting down — drop
+            try:
+                self._trans_queue.put(t, timeout=0.5)
+                return
+            except queue.Full:
+                continue
+
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
-        """Drain assembler.ready 返 CollectorOutput。 ``provider`` 在 Go 路径不用(actor 内部
-        自带 inference_client connect 到 InfServer socket)。"""
+        """Lazy-drain 有界 transition queue → assemble → CollectorOutput。 ``provider``
+        在 Go 路径不用(actor 内部自带 inference_client connect 到 InfServer socket)。"""
         del provider
         self._bootstrap()
 
-        # 异步 Go collector:drain_ready 即时返回当前 assembled。 空时必须 poll-with-
-        # sleep 而非立即返回 —— driver 拿空会立刻再调 collect,热自旋持 GIL 饿死同进程
-        # transition listener 线程 → assembler ingest 不到 → episodes 卡 0(I29 T-R3
-        # 实测 driver 1091 iter/s)。 sleep 释放 GIL 让 listener 跑。
-        import time
-
-        _deadline = time.monotonic() + 10.0
-        ready = self.assembler.drain_ready()
-        while not ready and time.monotonic() < _deadline:
-            time.sleep(0.1)
-            ready = self.assembler.drain_ready()
+        # _drain_queue_assemble 只 ingest 够 n_episodes 的 transition,余下留 queue
+        # (backpressure 蓄水池)。 q.get(timeout) 阻塞等待 — 既不热自旋也不饿死 listener。
+        target = max(1, int(n_episodes))
+        ready = _drain_queue_assemble(self._trans_queue, self.assembler, target, deadline_s=10.0)
         if not ready:
             return CollectorOutput(transitions=[], episode_stats=[], runtime_metrics={'n_dmc_episodes': 0})
-
-        # cap to n_episodes (collector contract)
-        ready = ready[: max(1, int(n_episodes))]
 
         episodes_for_buffer = []
         episode_stats = []
@@ -221,6 +274,8 @@ class DMCGoActorCollector:
                 'n_dmc_transitions': n_trans_total,
                 'dmc_episodes': episodes_for_buffer,
                 'assembler_stats': self.assembler.stats(),
+                # backpressure 诊断:queue 深度接近 maxsize = consumer 落后 producer。
+                'trans_queue_depth': self._trans_queue.qsize(),
             },
             n_units=n_trans_total,
         )
@@ -235,7 +290,12 @@ class DMCGoActorCollector:
         return self._weights_version
 
     def close(self) -> None:
-        """Order: backend → trans listener → server。"""
+        """Order: trans listener stop(set first)→ backend → join listener → server。
+
+        必须先 set listener stop event:此后 ``_enqueue`` 改为丢弃(不再阻塞在满 queue
+        的 put)→ listener handler 继续 drain socket → Go ``TransitionWriter.Push`` 不被
+        backpressure 卡住 → ``StopPool`` 的 ``wg.Wait()`` 不 hang(I29 T-RR.3)。
+        """
 
         def _safely(fn):
             try:
@@ -243,13 +303,19 @@ class DMCGoActorCollector:
             except Exception:
                 pass
 
+        # 1. set listener stop —— _enqueue 即刻改为丢弃,解除 socket 回压。
+        if self._trans_listener_stop is not None:
+            self._trans_listener_stop.set()
+        # 2. stop Go pool —— actor 此时不会卡在 Push,ctx cancel 后干净退出。
         if self._backend is not None:
             _safely(self._backend.stop)
             self._backend = None
+        # 3. join listener thread。
         if self._trans_listener_stop is not None:
             stop_trans_listener(self._trans_listener_stop, self._trans_listener_thr)
             self._trans_listener_stop = None
             self._trans_listener_thr = None
+        # 4. stop InfServer。
         if self._server is not None:
             _safely(self._server.stop)
             self._server = None

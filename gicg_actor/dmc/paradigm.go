@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"os"
 	"sync"
 
 	"gicg_mono/gicg_actor"
@@ -362,7 +363,15 @@ func (p *DMCParadigm) runEpisode(
 				Payload:   payload,
 			}
 			if err := transWri.Push(tx); err != nil {
-				return fmt.Errorf("transition push step=%d: %w", step, err)
+				// Push 失败(socket 抖动 / consumer 慢到超 transitionWriteTimeout)——
+				// 不致死 actor。 本 episode 中止:已 push 的 transition 成 orphan(无
+				// terminal marker),Python assembler 在途上限会驱逐之。 TransitionWriter
+				// .Push 内含 lazy 重连,下个 episode 首 Push 自动重拨。 actor 继续跑下个
+				// episode(I29 T-RR.3 audit #5/#12:fire-and-forget 通道瞬时写失败不该
+				// 把 actor 当 fatal 杀掉 → 不可逆减员)。
+				fmt.Fprintf(os.Stderr, "[gicg_actor] actor=%d ep=%d transition push failed @ step=%d "+
+					"— episode aborted, actor continues: %v\n", clientID, episodeID, step, err)
+				return nil
 			}
 			pushedAny = true
 		}
@@ -392,7 +401,10 @@ func (p *DMCParadigm) runEpisode(
 			Payload:   markerPayload,
 		}
 		if err := transWri.Push(marker); err != nil {
-			return fmt.Errorf("terminal marker push: %w", err)
+			// 同 in-loop push:marker 写失败不致死 actor,本 episode 中止(orphan)。
+			fmt.Fprintf(os.Stderr, "[gicg_actor] actor=%d ep=%d terminal marker push failed "+
+				"— episode aborted, actor continues: %v\n", clientID, episodeID, err)
+			return nil
 		}
 	}
 	return nil
