@@ -175,6 +175,54 @@ Python 端 collector 适配:`training/core/actor/go_backend.py` 加 transition s
 reader thread → push 进 paradigm collector 的 transition queue(现 DMC collector 用 SHMRing reader,
 Go backend 换成 socket reader,collector interface 不变)。
 
+### D8 — Phase 1.5-R 闸门收尾:管线穷举审计 + 3 个耦合修复簇
+
+**修正(2026-05-23,T-R3 Win N=16 stress 后)**:T-R3 真网络压测暴露 Go-actor → driver
+管线远比 D6/D7 假设的不完整。 做了全管线穷举审计(本 session 我审 + 独立 reviewer 复核 +
+关键 claim 亲验代码)。 RSS 10.5GB 与 driver 0.4 eps/s 两个故障现象的根因已确定:
+
+**审计纠正的错误前提**:D5 默认 "Go actor inference 走 batched InfServer" —— **错**。
+`_socket_decoder.py:build_dmc_socket_forward_callback` 每 request 同步单条 forward,从不入
+`request_q`;`inference_server_socket_listener.py` docstring 自承 "P1.3c 优化合 batching"
+—— **P1.3c 从未 ship**。 加上 `inference_client.go` 单 conn + `Request` 全程持 mutex(协议
+无 request_id 乱序应答能力),Go 端 N actor 任意时刻仅 1 个 in-flight inference。 → `0.4
+eps/s` 主因是 inference 结构性 single-flight,非 GIL / GPU 争用,**代码可读出无需 measurement**。
+
+修复按 3 个耦合簇组织(**簇内必须一起改** —— 改一个会破坏另一个的假设):
+
+**簇 1 — backpressure + 队列有界化**(RSS 10.5GB 直接机制)
+- 现状:`_ready`/`_buffers` 无界 + 全链路无回压(Go `Push` fire-and-forget,Python listener
+  一直排空 socket → TCP buffer 永不满 → Go 不限速)+ `collect()` cap 后**静默丢 episode**
+  (`go_collector.py:191`)。
+- 设计:listener thread 减负 —— 只 recv + 解 envelope + `put` 进**有界 queue**;重组装
+  (`_capture_obs_np`)移到 driver 线程的 `collect()` 内(同时解 #14 listener 饿死 driver)。
+  有界 queue 满 → socket 回压 → Go `Push` 阻塞。 `collect()` 改为 leftover 留到下次 drain。
+- **约束(#12)**:Go `TransitionWriter.Push` 有 `SetWriteDeadline(io_timeout=30s)`,回压阻塞
+  超 30s → write 错 → actor goroutine 当 fatal 永久死亡。 回压设计必须:回压阻塞窗口 < 30s,
+  或 Go `Push` 改为重试不致死 actor。
+
+**簇 2 — inference 真 batching**(0.4 eps/s 主因,fps 闸门关键路径)
+- 设计:InfServer socket listener 把请求 enqueue 到 `request_q` 走批处理 + per-conn response
+  路由(完成 docstring 里 deferred 的 P1.3c)。 Go 端去单 conn mutex —— per-actor
+  `InferenceClient` conn,或 socket 协议加 `req_id` 支持乱序应答。 两者必须一起改:只改一边
+  仍是逐条。
+
+**簇 3 — episode 终结契约**(`_buffers` 泄漏 + winner 正确性)
+- 现状:`paradigm.go:252` `MaxEpisodeSteps` 截断时循环正常退出,**最后一条 transition
+  `Done=false`** → assembler 永不 assemble → `_EpisodeBuf` 永久泄漏(GICG ~340 步截断是常态,
+  见 memory `Episode Step Bound`)。 winner 仅凭 `buf.payloads[-1].reward` 推断(`_go_assembler
+  .py:148`),截断 episode 误判 draw。
+- 设计:截断时给最后一条 transition 置 `Done=true`(或补发 terminal transition);winner 从
+  engine `Winner`/`Phase` 取,不靠 last reward。
+
+**独立修复**(不阻塞主链,可并行):静默路径改 fail-loud(reshape size mismatch /
+`pickActionEpsilonGreedy` logits-nLegal 不一致 / listener bind 失败静默 set ready_event);
+actor goroutine 死亡可见性(`pool.go` 不补充不报告 → 吞吐看似"慢"实为 actor 在减少);
+wire header struct version/size 运行时交叉校验;`np.frombuffer` 零拷贝视图钉住 1.2MB
+static blob(首条 transition)。
+
+闸门:T-1.23 仍要 fps≥70 且 mem≤2GB 同时成立 —— 簇 1 保 mem,簇 2 保 fps,缺一不可。
+
 ## ADR-agent 自定 trade-off(决定后内联)
 
 ### 数值等价 tolerance

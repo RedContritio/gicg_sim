@@ -115,25 +115,62 @@ P1.3/P1.4 标 DONE 但 verify 全程用 stub forward callback(`build_stub_zero_f
 
 ### Track A(顺序硬链)
 
-- [ ] T-R1 合并 worktree A(`agent-a8e0dfbe540cb094e`)→ branch:`build_engine.py` 加
-      `go build -a`(修 cgo `//export` cache stale)+ `dmc/_socket_decoder.py` 用
-      `DMCInferenceNet` wrap 真 `DMCNetwork`(修 socket forward NotImplementedError)+
-      配套 tests。 附:同步 `mp_factories.py:122` 注释 blake2b→sha256 +
-      `test_dmc_mp_factories.py:132` 改 sha256(审计发现的注释/测试 stale)
-- [ ] T-R2 删 Mac perf smoke 的 stub bypass — `test_go_actor_perf_smoke.py` 的
-      `socket_forward_builder_path` 指向真 `build_dmc_socket_forward_callback` + 真
-      `DMCNetwork`,Mac 重跑确认 production decode→forward 端到端真通(依赖 T-R1)
-- [ ] T-R3 Win N=16 真网络 stress(走 `tools.runs.*` CLI sync+build+train),收
-      fps/mem/decode_errors,真数据关 T-1.23 [blocker](依赖 T-R2 PASS)[blocker]
-- [ ] T-R4 收尾标注(依赖 T-R3):P1.3/P1.4 DONE 降级标注 "stub-verified, re-closed
-      by T-R2";P2.X 5 commit 标 "premature, pending re-verify";CFR/BC(T-2.5/T-2.6)
-      按 D10 移出 I29 scope
+- [x] T-R1 合并 worktree A → `build_engine.py` 加 `go build -a` + `_socket_decoder.py`
+      用 `DMCInferenceNet` wrap 真 `DMCNetwork`(`84ed588`)
+- [x] T-R2 删 Mac perf smoke stub bypass — 真 `DMCNetwork` 端到端(`eda9ea5`)
+- [~] T-R3 Win N=16 真网络 stress —— **已跑,whack-a-mole 出 7 个结构性问题**(6 已修+提交:
+      `7d41c82 cd20ab6 d347aff d4535e7 9d86635 fba68a1`)。 #7 producer-consumer 无界堆
+      未解。 → T-1.23 [blocker] **未关**,转 Phase 1.5-R2 系统性收尾
+- [ ] T-R4 收尾标注 —— 见 Phase 1.5-R2 T-RR.9
 
 ### Track B(独立,可与 Track A 全程并行)
 
-- [ ] T-R4-guard AZ/PPO `make_collector` 加 guard:`cfg.pipeline.actor_backend=='go'`
-      时显式 raise(非静默忽略),提示 "I29 Phase 2 pending"。 + backlog.md I28 行被
-      I29 commit 顺手改的注记一笔(审计发现)
+- [x] T-R4-guard AZ/PPO `make_collector` guard `actor_backend=='go'` 显式 raise(`f2d3ece`)
+
+## Phase 1.5-R2 — 管线穷举审计修复(2026-05-23)
+
+T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审计(我审 + 独立 reviewer 复核 +
+关键 claim 亲验)→ design.md D8。 3 个耦合修复簇 + 独立修复。 task 边界 = 提交就绪。
+
+闸门 T-1.23 要 fps≥70 且 mem≤2GB **同时成立** —— 簇 1 保 mem,簇 2 保 fps,缺一不可。
+
+### 簇 3 — episode 终结契约(先做:小、独立、修正确性 bug + 减泄漏)
+
+- [ ] T-RR.1 `paradigm.go` `MaxEpisodeSteps` 截断时给最后一条 transition 置 `Done=true`
+      (或补发 terminal transition);`_go_assembler.py` winner 从 engine `Winner`/`Phase`
+      取,不靠 `payloads[-1].reward`。 配 Go test(截断场景)+ assembler test
+
+### 簇 1 — backpressure + 队列有界化(RSS 10.5GB 机制)
+
+- [ ] T-RR.2 assembler 队列有界化 + collector 不丢弃:`collect()` 去掉 cap-后-丢弃
+      (`go_collector.py:191`),leftover 留到下次 drain;`_buffers` 加在途上限/TTL
+      清理。 配 assembler test(over-produce 不丢 / 在途上限)
+- [ ] T-RR.3 backpressure 端到端:listener thread 减负(只 recv + 解 envelope + `put`
+      有界 queue),`_capture_obs_np` 重组装移到 driver 线程 `collect()` 内;有界 queue
+      满 → socket 回压 → Go `Push` 阻塞。 **配套 #12**:Go `Push` 30s 写超时 vs 回压阻塞
+      —— 去 deadline 或 Go 重试不致死 actor。 依赖 T-RR.2
+
+### 簇 2 — inference 真 batching(0.4 eps/s 主因,fps 闸门关键路径)
+
+- [ ] T-RR.4 InfServer socket listener 接 `request_q` batching + per-conn response
+      路由(完成 docstring deferred 的 P1.3c)。 socket 协议加 `req_id`。 配 batching test
+- [ ] T-RR.5 Go 端 inference 并发:去 `inference_client.go` 单 conn mutex —— per-actor
+      `InferenceClient` conn,或走 T-RR.4 的 `req_id` 乱序应答。 依赖 T-RR.4
+
+### 独立修复(可并行,不阻塞主链)
+
+- [ ] T-RR.6 静默路径改 fail-loud:`_socket_decoder.py`/`_go_assembler.py` reshape size
+      mismatch 改 raise;`pickActionEpsilonGreedy` logits-nLegal 不一致改 raise;listener
+      bind 失败不再静默 set `ready_event`
+- [ ] T-RR.7 actor 死亡可见性:`pool.go` actor goroutine fatal 上报(alive count 经
+      C API 暴露);perf smoke 加"结束时 N actor 全活"断言
+- [ ] T-RR.8 wire header struct version/size 运行时交叉校验(transition + infer 两路)
+
+### 收尾
+
+- [ ] T-RR.9 Win N=16 真网络 stress 重跑,关 T-1.23 [blocker]:fps≥70 + mem≤2GB +
+      decode_errors=0 + 结束 16 actor 全活。 依赖 T-RR.1/.3/.5。 + 收尾标注(P1.3/P1.4
+      "stub-verified, re-closed";P2.X "premature";CFR/BC 移出 scope)[blocker]
 
 ## Phase 2 — per-paradigm adapter port(~300 LOC + per-paradigm)
 
