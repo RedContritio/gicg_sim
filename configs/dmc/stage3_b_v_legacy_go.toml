@@ -16,7 +16,17 @@
 
 [meta]
 extends = "stage3_b_v_legacy.toml"
+paradigm = "dmc"
 run_label = "dmc_stage3_b_v_legacy_go"
+# host + [remote] 必须 inline — tools.runs.*(_host.py:load_remote_from_cfg)读 leaf
+# without extends resolution(per _helpers/paths.py:85),不会从 parent 继承。 同 parent。
+host = "remote"
+
+[remote]
+ssh = "dev@192.168.31.56"
+root = "D:/gicg_dev"
+os = "windows"
+hostname = "DESKTOP-GHJCC7Q"
 
 [pipeline]
 actor_backend = "go"  # I29 — 走 gicg_actor goroutine pool(libgicg_actor.dll)
