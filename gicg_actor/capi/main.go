@@ -97,3 +97,11 @@ func gicg_actor_start_pool_v2(
 func gicg_actor_stop_pool() C.int {
 	return C.int(gicg_actor.StopPool())
 }
+
+// 返回当前在跑的 actor goroutine 数。 pool 运行期间 < start 时的 n_actors 即说明有
+// actor 静默 fatal 死亡(I29 T-RR.7 — actor 死亡可见性)。
+//
+//export gicg_actor_alive_count
+func gicg_actor_alive_count() C.int {
+	return C.int(gicg_actor.AliveCount())
+}

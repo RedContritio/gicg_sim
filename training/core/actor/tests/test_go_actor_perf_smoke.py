@@ -172,6 +172,10 @@ def test_go_actor_perf_smoke_30s():
     t_start = time.time()
     try:
         time.sleep(RUN_SECONDS)
+        # I29 T-RR.7:跑完(stop 前)全部 N actor 必须仍存活 —— alive < N 说明有 actor
+        # 静默 fatal 死亡,fps 看似慢实为 actor 减少(穷举审计 #E2)。
+        alive = backend.alive_count()
+        assert alive == N_ACTORS, f'{N_ACTORS - alive}/{N_ACTORS} actor(s) died during run (alive={alive})'
     finally:
         backend.stop()
         elapsed = time.time() - t_start

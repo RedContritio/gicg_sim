@@ -85,6 +85,8 @@ class GoActorBackend:
             ]
             lib.gicg_actor_stop_pool.restype = ctypes.c_int
             lib.gicg_actor_stop_pool.argtypes = []
+            lib.gicg_actor_alive_count.restype = ctypes.c_int
+            lib.gicg_actor_alive_count.argtypes = []
             GoActorBackend._lib = lib
         self._started = False
         # atexit 兜 Python 异常退出时 stop_pool — 防 Go goroutine 漏 / SHM 未 unmap。
@@ -169,6 +171,13 @@ class GoActorBackend:
             if rc != 1:
                 raise RuntimeError(f'gicg_actor_stop_pool() failed: rc={rc}')
         self._started = False
+
+    def alive_count(self) -> int:
+        """当前在跑的 actor goroutine 数。 pool 运行期间 < start 时的 n_actors 说明有
+        actor 静默 fatal 死亡(I29 T-RR.7 — actor 死亡可见性)。 not-started 时返 0。"""
+        if not self._started:
+            return 0
+        return int(GoActorBackend._lib.gicg_actor_alive_count())
 
     def _atexit_cleanup(self) -> None:
         """atexit hook — Python 退出兜 stop_pool,防 Go goroutine 漏。 异常吞掉

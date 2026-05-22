@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
@@ -41,6 +42,10 @@ var (
 	currentCfg Config
 	currentInf *InferenceClient
 	currentTW  *TransitionWriter
+	// aliveActors — 当前在跑的 actor goroutine 数(atomic)。 StartPool 置 NActors,
+	// 每个 actorLoop 退出(fatal 或 ctx-cancel)即 -1。 Python 经 C API 读之 —— actor
+	// 静默 fatal 死亡(穷举审计 #E2)从此可见(I29 T-RR.7)。
+	aliveActors int32
 )
 
 func init() {
@@ -141,6 +146,7 @@ func StartPoolWithConfig(cfg Config) int {
 
 	cancel = cancelFn
 	currentCfg = cfg
+	atomic.StoreInt32(&aliveActors, int32(cfg.NActors))
 	for i := range cfg.NActors {
 		wg.Add(1)
 		go actorLoop(ctx, i, paradigm)
@@ -176,6 +182,9 @@ func StopPool() int {
 
 func actorLoop(ctx context.Context, id int, paradigm Paradigm) {
 	defer wg.Done()
+	// LIFO defer:本行(注册在 wg.Done 之后)先于 wg.Done 执行 —— StopPool 的
+	// wg.Wait() 返回时 aliveActors 必已归 0。
+	defer atomic.AddInt32(&aliveActors, -1)
 	if paradigm == nil {
 		// P0 placeholder — hello-world 路径(无 paradigm config)。
 		fmt.Printf("[gicg_actor] ok actor=%d\n", id)
@@ -193,4 +202,12 @@ func actorLoop(ctx context.Context, id int, paradigm Paradigm) {
 // Hello 是最简 ctypes 烟雾测:Python 调返 0 验证 ctypes load + Go runtime init OK。
 func Hello() int {
 	return 0
+}
+
+// AliveCount 返回当前在跑的 actor goroutine 数。 StartPool 后 == NActors;某 actor 因
+// fatal error 退出则减(clean exit 只在 StopPool ctx-cancel 时发生)。 故 pool 运行期间
+// AliveCount < NActors 即说明有 actor 静默 fatal 死亡 —— Python 侧据此可见(I29 T-RR.7,
+// 穷举审计 #E2:actor 死亡静默 → 吞吐看似慢实为 actor 减少)。
+func AliveCount() int {
+	return int(atomic.LoadInt32(&aliveActors))
 }

@@ -171,8 +171,9 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
       panic(配置错,fail-fast);两 listener bind 失败 → 不 set `ready_event` + stderr。
       panic 暴露 3 个 e2e 测试旧用 `max_actions=30`(v_legacy 真实 nLegal 超之、旧静默
       截断掩盖)→ 改生产值 2048
-- [ ] T-RR.7 actor 死亡可见性:`pool.go` actor goroutine fatal 上报(alive count 经
-      C API 暴露);perf smoke 加"结束时 N actor 全活"断言
+- [x] T-RR.7 actor 死亡可见性:`pool.go` `aliveActors` atomic(StartPool 置 NActors,
+      actorLoop 退出 -1)+ `AliveCount()` 经 `gicg_actor_alive_count` C API 暴露 →
+      `GoActorBackend.alive_count()`;perf smoke 加"结束时 N actor 全活"断言
 - [ ] T-RR.8 wire header struct version/size 运行时交叉校验(transition + infer 两路)
 
 ### 收尾
