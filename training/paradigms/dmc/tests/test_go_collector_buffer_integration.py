@@ -78,8 +78,7 @@ def test_go_collector_to_buffer_integration():
                 {'chars': [{'name': '墨客'}]},
             ],
         },
-        'opp_features': 'F1',
-        'opp_depth': 2,
+        'opponent_mix': {'random': 1.0},
         'max_actions': 30,
         'max_episode_steps': 360,
         'my_player_strategy': 'fixed_0',
@@ -116,9 +115,7 @@ def test_go_collector_to_buffer_integration():
             n_transitions_pushed += len(transitions)
 
         # Buffer 含预期 transition 数量
-        assert len(buffer) == n_transitions_pushed, (
-            f'buffer size {len(buffer)} != pushed {n_transitions_pushed}'
-        )
+        assert len(buffer) == n_transitions_pushed, f'buffer size {len(buffer)} != pushed {n_transitions_pushed}'
 
         # G 已 backfilled 到每个 transition
         all_G = {t.G for t in buffer.buf}

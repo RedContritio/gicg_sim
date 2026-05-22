@@ -31,19 +31,27 @@ import (
 // factory.GameConfig)— 这样 Python 单一 source of truth 是 ScenarioCfg → factory.GameConfig
 // JSON,Go 透传 GameSpec 子树即可,无需第二份 schema。
 //
-// OppFeatures + OppDepth 配 GreedyPlayer(F1-F5 × D1-D4)。 MyPlayerStrategy 决定 me 在每
-// episode 是固定 0 / 固定 1 / 随机轮换(`alternate`),production 默认 `alternate` 防
-// position bias。
+// MyPlayerStrategy 决定 me 在每 episode 是固定 0 / 固定 1 / 随机轮换(`alternate`),
+// production 默认 `alternate` 防 position bias。
+//
+// OpponentMix — per-episode 按权重抽对手类型(mirror cfg [paradigm.dmc.opponent_mix])。
+// 权重不必和为 1 — sampleOpponentKind 归一化。 historical 在 Go 路径走当前 net 推理
+// (cost-faithful 代理;真 historical-net ring 是 follow-up,见 paradigm.go opp dispatch)。
+type OpponentMix struct {
+	Random     float64 `json:"random"`
+	F1D2       float64 `json:"f1d2"`
+	F1D4       float64 `json:"f1d4"`
+	Historical float64 `json:"historical"`
+}
+
 type DMCConfig struct {
-	GameSpec         json.RawMessage `json:"game_spec"`
-	OppFeatures      string          `json:"opp_features"`
-	OppDepth         int             `json:"opp_depth"`
-	MaxActions       int             `json:"max_actions"`
-	MaxEpisodeSteps  int             `json:"max_episode_steps"`
-	MyPlayerStrategy string          `json:"my_player_strategy"` // "alternate" | "fixed_0" | "fixed_1"
-	BaseSeed         int64           `json:"base_seed"`
-	// Epsilon — ε-greedy exploration prob (0.0 = pure argmax). DMC 默认 ~0.05.
-	Epsilon float32 `json:"epsilon"`
+	gicg_actor.BaseActorConfig
+
+	// 对手 — 每 episode 按 OpponentMix 权重抽 random / f1d2 / f1d4 / historical。
+	OpponentMix OpponentMix `json:"opponent_mix"`
+
+	MyPlayerStrategy string  `json:"my_player_strategy"` // "alternate" | "fixed_0" | "fixed_1"
+	Epsilon          float32 `json:"epsilon"`            // ε-greedy explore prob(DMC ~0.05)
 }
 
 // DMCParadigm implements gicg_actor.Paradigm。
@@ -66,20 +74,11 @@ func (p *DMCParadigm) Configure(jsonCfg string) error {
 	if err := json.Unmarshal([]byte(jsonCfg), &c); err != nil {
 		return fmt.Errorf("DMCParadigm.Configure: unmarshal DMCConfig: %w", err)
 	}
-	if len(c.GameSpec) == 0 || string(c.GameSpec) == "null" {
-		return fmt.Errorf("DMCParadigm.Configure: game_spec missing")
+	if err := c.Validate(); err != nil {
+		return fmt.Errorf("DMCParadigm.Configure: %w", err)
 	}
-	if c.OppFeatures == "" {
-		return fmt.Errorf("DMCParadigm.Configure: opp_features missing")
-	}
-	if c.OppDepth < 1 || c.OppDepth > 4 {
-		return fmt.Errorf("DMCParadigm.Configure: opp_depth=%d not in [1,4]", c.OppDepth)
-	}
-	if c.MaxActions <= 0 {
-		return fmt.Errorf("DMCParadigm.Configure: max_actions=%d must be positive", c.MaxActions)
-	}
-	if c.MaxEpisodeSteps <= 0 {
-		return fmt.Errorf("DMCParadigm.Configure: max_episode_steps=%d must be positive", c.MaxEpisodeSteps)
+	if c.OpponentMix.Random+c.OpponentMix.F1D2+c.OpponentMix.F1D4+c.OpponentMix.Historical <= 0 {
+		return fmt.Errorf("DMCParadigm.Configure: opponent_mix weights sum must be > 0")
 	}
 	switch c.MyPlayerStrategy {
 	case "alternate", "fixed_0", "fixed_1":
@@ -101,9 +100,15 @@ func (p *DMCParadigm) Configure(jsonCfg string) error {
 func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli *gicg_actor.InferenceClient, transWri *gicg_actor.TransitionWriter) error {
 	// Per-actor seed (derived) — 决定 opp tie-break + my-player alternation + ε-greedy explore
 	rng := rand.New(rand.NewSource(p.cfg.BaseSeed + int64(actorID)*1009))
-	gp, err := NewGreedyPlayer(p.cfg.OppFeatures, p.cfg.OppDepth, p.cfg.BaseSeed+int64(actorID)*7919)
+	// 对手按 OpponentMix 每 episode 抽 — f1d2 / f1d4 用 GreedyPlayer(F1 features),各
+	// depth 建一次跨 episode 复用;random / historical 不需 GreedyPlayer。
+	gpD2, err := NewGreedyPlayer("F1", 2, p.cfg.BaseSeed+int64(actorID)*7919)
 	if err != nil {
-		return fmt.Errorf("actor=%d: build greedy player: %w", actorID, err)
+		return fmt.Errorf("actor=%d: build greedy player D2: %w", actorID, err)
+	}
+	gpD4, err := NewGreedyPlayer("F1", 4, p.cfg.BaseSeed+int64(actorID)*7919+1)
+	if err != nil {
+		return fmt.Errorf("actor=%d: build greedy player D4: %w", actorID, err)
 	}
 
 	clientID := uint32(actorID)
@@ -117,7 +122,8 @@ func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli *gicg_actor.I
 		}
 		episodeID++
 		mePlayer := pickMePlayer(p.cfg.MyPlayerStrategy, int(episodeID))
-		if err := p.runEpisode(ctx, gp, rng, infCli, transWri, clientID, episodeID, mePlayer); err != nil {
+		opp := sampleOpponentKind(p.cfg.OpponentMix, rng)
+		if err := p.runEpisode(ctx, opp, gpD2, gpD4, rng, infCli, transWri, clientID, episodeID, mePlayer); err != nil {
 			// ctx cancel mid-episode 不算 fatal — outer loop 重新检查 ctx.Done()
 			if ctx.Err() != nil {
 				return nil
@@ -181,10 +187,39 @@ func (t *episodeStaticTracker) take(static []int32) []int32 {
 	return static
 }
 
+// oppKind — 本 episode 的对手类型(由 OpponentMix 权重抽样)。
+type oppKind int
+
+const (
+	oppRandom     oppKind = iota // 均匀随机合法动作
+	oppF1D2                      // GreedyPlayer F1 depth-2 minimax
+	oppF1D4                      // GreedyPlayer F1 depth-4 minimax
+	oppHistorical                // 走当前 net 推理(cost-faithful 代理;真 historical ring 是 follow-up)
+)
+
+// sampleOpponentKind — 按 OpponentMix 权重抽对手。 权重自动归一化(不必和为 1)。
+func sampleOpponentKind(mix OpponentMix, rng *rand.Rand) oppKind {
+	total := mix.Random + mix.F1D2 + mix.F1D4 + mix.Historical
+	r := rng.Float64() * total
+	if r < mix.Random {
+		return oppRandom
+	}
+	r -= mix.Random
+	if r < mix.F1D2 {
+		return oppF1D2
+	}
+	r -= mix.F1D2
+	if r < mix.F1D4 {
+		return oppF1D4
+	}
+	return oppHistorical
+}
+
 // runEpisode 跑一个完整 episode。 me 决定 actor (network) 的 player_idx,opp 是另一边。
 func (p *DMCParadigm) runEpisode(
 	ctx context.Context,
-	gp *GreedyPlayer,
+	opp oppKind,
+	gpD2, gpD4 *GreedyPlayer,
 	rng *rand.Rand,
 	infCli *gicg_actor.InferenceClient,
 	transWri *gicg_actor.TransitionWriter,
@@ -263,11 +298,46 @@ func (p *DMCParadigm) runEpisode(
 			preStepNLegal = len(actions)
 			pushTrans = transWri != nil
 		} else {
-			c, err := gp.SelectAction(rt)
-			if err != nil {
-				return fmt.Errorf("opp greedy step=%d: %w", step, err)
+			oppActions := g.GetLegalActions()
+			if len(oppActions) == 0 {
+				return fmt.Errorf("opp step=%d: no legal actions", step)
 			}
-			chosen = c
+			switch opp {
+			case oppRandom:
+				chosen = rng.Intn(len(oppActions))
+			case oppF1D2:
+				c, err := gpD2.SelectAction(rt)
+				if err != nil {
+					return fmt.Errorf("opp f1d2 step=%d: %w", step, err)
+				}
+				chosen = c
+			case oppF1D4:
+				c, err := gpD4.SelectAction(rt)
+				if err != nil {
+					return fmt.Errorf("opp f1d4 step=%d: %w", step, err)
+				}
+				chosen = c
+			case oppHistorical:
+				// historical 对手走当前 net 推理(cost-faithful 代理;真 historical-net
+				// ring 是 follow-up)。 opp 回合不 push transition。
+				if infCli == nil {
+					return fmt.Errorf("opp historical step=%d: inference client nil", step)
+				}
+				reqID++
+				oppReq := BuildInferRequest(g, staticHash, clientID, reqID, p.cfg.MaxActions)
+				if !staticSentThisEpisode {
+					oppReq.Static = staticInt32
+					staticSentThisEpisode = true
+				}
+				oppResp, err := infCli.Request(oppReq)
+				if err != nil {
+					return fmt.Errorf("opp historical inference step=%d: %w", step, err)
+				}
+				if oppResp.Status != gicg_actor.InferStatusOK {
+					return fmt.Errorf("opp historical inference status: %s", oppResp.ErrMsg)
+				}
+				chosen = pickActionEpsilonGreedy(oppResp.Logits, len(oppActions), p.cfg.Epsilon, rng)
+			}
 		}
 
 		g.Step(chosen)

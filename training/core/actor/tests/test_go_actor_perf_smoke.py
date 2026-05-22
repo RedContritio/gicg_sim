@@ -4,7 +4,7 @@
 - production decode→forward 路径端到端真通 — 真 DMCNetwork(d_model=128)+ 真
   build_dmc_socket_forward_callback(T-R2:此前 Phase 1 smoke 全用 stub 绕过)
 - fps/actor ≥ 2.5(实测真网络 max_actions=2048,正常 5.6-7.0;偶发不稳定见 gate 注释)
-- mem delta < 500 MB(无 leak)
+- mem delta < 1100 MB(D4 minimax DeepCopy GC churn;非 leak)
 - 15s 跑完无 deadlock / fatal,decode_errors == 0
 
 不是 Phase 1.5 final 验收 gate(那需要 Win box N=16 fps≥70 + mem≤2 GB),仅 Mac side
@@ -148,8 +148,7 @@ def test_go_actor_perf_smoke_30s():
                 {'chars': [{'name': '墨客'}]},
             ],
         },
-        'opp_features': 'F1',
-        'opp_depth': 2,
+        'opponent_mix': {'random': 0.2, 'f1d2': 0.3, 'f1d4': 0.2, 'historical': 0.3},
         'max_actions': _MAX_ACTIONS,
         'max_episode_steps': 360,
         'my_player_strategy': 'fixed_0',
@@ -215,5 +214,8 @@ def test_go_actor_perf_smoke_30s():
     assert fps_per_actor >= 2.5, (
         f'fps/actor={fps_per_actor:.2f} < 2.5 Mac real-net baseline — perf regression or pipeline stall'
     )
-    # mem delta < 500 MB(模型小 + Go runtime 总开销 ~250 MB,留 buffer)
-    assert mem_delta_mb < 500, f'mem grew {mem_delta_mb:.0f} MB during 15s — possible leak'
+    # mem delta gate — 实测真网络 + 2048-wide obs + budgeted-D4 minimax 配置:N=4
+    # 15s 实测 +695MB(budget 4000)。 主要是 D4 minimax 的 game-DeepCopy GC churn
+    # (transient,非泄漏 — clone 用后即弃,Go GC 回收)。 1100 留 margin;远超此
+    # = 真泄漏。 (旧 500 gate 是 stub-net 配置遗留,已随配置变更失效。)
+    assert mem_delta_mb < 1100, f'mem grew {mem_delta_mb:.0f} MB during 15s — possible leak'

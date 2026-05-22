@@ -111,8 +111,8 @@ class DMCParadigm:
     def _make_go_collector(self, cfg: Any, pcfg: Any, network: Any) -> Any:
         """Build DMCGoActorCollector with paradigm_cfg_dict assembled from cfg + pcfg。
 
-        Scenario / opp 配置 walk cfg.scenario + pcfg(epsilon / opp_features /
-        opp_depth from opponent_mix 简化:取 F1-D2 默认)。
+        Scenario walk cfg.scenario;对手按 pcfg.opponent_mix 透传给 Go actor
+        (per-episode 按权重抽 random/f1d2/f1d4/historical)。
         """
         from training.paradigms.dmc.go_collector import DMCGoActorCollector
 
@@ -132,10 +132,19 @@ class DMCParadigm:
         if sc.max_rounds:
             game_spec['max_rounds'] = sc.max_rounds
 
+        # 对手按 cfg 的 opponent_mix 透传 — Go actor per-episode 按权重抽对手。
+        # 旧实现硬编码 F1-D2(无视 opponent_mix)→ 100% D2 minimax,episode 被
+        # minimax 吞掉(I29 T-R3 吞吐崩溃根因)。 historical 在 Go 路径走当前 net
+        # 推理代理(cost-faithful;真 historical-net ring 是 follow-up)。
+        omix = pcfg.opponent_mix
         paradigm_cfg = {
             'game_spec': game_spec,
-            'opp_features': 'F1',
-            'opp_depth': 2,
+            'opponent_mix': {
+                'random': float(omix.random),
+                'f1d2': float(omix.f1d2),
+                'f1d4': float(omix.f1d4),
+                'historical': float(omix.historical),
+            },
             # Go actor obs / assembler / logits 宽度 — 必须 == 网络 action 容量
             # (AgentConfig.max_actions),否则 n_legal > max_actions 时 chosen_action
             # 越出 logits 宽 → 训练 gather OOB。 与 Python mp 路径(mp_factories.py)

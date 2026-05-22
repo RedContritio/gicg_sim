@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"gicg_mono/gicg_actor"
 	"gicg_mono/gicg_engine/factory"
 )
 
@@ -24,13 +25,14 @@ func TestConfigure_BasicValid(t *testing.T) {
 	gameSpecBytes, _ := json.Marshal(gameCfg)
 
 	cfg := DMCConfig{
-		GameSpec:         gameSpecBytes,
-		OppFeatures:      "F1",
-		OppDepth:         2,
-		MaxActions:       30,
-		MaxEpisodeSteps:  360,
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec:        gameSpecBytes,
+			MaxActions:      30,
+			MaxEpisodeSteps: 360,
+			BaseSeed:        1,
+		},
+		OpponentMix:      OpponentMix{Random: 0.2, F1D2: 0.3, F1D4: 0.2, Historical: 0.3},
 		MyPlayerStrategy: "alternate",
-		BaseSeed:         1,
 		Epsilon:          0.05,
 	}
 	cfgBytes, _ := json.Marshal(cfg)
@@ -39,8 +41,8 @@ func TestConfigure_BasicValid(t *testing.T) {
 	if err := p.Configure(string(cfgBytes)); err != nil {
 		t.Fatalf("Configure: %v", err)
 	}
-	if p.cfg.OppFeatures != "F1" {
-		t.Errorf("OppFeatures = %q, want F1", p.cfg.OppFeatures)
+	if p.cfg.OpponentMix.F1D2 != 0.3 {
+		t.Errorf("OpponentMix.F1D2 = %v, want 0.3", p.cfg.OpponentMix.F1D2)
 	}
 	if p.gameCfg.Pools[0] != "v_legacy" {
 		t.Errorf("gameCfg.Pools[0] = %q, want v_legacy", p.gameCfg.Pools[0])
@@ -49,11 +51,12 @@ func TestConfigure_BasicValid(t *testing.T) {
 
 func TestConfigure_DefaultMyPlayerStrategy(t *testing.T) {
 	cfg := DMCConfig{
-		GameSpec:        json.RawMessage(`{"pools":["v_legacy"],"seed":1,"players":[{"chars":[{"name":"赤蝶"}]},{"chars":[{"name":"墨客"}]}]}`),
-		OppFeatures:     "F1",
-		OppDepth:        1,
-		MaxActions:      10,
-		MaxEpisodeSteps: 100,
+		BaseActorConfig: gicg_actor.BaseActorConfig{
+			GameSpec:        json.RawMessage(`{"pools":["v_legacy"],"seed":1,"players":[{"chars":[{"name":"赤蝶"}]},{"chars":[{"name":"墨客"}]}]}`),
+			MaxActions:      10,
+			MaxEpisodeSteps: 100,
+		},
+		OpponentMix: OpponentMix{F1D2: 1.0},
 		// MyPlayerStrategy omitted — should default to "alternate"
 	}
 	cfgBytes, _ := json.Marshal(cfg)
@@ -67,6 +70,7 @@ func TestConfigure_DefaultMyPlayerStrategy(t *testing.T) {
 }
 
 func TestConfigure_Errors(t *testing.T) {
+	validMix := OpponentMix{F1D2: 1.0}
 	cases := []struct {
 		name    string
 		cfg     DMCConfig
@@ -74,32 +78,27 @@ func TestConfigure_Errors(t *testing.T) {
 	}{
 		{
 			name:    "empty game_spec",
-			cfg:     DMCConfig{OppFeatures: "F1", OppDepth: 1, MaxActions: 10, MaxEpisodeSteps: 100},
+			cfg:     DMCConfig{OpponentMix: validMix, BaseActorConfig: gicg_actor.BaseActorConfig{MaxActions: 10, MaxEpisodeSteps: 100}},
 			wantSub: "game_spec missing",
 		},
 		{
-			name:    "missing opp_features",
-			cfg:     DMCConfig{GameSpec: json.RawMessage(`{}`), OppDepth: 1, MaxActions: 10, MaxEpisodeSteps: 100},
-			wantSub: "opp_features missing",
-		},
-		{
-			name:    "bad opp_depth",
-			cfg:     DMCConfig{GameSpec: json.RawMessage(`{}`), OppFeatures: "F1", OppDepth: 5, MaxActions: 10, MaxEpisodeSteps: 100},
-			wantSub: "opp_depth=5",
+			name:    "zero opponent_mix",
+			cfg:     DMCConfig{BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}},
+			wantSub: "opponent_mix weights sum",
 		},
 		{
 			name:    "bad max_actions",
-			cfg:     DMCConfig{GameSpec: json.RawMessage(`{}`), OppFeatures: "F1", OppDepth: 1, MaxActions: 0, MaxEpisodeSteps: 100},
+			cfg:     DMCConfig{OpponentMix: validMix, BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 0, MaxEpisodeSteps: 100}},
 			wantSub: "max_actions=0",
 		},
 		{
 			name:    "bad max_episode_steps",
-			cfg:     DMCConfig{GameSpec: json.RawMessage(`{}`), OppFeatures: "F1", OppDepth: 1, MaxActions: 10, MaxEpisodeSteps: 0},
+			cfg:     DMCConfig{OpponentMix: validMix, BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 0}},
 			wantSub: "max_episode_steps=0",
 		},
 		{
 			name:    "unknown strategy",
-			cfg:     DMCConfig{GameSpec: json.RawMessage(`{}`), OppFeatures: "F1", OppDepth: 1, MaxActions: 10, MaxEpisodeSteps: 100, MyPlayerStrategy: "random"},
+			cfg:     DMCConfig{OpponentMix: validMix, MyPlayerStrategy: "random", BaseActorConfig: gicg_actor.BaseActorConfig{GameSpec: json.RawMessage(`{}`), MaxActions: 10, MaxEpisodeSteps: 100}},
 			wantSub: "unknown my_player_strategy",
 		},
 	}
@@ -195,5 +194,35 @@ func TestEpisodeStaticTracker(t *testing.T) {
 	}
 	if got := tr.take(static); got != nil {
 		t.Errorf("third take: want nil, got %v", got)
+	}
+}
+
+// TestSampleOpponentKind 守 OpponentMix 权重抽样:纯单权重 → 恒定;混合 → 经验
+// 分布匹配权重。 I29 T-R3:对手按 opponent_mix 抽,替代旧硬编码 100% F1-D2。
+func TestSampleOpponentKind(t *testing.T) {
+	rng := rand.New(rand.NewSource(1))
+	// 纯 random 权重 → 永远 oppRandom。
+	for i := 0; i < 50; i++ {
+		if k := sampleOpponentKind(OpponentMix{Random: 1.0}, rng); k != oppRandom {
+			t.Fatalf("pure-random mix: got kind %d, want oppRandom", k)
+		}
+	}
+	// 混合权重(权重不和为 1 也应归一化)→ 经验分布大致匹配。
+	mix := OpponentMix{Random: 2.0, F1D2: 3.0, F1D4: 2.0, Historical: 3.0}
+	counts := map[oppKind]int{}
+	const N = 4000
+	for i := 0; i < N; i++ {
+		counts[sampleOpponentKind(mix, rng)]++
+	}
+	for _, tc := range []struct {
+		kind oppKind
+		want float64
+	}{
+		{oppRandom, 0.2}, {oppF1D2, 0.3}, {oppF1D4, 0.2}, {oppHistorical, 0.3},
+	} {
+		got := float64(counts[tc.kind]) / N
+		if got < tc.want-0.06 || got > tc.want+0.06 {
+			t.Errorf("kind %d: empirical %.3f, want ~%.2f", tc.kind, got, tc.want)
+		}
 	}
 }
