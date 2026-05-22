@@ -101,6 +101,10 @@ class PPOParadigm:
         - mode='async':PPOAsyncCollector(FU-W3b-PPO — W3a core/actor 真 mp,
           frozen tier 简单接通,不投入 batched server)。
         """
+        if getattr(cfg.pipeline, 'actor_backend', 'python') == 'go':
+            raise ValueError(
+                "PPOParadigm 不支持 actor_backend='go'(I29 Phase 2 pending);PPO 当前仅 Python actor backend。"
+            )
         del opp_pool  # PPO uses string rollout_opponent, not OpponentPool
         pcfg = self._resolve_pcfg(cfg)
         mode = cfg.pipeline.mode

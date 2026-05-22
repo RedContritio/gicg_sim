@@ -111,6 +111,10 @@ class AZParadigm:
             (A5.2 — both sides share the same network). The kwarg is
             accepted for protocol uniformity + ignored.
         """
+        if getattr(cfg.pipeline, 'actor_backend', 'python') == 'go':
+            raise ValueError(
+                "AZParadigm 不支持 actor_backend='go'(I29 Phase 2 pending);AZ 当前仅 Python actor backend。"
+            )
         del opp_pool  # AZ selfplay shares network across both sides
         pcfg = self._resolve_pcfg(cfg)
         if cfg.pipeline.mode == 'async':
