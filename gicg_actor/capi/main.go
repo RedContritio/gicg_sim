@@ -105,3 +105,27 @@ func gicg_actor_stop_pool() C.int {
 func gicg_actor_alive_count() C.int {
 	return C.int(gicg_actor.AliveCount())
 }
+
+// 以下 4 个 wire-layout introspection export 供 Python 测试做 Go↔Python wire 协议
+// header 交叉校验 —— 任一端加字段忘同步另一端会被这些 size 不符 catch(I29 T-RR.8,
+// 穷举审计 #D4:header struct 与 Python struct fmt 无运行时交叉校验)。
+//
+//export gicg_actor_wire_version
+func gicg_actor_wire_version() C.int {
+	return C.int(gicg_actor.WireVersion)
+}
+
+//export gicg_actor_transition_header_size
+func gicg_actor_transition_header_size() C.int {
+	return C.int(gicg_actor.TransitionHeaderSize)
+}
+
+//export gicg_actor_infer_request_header_size
+func gicg_actor_infer_request_header_size() C.int {
+	return C.int(gicg_actor.HeaderSize)
+}
+
+//export gicg_actor_infer_response_header_size
+func gicg_actor_infer_response_header_size() C.int {
+	return C.int(gicg_actor.ResponseHeaderSize)
+}

@@ -87,6 +87,15 @@ class GoActorBackend:
             lib.gicg_actor_stop_pool.argtypes = []
             lib.gicg_actor_alive_count.restype = ctypes.c_int
             lib.gicg_actor_alive_count.argtypes = []
+            # Wire-layout introspection — Go↔Python wire header 交叉校验(I29 T-RR.8)。
+            for _fn in (
+                'gicg_actor_wire_version',
+                'gicg_actor_transition_header_size',
+                'gicg_actor_infer_request_header_size',
+                'gicg_actor_infer_response_header_size',
+            ):
+                getattr(lib, _fn).restype = ctypes.c_int
+                getattr(lib, _fn).argtypes = []
             GoActorBackend._lib = lib
         self._started = False
         # atexit 兜 Python 异常退出时 stop_pool — 防 Go goroutine 漏 / SHM 未 unmap。
@@ -178,6 +187,17 @@ class GoActorBackend:
         if not self._started:
             return 0
         return int(GoActorBackend._lib.gicg_actor_alive_count())
+
+    def wire_layout(self) -> dict[str, int]:
+        """Go 侧 wire 协议 header 尺寸 + 版本 —— 供 Python 测试与 ``struct.calcsize``
+        交叉校验,catch Go↔Python header 漂移(I29 T-RR.8)。 不需 start_pool。"""
+        lib = GoActorBackend._lib
+        return {
+            'wire_version': int(lib.gicg_actor_wire_version()),
+            'transition_header_size': int(lib.gicg_actor_transition_header_size()),
+            'infer_request_header_size': int(lib.gicg_actor_infer_request_header_size()),
+            'infer_response_header_size': int(lib.gicg_actor_infer_response_header_size()),
+        }
 
     def _atexit_cleanup(self) -> None:
         """atexit hook — Python 退出兜 stop_pool,防 Go goroutine 漏。 异常吞掉

@@ -174,7 +174,9 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
 - [x] T-RR.7 actor 死亡可见性:`pool.go` `aliveActors` atomic(StartPool 置 NActors,
       actorLoop 退出 -1)+ `AliveCount()` 经 `gicg_actor_alive_count` C API 暴露 →
       `GoActorBackend.alive_count()`;perf smoke 加"结束时 N actor 全活"断言
-- [ ] T-RR.8 wire header struct version/size 运行时交叉校验(transition + infer 两路)
+- [x] T-RR.8 wire header 交叉校验:`capi` 暴露 Go `binary.Size`(transition / infer
+      request / infer response header)+ `WireVersion`;`test_wire_cross_check.py` 经
+      ctypes 读之与 Python `struct.calcsize` 比对 —— 任一端 header 漂移 CI 即暴露
 
 ### 收尾
 
