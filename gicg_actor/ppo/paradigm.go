@@ -21,7 +21,6 @@
 package ppo
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -100,14 +99,7 @@ func (p *PPOParadigm) Configure(jsonCfg string) error {
 	return nil
 }
 
-// Run — P2.1 scaffold stub。
-func (p *PPOParadigm) Run(ctx context.Context, actorID int, infCli *gicg_actor.InferenceClient, transWri *gicg_actor.TransitionWriter) error {
-	_ = ctx
-	_ = actorID
-	_ = infCli
-	_ = transWri
-	return fmt.Errorf("PPOParadigm.Run: P2.1 scaffold — full on-policy rollout loop deferred to P2.X")
-}
+// Run — 完整 on-policy rollout loop。 impl 在 run.go(同 package,split for file budget)。
 
 var registerOnce sync.Once
 
