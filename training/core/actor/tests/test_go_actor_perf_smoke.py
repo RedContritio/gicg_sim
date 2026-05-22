@@ -1,14 +1,15 @@
-"""I29 P1.4 — Mac perf smoke: Go actor pool sustained throughput + memory baseline。
+"""I29 — Mac perf smoke: Go actor pool sustained throughput + memory baseline。
 
-测试目标:30s wall window,N=4 actor Mac baseline,验证:
-- transitions/sec > 5 per actor(基本 viability,实测 stage3_b_v_legacy/F1-D2 Mac
-  Python baseline ~2 fps/actor,Go-native 应该 ≥ 5 fps/actor)
-- 进程 RSS < 1 GB (Mac unified mem 紧,vs Python baseline ~11 GB N=16)
-- 30s 跑完无 deadlock / fatal / leak
+测试目标:15s wall window,N=4 actor Mac baseline,验证:
+- production decode→forward 路径端到端真通 — 真 DMCNetwork(d_model=128)+ 真
+  build_dmc_socket_forward_callback(T-R2:此前 Phase 1 smoke 全用 stub 绕过)
+- fps/actor ≥ 2.5(实测真网络 cold 3.5 / warm 5.8-6.2,N=4 Mac CPU)
+- mem delta < 500 MB(无 leak)
+- 15s 跑完无 deadlock / fatal,decode_errors == 0
 
 不是 Phase 1.5 final 验收 gate(那需要 Win box N=16 fps≥70 + mem≤2 GB),仅 Mac side
-viability + 检测 regression。 Phase 1.5 Win box stress 走 tools.runs.train cfg-driven
-端到端 production scenario。
+viability + regression 检测 + production forward 路径 correctness。 Phase 1.5 Win box
+stress 走 tools.runs.train cfg-driven 端到端 production scenario。
 
 依赖:libgicg_actor.dylib + libgicg.dylib 已 build。 Mac/Linux only(Win 路径不接入)。
 """
@@ -21,12 +22,10 @@ import sys
 import threading
 import time
 from pathlib import Path
+from typing import Any
 
-import numpy as np
 import psutil
 import pytest
-import torch
-import torch.nn as nn
 
 from training.core.actor.go_backend import GoActorBackend
 from training.core.actor.inference_server import InferenceServer
@@ -37,34 +36,32 @@ from training.core.actor.transition_sink_listener import (
 from training.core.actor.transition_sink_wire import Transition, decode_dmc_payload
 
 
-class _ZeroLogitsNet(nn.Module):
-    """Stub network — 返 zero logits。 验证 pipeline plumbing 不验证 RL signal。
+def _build_dmc_network() -> Any:
+    """Build a production-shape DMCNetwork for the perf smoke。
 
-    realistic forward latency 由 stub linear ops 模拟(~10μs per forward Mac CPU),
-    比 trivial 直返常量 更现实 — torch dispatch + tensor 分配也算 hot path 一部分。
+    T-R2:perf smoke 不再用 stub forward。 走真 DMCNetwork + 真
+    ``build_dmc_socket_forward_callback`` — 端到端验证 production decode→forward
+    路径(socket InferRequest → decode_dmc_request → DMCInferenceNet.forward),
+    此前 Phase 1 Mac smoke 全用 stub 绕过该路径。
+
+    结构维度取 IR obs schema 固定常量(``make_dmc_default_shape``);d_model /
+    n_cross_layers 用 Stage3 生产值(stage3_b_v_legacy.toml:128 / 2),使 Mac
+    perf 数据反映真实模型规模而非 toy。
     """
+    from training.core.cfg import make_dmc_default_shape
+    from training.core.network import AgentConfig
+    from training.paradigms.dmc.network import DMCNetwork
 
-    def __init__(self, max_actions: int = 30) -> None:
-        super().__init__()
-        self.max_actions = max_actions
-        self.dummy = nn.Linear(10, max_actions)
-
-    def forward(self, obs_dict):  # noqa: ARG002
-        x = torch.zeros(1, 10)
-        return {'logit_as_q': self.dummy(x)}
-
-
-def build_zero_logits_forward(*, device_str, shared_cache, network, max_actions=30):  # noqa: ARG001
-    """Forward callback returning zeros 但走 real network.forward(模拟 dispatch + GIL)。"""
-    from training.core.actor.inference_server_socket_wire import INFER_STATUS_OK, InferResponse
-
-    def cb(req):  # noqa: ARG001
-        with torch.no_grad():
-            out = network({})
-            logits = out['logit_as_q'].detach().cpu().numpy().astype(np.float32).ravel()
-        return InferResponse(status=INFER_STATUS_OK, logits=logits)
-
-    return cb
+    shape = make_dmc_default_shape()
+    agent_cfg = AgentConfig(
+        n_counter_slots=shape.n_counter_slots,
+        n_hooks=shape.n_hooks,
+        max_ops_per_hook=shape.max_ops_per_hook,
+        max_actions=shape.max_actions,
+        d_model=128,
+        n_cross_layers=2,
+    )
+    return DMCNetwork(agent_cfg, device='cpu', epsilon=0.05)
 
 
 def _free_port() -> int:
@@ -92,16 +89,15 @@ def test_go_actor_perf_smoke_30s():
     inf_port = _free_port()
     trans_port = _free_port()
 
-    # InferServer with socket forward callback(walk 走 real network.forward 路径)
-    net = _ZeroLogitsNet(max_actions=30)
+    # InferServer with production socket forward — 真 DMCNetwork + 真
+    # build_dmc_socket_forward_callback(socket decode → DMCInferenceNet.forward)。
+    net = _build_dmc_network()
     server = InferenceServer(
         network=net,
         device='cpu',
         max_batch=1,
         socket_port=inf_port,
-        socket_forward_builder_path=(
-            'training.core.actor.tests.test_go_actor_perf_smoke.build_zero_logits_forward'
-        ),
+        socket_forward_builder_path='training.paradigms.dmc._socket_decoder.build_dmc_socket_forward_callback',
         socket_forward_builder_kwargs={'max_actions': 30},
     )
     server.start(wait_ready_s=10.0)
@@ -209,8 +205,11 @@ def test_go_actor_perf_smoke_30s():
     assert n_errs == 0, f'DMC payload decode error count > 0: {n_errs}(wire 协议 drift)'
     assert total > 0, 'no transitions arrived — pipeline broken'
     fps_per_actor = total / elapsed / N_ACTORS
-    assert fps_per_actor >= 1.0, (
-        f'fps/actor={fps_per_actor:.2f} < 1.0 Mac baseline — perf regression or pipeline stall'
+    # T-R2 实测(真 DMCNetwork d_model=128,N=4 Mac,3 run):cold-start 3.53 +
+    # warm 5.83 / 6.24 fps/actor。 gate 2.5 在 cold-start 之下留 margin — 低于此
+    # = pipeline stall 或 forward 路径回归,非正常 run-to-run variance。
+    assert fps_per_actor >= 2.5, (
+        f'fps/actor={fps_per_actor:.2f} < 2.5 Mac real-net baseline — perf regression or pipeline stall'
     )
     # mem delta < 500 MB(模型小 + Go runtime 总开销 ~250 MB,留 buffer)
     assert mem_delta_mb < 500, f'mem grew {mem_delta_mb:.0f} MB during 15s — possible leak'
