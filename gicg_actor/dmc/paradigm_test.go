@@ -174,3 +174,26 @@ func TestPickMePlayer(t *testing.T) {
 		t.Error("alternate should toggle on episode parity")
 	}
 }
+
+// TestEpisodeStaticTracker 守 static_obs 附带策略:每 episode 第一条 *push* 的
+// transition 携带 static,后续 NStatic=0(Python 端 hash cache)。
+//
+// regression for I29 T-R3 bug:旧逻辑 `if step == 0` 把 static 绑 episode 全局步,
+// 而 transition 只在 me 回合 push。 对手先手时 step 0 是 opp 回合不 push,该 episode
+// 的 me-transition 永不带 static → assembler cache miss → 丢 episode。 正确策略是
+// 绑「第一条被 push 的 transition」,与 step 无关。
+func TestEpisodeStaticTracker(t *testing.T) {
+	tr := &episodeStaticTracker{}
+	static := []int32{10, 20, 30}
+	// 第一条 push:附带 static obs。
+	if got := tr.take(static); len(got) != 3 {
+		t.Fatalf("first take: want static len 3, got len %d", len(got))
+	}
+	// 后续 push:NStatic=0。
+	if got := tr.take(static); got != nil {
+		t.Errorf("second take: want nil, got %v", got)
+	}
+	if got := tr.take(static); got != nil {
+		t.Errorf("third take: want nil, got %v", got)
+	}
+}

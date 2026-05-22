@@ -163,6 +163,24 @@ func pickMePlayer(strategy string, episodeID int) int {
 	}
 }
 
+// episodeStaticTracker 跟踪 episode 的 static_obs 是否已附带到某条已 push 的
+// transition。 每 episode 第一条被 push 的 transition 携带 raw static int32,
+// 后续 take 返 nil(NStatic=0,Python assembler 走 hash cache)。
+//
+// 不能用 episode step 判定 —— transition 只在 me 回合 push,对手先手时 step 0
+// 不 push,static 会丢(assembler cache miss → 丢 episode,I29 T-R3 bug)。
+type episodeStaticTracker struct{ sent bool }
+
+// take 返回应附带到本条 transition 的 static obs:首次调用返回 static 本身并标记
+// sent,之后返回 nil。
+func (t *episodeStaticTracker) take(static []int32) []int32 {
+	if t.sent {
+		return nil
+	}
+	t.sent = true
+	return static
+}
+
 // runEpisode 跑一个完整 episode。 me 决定 actor (network) 的 player_idx,opp 是另一边。
 func (p *DMCParadigm) runEpisode(
 	ctx context.Context,
@@ -191,6 +209,8 @@ func (p *DMCParadigm) runEpisode(
 	staticInt32 := g.BuildStaticObs()
 	staticHash := ComputeStaticHash(staticInt32)
 	staticSentThisEpisode := false
+	// transition 侧 static:第一条被 push 的 transition 携带 static(详 episodeStaticTracker)。
+	var staticTracker episodeStaticTracker
 
 	var step uint32
 	var reqID uint32
@@ -258,12 +278,10 @@ func (p *DMCParadigm) runEpisode(
 			if done {
 				reward = terminalReward(g, me)
 			}
-			// First transition per episode 携带 static_obs raw int32;后续 NStatic=0 由
-			// Python 端 cache by static_hash 解。 跟 InferRequest 的 cache 策略 mirror。
-			var staticForTrans []int32
-			if step == 0 {
-				staticForTrans = staticInt32
-			}
+			// 第一条被 push 的 transition 携带 static_obs raw int32;后续 NStatic=0 由
+			// Python 端 cache by static_hash 解。 用 staticTracker 而非 step==0 —— transition
+			// 只在 me 回合 push,对手先手时 step 0 不 push(详 episodeStaticTracker)。
+			staticForTrans := staticTracker.take(staticInt32)
 			payload := EncodeDmcTransitionPayload(
 				uint32(chosen), step, reward, preStepNLegal,
 				preStepDyn, preStepRefs, preStepPay, staticForTrans, staticHash,
