@@ -67,6 +67,14 @@ func scorerNames() []string {
 	return names
 }
 
+// minimaxNodeBudget — scoreBestResponse 递归 DeepCopy 总数上限(per SelectAction
+// 调用共享)。 D1/D2 远在此之下不受影响;D3/D4 超此后停止展开、当前节点降级评分。
+// D4 即使 dice_greedy 折叠后仍 O(N⁴)(N≈23 → ~28 万 DeepCopy ~10s/turn);budget
+// 4000 把 D4 capped 到 ~0.5s/turn + 控制 DeepCopy GC churn 内存(N=16 actor 并发
+// 下 8000 实测 +841MB/15s)。 对手强度退到 ~D2.7 —— I29 设计允许 winrate-gate
+// 非 bit-exact 的对手近似(详 proposal D2)。
+const minimaxNodeBudget = 4000
+
 // scoreBestResponse — Python ref `_score_best_response` 等价。 Recursive minimax: 当前
 // env state 从 “me“ 视角评分,向下看 “depth“ 层。 depth==0:score(viewRoot vs
 // env-now)。 caller 应已 snapshot;本函数 leaves env in same state(每个 candidate snap/
@@ -79,9 +87,11 @@ func (gp *GreedyPlayer) scoreBestResponse(
 	eventsRoot *EventsSnapshot,
 	me int,
 	depth int,
+	budget *int,
 ) float64 {
 	g := rt.Game
-	if g.Phase == engine.PhaseGameOver || depth <= 0 {
+	// budget 耗尽 → 停止展开,当前节点直接评分(D4 O(N⁴) 成本封顶,详 minimaxNodeBudget)。
+	if g.Phase == engine.PhaseGameOver || depth <= 0 || *budget <= 0 {
 		return gp.scorer(viewRoot, record.ExportView(rt), eventsRoot, SnapshotEvents(g, me), me)
 	}
 	acting := g.ActingPlayer()
@@ -96,6 +106,7 @@ func (gp *GreedyPlayer) scoreBestResponse(
 	hasBest := false
 	var best float64
 	for _, i := range candidates {
+		*budget--
 		snap := g.DeepCopy()
 		var sub float64
 		func() {
@@ -103,7 +114,7 @@ func (gp *GreedyPlayer) scoreBestResponse(
 				g.RestoreFrom(snap)
 			}()
 			g.Step(i)
-			sub = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, depth-1)
+			sub = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, depth-1, budget)
 		}()
 		if !hasBest {
 			best = sub
@@ -138,6 +149,9 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	// filterLogicalActions 至少返 1 个 candidate(end_turn 总在)。
 	candidates := filterLogicalActions(g)
 
+	// minimax node budget — 跨整个 SelectAction 共享,封顶递归 DeepCopy 总数。
+	budget := minimaxNodeBudget
+
 	// Top-level loop:每 candidate snapshot+step→ scoreBestResponse(depth-1 ply lookahead) → restore。
 	var bestScore float64
 	bestSet := make([]int, 0, 4)
@@ -150,7 +164,7 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 				g.RestoreFrom(snap)
 			}()
 			g.Step(i)
-			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1)
+			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1, &budget)
 		}()
 		if first || score > bestScore {
 			first = false
