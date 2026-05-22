@@ -40,8 +40,11 @@ var (
 	cancel     context.CancelFunc
 	wg         sync.WaitGroup
 	currentCfg Config
-	currentInf *InferenceClient
-	currentTW  *TransitionWriter
+	// currentInfs — 每 actor 一个 InferenceClient(各自一条 socket conn)。 I29 T-RR.5:
+	// 旧实现单一共享 client + Request 全程持 mutex → N actor 任意时刻仅 1 个 in-flight
+	// inference。 per-actor conn → N 请求并发,InfServer 端可批处理(0.4 eps/s 根因)。
+	currentInfs []*InferenceClient
+	currentTW   *TransitionWriter
 	// aliveActors — 当前在跑的 actor goroutine 数(atomic)。 StartPool 置 NActors,
 	// 每个 actorLoop 退出(fatal 或 ctx-cancel)即 -1。 Python 经 C API 读之 —— actor
 	// 静默 fatal 死亡(穷举审计 #E2)从此可见(I29 T-RR.7)。
@@ -103,6 +106,10 @@ func StartPoolWithConfig(cfg Config) int {
 	timeout := time.Duration(cfg.IOTimeoutMs) * time.Millisecond
 	ctx, cancelFn := context.WithCancel(context.Background())
 
+	// 始终分配长度 NActors —— actorLoop 走 currentInfs[id]。 InfServerAddr 为空(P0
+	// 占位 / 单测)则保持 N 个 nil,DMC runEpisode 对 nil infCli 已 fail-loud。
+	currentInfs = make([]*InferenceClient, cfg.NActors)
+
 	// Paradigm == "" — P0 占位路径(hello-world test 用)。 P1.1b 起 production 必传 ParadigmName。
 	var paradigm Paradigm
 	if cfg.ParadigmName != "" {
@@ -116,15 +123,18 @@ func StartPoolWithConfig(cfg Config) int {
 			cancelFn()
 			return 6
 		}
-		// Connect InfServer + TransSink upfront — fail-loud if address bad,actor
-		// goroutine 起跑后才发现 socket 不通会有 N 个 partial-init 状态。
+		// Connect InfServer(per-actor)+ TransSink upfront — fail-loud if address bad,
+		// actor goroutine 起跑后才发现 socket 不通会有 N 个 partial-init 状态。
 		if cfg.InfServerAddr != "" {
-			currentInf = NewInferenceClient(cfg.InfServerAddr, timeout)
-			if err := currentInf.Connect(); err != nil {
-				fmt.Fprintf(os.Stderr, "[gicg_actor] inf connect failed: %v\n", err)
-				cancelFn()
-				currentInf = nil
-				return 4
+			for i := range cfg.NActors {
+				c := NewInferenceClient(cfg.InfServerAddr, timeout)
+				if err := c.Connect(); err != nil {
+					fmt.Fprintf(os.Stderr, "[gicg_actor] inf connect failed (actor %d): %v\n", i, err)
+					closeInfClients()
+					cancelFn()
+					return 4
+				}
+				currentInfs[i] = c
 			}
 		}
 		if cfg.TransSinkAddr != "" {
@@ -134,10 +144,7 @@ func StartPoolWithConfig(cfg Config) int {
 			if err := currentTW.Connect(); err != nil {
 				fmt.Fprintf(os.Stderr, "[gicg_actor] trans connect failed: %v\n", err)
 				cancelFn()
-				if currentInf != nil {
-					_ = currentInf.Close()
-					currentInf = nil
-				}
+				closeInfClients()
 				currentTW = nil
 				return 5
 			}
@@ -166,10 +173,7 @@ func StopPool() int {
 		cancel()
 	}
 	wg.Wait()
-	if currentInf != nil {
-		_ = currentInf.Close()
-		currentInf = nil
-	}
+	closeInfClients()
 	if currentTW != nil {
 		_ = currentTW.Close()
 		currentTW = nil
@@ -178,6 +182,16 @@ func StopPool() int {
 	cancel = nil
 	currentCfg = Config{}
 	return 0
+}
+
+// closeInfClients 关闭并清空所有 per-actor inference client。 caller 须已持 mu。
+func closeInfClients() {
+	for _, c := range currentInfs {
+		if c != nil {
+			_ = c.Close()
+		}
+	}
+	currentInfs = nil
 }
 
 func actorLoop(ctx context.Context, id int, paradigm Paradigm) {
@@ -192,7 +206,7 @@ func actorLoop(ctx context.Context, id int, paradigm Paradigm) {
 		return
 	}
 	// P1.1b production path — paradigm own 完整 episode lifecycle。
-	err := paradigm.Run(ctx, id, currentInf, currentTW)
+	err := paradigm.Run(ctx, id, currentInfs[id], currentTW)
 	if err != nil && ctx.Err() == nil {
 		fmt.Fprintf(os.Stderr, "[gicg_actor] actor=%d paradigm=%s fatal: %v\n",
 			id, paradigm.Name(), err)

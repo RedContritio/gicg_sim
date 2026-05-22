@@ -161,8 +161,11 @@ T-R3 暴露 Go-actor → driver 管线结构性不完整。 全管线穷举审�
 
 - [ ] T-RR.4 InfServer socket listener 接 `request_q` batching + per-conn response
       路由(完成 docstring deferred 的 P1.3c)。 socket 协议加 `req_id`。 配 batching test
-- [ ] T-RR.5 Go 端 inference 并发:去 `inference_client.go` 单 conn mutex —— per-actor
-      `InferenceClient` conn,或走 T-RR.4 的 `req_id` 乱序应答。 依赖 T-RR.4
+- [x] T-RR.5 Go 端 inference 并发:`pool.go` 建 N 个 per-actor `InferenceClient`(各一条
+      socket conn),`actorLoop` 走 `currentInfs[id]`。 选 Option A(per-actor conn)非
+      Option B(单 conn + req_id 乱序)—— 简单且每 conn 单 in-flight 无需乱序协议。
+      `inference_client.go` 的 `Request` mutex 保留(per-actor 后 uncontended,仍护
+      Close-vs-Request)。 与 T-RR.4 不互相依赖(Option A 无乱序协议)
 
 ### 独立修复(可并行,不阻塞主链)
 
