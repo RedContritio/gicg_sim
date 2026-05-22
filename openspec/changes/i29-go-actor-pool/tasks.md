@@ -106,6 +106,35 @@
 
 4. 期望输出:fps_per_actor ≥ 4.4(N=16 fps≥70 gate),decode_errors=0,mem delta < 1 GB
 
+## Phase 1.5-R — 闸门收尾重规划(2026-05-22)
+
+P1.3/P1.4 标 DONE 但 verify 全程用 stub forward callback(`build_stub_zero_forward`)
+绕过 production decode + 真 `DMCNetwork`;Win stress 一上真网络即暴露 socket forward
+路径从未端到端跑通。 Phase 2(P2.X 5 commit + AZ/PPO scaffold)在 [blocker] 未关时
+已启动 = 建在未验证地基。 本节倒回去用真网络真实关闭 Phase 1.5 闸门,关上前 Phase 2 冻结。
+
+### Track A(顺序硬链)
+
+- [ ] T-R1 合并 worktree A(`agent-a8e0dfbe540cb094e`)→ branch:`build_engine.py` 加
+      `go build -a`(修 cgo `//export` cache stale)+ `dmc/_socket_decoder.py` 用
+      `DMCInferenceNet` wrap 真 `DMCNetwork`(修 socket forward NotImplementedError)+
+      配套 tests。 附:同步 `mp_factories.py:122` 注释 blake2b→sha256 +
+      `test_dmc_mp_factories.py:132` 改 sha256(审计发现的注释/测试 stale)
+- [ ] T-R2 删 Mac perf smoke 的 stub bypass — `test_go_actor_perf_smoke.py` 的
+      `socket_forward_builder_path` 指向真 `build_dmc_socket_forward_callback` + 真
+      `DMCNetwork`,Mac 重跑确认 production decode→forward 端到端真通(依赖 T-R1)
+- [ ] T-R3 Win N=16 真网络 stress(走 `tools.runs.*` CLI sync+build+train),收
+      fps/mem/decode_errors,真数据关 T-1.23 [blocker](依赖 T-R2 PASS)[blocker]
+- [ ] T-R4 收尾标注(依赖 T-R3):P1.3/P1.4 DONE 降级标注 "stub-verified, re-closed
+      by T-R2";P2.X 5 commit 标 "premature, pending re-verify";CFR/BC(T-2.5/T-2.6)
+      按 D10 移出 I29 scope
+
+### Track B(独立,可与 Track A 全程并行)
+
+- [ ] T-R4-guard AZ/PPO `make_collector` 加 guard:`cfg.pipeline.actor_backend=='go'`
+      时显式 raise(非静默忽略),提示 "I29 Phase 2 pending"。 + backlog.md I28 行被
+      I29 commit 顺手改的注记一笔(审计发现)
+
 ## Phase 2 — per-paradigm adapter port(~300 LOC + per-paradigm)
 
 - [ ] T-2.1 `openspec/specs/training-architecture/actor-backend.md` 落地 `ActorBackend` Protocol 规约
