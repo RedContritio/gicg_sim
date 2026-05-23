@@ -5,11 +5,12 @@
 #   - [checkpoint] save_every short cadence
 #   - [paradigm.cfr] n_iterations bumped + traversal max_game_steps bumped
 #
-# STATUS (2026-05-17, cfr-driver-buffer-multihead-fix):
-# Stub buffer injected via env flag GICG_CFR_SMOKE_STUB_BUFFER=1 in
-# test_cfr_smoke_full.py per spec paradigm-cfr C6.4 ADD. Production CFR
-# (`_CFRBufferBundle`) unaffected — env flag is test-only dispatch in
-# CFRParadigm.make_buffer. Stub satisfies generic Buffer protocol with
+# STATUS (post 2026-05-24, cfr-driver-buffer-multihead-fix + env-var 砍):
+# Stub buffer dispatched via cfg.debug.cfr_smoke_stub_buffer=true (inherited
+# from configs/cfr/smoke.toml [debug] section) per spec paradigm-cfr C6.4 ADD。
+# Production CFR (`_CFRBufferBundle`) unaffected — cfg.debug 默认 false,
+# dispatch in CFRParadigm.make_buffer 仅 smoke cfg 触发。 Stub satisfies
+# generic Buffer protocol with
 # minimal valid Batch (CFRLoss REQUIRED_KEYS) so the driver path
 # (collect → sample → loss → backward → optimizer.step → ckpt) runs;
 # does NOT validate CFR training quality.

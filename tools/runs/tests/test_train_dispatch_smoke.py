@@ -140,7 +140,9 @@ _PARADIGM_MATRIX: dict[str, dict[str, Any]] = {
     },
     'cfr': {
         'cfg_rel': 'configs/cfr/smoke.toml',
-        'extra_env': {'GICG_CFR_SMOKE_STUB_BUFFER': '1'},
+        # cfg.debug.cfr_smoke_stub_buffer=true baked into configs/cfr/smoke.toml
+        # [debug] section (post 2026-05-24 env-var 砍 — cfg-driven only)。
+        'extra_env': {},
         'pre_fixture': None,
         'skip_reason': None,
     },
@@ -327,11 +329,10 @@ def test_dispatch_wiring_resolves_paradigm_and_passes_prebuilt_dir(
         captured['paradigm_class'] = type(paradigm_obj).__name__
         captured['kwargs'] = kwargs
 
-    # CFR's make_buffer reads GICG_CFR_SMOKE_STUB_BUFFER but make_buffer
+    # CFR's make_buffer reads cfg.debug.cfr_smoke_stub_buffer but make_buffer
     # is called from run_pipeline (not dispatch) — we stub run_pipeline
-    # itself so the env var never matters here. Set it anyway for
-    # symmetry with the subprocess matrix.
-    monkeypatch.setenv('GICG_CFR_SMOKE_STUB_BUFFER', '1')
+    # itself so the cfg flag never matters here。 Production cfg path is
+    # exercised by the parametrize matrix subprocess case above。
     monkeypatch.setattr('training.core.pipeline.run_pipeline', _stub_run_pipeline)
 
     dispatch_mod.run_paradigm_train(state)

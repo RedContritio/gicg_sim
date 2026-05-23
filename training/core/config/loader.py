@@ -30,6 +30,7 @@ from training.core.config.base import (
     MetaCfg,
     PipelineCfg,
     RemoteInferenceCfg,
+    RuntimeCfg,
     ScenarioCfg,
     TrainingConfig,
 )
@@ -226,12 +227,22 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     eval_cfg = None
     if 'eval' in cfg:
         eval_d = cfg['eval']
+        # strict — 不容忍 [eval] 内未知字段(同 [debug]/CS4 风格)
+        allowed_eval = {f.name for f in EvalCfg.__dataclass_fields__.values()}
+        unknown_eval = set(eval_d.keys()) - allowed_eval
+        if unknown_eval:
+            raise ValueError(
+                f'config: unknown field in [eval]: {sorted(unknown_eval)} (allowed: {sorted(allowed_eval)})'
+            )
         eval_cfg = EvalCfg(
             n_workers=eval_d.get('n_workers', 1),
             schedule=eval_d.get('schedule', 'every_1000_steps'),
             inference=_build_inference(eval_d.get('inference')),
             scenario_seed=eval_d.get('scenario_seed'),
             worker_seed=eval_d.get('worker_seed'),
+            host=eval_d.get('host', 'localhost'),
+            port=eval_d.get('port', 9100),
+            cpu_affinity=eval_d.get('cpu_affinity'),
         )
 
     ck_d = cfg.get('checkpoint', {})
@@ -249,6 +260,14 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
         raise ValueError(f'config: unknown field in [debug]: {sorted(unknown)} (allowed: {sorted(allowed_dbg)})')
     debug = DebugCfg(**dbg_d) if dbg_d else DebugCfg()
 
+    rt_d = cfg.get('runtime', {})
+    # strict — 同 [debug] 风格;runtime 字段拼写错 fail-loud。
+    allowed_rt = {f.name for f in RuntimeCfg.__dataclass_fields__.values()}
+    unknown_rt = set(rt_d.keys()) - allowed_rt
+    if unknown_rt:
+        raise ValueError(f'config: unknown field in [runtime]: {sorted(unknown_rt)} (allowed: {sorted(allowed_rt)})')
+    runtime = RuntimeCfg(**rt_d) if rt_d else RuntimeCfg()
+
     return TrainingConfig(
         meta=meta,
         pipeline=pipeline,
@@ -257,6 +276,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
         eval=eval_cfg,
         checkpoint=checkpoint,
         debug=debug,
+        runtime=runtime,
     )
 
 

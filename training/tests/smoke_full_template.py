@@ -157,10 +157,12 @@ def run_paradigm_train_via_driver(
             ``action='append'``). Used by BC smoke_full to inject the
             on-the-fly NPZ dataset path
             (``paradigm.bc.dataset_path=<tmp>/dataset.npz``).
-        extra_env: optional dict merged into subprocess env (e.g.
-            ``{'GICG_CFR_SMOKE_STUB_BUFFER': '1'}`` for CFR stub buffer
-            injection per cfr-driver-buffer-multihead-fix C6.4). Parent
-            process env untouched.
+        extra_env: optional dict merged into subprocess env (parent
+            process env untouched)。 Post 2026-05-24 env-var 砍后 5 paradigm
+            smoke 走 cfg-driven (CFR stub buffer via cfg.debug.cfr_smoke_stub_buffer
+            baked in configs/cfr/smoke{,_full}.toml [debug])。 保留 hook 给
+            future paradigm 需 unusual env propagation (e.g. PPO worker-internal
+            mp.Process spawn env)。
 
     Returns:
         The unique per-run artifacts subdir created by Phase A under

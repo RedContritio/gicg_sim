@@ -20,7 +20,6 @@ head-tagged ``Batch`` request (raises if called without the discriminator).
 
 from __future__ import annotations
 
-import os
 from typing import Any, Optional
 
 import numpy as np
@@ -181,11 +180,14 @@ class CFRParadigm:
 
     def make_buffer(self, cfg: Any) -> Any:
         pcfg = self._resolve_pcfg(cfg)
-        # Smoke test infra dispatch — env-flag gated, production NEVER
-        # sets this. Spec ref: paradigm-cfr/spec.md C6.4 (ADD by
-        # cfr-driver-buffer-multihead-fix). Lazy import so production
-        # CFR runs do not touch training/tests/* import chain.
-        if os.environ.get('GICG_CFR_SMOKE_STUB_BUFFER') == '1':
+        # Smoke test infra dispatch — cfg.debug.cfr_smoke_stub_buffer 控,
+        # production NEVER sets this。 Spec ref: paradigm-cfr/spec.md C6.4 (ADD by
+        # cfr-driver-buffer-multihead-fix)。 Post 2026-05-24:GICG_CFR_SMOKE_STUB_BUFFER
+        # env var 全砍 — cfg-driven only (configs/cfr/smoke{,_full}.toml [debug]
+        # 段写 cfr_smoke_stub_buffer = true)。 Lazy import so production
+        # CFR runs do not touch training/tests/* import chain。
+        dbg = getattr(cfg, 'debug', None)
+        if dbg is not None and getattr(dbg, 'cfr_smoke_stub_buffer', False):
             from training.tests._cfr_smoke_stub import _SmokeStubBuffer
 
             return _SmokeStubBuffer(

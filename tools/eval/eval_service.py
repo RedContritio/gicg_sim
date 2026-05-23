@@ -43,7 +43,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import signal
 import sys
 from pathlib import Path
@@ -55,11 +54,15 @@ from tools.eval.eval_service_server import EvalServer
 # Constants
 
 # TCP localhost (AF_INET) — Windows-portable (AF_UNIX unavailable on
-# Windows). Env-var overrides let container deployments map the
-# loopback port through ``-p 9100:9100`` and clients on the same host
-# pick up the same default.
-DEFAULT_HOST = os.environ.get('GICG_EVAL_HOST', 'localhost')
-DEFAULT_PORT = int(os.environ.get('GICG_EVAL_PORT', '9100'))
+# Windows). Container deployments map the loopback port through
+# ``-p 9100:9100`` (CLI flag overrides default if needed).
+#
+# Post 2026-05-24:env var (GICG_EVAL_HOST / GICG_EVAL_PORT) 全砍 — cfg-driven
+# only,production train 走 cfg.eval.host / cfg.eval.port (TrainingConfig 字段);
+# 本 standalone CLI 入口仅看 CLI flag,default 走 plain constants。 production
+# 必跑 eval_service 时显式 ``--host /--port`` 或读 train cfg 同值。
+DEFAULT_HOST = 'localhost'
+DEFAULT_PORT = 9100
 DEFAULT_METRICS_PATH = '/tmp/gicg_eval_metrics.jsonl'
 
 
@@ -148,13 +151,14 @@ def main() -> None:
     parser.add_argument(
         '--cpu-affinity',
         type=str,
-        default=os.environ.get('GICG_EVAL_CPU_AFFINITY'),
+        default=None,
         help='comma-separated CPU IDs to pin this eval_service process to '
         '(e.g., "9,10,11,12,13,14,15"). Default: unpinned. '
-        'Reads env GICG_EVAL_CPU_AFFINITY when --cpu-affinity not given. '
         'Silently skipped on platforms without psutil.Process.cpu_affinity '
-        '(Mac). Match DMCParadigmConfig.cpu_affinity_eval value when '
-        'starting eval_service alongside a DMC training run.',
+        '(Mac). Match cfg.eval.cpu_affinity (or DMCParadigmConfig.'
+        'cpu_affinity_eval) value when starting eval_service alongside a '
+        'training run。 Post 2026-05-24 GICG_EVAL_CPU_AFFINITY env var 砍 — '
+        'CLI flag explicit pass only。',
     )
     parser.add_argument(
         '--metrics',

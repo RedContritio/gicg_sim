@@ -211,8 +211,11 @@ class DMCGoActorCollector:
         if not ready.wait(timeout=5.0):
             raise RuntimeError(f'transition sink listener bind timeout port={self.trans_port}')
 
-        # GoActorBackend — start pool。
-        self._backend = GoActorBackend()
+        # GoActorBackend — start pool。 cfg.runtime.actor_lib_path optional
+        # 显式 override(post 2026-05-24 GICG_ACTOR_LIB env var 砍 — cfg-driven)。
+        rt = getattr(self.cfg, 'runtime', None)
+        actor_lib_path = getattr(rt, 'actor_lib_path', None) if rt else None
+        self._backend = GoActorBackend(lib_path=actor_lib_path)
         self._backend.start_with_config(
             paradigm='dmc',
             n_actors=self.n_actors,

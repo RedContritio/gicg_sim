@@ -122,14 +122,18 @@ def actor_main(
     # pytest captures it, ssh strips it, sandboxes suppress it. Tee
     # everything to artifacts/_actor_logs/actor_<id>.log so debugging
     # mp crashes / silent hangs / "0 transitions" wedges is possible
-    # by reading the file after the fact. Gated on env var so unit
-    # tests that already capture stdout via assertions don't trip.
+    # by reading the file after the fact。
+    #
+    # 路径由 cfg.runtime.actor_log_dir 决定 (default 'artifacts/_actor_logs',
+    # post 2026-05-24 env var ACTOR_LOG_DIR 砍 — cfg-driven only)。 RuntimeCfg
+    # 缺失时退到 default,unit test 走 in-process actor_main 也能跑。
     import os as _os
     import sys as _sys
     from pathlib import Path as _Path
 
-    log_dir_env = _os.getenv('ACTOR_LOG_DIR', 'artifacts/_actor_logs')
-    log_dir = _Path(log_dir_env)
+    runtime = getattr(cfg, 'runtime', None)
+    log_dir_str = getattr(runtime, 'actor_log_dir', None) or 'artifacts/_actor_logs'
+    log_dir = _Path(log_dir_str)
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
         log_path = log_dir / f'actor_{actor_id}.log'

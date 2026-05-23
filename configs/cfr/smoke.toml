@@ -65,3 +65,9 @@ traverser_alternation = "alternate"
 save_every = 1
 keep_last_n = 1
 artifacts_root = "artifacts"
+
+[debug]
+# Smoke-only stub buffer dispatch (post 2026-05-24 GICG_CFR_SMOKE_STUB_BUFFER
+# env var 砍 — cfg-driven only)。 production CFR cfg 不写,走真 _CFRBufferBundle。
+# 参 paradigm-cfr/spec.md C6.4 + training/tests/_cfr_smoke_stub.py。
+cfr_smoke_stub_buffer = true

@@ -10,17 +10,18 @@ value) — ``_CFRBufferBundle.sample()`` raises because the generic
 ``buffer.sample(batch_size)`` (single-head Buffer protocol).
 
 Per cfr-driver-buffer-multihead-fix C6.4 ADD, this test injects a
-smoke-only stub buffer via env flag ``GICG_CFR_SMOKE_STUB_BUFFER=1``.
-The stub satisfies the generic Buffer protocol with a minimal valid
-``Batch`` payload (CFRLoss REQUIRED_KEYS) so the driver path runs
-end-to-end:
+smoke-only stub buffer via ``cfg.debug.cfr_smoke_stub_buffer=true``
+(baked into ``configs/cfr/smoke{,_full}.toml`` [debug] section,post
+2026-05-24 env-var 砍 — cfg-driven only)。 The stub satisfies the
+generic Buffer protocol with a minimal valid ``Batch`` payload
+(CFRLoss REQUIRED_KEYS) so the driver path runs end-to-end:
 
     collect → sample → loss → backward → optimizer.step → ckpt save → resume
 
 This does NOT validate CFR training quality (CFR remains frozen-research
-tier per C6.1 + C6.3). Production CFR runs are unaffected — env flag is
-test-only and dispatch in ``CFRParadigm.make_buffer`` keeps
-``_CFRBufferBundle`` as the production default.
+tier per C6.1 + C6.3). Production CFR runs are unaffected — cfg.debug
+默认 false 且 production cfg 不写,dispatch in ``CFRParadigm.make_buffer``
+keeps ``_CFRBufferBundle`` as the production default.
 
 T-25 rewrite note: pre-T-23 driver had ``--max-steps`` which capped
 the initial run at step 30 so resume from ckpt_10 had room to advance
@@ -41,20 +42,19 @@ from training.tests.smoke_full_template import (
     verify_ckpt_files,
 )
 
-_STUB_BUFFER_ENV = {'GICG_CFR_SMOKE_STUB_BUFFER': '1'}
-
 
 @pytest.mark.smoke_full
 def test_cfr_smoke_full(tmp_path) -> None:
     """CFR full smoke — driver train (50 iter) + ckpt save + resume.
 
-    Stub buffer injected via env flag per cfr-driver-buffer-multihead-fix
+    Stub buffer dispatched via cfg.debug.cfr_smoke_stub_buffer baked
+    into configs/cfr/smoke{,_full}.toml per cfr-driver-buffer-multihead-fix
     C6.4 — production CFR unaffected.
     """
     cfg = REPO_ROOT / 'configs' / 'cfr' / 'smoke_full.toml'
     assert cfg.exists(), f'cfg missing: {cfg}'
 
-    artifacts = run_paradigm_train_via_driver(cfg, tmp_path, extra_env=_STUB_BUFFER_ENV)
+    artifacts = run_paradigm_train_via_driver(cfg, tmp_path)
     ckpts = verify_ckpt_files(artifacts, expected_min_count=2)
 
     # Bump n_iterations to give the resumed run room for new ckpt(s).
@@ -63,7 +63,6 @@ def test_cfr_smoke_full(tmp_path) -> None:
     # n_iterations=80 → continues 10 → 80 → adds ckpts at 60/70/80.
     new_ckpts = resume_and_continue(
         ckpts[0],
-        extra_env=_STUB_BUFFER_ENV,
         extra_overrides=['paradigm.cfr.n_iterations=80'],
     )
     assert len(new_ckpts) > len(ckpts), (

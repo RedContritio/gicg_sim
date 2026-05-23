@@ -20,7 +20,6 @@ from __future__ import annotations
 import atexit
 import ctypes
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Any, Optional
@@ -34,13 +33,16 @@ def _lib_filename() -> str:
     return 'libgicg_actor.so'  # linux
 
 
-def _find_lib() -> Path:
-    """Search libgicg_actor in canonical build location (gicg_env/) + env override。"""
-    env = os.environ.get('GICG_ACTOR_LIB')
-    if env:
-        p = Path(env)
+def _find_lib(override: Optional[str] = None) -> Path:
+    """Search libgicg_actor in canonical build location (gicg_env/) + optional override。
+
+    Post 2026-05-24:GICG_ACTOR_LIB env var 全砍 — cfg-driven only。 显式 override
+    由 cfg.runtime.actor_lib_path 提供 (production cfg 不写则走 canonical path)。
+    """
+    if override:
+        p = Path(override)
         if not p.exists():
-            raise FileNotFoundError(f'GICG_ACTOR_LIB={env} but file missing')
+            raise FileNotFoundError(f'cfg.runtime.actor_lib_path={override} but file missing')
         return p
     # Canonical: gicg_env/<libname> relative to repo root.
     # __file__ = .../training/core/actor/go_backend.py → repo root 4 levels up.
@@ -65,9 +67,15 @@ class GoActorBackend:
 
     _lib: Optional[ctypes.CDLL] = None
 
-    def __init__(self) -> None:
+    def __init__(self, lib_path: Optional[str] = None) -> None:
+        """``lib_path``: optional explicit libgicg_actor path (post 2026-05-24
+        cfg-driven only)。 None = canonical ``gicg_env/<libname>`` (走 _find_lib
+        default)。 ``cfg.runtime.actor_lib_path`` 由 DMC go_collector 透传。
+
+        CDLL caches by path,后续 ctor (无论 lib_path) 共享首次 load 的 handle。
+        """
         if GoActorBackend._lib is None:
-            lib_path = _find_lib()
+            lib_path = _find_lib(override=lib_path)
             lib = ctypes.CDLL(str(lib_path))
             # Bind C signatures — defensive(no implicit int truncation)。
             lib.gicg_actor_hello.restype = ctypes.c_int

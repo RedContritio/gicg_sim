@@ -83,13 +83,24 @@ class PipelineCfg:
 
 @dataclass(frozen=True)
 class EvalCfg:
-    """[eval] section. Optional when pipeline.mode='serial' smoke."""
+    """[eval] section. Optional when pipeline.mode='serial' smoke.
+
+    host/port: eval_service bind + gauntlet client connect address
+    (TCP localhost, post 2026-05-24 env var 砍 — 替代 GICG_EVAL_HOST /
+    GICG_EVAL_PORT)。 production cfg 不写则走 'localhost' / 9100 default。
+
+    cpu_affinity: comma-separated CPU id list to pin eval_service worker
+    process (e.g. [16, 17, 18])。 None = unpinned (Mac 上 silent skip,
+    cpu_affinity is hint not contract)。 替代 GICG_EVAL_CPU_AFFINITY。"""
 
     n_workers: int = 1
     schedule: str = 'every_1000_steps'
     inference: Optional[InferenceCfg] = None
     scenario_seed: Optional[int] = None
     worker_seed: Optional[int] = None
+    host: str = 'localhost'
+    port: int = 9100
+    cpu_affinity: Optional[list] = None
 
 
 @dataclass(frozen=True)
@@ -141,6 +152,28 @@ class DebugCfg:
     perf_trace_dir: Optional[str] = None  # None = trace.py default 'artifacts/_perf_logs'
     mem_probe_interval_s: int = 30
     mem_probe_top_n: int = 15
+    # CFR smoke-only stub buffer dispatch — production cfg 不写则 False。
+    # 替代 GICG_CFR_SMOKE_STUB_BUFFER env var (post 2026-05-24)。 仅 smoke_full
+    # cfg + tools/runs/tests cfr smoke cfg 写 true,production CFR 走真 buffer。
+    cfr_smoke_stub_buffer: bool = False
+
+
+@dataclass(frozen=True)
+class RuntimeCfg:
+    """[runtime] section — process / worker runtime knobs (post 2026-05-24
+    env var 砍后新建)。
+
+    actor_log_dir: 子 actor 进程 per-actor 文件日志根 dir。 替代 ACTOR_LOG_DIR
+    env var。 mp child stdout/stderr 不可靠 (pytest 抓 / ssh strip / sandbox 抑),
+    每 actor tee 到 ``<dir>/actor_<id>.log`` line-buffered 写出供事后 debug。
+
+    actor_lib_path: Go-actor c-shared lib (libgicg_actor.dll/dylib/so) 显式
+    路径 override。 None = canonical 路径 ``gicg_env/<libname>`` (走 _find_lib
+    default)。 替代 GICG_ACTOR_LIB env var。 用于 dev box 路径异常 / CI 跨
+    build target 时显式 override。"""
+
+    actor_log_dir: str = 'artifacts/_actor_logs'
+    actor_lib_path: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -155,4 +188,5 @@ class TrainingConfig:
     eval: Optional[EvalCfg] = None
     checkpoint: CheckpointCfg = field(default_factory=CheckpointCfg)
     debug: DebugCfg = field(default_factory=DebugCfg)
+    runtime: RuntimeCfg = field(default_factory=RuntimeCfg)
     artifacts_dir: Optional[str] = None  # resolved at runtime

@@ -8,18 +8,21 @@ import.
 from __future__ import annotations
 
 import json
-import os
 import socket as _socket
 from pathlib import Path
 from typing import Optional
 
 
 # Inlined to break the framework → tools back-import cycle. Mirrors
-# tools.eval.eval_service.DEFAULT_HOST / DEFAULT_PORT (env-var-aware
-# so container deployment mapping ``-p 9100:9100`` resolves the same
-# address on both ends).
-DEFAULT_HOST = os.environ.get('GICG_EVAL_HOST', 'localhost')
-DEFAULT_PORT = int(os.environ.get('GICG_EVAL_PORT', '9100'))
+# tools.eval.eval_service.DEFAULT_HOST / DEFAULT_PORT。 Post 2026-05-24:
+# GICG_EVAL_HOST / GICG_EVAL_PORT env var 全砍 — production train 走
+# cfg.eval.host / cfg.eval.port (TrainingConfig 字段),legacy AZConfig
+# 仍走 DEFAULT_HOST / DEFAULT_PORT 这俩 plain constant (AZ unified pipeline
+# 走 train.dispatch.run_paradigm_train 路径,本模块 dispatch_gauntlet 用
+# config arg 传递的 scenario 字段)。 container 部署改走 -p 9100:9100 + cfg
+# 显式 host/port 字段(无 env var 后门)。
+DEFAULT_HOST = 'localhost'
+DEFAULT_PORT = 9100
 
 
 def dispatch_gauntlet(
@@ -111,6 +114,12 @@ def dispatch_gauntlet(
             )
         )
 
+    # Prefer cfg.eval.host / cfg.eval.port (TrainingConfig path) — fall back
+    # to legacy DEFAULT_HOST / DEFAULT_PORT for AZConfig (no .eval section)。
+    eval_section = getattr(config, 'eval', None)
+    host = getattr(eval_section, 'host', None) or DEFAULT_HOST
+    port = getattr(eval_section, 'port', None) or DEFAULT_PORT
+
     n_dispatched = 0
     for opp_name, opp_spec in opponents:
         req = {
@@ -118,7 +127,7 @@ def dispatch_gauntlet(
             'id': f'g{game_marker:05d}_{opp_name}',
             'players': [challenger_spec, opp_spec],
         }
-        if request_eval(DEFAULT_HOST, DEFAULT_PORT, req):
+        if request_eval(host, port, req):
             n_dispatched += 1
     if n_dispatched > 0:
         log(

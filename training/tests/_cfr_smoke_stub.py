@@ -2,11 +2,13 @@
 
 OpenSpec ref: ``openspec/changes/cfr-driver-buffer-multihead-fix/``
 ADD invariant paradigm-cfr/spec.md C6.4 — stub buffer allowed in
-frozen-research tier when env flag ``GICG_CFR_SMOKE_STUB_BUFFER=1`` set.
+frozen-research tier when ``cfg.debug.cfr_smoke_stub_buffer=true`` set
+(post 2026-05-24 GICG_CFR_SMOKE_STUB_BUFFER env var 砍 — cfg-driven only,
+configs/cfr/smoke{,_full}.toml [debug] section)。
 
 Production CFR (``_CFRBufferBundle``) is untouched. This module is only
-imported lazily by ``CFRParadigm.make_buffer`` when the env flag is set,
-which only ``test_cfr_smoke_full.py`` does (subprocess env injection).
+imported lazily by ``CFRParadigm.make_buffer`` when the cfg flag is set,
+which only the smoke CFR cfgs do。
 
 Purpose: bridge generic ``training.core.pipeline.run_pipeline``'s
 single-head ``buffer.sample(batch_size)`` contract to CFR — production
