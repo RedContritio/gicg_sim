@@ -41,8 +41,10 @@ def _empty_int32() -> np.ndarray:
 
 
 # ─── Schema 常量 ─────────────────────────────────────────────────────────
-WIRE_VERSION = 3  # 跟 transition wire 同步 bump(Go WireVersion 跨两 wire)。inference
-# layout 未改,但版本 lock-step;详 transition_sink_wire.py。
+WIRE_VERSION = 4  # v4 (I29 D10 Stage S2 2026-05-23): InferRequestHeader 加 VersionID
+# u32(0 = live learner, ≥1 historical pool slot id),为 D10 Stage S3+ 铺路。
+# Go WireVersion 跨两 wire lock-step (transition wire 未变,仅 inference 加字段)。
+# 旧 actor (v3) 不可与新 trainer (v4) 互通,BREAKING by design。
 STATIC_HASH_SIZE = 16
 MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 INFER_STATUS_OK = 0
@@ -51,8 +53,11 @@ INFER_STATUS_ERR = 1
 # Header 固定字段:struct 格式 + 字段名序列。 加字段在两处同步加一行即可。
 # n_dyn/n_refs/n_pay/n_static 走 u32 — static_obs ~293K int32 超 u16,统一 u32 减
 # mixed schema burden(详 Go InferRequestHeader 注释)。
-_HEADER_FMT = '<H 16s I I I I I I'
-_HEADER_FIELDS = ('ver', 'static_hash', 'client_id', 'req_id', 'n_dyn', 'n_refs', 'n_pay', 'n_static')
+# version_id 字段 D10 S2 加 — 0 走 fast path bit-equal,≥1 sub-batch dispatch(S5)。
+_HEADER_FMT = '<H 16s I I I I I I I'
+_HEADER_FIELDS = (
+    'ver', 'static_hash', 'client_id', 'req_id', 'version_id', 'n_dyn', 'n_refs', 'n_pay', 'n_static',
+)
 HEADER_SIZE = struct.calcsize(_HEADER_FMT)
 
 # Variable-length array sections following header (顺序固定 = 字节序)。
@@ -88,6 +93,10 @@ class InferRequest:
     pay: np.ndarray  # float32 shape (n_pay,)
     # static 默认空 — 调用方未传时等价于 "server 走 cache by static_hash"。
     static: np.ndarray = field(default_factory=_empty_int32)
+    # version_id (D10 Stage S2,2026-05-23):0 = live learner(fast path);≥1 =
+    # historical pool slot id(InfServer sub-batch dispatch,S5 wire 起来时 实际用)。
+    # S2 默认 0 — Go encode 端 暂不写 非 0,新字段 wire 已 ready 但行为零改变。
+    version_id: int = 0
 
 
 @dataclass
@@ -118,6 +127,7 @@ def encode_infer_request(req: InferRequest) -> bytes:
         'static_hash': req.static_hash,
         'client_id': req.client_id,
         'req_id': req.req_id,
+        'version_id': req.version_id,
         **counts,
     }
     header = struct.pack(_HEADER_FMT, *(header_values[f] for f in _HEADER_FIELDS))
@@ -159,6 +169,7 @@ def decode_infer_request(payload: bytes) -> InferRequest:
         static_hash=header['static_hash'],
         client_id=header['client_id'],
         req_id=header['req_id'],
+        version_id=header['version_id'],
         **arrays,
     )
 

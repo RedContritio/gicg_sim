@@ -34,7 +34,9 @@ from typing import Optional
 import numpy as np
 
 # ─── Schema 常量 ─────────────────────────────────────────────────────────
-WIRE_VERSION = 3  # 跟 inference protocol 同步 bump(Go 单 WireVersion 跨两份 wire)
+WIRE_VERSION = 4  # 跟 inference protocol 同步 bump(Go 单 WireVersion 跨两份 wire)
+# v4 (I29 D10 Stage S2 2026-05-23): inference wire 加 VersionID u32 字段(transition
+# wire 本身未变,仅 lock-step bump 保跨两 wire 同步)。
 # v3 (I29 P2 2026-05-23): DMC/PPO transition payload refs/pay 不再 max_actions
 # padded,改为 nlegal-sized — buffer per-trans mem 120 KB → ~12 KB (~10x 降)。
 # pad-to-cfg.max_actions 推到 sample time(collate_batch)做。
