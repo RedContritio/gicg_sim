@@ -121,7 +121,14 @@ class DMCGoActorCollector:
         inf_port: Optional[int] = None,
         trans_port: Optional[int] = None,
         io_timeout_ms: int = 30_000,
-        trans_queue_maxsize: int = 4096,
+        # Bounded transition queue —— maxsize 直接决定满载内存 cap。 每条 raw _Transition
+        # 含 payload bytes(refs+pay 按 max_actions=2048 padded → ~110 KB/transition,
+        # 见 transition wire 协议)。 I29 T-RR.3 初值 4096 = 450 MB cap,Mac mem probe
+        # 实测 wire 文件 675 MB plateau 主要来自此 queue raw bytes。
+        # 256 cap = ~28 MB,N=16 actor × ~5 push/s × 0.3s backpressure tolerance → 完全够
+        # 用(producer<<consumer 场景 cap 无关,producer>consumer 时 cap 大只是延迟回压
+        # 不解吞吐问题)。 后续 wire 不 pad fix 后 per-trans size ~10 KB,可放宽。
+        trans_queue_maxsize: int = 256,
     ) -> None:
         self.cfg = cfg
         self.network = network

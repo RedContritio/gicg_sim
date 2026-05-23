@@ -90,11 +90,19 @@ def run_paradigm_train(state: SetupState) -> None:
     # _run_train_placeholder shim to a no-op or raiser) free of the
     # full training stack import cost. Real production main() reaches
     # this branch and pays the import once per process.
+    from tools._dev.mem_probe import maybe_enable_from_env as _maybe_enable_mem_probe
     from training.core.config.loader import load_cfg
     from training.core.env_factory import make_env_factory
     from training.core.perf import trace as _perf_trace
     from training.core.pipeline import run_pipeline
     from training.paradigms import resolve as resolve_paradigm
+
+    # GICG_MEM_PROBE=1 → master-process tracemalloc + periodic RSS/top-N
+    # report to stderr。 no-op when env var unset。 dispatch 入口 hook 是
+    # 最早能 attach tracemalloc 且仍能看到 paradigm setup/buffer/network
+    # alloc 的位置(`run_paradigm_train` 内 load_cfg/build network/spawn
+    # actor 都在此后发生)。
+    _maybe_enable_mem_probe()
 
     # Configure perf tracing for the pipeline (learner) process. Actors
     # + inference server each call configure() in their own spawn target.

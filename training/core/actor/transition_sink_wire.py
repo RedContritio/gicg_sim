@@ -319,7 +319,12 @@ def decode_dmc_payload(blob: bytes, *, dyn_obs_len: Optional[int] = None) -> Dmc
     for name, dtype, count_field in _DMC_PAYLOAD_ARRAYS:
         n = header[count_field]
         if n > 0:
-            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off)
+            # `.copy()` 必须 —— `np.frombuffer` 返 view 钉着源 blob bytes,只要任一 view
+            # 存活源 blob 永不 GC(memory `project_i29_go_actor_pool_progress` audit 已记)。
+            # 拷出独立 array 后 blob 立即可释放。 拷贝代价 ~per-trans 100 KB(max_actions
+            # padded refs+pay),可承受;view-pin 在 in-flight episode 周期内累积 master
+            # mem,远大于此拷贝代价。
+            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off).copy()
         else:
             arrays[name] = np.zeros(0, dtype=dtype)
         off += n * dtype.itemsize
@@ -401,7 +406,8 @@ def decode_ppo_payload(blob: bytes) -> PpoTransitionPayload:
     for name, dtype, count_field in _PPO_PAYLOAD_ARRAYS:
         n = header[count_field]
         if n > 0:
-            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off)
+            # `.copy()` — 同 DMC,view 钉源 blob,拷出后 blob 立即可释放。
+            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off).copy()
         else:
             arrays[name] = np.zeros(0, dtype=dtype)
         off += n * dtype.itemsize
@@ -488,7 +494,8 @@ def decode_az_payload(blob: bytes) -> AzTransitionPayload:
     for name, dtype, count_field in _AZ_PAYLOAD_ARRAYS:
         n = header[count_field]
         if n > 0:
-            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off)
+            # `.copy()` — 同 DMC,view 钉源 blob,拷出后 blob 立即可释放。
+            arrays[name] = np.frombuffer(blob, dtype=dtype, count=n, offset=off).copy()
         else:
             arrays[name] = np.zeros(0, dtype=dtype)
         off += n * dtype.itemsize

@@ -1,0 +1,104 @@
+"""master-process Python heap 分项 probe — env-var-gated tracemalloc + 周期采样。
+
+启用方式:`GICG_MEM_PROBE=1 .venv/bin/python -m tools.runs.train <cfg>`(由
+``tools.runs._train.dispatch`` 在 paradigm dispatch 入口 hook,任何 paradigm
+都通用)。
+
+**Scope 边界 — 不重复 metrics.jsonl** :master_rss / children_rss / cuda_alloc/
+reserved / host_used 等 RSS 类字段已由 ``training/core/logging.py:_sample_mem``
+采集进 ``metrics.jsonl`` 的 ``kind=mem`` record(psutil.Process().memory_info()
+同源)。 production RSS trend 走 metrics。 此 probe 只补 metrics 没有的 **Python
+heap 内部 alloc 分项归责**:`tracemalloc.statistics('filename')` 给每个 .py
+源文件当前 live alloc 字节,delta 给「自上次采样以来增长最大文件」—— 这是定位
+Python-side mem leak / wire decode 残留 / numpy view 钉 blob 等场景的不可替代
+工具。
+
+输出:每 `interval` 秒(默认 30s)向 stderr 打:
+- tracemalloc 跟踪的总 Python alloc(MB)
+- 按 source filename 聚合的 top-N 当前 alloc
+- 自上次采样以来的 delta top-N(包谁在增长)
+
+**与 metrics.jsonl 对照**:看 `master_rss_mb - tracemalloc_total_mb` 即「非
+Python 部分」(Go runtime + numpy/torch native heap + libgicg.dylib + allocator
+empty regions),据此 split Python leak vs native leak。
+
+设计取舍:
+- **filename 聚合而非 line 聚合**:line 维度对 Python container alloc 几乎全在
+  ``collections/__init__.py:1234`` 一行,看不出 root cause。 filename 聚合
+  把 alloc 归责到调用方文件。
+- **tracemalloc 25 frame**:Python container 多 一层封装,< 10 frame 经常
+  trace 不到调用方。
+- **idempotent enable**:多次 import / 多次 enable 只启动一次 reporter
+  thread(避免 fork / mp / pytest fixture 双注入)。
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+import threading
+import time
+import tracemalloc
+from typing import Optional
+
+_THREAD: Optional[threading.Thread] = None
+_STOP_EVENT: Optional[threading.Event] = None
+
+
+def enable_mem_probe(interval: int = 30, top_n: int = 15, frame_depth: int = 25) -> None:
+    """启动 mem probe 后台线程。 调用多次只首次生效。
+
+    Args:
+        interval: 采样间隔秒数(默认 30s,适合 几分钟 short run)。
+        top_n: top-N alloc 输出条数(默认 15)。
+        frame_depth: tracemalloc 帧深度(默认 25)。
+    """
+    global _THREAD, _STOP_EVENT
+    if _THREAD is not None:
+        print('[mem_probe] already enabled — skipping re-enable', file=sys.stderr)
+        return
+
+    tracemalloc.start(frame_depth)
+    start_ts = time.monotonic()
+    last_snapshot: Optional[tracemalloc.Snapshot] = None
+    _STOP_EVENT = threading.Event()
+
+    def _loop() -> None:
+        nonlocal last_snapshot
+        while not _STOP_EVENT.wait(interval):  # type: ignore[union-attr]
+            now_ts = time.monotonic() - start_ts
+            snap = tracemalloc.take_snapshot()
+            stats = snap.statistics('filename')
+            tm_total_mb = sum(s.size for s in stats) / 1024**2
+            print(
+                f'[mem_probe t={now_ts:6.0f}s] tracemalloc_total={tm_total_mb:7.0f}MB '
+                f'(RSS / 非 Python heap 部分见 metrics.jsonl `kind=mem` record)',
+                file=sys.stderr,
+            )
+            for st in stats[:top_n]:
+                print(f'[mem_probe]   {st.size / 1024**2:7.1f}MB  {st.traceback[0]}', file=sys.stderr)
+            if last_snapshot is not None:
+                diff = snap.compare_to(last_snapshot, 'filename')
+                diff.sort(key=lambda d: d.size_diff, reverse=True)
+                print(f'[mem_probe] delta top {top_n}(自上次采样):', file=sys.stderr)
+                for st in diff[:top_n]:
+                    sign = '+' if st.size_diff >= 0 else ''
+                    print(f'[mem_probe]   {sign}{st.size_diff / 1024**2:7.1f}MB  {st.traceback[0]}', file=sys.stderr)
+            last_snapshot = snap
+            sys.stderr.flush()
+
+    _THREAD = threading.Thread(target=_loop, name='mem-probe', daemon=True)
+    _THREAD.start()
+    print(
+        f'[mem_probe] enabled (interval={interval}s, top={top_n}, frames={frame_depth}) — '
+        f'Python heap only; RSS via metrics.jsonl `kind=mem` record',
+        file=sys.stderr,
+    )
+
+
+def maybe_enable_from_env() -> None:
+    """env var ``GICG_MEM_PROBE=1`` → enable_mem_probe()。 dispatch hook 入口。"""
+    if os.environ.get('GICG_MEM_PROBE'):
+        interval = int(os.environ.get('GICG_MEM_PROBE_INTERVAL', '30'))
+        top_n = int(os.environ.get('GICG_MEM_PROBE_TOP', '15'))
+        enable_mem_probe(interval=interval, top_n=top_n)
