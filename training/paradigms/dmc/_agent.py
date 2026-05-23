@@ -294,5 +294,15 @@ class DmcAgent(AgentBase):
             self.optimizer.load_state_dict(sd['optimizer'])
 
     def load_net_only(self, net_sd: dict) -> None:
-        """Load only network weights (used by historical opponent loader)."""
+        """Load only network weights (used by historical opponent loader)。
+
+        兼 两种 input shape — 直接 ActorCritic state_dict(无前缀,e.g. ckpt
+        round-trip)或 DMCNetwork.state_dict()(全 `net.` 前缀,因 DMCNetwork
+        `add_module('net', actor_critic)`,pipeline 2026-05-23 task #3 Phase 1
+        加的 add_snapshot 走此路)。 检测 + 透明 strip 前缀 以保 historical 旁
+        load 正确;ckpt resume 路径 走 `load_state_dict_full({'net': ...})`,
+        unwrap 已经在 caller 端 完成,不进 此分支。
+        """
+        if all(k.startswith('net.') for k in net_sd.keys()):
+            net_sd = {k[len('net.') :]: v for k, v in net_sd.items()}
         self.net.load_state_dict(net_sd)

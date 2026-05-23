@@ -171,6 +171,19 @@ def run_pipeline(
             if ckpt_mgr.should_save(state):
                 ckpt_mgr.save(state)
                 state.after_ckpt()
+                # historical opp ring sync — ckpt 时 顺手把 当前 network 推一个
+                # frozen snapshot 进 opp_pool。 复用 `save_every` cadence,无需 引入
+                # 新 cfg 字段。 必须 clone(`.detach().cpu().clone()`)— `state_dict()`
+                # 返 live tensor reference,不 clone 则 ring 内副本 跟随 network 更新
+                # 失去 historical 语义。 mem 代价:ring_size × network ~50-100 MB(ring
+                # cap=8 → 400-800 MB master),已 在 cfg `[paradigm.X.opponent_mix]
+                # ring_size` 中 plan。 没有 `add_snapshot` 的 opp_pool(legacy /
+                # paradigm 未支持 historical)hasattr-guard。 此前 add_snapshot 在
+                # 整 training/ 主代码无 caller,Python actor 路径 historical=30%
+                # episode 全 silent fallback random — 2026-05-23 audit 发现并 修。
+                if opp_pool is not None and hasattr(opp_pool, 'add_snapshot'):
+                    snapshot_sd = {k: v.detach().cpu().clone() for k, v in network.state_dict().items()}
+                    opp_pool.add_snapshot(snapshot_sd)
 
             logger.log_iter(state, breakdown={})
             state.advance(plan)
