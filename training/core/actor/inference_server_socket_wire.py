@@ -39,8 +39,10 @@ import numpy as np
 def _empty_int32() -> np.ndarray:
     return np.zeros(0, dtype=np.int32)
 
+
 # ─── Schema 常量 ─────────────────────────────────────────────────────────
-WIRE_VERSION = 2
+WIRE_VERSION = 3  # 跟 transition wire 同步 bump(Go WireVersion 跨两 wire)。inference
+# layout 未改,但版本 lock-step;详 transition_sink_wire.py。
 STATIC_HASH_SIZE = 16
 MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 INFER_STATUS_OK = 0

@@ -76,7 +76,14 @@ class DMCParadigm:
 
     def make_buffer(self, cfg: Any) -> Any:
         pcfg = self._resolve_pcfg(cfg)
-        return DMCBuffer(capacity=pcfg.buffer_cap, seed=cfg.meta.seed + 2, device=cfg.meta.device)
+        # max_actions 必须 == 网络 AgentConfig.max_actions:per-trans nlegal-sized
+        # refs/pay 在 sample time pad 到 max_actions 才进网络 forward(I29 P2)。
+        return DMCBuffer(
+            capacity=pcfg.buffer_cap,
+            max_actions=pcfg.agent.max_actions,
+            seed=cfg.meta.seed + 2,
+            device=cfg.meta.device,
+        )
 
     def make_loss(self, cfg: Any) -> Any:
         pcfg = self._resolve_pcfg(cfg)

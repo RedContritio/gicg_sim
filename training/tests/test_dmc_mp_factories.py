@@ -193,7 +193,6 @@ def test_capture_obs_np_matches_legacy_capture_obs():
     from training.paradigms.dmc._agent import DmcAgent
     from training.paradigms.dmc._episode import capture_obs
     from training.paradigms.dmc.mp_factories import _capture_obs_np, _encode_static_np
-    from training.core.step_encoding import pad_action_payments, pad_action_refs
     from gicg_env import GicgEnv
 
     data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
@@ -231,14 +230,14 @@ def test_capture_obs_np_matches_legacy_capture_obs():
     dyn_obs = np.ascontiguousarray(env._get_obs(), dtype=np.float32)
     kinds, _ = env.get_legal_actions()
     n_legal = int(len(kinds))
-    refs_padded = pad_action_refs(env.get_action_refs(), cfg.max_actions)
-    pay_padded = pad_action_payments(env.get_legal_action_payments(), cfg.max_actions)
+    # I29 P2 wire v3 — refs/pay 是 nlegal-sized;collate_batch pad 到 max_actions。
+    refs_nlegal = np.asarray(env.get_action_refs(), dtype=np.int64)[:n_legal]
+    pay_nlegal = np.asarray(env.get_legal_action_payments(), dtype=np.float32)[:n_legal]
     new = _capture_obs_np(
         dyn_obs=dyn_obs,
         n_legal=n_legal,
-        refs_padded=refs_padded,
-        pay_padded=pay_padded,
-        max_actions=cfg.max_actions,
+        refs_nlegal=refs_nlegal,
+        pay_nlegal=pay_nlegal,
         n_counter_slots=cfg.n_counter_slots,
         static_np=static_np,
     )

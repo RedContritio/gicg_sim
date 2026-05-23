@@ -78,11 +78,19 @@ class DMCBuffer:
     pairs). We do NOT repurpose ``CollectorOutput.transitions`` (typed
     core Transition) because GICG obs capture is too rich to fit there
     cleanly until an EpisodeRunner obs redesign lands.
+
+    I29 P2 (wire v3): per-trans refs/pay/legal_mask 不 padded(nlegal-sized)。
+    sample 时 ``collate_batch`` pad 到 ``max_actions`` 出 batch tensor;
+    ``max_actions`` 必须 == 网络 ``AgentConfig.max_actions``(否则 padding 大小
+    与网络 forward 期望不符)。
     """
 
-    def __init__(self, capacity: int, seed: int = 0, device: str = 'cpu') -> None:
+    def __init__(self, capacity: int, *, max_actions: int, seed: int = 0, device: str = 'cpu') -> None:
+        if max_actions <= 0:
+            raise ValueError(f'DMCBuffer: max_actions must be positive, got {max_actions}')
         self.capacity = capacity
         self.device = device
+        self.max_actions = int(max_actions)
         self._buf = DmcReplayBuffer(capacity=capacity, seed=seed)
 
     def __len__(self) -> int:
@@ -101,7 +109,7 @@ class DMCBuffer:
         if batch_size > len(self._buf):
             raise ValueError(f'DMCBuffer.sample: have {len(self._buf)} < batch_size={batch_size}')
         transitions = self._buf.sample(batch_size)
-        collated, action_idx, returns = collate_batch(transitions, device=self.device)
+        collated, action_idx, returns = collate_batch(transitions, device=self.device, max_actions=self.max_actions)
         return Batch(
             data={'collated': collated, 'action_idx': action_idx, 'returns': returns},
             weights=None,

@@ -179,19 +179,23 @@ class _DMCObsDictRemoteProvider:
         dyn_obs = np.ascontiguousarray(env._get_obs(), dtype=np.float32)
         kinds, _ = env.get_legal_actions()
         n_legal = int(len(kinds))
-        refs_np = env.get_action_refs()
-        pay_np = env.get_legal_action_payments()
+        refs_np = np.asarray(env.get_action_refs(), dtype=np.int64)
+        pay_np = np.asarray(env.get_legal_action_payments(), dtype=np.float32)
+        # InfServer payload 仍走 padded(server-side batched forward 要 fixed shape)。
         refs_padded = pad_action_refs(refs_np, self.max_actions)
         pay_padded = pad_action_payments(pay_np, self.max_actions)
+        # Buffer-side obs_dict (I29 P2 wire v3) — nlegal-sized;collate_batch pad 到
+        # cfg.max_actions for batch forward。 per-trans mem ~10x 降。
+        refs_nlegal = refs_np[:n_legal]
+        pay_nlegal = pay_np[:n_legal]
 
         # Buffer-side numpy obs_dict: must mirror DmcAgent.build_obs_dict
         # shapes (pure numpy version of capture_obs).
         self.last_obs_dict = _capture_obs_np(
             dyn_obs=dyn_obs,
             n_legal=n_legal,
-            refs_padded=refs_padded,
-            pay_padded=pay_padded,
-            max_actions=self.max_actions,
+            refs_nlegal=refs_nlegal,
+            pay_nlegal=pay_nlegal,
             n_counter_slots=self.n_counter_slots,
             static_np=self._static_np_fields,
         )

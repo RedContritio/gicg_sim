@@ -43,7 +43,11 @@ import (
 
 // ─── Schema 常量 ─────────────────────────────────────────────────────────
 const (
-	WireVersion     uint16 = 2
+	// v3 (I29 P2 2026-05-23): DMC/PPO transition payload refs/pay 由 padded
+	// (max_actions, ...) 改为 nlegal-sized — buffer per-trans mem ~10x 降。
+	// Inference wire format 本身未变,但版本 lock-step,旧 actor (v2) 不可与新
+	// trainer (v3) 互通(BREAKING by design,无 backward-compat layer)。
+	WireVersion     uint16 = 3
 	StaticHashSize  int    = 16
 	MaxMessageBytes uint32 = 16 * 1024 * 1024
 	InferStatusOK   uint8  = 0

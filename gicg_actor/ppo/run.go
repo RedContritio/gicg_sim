@@ -183,9 +183,12 @@ func (p *PPOParadigm) runEpisode(
 			if chosen < 0 || chosen >= len(actions) {
 				return fmt.Errorf("action selection produced out-of-range idx=%d (n=%d)", chosen, len(actions))
 			}
+			// refs/pay slice 到前 nlegal 段 — inference 仍走 padded(网络 forward 要 fixed
+			// (max_actions, ...) shape),但 transition payload 只载 nlegal 行(I29 P2 root cause
+			// — buffer per-trans mem ~10x 降)。
 			preStepDyn = req.DynObs
-			preStepRefs = req.Refs
-			preStepPay = req.Pay
+			preStepRefs = req.Refs[:len(actions)*3]
+			preStepPay = req.Pay[:len(actions)*dmc.DiceColorCount]
 			preStepNLegal = len(actions)
 			if len(resp.Value) > 0 {
 				preStepValue = resp.Value[0]

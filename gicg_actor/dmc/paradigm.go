@@ -299,9 +299,12 @@ func (p *DMCParadigm) runEpisode(
 			}
 			// 捕获 pre-step state for transition push(BuildInferRequest 已算了 dyn/refs/pay,
 			// 复用 req fields 而非二次算 — 跟 inference 用同一份 obs guarantee 一致)。
+			// refs/pay slice 到前 nlegal 段 — inference 仍走 padded(网络 forward 要 fixed
+			// (max_actions, ...) shape),但 transition payload 只载 nlegal 行,buffer per-trans
+			// mem ~10x 降(I29 P2 root cause:wire 含 padding × buffer_cap = 24 GB 顶峰)。
 			preStepDyn = req.DynObs
-			preStepRefs = req.Refs
-			preStepPay = req.Pay
+			preStepRefs = req.Refs[:len(actions)*3]
+			preStepPay = req.Pay[:len(actions)*DiceColorCount]
 			preStepNLegal = len(actions)
 			pushTrans = transWri != nil
 		} else {

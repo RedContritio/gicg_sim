@@ -186,22 +186,21 @@ class DmcTransitionAssembler:
             if dmc.n_legal == 0:
                 # terminal marker(I29 T-RR.1)—— NLegal=0 无 obs,不产 DmcTransition。
                 continue
-            # refs/pay 必为 max_actions padded shape。 size 不符 = wire/max_actions 配置
-            # 不一致 —— fail-loud,不静默退化为 1D(I29 T-RR.6)。
-            if dmc.refs.size != self.max_actions * 3 or dmc.pay.size != self.max_actions * 8:
+            # refs/pay 必为 nlegal-sized(I29 P2 wire v3 起,Go encode 已 slice 到 nlegal)。
+            # size 不符 = wire/encoder 不一致 —— fail-loud,不静默退化(I29 T-RR.6)。
+            if dmc.refs.size != dmc.n_legal * 3 or dmc.pay.size != dmc.n_legal * 8:
                 raise ValueError(
                     f'DMC transition refs/pay size mismatch client={client_id} ep={episode_id}: '
-                    f'refs={dmc.refs.size} (want {self.max_actions * 3}) '
-                    f'pay={dmc.pay.size} (want {self.max_actions * 8}) — wire/max_actions mismatch'
+                    f'refs={dmc.refs.size} (want {dmc.n_legal * 3}=n_legal*3) '
+                    f'pay={dmc.pay.size} (want {dmc.n_legal * 8}=n_legal*8) — wire v3 expects nlegal-sized'
                 )
-            refs_2d = dmc.refs.reshape(self.max_actions, 3)
-            pay_2d = dmc.pay.reshape(self.max_actions, 8)
+            refs_nlegal = dmc.refs.reshape(dmc.n_legal, 3)
+            pay_nlegal = dmc.pay.reshape(dmc.n_legal, 8)
             obs_dict = _capture_obs_np(
                 dyn_obs=dmc.dyn_obs,
                 n_legal=dmc.n_legal,
-                refs_padded=refs_2d,
-                pay_padded=pay_2d,
-                max_actions=self.max_actions,
+                refs_nlegal=refs_nlegal,
+                pay_nlegal=pay_nlegal,
                 n_counter_slots=self.n_counter_slots,
                 static_np=static_np,
             )

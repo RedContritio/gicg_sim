@@ -158,9 +158,7 @@ def _server_encode_static(static_obs_np: np.ndarray, device: Any, network: Any) 
 
         refs_size = OBS_CHAR_SKILL_REFS_SIZE
         char_skill_refs = (
-            static[meta_size : meta_size + refs_size]
-            .reshape(2, OBS_MAX_CHARS, OBS_MAX_SKILLS_PER_CHAR)
-            .long()
+            static[meta_size : meta_size + refs_size].reshape(2, OBS_MAX_CHARS, OBS_MAX_SKILLS_PER_CHAR).long()
         )
 
         hook_size = n_hooks * max_ops_per_hook * fields_per_op
@@ -257,9 +255,8 @@ def _capture_obs_np(
     *,
     dyn_obs: np.ndarray,
     n_legal: int,
-    refs_padded: np.ndarray,
-    pay_padded: np.ndarray,
-    max_actions: int,
+    refs_nlegal: np.ndarray,
+    pay_nlegal: np.ndarray,
     n_counter_slots: int,
     static_np: dict,
 ) -> dict:
@@ -267,11 +264,13 @@ def _capture_obs_np(
     :func:`training.paradigms.dmc._episode.capture_obs` — lets the actor
     build the buffer-side obs_dict without importing torch. Returns
     ``{}`` on ``n_legal == 0`` (matches legacy early return).
+
+    I29 P2 (wire v3): refs/pay/legal_mask 存 nlegal-sized,不 pad 到 max_actions
+    (per-trans mem ~10x 降)。 collate_batch sample 时 pad 到 cfg.max_actions。
     """
     if n_legal == 0:
         return {}
     from training.core.step_encoding import (
-        build_legal_mask,
         parse_dynamic_np,
         parse_dynamic_typed_np,
     )
@@ -283,7 +282,6 @@ def _capture_obs_np(
         copy=True,
         include_modifier_log=True,
     )
-    legal_mask = build_legal_mask(max_actions, n_legal)
 
     return {
         'counter_values': counter_values,
@@ -293,9 +291,11 @@ def _capture_obs_np(
         'recent_damage': recent_damage,
         'prepare_skill': prepare_skill,
         'modifier_log': modifier_log,
-        'action_refs': refs_padded.astype(np.int64),
-        'action_payments': pay_padded.astype(np.float32),
-        'legal_mask': legal_mask.astype(bool),
+        # nlegal-sized (per-trans),collate_batch pad 到 cfg.max_actions for batch。
+        'action_refs': refs_nlegal.astype(np.int64),
+        'action_payments': pay_nlegal.astype(np.float32),
+        # 全 True 长 nlegal — pad 后 batch (B, max_actions) bool 由 collate_batch 算。
+        'legal_mask': np.ones(n_legal, dtype=bool),
         'n_legal': n_legal,
         'counter_sids': static_np['counter_sids'],
         'active_slot_mask': static_np['active_slot_mask'],

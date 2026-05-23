@@ -45,15 +45,17 @@ def _static_obs() -> np.ndarray:
 
 
 def _transition(episode_id: int, step: int, *, done: bool, with_static: bool, reward: float = 0.0) -> Transition:
+    # I29 P2 wire v3 — refs/pay 是 nlegal-sized,不 pad 到 max_actions。
+    n_legal = 5
     payload = encode_dmc_payload(
         chosen_action=0,
         step_in_episode=step,
         reward=reward,
-        n_legal=5,
+        n_legal=n_legal,
         static_hash=b'\x01' * 16,
         dyn_obs=np.arange(4096, dtype=np.float32),
-        refs=np.arange(_SCENARIO['max_actions'] * 3, dtype=np.int64),
-        pay=np.arange(_SCENARIO['max_actions'] * 8, dtype=np.float32),
+        refs=np.arange(n_legal * 3, dtype=np.int64),
+        pay=np.arange(n_legal * 8, dtype=np.float32),
         static=_static_obs() if with_static else None,
     )
     return Transition(client_id=0, episode_id=episode_id, step=step, done=done, payload=payload)

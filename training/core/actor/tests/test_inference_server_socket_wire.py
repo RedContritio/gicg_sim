@@ -169,11 +169,12 @@ def test_constants_match_go_layout():
     """Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
     drift 时一边改一边漏。"""
     # Layout sizes 跟 Go side ``HeaderSize`` / ``ResponseHeaderSize`` 一致 — 防 future
-    # drift。 v2 schema u32 array lens: header = 2+16+4+4+4+4+4+4 = 42 bytes。
-    # ResponseHeader v3: u8 status + u32 n_logits + u32 n_value = 9 bytes。
+    # drift。 schema u32 array lens: header = 2+16+4+4+4+4+4+4 = 42 bytes。
+    # ResponseHeader: u8 status + u32 n_logits + u32 n_value = 9 bytes。
+    # WIRE_VERSION 跟 transition wire 同步 lock-step bump(v3 I29 P2 2026-05-23)。
     assert HEADER_SIZE == 42
     assert RESPONSE_HEADER_SIZE == 9
     assert STATIC_HASH_SIZE == 16
-    assert WIRE_VERSION == 2
+    assert WIRE_VERSION == 3
     assert INFER_STATUS_OK == 0
     assert INFER_STATUS_ERR == 1

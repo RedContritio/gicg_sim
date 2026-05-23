@@ -43,9 +43,10 @@ def _build_dyn_obs(n_counter_slots: int) -> np.ndarray:
     return np.arange(4096, dtype=np.float32)
 
 
-def _build_refs_pay(max_actions: int) -> tuple[np.ndarray, np.ndarray]:
-    refs = np.arange(max_actions * 3, dtype=np.int64)
-    pay = np.arange(max_actions * 8, dtype=np.float32)
+def _build_refs_pay(n_legal: int) -> tuple[np.ndarray, np.ndarray]:
+    """I29 P2 wire v3 — refs/pay 是 nlegal-sized,不 pad 到 max_actions。"""
+    refs = np.arange(n_legal * 3, dtype=np.int64)
+    pay = np.arange(n_legal * 8, dtype=np.float32)
     return refs, pay
 
 
@@ -67,7 +68,7 @@ def _build_payload(
         if with_static
         else None
     )
-    refs, pay = _build_refs_pay(_SCENARIO['max_actions'])
+    refs, pay = _build_refs_pay(n_legal)
     return encode_dmc_payload(
         chosen_action=0,
         step_in_episode=step,
@@ -365,19 +366,19 @@ def test_assembler_buffers_inflight_cap_evicts_least_recently_active(capsys):
 
 
 def test_assembler_refs_size_mismatch_raises():
-    """真 transition(n_legal>0)refs/pay size != max_actions padded → _try_assemble
-    fail-loud ValueError(I29 T-RR.6)。 旧逻辑静默退化为 1D,wire/max_actions 错配被掩盖。
+    """真 transition(n_legal>0)refs/pay size != n_legal*{3,8} → _try_assemble
+    fail-loud ValueError(I29 T-RR.6 + P2 wire v3)。 旧逻辑静默退化为 1D,wire 错配被掩盖。
     """
     a = DmcTransitionAssembler(**_SCENARIO)
     bad = encode_dmc_payload(
         chosen_action=0,
         step_in_episode=0,
         reward=1.0,
-        n_legal=5,  # >0 → 真 transition,需校验(marker n_legal=0 才豁免)
+        n_legal=5,  # 期待 refs=15 / pay=40,但 wire 给 10 / 40 → 错配
         static_hash=b'\x88' * 16,
         dyn_obs=_build_dyn_obs(_SCENARIO['n_counter_slots']),
-        refs=np.zeros(10, dtype=np.int64),  # 错:10 != max_actions*3
-        pay=np.zeros(_SCENARIO['max_actions'] * 8, dtype=np.float32),
+        refs=np.zeros(10, dtype=np.int64),  # 错:10 != n_legal*3 (=15)
+        pay=np.zeros(5 * 8, dtype=np.float32),
         static=_build_static_obs(
             _SCENARIO['n_counter_slots'],
             _SCENARIO['n_hooks'],

@@ -20,11 +20,6 @@ import numpy as np
 import torch
 
 from gicg_env import GicgEnv
-from training.core.step_encoding import (
-    build_legal_mask,
-    pad_action_payments,
-    pad_action_refs,
-)
 from training.paradigms.dmc._agent import DmcAgent
 
 if TYPE_CHECKING:  # avoid cyclic import at runtime
@@ -32,18 +27,23 @@ if TYPE_CHECKING:  # avoid cyclic import at runtime
 
 
 def capture_obs(env: GicgEnv, agent: DmcAgent) -> dict:
-    """Snapshot all obs arrays needed to reproduce ``forward_batch``."""
+    """Snapshot all obs arrays needed to reproduce ``forward_batch``.
+
+    I29 P2 (wire v3) — action_refs/action_payments/legal_mask 存 nlegal-sized,
+    不 pad 到 max_actions(per-trans mem ~10x 降);collate_batch sample 时
+    pad 到 cfg.max_actions(see ``collate_batch``)。 Go actor 路径走
+    ``_capture_obs_np``,与本 Python actor 路径 buffer obs_dict 格式统一。
+    """
     dyn_obs = env._get_obs()
     kinds, _ = env.get_legal_actions()
     n_legal = int(len(kinds))
     if n_legal == 0:
         return {}
-    refs_np = env.get_action_refs()
-    pay_np = env.get_legal_action_payments()
-
-    refs_padded = pad_action_refs(refs_np, agent.cfg.max_actions)
-    pay_padded = pad_action_payments(pay_np, agent.cfg.max_actions)
-    legal_mask = build_legal_mask(agent.cfg.max_actions, n_legal)
+    refs_np = np.asarray(env.get_action_refs(), dtype=np.int64)
+    pay_np = np.asarray(env.get_legal_action_payments(), dtype=np.float32)
+    # env.* 返 (n_real_legal, ...) 已经是 nlegal-sized — trim 到 n_legal 防 racy padding。
+    refs_nlegal = refs_np[:n_legal]
+    pay_nlegal = pay_np[:n_legal]
 
     (
         counter_values_t,
@@ -63,17 +63,16 @@ def capture_obs(env: GicgEnv, agent: DmcAgent) -> dict:
         'recent_damage': recent_damage_t.squeeze(0).cpu().numpy().astype(np.float32),
         'prepare_skill': prepare_skill_t.squeeze(0).cpu().numpy().astype(np.float32),
         'modifier_log': modifier_log_t.squeeze(0).cpu().numpy().astype(np.float32),
-        'action_refs': refs_padded.astype(np.int64),
-        'action_payments': pay_padded.astype(np.float32),
-        'legal_mask': legal_mask.astype(bool),
+        # nlegal-sized — pad-to-max_actions deferred to collate_batch。
+        'action_refs': refs_nlegal,
+        'action_payments': pay_nlegal,
+        'legal_mask': np.ones(n_legal, dtype=bool),
         'n_legal': n_legal,
         # Static obs replicated per transition for storage simplicity.
         'counter_sids': agent._counter_sids.squeeze(0).cpu().numpy().astype(np.int64),
         'active_slot_mask': agent._active_slot_mask.squeeze(0).cpu().numpy().astype(bool),
         'char_skill_refs': agent._char_skill_refs.squeeze(0).cpu().numpy().astype(np.int64),
-        'hook_ir': agent._hook_ir_cache.cpu().numpy().astype(np.int64)
-        if agent._hook_ir_cache is not None
-        else None,
+        'hook_ir': agent._hook_ir_cache.cpu().numpy().astype(np.int64) if agent._hook_ir_cache is not None else None,
         'hook_mask': agent._hook_mask.squeeze(0).cpu().numpy().astype(bool),
     }
 
@@ -151,16 +150,31 @@ def play_one_episode(
     return transitions, G, step_idx + 1
 
 
-def collate_batch(transitions: list['DmcTransition'], device: str = 'cpu') -> tuple[dict, torch.Tensor, torch.Tensor]:
+def collate_batch(
+    transitions: list['DmcTransition'],
+    device: str = 'cpu',
+    *,
+    max_actions: int,
+) -> tuple[dict, torch.Tensor, torch.Tensor]:
     """Stack a list of ``DmcTransition`` into a torch batch for
     ``forward_batch``.
 
-    Variable-shape hook fields are padded to batch-max ``n_active``; fixed
-    fields are simply stacked. Returns
-    ``(batch_dict, action_idx_tensor, returns_tensor)``.
+    I29 P2 (wire v3) — action_refs/action_payments/legal_mask 在 transition
+    存 nlegal-sized,本函数 pad 到 ``max_actions`` 生成 (B, max_actions, ...)
+    batch tensor(网络 forward 期待 fixed-size action 维度;批内不同 n_legal
+    走 zero-pad + legal_mask)。
+
+    Variable-shape hook fields are padded to batch-max ``n_active``; truly
+    fixed fields simply stacked. Returns ``(batch_dict, action_idx_tensor,
+    returns_tensor)``.
+
+    ``max_actions`` is required kwarg — caller (DMCBuffer.sample) 透传
+    cfg.max_actions(must == 网络 AgentConfig.max_actions),避免静默 mismatch。
     """
     if not transitions:
         raise ValueError('collate_batch: empty transition list')
+    if max_actions <= 0:
+        raise ValueError(f'collate_batch: max_actions must be positive, got {max_actions}')
 
     B = len(transitions)
     out: dict = {}
@@ -172,15 +186,36 @@ def collate_batch(transitions: list['DmcTransition'], device: str = 'cpu') -> tu
         'recent_damage',
         'prepare_skill',
         'modifier_log',
-        'action_refs',
-        'action_payments',
-        'legal_mask',
         'counter_sids',
         'active_slot_mask',
         'char_skill_refs',
     )
     for k in fixed_keys:
         out[k] = np.stack([t.obs_dict[k] for t in transitions], axis=0)
+
+    # Variable per-trans action 维度 pad 到 max_actions(I29 P2 wire v3 起,refs/pay/
+    # legal_mask 在 transition 是 nlegal-sized;collate 时统一 pad 出 batch tensor)。
+    # n_legal > max_actions 必意味 actor 端 sample 漏校验或 cfg drift —— fail-loud,
+    # 不静默截断(动作空间缩小是 silent corruption)。
+    refs_pad = np.zeros((B, max_actions, 3), dtype=np.int64)
+    pay_pad = np.zeros((B, max_actions, 8), dtype=np.float32)
+    mask_pad = np.zeros((B, max_actions), dtype=bool)
+    for i, t in enumerate(transitions):
+        refs_i = t.obs_dict['action_refs']
+        pay_i = t.obs_dict['action_payments']
+        mask_i = t.obs_dict['legal_mask']
+        n_legal = refs_i.shape[0]
+        if n_legal > max_actions:
+            raise ValueError(
+                f'collate_batch: transition {i} n_legal={n_legal} > max_actions={max_actions} '
+                f'(network action capacity exceeded; cfg.agent.max_actions or actor encoder mismatch)'
+            )
+        refs_pad[i, :n_legal] = refs_i
+        pay_pad[i, :n_legal] = pay_i
+        mask_pad[i, :n_legal] = mask_i
+    out['action_refs'] = refs_pad
+    out['action_payments'] = pay_pad
+    out['legal_mask'] = mask_pad
 
     hook_ir_list = [t.obs_dict['hook_ir'] for t in transitions]
     hook_mask_list = [t.obs_dict['hook_mask'] for t in transitions]

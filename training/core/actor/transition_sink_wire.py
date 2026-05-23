@@ -34,7 +34,10 @@ from typing import Optional
 import numpy as np
 
 # ─── Schema 常量 ─────────────────────────────────────────────────────────
-WIRE_VERSION = 2  # 跟 inference protocol 同步 bump(Go 单 WireVersion 跨两份 wire)
+WIRE_VERSION = 3  # 跟 inference protocol 同步 bump(Go 单 WireVersion 跨两份 wire)
+# v3 (I29 P2 2026-05-23): DMC/PPO transition payload refs/pay 不再 max_actions
+# padded,改为 nlegal-sized — buffer per-trans mem 120 KB → ~12 KB (~10x 降)。
+# pad-to-cfg.max_actions 推到 sample time(collate_batch)做。
 MAX_TRANSITION_PAYLOAD = 16 * 1024 * 1024
 
 # Header 固定字段:加字段在两处加一行即可。
