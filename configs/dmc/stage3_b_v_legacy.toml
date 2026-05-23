@@ -70,8 +70,17 @@ historical = 0.30
 ring_size = 8
 
 [checkpoint]
-save_every = 10_000          # train_steps; ~30 ckpts over 1M frames (~22 min/ckpt at fps≈25 / train_rate≈7.5)
-keep_last_n = 30             # keep all of them so user can pick which to rsync (matches save cadence ×3)
+# 单位 = `state.step`(driver outer iter counter,= `PipelineState.advance(plan)` ++,
+# 不是 `state.train_steps` —— `CheckpointManager.should_save` 比 `state.step - last_ckpt_at_step`)。
+# DMC steady-state iter rate ≈ 1.85/s (Win N=16 stage3 实测 t=4890s 9071 iter),
+# save_every=2500 iter ≈ 1351s ≈ 22 min/ckpt → 1M frame run(~40000s)出 ~30 ckpts。
+# 历史误标 「train_steps」(per-iter += train_ratio=4 故 train_steps × 4)由 2026-05-
+# 23 user 实测停训发现(Win run 000109 跑 81 min / 9071 iter / 36276 train_steps =
+# 0 ckpts),task #8 backlog 决:选 ②「改 cfg + comment」(不动 implementation 防
+# 跨 paradigm CFR/BC cfg 同步 recalibrate 大改),implementation `state.step` semantic
+# 保持。
+save_every = 2_500           # iter; ~22 min/ckpt @ 1.85 iter/s; ~30 ckpts over 1M frame run
+keep_last_n = 30             # 全保 给 user 选 哪个 rsync(match save 节奏)
 artifacts_root = "artifacts"
 
 # [eval] section is schema-required for mode='async'(schema CS1.1)。设
