@@ -223,6 +223,56 @@ static blob(首条 transition)。
 
 闸门:T-1.23 仍要 fps≥70 且 mem≤2GB 同时成立 —— 簇 1 保 mem,簇 2 保 fps,缺一不可。
 
+**T-RR.9 实测后 闸门修正(2026-05-23,user 「实测 ≈ 理论值」工作流)**:T-1.23
+原数值闸门(fps 70 / mem 2GB)在 Win+cu130 平台约束下不达。 user 替换为 工作流:
+**理论值 — 实测 = 浪费,系统消除浪费**。 mem 大头由 D9 解(见下);fps 25 是
+合理上界(N=16 + opp_mix `f1d4=0.20` D4 minimax 占 1/5),非可压点 — 收益取决
+于后续 actor-side opp 优化 / Linux 验证(cu13 expandable_segments 支持)/
+historical 真 ring(D10 follow-up,task #3)。
+
+### D9 — Mem 真 root cause:wire + buffer 全程不 pad refs/pay(2026-05-23)
+
+**修正 D8 簇 1 假设**:簇 1 backpressure 解了 `_ready` 无界堆 → wire queue 满载
+有界,但 mem 真大头不在 wire queue 大小,而在 **每条 transition payload 含 96%
+padding 0**。
+
+**第一性原理推算**(`tools/_dev/mem_probe.py` + mac long probe 实测验证):
+production cfg `max_actions=2048`,Go `EncodeDmcTransitionPayload`(`gicg_actor/
+dmc/paradigm.go:359`)把 refs/pay 整 padded 推 → 每 transition ~110 KB(action_
+refs 2048×3 i64 = 49 KB + action_payments 2048×8 f32 = 65 KB,其他 ~1 KB)。
+buffer-cap = 200_000 trans × 110 KB = **24 GB master mem 上限**。 实测 Win N=16
+mem slope 4.2 MB/s 严丝合缝 = 25 fps × 110 KB + Go runtime grow 1.2 MB/s。
+
+**修法(3 commit 链,branch `feature/tools-runs-fixes`)**:
+- `a8123f8`:queue 4096 → 256 + `np.frombuffer` 加 `.copy()` 解 view-pin。 wire
+  文件 tracemalloc 675 → 49 MB plateau。 mac active mem 接近理论。
+- `1594a33`:Go runtime.MemStats expose 经 capi → mem_probe 集成,split Go heap
+  vs Python heap vs native。 audit 确认 Go side ≠ leak(HeapAlloc 130 MB 稳)。
+- `1687f5d` **root cause**:wire v2→v3 BREAKING,refs/pay 不再 padded;`collate_
+  batch` 移 `action_refs/payments/legal_mask` 到 variable section,batch sample
+  time pad 到 `cfg.max_actions`(network forward 不变,只是 buffer storage
+  nlegal-sized)。 DMC + PPO + AZ scaffold 对称改 5 layer(Go encode + wire +
+  assembler + `_capture_obs_np` + collate)。 235 LOC / 15 files。
+
+**Win N=16 verify run `artifacts/202605230659_000109_dmc_stage3_b_v_legacy_go`**:
+- baseline t=180s master_rss 2670 MB(vs T-RR.9 同期 3742 MB,**-1072 MB**)
+- slope 1.5 MB/s(vs T-RR.9 4.2 MB/s,**~3x 降**)
+- 预测 plateau ~14 GB(buffer 200K × 12 KB + baseline + 1.5×8000s 至满),vs
+  pre-fix 24+ GB 不可达 → 长跑 11 hour 可完成
+- mac `_decoder.py` 22→1 MB/sample(20x),Go HeapAlloc 280→130 MB
+
+**承接 user 「不重复造轮子」原则**:`tracemalloc_total_mb` 加进 `_sample_mem()`
+(commit `895d446`),production run 自动 emit metric record;`mem_probe.py`
+缩窄到只 Python heap top-N per-file 归责 + delta(metric 不含的 unique 部分),
+不再重复 psutil RSS 采样。
+
+**ckpt 兼容**:`DMCBuffer.state_dict` 只存 capacity 不存 transitions,wire v2→
+v3 BREAKING change 不破 ckpt resume。
+
+**Follow-up(task #3)**:Go-actor `oppHistorical` 走 current net proxy(cost-
+faithful self-play 等价),真 historical-net ring 待 D10(下次 production run
+评估 ROI 后决)。
+
 ## ADR-agent 自定 trade-off(决定后内联)
 
 ### 数值等价 tolerance
