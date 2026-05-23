@@ -4,7 +4,6 @@ Wire protocol (request_q msgs):
 
     ('infer', client_id:int, request_id:str, obs_bytes:bytes, mask_bytes:bytes|None)
     ('weights', state_dict:dict)
-    ('weights_versioned', slot_id:int, state_dict:dict)   # D10 S1 — historical-net ring
     ('stop',)
 
 Server batches up to ``max_batch`` infer requests (or until
@@ -14,23 +13,12 @@ with ``('ok', request_id, logits_bytes)`` or ``('err', ..., repr(exc))``.
 Response queues MUST be registered before ``start()`` because
 ``mp.Queue`` cannot traverse another queue — it crosses spawn as an arg.
 
-D10 S1 historical-net ring (infra-only, no wire / no Go-side change):
-``historical_cap > 0`` enables a ``dict[slot_id, network]`` pool. slot
-0 is the live net (current ``update_network`` target, default fast path
-unchanged — bit-equal pre-D10). slots 1..cap hold frozen historical
-snapshots pushed via ``push_historical_weights(slot_id, sd)``. The
-batched-forward dispatch still routes 100% to slot 0 in this stage;
-``version_id`` wire routing is S5. ``shared_cache`` is fully cleared on
-every historical push (D10 H risk mitigation — hook_encoder cache must
-not bleed across versions).
-
 Loopback fallback: ``forward_one`` does an in-proc forward (P3-A tests +
 ``InferenceClient`` with ``server=`` arg).
 """
 
 from __future__ import annotations
 
-import copy
 import pickle
 import queue as _queue
 import time
@@ -58,64 +46,6 @@ from training.core.perf import trace
 _VALID_ACCEL = ('none', 'trace', 'compile')
 
 
-def _validate_historical_slot(slot_id: int, historical_cap: int) -> None:
-    """Fail-loud契约:slot_id ≥ 1 单增 version_id 模型(对齐 D10 Go-side
-    HistoricalRing FIFO + cap 设计;`gicg_actor/historical_ring.go` 未来 同
-    模式)。 cap 是 ring 容量,**不是** slot_id 上限 —— caller 可 monotonically
-    增 slot_id(e.g. ckpt # 自增),pool 持 ≤ cap 个 non-zero slots,FIFO evict
-    oldest。
-
-    cap=0(默认 disabled)调本 push 即 raise — 防 silent no-op。
-    slot 0 是 live net,push_historical_weights 不接受写它(走
-    update_network)。
-    """
-    if historical_cap <= 0:
-        raise ValueError(
-            f'InferenceServer.push_historical_weights: historical_cap=0 (disabled), '
-            f'pass historical_cap > 0 to __init__ to enable the historical pool'
-        )
-    if slot_id <= 0:
-        raise ValueError(
-            f'InferenceServer.push_historical_weights: slot_id={slot_id} must be ≥ 1 '
-            f'(slot 0 is live, reserved for update_network; historical slots are caller-managed '
-            f'monotonic version ids, pool FIFO-evicts oldest when len > historical_cap={historical_cap})'
-        )
-
-
-def _handle_weights_versioned(
-    slot_id: int,
-    state_dict: dict,
-    networks: dict,
-    fifo: list,
-    historical_cap: int,
-    live_network: Any,
-    device_str: str,
-    shared_cache: dict,
-) -> None:
-    """child-side handler for ('weights_versioned', slot_id, sd).
-
-    deepcopy live net topology, load sd, eval, store under slot_id.
-    FIFO evict oldest non-zero slot when len(non-zero) > cap.
-    shared_cache 全清 — H risk mitigation (decoder/hook_encoder cache
-    must not bleed across versions; per-version namespacing is S5).
-    """
-    try:
-        _validate_historical_slot(slot_id, historical_cap)
-        net = copy.deepcopy(live_network).to(device_str).eval()
-        net.load_state_dict(state_dict)
-        # Re-insert at FIFO tail (re-push same slot 视作 refresh).
-        if slot_id in networks:
-            fifo.remove(slot_id)
-        networks[slot_id] = net
-        fifo.append(slot_id)
-        while len(fifo) > historical_cap:
-            evict = fifo.pop(0)
-            networks.pop(evict, None)
-        shared_cache.clear()
-    except Exception as exc:  # pragma: no cover — diag only,never kill server
-        print(f'[InferenceServer] weights_versioned slot={slot_id} failed: {exc}')
-
-
 def _server_loop(
     network_bytes: bytes,
     device_str: str,
@@ -131,7 +61,6 @@ def _server_loop(
     stats_interval_s: float = 5.0,
     socket_port: int = 0,
     socket_max_actions: int = 0,
-    historical_cap: int = 0,
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
@@ -173,13 +102,6 @@ def _server_loop(
         ready_event.set()
         stop_event.set()
         raise RuntimeError(f'InferenceServer init failed: {exc}\n{traceback.format_exc()}')
-
-    # D10 S1 — historical-net pool. slot 0 := live network (default fast
-    # path; default-cap=0 ⇒ pool is unused, behaviour bit-equal pre-D10).
-    # slots 1..cap hold frozen historical snapshots; FIFO evict on push
-    # when len(non-zero slots) > cap. shared_cache全清 on push (H risk).
-    networks: dict[int, Any] = {0: network}
-    historical_slots_fifo: list[int] = []  # non-zero slot insertion order
 
     request_decoder = None
     # Decoder-path implies actor stays torch-free → response must be
@@ -381,12 +303,6 @@ def _server_loop(
             except Exception as exc:  # pragma: no cover
                 print(f'[InferenceServer] weight load failed: {exc}')
             continue
-        if first[0] == 'weights_versioned':
-            _handle_weights_versioned(
-                first[1], first[2], networks, historical_slots_fifo, historical_cap,
-                network, device_str, shared_cache,
-            )
-            continue
         batch.append(first)
         deadline = time.perf_counter() + timeout_s
         t_fillwait_start = time.perf_counter() if stats_enabled else 0.0
@@ -409,12 +325,6 @@ def _server_loop(
                         shared_cache.clear()
                     except Exception as exc:  # pragma: no cover
                         print(f'[InferenceServer] weight load failed: {exc}')
-                    continue
-                if msg[0] == 'weights_versioned':
-                    _handle_weights_versioned(
-                        msg[1], msg[2], networks, historical_slots_fifo, historical_cap,
-                        network, device_str, shared_cache,
-                    )
                     continue
                 batch.append(msg)
         trace.value('inf_server.batch_size', float(len(batch)))
@@ -513,7 +423,6 @@ class InferenceServer:
         socket_port: int = 0,
         socket_max_actions: int = 0,
         socket_clients: int = 0,
-        historical_cap: int = 0,
     ) -> None:
         if use_jit_trace:
             if inference_acceleration != 'none':
@@ -544,16 +453,6 @@ class InferenceServer:
         self.socket_port = int(socket_port)
         self.socket_max_actions = int(socket_max_actions)
         self.socket_clients = int(socket_clients)
-        # D10 S1 — historical pool 容量。 cap=0 ⇒ pool disabled,
-        # push_historical_weights 调用 raise (no silent no-op)。
-        # production 端 由 cfg ring_size 在 S4 propagate;本 stage 默认禁。
-        self.historical_cap = int(historical_cap)
-        # 实例侧 pool — in-proc 路径(loopback forward / 测试 white-box)
-        # 用。 spawned 路径下,child proc 维护 自己的 networks dict,实例
-        # 侧 dict 仅 mirror 已 push 的 slot,供 _get_network_by_slot 暴露给
-        # 后续 eval matchup / 测试 — 与 child 行为契约一致(同 sd → 同 net)。
-        self._networks: dict[int, Any] = {0: self.network}
-        self._historical_fifo: list[int] = []
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -603,7 +502,6 @@ class InferenceServer:
                 self.stats_interval_s,
                 self.socket_port,
                 self.socket_max_actions,
-                self.historical_cap,
             ),
             daemon=False,
             name='InferenceServer',
@@ -624,58 +522,6 @@ class InferenceServer:
             self.network.load_state_dict(state_dict)
         else:
             self.request_queue.put(('weights', state_dict))
-
-    def push_historical_weights(self, slot_id: int, state_dict: dict) -> None:
-        """D10 S1 — push a frozen historical-net snapshot into slot ``slot_id``.
-
-        Contract:
-          - ``slot_id ∈ [1, historical_cap]``; ``slot 0`` reserved for the
-            live net (use ``update_network``). ``cap=0`` ⇒ disabled, raises.
-          - FIFO evict oldest non-zero slot when len(non-zero) > cap.
-          - shared_cache cleared on each push (decoder/hook_encoder cache
-            must not bleed across versions — H risk mitigation).
-
-        spawned proc: queued as ``('weights_versioned', slot, sd)``;
-        in-proc: directly mutates ``self._networks`` (loopback path).
-        """
-        _validate_historical_slot(slot_id, self.historical_cap)
-        if self._proc is None:
-            net = copy.deepcopy(self.network).to(self.device).eval()
-            net.load_state_dict(state_dict)
-            if slot_id in self._networks:
-                self._historical_fifo.remove(slot_id)
-            self._networks[slot_id] = net
-            self._historical_fifo.append(slot_id)
-            while len(self._historical_fifo) > self.historical_cap:
-                evict = self._historical_fifo.pop(0)
-                self._networks.pop(evict, None)
-        else:
-            # mirror 实例侧 dict — 供 _get_network_by_slot 暴露给后续
-            # eval matchup,与 child proc 行为契约一致(同 sd ⇒ 同 net)。
-            net = copy.deepcopy(self.network).to(self.device).eval()
-            net.load_state_dict(state_dict)
-            if slot_id in self._networks:
-                self._historical_fifo.remove(slot_id)
-            self._networks[slot_id] = net
-            self._historical_fifo.append(slot_id)
-            while len(self._historical_fifo) > self.historical_cap:
-                evict = self._historical_fifo.pop(0)
-                self._networks.pop(evict, None)
-            self.request_queue.put(('weights_versioned', slot_id, state_dict))
-
-    def _get_network_by_slot(self, slot_id: int) -> Any:
-        """White-box accessor — return the network in pool slot ``slot_id``.
-
-        Fail-loud on miss (no silent fallback to slot 0 — caller must
-        check membership first). Internal helper for D10 S1 testing;
-        S5 will wire socket version_id routing on top of this.
-        """
-        if slot_id not in self._networks:
-            raise KeyError(
-                f'InferenceServer._get_network_by_slot: slot_id={slot_id} not in pool '
-                f'(present: {sorted(self._networks)})'
-            )
-        return self._networks[slot_id]
 
     def stop(self, timeout_s: float = 5.0) -> None:
         self._stop_event.set()
