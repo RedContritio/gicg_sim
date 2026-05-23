@@ -273,7 +273,34 @@ v3 BREAKING change 不破 ckpt resume。
 faithful self-play 等价),真 historical-net ring 待 D10(下次 production run
 评估 ROI 后决)。
 
-### D10 — Go-actor 真 historical-net ring(2026-05-23 design,implement 待 ROI 拍)
+### D10 — Go-actor 真 historical-net ring(2026-05-23 **scope cut,abandoned**)
+
+**user 2026-05-23 决** 砍掉 D10 整 scope:「不需要 wire id,直接全量改就行了」。
+S1 (8ac9729) + S2 (35fc48a) 已 revert(b957922 + 9f4a985)。 design 下文 保留
+作 历史记录 + 「若 future ROI 需 frozen historical-net,重启 design」 起点。
+
+**最终架构**(Phase 1 Python actor + Go-actor proxy 二分):
+- **Python actor 路径**(serial / mp,smoke / 非 Go-actor production)— 走
+  `OpponentPool.add_snapshot` ring(commit 6af38cd Phase 1 ship):pipeline.py
+  ckpt save 同步 push cloned state_dict,30% historical episode 真用 frozen
+  过去 ckpt 而非 random fallback。
+- **Go-actor 路径**(stage 3.5 production)— `oppHistorical` 维持 「current
+  InferenceServer net forward」 (`gicg_actor/dmc/paradigm.go:330-350` 现状)。
+  InfServer 持 单 live network,周期 update_network 由 learner 同步;30%
+  historical episode 实是 「current-net cost-faithful self-play 等价」,信号
+  weak 但 接受。 决策 trade-off:wire schema 不动 + 无 multi-version dispatch
+  + 无 ring mem 代价(~400-800 MB)+ implement cost 节约 ~590 LOC,接受
+  historical 信号 弱化。
+
+future restart trigger:**若 production 1M baseline 显示 historical proxy 信号
+不足致训练不收敛**(AlphaZero literature 倾向 frozen ring 正向,但 GICG imperfect-
+info transfer 不确定),restart D10 design 实施 S1-S7。 当前 ROI 不明,优先 跑
+production 看数据。
+
+---
+
+下文为 abandoned design(2026-05-23 拍前 plan,保留作历史 + 若 future restart
+重启起点):
 
 **现状**:`paradigm.go:330-350` `oppHistorical` 复用 me-turn `infCli.Request`,
 共用 InferenceServer live network。 cfg `historical=0.30` episode 实为 current
