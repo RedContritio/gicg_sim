@@ -9,8 +9,11 @@
 //	defer trace.Span("dmc.episode").End()      // RAII timing block
 //	defer trace.Span("game.deepcopy").End()    // 计数 + 累计 ns
 //
-// disabled (env var GICG_GO_PERF_TRACE 未设 1) 时:Span 返 zero SpanHandle,End
-// 内单一 atomic.Load → 0 heap alloc(testing.AllocsPerRun=0 verify)。
+// disabled (default 起) 时:Span 返 zero SpanHandle,End 内单一 atomic.Load
+// → 0 heap alloc (testing.AllocsPerRun=0 verify)。 启用走 cfg-driven 路径:
+// Python 端 dispatch 读 cfg.debug.go_perf_trace 后通过 capi
+// gicg_actor_set_perf_trace_enabled 同步给 atomic.Bool,**lib load 后 / 起 pool
+// 前** 调即可(无 init-time gate,旧 GICG_GO_PERF_TRACE env var 已废)。
 //
 // enabled 时:每 End 取锁累计 {n, sum_ns, max_ns} 到当前 bucket,达到 flushWindowN
 // 或 flushIntervalS 时 snapshot 入 ring buffer(cap=ringCap FIFO)。 capi 端
@@ -24,13 +27,14 @@ package gicg_actor
 
 import (
 	"encoding/binary"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
 )
 
-// 控制参数。 enabled 在 init 时 sample env var,后续 atomic-load 避免 hot path env 调用。
+// 控制参数。 perfEnabled default false (atomic.Bool zero value);capi
+// gicg_actor_set_perf_trace_enabled 由 Python dispatch 按 cfg.debug.go_perf_trace
+// 同步 (lib load 后 / 起 pool 前调,无 init-time gate)。
 var (
 	perfEnabled       atomic.Bool
 	perfFlushWindowN  = 1000
@@ -40,6 +44,10 @@ var (
 
 // PerfTraceEnabled 测试 / 外部代码 read-only 查询(对应 Python is_enabled())。
 func PerfTraceEnabled() bool { return perfEnabled.Load() }
+
+// SetPerfTraceEnabled 由 capi 暴露给 Python (cfg-driven enable)。 idempotent —
+// 多次调用只反映最新 state。 测试 helper resetPerfTest 也调它复位。
+func SetPerfTraceEnabled(enabled bool) { perfEnabled.Store(enabled) }
 
 // SpanHandle 是 Span() 返回的 stack value。 zero value (startNs==0) 表示 disabled / no-op。
 // 字段全 value (no pointer / slice) → defer trace.Span(...).End() 在 escape analysis
@@ -195,10 +203,3 @@ func PerfTraceFlush(out []byte) int {
 	return off
 }
 
-// init reads env var once at package load。 set GICG_GO_PERF_TRACE=1 *before* Python
-// ctypes.CDLL(libgicg_actor) — Go runtime 起在 lib load 时,env 之后改无效。
-func init() {
-	if os.Getenv("GICG_GO_PERF_TRACE") == "1" {
-		perfEnabled.Store(true)
-	}
-}

@@ -24,7 +24,7 @@ import queue as _queue
 import time
 import traceback
 import warnings
-from typing import Any
+from typing import Any, Optional
 
 import torch
 
@@ -61,6 +61,10 @@ def _server_loop(
     stats_interval_s: float = 5.0,
     socket_port: int = 0,
     socket_max_actions: int = 0,
+    perf_trace_enabled: bool = False,
+    perf_trace_flush_n: int = 200,
+    perf_trace_flush_s: float = 1.0,
+    perf_trace_dir: Optional[str] = None,
 ) -> None:
     """Top-level so it's picklable into spawn target.
 
@@ -84,6 +88,15 @@ def _server_loop(
     """
     harden_child_env()
     install_quiet_sigterm(stop_event)
+    # cfg-driven perf trace enable (post 2026-05-23) — parent (InferenceServer
+    # __init__ / start) 透传 perf_trace_enabled + 配套字段。 disabled (default)
+    # 时 enable_explicit 不调,configure 走 no-op 分支,hot span() = _NOOP。
+    if perf_trace_enabled:
+        trace.enable_explicit(
+            flush_window=perf_trace_flush_n,
+            flush_interval_s=perf_trace_flush_s,
+            log_dir=perf_trace_dir,
+        )
     trace.configure(role='inf_server', id=0)
     # PyTorch CUDA allocator 默认 caching 不释放,长跑后 InfServer RSS 飙
     # 到 25-35 GB(per 2026-05-20 production run 078 实测,~10 GB/h 涨)。
@@ -423,6 +436,10 @@ class InferenceServer:
         socket_port: int = 0,
         socket_max_actions: int = 0,
         socket_clients: int = 0,
+        perf_trace_enabled: bool = False,
+        perf_trace_flush_n: int = 200,
+        perf_trace_flush_s: float = 1.0,
+        perf_trace_dir: Optional[str] = None,
     ) -> None:
         if use_jit_trace:
             if inference_acceleration != 'none':
@@ -453,6 +470,14 @@ class InferenceServer:
         self.socket_port = int(socket_port)
         self.socket_max_actions = int(socket_max_actions)
         self.socket_clients = int(socket_clients)
+        # cfg-driven perf trace —— spawn target (_server_loop) 内 enable_explicit
+        # 而非读 cfg 对象(InfServer 没拿到 TrainingConfig 句柄;参数化保 spawn pickle
+        # 边界干净 + parent 不 import perf.trace 模块就能传开关)。 default 全 disabled
+        # 与历史 env-var-unset 行为等价。
+        self.perf_trace_enabled = bool(perf_trace_enabled)
+        self.perf_trace_flush_n = int(perf_trace_flush_n)
+        self.perf_trace_flush_s = float(perf_trace_flush_s)
+        self.perf_trace_dir = perf_trace_dir
         ctx = get_ctx()
         self.request_queue = ctx.Queue()
         self._ready_event = ctx.Event()
@@ -502,6 +527,10 @@ class InferenceServer:
                 self.stats_interval_s,
                 self.socket_port,
                 self.socket_max_actions,
+                self.perf_trace_enabled,
+                self.perf_trace_flush_n,
+                self.perf_trace_flush_s,
+                self.perf_trace_dir,
             ),
             daemon=False,
             name='InferenceServer',

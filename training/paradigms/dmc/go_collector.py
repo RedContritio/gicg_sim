@@ -181,6 +181,7 @@ class DMCGoActorCollector:
         from training.paradigms.dmc.inference_net import DMCInferenceNet
 
         actor_critic = self.network.net if hasattr(self.network, 'net') else self.network
+        dbg = getattr(self.cfg, 'debug', None)
         self._server = InferenceServer(
             network=DMCInferenceNet(actor_critic),
             device=str(next(self.network.parameters()).device),
@@ -192,6 +193,10 @@ class DMCGoActorCollector:
             socket_port=self.inf_port,
             socket_max_actions=self._max_actions,
             socket_clients=self.n_actors,
+            perf_trace_enabled=bool(getattr(dbg, 'perf_trace', False)) if dbg else False,
+            perf_trace_flush_n=int(getattr(dbg, 'perf_trace_flush_n', 200)) if dbg else 200,
+            perf_trace_flush_s=float(getattr(dbg, 'perf_trace_flush_s', 1.0)) if dbg else 1.0,
+            perf_trace_dir=getattr(dbg, 'perf_trace_dir', None) if dbg else None,
         )
         self._server.start(wait_ready_s=15.0)
 

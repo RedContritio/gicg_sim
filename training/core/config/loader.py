@@ -23,6 +23,7 @@ from typing import Any, Callable, Optional
 
 from training.core.config.base import (
     CheckpointCfg,
+    DebugCfg,
     EvalCfg,
     InferenceCfg,
     LearnerCfg,
@@ -196,9 +197,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     learner_d = pipe_d.get('learner') or {}
     actor_backend = pipe_d.get('actor_backend', 'python')
     if actor_backend not in ('python', 'go'):
-        raise ValueError(
-            f'pipeline.actor_backend must be "python" or "go", got {actor_backend!r}'
-        )
+        raise ValueError(f'pipeline.actor_backend must be "python" or "go", got {actor_backend!r}')
     pipeline = PipelineCfg(
         mode=pipe_d.get('mode', 'serial'),
         num_actors=pipe_d.get('num_actors', 1),
@@ -242,6 +241,14 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
         artifacts_root=ck_d.get('artifacts_root', 'artifacts'),
     )
 
+    dbg_d = cfg.get('debug', {})
+    # strict — 不容忍 [debug] 内未知字段(同其他段 CS4 风格;dev API 拼写错 fail-loud)
+    allowed_dbg = {f.name for f in DebugCfg.__dataclass_fields__.values()}
+    unknown = set(dbg_d.keys()) - allowed_dbg
+    if unknown:
+        raise ValueError(f'config: unknown field in [debug]: {sorted(unknown)} (allowed: {sorted(allowed_dbg)})')
+    debug = DebugCfg(**dbg_d) if dbg_d else DebugCfg()
+
     return TrainingConfig(
         meta=meta,
         pipeline=pipeline,
@@ -249,6 +256,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
         paradigm=paradigm_flat,
         eval=eval_cfg,
         checkpoint=checkpoint,
+        debug=debug,
     )
 
 

@@ -1,14 +1,12 @@
-"""Tests for training.core.perf.trace — zero-overhead-off + flush + format.
+"""Tests for training.core.perf.trace — zero-overhead-off + flush + format。
 
-The module is import-time-gated on ``PERF_TRACE`` env var, so we cannot
-test on/off in the same process. We rely on ``importlib.reload`` with a
-monkeypatched env to flip ``_ENABLED`` mid-test, and on subprocess for
-the multi-process role test.
+Post 2026-05-23 cfg-driven 改造:模块不再 import-time-gate on env var,
+``_ENABLED`` 由 :func:`trace.enable_explicit` / :func:`trace.enable_from_cfg`
+mutate。 fixture 直接 set + tear-down 复位,无 ``importlib.reload`` 必要。
 """
 
 from __future__ import annotations
 
-import importlib
 import json
 import time
 
@@ -18,34 +16,32 @@ import training.core.perf.trace as _trace_mod
 
 
 @pytest.fixture
-def perf_on(monkeypatch, tmp_path):
-    """Reload trace module with PERF_TRACE=1 + a clean log dir.
-
-    The fixture sets a small flush window so we don't have to fake 200
-    events per test. Restores the module to its original gating after
-    the test so subsequent tests (and trace imports elsewhere) see the
-    original env behavior."""
-    monkeypatch.setenv('PERF_TRACE', '1')
-    monkeypatch.setenv('PERF_TRACE_DIR', str(tmp_path))
-    monkeypatch.setenv('PERF_TRACE_FLUSH_N', '5')
-    importlib.reload(_trace_mod)
+def perf_on(tmp_path):
+    """Enable trace with small flush window + per-test tmp log dir。 tear-down
+    复位 disabled + 关已开的 handle,unrelated 测试看到原 no-op behavior。"""
+    _trace_mod.enable_explicit(flush_window=5, flush_interval_s=1.0, log_dir=str(tmp_path))
     yield _trace_mod, tmp_path
-    # Reset module state back to disabled so unrelated tests see no-op
-    monkeypatch.delenv('PERF_TRACE', raising=False)
-    importlib.reload(_trace_mod)
+    # 显式 close 兜 fixture 期间未调 close 的测试,避免 handle 泄漏。
+    try:
+        _trace_mod.close()
+    except Exception:
+        pass
+    # 复位 module state -> disabled,后续测试看 _NOOP hot path。
+    _trace_mod._ENABLED = False
+    _trace_mod._state = None
+    _trace_mod._FLUSH_WINDOW = 200
+    _trace_mod._FLUSH_INTERVAL_S = 1.0
+    _trace_mod._LOG_DIR = 'artifacts/_perf_logs'
 
 
 def test_span_is_noop_when_disabled():
-    """PERF_TRACE unset → span() returns the shared _NOOP singleton."""
-    # Use module as-imported (gating evaluated at import; tests run
-    # without PERF_TRACE set in the test env).
+    """Default (无 enable_explicit 调) → span() 返 shared _NOOP 单例。"""
     assert _trace_mod._ENABLED is False
     cm1 = _trace_mod.span('a')
     cm2 = _trace_mod.span('b')
     assert cm1 is _trace_mod._NOOP
     assert cm2 is _trace_mod._NOOP
-    # configure/close are no-ops; calling them must not raise + not
-    # create any file (no log dir).
+    # configure/close 在 disabled 下是 no-op + 不创 log dir。
     _trace_mod.configure(role='actor', id=0)
     _trace_mod.close()
 
@@ -90,7 +86,7 @@ def test_value_records_under_stage(perf_on):
 
 def test_configure_idempotent(perf_on):
     """Double-configure must not double-open handles."""
-    trace, tmp_path = perf_on
+    trace, _ = perf_on
     trace.configure(role='r', id=0)
     fh1 = trace._state['fh']
     trace.configure(role='r', id=0)
@@ -124,3 +120,44 @@ def test_percentile_helper_edge_cases():
     # p95 of [1..100] = 95.05 (linear interp k=94.05)
     arr = sorted(float(i) for i in range(1, 101))
     assert abs(p(arr, 95.0) - 95.05) < 0.01
+
+
+def test_enable_from_cfg_reads_debug_section():
+    """cfg.debug.perf_trace=True + 配套字段 → _ENABLED + 参数 reflect cfg。"""
+    from training.core.config.base import DebugCfg
+
+    class _Cfg:
+        debug = DebugCfg(perf_trace=True, perf_trace_flush_n=42, perf_trace_flush_s=0.5)
+
+    _trace_mod.enable_from_cfg(_Cfg())
+    try:
+        assert _trace_mod._ENABLED is True
+        assert _trace_mod._FLUSH_WINDOW == 42
+        assert abs(_trace_mod._FLUSH_INTERVAL_S - 0.5) < 1e-9
+    finally:
+        _trace_mod._ENABLED = False
+        _trace_mod._FLUSH_WINDOW = 200
+        _trace_mod._FLUSH_INTERVAL_S = 1.0
+
+
+def test_enable_from_cfg_disabled_no_op():
+    """cfg.debug.perf_trace=False (default) → _ENABLED 保持 False。"""
+    from training.core.config.base import DebugCfg
+
+    class _Cfg:
+        debug = DebugCfg()  # all False
+
+    _trace_mod._ENABLED = False
+    _trace_mod.enable_from_cfg(_Cfg())
+    assert _trace_mod._ENABLED is False
+
+
+def test_enable_from_cfg_missing_debug_no_op():
+    """cfg 无 debug attr (老对象 / mock) → no-op,不 raise。"""
+
+    class _Cfg:
+        pass
+
+    _trace_mod._ENABLED = False
+    _trace_mod.enable_from_cfg(_Cfg())
+    assert _trace_mod._ENABLED is False

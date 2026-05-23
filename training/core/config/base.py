@@ -120,6 +120,30 @@ class CheckpointCfg:
 
 
 @dataclass(frozen=True)
+class DebugCfg:
+    """[debug] section — perf / mem instrumentation toggles。
+
+    全 default False:production cfg 不写 [debug] 时所有 instrumentation 关闭,
+    与未启 env var 时旧行为等价。 dev cfg 写 ``[debug] perf_trace=true`` 启 Python
+    pipeline + actor + InfServer span trace;``mem_probe=true`` 启 master tracemalloc
+    heap 分项 probe;``go_perf_trace=true`` 启 Go-side span aggregator(libgicg_actor
+    load 前由 dispatch hook 通过 ctypes setter 同步给 Go runtime)。
+
+    配套参数默认沿用旧 env var 默认值(perf_trace_flush_n=200 / _s=1.0 / dir 由
+    `trace.py` 走 'artifacts/_perf_logs' fallback;mem_probe_interval_s=30, top_n=15)。
+    """
+
+    perf_trace: bool = False
+    mem_probe: bool = False
+    go_perf_trace: bool = False
+    perf_trace_flush_n: int = 200
+    perf_trace_flush_s: float = 1.0
+    perf_trace_dir: Optional[str] = None  # None = trace.py default 'artifacts/_perf_logs'
+    mem_probe_interval_s: int = 30
+    mem_probe_top_n: int = 15
+
+
+@dataclass(frozen=True)
 class TrainingConfig:
     """Top-level frozen cfg. Driver reads this; paradigm reads
     cfg.paradigm dict + cfg.meta.paradigm to dispatch its own schema."""
@@ -130,4 +154,5 @@ class TrainingConfig:
     paradigm: dict  # paradigm-specific schema; dataclass picked by meta.paradigm
     eval: Optional[EvalCfg] = None
     checkpoint: CheckpointCfg = field(default_factory=CheckpointCfg)
+    debug: DebugCfg = field(default_factory=DebugCfg)
     artifacts_dir: Optional[str] = None  # resolved at runtime

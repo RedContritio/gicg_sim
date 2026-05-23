@@ -1,42 +1,73 @@
 """Paradigm-agnostic perf trace — zero overhead when disabled.
 
-Activation: set ``PERF_TRACE=1`` in the parent process *before* any of
-the involved processes (pipeline / actor / inference server) starts.
-Module-level ``_ENABLED`` is sampled once at import time so the hot path
-collapses to a single attribute load + branch when off.
+Activation (cfg-driven,post 2026-05-23):cfg ``[debug] perf_trace = true``
++ optional ``perf_trace_flush_n / _flush_s / _dir`` overrides。 每 process
+(pipeline / actor / inference server) 在 spawn target 起步时调一次
+:func:`enable_from_cfg` (或 :func:`enable_explicit` for tests / non-cfg
+contexts) → 设 module-level ``_ENABLED``,后续 :func:`configure` 才真分配
+handle。 Hot path 当 disabled 仍是 single attribute load + branch (返
+shared ``_NOOP`` 单例,无 alloc / 无 perf_counter)。
 
 API:
 
     from training.core.perf import trace
+    trace.enable_from_cfg(cfg)                 # spawn target 入口一次
     trace.configure(role='actor', id=0)        # idempotent per process
     with trace.span('env.step'):
         env.step(action)
     trace.close()                              # flush + close handle
 
-When ``PERF_TRACE`` is unset, ``span(...)`` returns a shared no-op
-context manager (allocated once at import) and ``configure`` / ``close``
-are no-ops — no file handles, no dict allocations, no perf_counter
-calls.
-
-Output: ``artifacts/_perf_logs/<role>_<id>.jsonl`` (path overridable via
-``PERF_TRACE_DIR``). Each line aggregates ``_FLUSH_WINDOW`` events into
-one JSON row with mean/p50/p95/max/sum/n per stage. Window flushes also
-fire on a ``_FLUSH_INTERVAL_S`` wall timer so low-rate stages still land
-on disk.
+Output: ``<log_dir>/<role>_<id>.jsonl`` (default
+``artifacts/_perf_logs``,可由 cfg ``debug.perf_trace_dir`` 覆盖,主供测试
+隔离用)。 每行 aggregate ``_FLUSH_WINDOW`` events 为单 JSON row,含
+mean/p50/p95/max/sum/n per stage。 低速 stage 由 ``_FLUSH_INTERVAL_S``
+wall timer 兜底 flush。
 """
 
 from __future__ import annotations
 
 import json
 import math
-import os
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
-_ENABLED = os.getenv('PERF_TRACE') == '1'
-_FLUSH_WINDOW = int(os.getenv('PERF_TRACE_FLUSH_N', '200'))
-_FLUSH_INTERVAL_S = float(os.getenv('PERF_TRACE_FLUSH_S', '1.0'))
+_ENABLED = False
+_FLUSH_WINDOW = 200
+_FLUSH_INTERVAL_S = 1.0
+_LOG_DIR = 'artifacts/_perf_logs'
+
+
+def enable_explicit(
+    *,
+    flush_window: int = 200,
+    flush_interval_s: float = 1.0,
+    log_dir: Optional[str] = None,
+) -> None:
+    """Programmatic enable (tests / subprocess args / non-cfg paths)。
+
+    Must be called *before* :func:`configure`。 Subsequent calls reset
+    parameters but only the first :func:`configure` opens the handle。"""
+    global _ENABLED, _FLUSH_WINDOW, _FLUSH_INTERVAL_S, _LOG_DIR
+    _ENABLED = True
+    _FLUSH_WINDOW = int(flush_window)
+    _FLUSH_INTERVAL_S = float(flush_interval_s)
+    if log_dir is not None:
+        _LOG_DIR = str(log_dir)
+
+
+def enable_from_cfg(cfg: Any) -> None:
+    """cfg-driven enable — read ``cfg.debug.perf_trace`` + 配套字段。 cfg.debug
+    缺失或 perf_trace=False 时 no-op (留 disabled state)。 spawn target 入口
+    标准调用点(``run_paradigm_train`` / ``actor_main`` / ``_server_loop``)。"""
+    dbg = getattr(cfg, 'debug', None)
+    if dbg is None or not getattr(dbg, 'perf_trace', False):
+        return
+    enable_explicit(
+        flush_window=getattr(dbg, 'perf_trace_flush_n', 200),
+        flush_interval_s=getattr(dbg, 'perf_trace_flush_s', 1.0),
+        log_dir=getattr(dbg, 'perf_trace_dir', None),
+    )
 
 
 class _Noop:
@@ -92,7 +123,7 @@ def configure(role: str, id: int) -> None:  # noqa: A002 — match spec API
         # configure twice (e.g. tests reusing a process) doesn't double-
         # open handles.
         return
-    log_dir = Path(os.getenv('PERF_TRACE_DIR', 'artifacts/_perf_logs'))
+    log_dir = Path(_LOG_DIR)
     log_dir.mkdir(parents=True, exist_ok=True)
     path = log_dir / f'{role}_{id}.jsonl'
     # Append mode so multiple runs into the same dir accumulate (analyze

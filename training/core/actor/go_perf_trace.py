@@ -5,8 +5,10 @@ mirror Go side gicg_actor/perf_trace.go 的 binary wire format,drain ring buffer
 同 (便于复用同一 jsonl flush + analysis 工具)。
 
 用途:audit Go-actor 端 wall 拆分 (minimax / DeepCopy / inference RPC / Push)。
-启用:env var ``GICG_GO_PERF_TRACE=1`` 在 Python ctypes.CDLL(libgicg_actor) **之前**
-set (Go runtime 起在 lib load 时,init() 一次性 sample env)。
+启用 (post 2026-05-23 cfg-driven):cfg ``[debug] go_perf_trace = true`` →
+``tools.runs._train.dispatch`` 调 :func:`set_go_perf_trace_enabled` (capi
+gicg_actor_set_perf_trace_enabled) 同步给 Go atomic.Bool。 lib load 后 / 起
+pool 前调即可 (无 init-time gate)。 旧 env var ``GICG_GO_PERF_TRACE`` 已废。
 
 Wire format (binary little-endian,与 Go side PerfTraceFlush 对账):
 
@@ -39,13 +41,23 @@ def _load() -> ctypes.CDLL:
         lib.gicg_actor_perf_trace_flush.argtypes = [ctypes.c_char_p, ctypes.c_uint32]
         lib.gicg_actor_perf_trace_enabled.restype = ctypes.c_int
         lib.gicg_actor_perf_trace_enabled.argtypes = []
+        lib.gicg_actor_set_perf_trace_enabled.restype = ctypes.c_int
+        lib.gicg_actor_set_perf_trace_enabled.argtypes = [ctypes.c_int]
         _LIB = lib
     return _LIB
 
 
 def go_perf_trace_enabled() -> bool:
-    """是否 enabled (Go side env var GICG_GO_PERF_TRACE=1)。 disabled 时 flush 返 []。"""
+    """是否 enabled (Go atomic.Bool;cfg-driven 由 set_go_perf_trace_enabled 启)。
+    disabled 时 flush 返 []。"""
     return int(_load().gicg_actor_perf_trace_enabled()) == 1
+
+
+def set_go_perf_trace_enabled(enabled: bool) -> None:
+    """cfg-driven enable/disable (post 2026-05-23 旧 GICG_GO_PERF_TRACE env var
+    砍后唯一启用路径)。 ``tools.runs._train.dispatch`` 按 cfg.debug.go_perf_trace
+    调一次,lib load 后 / 起 pool 前生效即可。 idempotent — 多次 set 反映最新 state。"""
+    _load().gicg_actor_set_perf_trace_enabled(ctypes.c_int(1 if enabled else 0))
 
 
 def flush_go_perf_spans(buf_size: int = _DEFAULT_BUF_SIZE) -> list[dict[str, Any]]:

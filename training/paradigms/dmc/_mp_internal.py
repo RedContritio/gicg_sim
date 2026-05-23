@@ -68,6 +68,7 @@ def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int, metrics_logger:
         stats_q = get_ctx().Queue(maxsize=1024)
         metrics_logger.attach_external_queue(stats_q, name='inf_server')
 
+    dbg = getattr(cfg, 'debug', None)
     server = InferenceServer(
         DMCInferenceNet(actor_critic),
         device=device,
@@ -79,6 +80,10 @@ def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int, metrics_logger:
         request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
         stats_q=stats_q,
         stats_interval_s=5.0,
+        perf_trace_enabled=bool(getattr(dbg, 'perf_trace', False)) if dbg else False,
+        perf_trace_flush_n=int(getattr(dbg, 'perf_trace_flush_n', 200)) if dbg else 200,
+        perf_trace_flush_s=float(getattr(dbg, 'perf_trace_flush_s', 1.0)) if dbg else 1.0,
+        perf_trace_dir=getattr(dbg, 'perf_trace_dir', None) if dbg else None,
     )
     clients = [InferenceClient.attach_to_server(server, timeout_ms=30000) for _ in range(n_actors)]
     server.start(wait_ready_s=30.0)

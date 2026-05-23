@@ -90,24 +90,12 @@ def run_paradigm_train(state: SetupState) -> None:
     # _run_train_placeholder shim to a no-op or raiser) free of the
     # full training stack import cost. Real production main() reaches
     # this branch and pays the import once per process.
-    from tools._dev.mem_probe import maybe_enable_from_env as _maybe_enable_mem_probe
+    from tools._dev.mem_probe import maybe_enable_from_cfg as _maybe_enable_mem_probe
     from training.core.config.loader import load_cfg
     from training.core.env_factory import make_env_factory
     from training.core.perf import trace as _perf_trace
     from training.core.pipeline import run_pipeline
     from training.paradigms import resolve as resolve_paradigm
-
-    # GICG_MEM_PROBE=1 → master-process tracemalloc + periodic RSS/top-N
-    # report to stderr。 no-op when env var unset。 dispatch 入口 hook 是
-    # 最早能 attach tracemalloc 且仍能看到 paradigm setup/buffer/network
-    # alloc 的位置(`run_paradigm_train` 内 load_cfg/build network/spawn
-    # actor 都在此后发生)。
-    _maybe_enable_mem_probe()
-
-    # Configure perf tracing for the pipeline (learner) process. Actors
-    # + inference server each call configure() in their own spawn target.
-    # No-op when PERF_TRACE env var is unset.
-    _perf_trace.configure(role='pipeline', id=0)
 
     # cfg_resolved.toml is the immutable post-extends + post --override
     # snapshot Phase B wrote. Loading via load_cfg routes it through the
@@ -122,6 +110,32 @@ def run_paradigm_train(state: SetupState) -> None:
     # Fresh path uses the unsuffixed ``cfg_resolved.toml``.
     cfg_resolved_path = state.artifacts_dir / _current_cfg_resolved_filename(state)
     cfg = load_cfg(cfg_resolved_path, overrides=[])
+
+    # cfg.debug.mem_probe → master-process tracemalloc + periodic RSS/top-N
+    # report to stderr。 cfg.debug 默认 False 时 no-op。 dispatch 入口 hook 是
+    # 最早能 attach tracemalloc 且仍能看到 paradigm setup/buffer/network
+    # alloc 的位置(下方 build network/spawn actor 都在此后发生)。
+    _maybe_enable_mem_probe(cfg)
+
+    # cfg.debug.perf_trace → Python pipeline (learner) process span trace。
+    # 必须先 enable_from_cfg (设 _ENABLED + flush 参数 + log dir) 再 configure。
+    # Actor + InferenceServer 各自在 spawn target 内重做这一对 (cfg 透传到
+    # actor_main;InfServer 由 dispatch 给 spawn args)。
+    _perf_trace.enable_from_cfg(cfg)
+    _perf_trace.configure(role='pipeline', id=0)
+
+    # cfg.debug.go_perf_trace → libgicg_actor atomic.Bool (via capi setter)。
+    # libgicg_actor 尚未 load 时 set_go_perf_trace_enabled 触发 lazy load,
+    # set 完后续 Go-actor pool 起步看到 enabled。 lib 未 build (默认 dev
+    # workflow 不需 Go backend) 时跳过 set —— Go actor pool 起不来本就
+    # 走不到 perf trace 路径,silent skip 对 user 体感无差异。
+    if getattr(cfg.debug, 'go_perf_trace', False):
+        try:
+            from training.core.actor.go_perf_trace import set_go_perf_trace_enabled
+
+            set_go_perf_trace_enabled(True)
+        except FileNotFoundError:
+            pass  # libgicg_actor 未 build,无 Go backend 可启
 
     # Pin learner-process CPU affinity *before* any heavy paradigm setup
     # so child threads spawned by torch/buffer allocators inherit the

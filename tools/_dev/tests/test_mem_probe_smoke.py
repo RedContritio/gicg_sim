@@ -1,6 +1,7 @@
 """mem_probe daemon thread + Go runtime stats integration smoke。
 
-证明 mem_probe enable 后 _loop 实际 tick + 末尾打 Go stats 行。
+证明 mem_probe enable 后 _loop 实际 tick + 末尾打 Go stats 行 + 新 cfg-driven
+maybe_enable_from_cfg 入口正确读 cfg.debug 字段。
 
 实现注意:capfd 在 daemon thread 中抓 fd 2 的支持有限(pytest 在 test 入口
 fork pipe,daemon thread 写 fd 2 是同进程同 fd,理论上 OK 但实测不稳)。
@@ -21,6 +22,38 @@ import pytest
 def _lib_built() -> bool:
     name = {'darwin': 'libgicg_actor.dylib', 'win32': 'libgicg_actor.dll'}.get(sys.platform, 'libgicg_actor.so')
     return (Path(__file__).resolve().parents[3] / 'gicg_env' / name).exists()
+
+
+def test_maybe_enable_from_cfg_no_op_when_disabled():
+    """cfg.debug.mem_probe=False (default) → maybe_enable_from_cfg no-op:_THREAD 仍 None。
+
+    必须先于 enable smoke 跑 — 后者一旦 enable,本 process _THREAD 单例化无法回退。
+    """
+    import tools._dev.mem_probe as mp
+    from training.core.config.base import DebugCfg
+
+    if mp._THREAD is not None:
+        pytest.skip('mem_probe already enabled in this process')
+
+    class _Cfg:
+        debug = DebugCfg()  # mem_probe=False default
+
+    mp.maybe_enable_from_cfg(_Cfg())
+    assert mp._THREAD is None, 'mem_probe must stay disabled when cfg.debug.mem_probe=False'
+
+
+def test_maybe_enable_from_cfg_missing_debug_no_op():
+    """cfg 无 debug attr (mock 对象) → silent no-op,不 raise。 同上先跑。"""
+    import tools._dev.mem_probe as mp
+
+    if mp._THREAD is not None:
+        pytest.skip('mem_probe already enabled in this process')
+
+    class _Cfg:
+        pass
+
+    mp.maybe_enable_from_cfg(_Cfg())
+    assert mp._THREAD is None
 
 
 @pytest.mark.skipif(not _lib_built(), reason='libgicg_actor not built')

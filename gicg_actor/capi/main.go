@@ -158,9 +158,9 @@ func gicg_actor_infer_response_header_size() C.int {
 // 返:0 = OK, 1 = nil out pointer。
 //
 // Go-side perf trace flush — drain ring buffer (binary little-endian schema 见
-// gicg_actor/perf_trace.go:PerfTraceFlush 注释)。 disabled (GICG_GO_PERF_TRACE!=1)
-// 返 0。 buf 不够大返 -needed_bytes,caller realloc 再调 (但 ring 已 drain → 数据丢;
-// 用合理 buf >= 1 MB 实测安全)。
+// gicg_actor/perf_trace.go:PerfTraceFlush 注释)。 disabled (default 起,未由
+// gicg_actor_set_perf_trace_enabled 启) 返 0。 buf 不够大返 -needed_bytes,
+// caller realloc 再调 (但 ring 已 drain → 数据丢;用合理 buf >= 1 MB 实测安全)。
 //
 //export gicg_actor_perf_trace_flush
 func gicg_actor_perf_trace_flush(outBuf *C.char, bufLen C.uint32_t) C.int {
@@ -176,6 +176,18 @@ func gicg_actor_perf_trace_enabled() C.int {
 	if gicg_actor.PerfTraceEnabled() {
 		return C.int(1)
 	}
+	return C.int(0)
+}
+
+// gicg_actor_set_perf_trace_enabled — cfg-driven enable (post 2026-05-23 旧
+// GICG_GO_PERF_TRACE env var 砍后唯一启用路径)。 Python dispatch 读
+// cfg.debug.go_perf_trace 后通过此 capi 同步给 Go atomic.Bool。 lib load 后 /
+// 起 pool 前调即可 (无 init-time gate)。 enabled != 0 → enable,== 0 → disable。
+// 返 0 (无校验失败路径)。
+//
+//export gicg_actor_set_perf_trace_enabled
+func gicg_actor_set_perf_trace_enabled(enabled C.int) C.int {
+	gicg_actor.SetPerfTraceEnabled(enabled != 0)
 	return C.int(0)
 }
 

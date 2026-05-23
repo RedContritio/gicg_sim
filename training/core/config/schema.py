@@ -23,7 +23,7 @@ from training.core.config.base import (
 # shared ObsShape section, merged into paradigm.agent by load_paradigm_cfg.
 # 'remote' added by I30-P2 — cfg-driven dispatch [remote] section validated
 # separately by tools.runs._host.load_remote_from_cfg(out-of-band).
-ALLOWED_TOP_LEVEL = {'meta', 'pipeline', 'eval', 'scenario', 'paradigm', 'checkpoint', 'shape', 'remote'}
+ALLOWED_TOP_LEVEL = {'meta', 'pipeline', 'eval', 'scenario', 'paradigm', 'checkpoint', 'shape', 'remote', 'debug'}
 
 # Closed field set per InferenceCfg (R4).
 INFERENCE_FIELDS = {'placement', 'device', 'version_tag', 'remote'}

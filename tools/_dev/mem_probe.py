@@ -1,8 +1,8 @@
-"""master-process Python heap 分项 probe — env-var-gated tracemalloc + 周期采样。
+"""master-process Python heap 分项 probe — cfg-driven tracemalloc + 周期采样。
 
-启用方式:`GICG_MEM_PROBE=1 .venv/bin/python -m tools.runs.train <cfg>`(由
-``tools.runs._train.dispatch`` 在 paradigm dispatch 入口 hook,任何 paradigm
-都通用)。
+启用方式:cfg ``[debug] mem_probe = true`` (post 2026-05-23 cfg-driven 改造,
+旧 ``GICG_MEM_PROBE=1`` env var 已废)。 由 ``tools.runs._train.dispatch`` 在
+paradigm dispatch 入口调 :func:`maybe_enable_from_cfg`,任何 paradigm 都通用。
 
 **Scope 边界 — 不重复 metrics.jsonl** :master_rss / children_rss / cuda_alloc/
 reserved / host_used 等 RSS 类字段已由 ``training/core/logging.py:_sample_mem``
@@ -34,12 +34,11 @@ empty regions),据此 split Python leak vs native leak。
 
 from __future__ import annotations
 
-import os
 import sys
 import threading
 import time
 import tracemalloc
-from typing import Optional
+from typing import Any, Optional
 
 _THREAD: Optional[threading.Thread] = None
 _STOP_EVENT: Optional[threading.Event] = None
@@ -145,9 +144,14 @@ def enable_mem_probe(interval: int = 30, top_n: int = 15, frame_depth: int = 25)
     )
 
 
-def maybe_enable_from_env() -> None:
-    """env var ``GICG_MEM_PROBE=1`` → enable_mem_probe()。 dispatch hook 入口。"""
-    if os.environ.get('GICG_MEM_PROBE'):
-        interval = int(os.environ.get('GICG_MEM_PROBE_INTERVAL', '30'))
-        top_n = int(os.environ.get('GICG_MEM_PROBE_TOP', '15'))
-        enable_mem_probe(interval=interval, top_n=top_n)
+def maybe_enable_from_cfg(cfg: Any) -> None:
+    """cfg ``[debug] mem_probe = true`` → :func:`enable_mem_probe`。 dispatch hook 入口。
+
+    cfg.debug 缺失或 mem_probe=False 时 no-op。 配套字段:
+    ``debug.mem_probe_interval_s`` (default 30) / ``debug.mem_probe_top_n`` (default 15)。"""
+    dbg = getattr(cfg, 'debug', None)
+    if dbg is None or not getattr(dbg, 'mem_probe', False):
+        return
+    interval = int(getattr(dbg, 'mem_probe_interval_s', 30))
+    top_n = int(getattr(dbg, 'mem_probe_top_n', 15))
+    enable_mem_probe(interval=interval, top_n=top_n)

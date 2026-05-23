@@ -111,6 +111,11 @@ def actor_main(
     harden_child_env(affinity=affinity)
     if stop_event is not None:
         install_quiet_sigterm(stop_event)
+    # cfg-driven enable (post 2026-05-23 env var 砍后必需) — actor spawn target
+    # 拿到完整 TrainingConfig,读 cfg.debug.perf_trace + 配套字段 set 模块 state
+    # 后 configure 才真打开 handle。 cfg.debug.perf_trace=False (default) 时
+    # enable_from_cfg + configure 均 no-op,hot path span() 走 _NOOP 单例。
+    _perf_trace.enable_from_cfg(cfg)
     _perf_trace.configure(role='actor', id=actor_id)
 
     # Per-actor file logging: mp child stdout/stderr is unreliable —

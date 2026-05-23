@@ -11,7 +11,7 @@ Sampler kinds(自动起 daemon thread,周期写 metrics.jsonl):
 - kind=disk:system disk IO 累计 read/write bytes/count
 - kind=net:system net IO 累计 bytes/packets sent/recv
 - kind=load:Unix load avg 1m/5m/15m(Windows skip)
-- kind=go_perf:Go-side span trace drain (GICG_GO_PERF_TRACE=1 才有内容,否则空 stages)
+- kind=go_perf:Go-side span trace drain (cfg.debug.go_perf_trace=true 才有内容,否则空 stages)
 
 所有 paradigm 透明获益 — 上层 driver 不用关心。``close()`` 优雅停 + join。
 任一 sampler interval 传 None 用 default,传 0/<=0 禁该 sampler。
@@ -173,7 +173,7 @@ def _sample_mem() -> dict:
         # Python tracemalloc 跟踪的 master 进程 Python heap live alloc — 与
         # master_rss_mb 配对算 「非 Python heap 部分」(Go runtime + numpy/torch
         # native + libgicg.dylib + allocator caches)。 仅 tracemalloc 已 start
-        # (e.g. via GICG_MEM_PROBE=1 由 tools._dev.mem_probe 启)时 sample,
+        # (e.g. via cfg.debug.mem_probe=true 由 tools._dev.mem_probe 启)时 sample,
         # production 默认 None — tracemalloc overhead 不强加给所有 run。
         'tracemalloc_total_mb': (
             round(tracemalloc.get_traced_memory()[0] / 1024**2, 1) if tracemalloc.is_tracing() else None
@@ -262,7 +262,7 @@ def _sample_go_perf() -> dict:
     """Drain Go-side perf trace ring + aggregate cross-window 成单行。
 
     输出 schema:``{n_windows, stages: {name: {n, sum_ms, max_ms}}}``。 disabled
-    (GICG_GO_PERF_TRACE!=1) → 返 ``{n_windows: 0, stages: {}}`` (空 record,不漏行,
+    (cfg.debug.go_perf_trace=false default) → 返 ``{n_windows: 0, stages: {}}`` (空 record,不漏行,
     便于离线分析 wall-time-coverage)。 lib 未 build → 同 disabled (raise 被 sampler
     thread swallow,该 sampler 跳)。
     """
