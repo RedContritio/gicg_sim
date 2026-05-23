@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"math/rand"
 
+	"gicg_mono/gicg_actor"
 	engine "gicg_mono/gicg_engine"
 	"gicg_mono/gicg_engine/interp"
 	"gicg_mono/gicg_engine/record"
@@ -107,7 +108,9 @@ func (gp *GreedyPlayer) scoreBestResponse(
 	var best float64
 	for _, i := range candidates {
 		*budget--
+		dcSpan := gicg_actor.Span("game.deepcopy")
 		snap := g.DeepCopy()
+		dcSpan.End()
 		var sub float64
 		func() {
 			defer func() {
@@ -136,6 +139,7 @@ func (gp *GreedyPlayer) scoreBestResponse(
 // 返 index into rt.Game.GetLegalActions()。 不 mutate rt。 actions empty → -1 + err
 // (mirror Python `RuntimeError` 等价 fail loud)。
 func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
+	defer gicg_actor.Span("dmc.opp_minimax_select").End()
 	g := rt.Game
 	if len(g.GetLegalActions()) == 0 {
 		return -1, fmt.Errorf("GreedyPlayer: env has no legal actions")
@@ -157,7 +161,9 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	bestSet := make([]int, 0, 4)
 	first := true
 	for _, i := range candidates {
+		dcSpan := gicg_actor.Span("game.deepcopy")
 		snap := g.DeepCopy()
+		dcSpan.End()
 		var score float64
 		func() {
 			defer func() {

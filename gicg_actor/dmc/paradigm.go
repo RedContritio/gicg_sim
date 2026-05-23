@@ -124,7 +124,10 @@ func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli *gicg_actor.I
 		episodeID++
 		mePlayer := pickMePlayer(p.cfg.MyPlayerStrategy, int(episodeID))
 		opp := sampleOpponentKind(p.cfg.OpponentMix, rng)
-		if err := p.runEpisode(ctx, opp, gpD2, gpD4, rng, infCli, transWri, clientID, episodeID, mePlayer); err != nil {
+		epSpan := gicg_actor.Span("dmc.episode")
+		err := p.runEpisode(ctx, opp, gpD2, gpD4, rng, infCli, transWri, clientID, episodeID, mePlayer)
+		epSpan.End()
+		if err != nil {
 			// ctx cancel mid-episode 不算 fatal — outer loop 重新检查 ctx.Done()
 			if ctx.Err() != nil {
 				return nil
@@ -247,7 +250,9 @@ func (p *DMCParadigm) runEpisode(
 	// raw static int32 数组喂 InfServer cache,后续 request Static=nil(server 走
 	// hash lookup)。 InfServer 同 scenario 多 actor 共享 cache 命中率高,后续 N-1 个
 	// request 节省 ~12 KB/req(static_obs 平均尺寸)。
+	staticSpan := gicg_actor.Span("dmc.build_static_obs")
 	staticInt32 := g.BuildStaticObs()
+	staticSpan.End()
 	staticHash := ComputeStaticHash(staticInt32)
 	staticSentThisEpisode := false
 	// transition 侧 static:第一条被 push 的 transition 携带 static(详 episodeStaticTracker)。
@@ -280,12 +285,16 @@ func (p *DMCParadigm) runEpisode(
 				return fmt.Errorf("inference client nil on actor turn")
 			}
 			reqID++
+			brSpan := gicg_actor.Span("dmc.build_infer_request")
 			req := BuildInferRequest(g, staticHash, clientID, reqID, p.cfg.MaxActions)
+			brSpan.End()
 			if !staticSentThisEpisode {
 				req.Static = staticInt32
 				staticSentThisEpisode = true
 			}
+			reqSpan := gicg_actor.Span("inference_client.request")
 			resp, err := infCli.Request(req)
+			reqSpan.End()
 			if err != nil {
 				return fmt.Errorf("inference request step=%d: %w", step, err)
 			}
@@ -314,15 +323,21 @@ func (p *DMCParadigm) runEpisode(
 			}
 			switch opp {
 			case oppRandom:
+				rndSpan := gicg_actor.Span("dmc.opp_random")
 				chosen = rng.Intn(len(oppActions))
+				rndSpan.End()
 			case oppF1D2:
+				d2Span := gicg_actor.Span("dmc.opp_f1d2_select")
 				c, err := gpD2.SelectAction(rt)
+				d2Span.End()
 				if err != nil {
 					return fmt.Errorf("opp f1d2 step=%d: %w", step, err)
 				}
 				chosen = c
 			case oppF1D4:
+				d4Span := gicg_actor.Span("dmc.opp_f1d4_select")
 				c, err := gpD4.SelectAction(rt)
+				d4Span.End()
 				if err != nil {
 					return fmt.Errorf("opp f1d4 step=%d: %w", step, err)
 				}
@@ -350,7 +365,9 @@ func (p *DMCParadigm) runEpisode(
 			}
 		}
 
+		stepSpan := gicg_actor.Span("dmc.engine_step")
 		g.Step(chosen)
+		stepSpan.End()
 
 		if pushTrans {
 			// 所有 in-loop transition Done=false / reward=0 —— episode 终结由 loop 后的
@@ -370,7 +387,10 @@ func (p *DMCParadigm) runEpisode(
 				Done:      false,
 				Payload:   payload,
 			}
-			if err := transWri.Push(tx); err != nil {
+			pushSpan := gicg_actor.Span("transition_writer.push")
+			err := transWri.Push(tx)
+			pushSpan.End()
+			if err != nil {
 				// Push 失败(socket 抖动 / consumer 慢到超 transitionWriteTimeout)——
 				// 不致死 actor。 本 episode 中止:已 push 的 transition 成 orphan(无
 				// terminal marker),Python assembler 在途上限会驱逐之。 TransitionWriter

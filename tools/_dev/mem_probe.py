@@ -71,6 +71,10 @@ def enable_mem_probe(interval: int = 30, top_n: int = 15, frame_depth: int = 25)
     except Exception as e:  # noqa: BLE001 — 任何 import 错都退化为「无 Go stats」
         _read_go_stats = None  # type: ignore[assignment]
         print(f'[mem_probe] Go runtime stats unavailable ({type(e).__name__}: {e}) — continuing', file=sys.stderr)
+    try:
+        from training.core.actor.go_perf_trace import flush_go_perf_spans as _flush_go_perf
+    except Exception:  # noqa: BLE001 — lib 未 build 或 ctypes 错都退化为「无 Go perf」
+        _flush_go_perf = None  # type: ignore[assignment]
 
     def _loop() -> None:
         nonlocal last_snapshot
@@ -112,6 +116,23 @@ def enable_mem_probe(interval: int = 30, top_n: int = 15, frame_depth: int = 25)
                     )
                 except Exception as e:  # noqa: BLE001 — read 失败不让 probe 挂
                     print(f'[mem_probe go] read failed ({type(e).__name__}: {e})', file=sys.stderr)
+            # Go-side perf trace top-3 by sum_ms — Go-actor 端 wall 分布 hot stages 速读
+            # (production 详细数据见 metrics.jsonl `kind=go_perf` record)。
+            if _flush_go_perf is not None:
+                try:
+                    wins = _flush_go_perf()
+                    agg: dict[str, dict] = {}
+                    for w in wins:
+                        for n, st in w['stages'].items():
+                            b = agg.setdefault(n, {'n': 0, 'sum_ms': 0.0})
+                            b['n'] += st['n']
+                            b['sum_ms'] += st['sum_ms']
+                    top = sorted(agg.items(), key=lambda kv: -kv[1]['sum_ms'])[:3]
+                    if top:
+                        parts = [f'{n}(n={b["n"]} sum={b["sum_ms"]:.1f}ms)' for n, b in top]
+                        print(f'[mem_probe go-perf] top-3: {" / ".join(parts)}', file=sys.stderr)
+                except Exception as e:  # noqa: BLE001 — perf flush 失败不让 probe 挂
+                    print(f'[mem_probe go-perf] read failed ({type(e).__name__}: {e})', file=sys.stderr)
             last_snapshot = snap
             sys.stderr.flush()
 

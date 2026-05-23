@@ -157,6 +157,28 @@ func gicg_actor_infer_response_header_size() C.int {
 // 字段:见 C 头 GoRuntimeMemStats 注释 / runtime.MemStats godoc。
 // 返:0 = OK, 1 = nil out pointer。
 //
+// Go-side perf trace flush — drain ring buffer (binary little-endian schema 见
+// gicg_actor/perf_trace.go:PerfTraceFlush 注释)。 disabled (GICG_GO_PERF_TRACE!=1)
+// 返 0。 buf 不够大返 -needed_bytes,caller realloc 再调 (但 ring 已 drain → 数据丢;
+// 用合理 buf >= 1 MB 实测安全)。
+//
+//export gicg_actor_perf_trace_flush
+func gicg_actor_perf_trace_flush(outBuf *C.char, bufLen C.uint32_t) C.int {
+	if outBuf == nil || bufLen == 0 {
+		return C.int(0)
+	}
+	goBuf := unsafe.Slice((*byte)(unsafe.Pointer(outBuf)), int(bufLen))
+	return C.int(gicg_actor.PerfTraceFlush(goBuf))
+}
+
+//export gicg_actor_perf_trace_enabled
+func gicg_actor_perf_trace_enabled() C.int {
+	if gicg_actor.PerfTraceEnabled() {
+		return C.int(1)
+	}
+	return C.int(0)
+}
+
 //export gicg_actor_runtime_memstats
 func gicg_actor_runtime_memstats(out *C.GoRuntimeMemStats) C.int {
 	if out == nil || unsafe.Pointer(out) == nil {

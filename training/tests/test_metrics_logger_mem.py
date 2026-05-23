@@ -174,6 +174,7 @@ def _all_off_except(**kw) -> dict:
         'disk_sample_interval_s': 0,
         'net_sample_interval_s': 0,
         'load_sample_interval_s': 0,
+        'go_perf_sample_interval_s': 0,
     }
     base.update(kw)
     return base
@@ -365,7 +366,7 @@ def test_concurrent_log_does_not_race(tmp_path: Path):
         logger.close()
 
     raw = (tmp_path / 'metrics.jsonl').read_text(encoding='utf-8')
-    valid_kinds = {'iter', 'mem', 'cpu', 'gpu', 'disk', 'net', 'load'}
+    valid_kinds = {'iter', 'mem', 'cpu', 'gpu', 'disk', 'net', 'load', 'go_perf'}
     for line_no, line in enumerate(raw.splitlines(), 1):
         if not line.strip():
             continue
