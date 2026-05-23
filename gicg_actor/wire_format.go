@@ -43,14 +43,11 @@ import (
 
 // ─── Schema 常量 ─────────────────────────────────────────────────────────
 const (
-	// v4 (I29 D10 Stage S2 2026-05-23): InferRequestHeader 加 VersionID uint32
-	// 字段(slot 0 = live learner, ≥1 = historical pool slot id),为 D10 Stage
-	// S3+ Go HistoricalRing + InfServer multi-version dispatch 铺路。 旧 actor
-	// (v3) 不可与新 trainer (v4) 互通,BREAKING by design。 transition wire
-	// format 未变,但 WireVersion lock-step bump 保 跨两 wire 同步。
-	// v3 (2026-05-23): DMC/PPO transition payload refs/pay 由 padded → nlegal-
-	// sized,buffer per-trans mem ~10x 降。
-	WireVersion     uint16 = 4
+	// v3 (I29 P2 2026-05-23): DMC/PPO transition payload refs/pay 由 padded
+	// (max_actions, ...) 改为 nlegal-sized — buffer per-trans mem ~10x 降。
+	// Inference wire format 本身未变,但版本 lock-step,旧 actor (v2) 不可与新
+	// trainer (v3) 互通(BREAKING by design,无 backward-compat layer)。
+	WireVersion     uint16 = 3
 	StaticHashSize  int    = 16
 	MaxMessageBytes uint32 = 16 * 1024 * 1024
 	InferStatusOK   uint8  = 0
@@ -69,11 +66,6 @@ type InferRequestHeader struct {
 	StaticHash [16]byte
 	ClientID   uint32
 	ReqID      uint32
-	// VersionID — D10 Stage S2:0 = live learner net(InfServer slot 0,走 fast
-	// path 全 batch);≥1 = historical pool slot id(InfServer 端 sub-batch
-	// dispatch 用 multi-version network forward)。 S2 加字段 但 caller 默认
-	// 0,Go encode 端 暂不写 非 0 值(S3 加 ring sample 时 才 wire 起来)。
-	VersionID  uint32
 	NDyn       uint32
 	NRefs      uint32
 	NPay       uint32
