@@ -122,13 +122,16 @@ class DMCGoActorCollector:
         trans_port: Optional[int] = None,
         io_timeout_ms: int = 30_000,
         # Bounded transition queue —— maxsize 直接决定满载内存 cap。 每条 raw _Transition
-        # 含 payload bytes(refs+pay 按 max_actions=2048 padded → ~110 KB/transition,
-        # 见 transition wire 协议)。 I29 T-RR.3 初值 4096 = 450 MB cap,Mac mem probe
-        # 实测 wire 文件 675 MB plateau 主要来自此 queue raw bytes。
-        # 256 cap = ~28 MB,N=16 actor × ~5 push/s × 0.3s backpressure tolerance → 完全够
-        # 用(producer<<consumer 场景 cap 无关,producer>consumer 时 cap 大只是延迟回压
-        # 不解吞吐问题)。 后续 wire 不 pad fix 后 per-trans size ~10 KB,可放宽。
-        trans_queue_maxsize: int = 256,
+        # 含 payload bytes。 wire v3 后(commit 1687f5d 不 pad refs/pay)per-trans 实际
+        # ~12 KB(nlegal-sized,前 padded 110 KB 是 96% padding 0)。 4096 cap = ~48 MB,
+        # 远 < pre-fix 4096×110 KB = 450 MB,mem 不再 是 issue。
+        # **2026-05-24 Win N=16 perf bench 实测**:256 cap 在 Win N=16 × 6.86 push/s/actor
+        # = 110 push/s 下 backpressure 永久饱和,transition_writer.push concurrency 7.42
+        # (~47% actor blocked,fps 11 vs baseline 25 ~55% loss)。 commit a8123f8 估算
+        # 「N=16 × ~5 push/s」错位(实测 1.4x),256 cap 设计假设 unfit。 改 4096 大幅
+        # 放宽 backpressure tolerance(48 MB cap 可承)。 producer<<consumer 场景 cap 无关,
+        # producer>consumer 长期超时仍会 fail-loud(TransitionWriter 5min 写超时,I29 T-RR.3)。
+        trans_queue_maxsize: int = 4096,
     ) -> None:
         self.cfg = cfg
         self.network = network
