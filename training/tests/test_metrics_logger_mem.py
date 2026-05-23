@@ -54,7 +54,8 @@ def test_sample_cpu_schema():
 
 
 def test_sample_mem_schema():
-    """One-shot mem snapshot — full 19-field set(master + children agg + cuda + host)。"""
+    """One-shot mem snapshot — full 22-field set(master + children agg + cuda +
+    host + tracemalloc opt)。"""
     s = _sample_mem()
     expected = {
         'master_pid',
@@ -78,6 +79,7 @@ def test_sample_mem_schema():
         'cuda_reserved_mb',
         'host_used_mb',
         'host_total_mb',
+        'tracemalloc_total_mb',
     }
     assert set(s.keys()) == expected
     assert s['master_rss_mb'] > 0
@@ -88,6 +90,25 @@ def test_sample_mem_schema():
     # 各 None / 数值都允许 — 仅守某些 OS 上 io_counters 不可读 时 graceful。
     # master_num_threads 在所有 OS 都该 ≥ 1。
     assert s['master_num_threads'] is None or s['master_num_threads'] >= 1
+    # tracemalloc 默认未 start → None;若 test 进程 之前 start 过(其他 test
+    # 触发)则 数值 ≥ 0。 不强 require 任一情况,只 schema 校。
+    assert s['tracemalloc_total_mb'] is None or s['tracemalloc_total_mb'] >= 0
+
+
+def test_sample_mem_with_tracemalloc_active():
+    """tracemalloc.is_tracing() True 时 _sample_mem 返 数值 而非 None。"""
+    import tracemalloc
+
+    already_tracing = tracemalloc.is_tracing()
+    if not already_tracing:
+        tracemalloc.start()
+    try:
+        s = _sample_mem()
+        assert s['tracemalloc_total_mb'] is not None
+        assert s['tracemalloc_total_mb'] >= 0
+    finally:
+        if not already_tracing:
+            tracemalloc.stop()
 
 
 def test_sample_disk_schema():

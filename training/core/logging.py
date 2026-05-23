@@ -25,6 +25,7 @@ import subprocess
 import sys
 import threading
 import time
+import tracemalloc
 from pathlib import Path
 from typing import Optional
 
@@ -168,6 +169,14 @@ def _sample_mem() -> dict:
         'cuda_reserved_mb': round(cuda_reserved_mb, 1),
         'host_used_mb': round(vm.used / 1024**2, 1),
         'host_total_mb': round(vm.total / 1024**2, 1),
+        # Python tracemalloc 跟踪的 master 进程 Python heap live alloc — 与
+        # master_rss_mb 配对算 「非 Python heap 部分」(Go runtime + numpy/torch
+        # native + libgicg.dylib + allocator caches)。 仅 tracemalloc 已 start
+        # (e.g. via GICG_MEM_PROBE=1 由 tools._dev.mem_probe 启)时 sample,
+        # production 默认 None — tracemalloc overhead 不强加给所有 run。
+        'tracemalloc_total_mb': (
+            round(tracemalloc.get_traced_memory()[0] / 1024**2, 1) if tracemalloc.is_tracing() else None
+        ),
     }
 
 
