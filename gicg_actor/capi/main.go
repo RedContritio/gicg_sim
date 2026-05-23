@@ -22,10 +22,30 @@ package main
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+// GoRuntimeMemStats — Go runtime.MemStats 关键字段透传给 Python (via ctypes)。
+// 字段顺序 / 类型必须与 Python side training/core/actor/go_runtime_stats.py
+// GoRuntimeMemStats Structure 同构,任一端加字段必须同步更新另一端。
+// 字段语义参 https://pkg.go.dev/runtime#MemStats。
+typedef struct {
+    uint64_t heap_alloc;       // bytes of allocated heap objects (live)
+    uint64_t heap_sys;         // bytes of heap memory obtained from OS
+    uint64_t heap_inuse;       // bytes in in-use spans
+    uint64_t heap_idle;        // bytes in idle (unused) spans
+    uint64_t heap_released;    // bytes physical memory returned to OS
+    uint64_t sys;              // total bytes of memory obtained from OS
+    uint64_t mallocs;          // cumulative count of heap objects allocated
+    uint64_t frees;            // cumulative count of heap objects freed
+    uint64_t num_gc;           // number of completed GC cycles
+    uint64_t pause_total_ns;   // cumulative ns in GC stop-the-world pauses
+} GoRuntimeMemStats;
 */
 import "C"
 
 import (
+	"runtime"
+	"unsafe"
+
 	"gicg_mono/gicg_actor"
 	// Side-effect imports: trigger per-paradigm registration via init()。
 	// 加 paradigm 在此加一行 import,自动注册。 I29 收敛 scope:DMC ✓ AZ scaffold
@@ -128,4 +148,31 @@ func gicg_actor_infer_request_header_size() C.int {
 //export gicg_actor_infer_response_header_size
 func gicg_actor_infer_response_header_size() C.int {
 	return C.int(gicg_actor.ResponseHeaderSize)
+}
+
+// Go runtime heap stats 透传给 Python — mem leak 定位用(嫌疑:Go runtime heap
+// 长跑增长但 Python tracemalloc 不显)。 调 runtime.ReadMemStats(整 stop-the-world,
+// 高频调用有开销;mem_probe 默认 30s 采样一次,可接受)。
+//
+// 字段:见 C 头 GoRuntimeMemStats 注释 / runtime.MemStats godoc。
+// 返:0 = OK, 1 = nil out pointer。
+//
+//export gicg_actor_runtime_memstats
+func gicg_actor_runtime_memstats(out *C.GoRuntimeMemStats) C.int {
+	if out == nil || unsafe.Pointer(out) == nil {
+		return C.int(1)
+	}
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	out.heap_alloc = C.uint64_t(m.HeapAlloc)
+	out.heap_sys = C.uint64_t(m.HeapSys)
+	out.heap_inuse = C.uint64_t(m.HeapInuse)
+	out.heap_idle = C.uint64_t(m.HeapIdle)
+	out.heap_released = C.uint64_t(m.HeapReleased)
+	out.sys = C.uint64_t(m.Sys)
+	out.mallocs = C.uint64_t(m.Mallocs)
+	out.frees = C.uint64_t(m.Frees)
+	out.num_gc = C.uint64_t(m.NumGC)
+	out.pause_total_ns = C.uint64_t(m.PauseTotalNs)
+	return C.int(0)
 }
