@@ -70,8 +70,8 @@ historical = 0.30
 ring_size = 8
 
 [checkpoint]
-save_every = 30_000          # train_steps; ~9 ckpts over 1M frames
-keep_last_n = 10             # keep all of them so user can pick which to rsync
+save_every = 10_000          # train_steps; ~30 ckpts over 1M frames (~22 min/ckpt at fps≈25 / train_rate≈7.5)
+keep_last_n = 30             # keep all of them so user can pick which to rsync (matches save cadence ×3)
 artifacts_root = "artifacts"
 
 # [eval] section is schema-required for mode='async'(schema CS1.1)。设
