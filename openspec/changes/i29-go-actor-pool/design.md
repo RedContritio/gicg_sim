@@ -273,6 +273,70 @@ v3 BREAKING change 不破 ckpt resume。
 faithful self-play 等价),真 historical-net ring 待 D10(下次 production run
 评估 ROI 后决)。
 
+### D10 — Go-actor 真 historical-net ring(2026-05-23 design,implement 待 ROI 拍)
+
+**现状**:`paradigm.go:330-350` `oppHistorical` 复用 me-turn `infCli.Request`,
+共用 InferenceServer live network。 cfg `historical=0.30` episode 实为 current
+self-play,信号 weak。 Phase 1(commit `6af38cd`)修 Python actor 路径;Go 路径
+不走 Python OpponentPool,Go side 不知 historical state_dict 存在。
+
+**目标**:Go 路径 30% episode 用 frozen 过去 ckpt 网络对战(AlphaZero-style)。
+
+**架构 dispatch 决策**:**Option A — InfServer 持 multi-version pool,wire 加
+`version_id`**。 另两候选(B Go side 直接 forward / C Per-version subprocess)
+分别 不可行(Go 不能 torch.forward)+ mem 不可承(ring × 1.6 GB 子进程)。
+A trade-off:cluster-2 batching 按 `version_id` 分桶,sub-batch ≤ ring+1 个。
+Mitigation:**只 historical (30% 流量) 分桶,live (slot=0) 走原 fast path 全
+batch** — 整体 throughput 下降预期 ≤ 10%。
+
+**Wire v3→v4 BREAKING**:`InferRequestHeader` 加 `VersionID uint32`(50→54
+byte),`WireVersion` 3→4。 transition wire 不变(historical 推理结果不入
+transition payload)。
+
+**Go side scaffold**:新 `gicg_actor/historical_ring.go` — `HistoricalRing`
+只持 version_id list(`[]uint32` FIFO + cap),不持 state_dict bytes(InfServer
+端持)。 paradigm 全局 singleton,`StartPoolWithConfig` 时按 cfg `ring_size` 初
+始化。 capi `gicg_actor_push_historical_weights(slot, bytes, len)` + `gicg_actor_
+push_historical_slot(slot)`。 `oppHistorical` 改 `slotID := ring.SampleID(rng)`
+冷启动 ring 空返 0 退化 self-play(无 regression)。
+
+**Python InfServer 多 version**:`_server_loop` 收 `('weights_versioned', slot_
+id, sd)` → `networks[slot_id] = deepcopy(net).load_state_dict(sd).eval()`,evict
+oldest 当超 cap;`shared_cache` 全清(版本无关误信号);decoder cache key 加
+`version_id` 前缀(防 multi-version 共用 hook_encoder cache 出错 — H risk 关键
+mitigation)。 batch dispatch 按 `version_id` 分桶 forward。
+
+**Python collector + pipeline wiring**:`DMCGoActorCollector.add_historical_
+snapshot(sd) → slot_id`(dual-write:InfServer push + Go ring notify)。
+`pipeline.py` 现 ckpt hook 加 `if hasattr(collector, 'add_historical_snapshot')`
+dual-write,与 Phase 1 OpponentPool.add_snapshot 共用 一份 cloned state_dict。
+
+**序列化**:`torch.save(sd, buf) → bytes` Python native pickle,Go side 仅传
+bytes 不解读。 单 push 50 MB ctypes copy ~10ms。 inf_child mem +400-800 MB
+(ring=8 × ~50-100 MB frozen net),host 64 GB 充裕。
+
+**实施 stage(推荐 order)**:
+| Stage | 内容 | LOC | 风险 |
+|---|---|---|---|
+| **S1** | `_server_loop` 加 weights_versioned handling + push API,**不动 wire** | 80 Python | 低,infra-only |
+| **S2** | wire v3→v4 加 VersionID,Go+Python schema 同步 + cross-check | 70 | 中,BREAKING 但 D9 同模式已 ship |
+| **S3** | Go HistoricalRing + capi push + oppHistorical 改 ring sample | 160 Go+ 40 Python | 中 |
+| **S4** | collector.add_historical_snapshot + pipeline dual-write hook | 50 | 低 |
+| **S5** | InfServer 按 version_id sub-batch dispatch + 真 frozen forward | 80 | 中,throughput 影响 ≤ 10% |
+| **S6** | Mac mini 1k frame e2e dry run + historical 占比验 | 0 cfg only | 低 |
+| **S7** | Win N=16 1M frame production + winrate 对比 baseline | 0 | 中,ROI 测 |
+
+LOC 总 ~590(对照 D9 wire 改 235 LOC / 15 files 比例合理)。
+
+**ROI 评估门**:AlphaZero literature 倾向 frozen historical 正向。 GICG
+imperfect-info(骰子/卡)与 perfect-info 棋类 transfer 不确定。 user 决:
+① 不上 D10 接受 30% self-play(等价 `historical=0` mix);② **推荐 S1+S2 先
+做 infra-only 不改行为(后续 per-version eval matchup 也用),S3-S7 等
+production 1M baseline 数据后决** — risk-staged commit 节奏。
+
+详 plan subagent 报告 (full 含 risk table + mitigation per row),agentId
+hash 在本 session task #10 dispatch 记。
+
 ## ADR-agent 自定 trade-off(决定后内联)
 
 ### 数值等价 tolerance
