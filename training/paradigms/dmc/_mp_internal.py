@@ -91,6 +91,19 @@ def _spawn_inference_pool(cfg: Any, network: Any, n_actors: int, metrics_logger:
 
 
 def _dmc_spec_sampler(cfg: Any, actor_id: int):
+    """Sample one :class:`EpisodeSpec` per call。
+
+    R6.3 (2026-05-25): opponent_id 从 hardcoded ``'random'`` 改为
+    ``cfg.paradigm['opponent_mix']`` weighted sampling (random / f1d2 /
+    f1d4 keys; weights are sampled per-call with a per-actor RNG seeded
+    from the run seed)。 ``historical`` 权重在 mp path silently dropped
+    (mp_factories.py 不注册 historical — Python端 ckpt ring 跨 mp.Manager
+    不可行),剩余权重 re-normalized over (random / f1d2 / f1d4)。 若 weight
+    dict 缺失/空 → fallback to 100% ``'random'`` (preserves原 P2-PoC
+    behavior for cfgs without opponent_mix set)。
+    """
+    import random as _random
+
     from training.core.protocols import EpisodeSpec
 
     # Late import avoids a circular import at module load time
@@ -98,8 +111,43 @@ def _dmc_spec_sampler(cfg: Any, actor_id: int):
     from training.paradigms.dmc.collector import derive_seed
 
     _DMC_ACTOR_EP_SEQ[actor_id] = _DMC_ACTOR_EP_SEQ.get(actor_id, 0) + 1
-    seed = derive_seed(int(cfg.meta.seed), 'mp_ep', actor_id, _DMC_ACTOR_EP_SEQ[actor_id])
-    return EpisodeSpec(scenario_seed=seed, opponent_id='random')
+    ep_seq = _DMC_ACTOR_EP_SEQ[actor_id]
+    seed = derive_seed(int(cfg.meta.seed), 'mp_ep', actor_id, ep_seq)
+    opp_id = _sample_opponent_id(cfg, actor_id, ep_seq)
+    return EpisodeSpec(scenario_seed=seed, opponent_id=opp_id)
+
+
+def _sample_opponent_id(cfg: Any, actor_id: int, ep_seq: int) -> str:
+    """Weighted sample opponent_id from cfg.paradigm['opponent_mix']。
+
+    Only ``random``/``f1d2``/``f1d4`` are sampleable (mp_factories.py
+    registers exactly these); ``historical`` weight (if present) is
+    silently dropped and remaining weights are re-normalized。 若
+    paradigm dict 缺 opponent_mix 或 dict 空 → return ``'random'``
+    (preserves P2-PoC fallback for legacy cfg)。
+
+    Determinism:每次 call 用 (run_seed, actor_id, ep_seq) tuple 作 RNG
+    seed,actor-level reproducible(同 seed 同 episode 序号产同 opp 序列)。
+    """
+    import random as _random
+
+    from training.paradigms.dmc.collector import derive_seed
+
+    pdict = cfg.paradigm if isinstance(cfg.paradigm, dict) else {}
+    omix = pdict.get('opponent_mix') or {}
+    if not omix:
+        return 'random'
+    # Drop historical (not registered in mp_factories.py per module docstring).
+    samplable = {k: float(v) for k, v in omix.items() if k in ('random', 'f1d2', 'f1d4') and float(v) > 0.0}
+    if not samplable:
+        return 'random'
+    # Re-normalize over samplable subset (historical weight redistributed proportionally).
+    total = sum(samplable.values())
+    keys = list(samplable.keys())
+    weights = [samplable[k] / total for k in keys]
+    rng_seed = derive_seed(int(cfg.meta.seed), 'opp_sample', actor_id, ep_seq)
+    rng = _random.Random(rng_seed)
+    return rng.choices(keys, weights=weights, k=1)[0]
 
 
 def _adapt_episode_record(record: Any) -> tuple[list, int]:

@@ -21,6 +21,13 @@ __pycache__/
 *.so
 *.dylib
 
+# Go build output dir (cmd/gicg_actor 等 standalone binary,I29 redesign 2026-05-25)
+bin/
+
+# Go `go test -c` 输出 (在 gicg_engine/tests 等运行 go test 时偶然 leak,I29 R6 cleanup)
+tests.test
+*.test
+
 # macOS Finder metadata (auto-created;不该 track)
 .DS_Store
 tools/cleanse_4_raw.py

@@ -41,6 +41,14 @@ class OpponentMixCfg:
     f1d4: float = 0.00
     historical: float = 0.30
     ring_size: int = 5
+    # minimax_node_budget — F1-D4 greedy opp 跨整个 select_action call 的 snapshot/step
+    # 总数上限。 None (default) = 无 cap (production 历史行为,D4 完整跑 ~5-15s/episode)。
+    # 设显式值 (典型 4000) 让 Python `_score_best_response` 与 Go
+    # `gicg_actor/dmc/greedy_player.go` MinimaxNodeBudget 行为对齐 — cross-language
+    # fair bench 测纯 pipeline overhead 而非 algorithm-shortcut asymmetry。 C2 fix
+    # (2026-05-25):pre-C2 Go 硬码 const 4000 而 Python 无 cap = 跑不同 algo,3.66x
+    # ratio 部分来自此 asymmetry;C2 后两侧都 cfg-driven,bench cfg explicit 对齐。
+    minimax_node_budget: Optional[int] = None
 
     def __post_init__(self) -> None:
         s = self.random + self.f1d2 + self.f1d4 + self.historical
@@ -49,6 +57,8 @@ class OpponentMixCfg:
                 f'OpponentMixCfg: weights must sum to 1.0 (got {s}: random={self.random} '
                 f'f1d2={self.f1d2} f1d4={self.f1d4} historical={self.historical})'
             )
+        if self.minimax_node_budget is not None and self.minimax_node_budget <= 0:
+            raise ValueError(f'OpponentMixCfg: minimax_node_budget must be > 0 or None, got {self.minimax_node_budget}')
 
 
 @dataclass(frozen=True)

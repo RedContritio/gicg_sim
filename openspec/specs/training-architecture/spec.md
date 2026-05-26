@@ -119,6 +119,9 @@ P3-P5 ship 后)+ 对应 capability spec:
 - [Env factory 公共契约](./env-factory.md) — `make_env_factory` canonical
   signature + 6 SHALL invariants (PA-EF1..6) + paradigm 调用模式 +
   `env_factory_legacy.py` 退役历史
+- [Actor backend](./actor-backend.md) — `cfg.pipeline.actor_backend` 分派
+  + Go backend N+2 OS process topology + 0 cgo invariant + TCP-only inference
+  + atomic spawn/shutdown (AB1-AB12,I29 R7 ship 2026-05-25)
 
 ## 6. Cross-references
 

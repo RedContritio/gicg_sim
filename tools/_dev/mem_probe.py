@@ -62,18 +62,12 @@ def enable_mem_probe(interval: int = 30, top_n: int = 15, frame_depth: int = 25)
     last_snapshot: Optional[tracemalloc.Snapshot] = None
     _STOP_EVENT = threading.Event()
 
-    # Lazy import — 在 enable_mem_probe 主线程内做(避免 daemon thread import 锁竞争
-    # / pytest 下 thread import deadlock)。 import 失败(libgicg_actor 未 build)
-    # 退化为 None,daemon thread 跑时 skip Go stats 行。
-    try:
-        from training.core.actor.go_runtime_stats import read_go_mem_stats as _read_go_stats
-    except Exception as e:  # noqa: BLE001 — 任何 import 错都退化为「无 Go stats」
-        _read_go_stats = None  # type: ignore[assignment]
-        print(f'[mem_probe] Go runtime stats unavailable ({type(e).__name__}: {e}) — continuing', file=sys.stderr)
-    try:
-        from training.core.actor.go_perf_trace import flush_go_perf_spans as _flush_go_perf
-    except Exception:  # noqa: BLE001 — lib 未 build 或 ctypes 错都退化为「无 Go perf」
-        _flush_go_perf = None  # type: ignore[assignment]
+    # I29 redesign P3 (2026-05-25): cgo path 退役,master 0 cgo lib loaded;Go runtime
+    # heap stats / perf trace 由 cmd/gicg_actor standalone subprocess 自管。 master
+    # mem_probe 只看 Python heap (tracemalloc) + master RSS (metrics.jsonl kind=mem)。
+    # 旧 Go-runtime ctypes probe (read_go_mem_stats / flush_go_perf_spans) 不再可用 —
+    # 跨进程 mem split 要看 InfServer subprocess RSS + Go subprocess RSS (psutil 列
+    # children),各自单看 trend。
 
     def _loop() -> None:
         nonlocal last_snapshot
@@ -96,42 +90,6 @@ def enable_mem_probe(interval: int = 30, top_n: int = 15, frame_depth: int = 25)
                 for st in diff[:top_n]:
                     sign = '+' if st.size_diff >= 0 else ''
                     print(f'[mem_probe]   {sign}{st.size_diff / 1024**2:7.1f}MB  {st.traceback[0]}', file=sys.stderr)
-            # Go runtime heap stats — split 出 Go side mem 增长 vs Python / native
-            # (HeapAlloc 涨 = Go leak;HeapSys 涨 HeapAlloc 稳 = fragmentation;
-            # 都稳但 RSS 涨 = 嫌疑在 native numpy/torch/libgicg)。
-            if _read_go_stats is not None:
-                try:
-                    gs = _read_go_stats()
-                    print(
-                        f'[mem_probe go] HeapAlloc={gs["heap_alloc_mb"]:.1f}MB '
-                        f'HeapSys={gs["heap_sys_mb"]:.1f}MB '
-                        f'HeapInuse={gs["heap_inuse_mb"]:.1f}MB '
-                        f'HeapIdle={gs["heap_idle_mb"]:.1f}MB '
-                        f'HeapReleased={gs["heap_released_mb"]:.1f}MB '
-                        f'Sys={gs["sys_mb"]:.1f}MB '
-                        f'NumGC={gs["num_gc"]} '
-                        f'PauseTotal={gs["pause_total_ns"] / 1e6:.1f}ms',
-                        file=sys.stderr,
-                    )
-                except Exception as e:  # noqa: BLE001 — read 失败不让 probe 挂
-                    print(f'[mem_probe go] read failed ({type(e).__name__}: {e})', file=sys.stderr)
-            # Go-side perf trace top-3 by sum_ms — Go-actor 端 wall 分布 hot stages 速读
-            # (production 详细数据见 metrics.jsonl `kind=go_perf` record)。
-            if _flush_go_perf is not None:
-                try:
-                    wins = _flush_go_perf()
-                    agg: dict[str, dict] = {}
-                    for w in wins:
-                        for n, st in w['stages'].items():
-                            b = agg.setdefault(n, {'n': 0, 'sum_ms': 0.0})
-                            b['n'] += st['n']
-                            b['sum_ms'] += st['sum_ms']
-                    top = sorted(agg.items(), key=lambda kv: -kv[1]['sum_ms'])[:3]
-                    if top:
-                        parts = [f'{n}(n={b["n"]} sum={b["sum_ms"]:.1f}ms)' for n, b in top]
-                        print(f'[mem_probe go-perf] top-3: {" / ".join(parts)}', file=sys.stderr)
-                except Exception as e:  # noqa: BLE001 — perf flush 失败不让 probe 挂
-                    print(f'[mem_probe go-perf] read failed ({type(e).__name__}: {e})', file=sys.stderr)
             last_snapshot = snap
             sys.stderr.flush()
 

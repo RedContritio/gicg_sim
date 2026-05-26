@@ -124,18 +124,11 @@ def run_paradigm_train(state: SetupState) -> None:
     _perf_trace.enable_from_cfg(cfg)
     _perf_trace.configure(role='pipeline', id=0)
 
-    # cfg.debug.go_perf_trace → libgicg_actor atomic.Bool (via capi setter)。
-    # libgicg_actor 尚未 load 时 set_go_perf_trace_enabled 触发 lazy load,
-    # set 完后续 Go-actor pool 起步看到 enabled。 lib 未 build (默认 dev
-    # workflow 不需 Go backend) 时跳过 set —— Go actor pool 起不来本就
-    # 走不到 perf trace 路径,silent skip 对 user 体感无差异。
-    if getattr(cfg.debug, 'go_perf_trace', False):
-        try:
-            from training.core.actor.go_perf_trace import set_go_perf_trace_enabled
-
-            set_go_perf_trace_enabled(True)
-        except FileNotFoundError:
-            pass  # libgicg_actor 未 build,无 Go backend 可启
+    # I29 redesign P3 (2026-05-25): cgo path 退役,master 0 cgo lib loaded;Go-side
+    # perf trace 由 cmd/gicg_actor standalone subprocess 自管 (Go runtime native
+    # perf instrumentation 经 stderr / artifacts log dump,non master-process)。
+    # 旧 set_go_perf_trace_enabled (ctypes set libgicg_actor atomic.Bool) 路径不再
+    # 适用 (master 不 load libgicg_actor)。
 
     # Pin learner-process CPU affinity *before* any heavy paradigm setup
     # so child threads spawned by torch/buffer allocators inherit the

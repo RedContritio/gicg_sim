@@ -30,10 +30,19 @@ import (
 	"gicg_mono/gicg_engine/record"
 )
 
-// GreedyConfig — features (F1-F5) × depth (1-4) variants。
+// GreedyConfig — features (F1-F5) × depth (1-4) variants + minimax budget。
 type GreedyConfig struct {
 	Features string
 	Depth    int
+	// MinimaxBudget — scoreBestResponse 递归 DeepCopy 总数上限 (per SelectAction
+	// call 共享)。 0 = 无 cap (Python ref 历史行为, D4 完整跑 ~5-15s/episode)。 > 0 =
+	// 超出后停止展开 + 当前节点降级评分 (D4 capped 到 ~D2.7 effective depth)。
+	// C2 (2026-05-25) cfg-driven 替代原 const minimaxNodeBudget=4000 硬码,让 Python
+	// 端 `training/core/matchup/greedy_player.py` 与 Go 端共用 cfg knob (cross-language
+	// fair bench parity)。 production cfg 默认 0 (无 cap) 与 Python production 默认行为
+	// 对齐;bench cfg `[paradigm.dmc.opponent_mix].minimax_node_budget` 显式两边设值
+	// 才能测纯 pipeline overhead 而非 algo asymmetry。
+	MinimaxBudget int
 }
 
 // GreedyPlayer mirror Python GreedyPlayer class。
@@ -44,8 +53,9 @@ type GreedyPlayer struct {
 }
 
 // NewGreedyPlayer 构造。 features unknown / depth out-of-range raise(fail loud per Python
-// ref)。 D1-D4 全支持。
-func NewGreedyPlayer(features string, depth int, seed int64) (*GreedyPlayer, error) {
+// ref)。 D1-D4 全支持。 “budget“ <= 0 视作无 cap (production 默认行为, 与 Python
+// minimax_node_budget=None 对齐)。
+func NewGreedyPlayer(features string, depth int, seed int64, budget int) (*GreedyPlayer, error) {
 	scorer, ok := Scorers[features]
 	if !ok {
 		return nil, fmt.Errorf("unknown features %q; available: %v", features, scorerNames())
@@ -53,8 +63,11 @@ func NewGreedyPlayer(features string, depth int, seed int64) (*GreedyPlayer, err
 	if depth < 1 || depth > 4 {
 		return nil, fmt.Errorf("depth must be 1..4, got %d", depth)
 	}
+	if budget < 0 {
+		return nil, fmt.Errorf("minimax budget must be >= 0 (0 = no cap), got %d", budget)
+	}
 	return &GreedyPlayer{
-		cfg:    GreedyConfig{Features: features, Depth: depth},
+		cfg:    GreedyConfig{Features: features, Depth: depth, MinimaxBudget: budget},
 		scorer: scorer,
 		rng:    rand.New(rand.NewSource(seed)),
 	}, nil
@@ -68,20 +81,18 @@ func scorerNames() []string {
 	return names
 }
 
-// minimaxNodeBudget — scoreBestResponse 递归 DeepCopy 总数上限(per SelectAction
-// 调用共享)。 D1/D2 远在此之下不受影响;D3/D4 超此后停止展开、当前节点降级评分。
-// D4 即使 dice_greedy 折叠后仍 O(N⁴)(N≈23 → ~28 万 DeepCopy ~10s/turn);budget
-// 4000 把 D4 capped 到 ~0.5s/turn + 控制 DeepCopy GC churn 内存(N=16 actor 并发
-// 下 8000 实测 +841MB/15s)。 对手强度退到 ~D2.7 —— I29 设计允许 winrate-gate
-// 非 bit-exact 的对手近似(详 proposal D2)。
-const minimaxNodeBudget = 4000
-
 // scoreBestResponse — Python ref `_score_best_response` 等价。 Recursive minimax: 当前
 // env state 从 “me“ 视角评分,向下看 “depth“ 层。 depth==0:score(viewRoot vs
 // env-now)。 caller 应已 snapshot;本函数 leaves env in same state(每个 candidate snap/
 // restore)。
 //
 // acting==me:max(sub_scores),else: min(sub_scores)— mirror Python max/min branching。
+//
+// “budget“ 是共享 counter (per SelectAction 调用)。 budget==nil → unbounded (production
+// 默认 cfg knob=0);budget != nil 且 *budget <= 0 → 停止展开,当前节点降级评分 (D4
+// O(N⁴) 成本封顶);D1/D2 远在此之下不受影响。 cap 的实际效果 (典型 budget=4000):
+// D4 capped 到 ~D2.7 effective depth + 控制 DeepCopy GC churn (N=16 actor 并发下
+// 8000 实测 +841MB/15s)。 I29 设计允许 winrate-gate 非 bit-exact 对手近似 (详 proposal D2)。
 func (gp *GreedyPlayer) scoreBestResponse(
 	rt *interp.Runtime,
 	viewRoot *record.StateView,
@@ -91,8 +102,9 @@ func (gp *GreedyPlayer) scoreBestResponse(
 	budget *int,
 ) float64 {
 	g := rt.Game
-	// budget 耗尽 → 停止展开,当前节点直接评分(D4 O(N⁴) 成本封顶,详 minimaxNodeBudget)。
-	if g.Phase == engine.PhaseGameOver || depth <= 0 || *budget <= 0 {
+	// budget 耗尽 → 停止展开,当前节点直接评分。 budget==nil 视作 unbounded。
+	budgetExhausted := budget != nil && *budget <= 0
+	if g.Phase == engine.PhaseGameOver || depth <= 0 || budgetExhausted {
 		return gp.scorer(viewRoot, record.ExportView(rt), eventsRoot, SnapshotEvents(g, me), me)
 	}
 	acting := g.ActingPlayer()
@@ -107,7 +119,9 @@ func (gp *GreedyPlayer) scoreBestResponse(
 	hasBest := false
 	var best float64
 	for _, i := range candidates {
-		*budget--
+		if budget != nil {
+			*budget--
+		}
 		dcSpan := gicg_actor.Span("game.deepcopy")
 		snap := g.DeepCopy()
 		dcSpan.End()
@@ -153,14 +167,24 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	// filterLogicalActions 至少返 1 个 candidate(end_turn 总在)。
 	candidates := filterLogicalActions(g)
 
-	// minimax node budget — 跨整个 SelectAction 共享,封顶递归 DeepCopy 总数。
-	budget := minimaxNodeBudget
+	// minimax node budget — 跨整个 SelectAction 共享, 封顶递归 DeepCopy 总数。
+	// cfg.MinimaxBudget == 0 → budgetPtr nil → scoreBestResponse 走 unbounded path
+	// (mirror Python `minimax_node_budget=None` default — production 历史行为)。
+	// > 0 → 按值封顶 (典型 4000 = D4 capped 到 ~D2.7,bench 对齐时设)。
+	var budgetPtr *int
+	if gp.cfg.MinimaxBudget > 0 {
+		budget := gp.cfg.MinimaxBudget
+		budgetPtr = &budget
+	}
 
 	// Top-level loop:每 candidate snapshot+step→ scoreBestResponse(depth-1 ply lookahead) → restore。
 	var bestScore float64
 	bestSet := make([]int, 0, 4)
 	first := true
 	for _, i := range candidates {
+		if budgetPtr != nil {
+			*budgetPtr--
+		}
 		dcSpan := gicg_actor.Span("game.deepcopy")
 		snap := g.DeepCopy()
 		dcSpan.End()
@@ -170,7 +194,7 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 				g.RestoreFrom(snap)
 			}()
 			g.Step(i)
-			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1, &budget)
+			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1, budgetPtr)
 		}()
 		if first || score > bestScore {
 			first = false

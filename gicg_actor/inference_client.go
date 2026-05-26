@@ -80,20 +80,29 @@ func (c *InferenceClient) Request(req *InferRequest) (*InferResponse, error) {
 	if err := c.conn.SetDeadline(time.Now().Add(c.timeout)); err != nil {
 		return nil, fmt.Errorf("set deadline: %w", err)
 	}
+	encSpan := Span("inference_client.encode")
 	encoded, err := EncodeInferRequest(req)
+	encSpan.End()
 	if err != nil {
 		return nil, fmt.Errorf("encode: %w", err)
 	}
+	sendSpan := Span("inference_client.send")
 	if _, err := c.conn.Write(encoded); err != nil {
+		sendSpan.End()
 		c.conn = nil // mark broken — caller may retry via fresh Request
 		return nil, fmt.Errorf("write request: %w", err)
 	}
+	sendSpan.End()
+	recvSpan := Span("inference_client.recv")
 	payload, err := ReadLengthPrefixed(c.conn)
+	recvSpan.End()
 	if err != nil {
 		c.conn = nil
 		return nil, fmt.Errorf("read response: %w", err)
 	}
+	decSpan := Span("inference_client.decode")
 	resp, err := DecodeInferResponse(payload)
+	decSpan.End()
 	if err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}

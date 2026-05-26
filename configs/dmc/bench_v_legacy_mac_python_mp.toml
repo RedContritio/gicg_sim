@@ -1,0 +1,95 @@
+# I29 T-C1 Mac fair bench — Python mp baseline。
+#
+# NOTE (post-R7 ship,2026-05-25):本 cfg 是 fair-bench scaffold,**实际 bench 不走
+# `tools.runs.train` 路径**,而是经 `tools/_bench/run_mac_collector_pair.py` 直接
+# pytest spawn 调 `test_python_mp_perf_smoke_15s` (15s 短 window,无 driver train
+# loop)。 本 cfg 的 paradigm.dmc.opponent_mix.minimax_node_budget=4000 / total_frames /
+# scenario 等字段被 perf_smoke test 内部 fixture 透传读取,而非 cfg loader。 cfg 仅作
+# scenario/algo alignment scaffold,production cfg 走 `configs/dmc/stage3_b_v_legacy*`。
+# 详 [[i29-bench-harness]] memory。
+
+#
+# 与 bench_v_legacy_mac_go.toml 配对:同 commit + 同 Mac + 同 scenario / card_pool /
+# opponent_mix / network / debug,只切 actor backend。 30K frames(≥5K warm-up +
+# ≥25K steady-state),Mac N=4 historical ~10-12 fps/actor → 60 min wall;Phase A +
+# T-B1 fix 后期望 Go-actor 也 ≥ Python。
+#
+# 多 run 取 mean±std(user 2026-05-24 「Mac 运行 应充分」):
+#   for seed in 1 2 3:
+#     .venv/bin/python -m tools.runs.train configs/dmc/bench_v_legacy_mac_python_mp.toml \
+#       --override meta.seed=$seed
+#
+# N=8 variant: 加 --override pipeline.num_actors=8
+
+[meta]
+seed = 42
+paradigm = "dmc"
+run_label = "bench_v_legacy_mac_python_mp"
+device = "cpu"  # Mac M-series CPU(MPS 至 d_model=128 实测比 CPU 慢 3-4x per memory)
+
+[pipeline]
+mode = "async"
+num_actors = 4
+
+[scenario]
+team_0 = ["赤蝶"]
+team_1 = ["墨客"]
+card_pool = [
+    "乘胜追击", "以攻代守", "以牙还牙", "以逸待劳", "伏兵之术", "佛跳墙",
+    "刺刺猫爪", "占星", "反制", "发现静电", "守正", "星愿", "清洁时间",
+    "玄冰", "瞬身之术", "碌碌无为", "美味烧鸡", "荷花酥", "蝶鳞", "西风剑",
+    "西风长枪", "诅咒", "速速茶点", "铁剑", "铁弓", "铁枪",
+]
+team_size = 1
+max_rounds = 15
+deck_padding = { card = "碌碌无为", target_size = 15 }
+pool = ["v_legacy"]
+data_dir = "data"
+
+[paradigm.dmc]
+mp_env_factory_path = "training.paradigms.dmc.mp_factories.build_dmc_env_factory"
+mp_opp_registry_path = "training.paradigms.dmc.mp_factories.build_dmc_opp_registry"
+mp_provider_path = "training.paradigms.dmc.mp_factories.build_dmc_provider"
+
+# Mac bench short — 30K frames @ ~10-15 fps total ≈ 30 min wall
+total_frames = 30_000
+batch_size = 16  # Mac CPU smaller batch
+buffer_cap = 50_000  # 30K frames buffer
+lr = 5e-5
+max_grad_norm = 1.0
+
+# Disable in-train eval — bench 不需 gauntlet 干扰
+eval_interval_episodes = 999_999_999
+eval_baselines = []
+
+[paradigm.dmc.agent]
+d_model = 128
+n_cross_layers = 2
+
+[paradigm.dmc.opponent_mix]
+random = 0.20
+f1d2 = 0.30
+f1d4 = 0.20
+historical = 0.30
+ring_size = 8
+# C2 (2026-05-25): cross-language fair bench parity — Python `_score_best_response`
+# 与 Go `gicg_actor/dmc/greedy_player.go` MinimaxBudget 显式对齐到 4000 node cap。
+# 不设此字段时 Python no cap (D4 ~5-15s/episode),Go default 0 = no cap;set to 4000
+# 让两侧 D4 都 capped 到 ~D2.7 effective depth,bench 测纯 pipeline overhead 而非
+# algorithm-shortcut asymmetry (pre-C2 PR draft Layer 4 3.66x 部分来自此 asymmetry)。
+minimax_node_budget = 4000
+
+[checkpoint]
+save_every = 999_999_999  # bench 不存 ckpt
+keep_last_n = 1
+artifacts_root = "artifacts"
+
+[eval]
+n_workers = 1
+schedule = "every_999999_steps"
+
+[debug]
+# Phase A perf instrumentation 全开 — bench 完离线分析 sub-span 占比。 I29 redesign
+# P3 (2026-05-25): go_perf_trace field 删 (cgo path 退役,Go subprocess 自管 perf
+# trace 经 stderr / log dump,不进 master metrics.jsonl)。
+perf_trace = true

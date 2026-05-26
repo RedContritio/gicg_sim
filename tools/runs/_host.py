@@ -55,7 +55,9 @@ def load_remote_from_cfg(cfg_path: Path) -> RemoteCfg | None:
     """Read cfg.toml; if ``meta.host == 'remote'`` extract+validate
     ``[remote]`` section + return RemoteCfg。``meta.host == 'local'``(或缺失)
     返回 None。任何 schema 违规直接 raise — no silent fallback。"""
-    cfg = tomllib.loads(Path(cfg_path).read_text())
+    # encoding='utf-8' 显式 — Win 默认 GBK,cfg toml 含 非 ASCII (中文 char_name 等)
+    # 或 UTF-8 BOM 时 read_text() 默认 codec UnicodeDecodeError fail-loud。
+    cfg = tomllib.loads(Path(cfg_path).read_text(encoding='utf-8'))
     meta = cfg.get('meta', {})
     host = meta.get('host', 'local')
     if host not in ('local', 'remote'):

@@ -420,7 +420,12 @@ class InferenceServer:
     ``register_client(q)`` for each client → ``start()`` to spawn.
     ``inference_acceleration``: ``'none'`` | ``'trace'`` | ``'compile'``
     (see ``_server_loop``). ``use_jit_trace=True`` is a deprecated alias
-    that converts to ``'trace'`` with a ``DeprecationWarning``."""
+    that converts to ``'trace'`` with a ``DeprecationWarning``.
+
+    Inference transport: TCP socket only (I29 R7.1 删 SHM inference path —
+    socket_listener thread accept N Go-actor TCP client + 进 request_q,与
+    Python mp.Queue 客户端共用 batch forward,与 Python mp wire 等价无 bridge layer)。
+    """
 
     def __init__(
         self,
@@ -554,17 +559,16 @@ class InferenceServer:
 
     def stop(self, timeout_s: float = 5.0) -> None:
         self._stop_event.set()
-        if self._proc is None:
-            return
-        try:
-            self.request_queue.put(('stop',), timeout=1.0)
-        except Exception:
-            pass
-        self._proc.join(timeout=timeout_s)
-        if self._proc.is_alive():
-            self._proc.terminate()
-            self._proc.join(timeout=2.0)
-        self._proc = None
+        if self._proc is not None:
+            try:
+                self.request_queue.put(('stop',), timeout=1.0)
+            except Exception:
+                pass
+            self._proc.join(timeout=timeout_s)
+            if self._proc.is_alive():
+                self._proc.terminate()
+                self._proc.join(timeout=2.0)
+            self._proc = None
         # cancel_join_thread before close: feeder thread can block on a
         # pipe write whose reader (dead server) hangs join_thread forever.
         # In-flight messages at shutdown are dropped intentionally.

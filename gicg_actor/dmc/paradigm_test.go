@@ -1,5 +1,5 @@
 // paradigm_test.go — DMCParadigm.Configure 单测 + Run loop 单 episode smoke
-// (mock InferenceClient + TransitionWriter)。
+// (mock InferenceClient + TransitionWriterTCP)。
 //
 // 完整 e2e 测试见 P1.4 ship Python wiring 后做的 cross-lang integration test。
 
@@ -262,7 +262,9 @@ func startMockInfServerZeros(t *testing.T, maxActions int) (addr string, stop fu
 	return listener.Addr().String(), func() { _ = listener.Close(); wg.Wait() }
 }
 
-// startMockTransSinkChan 起 mock transition sink — decode 每条 Transition 推入 channel。
+// startMockTransSinkChan 起 mock transition sink — decode 每条 frame 推入 channel。
+// F1 后 Go side 发 EpisodeBatch frames(Kind=1)。 本 mock 走 DecodeEpisodeBatch 解包,
+// 将整 episode 的 []*Transition 逐条推入 channel(保持 per-trans channel 语义,测试不变)。
 func startMockTransSinkChan(t *testing.T) (addr string, recv <-chan *gicg_actor.Transition, stop func()) {
 	t.Helper()
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
@@ -286,11 +288,22 @@ func startMockTransSinkChan(t *testing.T) (addr string, recv <-chan *gicg_actor.
 					if err != nil {
 						return
 					}
-					tr, err := gicg_actor.DecodeTransition(payload)
-					if err != nil {
-						return
+					// Dispatch by Kind byte at offset 14 (F1: KindEpisodeBatch=1 at both header kinds)
+					if len(payload) > 14 && payload[14] == gicg_actor.KindEpisodeBatch {
+						txs, err := gicg_actor.DecodeEpisodeBatch(payload)
+						if err != nil {
+							return
+						}
+						for _, tr := range txs {
+							ch <- tr
+						}
+					} else {
+						tr, err := gicg_actor.DecodeTransition(payload)
+						if err != nil {
+							return
+						}
+						ch <- tr
 					}
-					ch <- tr
 				}
 			}(conn)
 		}
@@ -344,18 +357,18 @@ func TestRunEpisode_EveryEpisodeTerminates(t *testing.T) {
 		t.Fatalf("inf connect: %v", err)
 	}
 	defer infCli.Close()
-	tw := gicg_actor.NewTransitionWriter(sinkAddr, 5*time.Second)
+	tw := gicg_actor.NewTransitionWriterTCP(sinkAddr, 5*time.Second)
 	if err := tw.Connect(); err != nil {
 		t.Fatalf("trans connect: %v", err)
 	}
 	defer tw.Close()
 
 	rng := rand.New(rand.NewSource(7))
-	gpD2, err := NewGreedyPlayer("F1", 2, 1)
+	gpD2, err := NewGreedyPlayer("F1", 2, 1, 0)
 	if err != nil {
 		t.Fatalf("greedy D2: %v", err)
 	}
-	gpD4, err := NewGreedyPlayer("F1", 4, 2)
+	gpD4, err := NewGreedyPlayer("F1", 4, 2, 0)
 	if err != nil {
 		t.Fatalf("greedy D4: %v", err)
 	}
@@ -449,15 +462,15 @@ func TestRunEpisode_PushFailureNotFatal(t *testing.T) {
 	defer infCli.Close()
 
 	// transWri 指向无人监听的端口 → Push lazy-dial 失败(connection refused)。
-	tw := gicg_actor.NewTransitionWriter("127.0.0.1:1", 1*time.Second)
+	tw := gicg_actor.NewTransitionWriterTCP("127.0.0.1:1", 1*time.Second)
 	defer tw.Close()
 
 	rng := rand.New(rand.NewSource(7))
-	gpD2, err := NewGreedyPlayer("F1", 2, 1)
+	gpD2, err := NewGreedyPlayer("F1", 2, 1, 0)
 	if err != nil {
 		t.Fatalf("greedy D2: %v", err)
 	}
-	gpD4, err := NewGreedyPlayer("F1", 4, 2)
+	gpD4, err := NewGreedyPlayer("F1", 4, 2, 0)
 	if err != nil {
 		t.Fatalf("greedy D4: %v", err)
 	}

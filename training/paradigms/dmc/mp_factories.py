@@ -64,15 +64,61 @@ def build_dmc_env_factory(cfg: Any, seed: int):
 
 def build_dmc_opp_registry(cfg: Any):
     """Return :class:`OpponentRegistry` covering the opponent IDs that
-    ``_dmc_spec_sampler`` can emit. P2-PoC restricts spec_sampler to
-    ``opponent_id='random'`` (greedy / historical would require sharing
-    learner weights across processes — out of scope).
+    ``_dmc_spec_sampler`` can emit.
+
+    Registered opponents (R6.3 — unlocks mixed-opp fair bench):
+
+    - ``'random'`` — uniform random over legal actions (cheap baseline).
+    - ``'f1d2'`` — :class:`GreedyPlayer` F1 features, depth-2 (~ms/turn).
+    - ``'f1d4'`` — :class:`GreedyPlayer` F1 features, depth-4 (deeper
+      minimax; production-shape opp_mix's expensive tier).
+
+    Both greedy variants run with ``dice_greedy=True`` to match
+    :class:`OpponentPool._build_player` (collapse engine dice fan-out).
+
+    **NOT registered**: ``'historical'`` — Go-side ``gicg_actor/dmc/
+    paradigm.go`` treats ``historical`` as a cost-faithful F1-D4 proxy
+    (no real ckpt ring across mp.Manager). Python端无等价 (per-actor
+    InfClient + ckpt ring 跨 mp.Manager 不可行); ``_dmc_spec_sampler``
+    SHALL exclude ``'historical'`` from sampling to avoid lookup failure.
+    Production training cfg with ``historical`` weight SHALL re-route
+    via in-proc :class:`OpponentPool` (serial mode), not mp pool.
     """
     from training.core.eval.baselines import OpponentRegistry
+    from training.core.matchup.greedy_player import GreedyPlayer
     from training.paradigms.dmc._opponent import RandomPlayer
+
+    # C2 (2026-05-25): cross-language fair bench parity — read minimax_node_budget
+    # from cfg.paradigm.opponent_mix and forward to GreedyPlayer ctor。 None (default)
+    # = 无 cap (production 历史行为); 显式 e.g. 4000 与 Go DMCConfig.OpponentMix.
+    # MinimaxNodeBudget 对齐让 bench 测 pipeline 而非 algo shortcut。
+    pdict = cfg.paradigm if isinstance(cfg.paradigm, dict) else {}
+    omix = pdict.get('opponent_mix') or {}
+    budget_raw = omix.get('minimax_node_budget')
+    minimax_budget = int(budget_raw) if budget_raw is not None else None
 
     reg = OpponentRegistry()
     reg.register('random', lambda seed=0, params=None: RandomPlayer(seed=int(seed or 0)))
+    reg.register(
+        'f1d2',
+        lambda seed=0, params=None, budget=minimax_budget: GreedyPlayer(
+            features='F1',
+            depth=2,
+            dice_greedy=True,
+            seed=int(seed or 0),
+            minimax_node_budget=budget,
+        ),
+    )
+    reg.register(
+        'f1d4',
+        lambda seed=0, params=None, budget=minimax_budget: GreedyPlayer(
+            features='F1',
+            depth=4,
+            dice_greedy=True,
+            seed=int(seed or 0),
+            minimax_node_budget=budget,
+        ),
+    )
     return reg
 
 

@@ -58,6 +58,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy as np
 
@@ -95,14 +96,22 @@ def _score_best_response(
     scorer: ScorerFn,
     depth: int,
     dice_greedy: bool,
+    budget: Optional[list[int]] = None,
 ) -> float:
     """Recursive core: score the CURRENT env state from ``me`` perspective,
     looking ahead ``depth`` more plies. Depth==0 means score the delta
     between (view_root, events_root) (pre this entire subtree) and env now.
 
     Important: env must be left in the same state it was on entry
-    (caller handles snapshot/restore bracketing)."""
-    if env.done or depth <= 0:
+    (caller handles snapshot/restore bracketing).
+
+    ``budget`` — minimax node budget shared across the whole select_action
+    call (mutable counter via single-element list). ``None`` = unbounded.
+    ``budget[0] <= 0`` → stop expanding, score current node. Mirrors Go
+    ``gicg_actor/dmc/greedy_player.go`` ``scoreBestResponse`` semantics for
+    cross-language fair benchmarking (budget consumed per candidate snapshot
+    on both sides)."""
+    if env.done or depth <= 0 or (budget is not None and budget[0] <= 0):
         return scorer(view_root, env.export_view(), events_root, env.reward_events(me), me)
     acting = env.acting_player
     candidates = _candidate_indices(env, dice_greedy)
@@ -110,10 +119,12 @@ def _score_best_response(
         return scorer(view_root, env.export_view(), events_root, env.reward_events(me), me)
     best: float | None = None
     for a in candidates:
+        if budget is not None:
+            budget[0] -= 1
         snap = env.snapshot()
         try:
             env.step(a)
-            sub = _score_best_response(env, view_root, events_root, me, scorer, depth - 1, dice_greedy)
+            sub = _score_best_response(env, view_root, events_root, me, scorer, depth - 1, dice_greedy, budget)
         finally:
             env.restore(snap)
             env.snapshot_free(snap)
@@ -133,11 +144,20 @@ class GreedyPlayer:
     every speculative step is bracketed by snapshot/restore. ``env.log_suspend``
     silences the replay log during simulation; restored on exit."""
 
-    def __init__(self, features: str = 'F1', depth: int = 1, seed: int = 0, dice_greedy: bool = False):
+    def __init__(
+        self,
+        features: str = 'F1',
+        depth: int = 1,
+        seed: int = 0,
+        dice_greedy: bool = False,
+        minimax_node_budget: Optional[int] = None,
+    ):
         if features not in SCORERS:
             raise ValueError(f'unknown features {features!r}; known: {sorted(SCORERS)}')
         if depth not in (1, 2, 3, 4):
             raise ValueError(f'depth must be 1|2|3|4, got {depth}')
+        if minimax_node_budget is not None and minimax_node_budget <= 0:
+            raise ValueError(f'minimax_node_budget must be > 0 or None, got {minimax_node_budget}')
         self.cfg = GreedyConfig(features=features, depth=depth)
         self.scorer = SCORERS[features]
         self.rng = random.Random(seed)
@@ -146,6 +166,15 @@ class GreedyPlayer:
         # heavy configs). Off by default for back-compat with s006
         # gauntlet results.
         self.dice_greedy = dice_greedy
+        # minimax_node_budget — cap total snapshot/step descents across one
+        # select_action call (None = unbounded, default). Set explicitly for
+        # cross-language fair bench parity with Go ``gicg_actor/dmc/
+        # greedy_player.go`` (Go side accepts same knob via DMCConfig.
+        # OpponentMix.MinimaxNodeBudget). D4 + dice_greedy O(N^4) without cap
+        # can burn 5-15s wall on v_legacy 26-card pool; matching Go's 4000
+        # budget (where set) keeps both sides at ~D2.7 effective depth so
+        # ratio measures pipeline overhead, not algorithm asymmetry.
+        self.minimax_node_budget = minimax_node_budget
 
     def select_action(self, env: GicgEnv) -> int:
         """Pick one action by score-argmax with random tiebreak."""
@@ -171,14 +200,27 @@ class GreedyPlayer:
         view_root = env.export_view()
         events_root = env.reward_events(me)
         scored: list[tuple[int, float]] = []
+        # budget — single-element list as mutable counter, shared across all
+        # candidates' subtrees within this select_action call (mirrors Go
+        # ``SelectAction`` line ``budget := minimaxNodeBudget``). None = unbounded.
+        budget: Optional[list[int]] = [self.minimax_node_budget] if self.minimax_node_budget is not None else None
         env.log_suspend()
         try:
             for a in candidates:
+                if budget is not None:
+                    budget[0] -= 1
                 snap = env.snapshot()
                 try:
                     env.step(a)
                     s = _score_best_response(
-                        env, view_root, events_root, me, self.scorer, self.cfg.depth - 1, self.dice_greedy
+                        env,
+                        view_root,
+                        events_root,
+                        me,
+                        self.scorer,
+                        self.cfg.depth - 1,
+                        self.dice_greedy,
+                        budget,
                     )
                 finally:
                     env.restore(snap)

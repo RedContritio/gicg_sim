@@ -174,7 +174,6 @@ def _all_off_except(**kw) -> dict:
         'disk_sample_interval_s': 0,
         'net_sample_interval_s': 0,
         'load_sample_interval_s': 0,
-        'go_perf_sample_interval_s': 0,
     }
     base.update(kw)
     return base

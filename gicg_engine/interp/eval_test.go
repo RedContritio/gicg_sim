@@ -194,7 +194,7 @@ c:set(42)
 	if err != nil {
 		t.Fatal(err)
 	}
-	c := env.vars["c"].(*testMethodObj)
+	c := env.lookupTestOnly("c").(*testMethodObj)
 	if c.val != 42 {
 		t.Errorf("expected 42, got %d", c.val)
 	}
@@ -239,7 +239,7 @@ end
 		t.Fatal(err)
 	}
 	// Call the closure
-	fn := env.vars["f"].(*Closure)
+	fn := env.lookupTestOnly("f").(*Closure)
 	_, err = interp.callClosure(rt, fn, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -257,11 +257,11 @@ func TestEval_MultiLocalDecl(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if env.vars["a"] != 10 {
-		t.Errorf("expected a=10, got %v", env.vars["a"])
+	if env.lookupTestOnly("a") != 10 {
+		t.Errorf("expected a=10, got %v", env.lookupTestOnly("a"))
 	}
-	if env.vars["b"] != 20 {
-		t.Errorf("expected b=20, got %v", env.vars["b"])
+	if env.lookupTestOnly("b") != 20 {
+		t.Errorf("expected b=20, got %v", env.lookupTestOnly("b"))
 	}
 }
 
@@ -288,7 +288,7 @@ func TestEval_MinMax(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if env.vars["x"] != 3 {
-		t.Errorf("expected 3, got %v", env.vars["x"])
+	if env.lookupTestOnly("x") != 3 {
+		t.Errorf("expected 3, got %v", env.lookupTestOnly("x"))
 	}
 }

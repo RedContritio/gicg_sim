@@ -68,9 +68,9 @@ class PipelineCfg:
     """[pipeline] section. mode = 'serial' | 'async'.
 
     actor_backend = 'python' (默认 Python mp.Process pool,DMCMultiProcessCollector)
-    | 'go' (I29 Go-native goroutine pool,DMCGoActorCollector,1.5-2x speedup vs
-    Python baseline,Win box N=16 fps≥70 + mem≤2 GB gate)。 仅 DMC paradigm 完整支持,
-    AZ/PPO scaffold ship,production 暂走 'python'。
+    | 'go' (I29 redesign Go subprocess pool,DMCGoSubprocessCollector via
+    cmd/gicg_actor standalone OS subprocess + SHMRing transition,master 0 cgo lib
+    loaded)。 仅 DMC paradigm 完整支持,AZ/PPO/CFR/BC port 留 Phase 2 follow-up。
     """
 
     mode: str = 'serial'
@@ -137,8 +137,9 @@ class DebugCfg:
     全 default False:production cfg 不写 [debug] 时所有 instrumentation 关闭,
     与未启 env var 时旧行为等价。 dev cfg 写 ``[debug] perf_trace=true`` 启 Python
     pipeline + actor + InfServer span trace;``mem_probe=true`` 启 master tracemalloc
-    heap 分项 probe;``go_perf_trace=true`` 启 Go-side span aggregator(libgicg_actor
-    load 前由 dispatch hook 通过 ctypes setter 同步给 Go runtime)。
+    heap 分项 probe。 I29 redesign P3 (2026-05-25): 旧 ``go_perf_trace`` field 删
+    (cgo path 退役,master 不 load libgicg_actor;Go-side perf trace 由 cmd/gicg_actor
+    standalone subprocess 自管,经 stderr / log dump 不进 master metrics.jsonl)。
 
     配套参数默认沿用旧 env var 默认值(perf_trace_flush_n=200 / _s=1.0 / dir 由
     `trace.py` 走 'artifacts/_perf_logs' fallback;mem_probe_interval_s=30, top_n=15)。
@@ -146,7 +147,6 @@ class DebugCfg:
 
     perf_trace: bool = False
     mem_probe: bool = False
-    go_perf_trace: bool = False
     perf_trace_flush_n: int = 200
     perf_trace_flush_s: float = 1.0
     perf_trace_dir: Optional[str] = None  # None = trace.py default 'artifacts/_perf_logs'
@@ -167,13 +167,11 @@ class RuntimeCfg:
     env var。 mp child stdout/stderr 不可靠 (pytest 抓 / ssh strip / sandbox 抑),
     每 actor tee 到 ``<dir>/actor_<id>.log`` line-buffered 写出供事后 debug。
 
-    actor_lib_path: Go-actor c-shared lib (libgicg_actor.dll/dylib/so) 显式
-    路径 override。 None = canonical 路径 ``gicg_env/<libname>`` (走 _find_lib
-    default)。 替代 GICG_ACTOR_LIB env var。 用于 dev box 路径异常 / CI 跨
-    build target 时显式 override。"""
+    I29 redesign P3 (2026-05-25): 旧 ``actor_lib_path`` field 删 (cgo path 退役,
+    master 不再 ctypes load libgicg_actor;Go-actor 走 cmd/gicg_actor standalone
+    OS subprocess 由 spawn_pipeline 起,binary 路径 build-on-demand 不需 cfg knob)。"""
 
     actor_log_dir: str = 'artifacts/_actor_logs'
-    actor_lib_path: Optional[str] = None
 
 
 @dataclass(frozen=True)

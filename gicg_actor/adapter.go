@@ -5,8 +5,10 @@
 // 这跟 design.md D3 一致:"主体 paradigm-agnostic + per-paradigm adapter"。
 //
 // 注册方式:gicg_actor/dmc/init() 在 import 时调 RegisterParadigm("dmc", &DMCParadigm{}),
-// gicg_actor/capi/main.go import dmc package 触发 init,主体 pool 通过 GetParadigm 名字
-// lookup 拿到 instance。 az/ppo/cfr/bc 同模式 P2 ship。
+// cmd/gicg_actor/main.go import dmc package 触发 init,gicg_actor.Run 通过 GetParadigm
+// 名字 lookup 拿到 instance。 az/ppo/cfr/bc 同模式 P2 ship。 I29 redesign P3 (2026-05-25)
+// 前 gicg_actor/capi/main.go (cgo c-shared export) 是注册触发入口,redesign 后 cgo 路径
+// 退役,改 cmd/gicg_actor standalone subprocess 入口。
 
 package gicg_actor
 
@@ -22,7 +24,7 @@ import (
 //   - 创建 engine instance(via `import "<module>/gicg_engine"`,native call)
 //   - 走 actor turn(encode obs + 调 InferenceClient.Request + decode action + engine.Step)
 //   - 走 opp turn(paradigm 自己的 opp baseline,DMC F1-D*,AZ MCTS 等)
-//   - episode 末调 TransitionWriter.Push(done=true)
+//   - paradigm 自己 encode wire frame → 调 sink.Push(clientID, seq, encoded_bytes)
 //   - 跨 episode reuse engine pool(P1.1b 简化:每 episode new 一个;P3 优化)
 //
 // Run 返 err 表示 fatal — actor goroutine 退出,主体 log + 不重启(P1.1b 简化)。
@@ -34,7 +36,11 @@ import (
 type Paradigm interface {
 	Name() string
 	Configure(jsonCfg string) error
-	Run(ctx context.Context, actorID int, infCli *InferenceClient, transWri *TransitionWriter) error
+	// Run 接 InferenceRequester (interface) + TransitionSink (interface) — 两 transport
+	// 抽象,paradigm impl 不区分 underlying TCP / SHM。 TCP path 起 *TransitionWriterTCP,
+	// SHM path 起 *TransitionWriterShm,两者均实现 TransitionSink。 paradigm 端 encode
+	// 完整 wire frame 后调 sink.Push(clientID, seq, payload),透传无解析。
+	Run(ctx context.Context, actorID int, infCli InferenceRequester, sink TransitionSink) error
 }
 
 // paradigmRegistry — 全局单例,paradigm package init() 注册。 名字 conflict raise(防 silent

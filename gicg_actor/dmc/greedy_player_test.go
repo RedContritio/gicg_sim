@@ -77,18 +77,18 @@ func TestScoreF1_FromOppositePerspective(t *testing.T) {
 
 // TestNewGreedyPlayer_ValidConfig 守 valid (F1, depth=1) construct OK。
 func TestNewGreedyPlayer_ValidConfig(t *testing.T) {
-	gp, err := NewGreedyPlayer("F1", 1, 42)
+	gp, err := NewGreedyPlayer("F1", 1, 42, 0)
 	if err != nil {
 		t.Fatalf("construct: %v", err)
 	}
-	if gp.cfg.Features != "F1" || gp.cfg.Depth != 1 {
+	if gp.cfg.Features != "F1" || gp.cfg.Depth != 1 || gp.cfg.MinimaxBudget != 0 {
 		t.Errorf("config: %+v", gp.cfg)
 	}
 }
 
 // TestNewGreedyPlayer_UnknownFeatures 守 unknown features fail loud。
 func TestNewGreedyPlayer_UnknownFeatures(t *testing.T) {
-	_, err := NewGreedyPlayer("F99", 1, 0)
+	_, err := NewGreedyPlayer("F99", 1, 0, 0)
 	if err == nil {
 		t.Fatal("expected unknown features error")
 	}
@@ -97,7 +97,7 @@ func TestNewGreedyPlayer_UnknownFeatures(t *testing.T) {
 // TestNewGreedyPlayer_AllDepthsSupported 守 D1-D4 全可构造(Phase 1.2b 完整 port)。
 func TestNewGreedyPlayer_AllDepthsSupported(t *testing.T) {
 	for _, d := range []int{1, 2, 3, 4} {
-		_, err := NewGreedyPlayer("F1", d, 0)
+		_, err := NewGreedyPlayer("F1", d, 0, 0)
 		if err != nil {
 			t.Errorf("depth=%d: unexpected err: %v", d, err)
 		}
@@ -107,7 +107,7 @@ func TestNewGreedyPlayer_AllDepthsSupported(t *testing.T) {
 // TestNewGreedyPlayer_AllFeaturesSupported 守 F1-F5 全可构造。
 func TestNewGreedyPlayer_AllFeaturesSupported(t *testing.T) {
 	for _, f := range []string{"F1", "F2", "F3", "F4", "F5"} {
-		_, err := NewGreedyPlayer(f, 1, 0)
+		_, err := NewGreedyPlayer(f, 1, 0, 0)
 		if err != nil {
 			t.Errorf("features=%s: unexpected err: %v", f, err)
 		}
@@ -116,13 +116,34 @@ func TestNewGreedyPlayer_AllFeaturesSupported(t *testing.T) {
 
 // TestNewGreedyPlayer_BadDepth 守 depth out-of-range fail loud。
 func TestNewGreedyPlayer_BadDepth(t *testing.T) {
-	_, err := NewGreedyPlayer("F1", 0, 0)
+	_, err := NewGreedyPlayer("F1", 0, 0, 0)
 	if err == nil {
 		t.Fatal("expected depth out-of-range error")
 	}
-	_, err = NewGreedyPlayer("F1", 5, 0)
+	_, err = NewGreedyPlayer("F1", 5, 0, 0)
 	if err == nil {
 		t.Fatal("expected depth out-of-range error")
+	}
+}
+
+// TestNewGreedyPlayer_BadBudget 守 budget < 0 fail loud (C2 cfg-driven knob 校验)。
+func TestNewGreedyPlayer_BadBudget(t *testing.T) {
+	_, err := NewGreedyPlayer("F1", 1, 0, -1)
+	if err == nil {
+		t.Fatal("expected budget < 0 error")
+	}
+	// budget = 0 (无 cap, default) 必须接受
+	_, err = NewGreedyPlayer("F1", 1, 0, 0)
+	if err != nil {
+		t.Fatalf("budget=0 (uncapped) should succeed: %v", err)
+	}
+	// budget > 0 (典型 4000) 必须接受
+	gp, err := NewGreedyPlayer("F1", 4, 0, 4000)
+	if err != nil {
+		t.Fatalf("budget=4000 should succeed: %v", err)
+	}
+	if gp.cfg.MinimaxBudget != 4000 {
+		t.Errorf("expected MinimaxBudget=4000, got %d", gp.cfg.MinimaxBudget)
 	}
 }
 

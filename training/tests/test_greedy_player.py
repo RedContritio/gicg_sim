@@ -337,6 +337,69 @@ class TestGreedyPlayerContract:
             env.close()
 
 
+class TestMinimaxBudget:
+    """C2 (2026-05-25): minimax_node_budget cfg knob for cross-language fair bench
+    parity with Go `gicg_actor/dmc/greedy_player.go` MinimaxBudget。"""
+
+    def test_default_unbounded(self):
+        """minimax_node_budget=None (default) → unbounded recursion (production
+        historical behavior)。"""
+        p = GreedyPlayer(features='F1', depth=2, seed=0)
+        assert p.minimax_node_budget is None
+
+    def test_explicit_budget_stored(self):
+        p = GreedyPlayer(features='F1', depth=4, seed=0, minimax_node_budget=4000)
+        assert p.minimax_node_budget == 4000
+
+    def test_rejects_zero_budget(self):
+        """budget=0 鉴别不出 "unbounded" vs "全停"; 强制 > 0 或 None,fail-loud。"""
+        with pytest.raises(ValueError, match='minimax_node_budget must be > 0 or None'):
+            GreedyPlayer(features='F1', depth=4, seed=0, minimax_node_budget=0)
+
+    def test_rejects_negative_budget(self):
+        with pytest.raises(ValueError, match='minimax_node_budget must be > 0 or None'):
+            GreedyPlayer(features='F1', depth=4, seed=0, minimax_node_budget=-1)
+
+    def test_budget_caps_recursion(self):
+        """tiny budget (=1) 必 cap 递归 — select_with_info 仍返合法 action,但
+        scoring 深度被截。 D2 → depth-1 subtree at top level: budget=1 only allows
+        ONE candidate to descend, rest score at top node directly。"""
+        env = _env()
+        try:
+            # uncapped baseline — D2 full expansion
+            full = GreedyPlayer(features='F1', depth=2, seed=0)
+            full_idx, full_info = full.select_with_info(env)
+            kinds, _ = env.get_legal_actions()
+            assert 0 <= full_idx < len(kinds)
+            n_scored = len(full_info['scored'])
+
+            # capped D2 — budget=1 hits ceiling near immediately
+            capped = GreedyPlayer(features='F1', depth=2, seed=0, minimax_node_budget=1)
+            cap_idx, cap_info = capped.select_with_info(env)
+            assert 0 <= cap_idx < len(kinds)
+            # 仍 scored 全部 top-level candidates (budget 只截 sub-tree, top level
+            # 强制每个 candidate 必 enter loop body 一次)。
+            assert len(cap_info['scored']) == n_scored
+            # 但 capped 的 scores 可能与 full 不同 (sub-tree score 被截后 fallback
+            # 到 current-node score, top-level argmax 可能选 different action)。
+            # 这里只 contract-test cap 不 crash + 返 legal idx; 行为差异留 winrate gate。
+        finally:
+            env.close()
+
+    def test_budget_uncapped_equals_old_const(self):
+        """C2 backward compat: uncapped (None) vs explicit large budget (1e9) 必产
+        same action (large budget 实际上不会被打破)。"""
+        env = _env()
+        try:
+            unbounded = GreedyPlayer(features='F1', depth=4, seed=42).select_action(env)
+            large_budget = GreedyPlayer(
+                features='F1', depth=4, seed=42, minimax_node_budget=1_000_000_000
+            ).select_action(env)
+            assert unbounded == large_budget
+        finally:
+            env.close()
+
+
 class TestLoaderRegistration:
     def test_greedy_loader_registered(self):
         from training.core.matchup.loaders import LOADERS

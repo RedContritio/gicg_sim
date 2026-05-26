@@ -177,11 +177,16 @@ func TestTransitionWriter_PushRoundTrip(t *testing.T) {
 	addr, recv, stop := startMockTransSink(t)
 	defer stop()
 
-	w := NewTransitionWriter(addr, 2*time.Second)
+	w := NewTransitionWriterTCP(addr, 2*time.Second)
 	defer w.Close()
 
+	// I29 redesign:encode 在 paradigm 端,sink 仅 conn.Write framed bytes 透传。
 	orig := &Transition{ClientID: 5, EpisodeID: 100, Step: 7, Done: true, Payload: []byte("hello world")}
-	if err := w.Push(orig); err != nil {
+	framed, err := EncodeTransition(orig)
+	if err != nil {
+		t.Fatalf("encode: %v", err)
+	}
+	if err := w.Push(orig.ClientID, orig.Step, framed); err != nil {
 		t.Fatalf("push: %v", err)
 	}
 
@@ -202,12 +207,16 @@ func TestTransitionWriter_MultiplePush(t *testing.T) {
 	addr, recv, stop := startMockTransSink(t)
 	defer stop()
 
-	w := NewTransitionWriter(addr, 2*time.Second)
+	w := NewTransitionWriterTCP(addr, 2*time.Second)
 	defer w.Close()
 
 	for i := range 20 {
 		t1 := &Transition{ClientID: uint32(i), Step: uint32(i)}
-		if err := w.Push(t1); err != nil {
+		framed, err := EncodeTransition(t1)
+		if err != nil {
+			t.Fatalf("iter %d encode: %v", i, err)
+		}
+		if err := w.Push(t1.ClientID, t1.Step, framed); err != nil {
 			t.Fatalf("iter %d push: %v", i, err)
 		}
 	}

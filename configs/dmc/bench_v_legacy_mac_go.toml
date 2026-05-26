@@ -1,0 +1,35 @@
+# I29 T-C1 Mac fair bench — Go-actor variant。
+#
+# NOTE (post-R7 ship,2026-05-25):本 cfg 是 fair-bench scaffold,**实际 bench 不走
+# `tools.runs.train` 路径**,而是经 `tools/_bench/run_mac_collector_pair.py` 直接
+# pytest spawn 调 `test_go_subprocess_perf_smoke_15s` (15s 短 window)。 cfg 仅作
+# scenario/algo alignment scaffold (extends bench_v_legacy_mac_python_mp.toml,
+# 切 actor_backend = "go"); production cfg 走 `configs/dmc/stage3_b_v_legacy_go*`。
+# 详 [[i29-bench-harness]] memory。
+
+#
+# 与 bench_v_legacy_mac_python_mp.toml 配对:同 commit + 同 Mac + 同 scenario /
+# card_pool / opponent_mix / network / debug,只切 [pipeline] actor_backend = "go"
+# (Go goroutine pool via libgicg_actor.dylib)。
+#
+# 期望 Mac N=4(Phase A + T-B1 fix 后):
+# - fps/actor ≥ Python mp baseline(本 cfg pair 实测,不引用历史 memory)
+# - transition_writer.mutex_wait mean ≈ 0(T-B1 per-actor conn 后)
+# - 所有 Phase A sub-span 占比合理可解释
+#
+# 多 run 取 mean±std:
+#   for seed in 1 2 3:
+#     .venv/bin/python -m tools.runs.train configs/dmc/bench_v_legacy_mac_go.toml \
+#       --override meta.seed=$seed
+#
+# N=8 variant: 加 --override pipeline.num_actors=8
+
+[meta]
+extends = "bench_v_legacy_mac_python_mp.toml"
+seed = 42
+paradigm = "dmc"
+run_label = "bench_v_legacy_mac_go"
+device = "cpu"
+
+[pipeline]
+actor_backend = "go"  # I29 — 走 gicg_actor goroutine pool(libgicg_actor.dylib)

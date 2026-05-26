@@ -4,9 +4,11 @@
 // IPC client / transition writer)。 import "gicg_mono/gicg_engine" 单向依赖,engine
 // package 不知道 actor 存在(RL-zero awareness)。
 //
-// 通过 ./capi build 出 libgicg_actor.dll/.dylib,Python master ctypes load 调 C API
-// (gicg_actor_start_pool / gicg_actor_stop_pool 等)。 与现有 libgicg(gicg_engine/capi/)
-// 独立 build。 详 openspec/changes/i29-go-actor-pool/design.md D4。
+// I29 redesign (2026-05-25):cmd/gicg_actor standalone executable 走 Run(ctx, cfg, sinks),
+// 不依赖 package 全局 singleton。 P3 ship 已退役 capi/ c-shared ABI (StartPool /
+// StartPoolWithConfig / StopPool / AliveCount / Hello + singleton mu/running/cancel/wg
+// 全局 state),master Python 不再 ctypes load libgicg_actor — DMCGoSubprocessCollector
+// 经 subprocess.Popen 起本 binary,Run() 是唯一入口。
 package gicg_actor
 
 import (
@@ -17,39 +19,33 @@ import (
 	"sync"
 	"sync/atomic"
 	"syscall"
-	"time"
 )
 
-// Config 是 pool 启动配置。 ctypes API 传字符串/int,Go side 组装成 Config。
+// Config 是 pool 启动配置。 cmd/gicg_actor parseConfig 反序列化 stdin JSON 组装。
 type Config struct {
 	NActors       int    // 起 N 个 actor goroutine
 	ParadigmName  string // adapter registry lookup key
-	InfServerAddr string // "host:port" — Go socket connect Python InfServer
-	TransSinkAddr string // "host:port" — Go socket connect Python trainer transition sink
+	InfServerAddr string // "host:port" — Go socket connect Python InfServer (TCP path)
+	TransSinkAddr string // "host:port" — Go socket connect Python trainer transition sink (TCP path)
 	IOTimeoutMs   int    // 默认 30000 ms
 	// ParadigmConfigJSON 透传给 paradigm.Configure(). paradigm 自反序列化 — 主体不知 schema.
 	// DMC schema 见 gicg_actor/dmc/paradigm.go:DMCConfig。
 	ParadigmConfigJSON string
+
+	// BaseActorID — 起 N actor goroutine 时,各 goroutine 的 actorID 偏移基址。
+	// I29 R7.2 (2026-05-25):master Python 把 N independent Go subprocess 起来 mimic Python mp 的
+	// N+2 OS process 拓扑,每 subprocess NActors=1 + BaseActorID=i ∈ [0, N) — 保
+	// clientID = baseActorID + i = i 在跨 subprocess 唯一(否则 N subprocess 都 actorID=0,
+	// 共享 SHM ring 上 (cid, ep_id) key 撞,DMC assembler 把 N actor 的 episode 混一起)。
+	// 默认 0(单 subprocess 路径 / R7.2 之前的行为)。
+	BaseActorID int
 }
 
-// pool 是全局单例。 Python master 同一时刻只起一组 actor pool;ctypes API 是 stateless
-// 函数,实际 state 跑在本 package 全局变量里。 mu 保护并发 start/stop。
-var (
-	mu         sync.Mutex
-	running    bool
-	cancel     context.CancelFunc
-	wg         sync.WaitGroup
-	currentCfg Config
-	// currentInfs — 每 actor 一个 InferenceClient(各自一条 socket conn)。 I29 T-RR.5:
-	// 旧实现单一共享 client + Request 全程持 mutex → N actor 任意时刻仅 1 个 in-flight
-	// inference。 per-actor conn → N 请求并发,InfServer 端可批处理(0.4 eps/s 根因)。
-	currentInfs []*InferenceClient
-	currentTW   *TransitionWriter
-	// aliveActors — 当前在跑的 actor goroutine 数(atomic)。 StartPool 置 NActors,
-	// 每个 actorLoop 退出(fatal 或 ctx-cancel)即 -1。 Python 经 C API 读之 —— actor
-	// 静默 fatal 死亡(穷举审计 #E2)从此可见(I29 T-RR.7)。
-	aliveActors int32
-)
+// aliveActors — 当前在跑的 actor goroutine 数(atomic)。 runInternal 进 spawn 时置 NActors,
+// 每个 actorLoop 退出(fatal 或 ctx-cancel)即 -1。 测试可读 (内部 sanity invariant —
+// 健康运行 == NActors;< NActors 说明有 actor 静默 fatal 死亡)。 cmd/gicg_actor 外部不 expose
+// (master 经 SHMRing trans 缺失 自然 surface alive 异常)。
+var aliveActors int32
 
 func init() {
 	initSignalHandler()
@@ -61,6 +57,10 @@ func init() {
 // 装的 no-op SIGTERM handler 让 Go runtime 不 override → proc.terminate() 双方都不响应 → mp
 // test hang。 Go init goroutine signal.Notify → os.Exit(0) 必装,让 Go runtime 接管
 // SIGTERM 时优雅退出而非 hang。
+//
+// I29 redesign 后 master 不再 cgo load lib (cgo path 退役),此 handler 仍生效在
+// cmd/gicg_actor standalone binary 中 — cmd/gicg_actor/main.go 自己也装一份 (defense in
+// depth,显式 cancel ctx + 让 paradigm.Run 走 graceful path)。
 func initSignalHandler() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM)
@@ -70,158 +70,76 @@ func initSignalHandler() {
 	}()
 }
 
-// StartPool 起 N actor goroutine。 P0 占位仍保留(hello-world test 用):若 ParadigmName
-// 为空,跑 placeholder(单 goroutine print "ok" 即等 stop)。 P1.1b 起,真 paradigm 调
-// paradigm.Run(ctx, ...)。
+// Run — I29 redesign (2026-05-25) standalone executable 入口。 不依赖 package singleton。
 //
-// 返 0 = success,非 0 = 错误码:
+// sinks 长度必须 == cfg.NActors (per-actor sink) 或 == 1 (所有 actor 共享同一 sink,SHM ring
+// MPSC mode)。 infReqs 必须 == cfg.NActors (per-actor inference client)。
 //
-//	1 = already running
-//	2 = invalid n_actors
-//	3 = unknown paradigm name
-//	4 = inference client connect failed
-//	5 = transition writer connect failed
-//	6 = paradigm.Configure failed (bad JSON / unknown field)
-func StartPool(n int) int {
-	return StartPoolWithConfig(Config{NActors: n})
+// 行为:registry lookup ParadigmName + paradigm.Configure + N actor goroutine 跑 paradigm.Run。
+//
+// 阻塞直到所有 actor goroutine 完成 (ctx cancel 或 paradigm.Run 返回)。
+// 返 err = paradigm 配置错 / unknown paradigm;actor goroutine 内 err 仅 log 不上抛
+// (单 actor fatal 不杀整 pool,与 pre-redesign capi 行为一致)。
+func Run(ctx context.Context, cfg Config, infReqs []InferenceRequester, sinks []TransitionSink) error {
+	if cfg.NActors <= 0 {
+		return fmt.Errorf("Run: NActors must be > 0, got %d", cfg.NActors)
+	}
+	if cfg.ParadigmName == "" {
+		return fmt.Errorf("Run: ParadigmName must be set (placeholder PoC path 已退役)")
+	}
+	if len(sinks) != cfg.NActors && len(sinks) != 1 {
+		return fmt.Errorf("Run: sinks len %d, want NActors=%d or 1 (shared)", len(sinks), cfg.NActors)
+	}
+	if len(infReqs) != cfg.NActors {
+		return fmt.Errorf("Run: infReqs len %d, want NActors=%d", len(infReqs), cfg.NActors)
+	}
+	return runInternal(ctx, cfg, infReqs, sinks)
 }
 
-// transitionWriteTimeout — transition push 的 socket write deadline。 远长于 inference
-// 的 IOTimeoutMs:transition 是 fire-and-forget,backpressure 下 write 阻塞是正常的
-// (Python 端有界 queue 满 → listener 停 drain socket → TCP 回压),不该触发 deadline
-// 把 actor 当 fatal 杀掉。 此值只兜底「consumer 真死」—— driver 健康时每个 collect
-// 周期(秒级)就 drain queue,绝不逼近 5 min(I29 T-RR.3 #12)。
-const transitionWriteTimeout = 5 * time.Minute
-
-// StartPoolWithConfig — production 入口(ctypes API 调本函数)。
-func StartPoolWithConfig(cfg Config) int {
-	mu.Lock()
-	defer mu.Unlock()
-	if running {
-		return 1
+// runInternal — Run 共用内核 (无 validation)。 caller 已 validate cfg + 已 alloc sinks/infReqs。
+func runInternal(ctx context.Context, cfg Config, infReqs []InferenceRequester, sinks []TransitionSink) error {
+	paradigm := GetParadigm(cfg.ParadigmName)
+	if paradigm == nil {
+		return fmt.Errorf("runInternal: unknown paradigm %q", cfg.ParadigmName)
 	}
-	if cfg.NActors <= 0 {
-		return 2
-	}
-	timeout := time.Duration(cfg.IOTimeoutMs) * time.Millisecond
-	ctx, cancelFn := context.WithCancel(context.Background())
-
-	// 始终分配长度 NActors —— actorLoop 走 currentInfs[id]。 InfServerAddr 为空(P0
-	// 占位 / 单测)则保持 N 个 nil,DMC runEpisode 对 nil infCli 已 fail-loud。
-	currentInfs = make([]*InferenceClient, cfg.NActors)
-
-	// Paradigm == "" — P0 占位路径(hello-world test 用)。 P1.1b 起 production 必传 ParadigmName。
-	var paradigm Paradigm
-	if cfg.ParadigmName != "" {
-		paradigm = GetParadigm(cfg.ParadigmName)
-		if paradigm == nil {
-			cancelFn()
-			return 3
-		}
+	if cfg.ParadigmConfigJSON != "" {
 		if err := paradigm.Configure(cfg.ParadigmConfigJSON); err != nil {
-			fmt.Fprintf(os.Stderr, "[gicg_actor] paradigm configure failed: %v\n", err)
-			cancelFn()
-			return 6
-		}
-		// Connect InfServer(per-actor)+ TransSink upfront — fail-loud if address bad,
-		// actor goroutine 起跑后才发现 socket 不通会有 N 个 partial-init 状态。
-		if cfg.InfServerAddr != "" {
-			for i := range cfg.NActors {
-				c := NewInferenceClient(cfg.InfServerAddr, timeout)
-				if err := c.Connect(); err != nil {
-					fmt.Fprintf(os.Stderr, "[gicg_actor] inf connect failed (actor %d): %v\n", i, err)
-					closeInfClients()
-					cancelFn()
-					return 4
-				}
-				currentInfs[i] = c
-			}
-		}
-		if cfg.TransSinkAddr != "" {
-			// transitionWriteTimeout(5 min)而非 inference 的 timeout(IOTimeoutMs):
-			// backpressure 下 transition write 阻塞是正常的,不该触发 deadline 杀 actor。
-			currentTW = NewTransitionWriter(cfg.TransSinkAddr, transitionWriteTimeout)
-			if err := currentTW.Connect(); err != nil {
-				fmt.Fprintf(os.Stderr, "[gicg_actor] trans connect failed: %v\n", err)
-				cancelFn()
-				closeInfClients()
-				currentTW = nil
-				return 5
-			}
+			return fmt.Errorf("runInternal: paradigm configure: %w", err)
 		}
 	}
 
-	cancel = cancelFn
-	currentCfg = cfg
+	// 1 sink + N actor → broadcast (SHM ring MPSC)。 否则 per-actor index。
+	sinkFor := func(id int) TransitionSink {
+		if len(sinks) == 1 {
+			return sinks[0]
+		}
+		return sinks[id]
+	}
+
+	var runWg sync.WaitGroup
 	atomic.StoreInt32(&aliveActors, int32(cfg.NActors))
 	for i := range cfg.NActors {
-		wg.Add(1)
-		go actorLoop(ctx, i, paradigm)
+		runWg.Add(1)
+		// actorID = BaseActorID + i — I29 R7.2 让 N independent subprocess 起后
+		// 跨 subprocess 的 clientID 唯一(避免 SHM ring (cid, ep_id) key 撞)。
+		// infReqs / sinkFor 仍按 process 内 local index i — InferenceClient + SHM ring
+		// 是 per-subprocess 资源,而 DMC paradigm 经 actorID 把 clientID 写到 wire payload。
+		actorID := cfg.BaseActorID + i
+		go func(localIdx, externalID int) {
+			defer runWg.Done()
+			defer atomic.AddInt32(&aliveActors, -1)
+			runActor(ctx, externalID, paradigm, infReqs[localIdx], sinkFor(localIdx))
+		}(i, actorID)
 	}
-	running = true
-	return 0
+	runWg.Wait()
+	return nil
 }
 
-// StopPool 触发所有 actor goroutine 优雅退出 + 等齐 join。 返 0 = success,1 = not running。
-func StopPool() int {
-	mu.Lock()
-	defer mu.Unlock()
-	if !running {
-		return 1
-	}
-	if cancel != nil {
-		cancel()
-	}
-	wg.Wait()
-	closeInfClients()
-	if currentTW != nil {
-		_ = currentTW.Close()
-		currentTW = nil
-	}
-	running = false
-	cancel = nil
-	currentCfg = Config{}
-	return 0
-}
-
-// closeInfClients 关闭并清空所有 per-actor inference client。 caller 须已持 mu。
-func closeInfClients() {
-	for _, c := range currentInfs {
-		if c != nil {
-			_ = c.Close()
-		}
-	}
-	currentInfs = nil
-}
-
-func actorLoop(ctx context.Context, id int, paradigm Paradigm) {
-	defer wg.Done()
-	// LIFO defer:本行(注册在 wg.Done 之后)先于 wg.Done 执行 —— StopPool 的
-	// wg.Wait() 返回时 aliveActors 必已归 0。
-	defer atomic.AddInt32(&aliveActors, -1)
-	if paradigm == nil {
-		// P0 placeholder — hello-world 路径(无 paradigm config)。
-		fmt.Printf("[gicg_actor] ok actor=%d\n", id)
-		<-ctx.Done()
-		return
-	}
-	// P1.1b production path — paradigm own 完整 episode lifecycle。
-	err := paradigm.Run(ctx, id, currentInfs[id], currentTW)
+// runActor — 单 actor goroutine 主体,直接 paradigm.Run + err log。
+func runActor(ctx context.Context, id int, paradigm Paradigm, infCli InferenceRequester, sink TransitionSink) {
+	err := paradigm.Run(ctx, id, infCli, sink)
 	if err != nil && ctx.Err() == nil {
 		fmt.Fprintf(os.Stderr, "[gicg_actor] actor=%d paradigm=%s fatal: %v\n",
 			id, paradigm.Name(), err)
 	}
-}
-
-// Hello 是最简 ctypes 烟雾测:Python 调返 0 验证 ctypes load + Go runtime init OK。
-func Hello() int {
-	return 0
-}
-
-// AliveCount 返回当前在跑的 actor goroutine 数。 StartPool 后 == NActors;某 actor 因
-// fatal error 退出则减(clean exit 只在 StopPool ctx-cancel 时发生)。 故 pool 运行期间
-// AliveCount < NActors 即说明有 actor 静默 fatal 死亡 —— Python 侧据此可见(I29 T-RR.7,
-// 穷举审计 #E2:actor 死亡静默 → 吞吐看似慢实为 actor 减少)。
-func AliveCount() int {
-	return int(atomic.LoadInt32(&aliveActors))
 }

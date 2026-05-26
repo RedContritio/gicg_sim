@@ -90,7 +90,7 @@ class DMCParadigm:
         return DMCLogitAsQLoss(pcfg)
 
     def make_collector(self, cfg: Any, env_factory: Any, network: Any, opp_pool: Any) -> Any:
-        """Serial / Python mp / Go-native collector based on cfg.pipeline.{mode,actor_backend}.
+        """Serial / Python mp / Go-subprocess collector based on cfg.pipeline.{mode,actor_backend}.
 
         env_factory: callable(game_idx) → GicgEnv, built by tools.runs.train.
         opp_pool: paradigm-built OpponentPool from ``make_opponent_pool``。
@@ -99,8 +99,11 @@ class DMCParadigm:
         - mode='serial':DMCSerialCollector(Python in-proc,no actor pool)
         - mode='async' + actor_backend='python'(默认):DMCMultiProcessCollector
           (现 Python mp.Process pool)
-        - mode='async' + actor_backend='go'(I29):DMCGoActorCollector
-          (Go-native goroutine pool via libgicg_actor)
+        - mode='async' + actor_backend='go'(I29 redesign 2026-05-25):
+          DMCGoSubprocessCollector (cmd/gicg_actor standalone OS subprocess + SHMRing
+          transition,master 0 cgo lib loaded — design.md §3 deal-breaker invariant #1)。
+          Pre-redesign cgo path (libgicg_actor.dylib + DMCGoActorCollector) P3 退役 by
+          this commit。
         """
         pcfg = self._resolve_pcfg(cfg)
         if cfg.pipeline.mode == 'async':
@@ -116,12 +119,15 @@ class DMCParadigm:
         return DMCSerialCollector(cfg, pcfg, agent, opp_pool, env)
 
     def _make_go_collector(self, cfg: Any, pcfg: Any, network: Any) -> Any:
-        """Build DMCGoActorCollector with paradigm_cfg_dict assembled from cfg + pcfg。
+        """Build DMCGoSubprocessCollector with paradigm_cfg_dict assembled from cfg + pcfg。
 
-        Scenario walk cfg.scenario;对手按 pcfg.opponent_mix 透传给 Go actor
-        (per-episode 按权重抽 random/f1d2/f1d4/historical)。
+        Scenario walk cfg.scenario;对手按 pcfg.opponent_mix 透传给 Go subprocess
+        (per-episode 按权重抽 random/f1d2/f1d4/historical)。 I29 redesign P3 退役 cgo path
+        (DMCGoActorCollector + libgicg_actor),改走 cmd/gicg_actor standalone subprocess +
+        SHMRing transition。 Inference 走 TCP (I29 R7.1 删 SHM inference path,与 Python mp
+        wire 等价)。
         """
-        from training.paradigms.dmc.go_collector import DMCGoActorCollector
+        from training.paradigms.dmc.go_subprocess_collector import DMCGoSubprocessCollector
 
         sc = cfg.scenario
         game_spec = {
@@ -144,6 +150,12 @@ class DMCParadigm:
         # minimax 吞掉(I29 T-R3 吞吐崩溃根因)。 historical 在 Go 路径走当前 net
         # 推理代理(cost-faithful;真 historical-net ring 是 follow-up)。
         omix = pcfg.opponent_mix
+        # C2 (2026-05-25): minimax_node_budget 透传到 Go side (DMCConfig.OpponentMix.
+        # MinimaxNodeBudget)。 None → 0 (Go 端 0 视作无 cap, 与 Python None 语义对齐)。
+        # bench cfg explicit 设值才 cap; production cfg 不设字段 → 0 = uncapped, Go
+        # 端历史 const minimaxNodeBudget=4000 在 C2 后改 cfg-driven default 0 (无 cap),
+        # production cfg 期望两边 algo 一致 (Python 历史也 no cap)。
+        _budget = int(omix.minimax_node_budget) if omix.minimax_node_budget is not None else 0
         paradigm_cfg = {
             'game_spec': game_spec,
             'opponent_mix': {
@@ -151,6 +163,7 @@ class DMCParadigm:
                 'f1d2': float(omix.f1d2),
                 'f1d4': float(omix.f1d4),
                 'historical': float(omix.historical),
+                'minimax_node_budget': _budget,
             },
             # Go actor obs / assembler / logits 宽度 — 必须 == 网络 action 容量
             # (AgentConfig.max_actions),否则 n_legal > max_actions 时 chosen_action
@@ -163,7 +176,7 @@ class DMCParadigm:
             'epsilon': float(getattr(pcfg, 'epsilon', 0.05)),
         }
         n_actors = int(getattr(cfg.pipeline, 'num_actors', 1))
-        return DMCGoActorCollector(
+        return DMCGoSubprocessCollector(
             cfg=cfg,
             network=network,
             paradigm_cfg_dict=paradigm_cfg,

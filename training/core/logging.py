@@ -11,7 +11,6 @@ Sampler kinds(自动起 daemon thread,周期写 metrics.jsonl):
 - kind=disk:system disk IO 累计 read/write bytes/count
 - kind=net:system net IO 累计 bytes/packets sent/recv
 - kind=load:Unix load avg 1m/5m/15m(Windows skip)
-- kind=go_perf:Go-side span trace drain (cfg.debug.go_perf_trace=true 才有内容,否则空 stages)
 
 所有 paradigm 透明获益 — 上层 driver 不用关心。``close()`` 优雅停 + join。
 任一 sampler interval 传 None 用 default,传 0/<=0 禁该 sampler。
@@ -258,31 +257,6 @@ def _sample_net() -> dict:
     }
 
 
-def _sample_go_perf() -> dict:
-    """Drain Go-side perf trace ring + aggregate cross-window 成单行。
-
-    输出 schema:``{n_windows, stages: {name: {n, sum_ms, max_ms}}}``。 disabled
-    (cfg.debug.go_perf_trace=false default) → 返 ``{n_windows: 0, stages: {}}`` (空 record,不漏行,
-    便于离线分析 wall-time-coverage)。 lib 未 build → 同 disabled (raise 被 sampler
-    thread swallow,该 sampler 跳)。
-    """
-    from training.core.actor.go_perf_trace import flush_go_perf_spans
-
-    windows = flush_go_perf_spans()
-    agg: dict[str, dict] = {}
-    for w in windows:
-        for name, st in w['stages'].items():
-            b = agg.get(name)
-            if b is None:
-                b = {'n': 0, 'sum_ms': 0.0, 'max_ms': 0.0}
-                agg[name] = b
-            b['n'] += st['n']
-            b['sum_ms'] = round(b['sum_ms'] + st['sum_ms'], 4)
-            if st['max_ms'] > b['max_ms']:
-                b['max_ms'] = st['max_ms']
-    return {'n_windows': len(windows), 'stages': agg}
-
-
 def _sample_load() -> dict:
     """Unix load avg 1m/5m/15m;Win 没此概念,os.getloadavg() AttributeError。"""
     if not hasattr(os, 'getloadavg'):
@@ -404,7 +378,6 @@ class MetricsLogger:
     - ``disk_sample_interval_s``       default 10
     - ``net_sample_interval_s``        default 10
     - ``load_sample_interval_s``       default 10(Win auto-skip)
-    - ``go_perf_sample_interval_s``    default 5(libgicg_actor 未 build auto-skip)
 
     任一 ``None`` → 用 default。``0`` / 负数 → 禁该 sampler。每行 ~250 B-1 KB,
     长跑 train 容量微不足道,hotpath 不打扰(daemon thread)。
@@ -416,7 +389,6 @@ class MetricsLogger:
     DEFAULT_DISK_INTERVAL_S = 10.0
     DEFAULT_NET_INTERVAL_S = 10.0
     DEFAULT_LOAD_INTERVAL_S = 10.0
-    DEFAULT_GO_PERF_INTERVAL_S = 5.0
 
     def __init__(
         self,
@@ -428,7 +400,6 @@ class MetricsLogger:
         disk_sample_interval_s: Optional[float] = None,
         net_sample_interval_s: Optional[float] = None,
         load_sample_interval_s: Optional[float] = None,
-        go_perf_sample_interval_s: Optional[float] = None,
     ) -> None:
         self.artifacts_dir = Path(artifacts_dir) if artifacts_dir else None
         self.enable_tb = enable_tb
@@ -467,15 +438,21 @@ class MetricsLogger:
             # Load avg only on Unix.
             if hasattr(os, 'getloadavg'):
                 self._maybe_start_sampler('load', load_sample_interval_s, self.DEFAULT_LOAD_INTERVAL_S, _sample_load)
-            # Go-side perf trace sampler — sample_fn 内部 disabled 时返空 dict,
-            # 但 lib 未 build → import 报 FileNotFoundError → _sample_once swallow
-            # 整 sampler 不打扰。 production 总挂上,无 lib 时静默 skip。
-            self._maybe_start_sampler(
-                'go_perf',
-                go_perf_sample_interval_s,
-                self.DEFAULT_GO_PERF_INTERVAL_S,
-                _sample_go_perf,
-            )
+
+    def attach_callable_sampler(self, kind: str, interval_s: float, sample_fn) -> None:
+        """Register a callable sampler + spawn a ``_ResourceSamplerThread`` daemon。
+
+        ``sample_fn`` は callable returning a ``dict`` — same contract as internal
+        ``_sample_mem`` / ``_sample_cpu`` etc。 Thread appended to ``self._samplers``
+        so ``close()`` joins it automatically。
+
+        No-op when ``self._metrics_fh is None`` (no artifacts_dir / test-disabled),
+        matching the guard on ``attach_external_queue``。"""
+        if self._metrics_fh is None:
+            return
+        t = _ResourceSamplerThread(self, kind, float(interval_s), sample_fn)
+        self._samplers.append(t)
+        t.start()
 
     def attach_external_queue(self, queue, name: str = 'external') -> None:
         """Register a cross-process queue + spawn a drainer thread。 子进程
