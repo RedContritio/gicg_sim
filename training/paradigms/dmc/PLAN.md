@@ -655,6 +655,28 @@ MP-1 → MP-2 → MP-3 → MP-4(Mac 验)→ Windows MP-4(GPU 验)→ MP-5(batchi
 
 > 触发:Stage 3 pilot 跑 12342 train_steps 后 grad_norm=inf NaN;T9 Mac compile benchmark 揭示 cold-start 5-10s 不适合 smoke fast-path;train_step 路径 compile 未覆盖。
 
+#### B-win-wire-fix(2026-05-26 ship,FIXED)
+
+> 触发:I29 R7.2 squash 到 main 后跑 stage3_b_v_legacy_go.toml on Win 卡死 5+ min,master 看似 hang。
+
+**Root cause(经 6 层 diagnostic 定位)**:
+
+1. `DMCParadigm._make_go_collector` 把 raw `DMCNetwork` 直接传给 `DMCGoSubprocessCollector` → `InferenceServer` host 该 network。
+2. InfServer 收到 Go actor inference request 时调 `network(obs, mask)` (即 `DMCNetwork.forward`) → `DMCNetwork.forward` raise NotImplementedError (training-only,生产应该走 `forward_batch` 或 `select_action`)。
+3. Go actor 第 1 个 inference request 报 server error → `runEpisode` err → Go actor goroutine exit → `runWg.Wait()` return → `Run` return nil → main exit rc=0 (silently)。
+4. Master 端 `subprocess.Popen` 的 `stderr=PIPE` **无 reader thread drain** → Go 的 fail-loud stderr 被 OS pipe buffer 吞,master 看似 hang (实际等不到永远不来的 episode transitions)。
+
+**Fix(2 commits)**:
+
+- `training/paradigms/dmc/paradigm.py`(核心 fix): `_make_go_collector` 把 `network.net` (ActorCritic underlay) wrap 进 `DMCInferenceNet`,再传 collector。 与 `perf_smoke` test fixture (`_build_dmc_inference_net`) 同模式。
+- `training/core/actor/go_subprocess.py`(强化 fix): 加 stderr drain background thread,从此 Go binary 任何 fail-loud error 都能 surface 到 master 的 `RuntimeError`(类比已有的 stdout reader thread)。 之前 stderr unread → 错误隐形 → master 卡死 looks like hang。
+
+**验证**:
+- cpu+N=1+10k frames probe on Win box: Go binary alive,跑了 3+ episodes (`runEpisode done OK`),pipeline 工作。
+- production cuda+N=19+100k frames pilot 跑前 30s 反复挂同样 root cause(stderr-drain fix 后能 surface 真 error,paradigm.py fix 后 inference 通)。 完整 100k pilot 待 Win box 可用时验证。
+
+**Implication for Stage 3 production**:Stage 3 Windows GPU full train (Phase 3.5 Step 5) 用 `stage3_b_v_legacy_go.toml` 现可 spawn 通,**B-nan-pilot 仍是 train-阶段 blocker(此 fix 仅解 spawn-阶段)**。 下一轮 Win box 可用时跑 100k pilot,过得了 train_step 12342 (NaN trigger 历史点) 才算 B-nan-pilot ACCEPTANCE。
+
 | 子任务 | 内容 | LOC | 触发证据 |
 |---|---|---|---|
 | **B-compile-smoke** | **不要** 在 `smoke.toml` 加 `inference_acceleration='compile'`。理由:torch.compile cold-start ~5-10s,smoke 设计是 < 1s fast sanity per CLAUDE.md。T9 Mac d_model=32 smoke 60s wall:compile=69.9 fps vs none=270 fps(60s 中大半是 cold-start overhead)。**production cfg(default.toml / stage3_pilot.toml)是 compile 收益场,smoke 维持 none**。doc-only(record decision)| 0 | T9 实测;CLAUDE.md `smoke` marker 设计意图 |

@@ -86,11 +86,32 @@ class GoSubprocessHandle:
         )
         reader_thr.start()
 
+        # Drain stderr in parallel — Win OS pipe buffer (~4 KB) fills if not drained,
+        # Go binary 阻塞 next stderr write → 永不 emit READY → master deadlock。
+        # 收集 stderr lines 到 list (memoryless) — 错误路径 read 全部 lines。
+        assert proc.stderr is not None
+        stderr_lines: list[str] = []
+
+        def _drain_stderr() -> None:
+            try:
+                for line in iter(proc.stderr.readline, ''):
+                    stderr_lines.append(line)
+            except Exception:
+                pass
+
+        stderr_thr = threading.Thread(
+            target=_drain_stderr,
+            daemon=True,
+            name=f'gicg_actor[{proc.pid}]_stderr_reader',
+        )
+        stderr_thr.start()
+
         deadline = time.monotonic() + ready_timeout_s
         while True:
             if proc.poll() is not None:
-                # subprocess 在 READY 前退出 — 收 stderr 全部内容 fail-loud
-                stderr = proc.stderr.read() if proc.stderr else ''
+                # subprocess 在 READY 前退出 — 等 stderr reader thread drain 完 (poll 后给 100ms 让残留 stderr 排空) → 拼 fail-loud message。
+                stderr_thr.join(timeout=0.5)
+                stderr = ''.join(stderr_lines)
                 raise RuntimeError(
                     f'Go subprocess exited (rc={proc.returncode}) before READY: {stderr}'
                 )

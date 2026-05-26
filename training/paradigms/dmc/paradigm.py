@@ -128,6 +128,7 @@ class DMCParadigm:
         wire 等价)。
         """
         from training.paradigms.dmc.go_subprocess_collector import DMCGoSubprocessCollector
+        from training.paradigms.dmc.inference_net import DMCInferenceNet
 
         sc = cfg.scenario
         game_spec = {
@@ -176,9 +177,17 @@ class DMCParadigm:
             'epsilon': float(getattr(pcfg, 'epsilon', 0.05)),
         }
         n_actors = int(getattr(cfg.pipeline, 'num_actors', 1))
+        # Wrap raw DMCNetwork in DMCInferenceNet for InferenceServer host —
+        # DMCNetwork.forward is NotImplemented (training-only;use forward_batch),
+        # InfServer 在 socket forward_cb 走 raw `network(...)` call → 需要 InferenceNet
+        # 的 forward 实现。 与 perf_smoke test fixture 同模式 (test_go_subprocess_perf_smoke
+        # _build_dmc_inference_net)。 .net 取 ActorCritic underlay (DMCNetwork 包了 DmcAgent
+        # 含 .net actor_critic) — DMCInferenceNet 期待 ActorCritic 不是 DMCNetwork。
+        actor_critic = network.net if hasattr(network, 'net') else network
+        inf_network = DMCInferenceNet(actor_critic)
         return DMCGoSubprocessCollector(
             cfg=cfg,
-            network=network,
+            network=inf_network,
             paradigm_cfg_dict=paradigm_cfg,
             n_actors=n_actors,
         )
