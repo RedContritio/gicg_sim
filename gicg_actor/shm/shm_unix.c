@@ -128,15 +128,32 @@ void shm_unlink_name(const char* name) {
 
 // ─── Multi-producer req_ring: shm_ring_push ────────────────────────────────
 //
-// Lock-free N-producer 1-consumer ring using C11 atomics:
-//   1. Atomic load count; if count >= capacity → ring full, return 0.
-//   2. CAS tail from old to (old+1)%cap; retry on CAS fail (another producer raced).
-//   3. Write payload into slot[old].
-//   4. Atomic store slot->status = FULL.
-//   5. Atomic increment count.
+// Lock-free N-producer 1-consumer ring using C11 atomics。 2026-05-27 fix
+// (Win N=19 production deadlock):
 //
-// ABA protection: count check prevents wrap-around from causing false-empty
-// reads, and slot status is checked by consumer before marking head consumed.
+// Pre-fix algo "load count → CAS tail → count++" has a TOCTOU race: N
+// producers can simultaneously see count < cap (passing the gate), each CAS
+// a distinct tail slot, then each count++ → cumulative count > cap, with
+// tail wrapping back overwriting un-consumed FULL slots. Master pop then
+// finds slot[head] permanently EMPTY (the wrap-overwritten slot's prior
+// FULL status got reset to EMPTY by master's earlier pop of the same
+// position, but the second producer's write hasn't set FULL yet — or the
+// payload at head is corrupted).
+//
+// Fix: atomically reserve a count slot first via CAS-on-count. Only after
+// reservation succeeds (count was strictly < cap and we bumped it) do we
+// CAS a unique tail position and write the payload. The count==cap check
+// is now strict — over-reservation impossible by construction.
+//
+// Steps:
+//   1. CAS count from cnt to cnt+1 (retry on CAS fail; return 0 if cnt>=cap).
+//   2. CAS tail from old to (old+1)%cap; retry on CAS fail.
+//   3. Write payload into slot[old_tail].
+//   4. Atomic store slot->status = FULL (RELEASE).
+//
+// Note: count is now bumped BEFORE the slot is written. Consumer may see
+// count > actual-FULL-slots transiently; existing pop logic handles this
+// via the slot->status check (returns 0 as "transient").
 
 int shm_ring_push(ShmHandle h, uint32_t client_id, uint32_t req_id,
                   const void* payload, uint32_t payload_len) {
@@ -146,36 +163,35 @@ int shm_ring_push(ShmHandle h, uint32_t client_id, uint32_t req_id,
     int32_t max_payload = hdr->slot_size - SHM_SLOT_HEADER_SIZE;
     if ((int32_t)payload_len > max_payload) return 0;
 
-    // Spin until we acquire a slot via CAS on tail.
-    for (;;) {
-        int32_t cnt = __atomic_load_n(&hdr->count, __ATOMIC_ACQUIRE);
-        if (cnt >= cap) {
-            return 0; // full
-        }
-        int32_t old_tail = __atomic_load_n(&hdr->tail, __ATOMIC_RELAXED);
-        int32_t new_tail = (old_tail + 1) % cap;
-        // CAS tail: if another producer raced and changed tail, retry.
-        if (__atomic_compare_exchange_n(&hdr->tail, &old_tail, new_tail,
-                                        0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
-            // We own slot[old_tail]. Write payload.
-            char* slot = slot_ptr(h, old_tail);
-            ShmSlotHeader* shdr = (ShmSlotHeader*)slot;
-            // status must currently be EMPTY (producer cannot overwrite FULL).
-            // In a correctly-used ring this always holds since we checked count.
-            shdr->client_id = client_id;
-            shdr->req_id = req_id;
-            shdr->payload_len = payload_len;
-            if (payload_len > 0) {
-                memcpy(slot_payload(slot), payload, payload_len);
-            }
-            // Release store: make payload visible before setting FULL.
-            __atomic_store_n(&shdr->status, SHM_SLOT_FULL, __ATOMIC_RELEASE);
-            // Increment count so consumer sees one more item.
-            __atomic_fetch_add(&hdr->count, 1, __ATOMIC_RELEASE);
-            return 1;
-        }
-        // CAS failed — another producer got this slot; retry.
+    // Step 1: Atomically reserve a count slot via CAS. This ensures count
+    // never exceeds cap (the check-and-increment is a single atomic op).
+    int32_t cnt;
+    do {
+        cnt = __atomic_load_n(&hdr->count, __ATOMIC_ACQUIRE);
+        if (cnt >= cap) return 0; // full
+    } while (!__atomic_compare_exchange_n(&hdr->count, &cnt, cnt + 1,
+                                          0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED));
+
+    // Step 2: Claim a unique tail position via CAS-tail.
+    int32_t old_tail, new_tail;
+    do {
+        old_tail = __atomic_load_n(&hdr->tail, __ATOMIC_RELAXED);
+        new_tail = (old_tail + 1) % cap;
+    } while (!__atomic_compare_exchange_n(&hdr->tail, &old_tail, new_tail,
+                                          0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED));
+
+    // Step 3-4: Write payload to slot[old_tail], then mark FULL with RELEASE
+    // so consumer sees status=FULL only after the payload bytes are visible.
+    char* slot = slot_ptr(h, old_tail);
+    ShmSlotHeader* shdr = (ShmSlotHeader*)slot;
+    shdr->client_id = client_id;
+    shdr->req_id = req_id;
+    shdr->payload_len = payload_len;
+    if (payload_len > 0) {
+        memcpy(slot_payload(slot), payload, payload_len);
     }
+    __atomic_store_n(&shdr->status, SHM_SLOT_FULL, __ATOMIC_RELEASE);
+    return 1;
 }
 
 // ─── Single-consumer req_ring: shm_ring_pop ───────────────────────────────

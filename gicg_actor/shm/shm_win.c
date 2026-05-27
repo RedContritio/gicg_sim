@@ -261,9 +261,13 @@ void shm_unlink_name(const char* name) {
 
 // ─── Multi-producer req_ring: shm_ring_push ────────────────────────────────
 //
-// Algorithm identical to shm_unix.c. C11 __atomic intrinsics are supported by
-// MinGW GCC on Windows AMD64 with the same memory-order semantics as on
-// Linux/Mac, so we reuse the exact same code path.
+// Algorithm identical to shm_unix.c (see that file for full design notes).
+// C11 __atomic intrinsics are supported by MinGW GCC on Windows AMD64 with
+// the same memory-order semantics as on Linux/Mac.
+//
+// 2026-05-27 fix: count-CAS-first replaces the racy "load count → CAS tail
+// → count++" pattern that caused Win N=19 production deadlock. See
+// shm_unix.c for the full root-cause writeup.
 
 int shm_ring_push(ShmHandle h, uint32_t client_id, uint32_t req_id,
                   const void* payload, uint32_t payload_len) {
@@ -273,29 +277,33 @@ int shm_ring_push(ShmHandle h, uint32_t client_id, uint32_t req_id,
     int32_t max_payload = hdr->slot_size - SHM_SLOT_HEADER_SIZE;
     if ((int32_t)payload_len > max_payload) return 0;
 
-    for (;;) {
-        int32_t cnt = __atomic_load_n(&hdr->count, __ATOMIC_ACQUIRE);
-        if (cnt >= cap) {
-            return 0; // full
-        }
-        int32_t old_tail = __atomic_load_n(&hdr->tail, __ATOMIC_RELAXED);
-        int32_t new_tail = (old_tail + 1) % cap;
-        if (__atomic_compare_exchange_n(&hdr->tail, &old_tail, new_tail,
-                                        0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
-            char* slot = slot_ptr(h, old_tail);
-            ShmSlotHeader* shdr = (ShmSlotHeader*)slot;
-            shdr->client_id = client_id;
-            shdr->req_id = req_id;
-            shdr->payload_len = payload_len;
-            if (payload_len > 0) {
-                memcpy(slot_payload(slot), payload, payload_len);
-            }
-            __atomic_store_n(&shdr->status, SHM_SLOT_FULL, __ATOMIC_RELEASE);
-            __atomic_fetch_add(&hdr->count, 1, __ATOMIC_RELEASE);
-            return 1;
-        }
-        // CAS failed — another producer got this slot; retry.
+    // Step 1: Atomically reserve a count slot via CAS.
+    int32_t cnt;
+    do {
+        cnt = __atomic_load_n(&hdr->count, __ATOMIC_ACQUIRE);
+        if (cnt >= cap) return 0; // full
+    } while (!__atomic_compare_exchange_n(&hdr->count, &cnt, cnt + 1,
+                                          0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED));
+
+    // Step 2: Claim a unique tail position via CAS-tail.
+    int32_t old_tail, new_tail;
+    do {
+        old_tail = __atomic_load_n(&hdr->tail, __ATOMIC_RELAXED);
+        new_tail = (old_tail + 1) % cap;
+    } while (!__atomic_compare_exchange_n(&hdr->tail, &old_tail, new_tail,
+                                          0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED));
+
+    // Step 3-4: Write payload, then mark FULL with RELEASE.
+    char* slot = slot_ptr(h, old_tail);
+    ShmSlotHeader* shdr = (ShmSlotHeader*)slot;
+    shdr->client_id = client_id;
+    shdr->req_id = req_id;
+    shdr->payload_len = payload_len;
+    if (payload_len > 0) {
+        memcpy(slot_payload(slot), payload, payload_len);
     }
+    __atomic_store_n(&shdr->status, SHM_SLOT_FULL, __ATOMIC_RELEASE);
+    return 1;
 }
 
 // ─── Single-consumer req_ring: shm_ring_pop ───────────────────────────────
