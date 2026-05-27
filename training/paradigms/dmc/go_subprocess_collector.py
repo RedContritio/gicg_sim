@@ -113,6 +113,16 @@ class DMCGoSubprocessCollector:
         self._closed = False
         # 调 _bootstrap 后置 True;close() 前重 collect 用。
         self._spawned = False
+        # pipeline.run_pipeline 调 attach_metrics_logger 后 hold logger ref;collect 周期
+        # log 'backpressure' kind 把 Go-side push wait / drop 累计落 metrics.jsonl。
+        self._metrics_logger: Any = None
+
+    def attach_metrics_logger(self, logger: Any) -> None:
+        """Pipeline.run_pipeline calls 此 hook 给 collector logger ref (类比
+        DMCMultiProcessCollector.attach_metrics_logger)。 collect 周期 log 'backpressure'
+        kind 行,含 push_total / push_wait_ms_total / push_drops_total / push_wait_ms_avg /
+        actors_reported,可观测 Go-side SHM ring backpressure (train-vs-collect 失衡信号)。"""
+        self._metrics_logger = logger
 
     def _bootstrap(self) -> None:
         """Atomic spawn 三件套 (InfServer + SHM + Go subprocess) — 等同 cgo path 的
@@ -150,6 +160,9 @@ class DMCGoSubprocessCollector:
 
         target = max(1, int(n_episodes))
         deadline = time.monotonic() + self.tuning.collect_deadline_s
+        _diag_pops_empty = 0
+        _diag_pops_got = 0
+        _diag_decode_err = 0
         # Loop: poll SHM → if frame received,decode & ingest → check ready count → repeat。
         # try_pop_with_meta 非阻塞 (None on empty);poll_interval_s sleep 防 busy spin。
         while self.assembler.n_ready() < target:
@@ -157,13 +170,16 @@ class DMCGoSubprocessCollector:
                 break
             item = self._handle.trans_channel.try_pop_with_meta()
             if item is None:
+                _diag_pops_empty += 1
                 time.sleep(self.tuning.poll_interval_s)
                 continue
+            _diag_pops_got += 1
             _cid, _rid, raw_frame = item
             try:
                 batch = _strip_outer_length_and_decode(raw_frame)
             except ValueError as exc:
                 # Wire decode 失败 → 警告 + drop frame (assembler 不会 fail-loud)。
+                _diag_decode_err += 1
                 import sys
 
                 print(
@@ -176,6 +192,30 @@ class DMCGoSubprocessCollector:
             self.assembler.ingest_episode(batch)
 
         ready = self.assembler.drain_ready()
+        bp_metrics = self._aggregate_backpressure_metrics()
+        # Augment with collector loop counters (per-collect-call snapshot)。
+        bp_metrics_with_loop = dict(bp_metrics) if bp_metrics else {}
+        bp_metrics_with_loop.update(
+            {
+                'collect_pops_empty': _diag_pops_empty,
+                'collect_pops_got': _diag_pops_got,
+                'collect_decode_err': _diag_decode_err,
+                'collect_n_ready_drained': len(ready),
+                'shm_ring_peek_count': self._handle.trans_channel.peek_count()
+                if self._handle is not None
+                else -1,
+                'assembler_n_ingest': self.assembler.stats().get('n_ingest_called', 0),
+                'assembler_n_assembled': self.assembler.stats().get('n_assembled', 0),
+                'assembler_n_dropped_static_miss': self.assembler.stats().get('n_dropped_static_miss', 0),
+                'assembler_n_evicted': self.assembler.stats().get('n_evicted_inflight', 0),
+                'assembler_n_pending': self.assembler.stats().get('n_pending_episodes', 0),
+            }
+        )
+        # Emit 'backpressure' kind row to metrics.jsonl — 跨 collect call 保留每次 snapshot
+        # 让 user 看 push_wait_ms_avg 随 train cycle 趋势 (steady-state < 1ms = train fast,
+        # > 100ms = train 太慢 actors 累计等 ring slot,需 lower train_ratio 或加 capacity)。
+        if self._metrics_logger is not None:
+            self._metrics_logger.log('backpressure', bp_metrics_with_loop)
         if not ready:
             return CollectorOutput(
                 transitions=[],
@@ -214,6 +254,39 @@ class DMCGoSubprocessCollector:
             },
             n_units=n_trans_total,
         )
+
+    def _aggregate_backpressure_metrics(self) -> dict:
+        """Aggregate per-actor Go-side backpressure stats (push_total / push_wait_ms /
+        push_drops) 从 stderr parser 维护的 per-actor latest snapshot 取。 spawn 前或第一
+        50-episode 报告前返空 — caller (pipeline.collect → state.after_collect → metrics_logger
+        iter row) auto-skips 缺字段。"""
+        if self._handle is None:
+            return {}
+        per_actor: dict = {}
+        push_total_sum = 0
+        push_wait_ms_sum = 0.0
+        push_drops_sum = 0
+        for go_proc in self._handle.go_procs:
+            stats = go_proc.get_backpressure_stats()
+            for actor_id, s in stats.items():
+                per_actor[actor_id] = s
+                push_total_sum += s.get('push_total', 0)
+                push_wait_ms_sum += s.get('push_wait_ms', 0.0)
+                push_drops_sum += s.get('push_drops', 0)
+        if not per_actor:
+            return {}
+        return {
+            'go_backpressure_push_total': push_total_sum,
+            'go_backpressure_push_wait_ms_total': round(push_wait_ms_sum, 1),
+            'go_backpressure_push_drops_total': push_drops_sum,
+            'go_backpressure_actors_reported': len(per_actor),
+            # avg push_wait per push (across all reporting actors) — direct backpressure 信号:
+            # > 1 ms = train cycle 占 wall 让 actor 累计等 SHM slot;> 100 ms = 严重 backpressure
+            # (train rate << collect rate)。
+            'go_backpressure_push_wait_ms_avg': round(
+                push_wait_ms_sum / max(1, push_total_sum), 3
+            ),
+        }
 
     def sync_weights(self, network: Any) -> int:
         """Publish learner weights to InfServer (mp.Queue 'weights' path)。

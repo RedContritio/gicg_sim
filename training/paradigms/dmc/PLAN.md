@@ -677,6 +677,35 @@ MP-1 → MP-2 → MP-3 → MP-4(Mac 验)→ Windows MP-4(GPU 验)→ MP-5(batchi
 
 **Implication for Stage 3 production**:Stage 3 Windows GPU full train (Phase 3.5 Step 5) 用 `stage3_b_v_legacy_go.toml` 现可 spawn 通,**B-nan-pilot 仍是 train-阶段 blocker(此 fix 仅解 spawn-阶段)**。 下一轮 Win box 可用时跑 100k pilot,过得了 train_step 12342 (NaN trigger 历史点) 才算 B-nan-pilot ACCEPTANCE。
 
+#### B-go-sustained-collection-deadlock(2026-05-27 in-flight)
+
+> 触发:R7.2 spawn-wire fix 后 100k production pilot on Win box (cuda + N=19) 跑 25 min 后 frames 卡 5862(34 episodes),后续 iter wall 60.5s × 24 iter 仅 +1 episode。 actors / master / InfServer 都 alive,GPU 7% util — 整个 pipeline deadlocked but 不 fail-loud。
+
+**已 ship 的 3 层缓解** (`feature/dmc-phase35-stage3` 分支):
+
+1. **Architectural fix — `TransitionWriterShm.Push` blocking retry**(`gicg_actor/transition_writer_shm.go`):ring full 时 spin retry 1ms backoff,bounded 30s timeout 后 fail-loud(替代历史 "drop on full 然后 paradigm.go 直接 return nil" — 违反 [[python_arch_mimicry_for_go_port]],等价于 Python mp.Queue.put() default blocking)。 加 atomic `pushTotal` / `pushWaitTotalNs` / `pushDropTimeout` 计数 + `Stats()` getter。
+2. **Backpressure metric infrastructure**:
+   - Go side(`gicg_actor/dmc/paradigm.go` runActor 内):每 50 episode emit `[gicg_actor backpressure] actor=N ep=K push_total=T push_wait_ms=W push_drops=D` 到 stderr。
+   - Python side(`training/core/actor/go_subprocess.py` `_drain_stderr` 内联 regex parse + per-actor `_bp_stats` snapshot + `get_backpressure_stats()` getter):master 端 stderr_thr drain + parse → 暴露给 collector。
+   - Collector(`training/paradigms/dmc/go_subprocess_collector.py` `_aggregate_backpressure_metrics`):聚合各 actor push_total / push_wait_ms / push_drops + 计算 push_wait_ms_avg → emit `'backpressure'` kind 进 `metrics.jsonl`(通过新加的 `attach_metrics_logger` hook)。
+3. **Capacity 适度提**(`training/core/actor/pipeline_tuning_cfg.py` 默认 `shm_capacity` 8 → 32):给 train cycle burst headroom 减少 push_wait_ns 触发频率;但 correctness 不依赖 capacity(blocking 保证 no drop)。
+
+**额外 diagnostic counters**(ship 给下次 session debug 直接用):
+- Assembler(`_go_assembler.py`):`n_ingest_called` / `n_assembled` / `n_dropped_static_miss` / `n_evicted_inflight` 累计;`stats()` 暴露。
+- Collector loop(`go_subprocess_collector.py`):`collect_pops_empty` / `collect_pops_got` / `collect_decode_err` / `collect_n_ready_drained` per-call;`shm_ring_peek_count`(直读 SHM header `count` atomic int)— 关键!查跨进程 view 是否一致。
+
+**当前 pilot 数据 vs 期望**(metric reveal 出真问题):
+- iter wall delta = **60.5s** = `collect_deadline_s` 每次 hit
+- `collect_pops_empty: 11194`(60s × 5ms poll = 12k 与之吻合)+ `collect_pops_got: 0` — **master 端 ring 持续空 60s**
+- `assembler_n_assembled: 35` 在 steady-state 持续不增 — 没 episode 到 master
+- GPU 7% util — InfServer 空闲,inf request 流量低 → actors 没在跑 me-step
+
+**待 debug(下次 session 首要)**:
+- 关键 unknown:`shm_ring_peek_count` 当 collect_pops_empty 时是不是真 0?如果 > 0 则 **跨进程 SHM counter sync bug**(actor push 后 count++,master pop 读不到 item — race?Win shm_win.c atomic 模型 vs POSIX 差异?);如果 = 0 则 **actors 在 push 之前的某步卡**(inf request? minimax?)。 下次 session pilot 100k 跑起来后第一时间 grep `shm_ring_peek_count` 值。
+- 若 ring count > 0 但 pop None:检查 `shm_win.c` 的 `shm_ring_pop` 与 `shm_ring_push` 之间的 head/tail/count `__atomic_*` 内存顺序(possibly 需 `__ATOMIC_SEQ_CST` 而非现 `__ATOMIC_ACQUIRE/RELEASE`)。
+- 若 ring count = 0:加 InfServer queue depth + inf request latency metric,看 actors 是否 inf 阻塞。
+- B-nan-pilot 仍是上游 blocker;此 deadlock fix 后才能验证 train_step 12342 NaN 是否还在。
+
 | 子任务 | 内容 | LOC | 触发证据 |
 |---|---|---|---|
 | **B-compile-smoke** | **不要** 在 `smoke.toml` 加 `inference_acceleration='compile'`。理由:torch.compile cold-start ~5-10s,smoke 设计是 < 1s fast sanity per CLAUDE.md。T9 Mac d_model=32 smoke 60s wall:compile=69.9 fps vs none=270 fps(60s 中大半是 cold-start overhead)。**production cfg(default.toml / stage3_pilot.toml)是 compile 收益场,smoke 维持 none**。doc-only(record decision)| 0 | T9 实测;CLAUDE.md `smoke` marker 设计意图 |

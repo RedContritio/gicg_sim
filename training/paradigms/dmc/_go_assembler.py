@@ -97,6 +97,12 @@ class DmcTransitionAssembler:
         # OrderedDict — 按插入序,在途上限超时 popitem(last=False) 驱逐最旧。
         self._buffers: 'OrderedDict[tuple[int, int], _EpisodeBuf]' = OrderedDict()
         self._ready: list[AssembledEpisode] = []
+        # Diagnostic counters — `stats()` 暴露,collector log 'backpressure' kind 含,可观测
+        # ingest vs drop pattern (cache miss / orphan / evict)。
+        self._n_ingest_called: int = 0
+        self._n_dropped_static_miss: int = 0
+        self._n_assembled: int = 0
+        self._n_evicted_inflight: int = 0
         # Static obs decoded numpy fields,keyed by 16-byte hash。 N actor 同 scenario 共享
         # 1 entry — 'fixed-scenario DMC 编 1 次' (mirror server-side shared_cache 设计)。
         # 有意不设上界:fixed-scenario 假设下恒 1 entry。 若未来 scenario / obs schema
@@ -195,11 +201,13 @@ class DmcTransitionAssembler:
                 return
             key = (batch.client_id, batch.episode_id)
             with self._lock:
+                self._n_ingest_called += 1
                 with trace.span('assembler.append_buffer'):
                     if key in self._buffers:
                         del self._buffers[key]
                     if len(self._buffers) >= self._max_inflight:
                         old_key, _ = self._buffers.popitem(last=False)
+                        self._n_evicted_inflight += 1
                         print(
                             f'[DmcAssembler] inflight cap reached — evicting client={old_key[0]} ep={old_key[1]}',
                             file=sys.stderr,
@@ -223,6 +231,9 @@ class DmcTransitionAssembler:
                         episode = self._try_assemble(batch.client_id, batch.episode_id, buf)
                     if episode is not None:
                         self._ready.append(episode)
+                        self._n_assembled += 1
+                    else:
+                        self._n_dropped_static_miss += 1
                 else:
                     self._buffers[key] = buf
 
@@ -311,4 +322,8 @@ class DmcTransitionAssembler:
                 'n_pending_episodes': len(self._buffers),
                 'n_ready_episodes': len(self._ready),
                 'n_static_cache_entries': len(self._static_cache),
+                'n_ingest_called': self._n_ingest_called,
+                'n_dropped_static_miss': self._n_dropped_static_miss,
+                'n_assembled': self._n_assembled,
+                'n_evicted_inflight': self._n_evicted_inflight,
             }

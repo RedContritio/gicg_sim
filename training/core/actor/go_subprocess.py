@@ -12,11 +12,21 @@ from __future__ import annotations
 
 import json
 import queue
+import re
 import signal
 import subprocess
 import threading
 import time
 from typing import Any, Optional
+
+# Backpressure stderr line emit by `gicg_actor/dmc/paradigm.go runActor` 每 50 episode:
+#   [gicg_actor backpressure] actor=N ep=K push_total=T push_wait_ms=W.W push_drops=D
+# master 端 _drain_stderr 内联 parse → atomic 累计 per-actor latest snapshot,collector.collect
+# 调 get_backpressure_stats() aggregate 进 runtime_metrics → metrics.jsonl "backpressure" kind。
+_BACKPRESSURE_RE = re.compile(
+    r'\[gicg_actor backpressure\] actor=(\d+) ep=(\d+) '
+    r'push_total=(\d+) push_wait_ms=([\d.]+) push_drops=(\d+)'
+)
 
 
 def _drain_lines_to_queue(stream, q: 'queue.Queue[Optional[str]]') -> None:
@@ -89,13 +99,27 @@ class GoSubprocessHandle:
         # Drain stderr in parallel — Win OS pipe buffer (~4 KB) fills if not drained,
         # Go binary 阻塞 next stderr write → 永不 emit READY → master deadlock。
         # 收集 stderr lines 到 list (memoryless) — 错误路径 read 全部 lines。
+        # 同时 inline parse `[gicg_actor backpressure]` line → bp_stats per-actor latest snapshot,
+        # collector.collect 调 get_backpressure_stats() aggregate 进 metrics.jsonl。
         assert proc.stderr is not None
         stderr_lines: list[str] = []
+        bp_stats: dict[int, dict[str, Any]] = {}
+        bp_lock = threading.Lock()
 
         def _drain_stderr() -> None:
             try:
                 for line in iter(proc.stderr.readline, ''):
                     stderr_lines.append(line)
+                    m = _BACKPRESSURE_RE.search(line)
+                    if m:
+                        actor_id = int(m.group(1))
+                        with bp_lock:
+                            bp_stats[actor_id] = {
+                                'ep': int(m.group(2)),
+                                'push_total': int(m.group(3)),
+                                'push_wait_ms': float(m.group(4)),
+                                'push_drops': int(m.group(5)),
+                            }
             except Exception:
                 pass
 
@@ -135,7 +159,21 @@ class GoSubprocessHandle:
             # 其他 stdout (warnings 等) — 透传到 master stderr
             print(f'[gicg_actor stdout] {line}', flush=True)
 
-        return cls(proc)
+        handle = cls(proc)
+        handle._bp_stats = bp_stats  # type: ignore[attr-defined]
+        handle._bp_lock = bp_lock  # type: ignore[attr-defined]
+        return handle
+
+    def get_backpressure_stats(self) -> dict[int, dict[str, Any]]:
+        """Snapshot per-actor backpressure stats (atomic copy under lock)。
+        每 actor 最新 50-episode 累计 (push_total / push_wait_ms / push_drops + ep#)。
+        spawn 后 stderr 第一行 backpressure 出之前返空 dict。"""
+        bp_stats = getattr(self, '_bp_stats', None)
+        bp_lock = getattr(self, '_bp_lock', None)
+        if bp_stats is None or bp_lock is None:
+            return {}
+        with bp_lock:
+            return {aid: dict(s) for aid, s in bp_stats.items()}
 
     def alive(self) -> bool:
         """subprocess 仍在跑?False 时同步设 returncode。"""

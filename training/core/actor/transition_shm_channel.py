@@ -51,6 +51,11 @@ class TransitionShmChannel:
         """Non-blocking pop 含 (client_id, req_id, payload) — debug / wire test 用。"""
         return self._ring.try_pop_with_meta()
 
+    def peek_count(self) -> int:
+        """Atomic-relaxed read of ring's current item count from SHM header — diagnostic only。
+        Master 端调用看跨进程视图:Go push 后 count++,master pop 后 count--,持续 0 即 actors 没 push。"""
+        return self._ring.peek_count()
+
     def close(self) -> None:
         """Detach mmap;owner 也 unlink。"""
         self._ring.close()

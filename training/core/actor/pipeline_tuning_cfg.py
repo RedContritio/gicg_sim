@@ -32,9 +32,15 @@ class PipelineTuningCfg:
     """
 
     # SHM ring sizing — DMC episode batch ~1.4 MB peak (v_legacy 全 pool max_actions=2048
-    # padded refs/pay × ~10-15 trans);1ep smoke 实测 4 MB 留 2.5x headroom (Go stderr 不
-    # 再 "payload > slot max")。 capacity 8 × slot 4 MB = 32 MB Mac 可承。
-    shm_capacity: int = 8
+    # padded refs/pay × ~10-15 trans);1ep smoke 实测 4 MB 留 2.5x headroom。
+    #
+    # capacity 32: 给 train cycle burst headroom 减少 push_wait_ns 触发频率;但 correctness
+    # 已不依赖 capacity — Go side TransitionWriterShm.Push 改为 blocking retry (spin until
+    # ring 有空位 或 30s timeout),与 Python mp.Queue.put() default blocking 同语义,fix
+    # 2026-05-27 N=19 pilot frames 卡 5862 的根因 ("drop on full" 是 wrong port of mp.Queue
+    # semantics 违反 [[python_arch_mimicry_for_go_port]])。 backpressure metric 经 Go stderr
+    # emit + Python parse 进 metrics.jsonl "backpressure" kind,可观测 train-vs-collect 失衡。
+    shm_capacity: int = 32
     shm_slot_size: int = 4 * 1024 * 1024
 
     # InfServer batch — N actor 并发 inference,batch 满即 forward。 None = n_actors

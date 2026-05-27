@@ -228,6 +228,19 @@ class CrossLangShmRing:
             return None
         return bytes(self._out_buf.raw[: self._out_len.value])
 
+    def peek_count(self) -> int:
+        """Read the ring's current item count from SHM header (atomic-relaxed read).
+        Diagnostic only — does not modify ring state。 用于 backpressure metric 看 master
+        端 ring depth (vs Go side push 后 count++,master pop 后 count-- — 跨进程视图差异是
+        deadlock 关键信号)。"""
+        # Header layout (per _HEADER_INIT_FMT '<iiiii'):head(4B) tail(4B) **count(4B)** cap slot_size
+        # count int 在 offset 8。 SHM mmap 通过 self._shm.buf,直读 int32。
+        try:
+            count_bytes = bytes(self._shm.buf[8:12])
+            return _struct.unpack('<i', count_bytes)[0]
+        except Exception:
+            return -1
+
     def try_pop_with_meta(self) -> Optional[tuple[int, int, bytes]]:
         """Non-blocking pop returning (client_id, req_id, payload).  None if empty."""
         lib = _get_lib()

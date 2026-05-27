@@ -129,6 +129,15 @@ func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli gicg_actor.In
 	clientID := uint32(actorID)
 	var episodeID uint32
 
+	// Backpressure stats source — sink 是 SHM impl 时支持 Stats()(TransitionWriterShm)。
+	// stderr emit 周期:每 N=50 episode 报一次累计,master 端 Python 解析进 metrics.jsonl
+	// "backpressure" kind(go_subprocess._drain_stderr 内联 regex parse)。
+	type backpressureSource interface {
+		Stats() (pushTotal uint64, pushWaitTotalNs int64, pushDropTimeout uint64)
+	}
+	bpSrc, _ := sink.(backpressureSource)
+	const backpressureEmitEvery = 50
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -147,6 +156,14 @@ func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli gicg_actor.In
 				return nil
 			}
 			return fmt.Errorf("actor=%d ep=%d: %w", actorID, episodeID, err)
+		}
+		// Backpressure metric emit — 每 50 episode 一次,actor 0 也 emit 让 master 早期 see
+		// (cold start 后第 1 个 50 ep 的 wait pattern 是 spawn-phase noise,稳态 ≥ ep 50 之后 robust)。
+		if bpSrc != nil && episodeID%backpressureEmitEvery == 0 {
+			pTotal, pWaitNs, pDrops := bpSrc.Stats()
+			fmt.Fprintf(os.Stderr,
+				"[gicg_actor backpressure] actor=%d ep=%d push_total=%d push_wait_ms=%.1f push_drops=%d\n",
+				actorID, episodeID, pTotal, float64(pWaitNs)/1e6, pDrops)
 		}
 	}
 }
