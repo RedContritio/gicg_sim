@@ -109,6 +109,18 @@ func (p *DMCParadigm) Configure(jsonCfg string) error {
 // infCli 是 InferenceRequester (TCP localhost socket;I29 R7.1 删 SHM inference path)。
 // sink 是 TransitionSink (I29 redesign 2026-05-25 interface),TCP path 传 *TransitionWriterTCP
 // SHM path 传 *TransitionWriterShm — paradigm 端 encode wire frame 后 sink.Push 透传。
+//
+// 内存优化 (2026-05-27 Phase 1 — Win N=16 长跑 Go heap 增长 fix):
+// `factory.NewGame()` 只调一次,生成 *GameHandle (lua interp + DSL load + char registry +
+// IR compile) 跨 episode 复用;每 episode 改调 `rt.ResetDynamicWithSeeds(seed, [seed,seed])`
+// 重置 mutable 状态 (counter values, hands, decks, phase, RNG)。 BuildStaticObs +
+// ComputeStaticHash 也只算一次 (scenario-static layout 跨 episode 不变)。 GreedyPlayer
+// 同 — D2/D4 各一只跨 episode 复用 (已是)。
+//
+// 适用边界: team_size=1 下 ResetDynamic 行为与 NewGame 等价 (post-reset PhaseAction +
+// char 0 = sole choice)。 team_size>=2 时 ResetDynamic auto-select char 0 跳过
+// PhaseSelectActive — Stage 4+ 多 char scenario 需先决策保留 SelectActive (注释 capi/
+// initGame 同 path,production 验过)。
 func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli gicg_actor.InferenceRequester, sink gicg_actor.TransitionSink) error {
 	// Per-actor seed (derived) — 决定 opp tie-break + my-player alternation + ε-greedy explore
 	rng := rand.New(rand.NewSource(p.cfg.BaseSeed + int64(actorID)*1009))
@@ -125,6 +137,20 @@ func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli gicg_actor.In
 	if err != nil {
 		return fmt.Errorf("actor=%d: build greedy player D4: %w", actorID, err)
 	}
+
+	// Engine reuse: 一次构造 GameHandle + 缓存 static obs。 后续每 episode 在 runEpisode
+	// 内调 rt.ResetDynamicWithSeeds(seed, [seed,seed]) 复用同 GameHandle。 NewGame 内部:
+	// lua Runtime 创建 + DSL load + char declare/bind + system files exec + IR compile +
+	// pool resolve — 这些都是 scenario-static, episode 间不变。
+	gameCfg := p.gameCfg
+	gameCfg.Seed = p.cfg.BaseSeed + int64(actorID)*1_000_003
+	h, err := factory.NewGame(gameCfg)
+	if err != nil {
+		return fmt.Errorf("actor=%d: factory.NewGame: %w", actorID, err)
+	}
+	// 静态 obs (counter perm / hook perm / scenario layout) — scenario-static, 一次算。
+	staticInt32 := h.Game.BuildStaticObs()
+	staticHash := ComputeStaticHash(staticInt32)
 
 	clientID := uint32(actorID)
 	var episodeID uint32
@@ -148,7 +174,7 @@ func (p *DMCParadigm) Run(ctx context.Context, actorID int, infCli gicg_actor.In
 		mePlayer := pickMePlayer(p.cfg.MyPlayerStrategy, int(episodeID))
 		opp := sampleOpponentKind(p.cfg.OpponentMix, rng)
 		epSpan := gicg_actor.Span("dmc.episode")
-		err := p.runEpisode(ctx, opp, gpD2, gpD4, rng, infCli, sink, clientID, episodeID, mePlayer)
+		err := p.runEpisode(ctx, h, staticInt32, staticHash, opp, gpD2, gpD4, rng, infCli, sink, clientID, episodeID, mePlayer)
 		epSpan.End()
 		if err != nil {
 			// ctx cancel mid-episode 不算 fatal — outer loop 重新检查 ctx.Done()
@@ -256,8 +282,15 @@ func sampleOpponentKind(mix OpponentMix, rng *rand.Rand) oppKind {
 }
 
 // runEpisode 跑一个完整 episode。 me 决定 actor (network) 的 player_idx,opp 是另一边。
+//
+// h: 跨 episode 复用的 GameHandle (Run 内一次 factory.NewGame, runEpisode 每 episode 调
+// rt.ResetDynamicWithSeeds 重置 mutable state)。 staticInt32 / staticHash: scenario-static,
+// 由 Run 一次算出传入。
 func (p *DMCParadigm) runEpisode(
 	ctx context.Context,
+	h *factory.GameHandle,
+	staticInt32 []int32,
+	staticHash [16]byte,
 	opp oppKind,
 	gpD2, gpD4 *GreedyPlayer,
 	rng *rand.Rand,
@@ -268,23 +301,11 @@ func (p *DMCParadigm) runEpisode(
 ) error {
 	// Per-episode seed: derive from clientID + episodeID so multi-actor / multi-episode
 	// 分布唯一(seed collision = duplicate game = wasted compute)
-	gameCfg := p.gameCfg
-	gameCfg.Seed = int64(clientID)*1_000_003 + int64(episodeID)*7919
-	h, err := factory.NewGame(gameCfg)
-	if err != nil {
-		return fmt.Errorf("factory.NewGame: %w", err)
-	}
+	seed := int64(clientID)*1_000_003 + int64(episodeID)*7919
+	resetSpan := gicg_actor.Span("dmc.reset_dynamic")
+	h.RT.ResetDynamicWithSeeds(seed, [2]int64{seed, seed})
+	resetSpan.End()
 	g := h.Game
-	rt := h.RT
-
-	// static_obs 缓存(整 episode 不变)+ hash 派生。 第一次 acting==me request 携带
-	// raw static int32 数组喂 InfServer cache,后续 request Static=nil(server 走
-	// hash lookup)。 InfServer 同 scenario 多 actor 共享 cache 命中率高,后续 N-1 个
-	// request 节省 ~12 KB/req(static_obs 平均尺寸)。
-	staticSpan := gicg_actor.Span("dmc.build_static_obs")
-	staticInt32 := g.BuildStaticObs()
-	staticSpan.End()
-	staticHash := ComputeStaticHash(staticInt32)
 	staticSentThisEpisode := false
 	// transition 侧 static:第一条被 push 的 transition 携带 static(详 episodeStaticTracker)。
 	var staticTracker episodeStaticTracker
@@ -367,7 +388,7 @@ func (p *DMCParadigm) runEpisode(
 				rndSpan.End()
 			case oppF1D2:
 				d2Span := gicg_actor.Span("dmc.opp_f1d2_select")
-				c, err := gpD2.SelectAction(rt)
+				c, err := gpD2.SelectAction(h.RT)
 				d2Span.End()
 				if err != nil {
 					return fmt.Errorf("opp f1d2 step=%d: %w", step, err)
@@ -375,7 +396,7 @@ func (p *DMCParadigm) runEpisode(
 				chosen = c
 			case oppF1D4:
 				d4Span := gicg_actor.Span("dmc.opp_f1d4_select")
-				c, err := gpD4.SelectAction(rt)
+				c, err := gpD4.SelectAction(h.RT)
 				d4Span.End()
 				if err != nil {
 					return fmt.Errorf("opp f1d4 step=%d: %w", step, err)

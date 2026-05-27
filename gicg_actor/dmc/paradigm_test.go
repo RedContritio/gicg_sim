@@ -373,10 +373,18 @@ func TestRunEpisode_EveryEpisodeTerminates(t *testing.T) {
 		t.Fatalf("greedy D4: %v", err)
 	}
 
+	// Phase 1 engine-reuse: pre-build GameHandle 一次,跨 episode 复用 (Run 同模式)。
+	h, err := factory.NewGame(p.gameCfg)
+	if err != nil {
+		t.Fatalf("factory.NewGame: %v", err)
+	}
+	staticInt32 := h.Game.BuildStaticObs()
+	staticHash := ComputeStaticHash(staticInt32)
+
 	const nEpisodes = 12
 	for ep := uint32(1); ep <= nEpisodes; ep++ {
 		// me=0 fixed; opp random. runEpisode 跑完整 episode。
-		if err := p.runEpisode(context.Background(), oppRandom, gpD2, gpD4, rng, infCli, tw, 0, ep, 0); err != nil {
+		if err := p.runEpisode(context.Background(), h, staticInt32, staticHash, oppRandom, gpD2, gpD4, rng, infCli, tw, 0, ep, 0); err != nil {
 			t.Fatalf("episode %d: %v", ep, err)
 		}
 	}
@@ -475,8 +483,16 @@ func TestRunEpisode_PushFailureNotFatal(t *testing.T) {
 		t.Fatalf("greedy D4: %v", err)
 	}
 
+	// Phase 1 engine-reuse: pre-build GameHandle 一次,与 Run 同模式。
+	h, err := factory.NewGame(p.gameCfg)
+	if err != nil {
+		t.Fatalf("factory.NewGame: %v", err)
+	}
+	staticInt32 := h.Game.BuildStaticObs()
+	staticHash := ComputeStaticHash(staticInt32)
+
 	// Push 必失败(dead addr)→ runEpisode 应返 nil(actor 存活),非 fatal error。
-	if err := p.runEpisode(context.Background(), oppRandom, gpD2, gpD4, rng, infCli, tw, 0, 1, 0); err != nil {
+	if err := p.runEpisode(context.Background(), h, staticInt32, staticHash, oppRandom, gpD2, gpD4, rng, infCli, tw, 0, 1, 0); err != nil {
 		t.Fatalf("runEpisode should return nil on Push failure (actor must survive), got: %v", err)
 	}
 }
