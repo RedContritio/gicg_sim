@@ -283,7 +283,12 @@ def spawn_pipeline(
                 'go_gomaxprocs': int(tuning.go_gomaxprocs),
                 'inf_server_addr': f'127.0.0.1:{inf_port}',
             }
-            go_proc = GoSubprocessHandle.spawn(binary_path, subproc_cfg, ready_timeout_s=tuning.ready_timeout_s)
+            go_proc = GoSubprocessHandle.spawn(
+                binary_path,
+                subproc_cfg,
+                ready_timeout_s=tuning.ready_timeout_s,
+                go_mem_limit=tuning.go_mem_limit or None,
+            )
             go_procs.append(go_proc)
     except Exception:
         # Partial spawn failure — 清理已 spawn 的 0..k-1 + SHM + InfServer。 propagate 原 exception

@@ -74,3 +74,13 @@ class PipelineTuningCfg:
     #     (主因 H1 = InfServer N+2 GIL threads 留 Stage 2 reactor fix)。 default 0 → 1 = 单 P
     #     per subprocess,与 Python mp _mp_helpers.py 的 OMP=1 + torch.set_num_threads(1) 对齐
     go_gomaxprocs: int = 1
+
+    # GOMEMLIMIT — Go runtime soft memory cap per actor subprocess (Go 1.19+ native env var)。
+    # 2026-05-27 Win N=16 stage3 production 实测 default (无 cap) 下每 actor RSS 1-7 GB 峰值
+    # 14 GB,16 actor 总 ~41 GB host RSS → Win 64 GB host OOM at 70min(host_used 55 GB 持续上
+    # 涨)。 不是真 leak (代码 audit:GreedyPlayer + runEpisode 全 stateless 局部),纯 Go heap
+    # GOGC=100 default 让 heap doubles 前不触发 GC + Win VirtualFree 不眼疾还 OS → working set
+    # 涨。 设 "1GiB" → Go runtime 在 heap > 1 GiB 时强制激进 GC,16 actor × 1 GiB = 16 GB 总,
+    # 加 InfServer ~5 GB + master ~3 GB = ~25 GB,远低 63 GB Win host cap。 设 "" / None
+    # 关闭(Go runtime 默认行为, no cap)。
+    go_mem_limit: str = '1GiB'

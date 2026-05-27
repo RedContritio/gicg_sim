@@ -123,7 +123,7 @@ def test_spawn_pipeline_partial_failure_cleanup_kills_spawned_procs_and_releases
     call_count = {'n': 0}
     spawned_handles: list[GoSubprocessHandle] = []
 
-    def patched_spawn(binary_path: str, config: dict[str, Any], *, ready_timeout_s: float = 30.0):
+    def patched_spawn(binary_path: str, config: dict[str, Any], *, ready_timeout_s: float = 30.0, **kwargs):
         call_count['n'] += 1
         if call_count['n'] == 2:
             # 第 2 个 (K=2) raise — 模拟 binary READY timeout (production 常见 partial failure)。
@@ -202,7 +202,7 @@ def test_spawn_pipeline_first_subprocess_failure_cleanup_only_shm_and_server(mon
     """
     call_count = {'n': 0}
 
-    def patched_spawn(binary_path: str, config: dict[str, Any], *, ready_timeout_s: float = 30.0):
+    def patched_spawn(binary_path: str, config: dict[str, Any], *, ready_timeout_s: float = 30.0, **kwargs):
         call_count['n'] += 1
         raise RuntimeError(f'injected K=1 failure (call #{call_count["n"]})')
 

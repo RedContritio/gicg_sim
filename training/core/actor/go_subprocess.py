@@ -58,6 +58,7 @@ class GoSubprocessHandle:
         config: dict[str, Any],
         *,
         ready_timeout_s: float = 30.0,
+        go_mem_limit: Optional[str] = None,
     ) -> 'GoSubprocessHandle':
         """Spawn Go subprocess + 写 Config JSON 到 stdin + 等 'READY' on stdout。
 
@@ -66,7 +67,15 @@ class GoSubprocessHandle:
 
         Win-compat:用 background thread + queue 读 stdout,非 select.select (Win
         不支持 pipe file descriptor select,POSIX 也工作)。
+
+        go_mem_limit (e.g. "1GiB"): 透传 Go runtime GOMEMLIMIT env var,触发 heap >
+        limit 时强制激进 GC,防长跑 RSS 涨。 None / 空串 = 不设(Go default 行为, no cap)。
         """
+        import os
+
+        env = os.environ.copy()
+        if go_mem_limit:
+            env['GOMEMLIMIT'] = go_mem_limit
         proc = subprocess.Popen(
             [binary_path],
             stdin=subprocess.PIPE,
@@ -74,6 +83,7 @@ class GoSubprocessHandle:
             stderr=subprocess.PIPE,
             text=True,
             bufsize=1,  # line-buffered
+            env=env,
         )
         # 写 Config JSON + close stdin → Go parseConfig 返回。
         assert proc.stdin is not None
