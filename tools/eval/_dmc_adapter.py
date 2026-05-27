@@ -8,13 +8,22 @@ from typing import Optional
 
 
 def build_eval_agent(cfg, ckpt_path: Path):
-    """Load DmcAgent in eval mode from ckpt blob."""
+    """Load DmcAgent in eval mode from ckpt blob.
+
+    Ckpt schema 兼容:production async pipeline 保存 `DMCInferenceNet(actor_critic)`
+    wrapped state_dict (keys 含 `net.` 前缀, per `paradigms/dmc/paradigm.py:sync_weights`);
+    eval 端用 raw ActorCritic, 需 strip 前缀。 旧 ckpt (无前缀, e.g. local smoke) 仍直载。
+    """
     import torch
     from training.paradigms.dmc._agent import DmcAgent
 
     agent = DmcAgent(cfg.agent, device='cpu', lr=cfg.learning_rate, epsilon=0.0)
     blob = torch.load(ckpt_path, map_location='cpu', weights_only=False)
-    agent.net.load_state_dict(blob['net'])
+    state_dict = blob['net']
+    # Strip 'net.' prefix if production InfServer-wrapper save。 全 key 都该有前缀 (一致性)
+    if state_dict and all(k.startswith('net.') for k in state_dict.keys()):
+        state_dict = {k[len('net.') :]: v for k, v in state_dict.items()}
+    agent.net.load_state_dict(state_dict)
     agent.net.eval()
     return agent
 
@@ -23,6 +32,20 @@ def build_evaluator(cfg):
     from tools.eval._dmc_evaluator import PeriodicEvaluator
 
     return PeriodicEvaluator(cfg)
+
+
+def build_random_agent(cfg):
+    """Uniform-random baseline agent (no ckpt load, ε=1.0)。 诊断用:与 trained ckpt
+    并列跑 gauntlet 看 policy collapse — trained < random 即 collapse 信号。
+
+    2026-05-28 ship 根因:Stage 3 pilot ckpt @ iter 2500 全输 vs F1-D2 (0/256),
+    random uniform 拿 22% (7/32) — confirm 模型 collapse 到 degenerate policy。
+    """
+    from training.paradigms.dmc._agent import DmcAgent
+
+    agent = DmcAgent(cfg.agent, device='cpu', lr=cfg.learning_rate, epsilon=1.0)
+    agent.net.eval()
+    return agent
 
 
 def build_baseline(name: str, *, seed: int, cfg):

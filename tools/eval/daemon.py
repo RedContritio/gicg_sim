@@ -62,7 +62,9 @@ def _do_rsync(remote: str, local_root: Path, run_label: str) -> int:
         src,
         str(dst) + '/',
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    # Win-side rsync may emit non-UTF-8 bytes (GBK / locale-mixed). text=True
+    # 默认 UTF-8 strict 会 UnicodeDecodeError 崩。 显式 errors='replace' 兜底。
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=300)
     if result.returncode != 0:
         print(f'[daemon] rsync exit={result.returncode}: {result.stderr.strip()[:300]}', file=sys.stderr)
     return result.returncode
@@ -80,6 +82,13 @@ def _build_eval_agent_from_ckpt(cfg, ckpt_path: Path, paradigm: str = 'dmc'):
     from tools.eval._paradigm import resolve
 
     return resolve(paradigm, 'build_agent')(cfg, ckpt_path)
+
+
+def _build_random_agent(cfg, paradigm: str = 'dmc'):
+    """Sanity baseline: ε=1.0 uniform-random agent via paradigm adapter (no ckpt load)。"""
+    from tools.eval._paradigm import resolve
+
+    return resolve(paradigm, 'build_random_agent')(cfg)
 
 
 def _run_one_eval(
@@ -132,6 +141,12 @@ def main():
     p.add_argument('--poll-seconds', type=int, default=30)
     p.add_argument('--max-iterations', type=int, default=0, help='0 = forever')
     p.add_argument('--data-dir', type=str, default='data')
+    p.add_argument(
+        '--random-agent',
+        action='store_true',
+        help='Sanity: skip ckpt load + use ε=1.0 uniform-random agent. 一次性 (max-iterations=1) 跑 + '
+        '与 ckpt eval 对比 (期望 random agent vs F1-D2 wp ≥ 0.05-0.20;若 ≈ 0 则 eval pipeline 结构问题)。',
+    )
     args = p.parse_args()
 
     # CPU optim
@@ -170,15 +185,52 @@ def main():
             t0 = time.perf_counter()
 
             rc = _do_rsync(args.remote, local_root, args.run_label)
+            latest_path = local_run_dir / 'ckpts' / 'latest.pt'
             if rc != 0:
-                print(f'[daemon] iter {iteration}: rsync failed, sleep + retry')
-                time.sleep(args.poll_seconds)
-                if args.max_iterations and iteration >= args.max_iterations:
-                    break
-                continue
+                # Win remote 没装 rsync 时(整套 tools.runs 走 ssh+tar 不依赖 rsync,
+                # 但 daemon 历史 POSIX-only)→ rsync 失败。 fallback: 检查 local ckpt 是否
+                # 已被外部 (e.g. tools.runs.pull) 同步过来,若 在则直接跑 eval 不阻塞。
+                if latest_path.exists():
+                    print(f'[daemon] iter {iteration}: rsync failed but local ckpts/latest.pt exists — proceed with eval')
+                else:
+                    print(f'[daemon] iter {iteration}: rsync failed + no local ckpt, sleep + retry')
+                    time.sleep(args.poll_seconds)
+                    if args.max_iterations and iteration >= args.max_iterations:
+                        break
+                    continue
 
-            latest = local_run_dir / 'ckpts' / 'latest.pt'
-            if not latest.exists():
+            latest = latest_path
+            if args.random_agent:
+                # Sanity mode: 直接 build random agent + run eval, 绕 ckpt mtime check。
+                print(f'[daemon] iter {iteration}: random-agent sanity mode, building ε=1.0 uniform agent...')
+                try:
+                    agent = _build_random_agent(cfg, args.paradigm)
+                    t = time.perf_counter()
+                    results = evaluator.run_once(agent)
+                    wall = time.perf_counter() - t
+                    payload = {
+                        'kind': 'eval',
+                        'frame': 0,
+                        'eval_wall_s': round(wall, 2),
+                        'ts': datetime.now().isoformat(timespec='seconds'),
+                        'agent': 'random_epsilon1',
+                    }
+                    for name, r in results.items():
+                        payload[f'vs_{name}'] = {
+                            'wp_mean': r.wp_mean,
+                            'wp_swap_p0': r.wp_swap_p0,
+                            'wp_swap_p1': r.wp_swap_p1,
+                            'n_games': r.n_games,
+                            'ci95_lo': r.ci95_lo,
+                            'ci95_hi': r.ci95_hi,
+                        }
+                    print(f'[eval-random] {payload}')
+                    if jsonl_fh is not None:
+                        jsonl_fh.write(json.dumps(payload, ensure_ascii=False) + '\n')
+                        jsonl_fh.flush()
+                except Exception as e:
+                    print(f'[daemon] random-agent eval failed: {type(e).__name__}: {e}', file=sys.stderr)
+            elif not latest.exists():
                 print(f'[daemon] iter {iteration}: no ckpts/latest.pt yet,sleep')
             else:
                 mtime = latest.stat().st_mtime
