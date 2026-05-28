@@ -24,6 +24,7 @@ from training.core.network.actor_critic import (
     make_actor_critic,
 )
 from training.core.network.agent_base import AgentBase, AgentConfig
+from training.core.network.agent_module_wrapper import AgentModuleWrapper
 from training.core.network.encoder import (
     CardEncoder,
     CounterEncoder,
@@ -44,6 +45,7 @@ __all__ = [
     'ActorCritic',
     'AgentBase',
     'AgentConfig',
+    'AgentModuleWrapper',
     'HEAD_REGISTRY',
     'make_actor_critic',
     'TypedDamageEncoder',

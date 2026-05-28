@@ -1,15 +1,18 @@
 """PPONetwork — thin nn.Module wrapper around PPOAgent for driver compat.
 
-The unified pipeline driver (``training.core.pipeline``) expects
-``make_network`` to return an ``nn.Module``-like object that supports
-``.parameters()`` / ``.state_dict()`` / ``.load_state_dict()`` (for
-optimizer + ckpt).
+W2-6 (post-2026-05-28):pre-W2 PPONetwork 是 88 行 paradigm-local 重复
+boilerplate (audit finding 中优 #9 — 与 DMCNetwork 平行 67 行近字模重复);
+post-W2-6 继承 ``training.core.network.AgentModuleWrapper`` 把通用 dispatch
+(forward_batch / game_start / game_end / select_action / load_net_only /
+forward 抛 NotImplementedError)上提到 core,本类仅声明:
+- ``heads`` class attr(P5.1 — exposed for tests + downstream introspection)
+- PPO-specific extra ``act(env, rng, *, deterministic=False)``(rollout
+  actor — 不属于通用 AgentModuleWrapper 集合,signature 含 rng + deterministic)
 
 PPO now uses generic structural ActorCritic backbone (via
-``make_actor_critic(head_kinds={'policy','value'},
-use_typed_damage=True)``) inside ``PPOAgent`` per
-``ppo-structural-backbone-migration`` invariant A1. The previous
-``_PPOMLPTrunk`` flat MLP backbone (s015-s054 ablation era) is
+``make_actor_critic(head_kinds={'policy','value'}, use_typed_damage=True)``)
+inside ``PPOAgent`` per ``ppo-structural-backbone-migration`` invariant A1.
+The previous ``_PPOMLPTrunk`` flat MLP backbone (s015-s054 ablation era) is
 retired; old ckpts not compatible (D-302 already accepted).
 
 Heads = ('policy', 'value') per P5.1 — exposed for tests + downstream
@@ -21,68 +24,33 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-import torch.nn as nn
 
-from training.core.network import AgentConfig
+from training.core.network import AgentConfig, AgentModuleWrapper
 from training.paradigms.ppo.agent import PPOAgent
 
 
-class PPONetwork(nn.Module):
-    """nn.Module wrapper exposing PPOAgent + standard module API.
-
-    Construction owns its own PPOAgent (which builds a generic
-    ActorCritic with policy + value heads). Driver passes the underlying
-    ``net`` parameters to its optimizer via ``parameters()`` so
-    ``optimizer.step()`` updates the same tensors ``forward_batch`` reads.
-
+class PPONetwork(AgentModuleWrapper):
+    """nn.Module wrapper exposing PPOAgent + driver-compatible
+    parameters/state_dict surface。 base 提供 forward_batch /
+    game_start / game_end / select_action / load_net_only / forward。
     Spec P5.1: 2 heads (policy + value), shared encoder via generic
-    ActorCritic backbone.
-    """
+    ActorCritic backbone。"""
 
     # Spec head names (P5.1) — exposed for tests + downstream introspection.
     heads = ('policy', 'value')
 
     def __init__(self, agent_cfg: AgentConfig, device: str = 'cpu') -> None:
-        super().__init__()
-        self._agent = PPOAgent(agent_cfg, device=device)
-        # Register ActorCritic as child module so module-level
-        # parameters() / state_dict() naturally see all its tensors.
-        # ``self.net`` is the canonical attribute name (state_dict prefix
-        # 'net.*') matching AZ/BC/DMC convention.
-        self.add_module('net', self._agent.net)
+        agent = PPOAgent(agent_cfg, device=device)
+        super().__init__(agent)
         self.device = device
 
-    @property
-    def agent(self) -> PPOAgent:
-        return self._agent
-
     def forward_batch(self, batch: dict) -> tuple[torch.Tensor, torch.Tensor]:
-        """Batched structural forward — returns (policy_logits, value).
-
-        Loss path consumes this; rollout path uses self._agent.act(env).
-        """
+        """Batched structural forward — returns (policy_logits, value)。
+        Loss path consumes this;rollout path uses self._agent.act(env)。"""
         return self._agent.forward_batch(batch)
 
     def act(self, env: Any, rng: Any, *, deterministic: bool = False) -> tuple:
-        """Single-step rollout actor — returns (action_idx, meta)."""
+        """Single-step rollout actor — returns (action_idx, meta)。
+        Not part of the generic AgentModuleWrapper surface (signature
+        diverges from other paradigms with the rng + deterministic args)。"""
         return self._agent.act(env, rng, deterministic=deterministic)
-
-    def game_start(self, static_obs: Any) -> None:
-        """Per-game cache reset — call once at env reset."""
-        self._agent.game_start(static_obs)
-
-    def game_end(self) -> None:
-        self._agent.game_end()
-
-    def select_action(self, env: Any) -> int:
-        """Player-compatible argmax actor."""
-        return self._agent.select_action(env)
-
-    def load_net_only(self, sd: dict) -> None:
-        """Load just the ActorCritic weights."""
-        self._agent.net.load_state_dict(sd)
-
-    def forward(self, *args: Any, **kwargs: Any) -> Any:  # pragma: no cover
-        raise NotImplementedError(
-            'PPONetwork.forward not used — call forward_batch(batch_dict) or act(env, rng) instead.'
-        )
