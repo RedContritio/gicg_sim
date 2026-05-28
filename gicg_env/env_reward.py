@@ -1,14 +1,15 @@
-"""Dense reward shaping for PPO / curriculum training (T-C).
+"""Dense reward shaping — per-step reward from RewardEvents delta.
 
 Applied on top of the engine's per-player RewardEvents accumulator
 (see ``gicg_engine/reward_events.go`` and ``gicg_env._constants.REWARD_EVENTS_FIELDS``).
 Each ``env.step()`` snapshots the acting player's events before and
 after, diffs them, and scores the delta via ``RewardShaping`` coefs.
 
-Orthogonal to AlphaZero's pure-terminal signal — AZ leaves
-``reward_shaping=None`` and reads ``info['z']`` at game over.
-Curriculum / PPO paths pass explicit coefs. See
-``docs/3_plans/curriculum/plan.md`` Stage T-C.
+Orthogonal to the pure-terminal signal — callers leave
+``reward_shaping=None`` and read ``info['z']`` at game over for terminal
+outcome only; dense-shaping callers pass explicit ``RewardShaping``
+coefs。 See ``docs/3_plans/curriculum/plan.md`` for the canonical
+shaping schedule。
 """
 
 from __future__ import annotations
@@ -30,7 +31,7 @@ _EV_DEATHS = _IDX['deaths']
 
 @dataclass(frozen=True)
 class RewardShaping:
-    """Per-step reward coefficients for curriculum / PPO training.
+    """Per-step reward coefficients for dense-shaping mode.
 
     Applied to (events_after_me − events_before_me) per call to
     ``env.step()``; all signals are already from ``me``'s perspective

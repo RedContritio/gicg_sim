@@ -63,9 +63,12 @@ def _terminal_z(winner: int) -> float:
 class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
     """Self-play environment. Team rosters / card pool fixed at
     construction; reset(seed) starts a fresh game with same ruleset.
-    step() → (obs, reward, done, info). reward_shaping=None → reward=0,
-    read terminal info['z'] (AZ D5); reward_shaping={...} → dense
-    RewardEvents-delta reward (T-C). docs/3_plans/curriculum/plan.md."""
+    step() → (obs, reward, done, info). Two reward modes:
+    ``reward_shaping=None`` (terminal-z mode) → reward=0 every step,
+    callers read terminal ``info['z']`` (P0-perspective outcome) at
+    game over;``reward_shaping={...}`` (dense-shaping mode) → per-step
+    reward from the RewardEvents delta scored by the supplied
+    coefficients。 See ``env_reward.py:RewardShaping``。"""
 
     def __init__(
         self,
@@ -198,7 +201,7 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
         """
         # Snapshot the acting player's RewardEvents *before* the step so
         # we can diff after. Skipping the read entirely when shaping is
-        # disabled avoids a cgo round-trip on the AZ hot path.
+        # disabled avoids a cgo round-trip on the terminal-z hot path.
         me = self._engine.acting_player
         events_before = self._engine.get_reward_events(me) if self._reward_shaping is not None else None
 
