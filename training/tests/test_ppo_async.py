@@ -1,8 +1,13 @@
 """Unit tests for PPOAsyncCollector (FU-W3b-PPO 真 mp 接通)。
 
 Split from test_ppo_paradigm.py for line-limit hook compliance。Mock-only
-(no GicgEnv / no real spawn)— end-to-end smoke 在 future smoke cfg ship
-(PPO frozen tier 不预期 production async run)。
+(no GicgEnv / no real spawn) — end-to-end smoke 在 test_ppo_async_mp_e2e.py
+(smoke_full marker, opt-in)。
+
+Post 2026-05-29 cleanup (I31 backlog #88):builders + provider class moved
+to ``training.paradigms.ppo.mp_factories``;spawn handoff via AB13
+``provider_kwargs`` (was env-var bridge ``_ENV_OPPONENT`` / ``_ENV_SHM_PATH``
+/ ``_ENV_NET_PATH``, now deleted)。
 """
 
 from __future__ import annotations
@@ -14,9 +19,25 @@ from training.paradigms.ppo.network import PPONetwork
 
 
 class _AsyncCfg:
-    """Minimal cfg stub(避开 TOML load + GicgEnv 触碰)。"""
+    """Minimal cfg stub(避开 TOML load + GicgEnv 触碰)。
 
-    paradigm = {'gamma': 0.95, 'gae_lambda': 0.9}
+    Post-cleanup:``paradigm.rollout.rollout_opponent`` 走 cfg dict
+    (不再通过 env var bridge),test 直接 set 字段值。"""
+
+    paradigm = {'gamma': 0.95, 'gae_lambda': 0.9, 'rollout': {'rollout_opponent': 'random'}}
+
+    class pipeline:
+        mode = 'async'
+        num_actors = 2
+
+    class meta:
+        seed = 7
+
+
+class _AsyncCfgSelfOpp:
+    """Variant with rollout_opponent='self' (frozen tier should退化 to 'random')。"""
+
+    paradigm = {'gamma': 0.95, 'gae_lambda': 0.9, 'rollout': {'rollout_opponent': 'self'}}
 
     class pipeline:
         mode = 'async'
@@ -36,7 +57,7 @@ def test_ppo_async_collector_importable_and_re_exported():
 
 def test_ppo_async_build_policy_seed_per_actor():
     """per-actor seed 不撞 → 不同 RNG state(避免 actor 撞 action)。"""
-    from training.paradigms.ppo._async import build_policy
+    from training.paradigms.ppo.mp_factories import build_policy
 
     p0, p1 = build_policy(_AsyncCfg(), 0), build_policy(_AsyncCfg(), 1)
     assert p0.gamma == 0.95 and p0.gae_lambda == 0.9 and p0.deterministic is False
@@ -44,29 +65,30 @@ def test_ppo_async_build_policy_seed_per_actor():
 
 
 def test_ppo_async_spec_sampler_monotonic_and_self_to_random():
-    """spec_sampler:per-actor 单调 + opp 'self' → 'random'(frozen 不接 self-play)。"""
-    import os
+    """spec_sampler:per-actor 单调 + opp 'self' → 'random'(frozen 不接 self-play)。
 
-    from training.paradigms.ppo._async import _ENV_OPPONENT, _SPEC_COUNTERS, spec_sampler
+    Post-cleanup:opp_id 从 cfg.paradigm['rollout']['rollout_opponent'] 读
+    (mp 子进程通过 cfg pickle 流转), 不再通过 env var bridge。
+    """
+    from training.paradigms.ppo.mp_factories import _SPEC_COUNTERS, spec_sampler
 
+    # Default rollout_opponent='random' → opp_id stays 'random'
     _SPEC_COUNTERS.clear()
     s0 = spec_sampler(_AsyncCfg(), actor_id=0)
     s1 = spec_sampler(_AsyncCfg(), actor_id=0)
     s2 = spec_sampler(_AsyncCfg(), actor_id=1)
     assert s0.scenario_seed != s1.scenario_seed != s2.scenario_seed
-    assert s0.opponent_id == 'random'  # env var unset → default
+    assert s0.opponent_id == 'random'
 
+    # rollout_opponent='self' → 退化到 'random' (frozen tier)
     _SPEC_COUNTERS.clear()
-    os.environ[_ENV_OPPONENT] = 'self'
-    try:
-        assert spec_sampler(_AsyncCfg(), 0).opponent_id == 'random'  # 退化
-    finally:
-        os.environ.pop(_ENV_OPPONENT, None)
+    s3 = spec_sampler(_AsyncCfgSelfOpp(), actor_id=0)
+    assert s3.opponent_id == 'random', f"'self' should degrade to 'random', got {s3.opponent_id}"
 
 
 def test_ppo_async_provider_wraps_local_and_shm():
     """_PPOActorProvider:forward 委托 + SHM 新 version → load,旧 / cold → skip。"""
-    from training.paradigms.ppo._async import _PPOActorProvider
+    from training.paradigms.ppo.mp_factories import _PPOActorProvider
 
     class _Net:
         def __init__(self):
@@ -121,6 +143,116 @@ def test_ppo_async_provider_wraps_local_and_shm():
     # close 委托
     p.close()
     assert loc.network is None
+
+
+def test_ppo_async_provider_kwargs_handoff():
+    """AB13:actor_main 走 provider_kwargs path → build_provider(cfg, actor_id, **kw)。
+
+    Mock build_provider 验证 kwargs 透传 — 不真 spawn,in-proc actor_main 跑 1
+    iteration 后 stop_event 触发 finally cleanup。 验证 build_provider 被
+    call 时拿到 provider_kwargs dict 展开的 named args。
+    """
+    import queue as _q
+
+    from training.core.actor.actor_process import actor_main
+    from training.core.protocols import EpisodeSpec
+
+    captured: dict = {}
+
+    def _mock_build_provider(cfg, actor_id, *, weights_shm_info, network_blueprint_path):
+        captured['cfg'] = cfg
+        captured['actor_id'] = actor_id
+        captured['weights_shm_info'] = weights_shm_info
+        captured['network_blueprint_path'] = network_blueprint_path
+
+        class _P:
+            def forward(self, obs, mask):
+                return None
+
+            def update_weights(self):
+                return 1
+
+            def close(self):
+                pass
+
+        return _P()
+
+    def _mock_build_env_factory(cfg, seed):
+        return lambda s: None
+
+    def _mock_build_opp_registry(cfg):
+        return {}
+
+    def _mock_build_policy(cfg, actor_id):
+        return None
+
+    def _mock_spec_sampler(cfg, actor_id):
+        return EpisodeSpec(scenario_seed=0, opponent_id='random')
+
+    # Run actor_main with should_stop=True from the start so it exits cleanly
+    # after build_provider is called (before EpisodeRunner.run).
+    q = _q.Queue()
+    handoff = {
+        'weights_shm_info': {'fake': 'shm_info'},
+        'network_blueprint_path': '/tmp/fake_blueprint.pkl',
+    }
+
+    # actor_main builds provider then loops; should_stop=True immediately
+    # exits loop. EpisodeRunner construction needs env_factory + opp_registry,
+    # both mocked (constructor just stores them).
+    # We need a real-ish EpisodeRunner — mock its run() too via the policy.
+
+    try:
+        actor_main(
+            actor_id=42,
+            cfg=_AsyncCfg(),
+            build_env_factory=_mock_build_env_factory,
+            build_opp_registry=_mock_build_opp_registry,
+            build_policy=_mock_build_policy,
+            build_provider=_mock_build_provider,
+            spec_sampler=_mock_spec_sampler,
+            transition_queue=q,
+            should_stop=lambda: True,  # immediate exit
+            provider_kwargs=handoff,
+        )
+    except Exception:
+        # Should not reach run loop body, but EpisodeRunner ctor may complain
+        # if env_factory returns None. We tolerate that — assertions below
+        # only depend on build_provider being called.
+        pass
+
+    assert captured.get('actor_id') == 42
+    assert captured.get('weights_shm_info') == {'fake': 'shm_info'}
+    assert captured.get('network_blueprint_path') == '/tmp/fake_blueprint.pkl'
+
+
+def test_ppo_async_provider_kwargs_inference_client_mutex():
+    """AB13 mutex:provider_kwargs + inference_client 都 non-None → ValueError。"""
+    import queue as _q
+
+    from training.core.actor.actor_process import actor_main
+
+    def _noop_builder(*args, **kwargs):
+        return None
+
+    def _noop_provider(cfg, actor_id, **kw):
+        return None
+
+    q = _q.Queue()
+    with pytest.raises(ValueError, match='mutually exclusive'):
+        actor_main(
+            actor_id=0,
+            cfg=_AsyncCfg(),
+            build_env_factory=_noop_builder,
+            build_opp_registry=_noop_builder,
+            build_policy=_noop_builder,
+            build_provider=_noop_provider,
+            spec_sampler=_noop_builder,
+            transition_queue=q,
+            should_stop=lambda: True,
+            inference_client='fake_client',
+            provider_kwargs={'fake': 'kwargs'},
+        )
 
 
 def _make_unspawned(pcfg, q, timeout=2.0):

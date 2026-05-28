@@ -1,23 +1,29 @@
 """PPOAsyncCollector — FU-W3b-PPO 真 mp 接通(走 W3a core/actor)。
 
-Split from collector.py for line-limit;public 入口仍 collector.PPOAsyncCollector
-(re-export)。N actor 各跑 episode(EpisodeRunner + PPOEpisodePolicy +
+Split from collector.py for line-limit; public 入口仍 collector.PPOAsyncCollector
+(re-export)。N actor 各跑 episode (EpisodeRunner + PPOEpisodePolicy +
 LocalNetworkProvider);IPCQueue 流回 learner;collect() drain + GAE;
 sync_weights() 通过 WeightsSHM 广播。
 
-W3a 约束:LocalNetworkProvider per actor、WeightsSHM publish 在 spawn 前、
-network device='cpu' 再 pickle、无 Manager()。跨 spawn 边界:tempfile pickle
-+ env var(spawn 子进程继承 env)— 不触 core/actor.actor_main 签名。
+**Spawn handoff** (post 2026-05-29 / I31 backlog #88 cleanup):
 
-PPO frozen tier(per ADR-0008):简单接通。Driver 应每次 train 后调
+W3a-era env-var bridge (``_ENV_SHM_PATH`` / ``_ENV_NET_PATH`` / ``_ENV_OPPONENT``)
+deleted — replaced with AB13 ``provider_kwargs`` escape hatch. Parent passes
+``WeightsSHM.serialize_for_worker`` returned dict + network blueprint
+tempfile path str through ``actor_kwargs_factory`` → ``actor_main`` →
+``mp_factories.build_provider(**provider_kwargs)``. ``opp_id`` is read
+directly from cfg (auto-pickled by mp spawn ctx, no env bridge).
+
+Builders + provider class moved to ``training.paradigms.ppo.mp_factories``;
+dotted-path strings in this module point at the new home.
+
+PPO frozen tier (per ADR-0008):简单接通。Driver 应每次 train 后调
 sync_weights — PPO strict on-policy。
 """
 
 from __future__ import annotations
 
-import os
 import pickle
-import random
 import tempfile
 import time
 from pathlib import Path
@@ -25,149 +31,13 @@ from typing import Any
 
 import numpy as np
 
-from training.core.protocols import CollectorOutput, EpisodeSpec, Transition
-from training.paradigms.ppo.policy import PPOEpisodePolicy, compute_gae
-
-_ENV_SHM_PATH = 'GICG_PPO_W3B_SHM_PATH'
-_ENV_NET_PATH = 'GICG_PPO_W3B_NET_PATH'
-_ENV_OPPONENT = 'GICG_PPO_W3B_OPPONENT'
-
-
-def _derive_seed(master_seed: int, *labels: Any) -> int:
-    h = master_seed & 0xFFFFFFFF
-    for lab in labels:
-        for b in repr(lab).encode('utf-8'):
-            h = (h * 1000003) ^ b
-            h &= 0xFFFFFFFF
-    return int(h & 0x7FFFFFFF)
-
-
-# ---------- spawn-safe top-level builders(actor_main resolves via dotted path) ---------- #
-
-
-def build_env_factory(cfg: Any, seed: int):
-    del seed
-    from gicg_env import GicgEnv
-
-    scen = cfg.scenario
-    fd = list(scen.fix_dice) if getattr(scen, 'fix_dice', None) else None
-
-    def _factory(scenario_seed: int):
-        env = GicgEnv(
-            list(scen.team_0),
-            list(scen.team_1),
-            card_pool=list(getattr(scen, 'card_pool', None) or ()),
-            seed=int(scenario_seed),
-            data_dir=str(getattr(scen, 'data_dir', 'data')),
-            max_rounds=int(getattr(scen, 'max_rounds', 3)),
-            fix_dice=fd,
-            deck_padding=getattr(scen, 'deck_padding', None),
-            pool=getattr(scen, 'pool', ['v_legacy', 'test_basic']),
-        )
-        env.reset(seed=int(scenario_seed))
-        return env
-
-    return _factory
-
-
-def build_opp_registry(cfg: Any):
-    # Frozen tier:只接 random baseline(完整 F1-D2 在 legacy/rollout.py)。
-    del cfg
-    from training.core.eval.baselines import OpponentRegistry
-
-    def _mk(seed, params):
-        del params
-        rng = random.Random(int(seed))
-
-        class _R:
-            def select_action(self, env):
-                kinds, _ = env.get_legal_actions() if hasattr(env, 'get_legal_actions') else ([0], None)
-                return rng.choice(list(kinds)) if kinds else 0
-
-        return _R()
-
-    reg = OpponentRegistry()
-    extra = os.environ.get(_ENV_OPPONENT, 'random')
-    for tag in {'rollout', 'random', 'self', extra}:
-        reg.register(tag, _mk)
-    return reg
-
-
-def build_policy(cfg: Any, actor_id: int):
-    pcfg = dict(cfg.paradigm) if hasattr(cfg, 'paradigm') else {}
-    return PPOEpisodePolicy(
-        gamma=float(pcfg.get('gamma', 0.99)),
-        gae_lambda=float(pcfg.get('gae_lambda', 0.95)),
-        seed=int(cfg.meta.seed) + 1000 + int(actor_id),
-        deterministic=False,
-    )
-
-
-def build_provider(cfg: Any, actor_id: int):
-    # env var → tempfile → WeightsSHM.attach → LocalNetworkProvider 包装。
-    del cfg, actor_id
-    shm_path = os.environ.get(_ENV_SHM_PATH)
-    net_path = os.environ.get(_ENV_NET_PATH)
-    if not shm_path or not net_path:
-        raise RuntimeError(f'PPOAsync handoff missing: set {_ENV_SHM_PATH}/{_ENV_NET_PATH} before spawn')
-    from training.core.actor.network_provider import LocalNetworkProvider
-    from training.core.actor.weights_shm import WeightsSHM
-
-    with open(shm_path, 'rb') as f:
-        shm_info = pickle.load(f)
-    with open(net_path, 'rb') as f:
-        network = pickle.load(f)
-    shm = WeightsSHM.attach(shm_info)
-    sd, version = shm.read('latest')
-    if sd is None:
-        raise RuntimeError('PPOAsync: WeightsSHM latest cold — publish before spawn')
-    network.load_state_dict(sd)
-    network.eval()
-    local = LocalNetworkProvider(network, device='cpu', version_tag='latest')
-    local.version = int(version)
-    return _PPOActorProvider(local, shm)
-
-
-_SPEC_COUNTERS: dict = {}
-
-
-def spec_sampler(cfg: Any, actor_id: int) -> EpisodeSpec:
-    seq = _SPEC_COUNTERS.get(actor_id, 0)
-    _SPEC_COUNTERS[actor_id] = seq + 1
-    seed = _derive_seed(int(cfg.meta.seed), 'actor', int(actor_id), 'episode', int(seq))
-    opp = os.environ.get(_ENV_OPPONENT, 'random')
-    return EpisodeSpec(scenario_seed=int(seed), opponent_id='random' if opp == 'self' else opp)
-
-
-class _PPOActorProvider:
-    """LocalNetworkProvider + WeightsSHM:update_weights 从 SHM 读 latest。"""
-
-    def __init__(self, local_provider, shm) -> None:
-        self._local = local_provider
-        self._shm = shm
-
-    def forward(self, obs: Any, mask: Any) -> Any:
-        return self._local.forward(obs, mask)
-
-    def update_weights(self, version_tag: str = 'latest', state_dict: dict = None) -> int:
-        if state_dict is not None:
-            return self._local.update_weights(state_dict=state_dict)
-        sd, ver = self._shm.read(version_tag)
-        if sd is not None and ver > self._local.current_version():
-            self._local.network.load_state_dict(sd)
-            self._local.version = int(ver)
-        return self._local.current_version()
-
-    def current_version(self) -> int:
-        return self._local.current_version()
-
-    def close(self) -> None:
-        self._local.close()
+from training.core.protocols import CollectorOutput, Transition
+from training.paradigms.ppo.policy import compute_gae
 
 
 class PPOAsyncCollector:
     """N actor real mp via W3a core/actor。env_factory 兼容签名但 async 不用
-    (actor 子进程通过 build_env_factory 从 cfg.scenario 重建)。"""
+    (actor 子进程通过 mp_factories.build_env_factory 从 cfg.scenario 重建)。"""
 
     requires_network_in_collect = True
     _drain_timeout_s: float = 60.0
@@ -195,23 +65,35 @@ class PPOAsyncCollector:
         self._weights_shm = WeightsSHM(max_state_dict_bytes=max(64 * 1024 * 1024, 2 * nb + 16384), owner=True)
         self._weights_version = 1
         self._publish_network(network, version=1)
-        # tempfile pickle handoff:network blueprint(.cpu()) + SHM info。
+
+        # Spawn-safe handoff bundle (post-cleanup AB13 provider_kwargs path):
+        # WeightsSHM info pickles via _SHMSlot.__getstate__ (name + Lock),
+        # child re-attaches via WeightsSHM.attach. Network blueprint still
+        # goes through tempfile pickle — frozen-tier LocalNetworkProvider
+        # design doesn't introduce InferenceServer.
+        weights_shm_info = self._weights_shm.serialize_for_worker(['latest'])
         self._tmpdir = Path(tempfile.mkdtemp(prefix='gicg_ppo_w3b_'))
-        np_path, sp_path = self._tmpdir / 'net.pkl', self._tmpdir / 'shm.pkl'
+        np_path = self._tmpdir / 'net.pkl'
         with open(np_path, 'wb') as f:
             pickle.dump(network.cpu(), f, protocol=pickle.HIGHEST_PROTOCOL)
-        with open(sp_path, 'wb') as f:
-            pickle.dump(self._weights_shm.serialize_for_worker(['latest']), f, protocol=pickle.HIGHEST_PROTOCOL)
-        os.environ[_ENV_SHM_PATH], os.environ[_ENV_NET_PATH] = str(sp_path), str(np_path)
-        os.environ[_ENV_OPPONENT] = str(paradigm_cfg.rollout.rollout_opponent)
+        network_blueprint_path = str(np_path)
 
         self._queue = IPCQueue(maxsize=max(256, n_actors * int(paradigm_cfg.rollout.n_games_per_iter) * 2))
         self._runtime = Runtime(cfg, weights_shm=self._weights_shm)
-        m = 'training.paradigms.ppo._async'
+        m = 'training.paradigms.ppo.mp_factories'
         kw = {f'build_{k}_path': f'{m}.build_{k}' for k in ('env_factory', 'opp_registry', 'policy', 'provider')}
         kw['spec_sampler_path'] = f'{m}.spec_sampler'
         kw['transition_queue'] = self._queue
-        self._runtime.start_actors(n_actors=n_actors, actor_kwargs_factory=lambda i: dict(kw))
+        self._runtime.start_actors(
+            n_actors=n_actors,
+            actor_kwargs_factory=lambda i: dict(
+                kw,
+                provider_kwargs={
+                    'weights_shm_info': weights_shm_info,
+                    'network_blueprint_path': network_blueprint_path,
+                },
+            ),
+        )
 
     def _publish_network(self, network: Any, version: int) -> None:
         # W3a #3:写 SHM 前 .cpu() state_dict。
@@ -288,8 +170,6 @@ class PPOAsyncCollector:
                 fn()
             except Exception:
                 pass
-        for var in (_ENV_SHM_PATH, _ENV_NET_PATH, _ENV_OPPONENT):
-            os.environ.pop(var, None)
 
     def state_dict(self) -> dict:
         return {'iter_seq': self._iter_seq, 'master_seed': self._master_seed, 'weights_version': self._weights_version}

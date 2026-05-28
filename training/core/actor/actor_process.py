@@ -78,55 +78,48 @@ def actor_main(
     build_provider_path: Optional[str] = None,
     spec_sampler_path: Optional[str] = None,
     inference_client: Any = None,
+    provider_kwargs: Optional[dict] = None,
     stop_event: Any = None,
     push_episode_record: bool = False,
 ) -> None:
     """Actor loop — runs episodes until stop is requested.
 
-    Two calling conventions:
+    Calling conventions: in-proc pass callable ``build_*`` + ``spec_sampler``
+    directly; cross-process spawn pass ``*_path`` dotted strings (resolved
+    inside the child after env hardening).
 
-    - In-proc: pass callable ``build_*`` + ``spec_sampler`` directly.
-    - Cross-process spawn: pass ``*_path`` dotted strings; this
-      function resolves them inside the child after env hardening.
+    Parent-handoff escape hatches per AB13 (``openspec/specs/
+    training-architecture/actor-backend.md`` § 3.6) — mutually exclusive:
 
-    ``inference_client`` (optional): parent-constructed InferenceClient
-    handed in via per-actor kwargs. When provided, ``build_provider`` is
-    called with ``inference_client=`` kwarg so paradigm factories can
-    construct a :class:`RemoteNetworkProvider` routed to a shared
-    :class:`InferenceServer`. Backward compatible: old factories with
-    signature ``(cfg, actor_id)`` are still called without the kwarg.
+    - ``inference_client`` (DMC pattern): parent-constructed handle →
+      ``build_provider(cfg, actor_id, inference_client=client)``.
+    - ``provider_kwargs`` (PPO pattern): generic spawn-safe dict →
+      ``build_provider(cfg, actor_id, **provider_kwargs)``. Values SHALL
+      picklable by mp.Process spawn ctx (e.g. ``WeightsSHM.serialize_for_worker``
+      returned dict, tempfile path str). actor_main does not validate inner
+      schema — paradigm build_provider owns value validation.
+    - Both non-None → ValueError (early fail on dispatch ambiguity).
+    - Both None → legacy ``build_provider(cfg, actor_id)`` (AZ pattern).
 
     ``push_episode_record`` (default False): when False, pushes
-    ``record.transitions`` (list[Transition]) onto the queue — the
-    historical contract AZ + others rely on. When True, pushes the full
-    :class:`EpisodeRecord` so the collector can read ``record.winner``
-    + per-transition payload (DMC needs both to reconstruct
-    ``DmcTransition`` + backfill MC return G). Opt-in to avoid
-    perturbing existing paradigm collectors.
+    ``record.transitions`` (list[Transition]); when True, pushes the
+    :class:`EpisodeRecord` so DMC can reconstruct ``DmcTransition`` +
+    backfill MC return G from ``record.winner``.
 
-    Stop signalling: either ``should_stop`` callable OR an mp.Event
-    ``stop_event`` (preferred for spawned workers).
+    Stop signalling: ``should_stop`` callable OR mp.Event ``stop_event``.
     """
     affinity = _resolve_actor_affinity(cfg)
     harden_child_env(affinity=affinity)
     if stop_event is not None:
         install_quiet_sigterm(stop_event)
-    # cfg-driven enable (post 2026-05-23 env var 砍后必需) — actor spawn target
-    # 拿到完整 TrainingConfig,读 cfg.debug.perf_trace + 配套字段 set 模块 state
-    # 后 configure 才真打开 handle。 cfg.debug.perf_trace=False (default) 时
-    # enable_from_cfg + configure 均 no-op,hot path span() 走 _NOOP 单例。
+    # cfg-driven perf trace (post 2026-05-23 env var 砍): read cfg.debug.perf_trace
+    # + flush thresholds; False (default) → enable + configure 均 no-op.
     _perf_trace.enable_from_cfg(cfg)
     _perf_trace.configure(role='actor', id=actor_id)
 
-    # Per-actor file logging: mp child stdout/stderr is unreliable —
-    # pytest captures it, ssh strips it, sandboxes suppress it. Tee
-    # everything to artifacts/_actor_logs/actor_<id>.log so debugging
-    # mp crashes / silent hangs / "0 transitions" wedges is possible
-    # by reading the file after the fact。
-    #
-    # 路径由 cfg.runtime.actor_log_dir 决定 (default 'artifacts/_actor_logs',
-    # post 2026-05-24 env var ACTOR_LOG_DIR 砍 — cfg-driven only)。 RuntimeCfg
-    # 缺失时退到 default,unit test 走 in-process actor_main 也能跑。
+    # Per-actor file logging: mp child stdout/stderr unreliable (pytest captures,
+    # ssh strips, sandboxes suppress). Tee to cfg.runtime.actor_log_dir / actor_<id>.log
+    # so post-crash debugging works. RuntimeCfg 缺失 → 'artifacts/_actor_logs' default.
     import os as _os
     import sys as _sys
     from pathlib import Path as _Path
@@ -179,8 +172,20 @@ def actor_main(
     opp_registry = build_opp_registry(cfg)
     runner = EpisodeRunner(env_factory, opp_registry)
     policy = build_policy(cfg, actor_id)
+    # AB13 (actor-backend.md § 3.6): inference_client + provider_kwargs are
+    # mutually exclusive parent-handoff escape hatches. Both non-None →
+    # raise so paradigm dispatch bug fails early instead of silently
+    # picking one. Both None → legacy (cfg, actor_id) build_provider
+    # signature (AZ current pattern).
+    if inference_client is not None and provider_kwargs is not None:
+        raise ValueError(
+            f'actor_main[actor_id={actor_id}]: inference_client + provider_kwargs '
+            'mutually exclusive — paradigm dispatch must pick one or neither (see AB13).'
+        )
     if inference_client is not None:
         provider = build_provider(cfg, actor_id, inference_client=inference_client)
+    elif provider_kwargs:
+        provider = build_provider(cfg, actor_id, **provider_kwargs)
     else:
         provider = build_provider(cfg, actor_id)
 
@@ -211,13 +216,10 @@ def actor_main(
                 print(f'[actor {actor_id}] provider.update_weights err: {type(exc).__name__}: {exc}')
     finally:
         _perf_trace.close()
-        # Cancel mp.Queue feeder-join atexit deadlock: any cross-process
-        # queue handle the actor inherited (transition_queue,
-        # inference_client.{request,response}_queue) may have a
-        # QueueFeederThread blocked on a pipe send whose peer has died.
-        # Python's atexit Queue finalizer would then block forever on
-        # thread.join. cancel_join_thread tells it to drop in-flight
-        # data on close; we don't care about pending data at shutdown.
+        # Cancel mp.Queue feeder-join atexit deadlock: cross-process queue
+        # handles the actor inherited may have a QueueFeederThread blocked
+        # on a dead-peer pipe send → Queue finalizer would join forever.
+        # cancel_join_thread drops in-flight data (don't care at shutdown).
         if hasattr(provider, 'close'):
             try:
                 provider.close()
@@ -276,11 +278,10 @@ class ActorProcess:
     def terminate(self, timeout_s: float = 2.0) -> None:
         """Cooperative stop → SIGTERM → SIGKILL escalation.
 
-        Actor may be blocked inside a cgo call (Go runtime owns the
-        OS thread + intercepts SIGTERM). SIGKILL cannot be caught so
-        it's the only guaranteed shutdown path. Grace timeouts are short
-        because actors that don't respond within 2s of stop_event are
-        almost certainly stuck (one DMC episode is ~100ms-1s).
+        Actor may be blocked inside a cgo call (Go runtime owns the OS thread
+        + intercepts SIGTERM). SIGKILL cannot be caught, so it's the only
+        guaranteed shutdown path. Grace timeouts short — actors not responding
+        within 2s of stop_event are almost certainly stuck.
         """
         if self._proc is None:
             return
