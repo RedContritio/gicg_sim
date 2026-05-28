@@ -56,6 +56,9 @@ class ParallelInferencePool:
             # resolves the factory via this path. AZ paradigm 自报 own
             # Agent class — keeps core/ free of paradigm-specific imports。
             network_factory_path='training.paradigms.az.network.Agent',
+            # W2-2: drain.py 的 game_start + eval_batch handler 也是 AZ-shaped,
+            # 同样路径化注入(audit finding 高优 #2)。
+            inference_handlers_module_path='training.paradigms.az._inference_handlers',
         )
         self._result_queue: 'mp.Queue' = self._ctx.Queue()
         self._cmd_queues: list['mp.Queue'] = []

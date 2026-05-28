@@ -9,6 +9,7 @@ import traceback
 from typing import TYPE_CHECKING
 
 from training.core.inference.server_loop.drain import (
+    InferenceHandlers,
     _drain_pipes,
     _drain_weight_queue,
     _process_batch,
@@ -46,14 +47,21 @@ def _server_loop(
     error_queue: 'mp.Queue',
     ready_event: 'mp.Event',
     network_factory_path: str = '',
+    inference_handlers_module_path: str = '',
 ) -> None:
     """Child process entry。
 
     W2-1 (post 2026-05-28):``network_factory_path`` (dotted "module.attr")
     parametrizes the agent class — pre-W2-1 this loop hard-imported
     ``training.paradigms.az.network.Agent`` (audit finding 高优 #1
-    violated ADR-0006 单向依赖)。 Caller (the AZ paradigm via
-    ``InferenceServer`` ctor) must supply the path explicitly。
+    violated ADR-0006 单向依赖)。
+
+    W2-2:``inference_handlers_module_path`` (dotted module) points to a
+    module exposing ``handle_game_start`` + ``handle_eval_batch`` callables
+    (paradigm-specific obs decode + network output access)。 Pre-W2-2 these
+    two handlers lived in ``core/inference/server_loop/drain.py`` with hard-
+    coded AZ obs schema(audit finding 高优 #2)。 Caller (the AZ paradigm
+    via ``InferenceServer`` ctor) must supply the path explicitly。
     """
     try:
         import torch  # noqa: F401 — pay the import cost in child
@@ -64,11 +72,26 @@ def _server_loop(
                 'loop hard-imported training.paradigms.az.network.Agent; callers must now '
                 'pass the dotted module.attr path explicitly to InferenceServer.__init__)'
             )
+        if not inference_handlers_module_path:
+            raise RuntimeError(
+                '_server_loop: inference_handlers_module_path is required (W2-2 — pre-2026-05-28 '
+                'core/inference/server_loop/drain.py implemented AZ-shaped handlers inline; '
+                'callers must now point at a paradigm module exposing handle_game_start + '
+                "handle_eval_batch, e.g. AZ passes 'training.paradigms.az._inference_handlers')"
+            )
+        import importlib
+
         from training.core.actor.actor_process import resolve_builder
 
         network_factory = resolve_builder(network_factory_path)
         agent = network_factory(agent_config)
         agent.net.eval()
+
+        handlers_mod = importlib.import_module(inference_handlers_module_path)
+        handlers = InferenceHandlers(
+            handle_game_start=handlers_mod.handle_game_start,
+            handle_eval_batch=handlers_mod.handle_eval_batch,
+        )
 
         cache: dict[tuple[int, int], dict] = {}
         state = _ServerState()
@@ -97,7 +120,7 @@ def _server_loop(
             if not batch:
                 continue
 
-            _process_batch(agent, cache, batch, state)
+            _process_batch(agent, cache, batch, state, handlers)
             _maybe_emit_stats(stats_queue, state, emit_interval)
 
     except Exception as exc:

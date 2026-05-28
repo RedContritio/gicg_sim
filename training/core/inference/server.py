@@ -45,6 +45,7 @@ class InferenceServer:
         server_cfg: Optional[InferenceServerConfig] = None,
         *,
         network_factory_path: str = '',
+        inference_handlers_module_path: str = '',
     ):
         if n_workers <= 0:
             raise ValueError(f'n_workers must be positive, got {n_workers}')
@@ -55,10 +56,18 @@ class InferenceServer:
                 'must now supply the dotted module.attr path explicitly, e.g. AZ passes '
                 "'training.paradigms.az.network.Agent')"
             )
+        if not inference_handlers_module_path:
+            raise ValueError(
+                'InferenceServer: inference_handlers_module_path is required (W2-2 — pre-W2 '
+                "drain.py implemented AZ-shaped handlers inline; callers must now point at "
+                'a paradigm module exposing handle_game_start + handle_eval_batch callables, '
+                "e.g. AZ passes 'training.paradigms.az._inference_handlers')"
+            )
         self.agent_config = agent_config
         self.n_workers = n_workers
         self.server_cfg = server_cfg or InferenceServerConfig()
         self.network_factory_path = network_factory_path
+        self.inference_handlers_module_path = inference_handlers_module_path
 
         self._ctx = mp.get_context('spawn')
         self._worker_pipes_server_side: list[mp_conn.Connection] = []
@@ -93,6 +102,7 @@ class InferenceServer:
                 self._error_queue,
                 self._ready_event,
                 self.network_factory_path,
+                self.inference_handlers_module_path,
             ),
             daemon=False,
         )
