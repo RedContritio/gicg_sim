@@ -216,6 +216,8 @@ class DMCGoSubprocessCollector:
                 'assembler_n_dropped_static_miss': self.assembler.stats().get('n_dropped_static_miss', 0),
                 'assembler_n_evicted': self.assembler.stats().get('n_evicted_inflight', 0),
                 'assembler_n_pending': self.assembler.stats().get('n_pending_episodes', 0),
+                # IPC Risk #5: > 0 = 长 run 静默丢 episode 信号 (actor crash orphan 卡 LRU)。
+                'assembler_n_stale': self.assembler.stats().get('n_stale_episodes', 0),
             }
         )
         # Emit 'backpressure' kind row to metrics.jsonl — 跨 collect call 保留每次 snapshot

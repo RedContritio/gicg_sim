@@ -261,3 +261,68 @@ def test_ingest_episode_obs_dict_correct():
         assert 'action_refs' in t.obs_dict
         assert 'action_payments' in t.obs_dict
         assert 'counter_sids' in t.obs_dict
+
+
+# ─── IPC Risk #5 (2026-05-28 audit): stale-episode + eviction-with-age ────────
+
+
+def _make_pending_batch(client_id: int, episode_id: int, static_hash: bytes) -> EpisodeBatch:
+    """Build a batch with done=False so episode stays in _buffers (orphan candidate)。"""
+    txs = [
+        Transition(
+            client_id=client_id,
+            episode_id=episode_id,
+            step=0,
+            done=False,
+            payload=_make_payload(step=0, reward=0.0, static_hash=static_hash, with_static=True),
+        )
+    ]
+    return EpisodeBatch(client_id=client_id, episode_id=episode_id, transitions=txs)
+
+
+def test_stale_episode_detected_after_threshold(monkeypatch):
+    """IPC Risk #5:ingest non-done batch (留 LRU),时间 fast-forward 超 STALE
+    threshold → stats n_stale_episodes 报 1。 下次 long-run train 直接 grep 看
+    actor crash orphan 趋势。"""
+    from training.paradigms.dmc._go_assembler import STALE_EPISODE_THRESHOLD_S
+    import training.paradigms.dmc._go_assembler as _asm
+
+    a = DmcTransitionAssembler(**_SCENARIO)
+    h = b'\xaa' * 16
+
+    # ingest at t=100
+    monkeypatch.setattr(_asm.time, 'monotonic', lambda: 100.0)
+    a.ingest_episode(_make_pending_batch(0, 1, h))
+    assert a.n_pending() == 1
+
+    # Half threshold elapsed → not stale yet
+    monkeypatch.setattr(_asm.time, 'monotonic', lambda: 100.0 + STALE_EPISODE_THRESHOLD_S / 2)
+    assert a.stats()['n_stale_episodes'] == 0
+
+    # Beyond threshold → stale
+    monkeypatch.setattr(_asm.time, 'monotonic', lambda: 100.0 + STALE_EPISODE_THRESHOLD_S + 1)
+    assert a.stats()['n_stale_episodes'] == 1
+
+
+def test_eviction_warn_includes_age(monkeypatch, capsys):
+    """IPC Risk #5:LRU evict 触发时 stderr 必须报 age=Xs 让 debug 看 orphan 卡多久。"""
+    import training.paradigms.dmc._go_assembler as _asm
+
+    a = DmcTransitionAssembler(**_SCENARIO, max_inflight_episodes=2)
+    h = b'\xbb' * 16
+
+    # ep_id=1 created at t=100
+    monkeypatch.setattr(_asm.time, 'monotonic', lambda: 100.0)
+    a.ingest_episode(_make_pending_batch(0, 1, h))
+    # ep_id=2 at t=130
+    monkeypatch.setattr(_asm.time, 'monotonic', lambda: 130.0)
+    a.ingest_episode(_make_pending_batch(0, 2, h))
+    # ep_id=3 at t=160 → triggers evict of ep_id=1 (oldest, age=60s)
+    monkeypatch.setattr(_asm.time, 'monotonic', lambda: 160.0)
+    a.ingest_episode(_make_pending_batch(0, 3, h))
+
+    captured = capsys.readouterr()
+    assert 'evicting client=0 ep=1' in captured.err
+    assert 'age=60.0s' in captured.err
+    assert 'actor crash suspected' in captured.err
+    assert a.stats()['n_evicted_inflight'] == 1

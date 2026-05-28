@@ -27,11 +27,17 @@ from __future__ import annotations
 
 import sys
 import threading
+import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
 import numpy as np
+
+# Stale-episode 阈值(秒)— 超过此时长未 ingest 新 transition 的 in-flight episode 视为
+# orphan (actor 死亡 / conn reset 遗留)。 stats() 报告 n_stale_episodes 让 collector
+# emit 进 backpressure metrics,production debug 直接 grep。 IPC Risk #5 (2026-05-28 audit)。
+STALE_EPISODE_THRESHOLD_S = 60.0
 
 from training.core.actor.transition_sink_wire import (
     DmcTransitionPayload,
@@ -53,6 +59,12 @@ class _EpisodeBuf:
     # 收第一条 transition 时已知 static_hash;cache 中可能已有(scenario shared);若 NStatic>0
     # 就 trigger 解码 + 入 cache。
     static_hash: Optional[bytes] = None
+    # IPC Risk #5 (2026-05-28):monotonic 时间戳追踪 episode 活跃度。 created_ts 用于 eviction
+    # log 报 age (orphan 多久卡在 LRU),last_update_ts 用于 stats() n_stale_episodes
+    # 检测 (超 STALE_EPISODE_THRESHOLD_S 没 ingest 新 trans = 疑似 actor crash)。 0.0 默认
+    # 仅 dataclass init 前用,ingest 内立即覆盖。
+    created_ts: float = 0.0
+    last_update_ts: float = 0.0
 
 
 @dataclass
@@ -202,20 +214,27 @@ class DmcTransitionAssembler:
             key = (batch.client_id, batch.episode_id)
             with self._lock:
                 self._n_ingest_called += 1
+                now = time.monotonic()
                 with trace.span('assembler.append_buffer'):
                     if key in self._buffers:
                         del self._buffers[key]
                     if len(self._buffers) >= self._max_inflight:
-                        old_key, _ = self._buffers.popitem(last=False)
+                        old_key, old_buf = self._buffers.popitem(last=False)
                         self._n_evicted_inflight += 1
+                        # IPC Risk #5: 报 age 让 debug 看 orphan 卡多久 (actor crash 时长信号)。
+                        age_s = now - old_buf.created_ts if old_buf.created_ts > 0 else -1.0
                         print(
-                            f'[DmcAssembler] inflight cap reached — evicting client={old_key[0]} ep={old_key[1]}',
+                            f'[DmcAssembler] inflight cap {self._max_inflight} reached — '
+                            f'evicting client={old_key[0]} ep={old_key[1]} age={age_s:.1f}s '
+                            f'(likely orphaned, actor crash suspected)',
                             file=sys.stderr,
                             flush=True,
                         )
                     buf = _EpisodeBuf()
                     buf.payloads = decoded_list
                     buf.done = any_done
+                    buf.created_ts = now
+                    buf.last_update_ts = now
                     if decoded_list:
                         buf.static_hash = decoded_list[0].static_hash
                     if static_from_batch is not None and static_from_batch.static_hash not in self._static_cache:
@@ -316,8 +335,19 @@ class DmcTransitionAssembler:
             return len(self._ready)
 
     def stats(self) -> dict[str, Any]:
-        """One-shot snapshot of cache / buffer state — diagnostic for collector metrics。"""
+        """One-shot snapshot of cache / buffer state — diagnostic for collector metrics。
+
+        IPC Risk #5: n_stale_episodes 计 last_update_ts 比当前晚 STALE_EPISODE_THRESHOLD_S
+        以上的 in-flight episode (默认 60s) — 这些 episode 长时间没 ingest 新 transition,
+        疑似 actor crash 后遗留;persistent > 0 即 long-run train 静默丢 episode 信号。
+        """
+        now = time.monotonic()
         with self._lock:
+            n_stale = sum(
+                1
+                for buf in self._buffers.values()
+                if buf.last_update_ts > 0 and (now - buf.last_update_ts) > STALE_EPISODE_THRESHOLD_S
+            )
             return {
                 'n_pending_episodes': len(self._buffers),
                 'n_ready_episodes': len(self._ready),
@@ -326,4 +356,5 @@ class DmcTransitionAssembler:
                 'n_dropped_static_miss': self._n_dropped_static_miss,
                 'n_assembled': self._n_assembled,
                 'n_evicted_inflight': self._n_evicted_inflight,
+                'n_stale_episodes': n_stale,
             }
