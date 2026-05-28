@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-17 (core-network-generic-promotion 主线 + 6 follow-up changes ship / 5 paradigm 统一 backbone + cfg + smoke + tools / 7 changes 待 archive)
+last_updated: 2026-05-28 (I29 R7 N-subprocess 闭环 ship / Stage 3 Win pilot 跑出 DMC policy collapse 验证 / minimax DeepCopy + wire schema lock + GPU stream priority + SHM race-aware metric 一并 ship / C1 选 A 准备 full 1M continue)
 status: LIVE
 ---
 
@@ -26,9 +26,36 @@ status: LIVE
 
 不是训 SOTA agent。
 
-## 当前 phase(2026-05-17 EOD)
+## 当前 phase(2026-05-28 EOD)
 
-### 0. core/network 重设计 + 5 paradigm 完全统一 ship(2026-05-17,34+ commits)
+### 0. Stage 3 Win pilot + DMC policy collapse 验证 + 多 perf/safety fix ship(2026-05-28,7 commits)
+
+**Stage 3 Win N=16 production pilot 跑通 → 主动停于 3.7%(iter 2500)** 做 policy 诊断:
+- ckpt vs F1-D2 wp **0/256 (CI 上限 1.5%)** vs random ε=1.0 拿 22%(CI 11-39%)— **CI 完全不重叠 → DMC 早期 policy collapse 固化**(PLAN.md §A.2 机制 verified:ε=0.05 + MC return ±1 → MSE depress 被选 action → argmax 永选 never-chosen 烂手 self-reinforcing)
+- **C1 决策:走路径 A(继续训 full 1M,12-16h),赌后期 self-recover**;失败则进 PLAN.md §A.4 closure
+- 详:私有 memory `project_stage3_pilot_policy_collapse_2026_05_28`
+
+**同 session ship 7 commits(`b5f45e2..836be01`)分三批**:
+
+| 类 | Commit | Scope |
+|---|---|---|
+| Stage 3 unblock | `b5f45e2` | `tools/eval`:random-baseline policy-collapse 诊断 + Win remote rsync fallback |
+| H2 root cause | `d5987d0` | `gicg_actor/dmc/greedy_player`:minimax 热路径 DeepCopy → SnapshotPooled(bench 1.45x ns/op + 16→0 alloc + 32 KB→0 byte;原 budget cap 是 GC churn workaround,改完 root cause 后 production cfg 可恢复 unbounded) |
+| C3 cross-lang safety | `a613c6e` | `wire/paradigm-payload`:加 `PayloadVer u8` prefix(DMC/AZ/PPO 各独立版本)+ decode mismatch fail-loud + DMC byte-layout golden test |
+| Pre-existing | `b3609b6` | `configs/dmc/eval_stage3_b_v_legacy`:补 `[meta] paradigm = "dmc"`(FU-W1B schema) |
+| H3 visibility | `2804539` | `training/core/actor/ipc`:`peek_count_and_full_at_head` race-aware ring 探针 — 返 `(count, n_full_at_head)` 区分 over-reserve race vs actor stall(B-go-sustained-collection-deadlock 调试必备) |
+| H1 GPU perf | `049e722` | `training/core/actor`:InferenceServer forward 走 `priority=-1` CUDA stream — 抢占 train backward kernel 间隙,降 inference tail latency(实测 run 149 GPU 7-92% util 抖动信号) |
+| Pre-existing | `4e4257a` | `gicg_engine/dsl/audit_test`:补 8 个漏列 builtin whitelist(`declare_reaction` / `set_reaction_kind` / `on_shield_absorb` / 4 个 `on_damage_*` / `remove_support`) |
+| Pre-existing | `836be01` | `gicg_engine/tests/set_hidden_state`:sort map iter 消除偶发 fail |
+
+**挂起的项**(估 ROI 排序,本 session 决策不做):
+- **H4 GOMEMLIMIT validation**(~50 LOC):Win 长跑 OOM 防 silent regression — *方案 C 折中已规划,下个 session 开*
+- **IPC Risk #5 stale-episode 检测**(~30 LOC):`_go_assembler` LRU evict 加 stale + warn log,给 C1 long-run debug visibility — *已规划,下个 session 开*
+- **H5 Lua interp 优化**(LONG TERM):LuaJIT 替换违反立约(`openspec/project.md:33` "自研解释器,非 LuaJIT")+ 8000 LOC 自研 + IR 系统全推倒数月工程;真要做需先 profile 验证占比(估 10-15% 待真测),路径是 bytecode cache / hot hook 移到 Go-native,不切外部 VM
+- **M1 OpenSpec archive 重复 ID**(~1h):`0006/0007` 双 ID 冲突 + I29 缺 ADR mirror
+- **M3 docs/1_specs vs openspec/specs truth 重复**(2-3h):20 vs 60 文件 overlap,需 audit 整理
+
+### 0a. core/network 重设计 + 5 paradigm 完全统一 ship(2026-05-17,34+ commits)
 
 单 session 跑完 architecture unification 大主线:
 - **`core-network-generic-promotion`** parent change(13 commits,Phase 0-6 ship):generic `ActorCritic` thin composition + DI `AgentBase` + `typed_damage` first-class + `core/network/legacy/` 物理删除 + 5 paradigm 全切 generic backbone + ckpt self-describing schema + symmetric smoke template + `tools/runs/` CLI suite
