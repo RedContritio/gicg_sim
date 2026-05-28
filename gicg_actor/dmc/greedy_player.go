@@ -89,10 +89,10 @@ func scorerNames() []string {
 // acting==me:max(sub_scores),else: min(sub_scores)— mirror Python max/min branching。
 //
 // “budget“ 是共享 counter (per SelectAction 调用)。 budget==nil → unbounded (production
-// 默认 cfg knob=0);budget != nil 且 *budget <= 0 → 停止展开,当前节点降级评分 (D4
-// O(N⁴) 成本封顶);D1/D2 远在此之下不受影响。 cap 的实际效果 (典型 budget=4000):
-// D4 capped 到 ~D2.7 effective depth + 控制 DeepCopy GC churn (N=16 actor 并发下
-// 8000 实测 +841MB/15s)。 I29 设计允许 winrate-gate 非 bit-exact 对手近似 (详 proposal D2)。
+// 默认 cfg knob=0);budget != nil 且 *budget <= 0 → 停止展开,当前节点降级评分。
+// 2026-05-28 后:hot-path snap 从 g.DeepCopy() 换成 g.SnapshotPooled() (pool-backed
+// 0-alloc 复用,详 engine/game_snap.go);原 budget cap 是 DeepCopy GC pressure 的
+// workaround,SnapshotPooled 后 budget=0 unbounded 直接 viable。
 func (gp *GreedyPlayer) scoreBestResponse(
 	rt *interp.Runtime,
 	viewRoot *record.StateView,
@@ -122,13 +122,14 @@ func (gp *GreedyPlayer) scoreBestResponse(
 		if budget != nil {
 			*budget--
 		}
-		dcSpan := gicg_actor.Span("game.deepcopy")
-		snap := g.DeepCopy()
-		dcSpan.End()
+		snapSpan := gicg_actor.Span("game.snapshot_pooled")
+		snap := g.SnapshotPooled()
+		snapSpan.End()
 		var sub float64
 		func() {
 			defer func() {
-				g.RestoreFrom(snap)
+				g.RestoreFromSnap(snap)
+				engine.ReleaseSnap(snap)
 			}()
 			g.Step(i)
 			sub = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, depth-1, budget)
@@ -185,13 +186,14 @@ func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 		if budgetPtr != nil {
 			*budgetPtr--
 		}
-		dcSpan := gicg_actor.Span("game.deepcopy")
-		snap := g.DeepCopy()
-		dcSpan.End()
+		snapSpan := gicg_actor.Span("game.snapshot_pooled")
+		snap := g.SnapshotPooled()
+		snapSpan.End()
 		var score float64
 		func() {
 			defer func() {
-				g.RestoreFrom(snap)
+				g.RestoreFromSnap(snap)
+				engine.ReleaseSnap(snap)
 			}()
 			g.Step(i)
 			score = gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, gp.cfg.Depth-1, budgetPtr)
