@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"sort"
 	"testing"
 )
 
@@ -75,11 +76,20 @@ func TestSetPlayerDeck_OrderPreserved(t *testing.T) {
 		t.Fatal("filler card not found")
 	}
 	filler := fillerCard.Ref
+	// Sort card names 给 deterministic 遍历 — Go map iter order 非确定,旧版偶
+	// 在某些 hash seed 下命中 ineligible card path 不全 → 找不到 second distinct ref
+	// raise false fail。 排序后跨 run reproducible。
+	cardNames := make([]string, 0, len(env.RT.Cards.ByName))
+	for name := range env.RT.Cards.ByName {
+		cardNames = append(cardNames, name)
+	}
+	sort.Strings(cardNames)
 	var otherRef int
-	for name, c := range env.RT.Cards.ByName {
+	for _, name := range cardNames {
 		if name == "碌碌无为" {
 			continue
 		}
+		c := env.RT.Cards.ByName[name]
 		if env.RT.CardEligibleFor(c, 0) {
 			otherRef = c.Ref
 			break
