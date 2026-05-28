@@ -67,15 +67,7 @@ class PPOParadigm:
 
         Per M4: shape derived from pcfg.agent directly — no env probe."""
         pcfg = self._resolve_pcfg(cfg)
-        agent_cfg = AgentConfig(
-            n_counter_slots=pcfg.agent.n_counter_slots,
-            n_hooks=pcfg.agent.n_hooks,
-            max_ops_per_hook=pcfg.agent.max_ops_per_hook,
-            max_actions=pcfg.agent.max_actions,
-            d_model=pcfg.agent.d_model,
-            dropout=pcfg.agent.dropout,
-            n_cross_layers=pcfg.agent.n_cross_layers,
-        )
+        agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
         self._network = PPONetwork(agent_cfg, device=cfg.meta.device)
         return self._network
 

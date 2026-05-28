@@ -52,9 +52,15 @@ from training.core.structural import compute_structural_obspos
 class AgentConfig:
     """Shape parameters needed to instantiate per-algorithm network.
 
-    Note: future config-schema cleanup may unify this with
-    ``training.core.cfg.ObsShape`` (per config-schema spec); for now both
-    coexist — paradigms in transition use whichever they already wire to.
+    Field set is structurally identical to ``training.core.cfg.ObsShape``;
+    use ``AgentConfig.from_obs_shape(obs_shape)`` at paradigm boundaries
+    instead of hand-copying all 7 fields one by one (W1-T3 consolidation
+    — pre-W1-T3 4 paradigm.py sites + 2 legacy run-config sites each
+    repeated the same boilerplate construction). The two dataclasses
+    remain distinct because callers downstream (cfg-toml loaders + ckpt
+    loaders) need the original ObsShape vs the AgentConfig wire type
+    differentiated for backward-compat (ObsShape is frozen, AgentConfig
+    is mutable for legacy reasons).
     """
 
     n_counter_slots: int
@@ -66,6 +72,24 @@ class AgentConfig:
     d_model: int = 64
     dropout: float = 0.0
     n_cross_layers: int = 2
+
+    @classmethod
+    def from_obs_shape(cls, obs_shape: Any) -> 'AgentConfig':
+        """Construct from an ``ObsShape`` (or any duck-typed equivalent
+        exposing the 7 shape fields). Replaces the field-by-field
+        ``AgentConfig(n_counter_slots=pcfg.agent.n_counter_slots, ...)``
+        boilerplate that previously lived inline in each paradigm's
+        ``make_network`` path (W1-T3 audit finding 中优 #8)."""
+        return cls(
+            n_counter_slots=obs_shape.n_counter_slots,
+            n_hooks=obs_shape.n_hooks,
+            max_ops_per_hook=obs_shape.max_ops_per_hook,
+            max_actions=obs_shape.max_actions,
+            fields_per_op=obs_shape.fields_per_op,
+            d_model=obs_shape.d_model,
+            dropout=obs_shape.dropout,
+            n_cross_layers=obs_shape.n_cross_layers,
+        )
 
 
 class AgentBase:

@@ -104,32 +104,14 @@ class PPOParadigmConfig(ParadigmConfigBase):
 
     @classmethod
     def from_dict(cls, d: dict) -> 'PPOParadigmConfig':
-        """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4).
-
-        Additional validations (cfg-schema-unification N3, propagated to PPO
-        via ppo-cfg-shape-alignment #7):
-        - `version` ∈ _PPO_SUPPORTED_VERSIONS;若缺省默认 '1.0.0'
-        - `paradigm` 字段值若提供必须 == 'ppo'(CC-205)
-        """
-        allowed = set(cls.__dataclass_fields__.keys())
-        unknown = set(d.keys()) - allowed
-        if unknown:
-            raise ValueError(
-                f'PPOParadigmConfig.from_dict: unknown paradigm key(s) {sorted(unknown)} (allowed: {sorted(allowed)})'
-            )
-        version = d.get('version', '1.0.0')
-        if version not in _PPO_SUPPORTED_VERSIONS:
-            raise ValueError(
-                f'PPOParadigmConfig: unsupported version {version!r} (supported: {sorted(_PPO_SUPPORTED_VERSIONS)})'
-            )
-        paradigm_val = d.get('paradigm', 'ppo')
-        if paradigm_val != 'ppo':
-            raise ValueError(f'PPOParadigmConfig: paradigm mismatch: expected ppo, got {paradigm_val!r}')
-        agent_d = d.get('agent', {})
-        rollout_d = d.get('rollout', {})
-        kwargs: dict = {k: v for k, v in d.items() if k not in ('agent', 'rollout')}
-        if isinstance(agent_d, dict):
-            kwargs['agent'] = build_shape_from_toml(agent_d, make_ppo_default_shape)
-        if isinstance(rollout_d, dict):
-            kwargs['rollout'] = PPORolloutCfg(**rollout_d)
-        return cls(**kwargs)
+        """Build from `cfg.paradigm` TOML dict. Validation delegated to
+        ``ParadigmConfigBase.from_dict_strict`` (W1-T3)."""
+        return cls.from_dict_strict(
+            d,
+            paradigm_name='ppo',
+            supported_versions=_PPO_SUPPORTED_VERSIONS,
+            sub_section_factories={
+                'agent': lambda dd: build_shape_from_toml(dd, make_ppo_default_shape),
+                'rollout': lambda dd: PPORolloutCfg(**dd),
+            },
+        )

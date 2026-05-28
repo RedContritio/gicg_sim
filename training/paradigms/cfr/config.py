@@ -91,31 +91,14 @@ class CFRParadigmConfig(ParadigmConfigBase):
 
     @classmethod
     def from_dict(cls, d: dict) -> 'CFRParadigmConfig':
-        """Build from `cfg.paradigm` TOML dict. Unknown keys → raise.
-
-        Additional validations (cfg-schema-unification N3):
-        - `version` ∈ _CFR_SUPPORTED_VERSIONS;若缺省默认 '1.0.0'
-        - `paradigm` 字段值若提供必须 == 'cfr'(CC-205)
-        """
-        allowed = set(cls.__dataclass_fields__.keys())
-        unknown = set(d.keys()) - allowed
-        if unknown:
-            raise ValueError(
-                f'CFRParadigmConfig.from_dict: unknown paradigm key(s) {sorted(unknown)} (allowed: {sorted(allowed)})'
-            )
-        version = d.get('version', '1.0.0')
-        if version not in _CFR_SUPPORTED_VERSIONS:
-            raise ValueError(
-                f'CFRParadigmConfig: unsupported version {version!r} (supported: {sorted(_CFR_SUPPORTED_VERSIONS)})'
-            )
-        paradigm_val = d.get('paradigm', 'cfr')
-        if paradigm_val != 'cfr':
-            raise ValueError(f'CFRParadigmConfig: paradigm mismatch: expected cfr, got {paradigm_val!r}')
-        agent_d = d.get('agent', {})
-        trav_d = d.get('traversal', {})
-        kwargs: dict = {k: v for k, v in d.items() if k not in ('agent', 'traversal')}
-        if isinstance(agent_d, dict):
-            kwargs['agent'] = build_shape_from_toml(agent_d, make_cfr_default_shape)
-        if isinstance(trav_d, dict):
-            kwargs['traversal'] = CFRTraversalCfg(**trav_d)
-        return cls(**kwargs)
+        """Build from `cfg.paradigm` TOML dict. Validation delegated to
+        ``ParadigmConfigBase.from_dict_strict`` (W1-T3)."""
+        return cls.from_dict_strict(
+            d,
+            paradigm_name='cfr',
+            supported_versions=_CFR_SUPPORTED_VERSIONS,
+            sub_section_factories={
+                'agent': lambda dd: build_shape_from_toml(dd, make_cfr_default_shape),
+                'traversal': lambda dd: CFRTraversalCfg(**dd),
+            },
+        )

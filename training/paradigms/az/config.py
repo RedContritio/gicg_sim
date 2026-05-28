@@ -113,33 +113,19 @@ class AZParadigmConfig(ParadigmConfigBase):
 
     @classmethod
     def from_dict(cls, d: dict) -> 'AZParadigmConfig':
-        """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4);
-        version + paradigm mismatch → raise (N3.2 / N3.3 / CC-205)."""
-        allowed = set(cls.__dataclass_fields__.keys())
-        unknown = set(d.keys()) - allowed
-        if unknown:
-            raise ValueError(
-                f'AZParadigmConfig.from_dict: unknown paradigm key(s) {sorted(unknown)} (allowed: {sorted(allowed)})'
-            )
-        version = d.get('version', '1.0.0')
-        if version not in _AZ_SUPPORTED_VERSIONS:
-            raise ValueError(
-                f'AZParadigmConfig: unsupported version {version!r} (supported: {sorted(_AZ_SUPPORTED_VERSIONS)})'
-            )
-        paradigm_val = d.get('paradigm', 'az')
-        if paradigm_val != 'az':
-            raise ValueError(f'AZParadigmConfig: paradigm mismatch: expected az, got {paradigm_val!r}')
-        agent_d = d.get('agent', {})
-        mcts_d = d.get('mcts', {})
-        train_d = d.get('train', {})
-        kwargs: dict = {k: v for k, v in d.items() if k not in ('agent', 'mcts', 'train')}
-        if isinstance(agent_d, dict):
-            kwargs['agent'] = build_shape_from_toml(agent_d, make_az_default_shape)
-        if isinstance(mcts_d, dict):
-            kwargs['mcts'] = MCTSCfg(**mcts_d)
-        if isinstance(train_d, dict):
-            kwargs['train'] = TrainStepCfg(**train_d)
-        return cls(**kwargs)
+        """Build from `cfg.paradigm` TOML dict. Validation delegated to
+        ``ParadigmConfigBase.from_dict_strict`` (W1-T3 — unknown-key,
+        version, paradigm-name template shared across 5 paradigm)."""
+        return cls.from_dict_strict(
+            d,
+            paradigm_name='az',
+            supported_versions=_AZ_SUPPORTED_VERSIONS,
+            sub_section_factories={
+                'agent': lambda dd: build_shape_from_toml(dd, make_az_default_shape),
+                'mcts': lambda dd: MCTSCfg(**dd),
+                'train': lambda dd: TrainStepCfg(**dd),
+            },
+        )
 
 
 # ---------------------------------------------------------------------------

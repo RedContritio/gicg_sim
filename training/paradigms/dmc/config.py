@@ -151,17 +151,14 @@ class DMCParadigmConfig(ParadigmConfigBase):
 
     @classmethod
     def from_dict(cls, d: dict) -> 'DMCParadigmConfig':
-        """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4).
-
-        Additional validations (cfg-schema-unification N3):
-        - `version` ∈ _DMC_SUPPORTED_VERSIONS;若缺省默认 '1.0.0'
-        - `paradigm` 字段值若提供必须 == 'dmc'(CC-205)
-        - `inference_acceleration` ∈ {'none','trace','compile'}
-        - `use_jit_trace` (deprecated alias): if True → converted to
-          `inference_acceleration='trace'` with a DeprecationWarning.
+        """Build from `cfg.paradigm` TOML dict. Validation delegated to
+        ``ParadigmConfigBase.from_dict_strict`` (W1-T3); DMC-specific
+        pre-processing (use_jit_trace deprecation translation,
+        eval_baselines list→tuple coerce) + post-validation
+        (inference_acceleration enum) wraps it.
         """
-        # Translate deprecated `use_jit_trace` alias before the unknown-
-        # key check so the field name stays out of the allowed set.
+        # Pre-process: translate deprecated ``use_jit_trace`` alias before the
+        # unknown-key check so the field name stays out of the allowed set.
         d = dict(d)  # avoid mutating caller's dict
         if 'use_jit_trace' in d:
             import warnings as _warnings
@@ -180,33 +177,26 @@ class DMCParadigmConfig(ParadigmConfigBase):
                     stacklevel=2,
                 )
                 d['inference_acceleration'] = 'trace'
-        allowed = set(cls.__dataclass_fields__.keys())
-        unknown = set(d.keys()) - allowed
-        if unknown:
+
+        # Pre-process: eval_baselines may come from TOML as list; coerce to tuple
+        # before dataclass construction (dataclass field is declared tuple).
+        if 'eval_baselines' in d and isinstance(d['eval_baselines'], list):
+            d['eval_baselines'] = tuple(d['eval_baselines'])
+
+        cfg = cls.from_dict_strict(
+            d,
+            paradigm_name='dmc',
+            supported_versions=_DMC_SUPPORTED_VERSIONS,
+            sub_section_factories={
+                'agent': lambda dd: build_shape_from_toml(dd, make_dmc_default_shape),
+                'opponent_mix': lambda dd: OpponentMixCfg(**dd),
+            },
+        )
+
+        # Post-validate inference_acceleration enum (subset of strings).
+        if cfg.inference_acceleration not in ('none', 'trace', 'compile'):
             raise ValueError(
-                f'DMCParadigmConfig.from_dict: unknown paradigm key(s) {sorted(unknown)} (allowed: {sorted(allowed)})'
+                'DMCParadigmConfig: inference_acceleration must be one of '
+                f"['none','trace','compile'], got {cfg.inference_acceleration!r}"
             )
-        version = d.get('version', '1.0.0')
-        if version not in _DMC_SUPPORTED_VERSIONS:
-            raise ValueError(
-                f'DMCParadigmConfig: unsupported version {version!r} (supported: {sorted(_DMC_SUPPORTED_VERSIONS)})'
-            )
-        paradigm_val = d.get('paradigm', 'dmc')
-        if paradigm_val != 'dmc':
-            raise ValueError(f'DMCParadigmConfig: paradigm mismatch: expected dmc, got {paradigm_val!r}')
-        accel = d.get('inference_acceleration', 'none')
-        if accel not in ('none', 'trace', 'compile'):
-            raise ValueError(
-                f"DMCParadigmConfig: inference_acceleration must be one of ['none','trace','compile'], got {accel!r}"
-            )
-        agent_d = d.get('agent', {})
-        opp_d = d.get('opponent_mix', {})
-        kwargs: dict = {k: v for k, v in d.items() if k not in ('agent', 'opponent_mix')}
-        if isinstance(agent_d, dict):
-            kwargs['agent'] = build_shape_from_toml(agent_d, make_dmc_default_shape)
-        if isinstance(opp_d, dict):
-            kwargs['opponent_mix'] = OpponentMixCfg(**opp_d)
-        # eval_baselines may come from TOML as list; coerce to tuple
-        if 'eval_baselines' in kwargs and isinstance(kwargs['eval_baselines'], list):
-            kwargs['eval_baselines'] = tuple(kwargs['eval_baselines'])
-        return cls(**kwargs)
+        return cfg

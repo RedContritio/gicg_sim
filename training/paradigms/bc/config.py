@@ -67,32 +67,17 @@ class BCParadigmConfig(ParadigmConfigBase):
 
     @classmethod
     def from_dict(cls, d: dict) -> 'BCParadigmConfig':
-        """Build from `cfg.paradigm` TOML dict. Unknown keys → raise (CS4).
-
-        Additional validations (cfg-schema-unification N3):
-        - `version` ∈ _BC_SUPPORTED_VERSIONS;若缺省默认 '1.0.0'
-        - `paradigm` 字段值若提供必须 == 'bc'(CC-205)
-        """
-        allowed = set(cls.__dataclass_fields__.keys())
-        unknown = set(d.keys()) - allowed
-        if unknown:
-            raise ValueError(
-                f'BCParadigmConfig.from_dict: unknown paradigm key(s) {sorted(unknown)} (allowed: {sorted(allowed)})'
-            )
-        version = d.get('version', '1.0.0')
-        if version not in _BC_SUPPORTED_VERSIONS:
-            raise ValueError(
-                f'BCParadigmConfig: unsupported version {version!r} (supported: {sorted(_BC_SUPPORTED_VERSIONS)})'
-            )
-        paradigm_val = d.get('paradigm', 'bc')
-        if paradigm_val != 'bc':
-            raise ValueError(f'BCParadigmConfig: paradigm mismatch: expected bc, got {paradigm_val!r}')
-        agent_d = d.get('agent', {})
-        kwargs: dict = {k: v for k, v in d.items() if k != 'agent'}
-        if isinstance(agent_d, dict):
-            kwargs['agent'] = build_shape_from_toml(agent_d, make_bc_default_shape)
-        cfg = cls(**kwargs)
-        # Strict validation:loss_kind ∈ {'ce','kl'} per BC2.1
+        """Build from `cfg.paradigm` TOML dict. Validation delegated to
+        ``ParadigmConfigBase.from_dict_strict`` (W1-T3); BC-specific
+        post-validation (loss_kind ∈ {'ce','kl'} per BC2.1) runs after."""
+        cfg = cls.from_dict_strict(
+            d,
+            paradigm_name='bc',
+            supported_versions=_BC_SUPPORTED_VERSIONS,
+            sub_section_factories={
+                'agent': lambda dd: build_shape_from_toml(dd, make_bc_default_shape),
+            },
+        )
         if cfg.loss_kind not in ('ce', 'kl'):
             raise ValueError(f'BCParadigmConfig: loss_kind must be "ce" or "kl", got {cfg.loss_kind!r}')
         return cfg

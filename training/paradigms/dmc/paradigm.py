@@ -54,15 +54,7 @@ class DMCParadigm:
     def make_network(self, cfg: Any) -> Any:
         """Build DMCNetwork (nn.Module wrapper around DmcAgent)."""
         pcfg = self._resolve_pcfg(cfg)
-        agent_cfg = AgentConfig(
-            n_counter_slots=pcfg.agent.n_counter_slots,
-            n_hooks=pcfg.agent.n_hooks,
-            max_ops_per_hook=pcfg.agent.max_ops_per_hook,
-            max_actions=pcfg.agent.max_actions,
-            d_model=pcfg.agent.d_model,
-            dropout=pcfg.agent.dropout,
-            n_cross_layers=pcfg.agent.n_cross_layers,
-        )
+        agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
         self._network = DMCNetwork(agent_cfg, device=cfg.meta.device, epsilon=pcfg.epsilon)
         return self._network
 
@@ -216,15 +208,7 @@ class DMCParadigm:
             ring_size=mix.ring_size,
         )
 
-        agent_cfg = AgentConfig(
-            n_counter_slots=pcfg.agent.n_counter_slots,
-            n_hooks=pcfg.agent.n_hooks,
-            max_ops_per_hook=pcfg.agent.max_ops_per_hook,
-            max_actions=pcfg.agent.max_actions,
-            d_model=pcfg.agent.d_model,
-            dropout=pcfg.agent.dropout,
-            n_cross_layers=pcfg.agent.n_cross_layers,
-        )
+        agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
 
         def historical_factory(state_dict: Any) -> Any:
             from training.paradigms.dmc._agent import DmcAgent
