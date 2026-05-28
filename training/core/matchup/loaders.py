@@ -147,8 +147,12 @@ _REGISTRY: Dict[str, LoaderFactory] = {}
 # ``training.paradigms.<name>._player_loader`` and self-registers at
 # module load. Used by the lazy-load trigger in ``_LazyLoaderRegistry``
 # so legacy patterns like ``'cfr' in LOADERS`` (before any explicit
-# ``load_player({'type': 'cfr', ...})`` call) keep resolving.
-_PARADIGM_LOADER_NAMES = ('az', 'cfr')
+# ``load_player({'type': 'cfr', ...})`` call) keep resolving。
+# B4 (2026-05-29):extended from W2-1 baseline (az/cfr) to full 5-paradigm
+# coverage,close audit finding `core/eval/baselines.py:103-105` "extend
+# LOADERS to add support" 流毒。 BC loader currently raises NotImplemented
+# (no BCAgent class yet — wrapper TBD)。
+_PARADIGM_LOADER_NAMES = ('az', 'bc', 'cfr', 'dmc', 'ppo')
 
 
 def register_loader(name: str, factory: LoaderFactory) -> None:

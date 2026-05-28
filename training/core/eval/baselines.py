@@ -100,11 +100,14 @@ def _make_historical(
 
     Args:
         ckpt: filesystem path to the ckpt blob ({'cfg', 'net'} keys).
-        paradigm: paradigm name in core.matchup.loaders.LOADERS (current
-            shipped: 'az' / 'cfr'). 'bc' / 'ppo' / 'dmc' SHALL raise via
-            LOADERS dispatch — extend LOADERS to add support.
-        n_simulations: 0 → argmax via _AZGreedyPlayer; >0 → MCTS-wrapped
-            (network prior + value).
+        paradigm: paradigm name in core.matchup.loaders.LOADERS。
+            B4 (2026-05-29):full 5-paradigm coverage 已 ship —
+            'az' / 'cfr' / 'dmc' / 'ppo' 各 paradigm ``_player_loader``
+            自注册;'bc' currently raises NotImplementedError 直到
+            BCAgent class 提建。
+        n_simulations: 0 → argmax over policy head;>0 → MCTS-wrapped
+            (network prior + value)。 DMC / PPO 不支持 n_simulations > 0
+            (no MCTS prior+value structure)。
         max_rollout_depth: only used when n_simulations > 0.
     """
 
