@@ -9,7 +9,7 @@ import (
 // TestParseConfig_Minimal — happy-path Config JSON decode + roundtrip,验证 snake_case
 // JSON 字段名与 Go struct tag 对齐 (Python 侧 go_subprocess.py 用 snake_case dict 透传)。
 func TestParseConfig_Minimal(t *testing.T) {
-	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "test_ring", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0"}`)
+	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "test_ring", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_mem_limit_mb": 0}`)
 	cfg, err := parseConfig(in)
 	if err != nil {
 		t.Fatalf("parseConfig: %v", err)
@@ -58,7 +58,7 @@ func TestParseConfig_RequiresTransShmName(t *testing.T) {
 // semantics (<= 0 时不调 runtime.GOMAXPROCS,让 Go 自管 NumCPU)。
 func TestParseConfig_GoMaxProcs(t *testing.T) {
 	// explicit value
-	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_gomaxprocs": 4}`)
+	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_gomaxprocs": 4, "go_mem_limit_mb": 0}`)
 	cfg, err := parseConfig(in)
 	if err != nil {
 		t.Fatalf("parseConfig: %v", err)
@@ -67,12 +67,53 @@ func TestParseConfig_GoMaxProcs(t *testing.T) {
 		t.Fatalf("GoMaxProcs=%d, want 4", cfg.GoMaxProcs)
 	}
 	// default (missing) -> 0 (= Go runtime NumCPU semantic per main: skip 调 runtime.GOMAXPROCS)
-	in2 := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0"}`)
+	in2 := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_mem_limit_mb": 0}`)
 	cfg2, err := parseConfig(in2)
 	if err != nil {
 		t.Fatalf("parseConfig: %v", err)
 	}
 	if cfg2.GoMaxProcs != 0 {
 		t.Fatalf("default GoMaxProcs=%d, want 0", cfg2.GoMaxProcs)
+	}
+}
+
+// TestParseConfig_RequiresGoMemLimitMB — H4 (2026-05-28):字段缺失 fail-loud,production
+// 路径必须 declare;0 = 显式 unbounded 让 dev/smoke 可绕。
+func TestParseConfig_RequiresGoMemLimitMB(t *testing.T) {
+	// 缺字段 → fail
+	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0"}`)
+	_, err := parseConfig(in)
+	if err == nil {
+		t.Fatalf("parseConfig accepted missing go_mem_limit_mb")
+	}
+}
+
+func TestParseConfig_GoMemLimitMB_ExplicitZeroUnbounded(t *testing.T) {
+	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_mem_limit_mb": 0}`)
+	cfg, err := parseConfig(in)
+	if err != nil {
+		t.Fatalf("parseConfig: %v", err)
+	}
+	if cfg.GoMemLimitMB == nil || *cfg.GoMemLimitMB != 0 {
+		t.Fatalf("GoMemLimitMB explicit 0 not preserved: %v", cfg.GoMemLimitMB)
+	}
+}
+
+func TestParseConfig_GoMemLimitMB_PositiveCap(t *testing.T) {
+	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_mem_limit_mb": 1024}`)
+	cfg, err := parseConfig(in)
+	if err != nil {
+		t.Fatalf("parseConfig: %v", err)
+	}
+	if cfg.GoMemLimitMB == nil || *cfg.GoMemLimitMB != 1024 {
+		t.Fatalf("GoMemLimitMB=1024 expected, got %v", cfg.GoMemLimitMB)
+	}
+}
+
+func TestParseConfig_GoMemLimitMB_NegativeRejected(t *testing.T) {
+	in := bytes.NewBufferString(`{"n_actors": 1, "trans_shm_name": "x", "trans_shm_capacity": 16, "trans_shm_slot_size": 1024, "paradigm_name": "dmc", "inf_server_addr": "127.0.0.1:0", "go_mem_limit_mb": -1}`)
+	_, err := parseConfig(in)
+	if err == nil {
+		t.Fatalf("parseConfig accepted negative go_mem_limit_mb")
 	}
 }

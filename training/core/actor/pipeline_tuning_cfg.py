@@ -75,12 +75,16 @@ class PipelineTuningCfg:
     #     per subprocess,与 Python mp _mp_helpers.py 的 OMP=1 + torch.set_num_threads(1) 对齐
     go_gomaxprocs: int = 1
 
-    # GOMEMLIMIT — Go runtime soft memory cap per actor subprocess (Go 1.19+ native env var)。
+    # GOMEMLIMIT — Go runtime soft memory cap per actor subprocess (MB)。 H4 (2026-05-28)
+    # 切 cfg-driven (per [[feedback_cfg_driven_only]],不走 env var),Go binary 启动期
+    # debug.SetMemoryLimit + print stderr 报告生效 cap。
+    #
     # 2026-05-27 Win N=16 stage3 production 实测 default (无 cap) 下每 actor RSS 1-7 GB 峰值
     # 14 GB,16 actor 总 ~41 GB host RSS → Win 64 GB host OOM at 70min(host_used 55 GB 持续上
     # 涨)。 不是真 leak (代码 audit:GreedyPlayer + runEpisode 全 stateless 局部),纯 Go heap
     # GOGC=100 default 让 heap doubles 前不触发 GC + Win VirtualFree 不眼疾还 OS → working set
-    # 涨。 设 "1GiB" → Go runtime 在 heap > 1 GiB 时强制激进 GC,16 actor × 1 GiB = 16 GB 总,
-    # 加 InfServer ~5 GB + master ~3 GB = ~25 GB,远低 63 GB Win host cap。 设 "" / None
-    # 关闭(Go runtime 默认行为, no cap)。
-    go_mem_limit: str = '1GiB'
+    # 涨。 设 1024 → Go runtime 在 heap > 1 GiB 时强制激进 GC,16 actor × 1 GiB = 16 GB 总,
+    # 加 InfServer ~5 GB + master ~3 GB = ~25 GB,远低 63 GB Win host cap。 设 0 = 显式
+    # unbounded (Go GC default 行为;dev/smoke 用)。 production cfg 必须显式 declare,Go
+    # binary parseConfig fail-loud on missing (H4 visibility safety net)。
+    go_mem_limit_mb: int = 1024

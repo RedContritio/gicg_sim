@@ -58,7 +58,6 @@ class GoSubprocessHandle:
         config: dict[str, Any],
         *,
         ready_timeout_s: float = 30.0,
-        go_mem_limit: Optional[str] = None,
     ) -> 'GoSubprocessHandle':
         """Spawn Go subprocess + 写 Config JSON 到 stdin + 等 'READY' on stdout。
 
@@ -68,14 +67,11 @@ class GoSubprocessHandle:
         Win-compat:用 background thread + queue 读 stdout,非 select.select (Win
         不支持 pipe file descriptor select,POSIX 也工作)。
 
-        go_mem_limit (e.g. "1GiB"): 透传 Go runtime GOMEMLIMIT env var,触发 heap >
-        limit 时强制激进 GC,防长跑 RSS 涨。 None / 空串 = 不设(Go default 行为, no cap)。
+        H4 (2026-05-28) GOMEMLIMIT 切 cfg-driven path:caller 在 config dict 加
+        'go_mem_limit_mb' int 字段 (0 = unbounded / > 0 = MB cap),Go binary parseConfig
+        fail-loud on missing。 不再 inject env var GOMEMLIMIT (per [[feedback_cfg_driven_only]]
+        runtime 行为不走 env)。
         """
-        import os
-
-        env = os.environ.copy()
-        if go_mem_limit:
-            env['GOMEMLIMIT'] = go_mem_limit
         proc = subprocess.Popen(
             [binary_path],
             stdin=subprocess.PIPE,
@@ -83,7 +79,6 @@ class GoSubprocessHandle:
             stderr=subprocess.PIPE,
             text=True,
             bufsize=1,  # line-buffered
-            env=env,
         )
         # 写 Config JSON + close stdin → Go parseConfig 返回。
         assert proc.stdin is not None
@@ -146,16 +141,12 @@ class GoSubprocessHandle:
                 # subprocess 在 READY 前退出 — 等 stderr reader thread drain 完 (poll 后给 100ms 让残留 stderr 排空) → 拼 fail-loud message。
                 stderr_thr.join(timeout=0.5)
                 stderr = ''.join(stderr_lines)
-                raise RuntimeError(
-                    f'Go subprocess exited (rc={proc.returncode}) before READY: {stderr}'
-                )
+                raise RuntimeError(f'Go subprocess exited (rc={proc.returncode}) before READY: {stderr}')
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 proc.kill()
                 proc.wait(timeout=5.0)
-                raise RuntimeError(
-                    f'Go subprocess did not signal READY within {ready_timeout_s}s'
-                )
+                raise RuntimeError(f'Go subprocess did not signal READY within {ready_timeout_s}s')
             try:
                 line = stdout_q.get(timeout=min(remaining, 0.1))
             except queue.Empty:

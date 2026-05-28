@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"runtime/debug"
 	"syscall"
 	"time"
 
@@ -58,6 +59,20 @@ type Config struct {
 	// 显式设 >= 1 时按值传 runtime.GOMAXPROCS;<= 0 跳过 runtime.GOMAXPROCS 调用 (Go runtime 自管 NumCPU)。
 	GoMaxProcs int `json:"go_gomaxprocs,omitempty"`
 
+	// GoMemLimitMB — Go runtime SOFT memory cap (MB) per actor subprocess。 cfg-driven
+	// per [[feedback_cfg_driven_only]] — 不走 env var GOMEMLIMIT (Go runtime 自动读 env
+	// 是 anti-pattern,跨 launcher / build refactor 易漏)。 *int 指针类型让 "JSON 未传"
+	// 与 "显式 0" 区分:
+	//   - nil (JSON 未传)        → fail-loud exit 7,production 必须 declare
+	//   - *GoMemLimitMB == 0     → 显式 unbounded (Go GC default;dev/smoke 用)
+	//   - *GoMemLimitMB > 0      → debug.SetMemoryLimit(N * 1024 * 1024);Go GC 在 heap
+	//                              超 cap 时强制激进 GC,防 Win 长跑 RSS 涨爆 host
+	//                              (2026-05-27 N=16 70min Win 64GB 撞 OOM 实测,详
+	//                              [[i29-d1-win-bench-inflight]] + commit e30885b)。
+	// 启动期 print 一行 stderr 报告生效 limit (Python master _drain_stderr capture,
+	// grep 'GOMEMLIMIT' 一行看每 actor 实际 cap)。
+	GoMemLimitMB *int `json:"go_mem_limit_mb"`
+
 	// production paradigm 字段 — main 起 N inference client (per-actor),paradigm.Run
 	// 走真 inference + 真 episode loop。
 	// Inference transport: TCP only (I29 R7.1 删 SHM inference path — InfServer
@@ -88,6 +103,12 @@ func parseConfig(r io.Reader) (*Config, error) {
 	}
 	if cfg.ParadigmName == "" {
 		return nil, fmt.Errorf("parseConfig: paradigm_name required (placeholder PoC path 已退役)")
+	}
+	if cfg.GoMemLimitMB == nil {
+		return nil, fmt.Errorf("parseConfig: go_mem_limit_mb required (0 = explicit unbounded for dev/smoke; > 0 = MB cap; see Config.GoMemLimitMB doc)")
+	}
+	if *cfg.GoMemLimitMB < 0 {
+		return nil, fmt.Errorf("parseConfig: go_mem_limit_mb must be >= 0, got %d", *cfg.GoMemLimitMB)
 	}
 	// production paradigm path 必须有 TCP inference transport (I29 R7.1 删 SHM,
 	// TCP 与 Python mp wire 等价 — InfServer socket_listener thread accept N TCP
@@ -145,6 +166,21 @@ func main() {
 	// 详 Config.GoMaxProcs doc + PHASE2_VERIFY_REPORT.md R6.1。
 	if cfg.GoMaxProcs > 0 {
 		runtime.GOMAXPROCS(cfg.GoMaxProcs)
+	}
+
+	// H4 GOMEMLIMIT cfg-driven (2026-05-28)。 必须在 SHM / interp / Run 之前起 effect
+	// (debug.SetMemoryLimit 改 Go GC soft cap,影响后续所有 heap alloc 决策)。 cfg.GoMemLimitMB
+	// 是 *int 指针 — parseConfig 已 validate non-nil + >= 0。 0 = 显式 unbounded (传
+	// math.MaxInt64 即 Go runtime default 行为);> 0 = N MB cap。 startup print 一行 stderr
+	// 让 master _drain_stderr grep 看 actual cap (per-actor 实际 GOMEMLIMIT visibility)。
+	memLimitMB := *cfg.GoMemLimitMB
+	if memLimitMB > 0 {
+		debug.SetMemoryLimit(int64(memLimitMB) * 1024 * 1024)
+		fmt.Fprintf(os.Stderr, "[gicg_actor] GOMEMLIMIT: %d MB (cfg)\n", memLimitMB)
+	} else {
+		// 显式 unbounded — math.MaxInt64 = Go runtime default behavior (no soft cap)
+		debug.SetMemoryLimit(int64(1)<<62 - 1)
+		fmt.Fprintf(os.Stderr, "[gicg_actor] GOMEMLIMIT: unbounded (cfg explicit 0)\n")
 	}
 
 	// Attach 共享 SHM ring (Python master 已 create_owner)。

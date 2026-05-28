@@ -212,7 +212,7 @@ def spawn_pipeline(
             binary_path = str(candidate_posix)
     if not os.path.exists(binary_path):
         raise FileNotFoundError(
-            f"spawn_pipeline: binary {binary_path} not found — "
+            f'spawn_pipeline: binary {binary_path} not found — '
             f"run 'go build -o bin/gicg_actor ./cmd/gicg_actor' (POSIX) "
             f"or 'go build -o bin\\gicg_actor.exe .\\cmd\\gicg_actor' (Win) first"
         )
@@ -281,13 +281,15 @@ def spawn_pipeline(
                 'paradigm_config': cfg_json,
                 'io_timeout_ms': int(tuning.io_timeout_ms),
                 'go_gomaxprocs': int(tuning.go_gomaxprocs),
+                # H4: cfg-driven GOMEMLIMIT (per [[feedback_cfg_driven_only]] 不走 env);
+                # Go binary parseConfig fail-loud on missing。 0 = 显式 unbounded。
+                'go_mem_limit_mb': int(tuning.go_mem_limit_mb),
                 'inf_server_addr': f'127.0.0.1:{inf_port}',
             }
             go_proc = GoSubprocessHandle.spawn(
                 binary_path,
                 subproc_cfg,
                 ready_timeout_s=tuning.ready_timeout_s,
-                go_mem_limit=tuning.go_mem_limit or None,
             )
             go_procs.append(go_proc)
     except Exception:
