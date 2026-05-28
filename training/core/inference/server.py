@@ -43,12 +43,22 @@ class InferenceServer:
         agent_config: 'AgentConfig',
         n_workers: int,
         server_cfg: Optional[InferenceServerConfig] = None,
+        *,
+        network_factory_path: str = '',
     ):
         if n_workers <= 0:
             raise ValueError(f'n_workers must be positive, got {n_workers}')
+        if not network_factory_path:
+            raise ValueError(
+                'InferenceServer: network_factory_path is required (W2-1 — pre-W2 the '
+                'server-loop hard-imported training.paradigms.az.network.Agent; callers '
+                'must now supply the dotted module.attr path explicitly, e.g. AZ passes '
+                "'training.paradigms.az.network.Agent')"
+            )
         self.agent_config = agent_config
         self.n_workers = n_workers
         self.server_cfg = server_cfg or InferenceServerConfig()
+        self.network_factory_path = network_factory_path
 
         self._ctx = mp.get_context('spawn')
         self._worker_pipes_server_side: list[mp_conn.Connection] = []
@@ -82,6 +92,7 @@ class InferenceServer:
                 self._stats_queue,
                 self._error_queue,
                 self._ready_event,
+                self.network_factory_path,
             ),
             daemon=False,
         )

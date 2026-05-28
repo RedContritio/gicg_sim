@@ -140,6 +140,9 @@ class DMCGoSubprocessCollector:
             shm_ring_name=shm_name,
             inf_max_actions=self._max_actions,
             request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
+            # W2-1: encoder path (was hard-imported at inference_server.py:164
+            # pre-2026-05-28 — DMC paradigm now self-reports it like the decoder)。
+            socket_payload_encoder_path='training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload',
             tuning=self.tuning,
             device=self._device,
         )

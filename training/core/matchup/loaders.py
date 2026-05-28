@@ -1,14 +1,37 @@
 """Player wrappers + loader registry for ``run_matchup``.
 
 Factored out of the original ``training.matchup`` so matchup.py stays
-below the line-limit. The dispatch registry (az / random / mcts_pure
-/ cfr) lives here; matchup.py imports ``load_player``.
+below the line-limit. The dispatch registry lives here; matchup.py
+imports ``load_player``.
+
+W2-1 (post-2026-05-28): registry pattern. ``LOADERS`` is no longer a
+statically-populated dict {'az': ..., 'cfr': ...} that pulls paradigm
+modules into core at import time (audit finding 高优 #1 — violated
+ADR-0006 单向依赖 core→paradigm)。 Instead:
+
+- core provides ``register_loader(name, factory)`` API + ``LOADERS``
+  view of a private registry dict
+- 3 universal loaders ('random' / 'greedy' / 'mcts_pure') register
+  themselves at module load (no paradigm import)
+- paradigm-specific loaders live in
+  ``training/paradigms/<name>/_player_loader.py`` and call
+  ``register_loader`` at their module load
+- ``load_player(spec)`` lazy-imports the paradigm's loader module on
+  miss, triggering self-registration. ``LOADERS`` membership / iteration
+  also triggers lazy import for known paradigm names so legacy
+  ``'cfr' in LOADERS`` test patterns continue to work.
+
+``_AgentMCTSPlayer`` STAYS in this module (it is a generic agent-prior
+MCTS wrapper) even though it imports ``training.paradigms.az.mcts``
+internally — that deeper "MCTS impl lives in az" leak is out of W2-1
+scope (would need a paradigm-shared search module to fix cleanly).
 """
 
 from __future__ import annotations
 
+import importlib
 import random
-from typing import Callable, Dict, Protocol
+from typing import Callable, Dict, Mapping, Protocol
 
 import numpy as np
 
@@ -34,9 +57,11 @@ class _RandomPlayer:
         return self.rng.randrange(n)
 
 
-class _AZGreedyPlayer:
-    """Agent wrapped as pure-argmax (no search). Used for az-type
-    players with ``n_simulations == 0``."""
+class _AgentArgmaxPlayer:
+    """Agent wrapped as pure-argmax (no search). Used for ckpt-bearing
+    players with ``n_simulations == 0`` — works for any agent with a
+    ``.encode_static(static_obs)`` + ``.eval_state(dyn_obs, refs, payments)``
+    interface (AZ Agent / CFRAgent both qualify)."""
 
     def __init__(self, agent):
         self.agent = agent
@@ -45,7 +70,7 @@ class _AZGreedyPlayer:
         self.agent.encode_static(env.static_obs)
         kinds, _ = env.get_legal_actions()
         if len(kinds) == 0:
-            raise RuntimeError('AZGreedyPlayer: env has no legal actions')
+            raise RuntimeError('AgentArgmaxPlayer: env has no legal actions')
         refs = env.get_action_refs()
         payments = env.get_legal_action_payments()
         dyn_obs = env._get_obs()
@@ -53,9 +78,17 @@ class _AZGreedyPlayer:
         return int(np.argmax(prior))
 
 
+# Backward-compat alias (older test imports).
+_AZGreedyPlayer = _AgentArgmaxPlayer
+
+
 class _AgentMCTSPlayer:
-    """Agent wrapped inside MCTS (network prior + value). Used for
-    az-type players with ``n_simulations > 0``."""
+    """Agent wrapped inside MCTS (network prior + value). Used by
+    paradigm loaders with ``n_simulations > 0``。
+
+    NB: MCTS impl currently lives in ``paradigms.az.mcts`` (deeper
+    layout issue out of W2-1 scope); this wrapper is paradigm-agnostic
+    from the *caller* side but pulls in az.mcts at call time."""
 
     def __init__(self, agent, n_rollouts: int, seed: int = 0, max_rollout_depth: int = 400):
         from training.paradigms.az.mcts import MCTSConfig
@@ -101,49 +134,87 @@ class _AgentMCTSPlayer:
 
 
 PlayerBuilder = Callable[[int], _PlayerProtocol]
+LoaderFactory = Callable[[dict], PlayerBuilder]
 
 
-def _load_agent_from_ckpt(ckpt_path: str):
-    import torch
+# -----------------------------------------------------------------------------
+# Registry
+# -----------------------------------------------------------------------------
 
-    from training.core.network import AgentConfig
-    from training.paradigms.az.network import Agent
+_REGISTRY: Dict[str, LoaderFactory] = {}
 
-    blob = torch.load(ckpt_path, weights_only=True, map_location='cpu')
-    if not isinstance(blob, dict) or 'cfg' not in blob:
-        raise RuntimeError(f"matchup: az ckpt {ckpt_path} missing 'cfg' key")
-    # New ckpt schema (core-network-generic-promotion N4):'net_state_dict' key.
-    # Legacy 2-key {'net', 'cfg'} no longer supported (Phase 0 removed all
-    # pre-redesign ckpts).
-    state_key = 'net_state_dict' if 'net_state_dict' in blob else 'net'
-    if state_key not in blob:
-        raise RuntimeError(
-            f"matchup: az ckpt {ckpt_path} missing 'net_state_dict' key "
-            f'(post core-network-generic-promotion Phase 0 schema); retrain to new schema.'
-        )
-    cfg = AgentConfig(**blob['cfg'])
-    agent = Agent(cfg)
-    agent.net.load_state_dict(blob[state_key])
-    agent.net.eval()
-    return agent
+# Paradigm names whose loader lives under
+# ``training.paradigms.<name>._player_loader`` and self-registers at
+# module load. Used by the lazy-load trigger in ``_LazyLoaderRegistry``
+# so legacy patterns like ``'cfr' in LOADERS`` (before any explicit
+# ``load_player({'type': 'cfr', ...})`` call) keep resolving.
+_PARADIGM_LOADER_NAMES = ('az', 'cfr')
 
 
-def _loader_az(spec: dict) -> PlayerBuilder:
-    agent = _load_agent_from_ckpt(spec['ckpt'])
-    n_sims = int(spec.get('n_simulations', 0))
-    max_depth = int(spec.get('max_rollout_depth', 400))
+def register_loader(name: str, factory: LoaderFactory) -> None:
+    """Register a player-loader factory under ``name``. Paradigm
+    self-registration calls this from their ``_player_loader`` module.
 
-    def builder(seed: int) -> _PlayerProtocol:
-        if n_sims == 0:
-            return _AZGreedyPlayer(agent)
-        return _AgentMCTSPlayer(
-            agent,
-            n_rollouts=n_sims,
-            seed=seed,
-            max_rollout_depth=max_depth,
-        )
+    Re-registration with the same name overwrites the previous factory
+    silently (loader modules may be imported more than once during
+    repeated test fixtures); fail-loud on name collisions would force
+    tests to teardown explicitly without much safety benefit.
+    """
+    _REGISTRY[name] = factory
 
-    return builder
+
+def _try_lazy_load(name: str) -> None:
+    """If ``name`` is a known paradigm and not yet registered, import
+    the paradigm's ``_player_loader`` module to trigger self-registration."""
+    if name in _REGISTRY:
+        return
+    if name not in _PARADIGM_LOADER_NAMES:
+        return
+    try:
+        importlib.import_module(f'training.paradigms.{name}._player_loader')
+    except ImportError:
+        pass
+
+
+def _lazy_load_all() -> None:
+    """Eagerly trigger lazy-load for all known paradigm loaders.
+    Used by enumeration paths (iter / len / keys) so callers see the
+    full set."""
+    for name in _PARADIGM_LOADER_NAMES:
+        _try_lazy_load(name)
+
+
+class _LazyLoaderRegistry(Mapping):
+    """Read-only mapping over ``_REGISTRY`` with lazy paradigm import
+    on miss. Replaces the pre-W2-1 static ``LOADERS`` dict so
+    ``'cfr' in LOADERS`` and ``LOADERS['az']`` keep working without
+    requiring callers to explicitly trigger paradigm import first."""
+
+    def __getitem__(self, name: str) -> LoaderFactory:
+        _try_lazy_load(name)
+        return _REGISTRY[name]
+
+    def __contains__(self, name: object) -> bool:
+        if not isinstance(name, str):
+            return False
+        _try_lazy_load(name)
+        return name in _REGISTRY
+
+    def __iter__(self):
+        _lazy_load_all()
+        return iter(_REGISTRY)
+
+    def __len__(self) -> int:
+        _lazy_load_all()
+        return len(_REGISTRY)
+
+
+LOADERS: Mapping[str, LoaderFactory] = _LazyLoaderRegistry()
+
+
+# -----------------------------------------------------------------------------
+# Builtin universal loaders (no paradigm import).
+# -----------------------------------------------------------------------------
 
 
 def _loader_random(spec: dict) -> PlayerBuilder:
@@ -179,56 +250,26 @@ def _loader_mcts_pure(spec: dict) -> PlayerBuilder:
     return builder
 
 
-def _loader_cfr(spec: dict) -> PlayerBuilder:
-    """Load a CFRStrategyNet ckpt via CFRAgent.
-
-    n_simulations == 0 → argmax over strategy head.
-    n_simulations > 0 → MCTS(net prior + value) via the same
-    _AgentMCTSPlayer wrapper used for AZ."""
-    import torch
-
-    from training.paradigms.cfr.agent import CFRAgent
-    from training.paradigms.cfr.strategy_net import CFRNetConfig
-
-    ckpt_path = spec['ckpt']
-    blob = torch.load(ckpt_path, weights_only=True, map_location='cpu')
-    if not isinstance(blob, dict) or 'cfg' not in blob or 'net' not in blob:
-        raise RuntimeError(f"matchup: cfr ckpt {ckpt_path} missing 'cfg' or 'net' key")
-    cfg = CFRNetConfig(**blob['cfg'])
-    agent = CFRAgent(cfg)
-    agent.net.load_state_dict(blob['net'])
-    agent.net.eval()
-
-    n_sims = int(spec.get('n_simulations', 0))
-    max_depth = int(spec.get('max_rollout_depth', 400))
-
-    def builder(seed: int) -> _PlayerProtocol:
-        if n_sims == 0:
-            return _AZGreedyPlayer(agent)
-        return _AgentMCTSPlayer(
-            agent,
-            n_rollouts=n_sims,
-            seed=seed,
-            max_rollout_depth=max_depth,
-        )
-
-    return builder
+register_loader('random', _loader_random)
+register_loader('greedy', _loader_greedy)
+register_loader('mcts_pure', _loader_mcts_pure)
 
 
-LOADERS: Dict[str, Callable[[dict], PlayerBuilder]] = {
-    'az': _loader_az,
-    'random': _loader_random,
-    'mcts_pure': _loader_mcts_pure,
-    'cfr': _loader_cfr,
-    'greedy': _loader_greedy,
-}
+# -----------------------------------------------------------------------------
+# Dispatch
+# -----------------------------------------------------------------------------
 
 
 def load_player(spec: dict) -> PlayerBuilder:
-    """Dispatch a player spec through LOADERS."""
+    """Dispatch a player spec through the loader registry. Triggers
+    lazy paradigm import on miss for known paradigm names."""
     if 'type' not in spec:
         raise ValueError(f"player spec missing 'type': {spec}")
     t = spec['type']
-    if t not in LOADERS:
-        raise ValueError(f'unknown player type: {t!r} (known: {sorted(LOADERS)})')
-    return LOADERS[t](spec)
+    _try_lazy_load(t)
+    if t not in _REGISTRY:
+        # Enumerate the full set for the error message — pull in any
+        # not-yet-loaded paradigm loaders so the user sees all options.
+        _lazy_load_all()
+        raise ValueError(f'unknown player type: {t!r} (known: {sorted(_REGISTRY)})')
+    return _REGISTRY[t](spec)

@@ -183,6 +183,7 @@ def test_dmc_go_subprocess_1ep_smoke():
         shm_ring_name=shm_name,
         inf_max_actions=2048,
         request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
+            socket_payload_encoder_path='training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload',
         binary_path=str(_BIN),
         tuning=PipelineTuningCfg(
             # SHM sizing — 真 DMC episode batch ~1.4 MB peak (v_legacy 全 pool max_actions=2048

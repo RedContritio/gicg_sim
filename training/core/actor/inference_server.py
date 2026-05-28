@@ -58,6 +58,7 @@ def _server_loop(
     stop_event,
     inference_acceleration: str = 'none',
     request_decoder_path: str = '',
+    socket_payload_encoder_path: str = '',
     stats_q=None,
     stats_interval_s: float = 5.0,
     socket_port: int = 0,
@@ -152,6 +153,16 @@ def _server_loop(
             raise RuntimeError(
                 '_server_loop: socket_port > 0 (Route A) requires socket_max_actions > 0 and request_decoder_path set'
             )
+        if not socket_payload_encoder_path:
+            ready_event.set()
+            stop_event.set()
+            raise RuntimeError(
+                '_server_loop: socket_port > 0 (Route A) requires socket_payload_encoder_path set '
+                '(W2-1 — pre-2026-05-28 the encoder was hard-coded to '
+                'training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload; '
+                'paradigm caller must now pass the dotted module.attr path explicitly)'
+            )
+        from training.core.actor.actor_process import resolve_builder as _resolve_builder
         from training.core.actor.inference_server_socket_listener import (
             start_listener_in_thread as _start_socket_listener,
         )
@@ -161,10 +172,11 @@ def _server_loop(
             InferRequest as _SocketInferRequest,
             InferResponse as _SocketInferResponse,
         )
-        from training.paradigms.dmc._socket_decoder import socket_request_to_pickled_payload
         import numpy as _np
         import sys as _sys
         import threading as _threading
+
+        socket_request_to_pickled_payload = _resolve_builder(socket_payload_encoder_path)
 
         def forward_cb(req: '_SocketInferRequest') -> '_SocketInferResponse':
             """Route A — socket request 走 ``request_q`` 批处理。
@@ -438,6 +450,7 @@ class InferenceServer:
         inference_acceleration: str = 'none',
         use_jit_trace: bool = False,
         request_decoder_path: str = '',
+        socket_payload_encoder_path: str = '',
         stats_q=None,
         stats_interval_s: float = 5.0,
         socket_port: int = 0,
@@ -472,6 +485,7 @@ class InferenceServer:
         self.batch_timeout_ms = batch_timeout_ms
         self.inference_acceleration = inference_acceleration
         self.request_decoder_path = request_decoder_path
+        self.socket_payload_encoder_path = socket_payload_encoder_path
         self.stats_q = stats_q
         self.stats_interval_s = stats_interval_s
         self.socket_port = int(socket_port)
@@ -530,6 +544,7 @@ class InferenceServer:
                 self._stop_event,
                 self.inference_acceleration,
                 self.request_decoder_path,
+                self.socket_payload_encoder_path,
                 self.stats_q,
                 self.stats_interval_s,
                 self.socket_port,

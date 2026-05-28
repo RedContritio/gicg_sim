@@ -52,6 +52,10 @@ class ParallelInferencePool:
             agent_config=cfg.agent,
             n_workers=n_workers,
             server_cfg=cfg.inference,
+            # W2-1: pre-W2 the server-loop hard-imported AZ Agent;now it
+            # resolves the factory via this path. AZ paradigm 自报 own
+            # Agent class — keeps core/ free of paradigm-specific imports。
+            network_factory_path='training.paradigms.az.network.Agent',
         )
         self._result_queue: 'mp.Queue' = self._ctx.Queue()
         self._cmd_queues: list['mp.Queue'] = []

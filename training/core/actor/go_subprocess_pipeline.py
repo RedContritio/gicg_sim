@@ -150,6 +150,7 @@ def spawn_pipeline(
     shm_ring_name: str,
     inf_max_actions: int,
     request_decoder_path: str,
+    socket_payload_encoder_path: str,
     binary_path: Optional[str] = None,
     # C1 refactor (2026-05-26):tuning 字段全收 PipelineTuningCfg。 None → 全 default
     # (production caller `_make_go_collector` 用此)。 override via
@@ -234,6 +235,7 @@ def spawn_pipeline(
         max_batch=max(1, tuning.inf_max_batch or n_actors),
         batch_timeout_ms=int(tuning.inf_batch_timeout_ms),
         request_decoder_path=request_decoder_path,
+        socket_payload_encoder_path=socket_payload_encoder_path,
         socket_port=inf_port,
         socket_max_actions=int(inf_max_actions),
         socket_clients=int(n_actors),

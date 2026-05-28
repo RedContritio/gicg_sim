@@ -45,14 +45,29 @@ def _server_loop(
     stats_queue: 'mp.Queue',
     error_queue: 'mp.Queue',
     ready_event: 'mp.Event',
+    network_factory_path: str = '',
 ) -> None:
-    """Child process entry."""
+    """Child process entry。
+
+    W2-1 (post 2026-05-28):``network_factory_path`` (dotted "module.attr")
+    parametrizes the agent class — pre-W2-1 this loop hard-imported
+    ``training.paradigms.az.network.Agent`` (audit finding 高优 #1
+    violated ADR-0006 单向依赖)。 Caller (the AZ paradigm via
+    ``InferenceServer`` ctor) must supply the path explicitly。
+    """
     try:
         import torch  # noqa: F401 — pay the import cost in child
 
-        from training.paradigms.az.network import Agent
+        if not network_factory_path:
+            raise RuntimeError(
+                '_server_loop: network_factory_path is required (W2-1 — pre-2026-05-28 '
+                'loop hard-imported training.paradigms.az.network.Agent; callers must now '
+                'pass the dotted module.attr path explicitly to InferenceServer.__init__)'
+            )
+        from training.core.actor.actor_process import resolve_builder
 
-        agent = Agent(agent_config)
+        network_factory = resolve_builder(network_factory_path)
+        agent = network_factory(agent_config)
         agent.net.eval()
 
         cache: dict[tuple[int, int], dict] = {}

@@ -148,6 +148,7 @@ def test_spawn_pipeline_partial_failure_cleanup_kills_spawned_procs_and_releases
             shm_ring_name=shm_name,
             inf_max_actions=6,
             request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
+            socket_payload_encoder_path='training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload',
             binary_path=str(_BIN),
             tuning=PipelineTuningCfg(
                 shm_capacity=4,
@@ -221,6 +222,7 @@ def test_spawn_pipeline_first_subprocess_failure_cleanup_only_shm_and_server(mon
             shm_ring_name=shm_name,
             inf_max_actions=6,
             request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
+            socket_payload_encoder_path='training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload',
             binary_path=str(_BIN),
             tuning=PipelineTuningCfg(
                 shm_capacity=4,
