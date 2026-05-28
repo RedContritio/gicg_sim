@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from gicg_env import GicgEnv
-from tools.eval._dmc_scenarios import EvalScenario, generate_eval_scenarios
+from training.paradigms.dmc._eval_scenarios import EvalScenario, generate_eval_scenarios
 from training.core.matchup.greedy_player import GreedyPlayer
 from training.paradigms.dmc._agent import DmcAgent
 from training.paradigms.dmc._run_config import DmcConfig, EvalConfig

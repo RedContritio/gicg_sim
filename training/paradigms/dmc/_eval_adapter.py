@@ -26,7 +26,7 @@ def build_eval_agent(cfg, ckpt_path: Path):
 
 
 def build_evaluator(cfg):
-    from tools.eval._dmc_evaluator import PeriodicEvaluator
+    from training.paradigms.dmc._eval_periodic import PeriodicEvaluator
 
     return PeriodicEvaluator(cfg)
 
@@ -46,7 +46,7 @@ def build_random_agent(cfg):
 
 
 def build_baseline(name: str, *, seed: int, cfg):
-    from tools.eval._dmc_evaluator import _build_baseline_player
+    from training.paradigms.dmc._eval_periodic import _build_baseline_player
 
     return _build_baseline_player(name, seed=seed, dmc_cfg=cfg)
 

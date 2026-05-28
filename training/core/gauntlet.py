@@ -1,8 +1,10 @@
 """Gauntlet dispatch + eval_service one-shot ACK helper.
 
-DEFAULT_HOST / DEFAULT_PORT are inlined here (not imported from
-tools.eval.eval_service) to avoid framework → tools cross-layer
-import.
+W2-3 (post-2026-05-28):DEFAULT_HOST / DEFAULT_PORT 从
+``training.core.eval.constants`` import (pre-W2-3 inlined here +
+duplicate 在 tools.eval.eval_service 因为避让 framework → tools 反向
+import)。 audit finding 高优 #3 — 避让 hack 现在通过把 constants 提到
+core/eval 解决,两边都 import 同一 source。
 """
 
 from __future__ import annotations
@@ -12,17 +14,7 @@ import socket as _socket
 from pathlib import Path
 from typing import Optional
 
-
-# Inlined to break the framework → tools back-import cycle. Mirrors
-# tools.eval.eval_service.DEFAULT_HOST / DEFAULT_PORT。 Post 2026-05-24:
-# GICG_EVAL_HOST / GICG_EVAL_PORT env var 全砍 — production train 走
-# cfg.eval.host / cfg.eval.port (TrainingConfig 字段),legacy AZConfig
-# 仍走 DEFAULT_HOST / DEFAULT_PORT 这俩 plain constant (AZ unified pipeline
-# 走 train.dispatch.run_paradigm_train 路径,本模块 dispatch_gauntlet 用
-# config arg 传递的 scenario 字段)。 container 部署改走 -p 9100:9100 + cfg
-# 显式 host/port 字段(无 env var 后门)。
-DEFAULT_HOST = 'localhost'
-DEFAULT_PORT = 9100
+from training.core.eval.constants import DEFAULT_HOST, DEFAULT_PORT
 
 
 def dispatch_gauntlet(

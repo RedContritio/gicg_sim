@@ -37,7 +37,7 @@ def test_dmc_load_config_returns_dmc_config():
     load_config = resolve('dmc', 'load_config')
     cfg = load_config(str(SMOKE_CFG), data_dir='data')
 
-    # Type contract: the eval pipeline (tools/eval/_dmc_evaluator.py) reads
+    # Type contract: the eval pipeline (training/paradigms/dmc/_eval_periodic.py) reads
     # cfg.scenario / cfg.eval / cfg.max_game_steps / cfg.seed off DmcConfig.
     from training.paradigms.dmc._run_config import DmcConfig
 

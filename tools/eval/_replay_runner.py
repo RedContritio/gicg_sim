@@ -100,7 +100,7 @@ def dump_replays_for_ckpt(
 ):
     """For each baseline × scenario, run case A (agent_side=0) + case B
     (agent_side=1), dump yaml + actions JSON. Respect save_both_win + only_sid."""
-    from tools.eval._dmc_scenarios import generate_eval_scenarios
+    from training.paradigms.dmc._eval_scenarios import generate_eval_scenarios
     from tools.eval._paradigm import resolve
 
     build_baseline = resolve(paradigm, 'build_baseline')

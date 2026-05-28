@@ -18,7 +18,7 @@ the resulting DmcConfig dataclass.
 
 Eval-only surface: the unified pipeline driver uses
 ``training.paradigms.dmc.config.DMCParadigmConfig`` instead; this
-``DmcConfig`` only feeds the standalone ``tools/eval/_dmc_evaluator``
+``DmcConfig`` only feeds the standalone ``training/paradigms/dmc/_eval_periodic``
 + ``tools/eval/ckpt`` flow that predates the driver.
 """
 

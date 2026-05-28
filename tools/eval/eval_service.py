@@ -61,8 +61,11 @@ from tools.eval.eval_service_server import EvalServer
 # only,production train 走 cfg.eval.host / cfg.eval.port (TrainingConfig 字段);
 # 本 standalone CLI 入口仅看 CLI flag,default 走 plain constants。 production
 # 必跑 eval_service 时显式 ``--host /--port`` 或读 train cfg 同值。
-DEFAULT_HOST = 'localhost'
-DEFAULT_PORT = 9100
+# W2-3:DEFAULT_HOST / DEFAULT_PORT 移至 training.core.eval.constants,本处
+# re-export 保兼容(``from tools.eval.eval_service import DEFAULT_HOST`` 已被
+# 多个 CLI / test 引用)。
+from training.core.eval.constants import DEFAULT_HOST, DEFAULT_PORT
+
 DEFAULT_METRICS_PATH = '/tmp/gicg_eval_metrics.jsonl'
 
 

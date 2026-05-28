@@ -10,11 +10,11 @@ from typing import Any
 PARADIGMS: dict[str, dict[str, str]] = {
     'dmc': {
         'load_config': 'training.paradigms.dmc._run_config:load_config',
-        'build_agent': 'tools.eval._dmc_adapter:build_eval_agent',
-        'build_evaluator': 'tools.eval._dmc_adapter:build_evaluator',
-        'build_baseline': 'tools.eval._dmc_adapter:build_baseline',
-        'ckpt_frame': 'tools.eval._dmc_adapter:ckpt_frame',
-        'build_random_agent': 'tools.eval._dmc_adapter:build_random_agent',
+        'build_agent': 'training.paradigms.dmc._eval_adapter:build_eval_agent',
+        'build_evaluator': 'training.paradigms.dmc._eval_adapter:build_evaluator',
+        'build_baseline': 'training.paradigms.dmc._eval_adapter:build_baseline',
+        'ckpt_frame': 'training.paradigms.dmc._eval_adapter:ckpt_frame',
+        'build_random_agent': 'training.paradigms.dmc._eval_adapter:build_random_agent',
     },
     # 'az': {...},   # reserved — not implemented this rev
     # 'cfr': {...},  # reserved — not implemented this rev
