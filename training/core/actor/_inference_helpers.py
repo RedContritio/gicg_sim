@@ -19,12 +19,52 @@ no real gain.
 
 from __future__ import annotations
 
+import contextlib
 import pickle
-from typing import Any
+from typing import Any, Optional
 
 import torch
 
 from training.core.perf import trace
+
+
+# H1 (2026-05-28 audit):InfServer + Train 共享 cuda:0 时,train cycle 300ms 期间
+# inference latency 从 ~5ms 飙到 100ms+ (实测 run 149 GPU 7-92% util 抖动)。 train
+# backward 用默认 stream (priority=0),inference forward 也用默认 stream → kernel
+# queue 排队 inference 被阻塞。 高优先级 stream (priority=-1) 让 inference forward
+# kernel 抢占 train kernel 间隙,tail latency 显著降。
+#
+# 注意 spawn ctx 每 worker 进程独立 init 此 dict (module-level state 不跨进程共享,
+# 无 fork-safety 问题)。 cpu / 非-cuda path 返 None,caller 用 nullcontext 跳过。
+_INFER_STREAMS: dict[str, Any] = {}
+
+
+def _get_or_create_infer_stream(device_str: str) -> Optional[Any]:
+    """Lazy create a high-priority CUDA stream for inference forward, keyed by device。
+
+    旧 PyTorch / 不支持 priority arg → fallback priority=0 (默认)。 返回 torch.cuda.Stream
+    或 None (cpu / 非-cuda device)。 详 module-level 注释。
+    """
+    if not device_str.startswith('cuda'):
+        return None
+    if device_str in _INFER_STREAMS:
+        return _INFER_STREAMS[device_str]
+    try:
+        stream = torch.cuda.Stream(device=device_str, priority=-1)
+    except (TypeError, RuntimeError):
+        # 旧 PyTorch 不接 priority kwarg / device 还未 init / runtime mismatch — 降级默认 priority。
+        stream = torch.cuda.Stream(device=device_str)
+    _INFER_STREAMS[device_str] = stream
+    return stream
+
+
+def _infer_stream_ctx(device_str: str):
+    """Return ctx manager activating the high-priority infer stream for device,
+    or nullcontext on cpu / non-cuda。 caller wraps inference forward path with this。"""
+    stream = _get_or_create_infer_stream(device_str)
+    if stream is None:
+        return contextlib.nullcontext()
+    return torch.cuda.stream(stream)
 
 
 class _AccelState:
@@ -190,11 +230,13 @@ def _run_batched_path(
     if not decoded:
         return {'decode_ms': (t1 - t0) * 1000.0, 'forward_ms': 0.0, 'dispatch_ms': 0.0}
     try:
-        with trace.span('inf_server.batched_forward_inner'):
+        with trace.span('inf_server.batched_forward_inner'), _infer_stream_ctx(device_str):
             with torch.inference_mode():
                 batched_out = network.batched_forward([d[2] for d in decoded])
             # CUDA sync 显式 — 否则 .to('cpu') 触发 sync 把 forward 时间
             # 算到 dispatch 里,GPU forward wall 看起来假性低。
+            # H1:device-wide sync 包含 infer stream + 默认 stream 任何 pending kernel;
+            # 与 stream context 不冲突。
             if device_str.startswith('cuda'):
                 torch.cuda.synchronize()
             batched_out = _to_device(batched_out, 'cpu')

@@ -31,6 +31,7 @@ import torch
 from training.core.actor._inference_helpers import (
     _AccelState,
     _from_bytes,
+    _infer_stream_ctx,
     _run_batched_path,
     _to_bytes,
     _to_bytes_numpy,
@@ -384,13 +385,14 @@ def _server_loop(
                             mask = _to_device(mask, device_str)
                 tt1 = time.perf_counter() if stats_enabled else 0.0
                 net = accel.select(obs, mask)
-                with trace.span('inf_server.forward'):
+                with trace.span('inf_server.forward'), _infer_stream_ctx(device_str):
                     with torch.inference_mode():
                         out = net(obs, mask) if mask is not None else net(obs)
                     if stats_enabled and device_str.startswith('cuda'):
                         # 强制 sync 使 forward 时间不被 .to('cpu') 吞 — 否则
                         # .cpu() 触发 cudaStreamSynchronize 把 GPU compute
-                        # 算到 dispatch 段。
+                        # 算到 dispatch 段。 H1 stream context 内 device-wide sync
+                        # 等价 (cover infer stream + 默认 stream)。
                         torch.cuda.synchronize()
                 tt2 = time.perf_counter() if stats_enabled else 0.0
                 with trace.span('inf_server.dispatch'):
