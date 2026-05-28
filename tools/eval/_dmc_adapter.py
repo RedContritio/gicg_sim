@@ -13,16 +13,13 @@ def build_eval_agent(cfg, ckpt_path: Path):
     Ckpt schema 兼容:production async pipeline 保存 `DMCInferenceNet(actor_critic)`
     wrapped state_dict (keys 含 `net.` 前缀, per `paradigms/dmc/paradigm.py:sync_weights`);
     eval 端用 raw ActorCritic, 需 strip 前缀。 旧 ckpt (无前缀, e.g. local smoke) 仍直载。
+    W1-T4 后 prefix-strip 由 ``training.core.checkpoint.load_net_state_dict`` 统一处理。
     """
-    import torch
+    from training.core.checkpoint import load_net_state_dict
     from training.paradigms.dmc._agent import DmcAgent
 
     agent = DmcAgent(cfg.agent, device='cpu', lr=cfg.learning_rate, epsilon=0.0)
-    blob = torch.load(ckpt_path, map_location='cpu', weights_only=False)
-    state_dict = blob['net']
-    # Strip 'net.' prefix if production InfServer-wrapper save。 全 key 都该有前缀 (一致性)
-    if state_dict and all(k.startswith('net.') for k in state_dict.keys()):
-        state_dict = {k[len('net.') :]: v for k, v in state_dict.items()}
+    state_dict = load_net_state_dict(ckpt_path, map_location='cpu')
     agent.net.load_state_dict(state_dict)
     agent.net.eval()
     return agent

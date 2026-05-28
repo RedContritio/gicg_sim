@@ -67,12 +67,15 @@ def _build_baseline_player(name: str, seed: int = 0, *, dmc_cfg=None):
     if name.startswith('dmc:'):
         if dmc_cfg is None:
             raise ValueError(f'baseline {name!r} requires dmc_cfg (pass via PeriodicEvaluator)')
-        import torch
+        from training.core.checkpoint import load_net_state_dict
 
         ckpt_path = name[len('dmc:') :]
         opp = DmcAgent(dmc_cfg.agent, device=dmc_cfg.device, lr=dmc_cfg.learning_rate, epsilon=0.0)
-        blob = torch.load(ckpt_path, map_location=dmc_cfg.device, weights_only=False)
-        opp.net.load_state_dict(blob['net'])
+        # W1-T4: load via shared helper so 'net.' wrapper prefix is stripped
+        # uniformly (pre-W1-T4 this path silently skipped the strip, latent
+        # bug under InfServer-wrapper save paths)。
+        state_dict = load_net_state_dict(ckpt_path, map_location=dmc_cfg.device)
+        opp.net.load_state_dict(state_dict)
         opp.net.eval()
         return opp
     raise ValueError(f'unknown baseline name: {name!r}')

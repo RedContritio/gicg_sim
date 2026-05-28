@@ -19,6 +19,33 @@ import torch
 from training.core.protocols import PipelineState
 
 
+def load_net_state_dict(ckpt_path: Any, *, map_location: Any = 'cpu') -> dict:
+    """Load a CheckpointManager-format ckpt and return the net state_dict
+    ready for ``module.load_state_dict()``. Handles the production wrapper
+    'net.' prefix strip uniformly (W1-T4 — pre-W1-T4 ``_dmc_adapter`` did
+    the strip but ``_dmc_evaluator`` silently skipped it, latent bug under
+    InfServer-wrapper save paths).
+
+    The CheckpointManager payload format ({'net', 'optimizer', 'state',
+    'cfg_run_label'}) is distinct from ``AgentBase.save`` (schema-v2
+    self-describing {'net_state_dict', 'paradigm', ...}); this helper only
+    handles the CheckpointManager flavor. AgentBase ckpts SHALL go through
+    ``AgentBase.load``.
+
+    Args:
+        ckpt_path: path to ckpt file (str or PathLike).
+        map_location: torch.load map_location (default 'cpu').
+
+    Returns:
+        state_dict suitable for ``net.load_state_dict()``.
+    """
+    blob = torch.load(ckpt_path, map_location=map_location, weights_only=False)
+    state_dict = blob['net']
+    if state_dict and all(k.startswith('net.') for k in state_dict.keys()):
+        state_dict = {k[len('net.') :]: v for k, v in state_dict.items()}
+    return state_dict
+
+
 class CheckpointManager:
     """Manages ckpt save/load for a run.
 
