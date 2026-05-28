@@ -149,7 +149,7 @@ class TestTraverseSmoke:
     def test_outcome_sign_matches_engine_winner(self):
         """After traversal: outcome_traverser should be +1 if the
         engine's winner is the traverser's player index, -1 if it's
-        the opponent, 0 on draw. Verified by reading env._engine.winner
+        the opponent, 0 on draw. Verified by reading env.winner
         post-traversal and comparing against stats."""
         t = _make_traverser(seed=0)
         for traverser_player, seed in [(0, 300), (1, 301), (0, 302), (1, 303)]:
@@ -157,7 +157,7 @@ class TestTraverseSmoke:
             env.reset(seed=seed)
             try:
                 stats = t.traverse(env, traverser_player=traverser_player, iteration=1)
-                w = env._engine.winner
+                w = env.winner
             finally:
                 env.close()
             if w == -1:

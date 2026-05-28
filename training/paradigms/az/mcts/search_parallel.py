@@ -83,7 +83,7 @@ def mcts_search_parallel(
                 child.prior = (1.0 - config.dirichlet_eps) * child.prior + config.dirichlet_eps * float(noise[i])
 
         opponent = 1 - viewing_player
-        opp_dice_total = env._engine.dice_total(opponent)
+        opp_dice_total = env.dice_total(opponent)
         n_in_flight_cap = max(1, int(config.parallel_rollouts))
 
         do_profile = config.profile

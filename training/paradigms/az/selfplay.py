@@ -48,7 +48,7 @@ def play_self_game(
 ) -> SelfPlayResult:
     """Play one full self-play game on ``env`` with ``evaluator``,
     driving every decision through MCTS."""
-    while env._engine.phase == 1:  # PHASE_SELECT_ACTIVE
+    while env.phase == 1:  # PHASE_SELECT_ACTIVE
         env.step(0)
         if env.done:
             game_static = evaluator.game_start(env.static_obs)
@@ -56,7 +56,7 @@ def play_self_game(
             return SelfPlayResult(
                 game_static=game_static,
                 steps=[],
-                winner=env._engine.winner,
+                winner=env.winner,
                 n_steps=0,
                 discovery_count=0,
             )
@@ -136,7 +136,7 @@ def play_self_game(
                 )
 
             if not done:
-                raw_after = env._engine.get_dynamic_obs(perspective=acting)
+                raw_after = env.get_dynamic_obs(perspective=acting)
                 c_start = OBS_META_SIZE
                 c_end = c_start + n_counter_slots
                 raw_block = raw_after[c_start:c_end].astype(np.float32)
@@ -145,7 +145,7 @@ def play_self_game(
                 steps_private[-1]['has_counter_target'] = True
 
         if env.done:
-            winner = env._engine.winner
+            winner = env.winner
             z_p0 = _terminal_z(winner)
         else:
             raise RuntimeError(
@@ -170,7 +170,7 @@ def play_self_game(
     return SelfPlayResult(
         game_static=game_static,
         steps=final_steps,
-        winner=env._engine.winner,
+        winner=env.winner,
         n_steps=len(final_steps),
         discovery_count=discovery_count,
         mcts_profile=game_profile,

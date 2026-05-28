@@ -93,7 +93,7 @@ class OSMixin:
             else:
                 stats.n_opponent_decisions += 1
 
-        engine_winner = env._engine.winner
+        engine_winner = env.winner
         if engine_winner == 0:
             z_p0 = 1.0
         elif engine_winner == 1:

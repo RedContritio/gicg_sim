@@ -75,7 +75,7 @@ def mcts_search(
                 child.prior = (1.0 - config.dirichlet_eps) * child.prior + config.dirichlet_eps * float(noise[i])
 
         opponent = 1 - viewing_player
-        opp_dice_total = env._engine.dice_total(opponent)
+        opp_dice_total = env.dice_total(opponent)
 
         visit_checkpoints: dict[int, ActionId] = {}
         for rollout_i in range(config.n_rollouts):

@@ -68,7 +68,7 @@ class ESMixin:
     ) -> float:
         """Recursive ES step."""
         if env.done:
-            winner = env._engine.winner
+            winner = env.winner
             if winner == traverser_player:
                 return 1.0
             if winner == 1 - traverser_player:

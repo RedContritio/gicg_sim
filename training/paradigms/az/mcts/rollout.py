@@ -83,7 +83,7 @@ def _random_rollout_value(
     actions until terminal or max_depth. Delegates to the Go-side
     random_rollout for speed."""
     seed = rng.getrandbits(64)
-    winner, steps = env._engine.random_rollout(seed=seed, max_steps=max_depth)
+    winner, steps = env.random_rollout(seed=seed, max_steps=max_depth)
     if winner < 0:
         return 0.0, steps
     return _terminal_z(winner), steps

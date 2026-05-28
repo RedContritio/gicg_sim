@@ -122,7 +122,7 @@ class TestRandomRolloutValue:
         data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
         env = GicgEnv(['赤蝶'], ['赤蝶'], seed=42, data_dir=data_dir)
         env.reset(seed=42)
-        while env._engine.phase == 1:
+        while env.phase == 1:
             env.step(0)
             if env.done:
                 break

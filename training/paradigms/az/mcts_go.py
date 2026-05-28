@@ -80,7 +80,7 @@ def mcts_search_go(
         root_value_p0 = float(root.leaf_value_p0)
 
         opponent = 1 - viewing_player
-        opp_dice_total = env._engine.dice_total(opponent)
+        opp_dice_total = env.dice_total(opponent)
         dets = []
         for _ in range(config.n_rollouts):
             hidden = sample_hidden_state(

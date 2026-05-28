@@ -22,7 +22,7 @@ def _env():
     """Shared fixture: 赤蝶 vs 墨客 advanced past select-active phase."""
     env = GicgEnv(['赤蝶'], ['墨客'], data_dir=DATA_DIR)
     env.reset(seed=7)
-    while env._engine.phase == 1 and not env.done:
+    while env.phase == 1 and not env.done:
         env.step(0)
     return env
 
@@ -190,7 +190,7 @@ class TestDiceFilterOnRealEnv:
                 assert counts.shape == (8,)
                 assert counts.dtype == np.int32
                 total = int(counts.sum())
-                expected = int(env._engine.dice_total(p))
+                expected = int(env.dice_total(p))
                 assert total == expected, f'player {p}: sum={total} vs dice_total={expected}'
         finally:
             env.close()

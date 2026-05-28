@@ -53,13 +53,13 @@ def _random_rollout(env: GicgEnv, max_depth: int, rng: random.Random) -> int:
     """Play random actions until game-over or max_depth reached."""
     for _ in range(max_depth):
         if env.done:
-            return env._engine.winner
+            return env.winner
         kinds, _ = env.get_legal_actions()
         if len(kinds) == 0:
-            return env._engine.winner
+            return env.winner
         a = rng.randrange(len(kinds))
         env.step(a)
-    return env._engine.winner
+    return env.winner
 
 
 def _mcts_search(
@@ -95,7 +95,7 @@ def _mcts_search(
                 env.step(a)
                 new_turn = env.current_player
                 new_terminal = env.done
-                new_winner = env._engine.winner if new_terminal else -1
+                new_winner = env.winner if new_terminal else -1
                 new_node = MCTSNode(turn=new_turn, terminal=new_terminal, winner=new_winner)
                 if not new_terminal:
                     kk, _ = env.get_legal_actions()
@@ -207,7 +207,7 @@ def _play_game(
         if action < 0 or action >= len(kinds):
             action = 0
         env.step(action)
-    return env._engine.winner, step_n + 1
+    return env.winner, step_n + 1
 
 
 def _random_action(env: GicgEnv) -> int:

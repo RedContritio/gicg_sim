@@ -25,7 +25,7 @@ def resolve_pool_refs(scenario) -> dict[int, list[int]]:
     )
     try:
         env.reset(seed=0)
-        while env._engine.phase == 1:
+        while env.phase == 1:
             env.step(0)
             if env.done:
                 break

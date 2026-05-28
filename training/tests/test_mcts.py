@@ -53,7 +53,7 @@ MAX_ACTIONS = 1024
 def _advance_past_select_active(env: GicgEnv) -> None:
     """Step through PhaseSelectActive (each player picks their first
     active char) so the env lands in PhaseAction ready for MCTS."""
-    while env._engine.phase == 1:  # PHASE_SELECT_ACTIVE
+    while env.phase == 1:  # PHASE_SELECT_ACTIVE
         env.step(0)
         if env.done:
             break

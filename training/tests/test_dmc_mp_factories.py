@@ -114,7 +114,7 @@ def test_decode_dmc_request_matches_legacy_torch_path():
 
     env = GicgEnv(['赤蝶'], ['赤蝶'], seed=0, data_dir=data_dir)
     env.reset(seed=0)
-    while env._engine.phase == 1:
+    while env.phase == 1:
         env.step(0)
         if env.done:
             break
@@ -210,7 +210,7 @@ def test_capture_obs_np_matches_legacy_capture_obs():
 
     env = GicgEnv(['赤蝶'], ['赤蝶'], seed=0, data_dir=data_dir)
     env.reset(seed=0)
-    while env._engine.phase == 1:
+    while env.phase == 1:
         env.step(0)
         if env.done:
             break

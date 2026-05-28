@@ -324,7 +324,7 @@ class TestApplyDeterminization:
         # obs under the SAME perspective so label indices align with
         # obs indices — otherwise the perspective swap puts P0's
         # values where P1's labels claim to be.
-        obs = env._engine.get_dynamic_obs(perspective=0)
+        obs = env.get_dynamic_obs(perspective=0)
         labels = env._engine.get_active_counter_slot_labels()
         # Skip the 3-slot meta header; counter values follow.
         from gicg_env.engine import DICE_COLOR_COUNT

@@ -58,7 +58,7 @@ class TestCFRAgent:
         env = GicgEnv(['赤蝶'], ['墨客'], seed=42, data_dir=DATA_DIR)
         env.reset(seed=42)
         # Advance past PHASE_SELECT_ACTIVE
-        while env._engine.phase == 1:
+        while env.phase == 1:
             env.step(0)
             if env.done:
                 pytest.skip('game ended too early')

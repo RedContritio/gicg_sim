@@ -38,7 +38,7 @@ MAX_ACTIONS = 1024
 
 
 def _advance_past_select_active(env):
-    while env._engine.phase == 1:
+    while env.phase == 1:
         env.step(0)
         if env.done:
             break

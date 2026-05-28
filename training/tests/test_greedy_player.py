@@ -48,7 +48,7 @@ def _env():
     env = GicgEnv(['赤蝶'], ['墨客'], data_dir=DATA_DIR)
     env.reset(seed=7)
     # Walk through PHASE_SELECT_ACTIVE so we land on a real action node
-    while env._engine.phase == 1 and not env.done:
+    while env.phase == 1 and not env.done:
         env.step(0)
     return env
 

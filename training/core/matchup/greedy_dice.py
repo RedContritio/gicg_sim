@@ -141,7 +141,7 @@ def _tune_card_value(env: GicgEnv, hand_idx: int) -> int:
     predefined per card/position, satisfying the "每张牌预定义一个
     价值" contract from the spec."""
     try:
-        hand_refs = env._engine.hand_refs(env.acting_player)
+        hand_refs = env.hand_refs(env.acting_player)
     except Exception:
         return -hand_idx  # fallback: raw index tiebreak
     if not (0 <= hand_idx < len(hand_refs)):

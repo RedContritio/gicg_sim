@@ -102,14 +102,14 @@ def _play_one(
     p0_agent.game_start(env.static_obs)
     p1_agent.game_start(env.static_obs)
     try:
-        while env._engine.phase == 1:  # PHASE_SELECT_ACTIVE
+        while env.phase == 1:  # PHASE_SELECT_ACTIVE
             env.step(0)
             if env.done:
-                return env._engine.winner
+                return env.winner
 
         for step_idx in range(max_game_steps):
             if env.done:
-                return env._engine.winner
+                return env.winner
 
             acting = env.acting_player
             agent = p0_agent if acting == 0 else p1_agent
@@ -144,7 +144,7 @@ def _play_one(
 
         if not env.done:
             raise RuntimeError(f'arena: game did not terminate within max_game_steps={max_game_steps}')
-        return env._engine.winner
+        return env.winner
     finally:
         p0_agent.game_end()
         p1_agent.game_end()

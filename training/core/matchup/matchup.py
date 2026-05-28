@@ -53,14 +53,14 @@ def _play_one(
     max_game_steps: int,
 ) -> int:
     """Play one game. Returns engine winner code (0, 1, or -1 for draw)."""
-    while env._engine.phase == 1:  # PHASE_SELECT_ACTIVE
+    while env.phase == 1:  # PHASE_SELECT_ACTIVE
         env.step(0)
         if env.done:
-            return env._engine.winner
+            return env.winner
 
     for _ in range(max_game_steps):
         if env.done:
-            return env._engine.winner
+            return env.winner
         acting = env.acting_player
         player = p0_player if acting == 0 else p1_player
         action_idx = player.select_action(env)
@@ -69,7 +69,7 @@ def _play_one(
             raise RuntimeError('matchup: legacy PendingCardTarget path hit — unsupported')
     if not env.done:
         raise RuntimeError(f'matchup: game did not terminate within max_game_steps={max_game_steps}')
-    return env._engine.winner
+    return env.winner
 
 
 @dataclass

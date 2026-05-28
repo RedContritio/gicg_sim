@@ -36,7 +36,7 @@ class CFRTraverser(TraverserBase, OSMixin, ESMixin):
         static, gid_adv, gid_str, gid_val, adv_buffer = self._prepare_traversal(env, traverser_player)
 
         # Walk past PHASE_SELECT_ACTIVE
-        while env._engine.phase == 1 and not env.done:
+        while env.phase == 1 and not env.done:
             env.step(0)
 
         if self.config.sampling_mode == 'es':

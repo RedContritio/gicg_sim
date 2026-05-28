@@ -49,7 +49,7 @@ def _cfg() -> AgentConfig:
 def _build_env() -> GicgEnv:
     env = GicgEnv(['赤蝶'], ['赤蝶'], seed=0, data_dir=DATA_DIR)
     env.reset(seed=0)
-    while env._engine.phase == 1:
+    while env.phase == 1:
         env.step(0)
         if env.done:
             break

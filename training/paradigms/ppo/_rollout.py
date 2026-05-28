@@ -201,8 +201,8 @@ def run_training_game(
         for b in bufs:
             b.set_last_done()
         info = {
-            'winner': env._engine.winner if env.done else -1,
-            'rounds': env._engine.get_current_round(),
+            'winner': env.winner if env.done else -1,
+            'rounds': env.current_round,
         }
     finally:
         agent.game_end()

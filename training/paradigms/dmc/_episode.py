@@ -114,7 +114,7 @@ def play_one_episode(
     from training.paradigms.dmc.buffer import DmcTransition
 
     if env.done:
-        return [], terminal_z(env._engine.winner, agent_side), 0
+        return [], terminal_z(env.winner, agent_side), 0
 
     agent.game_start(env.static_obs)
     if hasattr(opponent, 'game_start'):
@@ -146,7 +146,7 @@ def play_one_episode(
                 action_idx = 0
         env.step(action_idx)
 
-    G = terminal_z(env._engine.winner, agent_side)
+    G = terminal_z(env.winner, agent_side)
     return transitions, G, step_idx + 1
 
 

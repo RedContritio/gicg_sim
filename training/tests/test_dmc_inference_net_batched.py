@@ -44,7 +44,7 @@ def _tiny_agent_cfg() -> AgentConfig:
 def _build_env(seed: int = 0) -> GicgEnv:
     env = GicgEnv(['赤蝶'], ['赤蝶'], seed=seed, data_dir=DATA_DIR)
     env.reset(seed=seed)
-    while env._engine.phase == 1:
+    while env.phase == 1:
         env.step(0)
         if env.done:
             break
