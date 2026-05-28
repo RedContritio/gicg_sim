@@ -1,18 +1,19 @@
-"""Re-export of engine-pinned constants from gicg_env._constants.
+"""Re-export of engine-pinned constants from gicg_env.
 
-Single source of truth lives in ``gicg_env._constants`` (W1-T1
-consolidation). This module exists to preserve the existing import
-surface ``from training.core.obs_constants import OBS_*`` used by
-~25 callers across training/ + tools/, and to host paradigm-agnostic
-helpers (``pick_device``) that are conceptually adjacent but not
-engine-pinned.
+Single source of truth lives in ``gicg_env._constants`` and is re-
+exported via ``gicg_env`` public surface(W1-T1 single-source + B2
+public export consolidation)。 This module exists to preserve the
+existing import surface ``from training.core.obs_constants import
+OBS_*`` used by ~25 callers across training/ + tools/, and to host
+paradigm-agnostic helpers (``pick_device``) that are conceptually
+adjacent but not engine-pinned。
 """
 
 from __future__ import annotations
 
 import torch
 
-from gicg_env._constants import (
+from gicg_env import (
     ACTION_CARD,
     ACTION_END_TURN,
     ACTION_SKILL,

@@ -12,8 +12,7 @@ import os
 import numpy as np
 import pytest
 
-from gicg_env import GicgEnv
-from gicg_env._constants import REWARD_EVENTS_COUNT, REWARD_EVENTS_FIELDS
+from gicg_env import GicgEnv, REWARD_EVENTS_COUNT, REWARD_EVENTS_FIELDS
 from training.core.matchup.greedy_player import GreedyPlayer
 from training.core.matchup.greedy_scorers import (
     _ap_waste_piecewise,

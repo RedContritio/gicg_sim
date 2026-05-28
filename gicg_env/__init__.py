@@ -1,23 +1,105 @@
 """gicg_env — Python binding for the Go gicg engine.
 
-Public surface: ``GicgEngine`` + ``GicgEnv``. Both are loaded lazily via
-PEP 562 module ``__getattr__`` so importing ``gicg_env._constants`` (or
-any other sub-module that does not need the cgo lib) does NOT trigger
-``ctypes.CDLL(libgicg.dylib)``. This is load-bearing for the I29 DMC
-master-process invariant: the master orchestrator imports buffer / obs
-schema constants from ``gicg_env._constants`` but MUST NOT load libgicg
-(cgo state belongs in the spawned subprocess only — see
-``training/paradigms/dmc/tests/test_go_subprocess_5ep_e2e.py`` lsof
-guard).
+Public surface:
+- ``GicgEngine`` + ``GicgEnv`` — lazily loaded via PEP 562 module
+  ``__getattr__`` so importing constants alone does NOT trigger
+  ``ctypes.CDLL(libgicg.dylib)``。 Load-bearing for the I29 DMC
+  master-process invariant:the master orchestrator imports buffer /
+  obs schema constants but MUST NOT load libgicg (cgo state belongs
+  in the spawned subprocess only — see
+  ``training/paradigms/dmc/tests/test_go_subprocess_5ep_e2e.py`` lsof
+  guard)。
+- Engine-pinned constants (action / phase / step / dice / obs / reward
+  events) — eagerly re-exported from ``gicg_env._constants`` since
+  the constants module 0 import overhead + no libgicg dependency。
+  B2 (post-2026-05-29) consolidation:pre-B2 external callers reached
+  into the underscore-prefixed `_constants` module directly
+  (``from gicg_env._constants import REWARD_EVENTS_FIELDS`` 等),
+  违反 audit 低优 finding — underscore = 私有约定但跨模块用。
+  本 module 提供 public path,callers 一律 ``from gicg_env import X``。
 """
 
 from typing import TYPE_CHECKING
+
+from gicg_env._constants import (
+    ACTION_CARD,
+    ACTION_END_TURN,
+    ACTION_SKILL,
+    ACTION_SWITCH,
+    DICE_COLOR_COUNT,
+    N_STRUCTURAL,
+    OBS_CHAR_ELEMENT_SLOTS,
+    OBS_CHAR_SKILL_REFS_SIZE,
+    OBS_COUNTER_SLOTS,
+    OBS_ENEMY_SIZES,
+    OBS_HAND_BLOCK_SIZE,
+    OBS_HAND_BUCKETS,
+    OBS_MAX_CARD_TYPES,
+    OBS_MAX_CHARS,
+    OBS_MAX_SKILLS_PER_CHAR,
+    OBS_META_SIZE,
+    OBS_MODIFIER_LOG_FIELD_COUNT,
+    OBS_MODIFIER_LOG_K_MOD,
+    OBS_MODIFIER_LOG_SLOTS,
+    OBS_PREPARE_SKILL_SLOTS,
+    OBS_RECENT_DAMAGE_EVENTS,
+    OBS_RECENT_DAMAGE_FIELD_COUNT,
+    OBS_RECENT_DAMAGE_SLOTS,
+    PHASE_ACTION,
+    PHASE_GAME_OVER,
+    PHASE_ROUND_END,
+    PHASE_ROUND_START,
+    PHASE_SELECT_ACTIVE,
+    REWARD_EVENTS_COUNT,
+    REWARD_EVENTS_FIELDS,
+    STEP_CONTINUE,
+    STEP_GAME_OVER,
+    STEP_NEED_TARGET,
+)
 
 if TYPE_CHECKING:  # pragma: no cover — type-checker only
     from .engine import GicgEngine
     from .env import GicgEnv
 
-__all__ = ['GicgEngine', 'GicgEnv']
+__all__ = [
+    # Lazy-loaded entry points (require libgicg)
+    'GicgEngine',
+    'GicgEnv',
+    # Engine-pinned constants (no libgicg load)
+    'ACTION_CARD',
+    'ACTION_END_TURN',
+    'ACTION_SKILL',
+    'ACTION_SWITCH',
+    'DICE_COLOR_COUNT',
+    'N_STRUCTURAL',
+    'OBS_CHAR_ELEMENT_SLOTS',
+    'OBS_CHAR_SKILL_REFS_SIZE',
+    'OBS_COUNTER_SLOTS',
+    'OBS_ENEMY_SIZES',
+    'OBS_HAND_BLOCK_SIZE',
+    'OBS_HAND_BUCKETS',
+    'OBS_MAX_CARD_TYPES',
+    'OBS_MAX_CHARS',
+    'OBS_MAX_SKILLS_PER_CHAR',
+    'OBS_META_SIZE',
+    'OBS_MODIFIER_LOG_FIELD_COUNT',
+    'OBS_MODIFIER_LOG_K_MOD',
+    'OBS_MODIFIER_LOG_SLOTS',
+    'OBS_PREPARE_SKILL_SLOTS',
+    'OBS_RECENT_DAMAGE_EVENTS',
+    'OBS_RECENT_DAMAGE_FIELD_COUNT',
+    'OBS_RECENT_DAMAGE_SLOTS',
+    'PHASE_ACTION',
+    'PHASE_GAME_OVER',
+    'PHASE_ROUND_END',
+    'PHASE_ROUND_START',
+    'PHASE_SELECT_ACTIVE',
+    'REWARD_EVENTS_COUNT',
+    'REWARD_EVENTS_FIELDS',
+    'STEP_CONTINUE',
+    'STEP_GAME_OVER',
+    'STEP_NEED_TARGET',
+]
 
 
 def __getattr__(name: str):

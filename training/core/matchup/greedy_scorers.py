@@ -12,7 +12,7 @@ from typing import Callable
 
 import numpy as np
 
-from gicg_env._constants import REWARD_EVENTS_FIELDS
+from gicg_env import REWARD_EVENTS_FIELDS
 
 # Slot indices into the RewardEvents int32 vector. Derived from the
 # canonical field order so reordering the Go struct + Python tuple
