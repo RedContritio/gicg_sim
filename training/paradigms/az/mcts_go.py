@@ -118,7 +118,7 @@ def mcts_search_go(
         env.restore(root_snap)
 
         rc = lib.MCTSSearch(
-            env._engine._handle,
+            env.engine_handle,
             root_snap,
             input_json,
             send_cb,

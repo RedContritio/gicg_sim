@@ -10,7 +10,10 @@ import ctypes
 
 import numpy as np
 
-from gicg_env.engine import _find_lib
+# W2-5: 公开 `get_lib_path()` 替代 `_find_lib` underscore（audit 低优 — file
+# path leak）。 旧 import 路径 `_find_lib` 仍存在(internal),但 paradigm 外部
+# 调用一律 `get_lib_path()`。
+from gicg_env.engine import get_lib_path
 
 
 _lib: ctypes.CDLL | None = None
@@ -39,7 +42,7 @@ def ensure_lib() -> ctypes.CDLL:
     global _lib
     if _lib is not None:
         return _lib
-    lib = ctypes.CDLL(_find_lib())
+    lib = ctypes.CDLL(get_lib_path())
     lib.MCTSSearch.argtypes = [
         ctypes.c_int,
         ctypes.c_int,

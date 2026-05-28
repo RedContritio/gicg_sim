@@ -29,6 +29,18 @@ from gicg_env._constants import (
 )
 
 
+def get_lib_path() -> str:
+    """Public path to the loaded ``libgicg`` c-shared library.
+
+    Public API surface for external cgo bindings (e.g. AZ's MCTS go
+    bindings load their own MCTSSearch symbol from the same library).
+    Pre W2-5 callers reached into ``_find_lib()`` (underscore = private);
+    this wrapper preserves call ergonomics + breaks the leaky
+    abstraction (audit finding 低优 — file path leak)。
+    """
+    return _find_lib()
+
+
 def _find_lib():
     """Find the shared library, platform-aware.
 

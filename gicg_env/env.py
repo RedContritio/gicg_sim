@@ -290,6 +290,15 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
         return self._engine.done
 
     @property
+    def engine_handle(self):
+        """Public access to the underlying c-shared engine handle for
+        external cgo bindings(e.g. AZ MCTS go bindings call MCTSSearch
+        directly on the engine handle)。 Pre W2-5 callers reached into
+        ``env._engine._handle`` (audit finding 高优 — MCTS bindings 自
+        ctypes 绕过 env);this property is the supported access path。"""
+        return self._engine._handle
+
+    @property
     def winner(self) -> int:
         """Engine winner code. -1 = game in progress, 0/1 = that player won,
         2 = draw. Callers querying terminal outcomes SHALL guard with
