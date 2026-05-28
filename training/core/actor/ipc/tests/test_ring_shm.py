@@ -254,3 +254,103 @@ class TestPushPayloadTooLarge:
             assert ring.push(b'a' * slot_max) is True
             got = ring.try_pop()
             assert got == b'a' * slot_max
+
+
+# ─── peek_count_and_full_at_head (H3 race-aware diagnostic) ───────────────────
+
+
+class TestPeekCountAndFullAtHead:
+    """H3 (2026-05-28 audit):race-aware ring inspection — 区分 over-reserve race
+    (count > 0 但 slot 全 EMPTY) vs actor stall (count = 0) vs healthy ring。
+    bc6b1b8 fix 留瞬时窗口 (count++ 早于 status=FULL),master 端 debug 必备。"""
+
+    def test_empty_ring_returns_zero_zero(self):
+        """empty ring (no push yet) → count=0, n_full=0。"""
+        name = _unique_name('shmt_pkz')
+        with CrossLangShmRing(name, capacity=4, slot_payload_max=32, create=True) as ring:
+            count, n_full = ring.peek_count_and_full_at_head()
+            assert count == 0
+            assert n_full == 0
+
+    def test_fully_pushed_ring_count_equals_full(self):
+        """N push 后未 pop → count==n_full==N (healthy ring 正常路径)。"""
+        name = _unique_name('shmt_pkf')
+        capacity = 4
+        with CrossLangShmRing(name, capacity=capacity, slot_payload_max=32, create=True) as ring:
+            for i in range(capacity):
+                assert ring.push(f'item-{i}'.encode()) is True
+            count, n_full = ring.peek_count_and_full_at_head()
+            assert count == capacity
+            assert n_full == capacity
+
+    def test_partial_push_count_equals_full(self):
+        """部分 push (K < capacity) → count==n_full==K。"""
+        name = _unique_name('shmt_pkp')
+        with CrossLangShmRing(name, capacity=8, slot_payload_max=32, create=True) as ring:
+            for i in range(3):
+                assert ring.push(f'item-{i}'.encode()) is True
+            count, n_full = ring.peek_count_and_full_at_head()
+            assert count == 3
+            assert n_full == 3
+
+    def test_simulated_over_reserve_race(self):
+        """模拟 bc6b1b8 race window:手动 poke header.count=K 但 slot status 全 EMPTY,
+        peek_count_and_full_at_head 应返 (K, 0) 区分出来 (vs healthy 时是 (K, K))。
+
+        这是 production B-go-sustained-collection-deadlock debug 的关键 case — Win
+        N=16 25min 后 peek_count 持续报 > 0 但 master pop 拿不到,本测验证 race-aware
+        probe 能给出"count vs full 不一致"信号让 debugger 一眼看出 over-reserve race。
+        """
+        import struct as _s
+
+        name = _unique_name('shmt_pkr')
+        capacity = 4
+        with CrossLangShmRing(name, capacity=capacity, slot_payload_max=32, create=True) as ring:
+            # 直接 poke SHM header count 字段 = 3,但不调 push (slot status 仍 EMPTY=0)。
+            # 模拟 producer CAS-count 成功但还没 store status=FULL 的瞬时窗口。
+            _s.pack_into('<i', ring._shm.buf, 8, 3)  # offset 8 = count int32
+            count, n_full = ring.peek_count_and_full_at_head()
+            assert count == 3, f'count poke expected 3, got {count}'
+            assert n_full == 0, f'over-reserve race → n_full must be 0 (slots still EMPTY), got {n_full}'
+            # 复位避免 close() 反操作 (slot 已 empty,只 count > 0 → close 不读 count)。
+            _s.pack_into('<i', ring._shm.buf, 8, 0)
+
+    def test_simulated_partial_window_race(self):
+        """中间状态:count=K, 但只前 M<K 个 slot 已 FULL → 返 (K, M)。
+
+        实际生产里少见 (CAS-count 串行,partial commit 几乎是 nanosecond 级)，但本测
+        守住 wrap-around 处理 + 部分 FULL 计数逻辑正确。
+        """
+        import struct as _s
+
+        name = _unique_name('shmt_pkpw')
+        capacity = 4
+        with CrossLangShmRing(name, capacity=capacity, slot_payload_max=32, create=True) as ring:
+            # 真 push 2 个 → count=2, slot[0..1].status=FULL
+            ring.push(b'a')
+            ring.push(b'b')
+            # 然后 poke count = 4 (模拟 producer 已 CAS 但 slot[2..3] 还 EMPTY)
+            _s.pack_into('<i', ring._shm.buf, 8, 4)
+            count, n_full = ring.peek_count_and_full_at_head()
+            assert count == 4, f'count poke expected 4, got {count}'
+            assert n_full == 2, f'partial window → n_full=2 (first 2 slots FULL), got {n_full}'
+            # 复位 count 给 close() 看到 sane state
+            _s.pack_into('<i', ring._shm.buf, 8, 2)
+
+    def test_wrap_around_full_count(self):
+        """Ring wrap-around (head > 0):push N, pop M, push M 后 head=M, count=N,
+        peek 应正确 wrap idx = (head + i) % capacity 不越界。"""
+        name = _unique_name('shmt_pkw')
+        capacity = 4
+        with CrossLangShmRing(name, capacity=capacity, slot_payload_max=32, create=True) as ring:
+            for i in range(capacity):
+                ring.push(f'p{i}'.encode())
+            # pop 2 → head=2, count=2
+            ring.try_pop()
+            ring.try_pop()
+            # 再 push 2 → head=2, tail wrap, count=4
+            ring.push(b'p4')
+            ring.push(b'p5')
+            count, n_full = ring.peek_count_and_full_at_head()
+            assert count == capacity
+            assert n_full == capacity, f'wrap-around should still find all {capacity} FULL, got {n_full}'

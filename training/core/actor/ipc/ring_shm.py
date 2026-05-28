@@ -241,6 +241,52 @@ class CrossLangShmRing:
         except Exception:
             return -1
 
+    def peek_count_and_full_at_head(self) -> tuple[int, int]:
+        """Diagnostic — race-aware ring inspection。 返 (count, n_full_in_first_count_slots)。
+
+        H3 (2026-05-28 audit):shm_ring_push 的 CAS-on-count 修复 (bc6b1b8) 在 count++
+        早于 status=FULL 写入之间留有瞬时窗口,master peek_count 可能见 > 0 但 slot 仍
+        EMPTY → 误判 "ring 有 data master 没 pop"。 实际是 over-reserve race。 本 method
+        把 count + 从 head 起的 count 个 slot status 一起读,让 caller 区分:
+
+          (count, n_full):
+            count > 0 且 n_full == count    → ring healthy,master pop 应能拿到
+            count > 0 且 n_full == 0        → over-reserve race transient (busy producer)
+            count > 0 且 0 < n_full < count → 部分 slot 已 commit (partial-window race)
+            count == 0                      → actor stall (上游卡住没 push)
+            (-1, -1)                        → SHM read error
+
+        Race tolerant:不持锁,读取期间值可能漂;只作 diagnostic 趋势观察。 wrap-around
+        通过 idx = (head + i) % capacity 处理 (ring 满时 head + count 可能越过 capacity)。
+        scan 上限 min(count, capacity) 防 count 异常超 capacity 越界 (transient race
+        upper bound)。
+
+        cost:~capacity 次 byte read + modulo,O(N) 但 capacity 通常 32-256,~μs 级。
+        每 collect call 调一次,vs 5ms poll cycle 忽略。
+        """
+        buf = self._shm.buf
+        try:
+            head = _struct.unpack('<i', bytes(buf[0:4]))[0]
+            count = _struct.unpack('<i', bytes(buf[8:12]))[0]
+        except Exception:
+            return (-1, -1)
+        if count <= 0:
+            return (count, 0)
+        # 限制扫描上限 = min(count, capacity) 避免 race transient count > capacity 越界。
+        scan_n = count if count <= self.capacity else self.capacity
+        slot_stride = _SHM_SLOT_HEADER_SIZE + self.slot_payload_max
+        n_full = 0
+        for i in range(scan_n):
+            idx = (head + i) % self.capacity
+            slot_off = _SHM_RING_HEADER_SIZE + idx * slot_stride
+            try:
+                status = buf[slot_off]  # u8 status byte at slot[idx][0]
+            except Exception:
+                break
+            if status == 1:  # SHM_SLOT_FULL
+                n_full += 1
+        return (count, n_full)
+
     def try_pop_with_meta(self) -> Optional[tuple[int, int, bytes]]:
         """Non-blocking pop returning (client_id, req_id, payload).  None if empty."""
         lib = _get_lib()

@@ -194,6 +194,14 @@ class DMCGoSubprocessCollector:
         ready = self.assembler.drain_ready()
         bp_metrics = self._aggregate_backpressure_metrics()
         # Augment with collector loop counters (per-collect-call snapshot)。
+        # SHM ring race-aware probe (H3 2026-05-28):peek_count_and_full_at_head 区分
+        # over-reserve race (count > 0 但 slot 全 EMPTY = bc6b1b8 修复留的瞬时窗口) vs
+        # actor stall (count == 0 = 上游没 push)。 B-go-sustained-collection-deadlock
+        # debug 直接 grep 'shm_ring_full_at_head' vs 'shm_ring_peek_count' 趋势判断。
+        if self._handle is not None:
+            _ring_count, _ring_full_at_head = self._handle.trans_channel.peek_count_and_full_at_head()
+        else:
+            _ring_count, _ring_full_at_head = -1, -1
         bp_metrics_with_loop = dict(bp_metrics) if bp_metrics else {}
         bp_metrics_with_loop.update(
             {
@@ -201,9 +209,8 @@ class DMCGoSubprocessCollector:
                 'collect_pops_got': _diag_pops_got,
                 'collect_decode_err': _diag_decode_err,
                 'collect_n_ready_drained': len(ready),
-                'shm_ring_peek_count': self._handle.trans_channel.peek_count()
-                if self._handle is not None
-                else -1,
+                'shm_ring_peek_count': _ring_count,
+                'shm_ring_full_at_head': _ring_full_at_head,
                 'assembler_n_ingest': self.assembler.stats().get('n_ingest_called', 0),
                 'assembler_n_assembled': self.assembler.stats().get('n_assembled', 0),
                 'assembler_n_dropped_static_miss': self.assembler.stats().get('n_dropped_static_miss', 0),
@@ -283,9 +290,7 @@ class DMCGoSubprocessCollector:
             # avg push_wait per push (across all reporting actors) — direct backpressure 信号:
             # > 1 ms = train cycle 占 wall 让 actor 累计等 SHM slot;> 100 ms = 严重 backpressure
             # (train rate << collect rate)。
-            'go_backpressure_push_wait_ms_avg': round(
-                push_wait_ms_sum / max(1, push_total_sum), 3
-            ),
+            'go_backpressure_push_wait_ms_avg': round(push_wait_ms_sum / max(1, push_total_sum), 3),
         }
 
     def sync_weights(self, network: Any) -> int:

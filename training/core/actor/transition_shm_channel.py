@@ -56,6 +56,13 @@ class TransitionShmChannel:
         Master 端调用看跨进程视图:Go push 后 count++,master pop 后 count--,持续 0 即 actors 没 push。"""
         return self._ring.peek_count()
 
+    def peek_count_and_full_at_head(self) -> tuple[int, int]:
+        """Race-aware ring inspection — 返 (count, n_full_in_first_count_slots)。
+
+        区分 over-reserve race (count > 0 但 slot 还 EMPTY) vs actor stall (count = 0)。
+        详 CrossLangShmRing.peek_count_and_full_at_head docstring。"""
+        return self._ring.peek_count_and_full_at_head()
+
     def close(self) -> None:
         """Detach mmap;owner 也 unlink。"""
         self._ring.close()
