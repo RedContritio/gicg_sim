@@ -8,6 +8,9 @@
 #       --remote dev@192.168.31.56:D:/gicg_dev/artifacts \
 #       --max-iterations 1
 
+[meta]
+paradigm = "dmc"  # FU-W1B required field — test_shipped_configs_load_successfully 校验
+
 base = "stage3"
 
 [scenario]
