@@ -39,13 +39,14 @@ class _LifecycleMixin:
         + OBS_ENEMY_SIZES`, so any of those drifting Go↔Python silently
         misaligns the typed segment reads.
         """
-        from gicg_env.env_obs import (
+        from gicg_env._constants import (
+            OBS_ENEMY_SIZES,
+            OBS_HAND_BUCKETS,
             OBS_MAX_CARD_TYPES,
             OBS_MODIFIER_LOG_SLOTS,
             OBS_PREPARE_SKILL_SLOTS,
             OBS_RECENT_DAMAGE_SLOTS,
         )
-        from training.core.obs_constants import OBS_ENEMY_SIZES, OBS_HAND_BUCKETS
 
         # GameGetTypedObsConstants returns 8 ints (Round-2 M2 widened from 5)
         out = (ctypes.c_int * 8)()

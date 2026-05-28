@@ -1,32 +1,43 @@
 """Observation-normalization mixin for GicgEnv.
 
-Owns the _get_obs() implementation and the obs-layout constants that
-describe the static/dynamic obs buffers written by the Go side. Kept
-separate from env.py to stay under the 300-line pre-commit cap; see
-CLAUDE.md. Constants are re-exported from gicg_env.env for back-compat
-with external imports of OBS_COUNTER_SLOTS etc. (those pre-date this
-split)."""
+Owns the _get_obs() implementation and re-exports the obs-layout
+constants that describe the static/dynamic obs buffers written by the
+Go side. Constants now live in ``gicg_env._constants`` (single source
+of truth post W1-T1); imported here so legacy callers' ``from
+gicg_env.env_obs import OBS_COUNTER_SLOTS`` (and ``gicg_env.env``
+re-export chain) keep resolving. Pre W1-T1: env_obs.py hard-coded a
+parallel copy and back-referenced ``training.core.obs_constants``,
+forming a cycle."""
 
 from __future__ import annotations
 
 import numpy as np
 
-# Must match gicg_engine/observation.go: obsCounterSlots() +
-# ObsMaxCardTypes + ObsMetaSize.
-# Round-3 review S8: import OBS_HAND_BUCKETS / OBS_ENEMY_SIZES from
-# training.core.obs_constants instead of hard-coding 4 / 2 here,
-# eliminating one of the three independent Python-side hard-codes
-# (env_obs.py / obs_constants.py / _engine_lifecycle.py drift risk).
-from training.core.obs_constants import OBS_ENEMY_SIZES, OBS_HAND_BUCKETS
+from gicg_env._constants import (
+    OBS_COUNTER_SLOTS,
+    OBS_ENEMY_SIZES,
+    OBS_HAND_BLOCK_SIZE,
+    OBS_HAND_BUCKETS,
+    OBS_MAX_CARD_TYPES,
+    OBS_META_SIZE,
+    OBS_MODIFIER_LOG_SLOTS,
+    OBS_PREPARE_SKILL_SLOTS,
+    OBS_RECENT_DAMAGE_SLOTS,
+)
 
-OBS_META_SIZE = 3
-OBS_MAX_CARD_TYPES = 80
-OBS_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16  # = 1832
-OBS_HAND_BLOCK_SIZE = OBS_HAND_BUCKETS * OBS_MAX_CARD_TYPES + OBS_ENEMY_SIZES
-# ADR-0019 §B.3c + §B.2 typed segments — sizes mirror gicg_engine.
-OBS_RECENT_DAMAGE_SLOTS = 8 * 11  # K=8 events × 11 fields
-OBS_PREPARE_SKILL_SLOTS = 4  # 2 players × (char_idx, skill_slot)
-OBS_MODIFIER_LOG_SLOTS = 8 * 4 * 5  # K=8 × K_mod=4 stages × 5 fields
+__all__ = [
+    'OBS_COUNTER_SLOTS',
+    'OBS_ENEMY_SIZES',
+    'OBS_HAND_BLOCK_SIZE',
+    'OBS_HAND_BUCKETS',
+    'OBS_MAX_CARD_TYPES',
+    'OBS_META_SIZE',
+    'OBS_MODIFIER_LOG_SLOTS',
+    'OBS_PREPARE_SKILL_SLOTS',
+    'OBS_RECENT_DAMAGE_SLOTS',
+    '_ObsMixin',
+    'compute_mask_slots',
+]
 
 
 def compute_mask_slots(obs_mask, labels):
