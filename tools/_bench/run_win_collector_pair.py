@@ -18,13 +18,21 @@ Each pytest spawn ~15s + setup overhead;5 seeds × 4 N × 2 backend = 40 spawn �
 from __future__ import annotations
 
 import argparse
-import re
 import subprocess
 import sys
 import time
 from pathlib import Path
-from statistics import mean, stdev
 from typing import Optional
+
+from tools._bench._collector_pair_common import (
+    aggregate,
+    classify_subprocess_failure,
+    dump_per_seed_detail,
+    format_headline_row,
+    format_ratio_row,
+    git_commit_short,
+    parse_fps_line,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -34,20 +42,6 @@ _WIN_ROOT = 'D:/gicg_dev'
 
 _GO_TEST = 'training/core/actor/tests/test_go_subprocess_perf_smoke.py::test_go_subprocess_perf_smoke_15s'
 _PY_TEST = 'training/core/actor/tests/test_python_mp_perf_smoke.py::test_python_mp_perf_smoke_15s'
-
-_RE_GO = re.compile(
-    r'\[perf smoke\]'
-    r'.*?fps=(?P<fps>[\d.]+)'
-    r'.*?fps/actor=(?P<fps_per_actor>[\d.]+)'
-    r'.*?delta=(?P<mem_delta>[+-]?\d+)MB'
-    r'.*?decode_errors=(?P<decode_errors>\d+)'
-)
-_RE_PY = re.compile(
-    r'\[py-mp perf smoke\]'
-    r'.*?fps=(?P<fps>[\d.]+)'
-    r'.*?fps/actor=(?P<fps_per_actor>[\d.]+)'
-    r'.*?delta=(?P<mem_delta>[+-]?\d+)MB'
-)
 
 
 def _ssh_pytest(
@@ -109,7 +103,8 @@ def _ssh_pytest(
     combined = stdout_text + stderr_text
 
     if r.returncode != 0:
-        if 'SKIPPED' in combined or 'no tests ran' in combined.lower():
+        kind = classify_subprocess_failure(r.returncode, combined)
+        if kind == 'skipped':
             print(f'  [bench] SKIPPED (libs not built)', flush=True)
             return None
         print(f'  [bench] FAIL rc={r.returncode} wall={dt:.1f}s', flush=True)
@@ -117,53 +112,18 @@ def _ssh_pytest(
             print(f'    {line}', flush=True)
         return None
 
-    pattern = _RE_GO if 'go' in test_node else _RE_PY
-    for line in combined.splitlines():
-        m = pattern.search(line)
-        if m:
-            d = m.groupdict()
-            result = {
-                'fps': float(d['fps']),
-                'fps_per_actor': float(d['fps_per_actor']),
-                'mem_delta_mb': int(d['mem_delta']),
-                'wall_s': round(dt, 1),
-            }
-            if 'decode_errors' in d:
-                result['decode_errors'] = int(d['decode_errors'])
-            print(
-                f'  [bench] OK fps={result["fps"]:.2f} fps/actor={result["fps_per_actor"]:.2f} '
-                f'mem_delta={result["mem_delta_mb"]:+d}MB wall={dt:.1f}s',
-                flush=True,
-            )
-            return result
-
-    print(f'  [bench] PASS but no fps line — output 前 30 行:', flush=True)
-    for line in combined.splitlines()[:30]:
-        print(f'    {line}', flush=True)
-    return None
-
-
-def _aggregate(runs: list[dict]) -> dict:
-    if not runs:
-        return {'n': 0}
-    fps_vals = [r['fps'] for r in runs]
-    fpa_vals = [r['fps_per_actor'] for r in runs]
-    mem_vals = [r['mem_delta_mb'] for r in runs]
-    fps_mean = mean(fps_vals)
-    fps_std = stdev(fps_vals) if len(fps_vals) > 1 else 0.0
-    fpa_mean = mean(fpa_vals)
-    fpa_std = stdev(fpa_vals) if len(fpa_vals) > 1 else 0.0
-    return {
-        'n': len(runs),
-        'fps_mean': round(fps_mean, 2),
-        'fps_std': round(fps_std, 2),
-        'fps_cv_pct': round(fps_std / fps_mean * 100, 1) if fps_mean else 0.0,
-        'fps_per_actor_mean': round(fpa_mean, 2),
-        'fps_per_actor_std': round(fpa_std, 2),
-        'fps_per_actor_cv_pct': round(fpa_std / fpa_mean * 100, 1) if fpa_mean else 0.0,
-        'mem_delta_mb_mean': round(mean(mem_vals), 0),
-        'runs': runs,
-    }
+    result = parse_fps_line(combined, test_node, wall_s=dt)
+    if result is None:
+        print(f'  [bench] PASS but no fps line — output 前 30 行:', flush=True)
+        for line in combined.splitlines()[:30]:
+            print(f'    {line}', flush=True)
+        return None
+    print(
+        f'  [bench] OK fps={result["fps"]:.2f} fps/actor={result["fps_per_actor"]:.2f} '
+        f'mem_delta={result["mem_delta_mb"]:+d}MB wall={dt:.1f}s',
+        flush=True,
+    )
+    return result
 
 
 def _cell_label(cell_key) -> str:
@@ -189,11 +149,7 @@ def _sort_cell_key(kv) -> tuple:
 
 
 def _markdown_table(results: dict, out_path: Path) -> str:
-    commit = subprocess.check_output(
-        ['git', 'rev-parse', '--short', 'HEAD'],
-        cwd=str(_REPO_ROOT),
-        text=True,
-    ).strip()
+    commit = git_commit_short(_REPO_ROOT)
     date_str = time.strftime('%Y-%m-%d %H:%M')
 
     lines = [
@@ -213,26 +169,14 @@ def _markdown_table(results: dict, out_path: Path) -> str:
     for cell_key, backends in sorted(results.items(), key=_sort_cell_key):
         cell_label = _cell_label(cell_key)
         for backend, agg in backends.items():
-            if agg['n'] == 0:
-                lines.append(f'| {cell_label} | {backend} | N/A | N/A | N/A | 0 |')
-                continue
-            fps_str = f'{agg["fps_mean"]:.2f} ± {agg["fps_std"]:.2f} ({agg["fps_cv_pct"]:.0f}%)'
-            fpa_str = f'{agg["fps_per_actor_mean"]:.2f} ± {agg["fps_per_actor_std"]:.2f} ({agg["fps_per_actor_cv_pct"]:.0f}%)'
-            mem_str = f'{agg["mem_delta_mb_mean"]:+.0f} MB'
-            lines.append(f'| {cell_label} | {backend} | {fps_str} | {fpa_str} | {mem_str} | {agg["n"]} |')
+            lines.append(format_headline_row(cell_label, backend, agg))
 
     lines += ['', '## Ratio (Go / Python mp)', '']
     lines += ['| Cell | fps/actor ratio | Interpretation |', '|------|----------------|----------------|']
     for cell_key, backends in sorted(results.items(), key=_sort_cell_key):
-        cell_label = _cell_label(cell_key)
-        go_agg = backends.get('go', {})
-        py_agg = backends.get('python_mp', {})
-        if go_agg.get('n', 0) > 0 and py_agg.get('n', 0) > 0 and py_agg['fps_per_actor_mean'] > 0:
-            ratio = go_agg['fps_per_actor_mean'] / py_agg['fps_per_actor_mean']
-            interp = 'Go faster' if ratio > 1.0 else 'Python mp faster'
-            lines.append(f'| {cell_label} | {ratio:.2f}x | {interp} |')
-        else:
-            lines.append(f'| {cell_label} | N/A | insufficient data |')
+        lines.append(
+            format_ratio_row(_cell_label(cell_key), backends.get('go', {}), backends.get('python_mp', {}))
+        )
 
     lines += ['', '## Per-seed detail', '']
     for cell_key, backends in sorted(results.items(), key=_sort_cell_key):
@@ -240,13 +184,7 @@ def _markdown_table(results: dict, out_path: Path) -> str:
         lines.append(f'### {cell_label}')
         lines.append('')
         for backend, agg in backends.items():
-            lines.append(f'**{backend}** (n={agg["n"]})')
-            for i, r in enumerate(agg.get('runs', [])):
-                lines.append(
-                    f'- seed {i + 1}: fps={r["fps"]:.2f} fps/actor={r["fps_per_actor"]:.2f} '
-                    f'mem_delta={r["mem_delta_mb"]:+d}MB wall={r["wall_s"]:.1f}s'
-                )
-            lines.append('')
+            dump_per_seed_detail(lines, backend, agg)
 
     md = '\n'.join(lines)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -323,7 +261,7 @@ def main() -> int:
                 print(flush=True)
 
     # Aggregate after collection
-    flat_results = {k: {b: _aggregate(runs) for b, runs in backends.items()} for k, backends in flat_results.items()}
+    flat_results = {k: {b: aggregate(runs) for b, runs in backends.items()} for k, backends in flat_results.items()}
 
     print('[bench] === SUMMARY ===', flush=True)
     for cell_key, backends in sorted(flat_results.items(), key=_sort_cell_key):
