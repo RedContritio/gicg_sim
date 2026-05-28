@@ -162,17 +162,30 @@ func BuildInferRequest(g *engine.Game, staticHash [16]byte, clientID, reqID uint
 	}
 }
 
+// DmcPayloadVer — DMC paradigm-specific payload schema 版本号。 每次改
+// DmcTransitionHeader struct 顺序 / 字段类型 / 增删字段都必须 bump 此值。
+// 与 outer WireVersion (gicg_actor.WireVersion) 独立 — outer 是 envelope 版本,
+// 本字段是 paradigm payload 版本。 Python 端 transition_sink_wire.DMC_PAYLOAD_VER
+// 须 lock-step。 mismatch decode 时 fail-loud。
+const DmcPayloadVer uint8 = 1
+
 // DmcTransitionHeader — DMC paradigm transition payload 固定头(declarative schema)。
 //
 // binary.Write/Read 处理 byte offset,加字段在 struct 加一行即可,encode/decode 自动
 // follow。 同样 Python 端 transition_sink_wire 用 struct format string 同步。
 //
-// 注意 Go struct field order = wire byte order,改顺序破坏协议。
+// 注意 Go struct field order = wire byte order,改顺序破坏协议。 改顺序 / 类型 /
+// 增删字段时必须 bump DmcPayloadVer (本文件) + Python DMC_PAYLOAD_VER (lock-step)。
+//
+// PayloadVer 在 header 首字节 — decoder 读 1 byte 即可识别 schema 漂移,无需依赖
+// 后续字段 length 推断(audit 2026-05-28:expected_len 校验只能 catch 部分 drift,
+// 改字段类型/顺序保持 total size 不变时 silent corruption)。
 //
 // NDyn/NRefs/NPay/NStatic 走 u32(同 InferRequestHeader)— static_obs 实测可达 ~293K
 // int32(ObsMaxHooks × ObsIntsPerHook 主导,DSL 复杂场景),u16 65535 silent overflow
 // 已被实测发现(2026-05-22 perf smoke decode error 调查)。
 type DmcTransitionHeader struct {
+	PayloadVer   uint8 // 必须始终 == DmcPayloadVer
 	ChosenAction uint32
 	StepInEp     uint32
 	RewardX1M    int32 // reward × 1e6 fixed-point (避 cross-lang nan-bits drift)
@@ -206,6 +219,7 @@ func EncodeDmcTransitionPayload(
 	staticHash [16]byte,
 ) []byte {
 	header := DmcTransitionHeader{
+		PayloadVer:   DmcPayloadVer,
 		ChosenAction: chosenAction,
 		StepInEp:     step,
 		RewardX1M:    int32(reward * 1e6),

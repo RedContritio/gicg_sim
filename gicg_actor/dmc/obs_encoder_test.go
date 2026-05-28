@@ -58,8 +58,9 @@ func TestComputeStaticHash_EmptyInput(t *testing.T) {
 
 // TestEncodeDmcTransitionPayload_RoundTrip 守 self-contained transition payload 编码 layout。
 //
-// Schema:DmcTransitionHeader(38 bytes:chosen+step+reward+5×u16+16-byte hash)+
-// body(dyn + refs + pay + static)。
+// Schema(post 2026-05-28 加 PayloadVer):header[0] = PayloadVer u8 + chosen u32 + step
+// u32 + reward i32 + 5×u32 n_* + 16-byte hash;body = dyn + refs + pay + static。
+// header total = 1 + 4 + 4 + 4 + 5*4 + 16 = 49 bytes。
 func TestEncodeDmcTransitionPayload_RoundTrip(t *testing.T) {
 	dyn := []float32{1.5, -2.5, 0.0, 3.14}
 	refs := []int64{0, -1, 100, 200, 300, 400}
@@ -74,14 +75,17 @@ func TestEncodeDmcTransitionPayload_RoundTrip(t *testing.T) {
 	if len(payload) != expectedLen {
 		t.Fatalf("len: got %d, want %d", len(payload), expectedLen)
 	}
-	gotAction := binary.LittleEndian.Uint32(payload[0:4])
-	gotStep := binary.LittleEndian.Uint32(payload[4:8])
-	gotRewardMicro := int32(binary.LittleEndian.Uint32(payload[8:12]))
-	gotNLegal := binary.LittleEndian.Uint32(payload[12:16])
-	gotNDyn := binary.LittleEndian.Uint32(payload[16:20])
-	gotNRefs := binary.LittleEndian.Uint32(payload[20:24])
-	gotNPay := binary.LittleEndian.Uint32(payload[24:28])
-	gotNStatic := binary.LittleEndian.Uint32(payload[28:32])
+	if payload[0] != DmcPayloadVer {
+		t.Errorf("PayloadVer: got %d, want %d", payload[0], DmcPayloadVer)
+	}
+	gotAction := binary.LittleEndian.Uint32(payload[1:5])
+	gotStep := binary.LittleEndian.Uint32(payload[5:9])
+	gotRewardMicro := int32(binary.LittleEndian.Uint32(payload[9:13]))
+	gotNLegal := binary.LittleEndian.Uint32(payload[13:17])
+	gotNDyn := binary.LittleEndian.Uint32(payload[17:21])
+	gotNRefs := binary.LittleEndian.Uint32(payload[21:25])
+	gotNPay := binary.LittleEndian.Uint32(payload[25:29])
+	gotNStatic := binary.LittleEndian.Uint32(payload[29:33])
 	if gotAction != 7 || gotStep != 42 {
 		t.Errorf("chosen/step: got (%d,%d), want (7,42)", gotAction, gotStep)
 	}
@@ -95,10 +99,10 @@ func TestEncodeDmcTransitionPayload_RoundTrip(t *testing.T) {
 			gotNLegal, gotNDyn, gotNRefs, gotNPay, gotNStatic,
 			len(dyn), len(refs), len(pay), len(static))
 	}
-	// static_hash position 32..48 (after 12B chosen+step+reward + 5×u32 n_* = 32 bytes)
+	// static_hash position 33..49 (after 1B ver + 12B chosen+step+reward + 5×u32 n_* = 33 bytes)
 	for i, b := range hash {
-		if payload[32+i] != b {
-			t.Errorf("static_hash[%d]: got %x, want %x", i, payload[32+i], b)
+		if payload[33+i] != b {
+			t.Errorf("static_hash[%d]: got %x, want %x", i, payload[33+i], b)
 		}
 	}
 	// dyn bytes round-trip(skip refs/pay/static — same bit-pattern test pattern)

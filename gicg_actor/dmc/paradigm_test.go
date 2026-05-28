@@ -418,11 +418,12 @@ collect:
 					t.Errorf("episode %d: Done=true at index %d, not last (len=%d)", ep, i, len(trs))
 				}
 				// Done transition 必须是 terminal marker — NLegal=0(DMC payload header
-				// offset 12:16)。 旧 bug 逻辑把 done 落在真 me-transition(NLegal>0)。
-				if len(tr.Payload) < 16 {
+				// offset 13:17,post 2026-05-28 加 PayloadVer u8 在 byte 0)。 旧 bug 逻辑把
+				// done 落在真 me-transition(NLegal>0)。
+				if len(tr.Payload) < 17 {
 					t.Fatalf("episode %d: Done transition payload too short: %d byte", ep, len(tr.Payload))
 				}
-				if nl := binary.LittleEndian.Uint32(tr.Payload[12:16]); nl != 0 {
+				if nl := binary.LittleEndian.Uint32(tr.Payload[13:17]); nl != 0 {
 					t.Errorf("episode %d: Done transition NLegal=%d, want 0 (terminal marker)", ep, nl)
 				}
 			}

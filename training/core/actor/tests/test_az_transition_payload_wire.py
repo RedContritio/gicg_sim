@@ -107,12 +107,34 @@ def test_az_payload_truncated_raises():
         decode_az_payload(truncated)
 
 
+def test_az_payload_ver_mismatch_raises():
+    """改 payload 首字节 (PayloadVer) → decode 必须 fail-loud。 守 cross-lang
+    schema drift safety net:Go AzPayloadVer 与 Python AZ_PAYLOAD_VER 不 lock-step
+    时第一时间 catch。"""
+    blob = bytearray(
+        encode_az_payload(
+            chosen_action=0,
+            step_in_episode=0,
+            reward=0.0,
+            root_value=0.0,
+            n_legal=1,
+            static_hash=b'\x00' * 16,
+            dyn_obs=np.zeros(2, dtype=np.float32),
+            refs=np.zeros(0, dtype=np.int64),
+            pay=np.zeros(0, dtype=np.float32),
+        )
+    )
+    blob[0] = 99  # bump 到一个 invalid version
+    with pytest.raises(ValueError, match='AZ payload version mismatch'):
+        decode_az_payload(bytes(blob))
+
+
 def test_az_payload_header_size_matches_go():
     """Layout size 跟 Go side AzTransitionHeader binary.Size 一致。
 
-    AzTransitionHeader: ChosenAction(4) + StepInEp(4) + RewardX1M(4) + RootValueX1M(4) +
-    6×u32 N* (24) + StaticHash(16) = 56 byte。
+    AzTransitionHeader: PayloadVer(1) + ChosenAction(4) + StepInEp(4) + RewardX1M(4) +
+    RootValueX1M(4) + 6×u32 N* (24) + StaticHash(16) = 57 byte (2026-05-28 加 PayloadVer)。
     """
     from training.core.actor.transition_sink_wire import _AZ_PAYLOAD_HEADER_SIZE
 
-    assert _AZ_PAYLOAD_HEADER_SIZE == 56
+    assert _AZ_PAYLOAD_HEADER_SIZE == 57

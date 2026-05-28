@@ -41,7 +41,7 @@ WIRE_VERSION = 3  # 跟 inference protocol 同步 bump(Go 单 WireVersion 跨两
 MAX_TRANSITION_PAYLOAD = 16 * 1024 * 1024
 
 # Kind byte — 区分 per-transition frame 和 episode batch frame。
-KIND_PER_TRANS = 0      # 原 per-transition frame(backward compat)
+KIND_PER_TRANS = 0  # 原 per-transition frame(backward compat)
 KIND_EPISODE_BATCH = 1  # F1 episode batch frame
 
 # Header 固定字段:加字段在两处加一行即可。
@@ -57,12 +57,25 @@ _EPISODE_BATCH_HEADER_FMT = '<H I I I B B'  # ver, client_id, episode_id, n_tran
 _EPISODE_BATCH_HEADER_FIELDS = ('ver', 'client_id', 'episode_id', 'n_trans', 'kind', 'reserved')
 EPISODE_BATCH_HEADER_SIZE = struct.calcsize(_EPISODE_BATCH_HEADER_FMT)
 
+# Paradigm-specific payload schema 版本号 — 每次改对应 _XXX_PAYLOAD_FMT 字段顺序 /
+# 类型 / 增删都必须 bump。 与 outer WIRE_VERSION 独立(后者管 envelope schema,本字段
+# 管 paradigm payload schema)。 Go 端 obs_encoder.go DmcPayloadVer / AzPayloadVer /
+# PpoPayloadVer 须 lock-step,decode 时 mismatch fail-loud。
+#
+# 2026-05-28 audit:expected_len 校验只能 catch 部分 schema drift(改字段类型保持总
+# 长度不变时 silent corruption);1-byte version prefix 是 explicit safety net。
+DMC_PAYLOAD_VER = 1
+AZ_PAYLOAD_VER = 1
+PPO_PAYLOAD_VER = 1
+
 # DMC paradigm-specific payload schema(mirror Go DmcTransitionHeader)。
-# 加字段在 _DMC_PAYLOAD_FMT / _DMC_PAYLOAD_FIELDS 加一行即可。
+# 加字段在 _DMC_PAYLOAD_FMT / _DMC_PAYLOAD_FIELDS 加一行即可 + 必须 bump
+# DMC_PAYLOAD_VER + 同步 Go DmcPayloadVer。
 # n_legal/n_dyn/n_refs/n_pay/n_static 走 u32(同 InferRequestHeader)— static_obs 实测
 # 可达 ~293K int32,u16 65535 silent overflow 历经实测(2026-05-22)。
-_DMC_PAYLOAD_FMT = '<I I i I I I I I 16s'
+_DMC_PAYLOAD_FMT = '<B I I i I I I I I 16s'
 _DMC_PAYLOAD_FIELDS = (
+    'payload_ver',
     'chosen_action',
     'step_in_episode',
     'reward_x1m',
@@ -85,8 +98,10 @@ _DMC_PAYLOAD_ARRAYS: tuple[tuple[str, np.dtype, str], ...] = (
 
 # AZ paradigm-specific payload schema(mirror Go AzTransitionHeader)。
 # 跟 DMC 同模式 + 加 root_value (MCTS bootstrap target) + visits (action prob dist)。
-_AZ_PAYLOAD_FMT = '<I I i i I I I I I I 16s'
+# 改字段时必须 bump AZ_PAYLOAD_VER + 同步 Go AzPayloadVer (lock-step)。
+_AZ_PAYLOAD_FMT = '<B I I i i I I I I I I 16s'
 _AZ_PAYLOAD_FIELDS = (
+    'payload_ver',
     'chosen_action',
     'step_in_episode',
     'reward_x1m',
@@ -111,8 +126,10 @@ _AZ_PAYLOAD_ARRAYS: tuple[tuple[str, np.dtype, str], ...] = (
 
 # PPO paradigm-specific payload schema(mirror Go PpoTransitionHeader)。
 # 跟 DMC 同 + 加 log_prob_x1m + value_x1m(GAE bootstrap target)。
-_PPO_PAYLOAD_FMT = '<I I i i i I I I I I 16s'
+# 改字段时必须 bump PPO_PAYLOAD_VER + 同步 Go PpoPayloadVer (lock-step)。
+_PPO_PAYLOAD_FMT = '<B I I i i i I I I I I 16s'
 _PPO_PAYLOAD_FIELDS = (
+    'payload_ver',
     'chosen_action',
     'step_in_episode',
     'reward_x1m',
@@ -297,13 +314,15 @@ def decode_episode_batch(payload: bytes) -> EpisodeBatch:
             raise ValueError(f'episode batch trans {i} payload {pay_len} overruns frame')
         tx_payload = bytes(payload[off : off + pay_len])
         off += pay_len
-        transitions.append(Transition(
-            client_id=client_id,
-            episode_id=episode_id,
-            step=0,  # Step not encoded at batch level — DMC payload header carries step_in_episode
-            done=done,
-            payload=tx_payload,
-        ))
+        transitions.append(
+            Transition(
+                client_id=client_id,
+                episode_id=episode_id,
+                step=0,  # Step not encoded at batch level — DMC payload header carries step_in_episode
+                done=done,
+                payload=tx_payload,
+            )
+        )
     return EpisodeBatch(client_id=client_id, episode_id=episode_id, transitions=transitions)
 
 
@@ -365,6 +384,7 @@ def encode_dmc_payload(
         'n_static': len(arrays['static']),
     }
     header_values = {
+        'payload_ver': DMC_PAYLOAD_VER,
         'chosen_action': chosen_action,
         'step_in_episode': step_in_episode,
         'reward_x1m': int(reward * 1e6),
@@ -395,6 +415,11 @@ def decode_dmc_payload(blob: bytes, *, dyn_obs_len: Optional[int] = None) -> Dmc
     if len(blob) < _DMC_PAYLOAD_HEADER_SIZE:
         raise ValueError(f'DMC payload {len(blob)} byte < header {_DMC_PAYLOAD_HEADER_SIZE}')
     header = dict(zip(_DMC_PAYLOAD_FIELDS, struct.unpack_from(_DMC_PAYLOAD_FMT, blob, 0)))
+    if header['payload_ver'] != DMC_PAYLOAD_VER:
+        raise ValueError(
+            f'DMC payload version mismatch: got {header["payload_ver"]}, want {DMC_PAYLOAD_VER} '
+            '(Go DmcPayloadVer 与 Python DMC_PAYLOAD_VER 不同步,可能 Go binary 版本不一致)'
+        )
 
     expected_len = _DMC_PAYLOAD_HEADER_SIZE
     for _, dtype, count_field in _DMC_PAYLOAD_ARRAYS:
@@ -463,6 +488,7 @@ def encode_ppo_payload(
         'n_static': len(arrays['static']),
     }
     header_values = {
+        'payload_ver': PPO_PAYLOAD_VER,
         'chosen_action': chosen_action,
         'step_in_episode': step_in_episode,
         'reward_x1m': int(reward * 1e6),
@@ -486,6 +512,11 @@ def decode_ppo_payload(blob: bytes) -> PpoTransitionPayload:
     if len(blob) < _PPO_PAYLOAD_HEADER_SIZE:
         raise ValueError(f'PPO payload {len(blob)} byte < header {_PPO_PAYLOAD_HEADER_SIZE}')
     header = dict(zip(_PPO_PAYLOAD_FIELDS, struct.unpack_from(_PPO_PAYLOAD_FMT, blob, 0)))
+    if header['payload_ver'] != PPO_PAYLOAD_VER:
+        raise ValueError(
+            f'PPO payload version mismatch: got {header["payload_ver"]}, want {PPO_PAYLOAD_VER} '
+            '(Go PpoPayloadVer 与 Python PPO_PAYLOAD_VER 不同步)'
+        )
     expected_len = _PPO_PAYLOAD_HEADER_SIZE
     for _, dtype, count_field in _PPO_PAYLOAD_ARRAYS:
         expected_len += header[count_field] * dtype.itemsize
@@ -552,6 +583,7 @@ def encode_az_payload(
         'n_visits': len(arrays['visits']),
     }
     header_values = {
+        'payload_ver': AZ_PAYLOAD_VER,
         'chosen_action': chosen_action,
         'step_in_episode': step_in_episode,
         'reward_x1m': int(reward * 1e6),
@@ -574,6 +606,11 @@ def decode_az_payload(blob: bytes) -> AzTransitionPayload:
     if len(blob) < _AZ_PAYLOAD_HEADER_SIZE:
         raise ValueError(f'AZ payload {len(blob)} byte < header {_AZ_PAYLOAD_HEADER_SIZE}')
     header = dict(zip(_AZ_PAYLOAD_FIELDS, struct.unpack_from(_AZ_PAYLOAD_FMT, blob, 0)))
+    if header['payload_ver'] != AZ_PAYLOAD_VER:
+        raise ValueError(
+            f'AZ payload version mismatch: got {header["payload_ver"]}, want {AZ_PAYLOAD_VER} '
+            '(Go AzPayloadVer 与 Python AZ_PAYLOAD_VER 不同步)'
+        )
     expected_len = _AZ_PAYLOAD_HEADER_SIZE
     for _, dtype, count_field in _AZ_PAYLOAD_ARRAYS:
         expected_len += header[count_field] * dtype.itemsize
