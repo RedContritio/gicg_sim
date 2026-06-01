@@ -13,8 +13,9 @@ this scan via the explicit ``PRODUCTION_TESTS`` allowlist.
 
 Coverage:
     * AST scan — verify zero ``training.paradigms.az.legacy`` imports
-      in the 10 production test files (allows the historical "legacy"
-      token to remain in error messages / docstrings).
+      in the production test files listed in PRODUCTION_TESTS below
+      (allows the historical "legacy" token to remain in error messages
+      / docstrings).
 """
 
 from __future__ import annotations
@@ -25,11 +26,12 @@ import pathlib
 import pytest
 
 # Production tests covered by T3c — switched from legacy.* → adapter.
+# (I31 方向 C git-removed test_arena.py + test_config_loader.py from this
+# allowlist along with their now-dead source files — arena退役 with the
+# legacy champion-vs-challenger path, config_loader with the AZ TOML loader.)
 PRODUCTION_TESTS = (
     'training/tests/test_actor_critic_mirror.py',
-    'training/tests/test_arena.py',
     'training/tests/test_buffer.py',
-    'training/tests/test_config_loader.py',
     'training/tests/test_core_eval_baselines.py',
     'training/tests/test_eval_service_errors.py',
     'training/tests/test_eval_service_matchup.py',

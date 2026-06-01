@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-06-01
 status: LIVE
 schema_version: 0
 capability: training-architecture
@@ -90,6 +90,26 @@ while not terminated:
    collector 永不被 driver 调用,buffer 永远空,train batches 全 skip,
    ckpts 写 random-init 权重虽然 file-existence contract 满足。
 
+8. **Async weight republish SHALL be driver-honored** — `run_pipeline`
+   SHALL,在每个 iteration 的 train block 之后、`clear_buffer_after_train`
+   / eval / ckpt 之前,当 `plan.sync_weights` 为 True 且 `collector` 暴露
+   `sync_weights` 时,调 `collector.sync_weights(network)` 把 learner 当前
+   权重 republish 给 actor。republish 位置 SHALL 在下一轮 `collect` 之前,
+   使 actor 下批 collect 用本轮 train 后权重。`collector.sync_weights`
+   缺失时(serial collector 无此 method)driver SHALL no-op(`hasattr`
+   guard),不得 raise —— serial 模式 actor 与 learner 共享 in-proc
+   network,无需 republish。(per `pipeline-async-weight-sync`,archived
+   2026-06-01 — pre-fix `run_pipeline` 从不 republish,async actor 整个
+   run 用 version-0 初始权重 selfplay,learner 孤立训练。)
+
+9. **`StepPlan.sync_weights: bool` (default False)** SHALL 由
+   `paradigm.step_schedule` 按各自 cadence
+   (`ParadigmConfig.sync_weights_every_train_steps`)在 async 模式的
+   steady-train iteration 翻为 True;serial 模式与 warm-up / done
+   iteration SHALL 保持 False。这与既有 `clear_buffer_after_train` 同属
+   paradigm-declared epilogue flag 模式 —— driver 不感知 "async" / cadence
+   语义,仅 honor flag。
+
 ## 4. Serial mode
 
 **形态**:单进程同步,actor + learner 在同一 Python 进程,collector
@@ -144,6 +164,14 @@ M EvalWorker  (periodic eval, EpisodeRunner × LocalNet snapshot)
 
 5. Inference server SHALL batch concurrent actor requests up to
    `cfg.infer.max_batch` — server 内部 forward,actors 等结果。
+
+6. Each async collector SHALL implement `sync_weights(network)` —
+   `{DMCMultiProcessCollector, CFRAsyncCollector, AZAsyncCollector,
+   PPOAsyncCollector}` 各 SHALL 把 `network` 的当前(CPU-detached)权重
+   republish 到其 actor 权重通道(`InferenceServer.push_weights` /
+   `WeightsSHM.publish_weights`),使 actor 下次读取拿到 version 单调递增
+   的新权重。driver 在 train 后 honor `plan.sync_weights` 调此 method
+   (§3 #8)。
 
 ## 6. PipelineState dataclass
 

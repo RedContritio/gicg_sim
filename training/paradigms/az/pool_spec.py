@@ -1,6 +1,6 @@
 """Per-player CardPoolSpec resolver — public (no underscore) because
-both the main process (train_az) and the worker process
-(inference_pool._worker_loop) need it.
+both the collector parent process and the spawned actors (via
+``mp_factories``) need it.
 """
 
 from __future__ import annotations

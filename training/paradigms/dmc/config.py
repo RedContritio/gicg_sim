@@ -85,7 +85,7 @@ class DMCParadigmConfig(ParadigmConfigBase):
     # Scheduling
     total_frames: int = 5000  # smoke default; production overrides
     train_ratio: int = 4  # n_drained × train_ratio per outer iter
-    weight_sync_every_steps: int = 0  # 0 = sync each iter (serial-mode); >0 = every-N iter
+    sync_weights_every_train_steps: int = 0  # async weight republish cadence (0/1 = each train iter); >0 = every-N
 
     # Component config — paradigm-local ObsShape (N1.2)
     agent: ObsShape = field(default_factory=make_dmc_default_shape)

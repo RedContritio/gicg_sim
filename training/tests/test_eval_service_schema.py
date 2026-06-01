@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from training.paradigms.az.config import smoke_config
+from training.tests._az_fixtures import az_smoke_cfg
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
@@ -45,7 +45,7 @@ def test_env(tmp_path):
     """Set up a minimal test environment with a saved checkpoint."""
     from training.paradigms.az.network import Agent
 
-    cfg = smoke_config(data_dir=DATA_DIR)
+    cfg = az_smoke_cfg(data_dir=DATA_DIR)
     agent = Agent(cfg.agent)
     ckpt_path = tmp_path / 'ckpt_test.pt'
     agent.save(str(ckpt_path))

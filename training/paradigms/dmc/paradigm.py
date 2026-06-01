@@ -14,7 +14,7 @@ from typing import Any
 
 import torch
 
-from training.core.protocols import PipelineState, StepPlan
+from training.core.protocols import PipelineState, StepPlan, async_sync_weights_due
 from training.paradigms.dmc._opponent import OpponentPool, OpponentPoolConfig
 from training.core.network import AgentConfig
 from training.paradigms.dmc.buffer import DMCBuffer
@@ -259,4 +259,5 @@ class DMCParadigm:
             batch_size=pcfg.batch_size,
             eval=True,
             advance_step=1,
+            sync_weights=async_sync_weights_due(cfg, state, pcfg.sync_weights_every_train_steps),
         )

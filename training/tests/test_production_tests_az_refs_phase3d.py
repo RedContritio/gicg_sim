@@ -20,9 +20,9 @@ explicit ``PRODUCTION_TESTS`` allowlist.
 
 Coverage:
     * AST scan — verify zero ``training.paradigms.az.legacy`` imports
-      in the 11 Phase 3d production test files (string literals
-      containing the word "legacy" are deliberately ignored — this
-      guard targets imports only).
+      in the Phase 3d production test files listed in PRODUCTION_TESTS
+      below (string literals containing the word "legacy" are
+      deliberately ignored — this guard targets imports only).
     * Counter-test — Phase 2 path tests still reference legacy as
       negative assertions (catches accidental scope creep that would
       erase the mv proof).
@@ -36,18 +36,18 @@ import pathlib
 import pytest
 
 # Production tests covered by T3d — switched from legacy.* → adapter.
+# (I31 方向 C git-removed test_parallel_inference.py + test_parallel_pool_deadlock.py
+# + test_train_az.py from this allowlist along with their now-dead source files —
+# the ParallelInferencePool + train_az legacy mp stack was retired.)
 PRODUCTION_TESTS = (
     'training/tests/test_mcts.py',
     'training/tests/test_mcts_go.py',
     'training/tests/test_network_az_agent.py',
     'training/tests/test_network_az_losses.py',
     'training/tests/test_network_az_trunk.py',
-    'training/tests/test_parallel_inference.py',
-    'training/tests/test_parallel_pool_deadlock.py',
     'training/tests/test_scenario_sampling.py',
     'training/tests/test_selfplay.py',
     'training/tests/test_train.py',
-    'training/tests/test_train_az.py',
 )
 
 

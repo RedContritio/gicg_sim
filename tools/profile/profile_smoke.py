@@ -1,60 +1,67 @@
-"""Short smoke to capture MCTSProfile data under C1v4-like training.
+"""Short serial AZ self-play profile via the unified pipeline.
 
-Purpose: empirically measure rollout / eval / ctypes time share in the
-training scenario (IS-MCTS + virtual-loss + lambda-mix), which the
-tools/mcts_player.py probe cannot reproduce.
-
-Writes metrics.jsonl with per-game mcts_profile fields.
+Drives a serial AZ run (``configs/az/smoke.toml`` — already
+``mode=serial`` / ``num_actors=1``) through ``run_pipeline`` so the
+operator can capture MCTSProfile timing data (rollout / eval / ctypes
+share) under realistic IS-MCTS self-play. Self-play correctness +
+profile fields come from the same collector production uses; this just
+drives a short run + reports wall. eval_server=None disables the
+periodic gauntlet path (the legacy champion arena is gone post 方向 C).
 
 Run from repo root::
 
-    nohup .venv/bin/python -m tools.profile_smoke \\
-        > /tmp/profile_smoke.log 2>&1 &
+    .venv/bin/python -m tools.profile.profile_smoke
 """
 
 from __future__ import annotations
 
 import sys
+import tempfile
 import time
+from pathlib import Path
 
-from training.paradigms.az.config import fixed_1v1_config
-from training.paradigms.az.train_az import train_az
+from training.core.config.loader import load_cfg
+from training.core.env_factory import make_env_factory
+from training.core.pipeline import run_pipeline
+from training.paradigms import resolve as resolve_paradigm
 
 
 def main() -> int:
     t0 = time.perf_counter()
-    cfg = fixed_1v1_config(data_dir='data')
-    # minimize core contention with the running C1v4 training
-    cfg.n_workers = 1
-    cfg.mcts.parallel_rollouts = 1
-    # small sample; ~30 searches/game × 50 = ~1500 profile records
-    cfg.n_games = 50
-    # disable evaluation paths — we only want selfplay profile data
-    cfg.games_per_arena = 0
-    cfg.games_per_gauntlet = 0
-    cfg.checkpoint_every_n_games = 0
-    # C1v4 runs at g971 with lambda≈0.51 — match that for realistic
-    # eval/rollout mix; skip annealing so the whole smoke uses one
-    # lambda setting.
-    cfg.mcts.lambda_anneal_games = 0
-    cfg.mcts.value_mix_lambda = 0.5
-    cfg.mcts.prior_mix_lambda = 0.5
-    cfg.run_label = 'profile_smoke'
+    # smoke.toml ships serial / num_actors=1; bump games + rollouts for a
+    # meatier profile sample, enable mcts profile capture, and pin a fixed
+    # lambda mix (skip annealing) so the whole smoke uses one setting.
+    cfg = load_cfg(
+        'configs/az/smoke.toml',
+        overrides=[
+            'paradigm.az.total_games=50',
+            'paradigm.az.mcts.n_rollouts=200',
+            'paradigm.az.mcts.profile=true',
+            'paradigm.az.mcts.lambda_anneal_games=0',
+            'paradigm.az.mcts.value_mix_lambda=0.5',
+            'paradigm.az.mcts.prior_mix_lambda=0.5',
+        ],
+    )
+    paradigm = resolve_paradigm(cfg.meta.paradigm)
+    env_factory = make_env_factory(cfg, None, master_seed=cfg.meta.seed)
 
     print(
-        f'=== profile_smoke === n_workers={cfg.n_workers} '
-        f'par={cfg.mcts.parallel_rollouts} n_games={cfg.n_games} '
-        f'rollouts={cfg.mcts.n_rollouts} '
-        f'lambda={cfg.mcts.value_mix_lambda}',
+        f'=== profile_smoke === mode={cfg.pipeline.mode} '
+        f'num_actors={cfg.pipeline.num_actors} (total_games=50, rollouts=200)',
         flush=True,
     )
 
-    result = train_az(cfg)
+    with tempfile.TemporaryDirectory(prefix='az_profile_smoke_') as td:
+        state = run_pipeline(
+            cfg,
+            paradigm,
+            env_factory=env_factory,
+            eval_server=None,
+            prebuilt_artifacts_dir=Path(td),
+        )
+
     elapsed = time.perf_counter() - t0
-    print(
-        f'=== DONE === elapsed={elapsed:.1f}s games={result.n_games_played} artifacts_dir={result.artifacts_dir}',
-        flush=True,
-    )
+    print(f'=== DONE === elapsed={elapsed:.1f}s step={state.step}', flush=True)
     return 0
 
 

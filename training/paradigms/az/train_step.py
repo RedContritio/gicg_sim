@@ -1,11 +1,5 @@
 """AZ training step — one (agent, batch, config) call does forward +
 loss + backward + optimizer step.
-
-Phase 2-ζ (FU-W4-AZ-rewrite, T2.ζ) — inlined from
-``training.paradigms.az.legacy.train_step`` so the adapter
-``train_loop`` (mv'd here at T2.ζ) no longer touches ``legacy.*``.
-``legacy/train_step.py`` stays alive (Phase 5 git rm); ``test_train`` +
-the legacy buffer ingest path still reference it directly.
 """
 
 from __future__ import annotations

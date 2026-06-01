@@ -32,7 +32,7 @@ import torch
 
 from training.core.buffer.rollout import RolloutBuffer
 from training.core.network import AgentConfig
-from training.core.protocols import PipelineState, StepPlan
+from training.core.protocols import PipelineState, StepPlan, async_sync_weights_due
 from training.paradigms.ppo.collector import PPOAsyncCollector, PPORolloutCollector
 from training.paradigms.ppo.config import PPOParadigmConfig
 from training.paradigms.ppo.loss import PPOLoss
@@ -149,4 +149,5 @@ class PPOParadigm:
             eval=True,
             advance_step=1,
             clear_buffer_after_train=True,  # P4.1 on-policy buffer clear epilogue
+            sync_weights=async_sync_weights_due(cfg, state, pcfg.sync_weights_every_train_steps),
         )

@@ -81,6 +81,7 @@ class CFRParadigmConfig(ParadigmConfigBase):
     # Scheduling (iter-based per C5.1 — n_traversals per iter)
     n_iterations: int = 100
     traversals_per_iteration: int = 64
+    sync_weights_every_train_steps: int = 0  # async weight republish cadence (0/1 = each train iter)
 
     # Tier (C6.1 — frozen-research; runtime guard in paradigm.make_network).
     tier: str = 'frozen-research'

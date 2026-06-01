@@ -21,6 +21,7 @@ from training.core.actor._mp_helpers import (
     get_ctx,
     harden_child_env,
     install_quiet_sigterm,
+    setup_actor_file_logging,
 )
 from training.core.actor.episode_runner import EpisodeRunner
 from training.core.config.inheritance import derive_seed
@@ -79,6 +80,8 @@ def actor_main(
     spec_sampler_path: Optional[str] = None,
     inference_client: Any = None,
     provider_kwargs: Optional[dict] = None,
+    episode_runner_factory: Optional[Callable[[Any, Any], Any]] = None,
+    episode_runner_factory_path: Optional[str] = None,
     stop_event: Any = None,
     push_episode_record: bool = False,
 ) -> None:
@@ -88,18 +91,22 @@ def actor_main(
     directly; cross-process spawn pass ``*_path`` dotted strings (resolved
     inside the child after env hardening).
 
-    Parent-handoff escape hatches per AB13 (``openspec/specs/
-    training-architecture/actor-backend.md`` § 3.6) — mutually exclusive:
+    Two INDEPENDENT (orthogonal) plugin axes — set one, both, or neither (full
+    contract: ``openspec/specs/training-architecture/actor-backend.md``):
 
-    - ``inference_client`` (DMC pattern): parent-constructed handle →
-      ``build_provider(cfg, actor_id, inference_client=client)``.
-    - ``provider_kwargs`` (PPO pattern): generic spawn-safe dict →
-      ``build_provider(cfg, actor_id, **provider_kwargs)``. Values SHALL
-      picklable by mp.Process spawn ctx (e.g. ``WeightsSHM.serialize_for_worker``
-      returned dict, tempfile path str). actor_main does not validate inner
-      schema — paradigm build_provider owns value validation.
-    - Both non-None → ValueError (early fail on dispatch ambiguity).
-    - Both None → legacy ``build_provider(cfg, actor_id)`` (AZ pattern).
+    - Axis 1, provider-handoff (AB13 § 3.6): ``inference_client`` (DMC) and
+      ``provider_kwargs`` (PPO) feed ``build_provider``; mutually exclusive
+      *with each other* (both non-None → ValueError; both None → legacy
+      ``(cfg, actor_id)``, AZ). ``provider_kwargs`` values SHALL be mp-spawn
+      picklable (inner schema not validated here).
+    - Axis 2, lifecycle-runner factory (AB14 § 3.7): ``episode_runner_factory``
+      = ``Callable[[env_factory, opp_registry], Runner]`` (+ dotted dual
+      ``episode_runner_factory_path``); default None → :class:`EpisodeRunner`
+      (episode lifecycle, DMC/PPO/AZ + BC eval). Runner contract: that ctor +
+      ``run(spec, policy, provider) → output`` (picklable, pushed to
+      ``transition_queue`` / its ``.transitions`` per ``push_episode_record``);
+      SHALL NOT touch actor_main state. NOT in the Axis-1 mutex — composes
+      freely (CFR sets both for its traversal lifecycle, which ≠ episode).
 
     ``push_episode_record`` (default False): when False, pushes
     ``record.transitions`` (list[Transition]); when True, pushes the
@@ -117,32 +124,8 @@ def actor_main(
     _perf_trace.enable_from_cfg(cfg)
     _perf_trace.configure(role='actor', id=actor_id)
 
-    # Per-actor file logging: mp child stdout/stderr unreliable (pytest captures,
-    # ssh strips, sandboxes suppress). Tee to cfg.runtime.actor_log_dir / actor_<id>.log
-    # so post-crash debugging works. RuntimeCfg 缺失 → 'artifacts/_actor_logs' default.
-    import os as _os
-    import sys as _sys
-    from pathlib import Path as _Path
-
-    runtime = getattr(cfg, 'runtime', None)
-    log_dir_str = getattr(runtime, 'actor_log_dir', None) or 'artifacts/_actor_logs'
-    log_dir = _Path(log_dir_str)
-    try:
-        log_dir.mkdir(parents=True, exist_ok=True)
-        log_path = log_dir / f'actor_{actor_id}.log'
-        # line-buffered so each print() is visible immediately even on crash
-        _log_f = open(log_path, 'w', buffering=1, encoding='utf-8')
-        _sys.stdout = _log_f
-        _sys.stderr = _log_f
-        print(
-            f'[actor {actor_id}] log start pid={_os.getpid()} cfg.paradigm={getattr(cfg.meta, "paradigm", "?")}',
-            flush=True,
-        )
-    except Exception as exc:  # noqa: BLE001
-        # If logging setup fails, fall back to original stdout — at least
-        # the actor still runs. The setup-time exception goes to the
-        # original stderr so the parent process can see SOMETHING.
-        print(f'[actor {actor_id}] log setup failed: {type(exc).__name__}: {exc}', file=_sys.__stderr__)
+    # Per-actor file logging — see _mp_helpers.setup_actor_file_logging.
+    setup_actor_file_logging(actor_id, cfg)
 
     if build_env_factory is None and build_env_factory_path is not None:
         build_env_factory = resolve_builder(build_env_factory_path)
@@ -154,6 +137,8 @@ def actor_main(
         build_provider = resolve_builder(build_provider_path)
     if spec_sampler is None and spec_sampler_path is not None:
         spec_sampler = resolve_builder(spec_sampler_path)
+    if episode_runner_factory is None and episode_runner_factory_path is not None:
+        episode_runner_factory = resolve_builder(episode_runner_factory_path)
 
     for name, fn in [
         ('build_env_factory', build_env_factory),
@@ -170,13 +155,14 @@ def actor_main(
     seed = derive_seed(cfg.meta.seed, 'actor', actor_id)
     env_factory = build_env_factory(cfg, seed)
     opp_registry = build_opp_registry(cfg)
-    runner = EpisodeRunner(env_factory, opp_registry)
+    # AB14: lifecycle-runner factory (orthogonal to AB13). None → EpisodeRunner.
+    if episode_runner_factory is not None:
+        runner = episode_runner_factory(env_factory, opp_registry)
+    else:
+        runner = EpisodeRunner(env_factory, opp_registry)
     policy = build_policy(cfg, actor_id)
-    # AB13 (actor-backend.md § 3.6): inference_client + provider_kwargs are
-    # mutually exclusive parent-handoff escape hatches. Both non-None →
-    # raise so paradigm dispatch bug fails early instead of silently
-    # picking one. Both None → legacy (cfg, actor_id) build_provider
-    # signature (AZ current pattern).
+    # AB13: inference_client + provider_kwargs are mutually exclusive (see
+    # docstring Axis 1). Both non-None → raise so dispatch bugs fail early.
     if inference_client is not None and provider_kwargs is not None:
         raise ValueError(
             f'actor_main[actor_id={actor_id}]: inference_client + provider_kwargs '

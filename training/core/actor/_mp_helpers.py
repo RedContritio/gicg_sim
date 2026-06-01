@@ -10,7 +10,9 @@ from __future__ import annotations
 import multiprocessing as mp
 import os
 import signal
+import sys
 import uuid
+from pathlib import Path
 from typing import Optional
 
 _CTX: Optional[mp.context.BaseContext] = None
@@ -81,6 +83,33 @@ def install_quiet_sigterm(stop_event) -> None:
         except (ValueError, OSError):
             # Background threads can't install signal handlers — ignore.
             pass
+
+
+def setup_actor_file_logging(actor_id: int, cfg) -> None:
+    """Tee this worker's stdout/stderr to ``<actor_log_dir>/actor_<id>.log``.
+
+    mp child stdout/stderr is unreliable (pytest captures it, ssh strips it,
+    sandboxes suppress it), so debugging mp crashes / silent hangs needs a
+    file. Log dir from ``cfg.runtime.actor_log_dir`` (RuntimeCfg 缺失 →
+    'artifacts/_actor_logs' default). On setup failure, falls back to the
+    original stdout so the actor still runs — the setup exception goes to the
+    original stderr so the parent process can see SOMETHING."""
+    runtime = getattr(cfg, 'runtime', None)
+    log_dir_str = getattr(runtime, 'actor_log_dir', None) or 'artifacts/_actor_logs'
+    log_dir = Path(log_dir_str)
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / f'actor_{actor_id}.log'
+        # line-buffered so each print() is visible immediately even on crash
+        log_f = open(log_path, 'w', buffering=1, encoding='utf-8')
+        sys.stdout = log_f
+        sys.stderr = log_f
+        print(
+            f'[actor {actor_id}] log start pid={os.getpid()} cfg.paradigm={getattr(cfg.meta, "paradigm", "?")}',
+            flush=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f'[actor {actor_id}] log setup failed: {type(exc).__name__}: {exc}', file=sys.__stderr__)
 
 
 def unique_name(prefix: str, total_max: int = 30) -> str:

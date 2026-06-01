@@ -21,7 +21,7 @@ import sys
 import time
 from pathlib import Path
 
-from training.paradigms.az.config import fixed_1v1_config
+from tools.debug._diag_az_cfg import diag_cfg
 from training.core.matchup.matchup import run_matchup
 
 
@@ -48,7 +48,7 @@ def main() -> int:
         print(f'no champion_g*.pt found under {args.run_dir}/ckpts/', file=sys.stderr)
         return 1
 
-    cfg = fixed_1v1_config(data_dir='data')
+    cfg = diag_cfg(data_dir='data')
 
     print(
         f'Diag: {len(ckpts)} champions, {args.n * 2} games each vs random + mcts_pure at {args.rollouts}',

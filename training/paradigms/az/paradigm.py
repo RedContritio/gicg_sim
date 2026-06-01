@@ -1,9 +1,9 @@
 """AZParadigm — implements training.core.protocols.Paradigm for AlphaZero.
 
-Bridges the unified pipeline driver to legacy AZ components. Seven
-make_* factories + step_schedule cadence. Serial mode in P4 (true async
-multi-worker via ParallelInferencePool deferred to P4.5+ — see
-collector.AZAsyncCollector docstring).
+Seven make_* factories + step_schedule cadence. Drives the unified
+pipeline collectors: serial ``AZSelfPlayCollector`` or async
+``AZAsyncCollector`` (N actors + shared InferenceServer) per
+``cfg.pipeline.mode`` — see collector.AZAsyncCollector docstring.
 
 Spec ref: paradigm-az/spec.md A1-A6 + training-architecture/spec.md
 SHALL #2 (Paradigm protocol).
@@ -15,7 +15,7 @@ from typing import Any
 
 import torch
 
-from training.core.protocols import PipelineState, StepPlan
+from training.core.protocols import PipelineState, StepPlan, async_sync_weights_due
 from training.core.network import AgentConfig
 from training.paradigms.az.buffer import AZBuffer
 from training.paradigms.az.collector import AZAsyncCollector, AZSelfPlayCollector
@@ -67,9 +67,7 @@ class AZParadigm:
         """Load BC warm-start ckpt into the network's ActorCritic.
 
         Accepts either ``{'cfg': dict, 'net': state_dict}`` (Agent.save
-        format) or a plain state_dict (legacy). Matches the
-        ``training.paradigms.az.legacy.train_loop.async_loop.run_async`` init_from_ckpt
-        path 1:1."""
+        format) or a plain state_dict (legacy ckpt blob)."""
         blob = torch.load(ckpt_path, map_location='cpu', weights_only=True)
         state = blob['net'] if isinstance(blob, dict) and 'net' in blob else blob
         network.load_net_only(state)
@@ -196,4 +194,5 @@ class AZParadigm:
             batch_size=pcfg.batch_size,
             eval=True,
             advance_step=1,
+            sync_weights=async_sync_weights_due(cfg, state, pcfg.sync_weights_every_train_steps),
         )

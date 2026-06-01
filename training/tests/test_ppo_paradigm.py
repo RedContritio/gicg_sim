@@ -456,6 +456,9 @@ def test_ppo_paradigm_step_schedule_steady_then_stop():
             seed = 0
             device = 'cpu'
 
+        class pipeline:
+            mode = 'serial'
+
     state = PipelineState.fresh(seed=0)
     # iter 0: steady (collect + train).
     plan = p.step_schedule(state, _StubCfg())

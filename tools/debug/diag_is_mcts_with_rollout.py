@@ -21,7 +21,7 @@ import numpy as np
 
 from gicg_env import GicgEnv
 from gicg_env.env import _terminal_z
-from training.paradigms.az.config import fixed_1v1_config
+from tools.debug._diag_az_cfg import diag_cfg
 from training.paradigms.az.determinize import (
     SharedFixedPool,
     sample_hidden_state,
@@ -211,7 +211,7 @@ def play_series(search_fn, opp, env_factory, n_games, spec, mcts_cfg):
 
 
 def main():
-    cfg = fixed_1v1_config(data_dir='data')
+    cfg = diag_cfg(data_dir='data')
     pool_refs = resolve_pool_refs(cfg.scenario)
     spec = SharedFixedPool(pool_refs)
 

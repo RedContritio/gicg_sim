@@ -1,44 +1,62 @@
-"""Profile the main process of the parallel self-play path.
+"""Profile the unified-pipeline AZ async self-play main process.
 
-Runs a short c1-scale train_az loop with n_workers=4 under cProfile,
-then prints the top functions by cumulative + self time. Goal: see
-where the main process actually spends wall time so we can decide
-whether to invest in inference-server refactor (B) or shared-memory
-trajectory transport (D) or both.
+Runs a short async AZ run (``num_actors=4``, ``configs/az/smoke.toml``
++ in-memory overrides) through ``run_pipeline`` under cProfile, then
+prints the top functions by cumulative + self time. Goal: see where the
+learner (main) process spends wall time with N actor subprocesses + a
+shared InferenceServer — input for whether to invest in further
+inference-server / trajectory-transport work.
 
 Usage (from repo root):
-    .venv/bin/python -m tools.profile_parallel
+    .venv/bin/python -m tools.profile.profile_parallel
 """
 
 from __future__ import annotations
 
 import cProfile
 import pstats
+import tempfile
 import time
 from pathlib import Path
 
-from training.paradigms.az.config import smoke_config
-from training.paradigms.az.train_az import train_az
+from training.core.config.loader import load_cfg
+from training.core.env_factory import make_env_factory
+from training.core.pipeline import run_pipeline
+from training.paradigms import resolve as resolve_paradigm
 
 
 def build_cfg():
-    cfg = smoke_config(data_dir='data')
-    cfg.agent.d_model = 64
-    cfg.agent.n_cross_layers = 2
-    cfg.mcts.n_rollouts = 400
-    cfg.n_games = 4
-    cfg.n_workers = 4
-    cfg.sync_interval_games = 2
-    cfg.write_artifacts = False
-    return cfg
+    """c1-scale async cfg: 4 actors, d_model=64, 400 rollouts, 4 games."""
+    return load_cfg(
+        'configs/az/smoke.toml',
+        overrides=[
+            'pipeline.mode=async',
+            'pipeline.num_actors=4',
+            'paradigm.az.agent.d_model=64',
+            'paradigm.az.agent.n_cross_layers=2',
+            'paradigm.az.mcts.n_rollouts=400',
+            'paradigm.az.total_games=4',
+            'paradigm.az.sync_weights_every_train_steps=2',
+        ],
+    )
 
 
 def main():
     cfg = build_cfg()
+    paradigm = resolve_paradigm(cfg.meta.paradigm)
+    env_factory = make_env_factory(cfg, None, master_seed=cfg.meta.seed)
+
     prof = cProfile.Profile()
     t0 = time.perf_counter()
     prof.enable()
-    train_az(cfg)
+    with tempfile.TemporaryDirectory(prefix='az_profile_parallel_') as td:
+        run_pipeline(
+            cfg,
+            paradigm,
+            env_factory=env_factory,
+            eval_server=None,
+            prebuilt_artifacts_dir=Path(td),
+        )
     prof.disable()
     wall = time.perf_counter() - t0
 
@@ -46,10 +64,10 @@ def main():
     out_path.parent.mkdir(parents=True, exist_ok=True)
     prof.dump_stats(str(out_path))
 
-    print(f'\n=== wall: {wall:.1f}s ({wall / cfg.n_games:.2f}s/game, n_workers={cfg.n_workers}) ===\n')
+    print(f'\n=== wall: {wall:.1f}s (num_actors={cfg.pipeline.num_actors}, mode={cfg.pipeline.mode}) ===\n')
     st = pstats.Stats(prof).strip_dirs()
 
-    print('--- top 20 by cumulative time (excl. main-loop wait) ---')
+    print('--- top 25 by cumulative time (excl. main-loop wait) ---')
     st.sort_stats('cumulative').print_stats(25)
 
     print('--- top 20 by total (self) time ---')

@@ -98,6 +98,19 @@ class CollectorBuffer:
         return out
 
 
+def pick_traverser_player(mode: str, seq: int, rng) -> int:
+    """Choose which player traverses for traversal ``seq``, per the cfg field
+    ``traversal.traverser_alternation``. Single source of truth shared by the
+    serial ``CFRTraversalCollector._pick_traverser`` and the async
+    ``mp_factories.cfr_spec_sampler`` so both honor the same contract (an
+    unknown mode raises rather than silently degrading to alternate)."""
+    if mode == 'alternate':
+        return seq % 2
+    if mode == 'random':
+        return rng.randint(0, 1)
+    raise ValueError(f'pick_traverser_player: unknown traverser_alternation {mode!r}')
+
+
 def drain_single_traversal(
     advantage_collectors,
     strategy_collector: CollectorBuffer,

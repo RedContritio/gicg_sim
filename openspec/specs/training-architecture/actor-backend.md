@@ -50,7 +50,7 @@ memory backing:
 - Cross-platform shm impl (POSIX / Win) — code-level `gicg_actor/shm/`,不需 spec
 - Production no-cap bench / Win box re-verify — follow-up tickets,不在 R7 acceptance gate 范围
 
-## 3. SHALL invariants (AB1-AB12)
+## 3. SHALL invariants (AB1-AB14)
 
 ### 3.1 Dispatch matrix
 
@@ -97,6 +97,29 @@ memory backing:
 
 不允许 Step 2 / Step 4 早于 Step 1 — Go subprocess in-flight inference 仍可能向 InfServer 发请求,InfServer 早死 → Go socket EOF panic。
 
+### 3.6 actor_main parent-handoff escape hatches
+
+**AB13**: `training.core.actor.actor_process.actor_main` 在 mp spawn 路径下 SHALL 通过两个互斥 escape hatch 之一接收 parent-constructed spawn-safe object,让 paradigm `build_provider` 拿到 mp.Queue / SHM info / pickled handle 等 child 端无法 reconstruct 的资源:
+
+- **`inference_client: Any`** — single-object handoff (DMC pattern,parent-constructed `InferenceClient` handle attached to shared `InferenceServer`)。 actor_main SHALL 调用 `build_provider(cfg, actor_id, inference_client=inference_client)`。
+- **`provider_kwargs: dict | None`** — generic-kwargs bundle handoff (PPO pattern,dict 内可含 `WeightsSHM.serialize_for_worker(...)` 返 dict + tempfile path str + 任意 picklable param)。 actor_main SHALL 调用 `build_provider(cfg, actor_id, **provider_kwargs)`。
+
+**互斥约束**:`inference_client` + `provider_kwargs` 两者都 non-None SHALL raise `ValueError` (二义性 — paradigm 不应同时挑两个 escape hatch)。 两者都 None → build_provider 走 legacy `(cfg, actor_id)` 签名 (parent 不需 handoff)。
+
+**spawn-safe 约束**:`provider_kwargs` dict 内所有 value SHALL picklable by `mp.Process` spawn ctx (pickle protocol 4+;`_SHMSlot` / `WeightsSHM.serialize_for_worker` dict / `mp.Queue` / `mp.Event` / `mp.Lock` / Path str 等)。 禁止 torch `nn.Module` / open file handle / socket / cgo handles。 actor_main 不 validate 内部 schema (下沉到 paradigm 端 build_provider)。
+
+### 3.7 actor_main lifecycle-runner factory escape hatch
+
+**AB14**: `actor_main` SHALL 接受一个可选的 paradigm-agnostic lifecycle-runner factory,让不同 paradigm 注入与自身 episode / traversal lifecycle 匹配的 runner,而不污染 `EpisodeRunner` 的 episode 语义:
+
+- **`episode_runner_factory: Callable[[env_factory, opp_registry], Runner] | None`** — single-callable handoff (in-proc 路径)。 actor_main SHALL 调用 `episode_runner_factory(env_factory, opp_registry)` 得到 runner。
+- **`episode_runner_factory_path: str | None`** — dotted-path 对偶 (cross-process spawn 路径)。 actor_main SHALL 用 `resolve_builder(...)` resolve 出 callable,语义与上等价。
+- **缺省 (两者皆 None)** → actor_main SHALL 构造默认 `EpisodeRunner(env_factory, opp_registry)` (episode lifecycle,DMC/PPO/AZ/BC pattern)。
+
+**Runner 契约** SHALL:constructor `(env_factory, opp_registry) → Runner`;method `run(spec, policy, provider) → output`;`output` SHALL picklable,actor_main 把它推到 `transition_queue` (或其 `.transitions` attr,per `push_episode_record` flag)。 runner SHALL NOT 直接触碰 actor_main 内部状态 (`stop_event` / `transition_queue` raw access);stop 信号 / queue push 由 actor_main loop 拥有。
+
+**正交约束** (NOT mutual exclusion):`episode_runner_factory` 与 AB13 的 `inference_client` / `provider_kwargs` 是独立的两条轴,SHALL NOT 进 AB13 的互斥 ValueError 检查。 三个 escape hatch 自由组合 (e.g. CFR 同时设 `provider_kwargs` WeightsSHM handoff **AND** `episode_runner_factory` `CFRTraversalRunner`,两者 compose)。
+
 ## 4. Code references
 
 **Implementation entry points** (post-R7 ship):
@@ -110,11 +133,15 @@ memory backing:
 - `gicg_actor/pool.go:Run` — paradigm.Run wrapper
 - `training/core/actor/inference_server.py:_socket_listener` — socket accept thread (AB7)
 - `training/core/actor/transition_shm_channel.py` — MPSC SHM ring wrapper (AB8)
+- `training/core/actor/actor_process.py:actor_main` — `inference_client` / `provider_kwargs` 互斥 dispatch (AB13) + `episode_runner_factory` / `_path` dispatch (AB14)
+- `training/paradigms/ppo/mp_factories.py:build_provider` — `provider_kwargs` escape hatch 实现 (AB13)
+- `training/paradigms/cfr/mp_factories.py:build_cfr_traversal_runner` + `CFRTraversalRunner` — AB14 traversal-lifecycle runner
 
 **Test references**:
 - `training/paradigms/dmc/tests/test_go_subprocess_5ep_e2e.py` — 5 ep e2e (AB4 / AB5 verified via ps grep)
 - `training/core/actor/tests/test_go_subprocess_spawn.py` — spawn/READY/terminate cycle
 - `training/core/actor/tests/test_go_subprocess_perf_smoke.py` — smoke_full perf gate (Mac N=4 fps/actor ≥ ratio threshold)
+- `training/core/actor/tests/test_actor_main_runner_factory.py` — AB14 dispatch 契约 (factory over default / path resolve / 与 AB13 正交不 raise)
 - `tools/_bench/run_mac_collector_pair.py` — Mac fair bench harness (per [[i29-bench-harness]])
 
 **Cfg references**:
@@ -123,6 +150,8 @@ memory backing:
 ## 5. Status
 
 Created 2026-05-25 (post R7 ship,commit `a4da6d1`)。
+
+Revised 2026-06-01:加 AB13 (provider-handoff escape hatch,`ppo-mp-pool-unification`) + AB14 (lifecycle-runner factory,`cfr-mp-pool-unification`) — Python-backend mp actor pool 跨 paradigm 统一,与 AB1-AB12 (Go-backend topology) 正交。
 
 Revision triggers:
 - 新 paradigm 接 `actor_backend='go'` (AZ/PPO/CFR/BC port,Phase 2 follow-up) — AB3 status table update

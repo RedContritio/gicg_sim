@@ -161,18 +161,6 @@ def test_disjoint_teams_works_for_team_size_1():
         assert t0[0] != t1[0], f'disjoint violated: {t0} vs {t1}'
 
 
-def test_random_1v1_config_uses_5_chars():
-    from training.paradigms.az.config import random_1v1_config
-
-    cfg = random_1v1_config()
-    assert cfg.scenario.char_pool is not None
-    assert len(cfg.scenario.char_pool) == 5
-    assert cfg.scenario.team_size == 1
-    # eval matchup is fixed and non-mirror
-    assert cfg.scenario.team_0 != cfg.scenario.team_1
-    assert cfg.run_label == 'random_1v1'
-
-
 def test_curriculum_env_knobs_default():
     """max_rounds + fix_dice + obs_mask default to legacy values
     (unbounded / random roll / fully observable). Stage 0 / 1 / 2 spec
@@ -187,27 +175,28 @@ def test_curriculum_env_knobs_forwarded_to_env():
     """ScenarioConfig.{max_rounds,fix_dice,obs_mask} must reach GicgEnv
     via env_factory — Stage 0/1/2 spec relies on this."""
     import os
+    from types import SimpleNamespace
 
-    from training.paradigms.az.config import AZConfig
     from training.core.env_factory import make_env_factory
     from training.core.scenario import ObsConfig
 
     data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
-    cfg = AZConfig(
-        scenario=ScenarioConfig(
-            team_0=['赤蝶'],
-            team_1=['赤蝶'],
-            card_pool=[],
-            data_dir=data_dir,
-            max_rounds=3,
-            fix_dice=[2, 2, 2, 2, 0, 0, 0, 0],
-            obs_mask=['enemy_dice'],
-        ),
-        agent=None,
-        obs=ObsConfig(),
-        seed=0,
+    scenario = ScenarioConfig(
+        team_0=['赤蝶'],
+        team_1=['赤蝶'],
+        card_pool=[],
+        data_dir=data_dir,
+        max_rounds=3,
+        fix_dice=[2, 2, 2, 2, 0, 0, 0, 0],
+        obs_mask=['enemy_dice'],
     )
-    factory = make_env_factory(cfg, cfg.obs.to_engine_json(), master_seed=cfg.seed)
+    # make_env_factory reads only cfg.scenario (paradigm-agnostic) — a
+    # SimpleNamespace stub suffices now that AZConfig is gone.
+    factory = make_env_factory(
+        SimpleNamespace(scenario=scenario),
+        ObsConfig().to_engine_json(),
+        master_seed=0,
+    )
     env = factory(0)
     try:
         assert env._max_rounds == 3

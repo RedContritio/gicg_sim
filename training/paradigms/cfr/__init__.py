@@ -8,12 +8,14 @@ change unfreezing (paradigm-cfr/spec.md C6.3).
 
 Adapter exists for r008 reproducibility (C6.2 — SUPERSEDED by
 core-network-generic-promotion, ckpt schema obsolete; training path still
-runnable from scratch). Original entry points (CFRTrainer in train.py,
-parallel_trainer worker path) remain functional.
+runnable from scratch). The serial CFRTrainer entry point (train.py) remains
+functional; the async mp path is now ``CFRAsyncCollector`` driven through the
+unified pipeline (I31 #88 CFR mp-pool unification).
 """
 
 # Top-level Paradigm protocol
-from training.paradigms.cfr.collector import CFRAsyncCollector, CFRTraversalCollector
+from training.paradigms.cfr._async import CFRAsyncCollector
+from training.paradigms.cfr.collector import CFRTraversalCollector
 from training.paradigms.cfr.paradigm import CFRParadigm
 
 # Re-exports — preserve previous `from training.paradigms.cfr import X` import

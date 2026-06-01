@@ -28,7 +28,7 @@ import torch
 from training.paradigms.cfr._collect_helpers import ingest_batches
 from training.paradigms.cfr.strategy_net import CFRNetConfig
 from training.paradigms.cfr.reservoir import AdvantageBuffer, StrategyBuffer, ValueBuffer
-from training.core.protocols import Batch, CollectorOutput, PipelineState, StepPlan
+from training.core.protocols import Batch, CollectorOutput, PipelineState, StepPlan, async_sync_weights_due
 from training.paradigms.cfr.collector import CFRTraversalCollector
 from training.paradigms.cfr.config import CFRParadigmConfig
 from training.paradigms.cfr.loss import CFRLoss
@@ -212,13 +212,29 @@ class CFRParadigm:
         env_factory: Any,
         network: Any,
         opp_pool: Any,
-    ) -> CFRTraversalCollector:
-        """Build serial traversal collector. ``opp_pool`` is unused — CFR
-        traversal is symmetric selfplay (C5.3), no historical opponent."""
+    ) -> Any:
+        """Build the traversal collector by ``cfg.pipeline.mode``. ``opp_pool``
+        is unused — CFR traversal is symmetric selfplay (C5.3), no historical
+        opponent.
+
+        - mode='serial' (default): in-process ``CFRTraversalCollector``
+          (requires a non-None ``env_factory``).
+        - mode='async': ``CFRAsyncCollector`` (I31 #88 — N actors via the
+          shared core/actor runtime; ``env_factory`` may be None since actors
+          rebuild env from ``cfg.scenario``).
+        """
         del opp_pool  # spec C5.3 — both players share the network
-        if env_factory is None:
-            raise ValueError('CFRParadigm.make_collector: env_factory required (None passed)')
         pcfg = self._resolve_pcfg(cfg)
+        pipeline = getattr(cfg, 'pipeline', None)
+        mode = getattr(pipeline, 'mode', 'serial') if pipeline is not None else 'serial'
+        if mode == 'async':
+            from training.paradigms.cfr._async import CFRAsyncCollector
+
+            return CFRAsyncCollector(cfg, pcfg, network, env_factory)
+        if mode != 'serial':
+            raise ValueError(f"CFRParadigm.make_collector: cfg.pipeline.mode must be 'serial' or 'async', got {mode!r}")
+        if env_factory is None:
+            raise ValueError('CFRParadigm.make_collector: env_factory required for serial mode (None passed)')
         return CFRTraversalCollector(cfg, pcfg, network, env_factory)
 
     def make_episode_policy(
@@ -261,4 +277,5 @@ class CFRParadigm:
             batch_size=pcfg.fit_batch_size,
             eval=True,
             advance_step=1,
+            sync_weights=async_sync_weights_due(cfg, state, pcfg.sync_weights_every_train_steps),
         )

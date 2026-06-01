@@ -24,7 +24,17 @@ from training.core.eval.periodic import PeriodicEvalScheduler
 from training.core.logging import MetricsLogger
 from training.core.nan_guard import NaNGuard
 from training.core.perf import trace
-from training.core.protocols import Paradigm, PipelineState
+from training.core.protocols import Paradigm, PipelineState, StepPlan
+
+
+def _maybe_sync_weights(plan: StepPlan, collector: Any, network: Any) -> None:
+    """Async weight-republish epilogue (``pipeline-async-weight-sync``)。
+
+    Paradigm 经 ``plan.sync_weights`` 声明:train 后把新权重推给 async actor
+    (经 ``collector.sync_weights``),让下一轮 collect 用新版本而非 version-0。
+    serial collector 不实现 ``sync_weights`` → hasattr-guard no-op。"""
+    if plan.sync_weights and hasattr(collector, 'sync_weights'):
+        collector.sync_weights(network)
 
 
 def run_pipeline(
@@ -151,6 +161,11 @@ def run_pipeline(
                         optimizer.step()
                     state.after_train(loss_result.breakdown)
                     logger.add_scalar('train/loss', float(loss_result.loss.item()), state.train_steps)
+
+            # Async paradigm weight republish per pipeline-async-weight-sync:
+            # train 后把新权重推给 async actor(下一轮 collect 用新版本而非
+            # version-0)。serial collector 无 sync_weights → hasattr-guard no-op。
+            _maybe_sync_weights(plan, collector, network)
 
             # On-policy paradigm(PPO)epilogue per protocols.md § 4 / paradigm-
             # ppo § P4.1:per-iter buffer.clear after train(before eval/ckpt

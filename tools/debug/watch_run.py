@@ -1,7 +1,7 @@
 """Live dashboard for a running or finished AZ run.
 
 Tails ``metrics.jsonl`` (a per-event JSONL file produced by
-``training.train_az``) and prints a compact status line every
+``tools.runs.train`` / the unified pipeline) and prints a compact status line every
 few seconds. Works on live runs (follows the file as it grows)
 or on completed runs (parses everything and exits on the final
 ``done`` event).
@@ -199,7 +199,7 @@ def main() -> None:
 
     if not args.metrics_path.exists():
         # Wait up to 10s for the file to appear — handy when you
-        # start watch_run before train_az has opened the file.
+        # start watch_run before tools.runs.train has opened the file.
         t0 = time.monotonic()
         while not args.metrics_path.exists():
             if time.monotonic() - t0 > 10.0:

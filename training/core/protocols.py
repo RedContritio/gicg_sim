@@ -95,7 +95,14 @@ class StepPlan:
     ``clear_buffer_after_train`` per ``ppo-buffer-clear-orchestration``
     (2026-05-17):on-policy paradigm 显式声明 per-iter `buffer.clear()`
     epilogue 意图;driver 在 train block 结束后(eval/ckpt 之前)honor。
-    Off-policy/dataset-driven paradigm 保留 default False(行为不变)。"""
+    Off-policy/dataset-driven paradigm 保留 default False(行为不变)。
+
+    ``sync_weights`` per ``pipeline-async-weight-sync``(2026-05-29):async
+    paradigm 显式声明 per-train weight republish epilogue 意图;driver 在 train
+    block 结束后(clear_buffer / eval / ckpt 之前)调
+    ``collector.sync_weights(network)``,让 async actor 下一轮 collect 拿新权重
+    (而非永用 version-0)。serial collector 无该 method → hasattr-guard no-op。
+    default False(serial / warm-up 分支行为不变)。"""
 
     collect: bool
     n_episodes: int  # 0 if not collect
@@ -105,6 +112,20 @@ class StepPlan:
     eval: bool  # let driver check scheduler due
     advance_step: int = 1
     clear_buffer_after_train: bool = False  # on-policy paradigm 显式声明(PPO P4.1)
+    sync_weights: bool = False  # async paradigm 显式声明 weight republish(pipeline-async-weight-sync)
+
+
+def async_sync_weights_due(cfg: Any, state: 'PipelineState', sync_every_train_steps: int) -> bool:
+    """driver 本 iter 是否该向 async actor republish 权重(`pipeline-async-weight-sync`)。
+
+    True 仅当 (1) async mode(serial collector 无 async actor → 恒 False)且
+    (2) ``state.train_steps`` 落在 cadence 边界
+    (``% max(1, sync_every_train_steps) == 0``;0/1 = 每 train iter)。
+    paradigm step_schedule steady-train 分支用它翻 ``StepPlan.sync_weights``
+    (warm-up / done 分支不 train,默认 False 不 sync)。"""
+    if getattr(cfg.pipeline, 'mode', 'serial') != 'async':
+        return False
+    return state.train_steps % max(1, sync_every_train_steps) == 0
 
 
 # ---------- PipelineState (driver-owned mutable state) ---------- #

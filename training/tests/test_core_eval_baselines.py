@@ -112,14 +112,10 @@ def test_register_historical_baseline_loads_az_ckpt(tmp_path):
 
     Builds an AZ agent in smoke_config, saves to tmp, registers, resolves
     — verifies the player object is callable (has select_action)."""
-    import os
-
-    from training.paradigms.az.config import smoke_config
+    from training.tests._az_fixtures import az_smoke_agent_config
     from training.paradigms.az.network import Agent
 
-    data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
-    cfg = smoke_config(data_dir=data_dir)
-    agent = Agent(cfg.agent)
+    agent = Agent(az_smoke_agent_config())
     ckpt_path = tmp_path / 'ckpt_historical.pt'
     agent.save(str(ckpt_path))
 

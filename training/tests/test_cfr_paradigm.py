@@ -23,7 +23,7 @@ from training.paradigms.cfr.config import (
 )
 from training.paradigms.cfr.loss import CFRLoss, cfr_advantage_mse, cfr_strategy_mse
 from training.paradigms.cfr.network import CFRNetwork
-from training.paradigms.cfr.collector import CFRAsyncCollector
+from training.paradigms.cfr._async import CFRAsyncCollector
 from training.paradigms.cfr.paradigm import CFRParadigm, _CFRBufferBundle
 from training.paradigms.cfr.policy import CFREpisodePolicy
 
@@ -245,9 +245,13 @@ class _MinimalCfg:
         seed: int = 0
         device: str = 'cpu'
 
+    class _Pipeline:
+        mode: str = 'serial'
+
     def __init__(self, paradigm: dict) -> None:
         self.meta = _MinimalCfg._Meta()
         self.paradigm = paradigm
+        self.pipeline = _MinimalCfg._Pipeline()
 
 
 def test_cfr_paradigm_name_and_protocol():
@@ -458,42 +462,12 @@ def test_cfr_collector_state_dict_roundtrip():
     assert collector._traversal_seq == 17
 
 
-# ---------- CFRAsyncCollector (architectural NotImplementedError) ---------- #
-
-
-def test_cfr_async_collector_raises_not_implemented():
-    """CFR async path is architecturally deferred (traversal vs episode-runner
-    mismatch with ActorRuntime). Construction MUST raise — no silent fallback.
-
-    See ``CFRAsyncCollector`` docstring for the three-option resolution path
-    that a future unfreeze (paradigm-cfr/spec.md C6.3) must choose between.
-    """
-    with pytest.raises(NotImplementedError, match='CFRAsyncCollector'):
-        CFRAsyncCollector()
-
-
-def test_cfr_async_collector_error_message_explains_mismatch():
-    """The NotImplementedError must cite the architectural reason (traversal
-    vs episode rollout) so callers don't mistake it for a TODO."""
-    with pytest.raises(NotImplementedError) as exc_info:
-        CFRAsyncCollector(cfg=None, paradigm_cfg=None, network=None, env_factory=None)
-    msg = str(exc_info.value)
-    assert 'traversal' in msg.lower()
-    assert 'episode' in msg.lower()
-    # Cite the legacy escape hatch so users have a concrete path forward.
-    assert 'parallel_trainer' in msg
+# ---------- CFRAsyncCollector (real async collector — class-level flag) ---------- #
 
 
 def test_cfr_async_collector_requires_network_in_collect():
     """Class-level flag matches the serial CFRTraversalCollector (C5.2 —
-    advantage net forward inside traversal)."""
+    advantage net forward inside traversal). The async collector is now the
+    real mp path (training.paradigms.cfr._async); spawn/drain behavior is
+    covered by test_cfr_async_collector.py + test_cfr_async_mp_e2e.py."""
     assert CFRAsyncCollector.requires_network_in_collect is True
-
-
-def test_cfr_async_collector_docstring_cites_architectural_mismatch():
-    """The class docstring is part of the contract — it tells the next
-    implementer why a trivial wrap of legacy/parallel_trainer is wrong."""
-    doc = CFRAsyncCollector.__doc__ or ''
-    assert 'ActorRuntime' in doc or 'core.actor' in doc
-    assert 'traversal' in doc.lower()
-    assert 'frozen-research' in doc.lower()

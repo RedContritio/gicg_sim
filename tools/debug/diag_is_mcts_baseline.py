@@ -22,7 +22,7 @@ import numpy as np
 import torch
 
 from gicg_env import GicgEnv
-from training.paradigms.az.config import fixed_1v1_config
+from tools.debug._diag_az_cfg import diag_cfg
 from training.paradigms.az.determinize import SharedFixedPool
 from training.paradigms.az.mcts import MCTSConfig, mcts_search
 from training.paradigms.az.network import Agent
@@ -86,7 +86,7 @@ def play_series(agent, spec, opp, env_factory, n_games, mcts_cfg):
 
 
 def main():
-    cfg = fixed_1v1_config(data_dir='data')
+    cfg = diag_cfg(data_dir='data')
     pool_refs = resolve_pool_refs(cfg.scenario)
     spec = SharedFixedPool(pool_refs)
 

@@ -87,6 +87,7 @@ class PPOParadigmConfig(ParadigmConfigBase):
     # --- Scheduling ---
     total_iterations: int = 1000  # outer rollout iters (legacy n_iterations)
     batch_size: int = 256  # minibatch size for protocol StepPlan.batch_size
+    sync_weights_every_train_steps: int = 0  # async weight republish cadence (0/1 = each train iter)
 
     # --- Component config — paradigm-local ObsShape (N1.2, #7 closure) ---
     agent: ObsShape = field(default_factory=make_ppo_default_shape)
