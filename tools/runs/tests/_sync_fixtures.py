@@ -37,9 +37,16 @@ def empty_ssh_runner(_cmd, **_kw):
     return FakeResult(returncode=0, stdout='')
 
 
+def ensure_git_dir(root: Path) -> None:
+    """Ensure ``<root>/.git/`` exists so ``_verify_repo_root`` passes."""
+    (root / '.git').mkdir(exist_ok=True)
+
+
 def make_run_dir(root: Path, ts_prefix: str, nnn: str, label: str, timestamp_field: str) -> Path:
     """Create ``<root>/artifacts/<ts_prefix>_<nnn>_<label>/metadata.toml``
-    holding **only** the ``timestamp`` field (the sole field sync reads)."""
+    holding **only** the ``timestamp`` field (the sole field sync reads).
+    Also ensures ``<root>/.git/`` exists so ``_verify_repo_root`` passes."""
+    (root / '.git').mkdir(exist_ok=True)
     run_dir = root / 'artifacts' / f'{ts_prefix}_{nnn}_{label}'
     run_dir.mkdir(parents=True)
     (run_dir / 'metadata.toml').write_text(f'timestamp = "{timestamp_field}"\n')

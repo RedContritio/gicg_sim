@@ -156,7 +156,7 @@ All game mechanics = counter + hook in DSL.
 - **No filter matching in Go.** DSL callbacks do their own filtering (early return on ctx fields).
 - **Skill ID**: globally unique auto-increment. `ctx.skill_index` is sufficient to identify any skill.
 
-Full DSL reference (counter scopes, damage pipeline, file isolation, skill-pattern / mirror-filter rules, `on_damage_reduce` shields, API list, Project Layout) → **[`docs/1_specs/engine/dsl/conventions.md`](docs/1_specs/engine/dsl/conventions.md)**.
+Full DSL reference (counter scopes, damage pipeline, file isolation, skill-pattern / mirror-filter rules, `on_damage_reduce` shields, API list, Project Layout) → **[`openspec/specs/engine-dsl/`](openspec/specs/engine-dsl/spec.md)**（subtopic: counter / hook / damage / skill-pattern / builtin-api / file-structure）。
 
 ## Documentation structure
 
@@ -178,7 +178,7 @@ Full DSL reference (counter scopes, damage pipeline, file isolation, skill-patte
 **docs/(实验 / 复盘)** — P1 阶段大部分内容会逐步走 OpenSpec change 迁移,过渡期保留旧结构:
 
 - 现在做什么 / 上里程碑 / 下决策点 → `docs/0_status/README.md`
-- 当前 shipped 代码状态 → `docs/1_specs/` (engine / env / network / search / training / eval)(P1 后逐步迁 `openspec/specs/`)
+- 当前 shipped 代码状态 → `openspec/specs/`（engine-dsl / env-config / network-architecture / search-ismcts / training-architecture / eval-protocol 等）
 - 决策日志 (ADR) → `docs/2_decisions/` (adr-NNNN-*.md)(P1 后新 ADR 走 OpenSpec change;旧 ADR 迁 `docs/history/adr/`)
 - 计划与 roadmap → `docs/3_plans/` (curriculum / az / backlog / acceptance)
 - 训练 run lifecycle → `tools.runs.train / list / show / mark / recover / sync` CLI(`tools/runs/`,metadata 落 `artifacts/<ts>_<NNN>_<label>/metadata.toml` per-run self-contained);pre-redesign 历史 → `docs/5_history/runs_pre_redesign_2026_05_17.md`

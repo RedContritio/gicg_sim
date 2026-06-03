@@ -23,6 +23,10 @@ card_pool = [
 max_rounds = 15
 pool = ["v_legacy"]
 
+[agent]
+d_model = 128
+n_cross_layers = 2
+
 [eval]
 # Sanity-quick mode: 跑 `tools.eval.ckpt --n-scenarios 16 --baselines F1-D2` 即可。
 # Production PASS gate (Phase 3.5 §3.5.4): n_scenarios=128 + baselines=["F1-D2","F1-D4"]。

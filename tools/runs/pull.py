@@ -121,10 +121,34 @@ def _run_legacy(remote: RemoteCfg, args) -> int:
     )
 
 
+def _strip_artifacts_prefix(rel_paths: list[str]) -> tuple[list[str], bool]:
+    """Strip leading ``artifacts/`` component from each path.
+
+    Returns ``(stripped, all_had_prefix)``. If **any** path lacks the prefix,
+    returns the original list unchanged with ``False``.
+    """
+    stripped = []
+    for p in rel_paths:
+        parts = Path(p).parts
+        if parts and parts[0] == 'artifacts':
+            stripped.append(str(Path(*parts[1:])))
+        else:
+            return rel_paths, False
+    return stripped, True
+
+
 def _run_dir(remote: RemoteCfg, args) -> int:
     rel = _to_rel(remote, args.dir_.rstrip('/'))
-    dst = _local_mirror(args.dir_, args.local_root)
-    return _pull_via_tar(remote, [rel], extract_root=dst.parent)
+    stripped, ok = _strip_artifacts_prefix([rel])
+    if ok:
+        sep = '\\' if remote.os == 'windows' else '/'
+        return _pull_via_tar(
+            remote,
+            stripped,
+            extract_root=Path(args.local_root),
+            tar_cwd=f'{remote.root_native}{sep}artifacts',
+        )
+    return _pull_via_tar(remote, [rel], extract_root=Path('.'))
 
 
 def _resolve_glob(remote: RemoteCfg, glob: str) -> list[str]:
@@ -147,8 +171,16 @@ def _run_files(remote: RemoteCfg, args) -> int:
     if not rel_paths:
         print(f'error: no remote files matched glob: {args.files}', file=sys.stderr)
         return 1
-    dst = _local_mirror(args.files, args.local_root).parent
-    return _pull_via_tar(remote, rel_paths, extract_root=dst)
+    stripped, ok = _strip_artifacts_prefix(rel_paths)
+    if ok:
+        sep = '\\' if remote.os == 'windows' else '/'
+        return _pull_via_tar(
+            remote,
+            stripped,
+            extract_root=Path(args.local_root),
+            tar_cwd=f'{remote.root_native}{sep}artifacts',
+        )
+    return _pull_via_tar(remote, rel_paths, extract_root=Path('.'))
 
 
 def _run_local(args) -> int:

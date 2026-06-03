@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-28 (I29 R7 N-subprocess 闭环 ship / Stage 3 Win pilot 跑出 DMC policy collapse 验证 / minimax DeepCopy + wire schema lock + GPU stream priority + SHM race-aware metric 一并 ship / C1 选 A 准备 full 1M continue)
+last_updated: 2026-06-02 (I31 squash merge main + 维护治理: M1 archive ID 去重 / M3 docs/1_specs 全量清理 / 0a spec delta 全 merged 确认 / I12 sync subdir guard / backlog I13-I23 audit 确认已修)
 status: LIVE
 ---
 
@@ -52,8 +52,8 @@ status: LIVE
 - **H4 GOMEMLIMIT validation**(~50 LOC):Win 长跑 OOM 防 silent regression — *方案 C 折中已规划,下个 session 开*
 - **IPC Risk #5 stale-episode 检测**(~30 LOC):`_go_assembler` LRU evict 加 stale + warn log,给 C1 long-run debug visibility — *已规划,下个 session 开*
 - **H5 Lua interp 优化**(LONG TERM):LuaJIT 替换违反立约(`openspec/project.md:33` "自研解释器,非 LuaJIT")+ 8000 LOC 自研 + IR 系统全推倒数月工程;真要做需先 profile 验证占比(估 10-15% 待真测),路径是 bytecode cache / hot hook 移到 Go-native,不切外部 VM
-- **M1 OpenSpec archive 重复 ID**(~1h):`0006/0007` 双 ID 冲突 + I29 缺 ADR mirror
-- **M3 docs/1_specs vs openspec/specs truth 重复**(2-3h):20 vs 60 文件 overlap,需 audit 整理
+- ~~**M1 OpenSpec archive 重复 ID**~~:**done** — `0006-i29-*`/`0007-i29-*` 重命名为 `i29-go-actor-pool`/`i29-r7-n-subprocess`(去数字前缀,对齐新命名惯例)+ 5 文件引用更新
+- ~~**M3 docs/1_specs vs openspec/specs truth 重复**~~:**done** — 17 MOVED 文件删除 + 3 training 历史文件迁 `docs/5_history/` + `docs/1_specs/` 整目录删除 + CLAUDE.md/project.md/status 引用更新 + 7 openspec spec 死链修复
 
 ### 0a. core/network 重设计 + 5 paradigm 完全统一 ship(2026-05-17,34+ commits)
 
@@ -65,7 +65,7 @@ status: LIVE
 - 完整统一度 ~92-95%(剩 5% 是 CFR algorithm-inherent paradigm-specific intentional divergence per D-207)
 - 详:`project_session_ship_2026_05_17_core_network_redesign` + `project_archive_handoff_2026_05_17` memories
 
-待处理:17 spec deltas × 8 capability spec.md merge → 7 `/opsx:archive` 调用(详 archive handoff memory,估 3.5-4h 专项 session)。`tools.runs.*` + `tools.ckpt.info` CLI 用法见 CLAUDE.md Build & Test 段。
+~~待处理:17 spec deltas × 8 capability spec.md merge~~:**audit 确认全部 34 个 spec delta 已 merge 到 live spec**,无遗留。`tools.runs.*` + `tools.ckpt.info` CLI 用法见 CLAUDE.md Build & Test 段。
 
 ## 当前 phase(2026-05-16)
 
@@ -75,7 +75,7 @@ status: LIVE
 
 - **P0 完(8 commits)**:`openspec/` scaffold + `project.md` + 3 capability spec(`openspec-policy` / `engine-dsl` / `training-architecture`)+ `tools/_meta/check_openspec_indices.py` + pre-commit hooks 串接
 - **P1 进行(9 commits)**:15 ADR 迁 `openspec/changes/archive/` + 8 capability spec(network/search-ismcts/search-parallel/engine-actions/dice/capi/runtime/env-config/eval-protocol)+ 5 paradigm dossier(`docs/paradigms/{az,bc,cfr,dmc,ppo}/`)+ 7 archived plan 迁 `5_history/`
-- 旧 `docs/2_decisions/` 作 mirror 保留(ADR 实际权威在 `openspec/changes/archive/`);`docs/1_specs/` 仍在用,新内容写 `openspec/specs/`
+- 旧 `docs/2_decisions/` 作 mirror 保留(ADR 实际权威在 `openspec/changes/archive/`);`docs/1_specs/` 已清理删除(全部迁移至 `openspec/specs/`,3 个 training 历史文件迁 `docs/5_history/`)
 
 ### 2. v_phase2 真实卡 e2e 测试 + 支援区生命周期 ship(2026-05-15)
 

@@ -106,7 +106,7 @@ tools/               ← run (paradigm dispatch) / send_matchup / eval_service /
   按注册顺序。
 - **Go 内无 filter matching**:DSL callback 自己 early-return on `ctx.*` 字段。
 - **Skill ID 全局唯一自增**:`ctx.skill_index` 充分识别任何 skill。
-- 完整 DSL 参考:[`docs/1_specs/engine/dsl/conventions.md`](../docs/1_specs/engine/dsl/conventions.md)。
+- 完整 DSL 参考:[`openspec/specs/engine-dsl/`](specs/engine-dsl/spec.md)（subtopic: counter / hook / damage / skill-pattern / builtin-api / file-structure）。
 
 ### I4. Declare/Get 模式
 
@@ -170,9 +170,9 @@ training-architecture/` P0-T9)。
 | Dev workflow / 工具调用 / pre-commit hook | [`/CLAUDE.md`](../CLAUDE.md) | 项目特定;LLM 每 session 注入 |
 | 跨项目协作风格 / 提交纪律 / 测试纪律 | `~/.claude/CLAUDE.md` | 用户全局,所有 repo 通用 |
 | OpenSpec 文件约定 / 行数限制 / 命名 | `openspec/specs/openspec-policy/`(P0-T3) | 本 migration P0-T3 落盘 |
-| DSL 完整 API / counter 语义 / damage pipeline | [`docs/1_specs/engine/dsl/conventions.md`](../docs/1_specs/engine/dsl/conventions.md) | DSL author 必读 |
-| Engine 内部 / capi / search | `docs/1_specs/engine/` `docs/1_specs/search/` | 实现细节 |
-| Env 接口 / obs schema | `docs/1_specs/env/` | RL 集成必读 |
+| DSL 完整 API / counter 语义 / damage pipeline | [`openspec/specs/engine-dsl/`](specs/engine-dsl/spec.md) | DSL author 必读 |
+| Engine 内部 / capi / search | `openspec/specs/engine-capi/` `openspec/specs/search-ismcts/` `openspec/specs/search-parallel/` | 实现细节 |
+| Env 接口 / obs schema | `openspec/specs/env-config/` | RL 集成必读 |
 | 决策日志 ADR | `docs/2_decisions/adr-NNNN-*.md` | 历史决策可追溯 |
 | 当前 phase / 下一步 | `docs/0_status/README.md` | LIVE,事件发生同 commit 更新 |
 | Run registry (live) | `tools.runs.{register,list,show,complete,sync}` CLI | metadata `artifacts/runs/<id>.toml` gitignored;每次跑前 register,完成时 complete |

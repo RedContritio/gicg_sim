@@ -108,8 +108,9 @@ def test_remote_regex_pattern_contains_ipv6_alternative():
 
 
 def test_sync_dry_run_with_ipv6_remote(tmp_path):
-    from tools.runs.tests._sync_fixtures import empty_ssh_runner
+    from tools.runs.tests._sync_fixtures import empty_ssh_runner, ensure_git_dir
 
+    ensure_git_dir(tmp_path)
     cmd = sync.sync(
         direction='pull',
         remote='user@[::1]:/p/',

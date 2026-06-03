@@ -237,7 +237,7 @@ change 提案修订,而非在代码中静默偏离。
 
 **History / postmortems**:
 
-- [`docs/1_specs/engine/capi_mirror.md`](../../../docs/1_specs/engine/capi_mirror.md) —
+- `docs/1_specs/engine/capi_mirror.md` (deleted, migrated here) —
   本 spec 的 narrative source,已加 deprecation note,保留至 P1++
   整体清理
 

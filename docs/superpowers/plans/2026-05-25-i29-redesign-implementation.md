@@ -1,6 +1,6 @@
 # I29 Go-actor pool 完全重设计 — Implementation Plan
 
-> ⚠ **SUPERSEDED — 本 plan 描述 R1 candidate path (1 Go subprocess containing N goroutine);实际 ship 是 R7 (N independent Go subprocess) post-audit emergent fix**。 完整 ship 状态见 `openspec/changes/archive/0007-i29-r7-n-subprocess/` + PR draft + memory [[i29-r7-acceptance-ship]]。 本 plan 留作历史 trail,不要据此跟进 task。
+> ⚠ **SUPERSEDED — 本 plan 描述 R1 candidate path (1 Go subprocess containing N goroutine);实际 ship 是 R7 (N independent Go subprocess) post-audit emergent fix**。 完整 ship 状态见 `openspec/changes/archive/i29-r7-n-subprocess/` + PR draft + memory [[i29-r7-acceptance-ship]]。 本 plan 留作历史 trail,不要据此跟进 task。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. **All dispatched subagents MUST use opus model** (per user 2026-05-25; memory: `feedback_subagent_model_selection`).
 

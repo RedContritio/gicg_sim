@@ -169,6 +169,15 @@ def build_rsync_cmd(
     return cmd
 
 
+def _verify_repo_root(root: Path) -> None:
+    """Fail loud if *root* is not the repo root (e.g. user ran from a subdir)."""
+    if not (root / '.git').exists():
+        raise RuntimeError(
+            f'sync root {root} has no .git/ — are you running from a subdirectory? '
+            f'Run from the repo root or pass --root explicitly.'
+        )
+
+
 def _ensure_local_artifacts_dir(root: Path) -> None:
     """Create ``<root>/artifacts/`` if missing (rsync needs dest dir to exist)."""
     (root / 'artifacts').mkdir(parents=True, exist_ok=True)
@@ -192,6 +201,7 @@ def sync(
     """
     if direction not in ('push', 'pull'):
         raise ValueError(f'direction must be push|pull, got {direction!r}')
+    _verify_repo_root(root)
     _validate_remote(remote)
     if runner is None:
         runner = subprocess.run

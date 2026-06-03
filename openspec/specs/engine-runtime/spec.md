@@ -178,10 +178,10 @@ change 提案修订,而非在代码中静默偏离。
 
 **History / source**:
 
-- [`docs/1_specs/engine/dsl/conventions.md`](../../../docs/1_specs/engine/dsl/conventions.md) —
+- `docs/1_specs/engine/dsl/conventions.md` (deleted, migrated here) —
   L83-95 "Dependency Graph" + "File Isolation" 段,本 spec 的 narrative
   source 之一(已加 P1-T4 inline moved note)
-- [`docs/1_specs/engine/capi_mirror.md`](../../../docs/1_specs/engine/capi_mirror.md) —
+- `docs/1_specs/engine/capi_mirror.md` (deleted, migrated here) —
   加载器拆分(角色文件 per-binding / 卡牌全局 / talent shared)narrative
   source(已加 P1-T4 deprecation note,协议由 engine-capi 治理)
 

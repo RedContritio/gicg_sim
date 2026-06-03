@@ -231,7 +231,7 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
 - [`docs/5_history/network_design_history.md`](../../../docs/5_history/network_design_history.md) —
   C1v0 → C1v7 演化推导 + C1v6 前六项修复摘要 + 设计意图(含未 shipped
   组件标注)
-- [`docs/1_specs/network/current.md`](../../../docs/1_specs/network/current.md) —
+- `docs/1_specs/network/current.md` (deleted, migrated here) —
   本 spec 的 narrative source,已加 deprecation note,保留至 P1++
   整体清理
 

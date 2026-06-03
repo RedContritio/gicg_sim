@@ -7,19 +7,46 @@ from pathlib import Path
 from typing import Optional
 
 
+def _infer_agent_cfg(cfg, state_dict: dict):
+    """Return AgentConfig with d_model/n_cross_layers inferred from state_dict.
+
+    CheckpointManager ckpts don't embed AgentConfig, so we read it from the
+    weight shapes directly.  ``end_turn_emb`` is always ``[d_model]``;
+    ``cross_layers`` count is the max ``cross_layers.<N>.`` index + 1.
+    Falls back to ``cfg.agent`` if inference fails.
+    """
+    import copy
+    import re
+
+    try:
+        d_model = state_dict['end_turn_emb'].shape[0]
+        cross_ids = {int(m.group(1)) for k in state_dict if (m := re.match(r'cross_layers\.(\d+)\.', k))}
+        n_cross = max(cross_ids) + 1 if cross_ids else cfg.agent.n_cross_layers
+        agent_cfg = copy.copy(cfg.agent)
+        agent_cfg.d_model = d_model
+        agent_cfg.n_cross_layers = n_cross
+        return agent_cfg
+    except (KeyError, AttributeError):
+        return cfg.agent
+
+
 def build_eval_agent(cfg, ckpt_path: Path):
     """Load DmcAgent in eval mode from ckpt blob.
 
     Ckpt schema 兼容:production async pipeline 保存 `DMCInferenceNet(actor_critic)`
     wrapped state_dict (keys 含 `net.` 前缀, per `paradigms/dmc/paradigm.py:sync_weights`);
     eval 端用 raw ActorCritic, 需 strip 前缀。 旧 ckpt (无前缀, e.g. local smoke) 仍直载。
-    W1-T4 后 prefix-strip 由 ``training.core.checkpoint.load_net_state_dict`` 统一处理。
+    W1-T4 後 prefix-strip 由 ``training.core.checkpoint.load_net_state_dict`` 统一处理。
+
+    d_model + n_cross_layers 从 state_dict 权重形状推断,不依赖 eval cfg
+    声明的 agent 字段(避免 d_model 不匹配 load_state_dict size mismatch)。
     """
     from training.core.checkpoint import load_net_state_dict
     from training.paradigms.dmc._agent import DmcAgent
 
-    agent = DmcAgent(cfg.agent, device='cpu', lr=cfg.learning_rate, epsilon=0.0)
     state_dict = load_net_state_dict(ckpt_path, map_location='cpu')
+    agent_cfg = _infer_agent_cfg(cfg, state_dict)
+    agent = DmcAgent(agent_cfg, device='cpu', lr=cfg.learning_rate, epsilon=0.0)
     agent.net.load_state_dict(state_dict)
     agent.net.eval()
     return agent

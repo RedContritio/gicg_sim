@@ -4,7 +4,7 @@
 **Original date:** 2026-05-25 session 4
 **Parent:** I29 (`feature/i29-redesign` branch)
 **Predecessor:** post-C1+C2+I2 audit fix (commit `2b44d8d`) — fair-budget bench Go/Py = 0.68x
-**Supersedes:** `archive/0006-i29-go-actor-pool/` R1 candidate path
+**Supersedes:** `archive/i29-go-actor-pool/` R1 candidate path
 **Superseded by:** —
 
 ## Why

@@ -199,7 +199,7 @@ change 提案修订,而非在代码中静默偏离。
 
 **History / decisions**:
 
-- [`docs/1_specs/engine/dice.md`](../../../docs/1_specs/engine/dice.md) —
+- `docs/1_specs/engine/dice.md` (deleted, migrated here) —
   本 spec 的 narrative source,已加 deprecation note,保留至 P1++
   整体清理。设计原稿包括 D7(原"推迟"决策已端到端实现)和工作量估算
   (5-7 天)— 保留作历史

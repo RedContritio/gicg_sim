@@ -17,10 +17,17 @@ from tools.runs import sync
 from tools.runs.tests._sync_fixtures import (
     FakeResult,
     empty_ssh_runner,
+    ensure_git_dir,
     make_run_dir,
     mock_runner,
     ssh_runner_returning,
 )
+
+
+@pytest.fixture(autouse=True)
+def _fake_git_dir(tmp_path):
+    """All sync orchestration tests use tmp_path as root; _verify_repo_root needs .git/."""
+    ensure_git_dir(tmp_path)
 
 
 # ---------------------------------------------------------------------------
@@ -278,3 +285,22 @@ def test_main_subprocess_module_dispatch(tmp_path):
     )
     assert result.returncode == 0, result.stderr
     assert 'rsync' in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# _verify_repo_root guard (I12)
+# ---------------------------------------------------------------------------
+
+
+def test_sync_rejects_non_repo_root(tmp_path):
+    """sync() from a subdir (no .git/) raises RuntimeError before rsync."""
+    non_repo = tmp_path / 'subdir'
+    non_repo.mkdir()
+    with pytest.raises(RuntimeError, match='no .git/'):
+        sync.sync(
+            direction='push',
+            remote='u@h:/p/',
+            root=non_repo,
+            ssh_runner=empty_ssh_runner,
+            dry_run=True,
+        )

@@ -12,7 +12,7 @@ parent: ./spec.md
 > 本 subtopic 治理 `cfg.pipeline.actor_backend` 的 dispatch matrix + Go
 > backend 必满足的 N+2 OS process topology + 0 cgo invariant + inference
 > wire 约束 + 启动/关闭顺序。 后于 I29 R7 ship (2026-05-25),取代 pre-redesign
-> cgo c-shared lib + 1-process-N-goroutine path (`archive/0006-i29-go-actor-pool/`)。
+> cgo c-shared lib + 1-process-N-goroutine path (`archive/i29-go-actor-pool/`)。
 >
 > 适用范围:任何 `mode='async'` 的 paradigm collector dispatch。 `mode='serial'`
 > 走 in-process,与本 subtopic 无关。
@@ -166,5 +166,5 @@ Revision triggers:
 - Sibling: [`./pipeline.md`](./pipeline.md) — driver loop 调 collector.collect
 - Sibling: [`./network-sharing.md`](./network-sharing.md) — InferenceServer 端 batched forward + decoder_path
 - Memory: [[i29-r7-acceptance-ship]] / [[python-arch-mimicry-for-go-port]] / [[i29-bench-harness]] / [[bench-variance-5seed-required]]
-- Archive: `openspec/changes/archive/0006-i29-go-actor-pool/` (pre-redesign cgo path STATE_DUMP + lesson)
-- Archive: `openspec/changes/i29-r7-n-subprocess/` (R7 ship change,待 archive)
+- Archive: `openspec/changes/archive/i29-go-actor-pool/` (pre-redesign cgo path STATE_DUMP + lesson)
+- Archive: `openspec/changes/archive/i29-r7-n-subprocess/` (R7 ship change,待 archive)

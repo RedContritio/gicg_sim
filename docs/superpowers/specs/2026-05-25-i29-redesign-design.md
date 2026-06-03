@@ -1,7 +1,7 @@
 # I29 Go-actor pool 完全重设计 — Mac perf gate design (2026-05-25)
 
 > ⚠ **SUPERSEDED — 描述的是 R1 初版 "3 OS process" 架构,not shipped R7 (N+2 = N independent Go subprocess)**。 本 design 节 §4.1 "3 OS process" 不再适用。 实际 ship architecture 见:
-> - `openspec/changes/archive/0007-i29-r7-n-subprocess/` (post-ship proposal + design + tasks)
+> - `openspec/changes/archive/i29-r7-n-subprocess/` (post-ship proposal + design + tasks)
 > - `openspec/specs/training-architecture/actor-backend.md` (SHALL contract AB1-AB12)
 > - `docs/superpowers/specs/2026-05-25-i29-redesign-pr-draft.md` (final acceptance summary)
 >
