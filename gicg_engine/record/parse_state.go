@@ -1,6 +1,9 @@
 package record
 
 import (
+	"encoding/json"
+	"fmt"
+	"gicg_mono/gicg_engine/internal/strictjson"
 	"strconv"
 	"strings"
 )
@@ -8,6 +11,7 @@ import (
 // parseState parses a state: block.
 func (p *parser) parseState(minIndent int) (*State, error) {
 	state := &State{}
+	seen := map[string]bool{}
 	for p.pos < len(p.lines) {
 		line := p.peek()
 		if isBlank(line) {
@@ -19,6 +23,32 @@ func (p *parser) parseState(minIndent int) (*State, error) {
 			break
 		}
 		trimmed := trimIndent(line)
+		key := strings.SplitN(trimmed, ":", 2)[0]
+		if seen[key] {
+			return nil, fmt.Errorf("duplicate state field %q", key)
+		}
+		seen[key] = true
+		if strings.HasPrefix(trimmed, "checkpoint:") {
+			if state.Checkpoint != nil {
+				return nil, fmt.Errorf("duplicate checkpoint")
+			}
+			data := strings.TrimSpace(strings.TrimPrefix(trimmed, "checkpoint:"))
+			if !json.Valid([]byte(data)) || !strings.HasPrefix(data, "{") {
+				return nil, fmt.Errorf("invalid checkpoint JSON")
+			}
+			state.Checkpoint = json.RawMessage(data)
+			p.pos++
+			continue
+		}
+		if strings.HasPrefix(trimmed, "active_chars:") {
+			var slots [2]int
+			if err := strictjson.Decode([]byte(strings.TrimSpace(strings.TrimPrefix(trimmed, "active_chars:"))), &slots); err != nil {
+				return nil, err
+			}
+			state.ActiveChars = &slots
+			p.pos++
+			continue
+		}
 		if m := playerHeaderRe.FindStringSubmatch(trimmed); m != nil {
 			p.pos++
 			ps, err := p.parsePlayerState(ind + 2)
@@ -37,13 +67,14 @@ func (p *parser) parseState(minIndent int) (*State, error) {
 			p.pos++
 			continue
 		}
-		p.pos++
+		return nil, fmt.Errorf("line %d: unknown state field %q", p.pos+1, trimmed)
 	}
 	return state, nil
 }
 
 func (p *parser) parsePlayerState(minIndent int) (PlayerState, error) {
 	ps := PlayerState{Counters: make(map[string]int)}
+	seen := map[string]bool{}
 	for p.pos < len(p.lines) {
 		line := p.peek()
 		if isBlank(line) {
@@ -57,16 +88,27 @@ func (p *parser) parsePlayerState(minIndent int) (PlayerState, error) {
 		trimmed := trimIndent(line)
 		m := keyValueRe.FindStringSubmatch(trimmed)
 		if m == nil {
-			p.pos++
-			continue
+			return ps, fmt.Errorf("line %d: malformed player field", p.pos+1)
 		}
 		key, val := m[1], m[2]
+		if seen[key] {
+			return ps, fmt.Errorf("duplicate player field %q", key)
+		}
+		seen[key] = true
 		switch key {
 		case "手牌":
-			ps.Hand = parseCardList(val)
+			var err error
+			ps.Hand, err = parseCardList(val)
+			if err != nil {
+				return ps, err
+			}
 			p.pos++
 		case "牌组":
-			ps.Deck = parseCardList(val)
+			var err error
+			ps.Deck, err = parseCardList(val)
+			if err != nil {
+				return ps, err
+			}
 			p.pos++
 		case "角色":
 			p.pos++
@@ -78,9 +120,11 @@ func (p *parser) parsePlayerState(minIndent int) (PlayerState, error) {
 		default:
 			// Any other key is a player-scope counter (AP, 存活数, …).
 			// Value is an int literal.
-			if iv, err := strconv.Atoi(strings.TrimSpace(val)); err == nil {
-				ps.Counters[key] = iv
+			iv, err := strconv.Atoi(strings.TrimSpace(val))
+			if err != nil {
+				return ps, fmt.Errorf("invalid player counter %q: %w", key, err)
 			}
+			ps.Counters[key] = iv
 			p.pos++
 		}
 	}
@@ -89,6 +133,7 @@ func (p *parser) parsePlayerState(minIndent int) (PlayerState, error) {
 
 func (p *parser) parseCharFullStates(minIndent int) ([]CharFullState, error) {
 	var chars []CharFullState
+	seen := map[string]bool{}
 	for p.pos < len(p.lines) {
 		line := p.peek()
 		if isBlank(line) {
@@ -102,20 +147,34 @@ func (p *parser) parseCharFullStates(minIndent int) ([]CharFullState, error) {
 		trimmed := trimIndent(line)
 		m := keyValueRe.FindStringSubmatch(trimmed)
 		if m == nil {
-			p.pos++
-			continue
+			return nil, fmt.Errorf("line %d: malformed character", p.pos+1)
 		}
 		name, val := m[1], m[2]
-		fields := parseInlineMap(val)
+		if seen[name] {
+			return nil, fmt.Errorf("duplicate character %q", name)
+		}
+		seen[name] = true
+		fields, err := parseInlineMap(val)
+		if err != nil {
+			return nil, err
+		}
 		cs := CharFullState{Name: name, Counters: make(map[string]int)}
 		for k, v := range fields {
 			if k == "状态" {
 				// Nested status dict: merge into Counters
-				status := parseInlineMap(v)
+				status, err := parseInlineMap(v)
+				if err != nil {
+					return nil, err
+				}
 				for sk, sv := range status {
-					if iv, err := strconv.Atoi(sv); err == nil {
-						cs.Counters[sk] = iv
+					if _, ok := fields[sk]; ok {
+						return nil, fmt.Errorf("duplicate status/counter %q", sk)
 					}
+					iv, err := strconv.Atoi(sv)
+					if err != nil {
+						return nil, fmt.Errorf("invalid status %q: %w", sk, err)
+					}
+					cs.Counters[sk] = iv
 				}
 				continue
 			}
@@ -126,80 +185,15 @@ func (p *parser) parseCharFullStates(minIndent int) ([]CharFullState, error) {
 			case "false":
 				cs.Counters[k] = 0
 			default:
-				if iv, err := strconv.Atoi(v); err == nil {
-					cs.Counters[k] = iv
+				iv, err := strconv.Atoi(v)
+				if err != nil {
+					return nil, fmt.Errorf("invalid counter %q: %w", k, err)
 				}
+				cs.Counters[k] = iv
 			}
 		}
 		chars = append(chars, cs)
 		p.pos++
 	}
 	return chars, nil
-}
-
-// parseInlineMap parses "{ k: v, k: v }" into a map.
-// Values are returned as raw strings.
-func parseInlineMap(s string) map[string]string {
-	result := make(map[string]string)
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "{")
-	s = strings.TrimSuffix(s, "}")
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return result
-	}
-	// Split by comma, but respect nested { } for 状态 fields
-	parts := splitTopLevel(s, ',')
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		kv := strings.SplitN(part, ":", 2)
-		if len(kv) != 2 {
-			continue
-		}
-		k := strings.TrimSpace(kv[0])
-		v := strings.TrimSpace(kv[1])
-		result[k] = v
-	}
-	return result
-}
-
-// splitTopLevel splits s by sep, ignoring sep inside {} or [].
-func splitTopLevel(s string, sep rune) []string {
-	var out []string
-	depth := 0
-	start := 0
-	for i, c := range s {
-		switch c {
-		case '{', '[':
-			depth++
-		case '}', ']':
-			depth--
-		case sep:
-			if depth == 0 {
-				out = append(out, s[start:i])
-				start = i + 1
-			}
-		}
-	}
-	out = append(out, s[start:])
-	return out
-}
-
-// parseCardList parses "[a, b, c]" or "[]".
-func parseCardList(s string) []string {
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "[")
-	s = strings.TrimSuffix(s, "]")
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return nil
-	}
-	var out []string
-	for _, p := range strings.Split(s, ",") {
-		p = strings.TrimSpace(p)
-		if p != "" {
-			out = append(out, p)
-		}
-	}
-	return out
 }

@@ -23,12 +23,14 @@ type Runtime struct {
 	CurrentOwnerChar     int
 	CurrentContextPlayer int
 
-	// Card target tracking (set by on_card_play hook)
+	// Deprecated compatibility fields. Target.CardTarget resolves from Game's
+	// execution frames; these fields are not a gameplay source of truth.
 	CurrentCardTargetPlayer int
 	CurrentCardTargetChar   int
 
 	// Deferred functions
-	DeferredFns []*Closure
+	DeferredFns        []*Closure
+	currentHookContext *engine.EventContext
 
 	// LoadedFiles accumulates the file paths fed through ExecFileSandboxed
 	// (in load order). Used by the IR-2.b finalization step to walk the
@@ -83,6 +85,13 @@ type Runtime struct {
 	// Clone (shared pointer — spec is treated as immutable) and
 	// ResetDynamic (deck shape is part of the static game spec).
 	DeckPadding *DeckPaddingSpec
+
+	// ExplicitDecks pins each player's deck to a declared card-name list
+	// (F4 — [scenario].deck_0/deck_1). nil entry = implicit path (deck =
+	// full eligible set). Set at game-init from GameConfig.Players[i].Deck;
+	// like DeckPadding the slices are treated as immutable spec, shared
+	// across Clone and reused by ResetDynamic.
+	ExplicitDecks [2][]string
 }
 
 // NewRuntime creates a fresh Ruleset and wraps it in a Runtime bound to g.
@@ -119,21 +128,11 @@ func (rs *Ruleset) NewRuntime(g *engine.Game) *Runtime {
 // rollback should Snapshot before making speculative Steps on the clone.
 func (rt *Runtime) Clone() *Runtime {
 	newGame := rt.Game.DeepCopy()
-	clone := &Runtime{
-		Ruleset:                 rt.Ruleset, // shared
-		Game:                    newGame,
-		CurrentOwnerPlayer:      rt.CurrentOwnerPlayer,
-		CurrentOwnerChar:        rt.CurrentOwnerChar,
-		CurrentContextPlayer:    rt.CurrentContextPlayer,
-		CurrentCardTargetPlayer: rt.CurrentCardTargetPlayer,
-		CurrentCardTargetChar:   rt.CurrentCardTargetChar,
-		// DeferredFns: clone has its own queue. The closures inside are
-		// DSL closures (immutable AST references), so we copy the slice
-		// but share the Closure pointers.
-		DeferredFns:  append([]*Closure(nil), rt.DeferredFns...),
-		traceEnabled: rt.traceEnabled,
-		DeckPadding:  rt.DeckPadding,
-	}
+	copy := *rt
+	clone := &copy
+	clone.Game = newGame
+	clone.DeferredFns = append([]*Closure(nil), rt.DeferredFns...)
+	clone.currentHookContext = nil
 	newGame.Extra = clone
 	return clone
 }
@@ -167,6 +166,7 @@ func (rt *Runtime) ResetDynamicWithSeeds(diceSeed int64, deckSeeds [2]int64) {
 	rt.CurrentCardTargetPlayer = 0
 	rt.CurrentCardTargetChar = 0
 	rt.DeferredFns = nil
+	rt.currentHookContext = nil
 	rt.lastError = nil
 
 	for pi := 0; pi < 2; pi++ {
@@ -180,7 +180,15 @@ func (rt *Runtime) ResetDynamicWithSeeds(diceSeed int64, deckSeeds [2]int64) {
 	}
 
 	for pi := 0; pi < 2; pi++ {
-		rt.BuildDeck(pi)
+		if err := rt.BuildDeck(pi); err != nil {
+			// The deck spec (ExplicitDecks / DeckPadding / declared card
+			// set) is static after NewGame validated it, so a reset-time
+			// BuildDeck failure can only be an engine bug. This panic is
+			// an invariant assertion, not input validation — it keeps the
+			// error-free reset signature across capi GameReset and the
+			// Go-native per-episode reset path.
+			panic(err)
+		}
 	}
 
 	g.Step(0)

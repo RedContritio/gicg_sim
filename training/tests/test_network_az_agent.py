@@ -121,6 +121,7 @@ def _random_batch(*, B=2, d_model=16, n_slots=128, n_hooks=8, max_actions=6, n_l
         'action_payments': payments,
         'structural_values': structural_values,
         'char_skill_refs': char_skill_refs,
+        'definition_links': torch.full((B, 1, 2), -1, dtype=torch.long),
         'recent_damage': recent_damage,
         'prepare_skill': prepare_skill,
         'modifier_log': modifier_log,
@@ -150,13 +151,20 @@ class TestAgent:
         gets one non-NOP opcode at op-slot 0 so the hook counts as
         active. char_skill_refs set to -1 (no skills)."""
         from training.core.obs_constants import (
+            OBS_CHAR_ELEMENT_SLOTS,
             OBS_CHAR_SKILL_REFS_SIZE,
+            OBS_DEFINITION_LINK_SCHEMA_VERSION,
+            OBS_DEFINITION_LINK_SLOTS,
         )
 
         meta_size = cfg.n_counter_slots * 3
         refs_size = OBS_CHAR_SKILL_REFS_SIZE
         hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
-        obs = np.zeros(meta_size + refs_size + hook_size, dtype=np.float32)
+        obs = np.zeros(
+            meta_size + refs_size + hook_size + OBS_CHAR_ELEMENT_SLOTS + OBS_DEFINITION_LINK_SLOTS,
+            dtype=np.float32,
+        )
+        obs[-OBS_DEFINITION_LINK_SLOTS] = OBS_DEFINITION_LINK_SCHEMA_VERSION
         # Counter meta: give each slot a distinct SID
         for i in range(cfg.n_counter_slots):
             obs[i * 3 + 2] = float(i)
@@ -265,6 +273,7 @@ class TestAgent:
             'counter_sids',
             'active_slot_mask',
             'char_skill_refs',
+            'definition_links',
         }
         assert game_static['hook_ir'].dtype == np.int64
         assert game_static['hook_mask'].dtype == bool

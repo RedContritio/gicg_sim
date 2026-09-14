@@ -82,8 +82,7 @@ func TestCharElement_Team2(t *testing.T) {
 }
 
 // TestCharElement_ObsSizeIncludesBlock: StaticObsSize() includes the
-// new 12-int element block, so external callers (Python env wrapper,
-// network encoders) see a size that's larger by exactly that many.
+// element block and the definition-link trailer.
 func TestCharElement_ObsSizeIncludesBlock(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
 	obs := env.G.BuildStaticObs()
@@ -94,9 +93,9 @@ func TestCharElement_ObsSizeIncludesBlock(t *testing.T) {
 		2*engine.ObsPlayerSlots + engine.ObsGlobalSlots) * 3
 	skillRefs := 2 * engine.ObsMaxChars * engine.ObsMaxSkillsPerChar
 	hookIR := engine.ObsMaxHooks * engine.ObsIntsPerHook
-	expected := counterMeta + skillRefs + hookIR + engine.ObsCharElementSlots
+	expected := counterMeta + skillRefs + hookIR + engine.ObsCharElementSlots + engine.ObsDefinitionLinkSlots
 	if engine.StaticObsSize() != expected {
-		t.Errorf("StaticObsSize(): want %d (meta+skill+hookIR+12), got %d",
+		t.Errorf("StaticObsSize(): want %d (meta+skill+hookIR+elements+definition-links), got %d",
 			expected, engine.StaticObsSize())
 	}
 }

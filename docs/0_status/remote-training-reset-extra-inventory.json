@@ -1,0 +1,224 @@
+[
+  {
+    "Name": "replays_final_fixed_F1D4",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1778817669110)/",
+    "Length": null
+  },
+  {
+    "Name": "replays_final_sid1",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1778817886960)/",
+    "Length": null
+  },
+  {
+    "Name": "replays_peak_fixed_F1D4",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1778817467560)/",
+    "Length": null
+  },
+  {
+    "Name": "replays_pilot20k_F1D4",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1778789780623)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n16_B",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779259048782)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n16_I25",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779261606192)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n24_B",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779259190706)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n24_I25",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779261757539)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n4_after",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779255539697)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n4_B",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779257782551)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n8_after",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779255671053)/",
+    "Length": null
+  },
+  {
+    "Name": "_perf_logs_n8_B",
+    "Mode": "d-----",
+    "LastWriteTimeUtc": "/Date(1779257660484)/",
+    "Length": null
+  },
+  {
+    "Name": ".gitignore",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779037858677)/",
+    "Length": 14
+  },
+  {
+    "Name": ".run_id_lock",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779148074648)/",
+    "Length": 0
+  },
+  {
+    "Name": "eval_4cls.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778789214325)/",
+    "Length": 1904
+  },
+  {
+    "Name": "eval_final.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778816706937)/",
+    "Length": 1530
+  },
+  {
+    "Name": "eval_fixed.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778814888241)/",
+    "Length": 4222
+  },
+  {
+    "Name": "eval_peak.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778816833210)/",
+    "Length": 1532
+  },
+  {
+    "Name": "eval_peak_hist.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778817086633)/",
+    "Length": 1282
+  },
+  {
+    "Name": "pilot.err",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778782780428)/",
+    "Length": 0
+  },
+  {
+    "Name": "pilot.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778782783251)/",
+    "Length": 476
+  },
+  {
+    "Name": "pilot20k.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778785311031)/",
+    "Length": 448904
+  },
+  {
+    "Name": "pilot20k_fixed.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1778813124427)/",
+    "Length": 439572
+  },
+  {
+    "Name": "_b_train2.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779223199027)/",
+    "Length": 0
+  },
+  {
+    "Name": "_b_train3.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779223235695)/",
+    "Length": 0
+  },
+  {
+    "Name": "_b_train_inline.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779222151346)/",
+    "Length": 0
+  },
+  {
+    "Name": "_eval_service.err.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779216030083)/",
+    "Length": 0
+  },
+  {
+    "Name": "_eval_service.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779216031627)/",
+    "Length": 83
+  },
+  {
+    "Name": "_i25.err",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779260863710)/",
+    "Length": 0
+  },
+  {
+    "Name": "_i25.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779261141822)/",
+    "Length": 0
+  },
+  {
+    "Name": "_mem_probe.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779258780532)/",
+    "Length": 0
+  },
+  {
+    "Name": "_mem_trajectory.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779273764441)/",
+    "Length": 0
+  },
+  {
+    "Name": "_n16_probe.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779259043629)/",
+    "Length": 0
+  },
+  {
+    "Name": "_n24_probe.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779259185022)/",
+    "Length": 0
+  },
+  {
+    "Name": "_test.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779222173276)/",
+    "Length": 7
+  },
+  {
+    "Name": "_test_b.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779222270497)/",
+    "Length": 0
+  },
+  {
+    "Name": "_test_pilot.log",
+    "Mode": "-a----",
+    "LastWriteTimeUtc": "/Date(1779222173326)/",
+    "Length": 0
+  }
+]

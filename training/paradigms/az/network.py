@@ -26,12 +26,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from training.core.network import (
-    ActorCritic,
-    AgentBase,
-    AgentConfig,
-    make_actor_critic,
-)
+from training.core.network import AgentBase, AgentConfig, make_actor_critic
 from training.core.network.heads import PolicyHead, ValueHead
 from training.core.step_encoding import (
     pad_action_payments,
@@ -170,6 +165,8 @@ class Agent(AgentBase):
                 recent_damage,
                 prepare_skill,
                 modifier_log,
+                buffs=self._parse_buff_single(dyn_obs_np),
+                definition_links=self._definition_links,
             )
             # Generic ActorCritic returns dict {head_name: tensor, '_state_vec', ...}
             logits = out['policy']
@@ -200,6 +197,7 @@ class Agent(AgentBase):
         action_refs = _t('action_refs', torch.long)
         action_payments = _t('action_payments', torch.float32)
         char_skill_refs = _t('char_skill_refs', torch.long)
+        definition_links = _t('definition_links', torch.long)
         recent_damage = _t('recent_damage', torch.float32)
         prepare_skill = _t('prepare_skill', torch.float32)
         modifier_log = _t('modifier_log', torch.float32)
@@ -225,6 +223,8 @@ class Agent(AgentBase):
             recent_damage,
             prepare_skill,
             modifier_log,
+            buffs=_t('buffs', torch.float32) if 'buffs' in batch else None,
+            definition_links=definition_links,
         )
         # Generic ActorCritic returns dict; destructure for AZLoss 3-tuple compat.
         return out['policy'], out['value'], out['delta']

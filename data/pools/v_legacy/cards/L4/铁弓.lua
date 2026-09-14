@@ -17,7 +17,7 @@ on_card_play(function(ctx)
   equipped:set_at(ctx.target_player, ctx.target_char, ref)
 end)
 
-on_action_prepare(function(ctx)
+on_action_prepare({ order = equipped }, function(ctx)
   if ctx.action_kind ~= ActionKind.Switch then return end
   local p = ctx.actor_player
   local active = get_active_char(p)
@@ -26,7 +26,7 @@ on_action_prepare(function(ctx)
   ctx.battle_action = false
 end)
 
-on_switch(function(ctx)
+on_switch({ order = equipped }, function(ctx)
   if ctx.action_context ~= Action.Switch then return end
   local p = ctx.actor_player
   local prev_active = ctx.actor_char

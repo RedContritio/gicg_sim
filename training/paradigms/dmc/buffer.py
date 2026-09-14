@@ -120,11 +120,19 @@ class DMCBuffer:
         self._buf.clear()
 
     def state_dict(self) -> dict:
-        return {'capacity': self.capacity, 'size': len(self)}
+        return {
+            'capacity': self.capacity,
+            'max_actions': self.max_actions,
+            'transitions': list(self._buf.buf),
+            'rng': self._buf.rng.getstate(),
+            'total_seen': self._buf.total_seen,
+        }
 
     def load_state_dict(self, sd: dict) -> None:
-        # ``DmcReplayBuffer`` does not persist; ckpt restore is warm-up only.
-        if sd.get('capacity') != self.capacity:
-            raise ValueError(
-                f'DMCBuffer.load_state_dict: capacity mismatch sd={sd.get("capacity")} self={self.capacity}'
-            )
+        if sd.get('capacity') != self.capacity or sd.get('max_actions') != self.max_actions:
+            raise ValueError('DMCBuffer.load_state_dict: capacity or action shape mismatch')
+        if 'transitions' not in sd or len(sd['transitions']) > self.capacity:
+            raise ValueError('DMCBuffer checkpoint is incomplete or exceeds capacity')
+        self._buf.buf = deque(sd['transitions'], maxlen=self.capacity)
+        self._buf.rng.setstate(sd['rng'])
+        self._buf.total_seen = sd['total_seen']

@@ -42,6 +42,9 @@ class _ApiMixin:
         lib.GameRestore.argtypes = [ctypes.c_int, ctypes.c_int]
         lib.GameRestore.restype = ctypes.c_int
 
+        lib.GameSetSimulationSeed.argtypes = [ctypes.c_int, ctypes.c_longlong]
+        lib.GameSetSimulationSeed.restype = ctypes.c_int
+
         lib.GameSnapshotFree.argtypes = [ctypes.c_int]
         lib.GameSnapshotFree.restype = None
 
@@ -267,6 +270,8 @@ class _ApiMixin:
 
         lib.GameExportViewJSON.argtypes = [ctypes.c_int]
         lib.GameExportViewJSON.restype = ctypes.c_void_p
+        lib.GameGetRuleGraphJSON.argtypes = [ctypes.c_int]
+        lib.GameGetRuleGraphJSON.restype = ctypes.c_void_p
 
         lib.GameReplayToJSON.argtypes = [
             ctypes.c_int,
@@ -289,3 +294,7 @@ class _ApiMixin:
         go_count = int(lib.GameGetDiceColorCount())
         if go_count != DICE_COLOR_COUNT:
             raise RuntimeError(f'DiceColorCount mismatch: Go={go_count} Python={DICE_COLOR_COUNT}')
+
+        from gicg_env._engine_errors import install_rule_error_checks
+
+        install_rule_error_checks(lib)

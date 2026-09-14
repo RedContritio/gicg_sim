@@ -87,6 +87,10 @@ def run_pipeline(
     collector = paradigm.make_collector(cfg, env_factory, network, opp_pool)
 
     ckpt_mgr = CheckpointManager(cfg, network, optimizer, buffer)
+    if getattr(collector, 'checkpoint_complete', False):
+        ckpt_mgr.runtime_components = {'buffer': buffer, 'collector': collector}
+        if opp_pool is not None:
+            ckpt_mgr.runtime_components['opponents'] = opp_pool
     artifacts_dir = ckpt_mgr.init_artifacts_dir(
         resume_from=resume_from,
         timestamp_utc=artifacts_timestamp_utc,
@@ -183,8 +187,8 @@ def run_pipeline(
                     state.after_eval()
                     eval_scheduler.mark_done(state)
 
-            if ckpt_mgr.should_save(state):
-                ckpt_mgr.save(state)
+            save_due = ckpt_mgr.should_save(state)
+            if save_due:
                 state.after_ckpt()
                 # historical opp ring sync — ckpt 时 顺手把 当前 network 推一个
                 # frozen snapshot 进 opp_pool。 复用 `save_every` cadence,无需 引入
@@ -202,13 +206,18 @@ def run_pipeline(
 
             logger.log_iter(state, breakdown={})
             state.advance(plan)
+            if save_due:
+                # Save the next decision boundary, including the just-added
+                # historical opponent, rather than repeating this iteration.
+                ckpt_mgr.save(state)
 
             if not plan.collect and not plan.train and not plan.eval:
                 # Paradigm signaled completion via empty plan.
                 break
-    finally:
         state.wall_seconds = time.perf_counter() - t_start
         ckpt_mgr.save(state)
+    finally:
+        # A partially failed iteration must not overwrite a resumable boundary.
         collector.close()
         logger.close()
         trace.close()

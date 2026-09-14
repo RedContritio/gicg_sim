@@ -17,6 +17,7 @@ var elementNames = map[int]string{
 }
 
 type actionBuilder struct {
+	Input   *engine.ActionInput
 	Header  string
 	Effects []string
 }
@@ -34,6 +35,10 @@ func isHidden(role Role) bool {
 
 func formatActionHeader(g *engine.Game, e engine.LogEntry) string {
 	switch e.Type {
+	case "action_tune":
+		return fmt.Sprintf("P%d 调和卡牌 %s", e.Player, g.CardNames[e.Fields["card_ref"].(int)])
+	case "action_reroll":
+		return fmt.Sprintf("P%d 选择重投", e.Player)
 	case "action_skill":
 		sid := e.Fields["skill_id"].(int)
 		skill := g.SkillNames[sid]

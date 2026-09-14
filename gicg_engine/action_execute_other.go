@@ -51,6 +51,7 @@ func (g *Game) executeSwitch(action Action, actCtx ActionContext) StepResult {
 	}
 	g.FireEventHooks(HookSwitch, ctx)
 
+	g.DrainDeferred()
 	g.PopEvent()
 
 	if g.Phase == PhaseGameOver {
@@ -99,43 +100,6 @@ func (g *Game) flipTurn() {
 	// instead of letting them choose an action. Resolving counts as
 	// their action and re-flips the turn.
 	g.ResolvePreparing()
-}
-
-// ResolvePreparing checks Game.Preparing[Turn] and, if a skill is
-// queued, silent-invokes it on behalf of the player and re-flips the
-// turn. Idempotent against an empty queue. Clears Preparing[Turn]
-// before invoking so a recursive call(via the chained flipTurn at end)
-// won't re-fire the same skill.
-func (g *Game) ResolvePreparing() {
-	pi := g.Turn
-	skillID := g.Preparing[pi]
-	if skillID == 0 {
-		return
-	}
-	g.Preparing[pi] = 0
-	activeChar := g.Players[pi].ActiveChar
-	g.PushEvent(EventFrame{
-		ActionCtx:  ActUseSkill,
-		Source:     SrcSkill,
-		Player:     pi,
-		Char:       activeChar,
-		SkillIndex: skillID,
-	})
-	ctx := &EventContext{
-		ActionCtx:      ActUseSkill,
-		Source:         SrcSkill,
-		ActorPlayer:    pi,
-		ActorChar:      activeChar,
-		SkillIndex:     skillID,
-		Paid:           true,
-		SkipSkillHooks: true,
-	}
-	g.FireEventHooks(HookSkillUse, ctx)
-	g.PopEvent()
-	// Resolution itself counts as an action; flip the turn again. Will
-	// recurse into ResolvePreparing if the *other* side is also prepared
-	// (rare but must be safe).
-	g.flipTurn()
 }
 
 // executeEndTurn 执行结束回合
@@ -308,6 +272,7 @@ func (g *Game) executeTune(action Action) StepResult {
 		CardRef:     card.Ref,
 	}
 	g.FireEventHooks(HookOnTune, tuneCtx)
+	g.DrainDeferred()
 	g.PopEvent()
 
 	return StepContinue

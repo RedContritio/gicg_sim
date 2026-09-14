@@ -7,6 +7,7 @@ scenario; this file only exercises the adapter surface.
 """
 
 from __future__ import annotations
+from training.core.artifact_io import save_checkpoint
 
 from pathlib import Path
 
@@ -15,6 +16,7 @@ import pytest
 import torch
 
 from training.core.protocols import Batch, LossComputer, Paradigm, PipelineState
+from training.tests.smoke_template import SMOKE_MIRROR_DECK
 from training.paradigms.az import AZParadigm
 from training.paradigms.az.buffer import AZBuffer
 from training.paradigms.az.collector import derive_seed
@@ -364,6 +366,9 @@ def _build_minimal_az_cfg():
             max_rounds=10,
             deck_padding={'card': '碌碌无为', 'target_size': 15},
             data_dir='data',
+            # F4: explicit deck — union eligibility > 15 fail-louds now.
+            deck_0=SMOKE_MIRROR_DECK,
+            deck_1=SMOKE_MIRROR_DECK,
         ),
         paradigm={
             'lr': 1e-3,
@@ -476,7 +481,7 @@ def test_az_paradigm_init_from_ckpt_loads(tmp_path: Path):
     # Save the inner ActorCritic's state dict (BC train format).
     inner_sd = net_src.agent.net.state_dict()
     ckpt_path = tmp_path / 'bc_pretrain.pt'
-    torch.save({'cfg': {}, 'net': inner_sd}, str(ckpt_path))
+    save_checkpoint({'cfg': {}, 'net': inner_sd}, str(ckpt_path))
 
     # Now build a NEW paradigm with init_from_ckpt set.
     cfg_with_ckpt = _build_minimal_az_cfg()

@@ -122,6 +122,7 @@ def _random_batch(*, B=2, d_model=16, n_slots=128, n_hooks=8, max_actions=6, n_l
         'action_payments': payments,
         'structural_values': structural_values,
         'char_skill_refs': char_skill_refs,
+        'definition_links': torch.full((B, 1, 2), -1, dtype=torch.long),
         # ADR-0019 §B.2/§B.3c typed obs segments — Round-6 S-3 sentinel
         'recent_damage': make_recent_damage_padding_torch(B=B),
         'prepare_skill': make_prepare_skill_padding_torch(B=B),
@@ -152,6 +153,7 @@ class TestAZLosses:
             batch['recent_damage'],
             batch['prepare_skill'],
             batch['modifier_log'],
+            definition_links=batch['definition_links'],
         )
         logits, value = out['policy'], out['value']
         losses = az_losses(
@@ -192,6 +194,7 @@ class TestAZLosses:
             batch['recent_damage'],
             batch['prepare_skill'],
             batch['modifier_log'],
+            definition_links=batch['definition_links'],
         )
         logits, value = out['policy'], out['value']
         bad_pi = batch['pi_target'].clone()
@@ -226,6 +229,7 @@ class TestAZLosses:
             batch['recent_damage'],
             batch['prepare_skill'],
             batch['modifier_log'],
+            definition_links=batch['definition_links'],
         )
         logits, value = out['policy'], out['value']
         loss_a = az_losses(
@@ -273,6 +277,7 @@ class TestAZLosses:
             batch['recent_damage'],
             batch['prepare_skill'],
             batch['modifier_log'],
+            definition_links=batch['definition_links'],
         )
         logits, value = out['policy'], out['value']
         losses = az_losses(
@@ -319,6 +324,7 @@ class TestAZLosses:
             batch['recent_damage'],
             batch['prepare_skill'],
             batch['modifier_log'],
+            definition_links=batch['definition_links'],
         )
         logits, value = out['policy'], out['value']
         with pytest.raises(ValueError, match='l2_coef > 0 requires model'):

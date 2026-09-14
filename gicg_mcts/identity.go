@@ -37,8 +37,10 @@ func ActionRefs(g *engine.Game) []int32 {
 	rawToActive := g.BuildRawToActiveHookIdx()
 	for i, a := range actions {
 		hookIdx := int32(-1)
-		charIdx := int32(-1)
+		charIdx := int32(engine.ActionCharRef(a))
 		switch a.Kind {
+		case engine.ActionReroll:
+			hookIdx = int32(a.Index) // quantity, not a hook for this action kind
 		case engine.ActionSkill:
 			pi := a.PlayerIdx
 			ci := g.Players[pi].ActiveChar
@@ -47,7 +49,7 @@ func ActionRefs(g *engine.Game) []int32 {
 					hookIdx = int32(ai)
 				}
 			}
-		case engine.ActionCard:
+		case engine.ActionCard, engine.ActionTune:
 			pi := a.PlayerIdx
 			ref := -1
 			if a.Index >= 0 && a.Index < len(g.Players[pi].Hand) {
@@ -79,6 +81,8 @@ func actionToId(g *engine.Game, a engine.Action) ActionId {
 	var subject, aux, tgtP, tgtC int32 = -1, -1, -1, -1
 
 	switch a.Kind {
+	case engine.ActionReroll:
+		subject, aux = int32(a.Index), int32(a.RerollColor)
 	case engine.ActionSkill:
 		subject = int32(a.Index)
 
@@ -90,6 +94,12 @@ func actionToId(g *engine.Game, a engine.Action) ActionId {
 		if a.HasTarget {
 			tgtP = int32(a.TargetPlayer)
 			tgtC = int32(a.TargetChar)
+		}
+		if a.HasBuffTarget {
+			aux, tgtP, tgtC = int32(a.TargetBuff), int32(a.TargetPlayer), -1
+		}
+		if a.HasSupportTarget {
+			aux, tgtP, tgtC = int32(engine.ObsBuffRows+a.TargetSupport), int32(a.PlayerIdx), -1
 		}
 
 	case engine.ActionSwitch:

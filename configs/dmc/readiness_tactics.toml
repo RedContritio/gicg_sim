@@ -1,0 +1,10 @@
+# Two-character follow-up: death replacements have at most one legal choice.
+[meta]
+extends = "readiness_base.toml"
+run_label = "ready_tactics_v10"
+
+[scenario]
+team_0 = ["赤蝶", "墨客"]
+team_1 = ["墨客", "赤蝶"]
+team_size = 2
+card_pool = ["测试卡_增幅", "测试卡_碎片", "乘胜追击", "佛跳墙", "荷花酥", "美味烧鸡", "反制", "玄冰"]

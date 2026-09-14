@@ -1,6 +1,7 @@
 """Tests for CFRAgent + matchup.py's cfr loader."""
 
 from __future__ import annotations
+from training.core.artifact_io import save_checkpoint
 
 import os
 
@@ -19,7 +20,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
 N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16
 N_HOOKS_CAP = 900
-MAX_TOK = 64
+MAX_TOK = 128
 MAX_ACTIONS = 2048
 
 
@@ -90,7 +91,7 @@ class TestCFRAgent:
         """CFRAgent.load rejects an AZ-format ckpt (different kind)."""
         # Save an "AZ-like" blob: {cfg, net, kind: 'az'}
         path = tmp_path / 'not_cfr.pt'
-        torch.save({'cfg': {}, 'net': {}, 'kind': 'something_else'}, str(path))
+        save_checkpoint({'cfg': {}, 'net': {}, 'kind': 'something_else'}, str(path))
         agent = CFRAgent(_cfg())
         with pytest.raises(RuntimeError, match='kind'):
             agent.load(str(path))

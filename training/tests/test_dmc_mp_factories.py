@@ -102,7 +102,7 @@ def test_decode_dmc_request_matches_legacy_torch_path():
     cfg = AgentConfig(
         n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
         n_hooks=900,
-        max_ops_per_hook=64,
+        max_ops_per_hook=128,
         max_actions=256,
         d_model=16,
         n_cross_layers=1,
@@ -200,7 +200,7 @@ def test_capture_obs_np_matches_legacy_capture_obs():
     cfg = AgentConfig(
         n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
         n_hooks=900,
-        max_ops_per_hook=64,
+        max_ops_per_hook=128,
         max_actions=256,
         d_model=16,
         n_cross_layers=1,

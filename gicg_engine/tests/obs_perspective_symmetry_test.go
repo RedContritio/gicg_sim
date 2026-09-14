@@ -35,7 +35,7 @@ func TestObsPerspectiveSymmetry_RecentDamage(t *testing.T) {
 	obsP1 := g.BuildDynamicObs(1)
 
 	// recent_damage 段 offset:dyn obs 末尾去掉 modifier_log + prepare_skill 的位置
-	rdOffset := engine.DynamicObsSize() -
+	rdOffset := engine.DynamicObsSize() - engine.ObsBuffSlots -
 		engine.ObsModifierLogSlots -
 		engine.ObsPrepareSkillSlots -
 		engine.ObsRecentDamageSlots
@@ -97,7 +97,7 @@ func TestObsPerspectiveSymmetry_PrepareSkill(t *testing.T) {
 	obsP0 := g.BuildDynamicObs(0)
 	obsP1 := g.BuildDynamicObs(1)
 
-	psOffset := engine.DynamicObsSize() -
+	psOffset := engine.DynamicObsSize() - engine.ObsBuffSlots -
 		engine.ObsModifierLogSlots -
 		engine.ObsPrepareSkillSlots
 
@@ -142,7 +142,7 @@ func TestObsPerspectiveSymmetry_PaddingUnchanged(t *testing.T) {
 	obsP1 := g.BuildDynamicObs(1)
 
 	// recent_damage + modifier_log padding 段
-	rdOffset := engine.DynamicObsSize() -
+	rdOffset := engine.DynamicObsSize() - engine.ObsBuffSlots -
 		engine.ObsModifierLogSlots -
 		engine.ObsPrepareSkillSlots -
 		engine.ObsRecentDamageSlots
@@ -154,8 +154,8 @@ func TestObsPerspectiveSymmetry_PaddingUnchanged(t *testing.T) {
 			return
 		}
 	}
-	mlOffset := engine.DynamicObsSize() - engine.ObsModifierLogSlots
-	for i := mlOffset; i < engine.DynamicObsSize(); i++ {
+	mlOffset := engine.DynamicObsSize() - engine.ObsBuffSlots - engine.ObsModifierLogSlots
+	for i := mlOffset; i < mlOffset+engine.ObsModifierLogSlots; i++ {
 		if obsP0[i] != obsP1[i] {
 			t.Errorf("modifier_log padding[%d]: P0=%d P1=%d", i-mlOffset, obsP0[i], obsP1[i])
 			return

@@ -25,7 +25,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 # Shape constants matching the bundled DSL.
 N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16
 N_HOOKS = 900
-MAX_TOK = 64
+MAX_TOK = 128
 MAX_ACTIONS = 512
 D_MODEL = 16
 
@@ -44,6 +44,28 @@ def _make_agent(seed: int = 0) -> Agent:
     return Agent(cfg)
 
 
+# F4: v_legacy 赤蝶-mirror eligibility (17) exceeds the 15-slot padding
+# target and the engine no longer truncates silently — pin the
+# historical truncation-era composition (probe 2026-06-12, byte order).
+SELFPLAY_DECK = [
+    '乘胜追击',
+    '以攻代守',
+    '以牙还牙',
+    '伏兵之术',
+    '佛跳墙',
+    '占星',
+    '反制',
+    '清洁时间',
+    '玄冰',
+    '瞬身之术',
+    '美味烧鸡',
+    '荷花酥',
+    '蝶鳞',
+    '西风长枪',
+    '诅咒',
+]
+
+
 def _make_env(seed: int = 0) -> GicgEnv:
     # ADR-0011: explicit deck_padding pins the legacy 15-slot 碌碌无为
     # shape so the legal-action count stays under MAX_ACTIONS=512. With
@@ -55,6 +77,7 @@ def _make_env(seed: int = 0) -> GicgEnv:
         seed=seed,
         data_dir=DATA_DIR,
         deck_padding={'card': '碌碌无为', 'target_size': 15},
+        decks=[SELFPLAY_DECK, SELFPLAY_DECK],
     )
     env.reset(seed=seed)
     return env

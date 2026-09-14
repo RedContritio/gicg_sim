@@ -15,7 +15,7 @@ The FastAPI router, websocket handler, and message dispatch live in
 from __future__ import annotations
 
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
@@ -41,7 +41,8 @@ WS_IDLE_TIMEOUT_S = 600.0
 # bust ensures a retrained ckpt at the same path invalidates. We cache
 # PlayerBuilder functions (not player instances) — each game still
 # calls builder(seed) to get a fresh player with fresh MCTS state.
-# Keeping the builder lets us reuse loaded Agent weights across games.
+# Keeping the builder lets adapters reuse loaded checkpoint payloads while
+# creating isolated per-game agent state.
 _BUILDER_CACHE_CAP = 4
 _builder_cache: 'OrderedDict[tuple, object]' = OrderedDict()
 
@@ -55,6 +56,7 @@ class LiveSession:
     env: GicgEnv
     player: _PlayerProtocol
     human_player: int
+    history: list[str] = field(default_factory=list)
 
 
 def build_legal_actions(env: GicgEnv) -> list[dict]:
@@ -71,6 +73,8 @@ def build_legal_actions(env: GicgEnv) -> list[dict]:
         return []
     kinds, _ = env.get_legal_actions()
     labels = env.get_action_labels()
+    identities = env.get_action_identities()
+    payments = env.get_legal_action_payments()
     actions = []
     for i, k in enumerate(kinds):
         if i < len(labels):
@@ -84,6 +88,8 @@ def build_legal_actions(env: GicgEnv) -> list[dict]:
                 'kind_name': kind_name,
                 'name': name,
                 'slot': int(slot),
+                'payment': payments[i].tolist(),
+                'identity': identities[i].tolist(),
             }
         )
     return actions
@@ -107,15 +113,16 @@ def auto_advance_agent(sess: LiveSession) -> None:
         sess.env.step(0)
 
     # Agent turns.
-    while not sess.env.done and sess.env.current_player != sess.human_player:
+    while not sess.env.done and sess.env.acting_player != sess.human_player:
         kinds, _ = sess.env.get_legal_actions()
         if len(kinds) == 0:
             break
         action = sess.player.select_action(sess.env)
+        record_action(sess, action)
         sess.env.step(action)
 
 
-def _validate_ckpt_path(ckpt: str) -> Path:
+def _validate_ckpt_path(ckpt: str, allow_root: Path = CKPT_ALLOW_ROOT) -> Path:
     """Reject ckpt paths outside CKPT_ALLOW_ROOT. Returns the resolved
     absolute path on success, raises ValueError on any violation.
 
@@ -133,24 +140,29 @@ def _validate_ckpt_path(ckpt: str) -> Path:
         # + traversal-blocked cases.
         raise ValueError('ckpt not available') from exc
     try:
-        resolved.relative_to(CKPT_ALLOW_ROOT)
+        resolved.relative_to(allow_root.resolve())
     except ValueError as exc:
         raise ValueError('ckpt not in artifacts/ (only in-repo trained ckpts are loadable)') from exc
     return resolved
 
 
-def build_opponent_player(opponent_spec: dict, seed: int) -> _PlayerProtocol:
-    """Delegate to matchup's LOADERS. ckpt-bearing specs go through
+def build_opponent_player(
+    opponent_spec: dict,
+    seed: int,
+    *,
+    ckpt_allow_root: Path = CKPT_ALLOW_ROOT,
+) -> _PlayerProtocol:
+    """Delegate to matchup's LOADERS. Checkpoint-bearing specs go through
     _validate_ckpt_path first so an attacker can't use error messages
     to enumerate the filesystem outside artifacts/. Loaded builders
-    (which hold the decoded Agent + weights) are cached so pressing
-    Restart doesn't reload a multi-MB ckpt every time."""
+    (which hold decoded checkpoint payloads) are cached so pressing Restart
+    does not read a multi-MB checkpoint every time."""
     if not isinstance(opponent_spec, dict):
         raise ValueError('opponent spec must be an object')
     t = opponent_spec.get('type')
-    if t in ('az', 'cfr'):
+    if 'ckpt' in opponent_spec:
         ckpt = opponent_spec.get('ckpt', '')
-        resolved = _validate_ckpt_path(ckpt)
+        resolved = _validate_ckpt_path(ckpt, ckpt_allow_root)
         # Cache key includes mtime so a retrained ckpt at the same
         # path invalidates immediately.
         try:
@@ -184,3 +196,11 @@ def sanitize_error(exc: Exception) -> str:
             msg = msg.split(token)[0].rstrip(': \'"')
             break
     return f'{type(exc).__name__}: {msg}' if msg else type(exc).__name__
+
+
+def record_action(sess, action):
+    kind, name, _ = sess.env.get_action_labels()[action]
+    labels = {'Skill': '技能', 'Card': '出牌', 'Switch': '换人', 'EndTurn': '结束回合', 'Tune': '调和'}
+    sess.history.append(
+        f'第{sess.env.export_view()["round"]}回合 P{sess.env.acting_player}：{labels.get(kind, kind)} {name}'
+    )

@@ -29,14 +29,15 @@ class HookEncoder(nn.Module):
       hook_mask: (B, N) bool — which hook slots are active
 
     Returns (B, N, token_dim) — one embedding per hook. Inside a hook,
-    each op is embedded as (opcode_embed + sum-of-operand_embed + pos_embed);
+    each op is embedded as (opcode_embed + ordered_operand_projection + pos_embed);
     Transformer attends across ops; mean-pooled over non-NOP ops.
 
     The vocab for operand_embed is sized to cover the union of all
     operand semantic spaces (reg indices 0..MaxRegs, ctx-field/enum/
     method/builtin/kwarg/bridge token IDs in range 0..~512 per
     tokenizer_tokens.go). Negative operand values (NullReg=-1) are
-    clamped to 0 — the encoder masks unused operand slots via opcode.
+    use a reserved null token distinct from register/reference zero. Immediate
+    OpLoadImm values use a signed numeric projection instead of this vocabulary.
     """
 
     def __init__(
@@ -51,10 +52,11 @@ class HookEncoder(nn.Module):
     ) -> None:
         super().__init__()
         self.opcode_embed = nn.Embedding(opcode_vocab, token_dim)
-        # Single shared embedding table for all 4 operand slots (dst+op1+op2+op3).
-        # Operand semantics depend on opcode; the encoder learns to dispatch
-        # implicitly via the opcode_embed signal.
-        self.operand_embed = nn.Embedding(operand_vocab, token_dim)
+        # Share vocabulary, but preserve field roles. Summing these embeddings
+        # makes dst/op1/op2/op3 permutations indistinguishable before attention.
+        self.operand_embed = nn.Embedding(operand_vocab + 1, token_dim)
+        self.operand_projection = nn.Linear(4 * token_dim, token_dim, bias=False)
+        self.literal_projection = nn.Sequential(nn.Linear(2, token_dim), nn.ReLU(), nn.Linear(token_dim, token_dim))
         self.pos_embed = nn.Embedding(max_ops, token_dim)
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=token_dim,
@@ -79,12 +81,18 @@ class HookEncoder(nn.Module):
         B, N, T, F = hook_ir.shape  # F=5
         flat = hook_ir.reshape(B * N, T, F).long()
         opcode = flat[..., 0].clamp(min=0, max=self.opcode_vocab - 1)
-        operands = flat[..., 1:5].clamp(min=0, max=self.operand_vocab - 1)
+        operands = (flat[..., 1:5] + 1).clamp(min=0, max=self.operand_vocab)
+        literal = opcode == 1  # OpLoadImm; canonical definition markers use opcode 15.
+        operands = operands.clone()
+        operands[..., 1] = torch.where(literal, 0, operands[..., 1])
         pos = torch.arange(T, device=flat.device).unsqueeze(0).expand(B * N, -1)
-        # Per-op embedding = opcode + sum(4 operands) + pos.
+        # Concatenation gives each field a distinct block of projection weights.
         op_emb = self.opcode_embed(opcode)
-        operand_emb = self.operand_embed(operands).sum(dim=-2)
+        operand_emb = self.operand_projection(self.operand_embed(operands).flatten(start_dim=-2))
         tok = op_emb + operand_emb + self.pos_embed(pos)
+        number = flat[..., 2].float()
+        numeric = torch.stack((number / 10, number.sign() * number.abs().log1p()), dim=-1)
+        tok = tok + self.literal_projection(numeric) * literal.unsqueeze(-1)
         pad_mask = flat[..., 0] == 0  # OpNop padding
         out = self.transformer(tok, src_key_padding_mask=pad_mask)
         valid = (~pad_mask).unsqueeze(-1).float()

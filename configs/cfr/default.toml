@@ -22,6 +22,18 @@ team_0 = ["赤蝶"]
 team_1 = ["赤蝶"]
 team_size = 1
 max_rounds = 15
+# F4 显式 deck(2026-06-12):引擎不再静默截断 eligible > target_size 的 deck。
+# 以下 = 截断时代实际生效的 15 张(probe 实测,字节序),bit 级不变。
+deck_0 = [
+    "乘胜追击", "以攻代守", "以牙还牙", "伏兵之术", "佛跳墙", "占星", "反制",
+    "测试卡_增幅", "测试卡_碎片", "测试卡_神秘水流", "清洁时间", "玄冰", "瞬身之术",
+    "美味烧鸡", "荷花酥",
+]
+deck_1 = [
+    "乘胜追击", "以攻代守", "以牙还牙", "伏兵之术", "佛跳墙", "占星", "反制",
+    "测试卡_增幅", "测试卡_碎片", "测试卡_神秘水流", "清洁时间", "玄冰", "瞬身之术",
+    "美味烧鸡", "荷花酥",
+]
 deck_padding = { card = "碌碌无为", target_size = 15 }
 pool = ["v_legacy", "test_basic"]
 data_dir = "data"
@@ -30,7 +42,7 @@ data_dir = "data"
 [shape]
 n_counter_slots = 1832
 n_hooks = 900
-max_ops_per_hook = 64
+max_ops_per_hook = 128
 max_actions = 2048
 d_model = 64
 n_cross_layers = 2

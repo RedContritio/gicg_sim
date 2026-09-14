@@ -16,6 +16,8 @@ n_simulations > 0 → MCTS(net prior + value) via the same
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint
+
 import torch
 
 from training.core.matchup.loaders import (
@@ -31,7 +33,7 @@ from training.paradigms.cfr.strategy_net import CFRNetConfig
 
 def _loader_cfr(spec: dict) -> PlayerBuilder:
     ckpt_path = spec['ckpt']
-    blob = torch.load(ckpt_path, weights_only=True, map_location='cpu')
+    blob = load_checkpoint(ckpt_path, weights_only=True, map_location='cpu')
     if not isinstance(blob, dict) or 'cfg' not in blob or 'net' not in blob:
         raise RuntimeError(f"matchup: cfr ckpt {ckpt_path} missing 'cfg' or 'net' key")
     cfg = CFRNetConfig(**blob['cfg'])

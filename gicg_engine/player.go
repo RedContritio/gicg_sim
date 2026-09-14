@@ -12,21 +12,16 @@ type CardInst struct {
 	DrawnAtRound int
 }
 
-type PendingCard struct {
-	PlayerIdx    int
-	CardRef      int
-	BattleAction bool
-	TargetMode   int // 1=own_char, 2=enemy_char
-}
-
 // SupportInst tracks one card occupying a player's support zone
 // (PlayerState.Supports). Pushed on card_play by the priority 2000 hook
 // in interp/builtins_card.go (Slot.Support 分支). Removed via DSL
 // builtin remove_support(p, ref) which also appends the card_ref into
 // Discard and fires HookSupportRemove.
 type SupportInst struct {
-	Ref         int // card_ref
-	ActivatedAt int // game.Round when entered
+	ID          uint64 // internal lifecycle identity, stable through payment and clone
+	Ref         int    // card_ref
+	ActivatedAt int    // game.Round when entered
+	BuffID      uint64 // associated independent effect; internal lifecycle identity
 }
 
 // MaxSupportSlots — GICG canonical 4-slot support zone cap. Enforced at

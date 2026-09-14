@@ -53,9 +53,13 @@ class DMCParadigm:
 
     def make_network(self, cfg: Any) -> Any:
         """Build DMCNetwork (nn.Module wrapper around DmcAgent)."""
+        if self._network is not None:
+            return self._network
+        torch.manual_seed(int(cfg.meta.seed))
         pcfg = self._resolve_pcfg(cfg)
         agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
         self._network = DMCNetwork(agent_cfg, device=cfg.meta.device, epsilon=pcfg.epsilon)
+        self._network._agent.rng.seed(int(cfg.meta.seed))
         return self._network
 
     def make_optimizer(self, cfg: Any, network: Any) -> Any:
@@ -108,7 +112,7 @@ class DMCParadigm:
             raise ValueError('DMCParadigm.make_collector: env_factory required (None passed)')
         env = env_factory(0)
         agent = network.agent if hasattr(network, 'agent') else network
-        return DMCSerialCollector(cfg, pcfg, agent, opp_pool, env)
+        return DMCSerialCollector(cfg, pcfg, agent, opp_pool, env, env_factory)
 
     def _make_go_collector(self, cfg: Any, pcfg: Any, network: Any) -> Any:
         """Build DMCGoSubprocessCollector with paradigm_cfg_dict assembled from cfg + pcfg。
@@ -123,13 +127,20 @@ class DMCParadigm:
         from training.paradigms.dmc.inference_net import DMCInferenceNet
 
         sc = cfg.scenario
+        # F4: players[i].deck mirrors [scenario].deck_0/deck_1 — the Go
+        # subprocess unmarshals the same factory.GameConfig wire format,
+        # so omitting it here would fork deck behavior across backends
+        # (the Go side would fail loud on implicit overflow).
+        players = []
+        for team, deck in ((sc.team_0, sc.deck_0), (sc.team_1, sc.deck_1)):
+            p = {'chars': [{'name': n} for n in team]}
+            if deck is not None:
+                p['deck'] = list(deck)
+            players.append(p)
         game_spec = {
             'pools': [sc.pool] if isinstance(sc.pool, str) else sc.pool or ['v_legacy'],
             'seed': cfg.meta.seed,
-            'players': [
-                {'chars': [{'name': n} for n in sc.team_0]},
-                {'chars': [{'name': n} for n in sc.team_1]},
-            ],
+            'players': players,
         }
         if sc.card_pool is not None:
             game_spec['card_pool'] = sc.card_pool

@@ -9,6 +9,8 @@ Covers:
 
 from __future__ import annotations
 
+from training.core.artifact_io import ArtifactCompatibilityError
+
 import subprocess
 import sys
 import warnings
@@ -76,7 +78,7 @@ def test_save_metadata_contains_all_keys(tmp_path: Path):
     }
     missing = required - set(blob.keys())
     assert not missing, f'missing required keys: {missing}'
-    assert blob['schema_version'] == 2
+    assert blob['schema_version'] == 3
     assert blob['cfg_version'] == '1.0.0'
     assert blob['net_kind'] == '_MockNet'  # from the inner class
     # created_at is iso8601 with timezone
@@ -91,7 +93,18 @@ def test_load_pre_redesign_schema_raises(tmp_path: Path):
     # Manually save in old schema
     torch.save({'net': agent.net.state_dict(), 'cfg': vars(cfg)}, str(p))
 
-    with pytest.raises(CkptSchemaError, match='pre-redesign ckpt schema'):
+    with pytest.raises((CkptSchemaError, ArtifactCompatibilityError), match='pre-reset|pre-redesign ckpt schema'):
+        agent.load(str(p))
+
+
+def test_load_pre_definition_relation_schema_raises(tmp_path: Path):
+    agent = _make_agent(_make_cfg())
+    p = tmp_path / 'schema2.pt'
+    agent.save(str(p))
+    blob = torch.load(str(p), weights_only=True, map_location='cpu')
+    blob['schema_version'] = 2
+    torch.save(blob, str(p))
+    with pytest.raises(CkptSchemaError, match='schema_version=2.*current 3'):
         agent.load(str(p))
 
 
@@ -144,7 +157,7 @@ def test_tools_ckpt_info_cli(tmp_path: Path):
     )
     assert result.returncode == 0, f'CLI failed: {result.stderr}'
     out = result.stdout
-    assert 'schema_version:  2' in out
+    assert 'schema_version:  3' in out
     assert 'paradigm:' in out
     assert 'net_kind:' in out
     assert 'git_commit:' in out

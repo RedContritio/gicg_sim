@@ -25,12 +25,19 @@ func (d Diff) String() string {
 func VerifyState(rt *interp.Runtime, state *State) []Diff {
 	var diffs []Diff
 	g := rt.Game
-	if g.Turn != state.FirstPlayer {
-		diffs = append(diffs, Diff{Path: "先手", Expected: state.FirstPlayer, Actual: g.Turn})
+	first := g.Turn
+	if g.Phase == engine.PhaseRoundStart && g.FirstEnd >= 0 {
+		first = g.FirstEnd
+	}
+	if first != state.FirstPlayer {
+		diffs = append(diffs, Diff{Path: "先手", Expected: state.FirstPlayer, Actual: first})
 	}
 	roleMap := buildRoleMap(rt)
 	for pi, pe := range [2]PlayerState{state.P0, state.P1} {
-		diffs = append(diffs, verifyPlayer(rt, roleMap, pi, pe, nil)...)
+		if state.ActiveChars != nil && g.Players[pi].ActiveChar != state.ActiveChars[pi] {
+			diffs = append(diffs, Diff{Path: fmt.Sprintf("P%d.active_char", pi), Expected: state.ActiveChars[pi], Actual: g.Players[pi].ActiveChar})
+		}
+		diffs = append(diffs, verifyPlayer(rt, roleMap, pi, pe, nil, state.ActiveChars == nil)...)
 	}
 	return diffs
 }
@@ -43,7 +50,10 @@ func VerifyAgainstSnap(rt *interp.Runtime, snap *engine.StateSnapshot, state *St
 	}
 	roleMap := buildRoleMap(rt)
 	for pi, pe := range [2]PlayerState{state.P0, state.P1} {
-		diffs = append(diffs, verifyPlayer(rt, roleMap, pi, pe, snap)...)
+		if state.ActiveChars != nil && snap.ActiveChars[pi] != state.ActiveChars[pi] {
+			diffs = append(diffs, Diff{Path: fmt.Sprintf("P%d.active_char", pi), Expected: state.ActiveChars[pi], Actual: snap.ActiveChars[pi]})
+		}
+		diffs = append(diffs, verifyPlayer(rt, roleMap, pi, pe, snap, state.ActiveChars == nil)...)
 	}
 	return diffs
 }
@@ -56,7 +66,7 @@ func counterVal(g *engine.Game, snap *engine.StateSnapshot, id int) int {
 	return g.Counters[id].Value
 }
 
-func verifyPlayer(rt *interp.Runtime, roleMap RoleMap, pi int, pe PlayerState, snap *engine.StateSnapshot) []Diff {
+func verifyPlayer(rt *interp.Runtime, roleMap RoleMap, pi int, pe PlayerState, snap *engine.StateSnapshot, legacyActive bool) []Diff {
 	var diffs []Diff
 	g := rt.Game
 
@@ -119,12 +129,12 @@ func verifyPlayer(rt *interp.Runtime, roleMap RoleMap, pi int, pe PlayerState, s
 			})
 			continue
 		}
-		diffs = append(diffs, verifyChar(rt, roleMap, pi, ci, expected, snap)...)
+		diffs = append(diffs, verifyChar(rt, roleMap, pi, ci, expected, snap, legacyActive)...)
 	}
 	return diffs
 }
 
-func verifyChar(rt *interp.Runtime, roleMap RoleMap, pi, ci int, expected CharFullState, snap *engine.StateSnapshot) []Diff {
+func verifyChar(rt *interp.Runtime, roleMap RoleMap, pi, ci int, expected CharFullState, snap *engine.StateSnapshot, legacyActive bool) []Diff {
 	var diffs []Diff
 	g := rt.Game
 	path := fmt.Sprintf("P%d.%s", pi, expected.Name)
@@ -147,7 +157,7 @@ func verifyChar(rt *interp.Runtime, roleMap RoleMap, pi, ci int, expected CharFu
 			continue
 		}
 		var actual int
-		if roleMap[id] == RoleActive {
+		if legacyActive && roleMap[id] == RoleActive {
 			// Active state comes from engine ActiveChars, not the counter.
 			activeCi := -1
 			if snap != nil {

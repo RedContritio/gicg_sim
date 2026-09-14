@@ -32,6 +32,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('paths', nargs='*')
     ap.add_argument('--raw-dir', default=None)
+    ap.add_argument('--raw-list-dir', type=Path, default=None, help='与详情同快照的目录索引路径')
     ap.add_argument('--out', '-o', default=None)
     ap.add_argument('--out-dir', default='data/full')
     ap.add_argument('--coverage', action='store_true', help='打印 coverage report')
@@ -100,7 +101,7 @@ def main() -> int:
     warnings.simplefilter('always')
     for p in raw_files:
         try:
-            card, cov = transform(p, hash_collector=hash_collector, keys_lang=args.keys)
+            card, cov = transform(p, hash_collector=hash_collector, keys_lang=args.keys, raw_list_dir=args.raw_list_dir)
             if not card:
                 print(f'  [skip] {p.name}', file=sys.stderr)
                 continue

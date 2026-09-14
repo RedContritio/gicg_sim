@@ -29,7 +29,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 # Small shapes matching the bundled 赤蝶 smoke scenario.
 N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16
 N_HOOKS = 900
-MAX_TOK = 64
+MAX_TOK = 128
 MAX_ACTIONS = 256
 D_MODEL = 16
 
@@ -78,7 +78,12 @@ def env_state():
 class TestInferenceServerLifecycle:
     def test_start_and_stop_clean(self):
         torch.manual_seed(0)
-        srv = InferenceServer(_cfg(), n_workers=1, network_factory_path='training.paradigms.az.network.Agent', inference_handlers_module_path='training.paradigms.az._inference_handlers')
+        srv = InferenceServer(
+            _cfg(),
+            n_workers=1,
+            network_factory_path='training.paradigms.az.network.Agent',
+            inference_handlers_module_path='training.paradigms.az._inference_handlers',
+        )
         srv.start()
         srv.stop()
         # Second stop is a no-op (idempotent).
@@ -87,7 +92,12 @@ class TestInferenceServerLifecycle:
     def test_game_start_eval_game_end_roundtrip(self, env_state):
         static, dyn, refs, payments = env_state
         torch.manual_seed(0)
-        srv = InferenceServer(_cfg(), n_workers=1, network_factory_path='training.paradigms.az.network.Agent', inference_handlers_module_path='training.paradigms.az._inference_handlers')
+        srv = InferenceServer(
+            _cfg(),
+            n_workers=1,
+            network_factory_path='training.paradigms.az.network.Agent',
+            inference_handlers_module_path='training.paradigms.az._inference_handlers',
+        )
         srv.start()
         pipe = srv.get_worker_pipe(0)
         try:
@@ -108,6 +118,7 @@ class TestInferenceServerLifecycle:
                 'counter_sids',
                 'active_slot_mask',
                 'char_skill_refs',
+                'definition_links',
             }
 
             pipe.send(
@@ -152,7 +163,12 @@ class TestInferenceServerParity:
         # Ensure server starts with identical weights.
         sd = _cpu_state_dict(local)
 
-        srv = InferenceServer(_cfg(), n_workers=1, network_factory_path='training.paradigms.az.network.Agent', inference_handlers_module_path='training.paradigms.az._inference_handlers')
+        srv = InferenceServer(
+            _cfg(),
+            n_workers=1,
+            network_factory_path='training.paradigms.az.network.Agent',
+            inference_handlers_module_path='training.paradigms.az._inference_handlers',
+        )
         srv.start()
         srv.push_weights(sd)
         # Give the server a moment to apply the weight update.
@@ -203,7 +219,12 @@ class TestInferenceServerWeightVersion:
 
         torch.manual_seed(0)
         local = Agent(_cfg())
-        srv = InferenceServer(_cfg(), n_workers=1, network_factory_path='training.paradigms.az.network.Agent', inference_handlers_module_path='training.paradigms.az._inference_handlers')
+        srv = InferenceServer(
+            _cfg(),
+            n_workers=1,
+            network_factory_path='training.paradigms.az.network.Agent',
+            inference_handlers_module_path='training.paradigms.az._inference_handlers',
+        )
         srv.start()
         try:
             # Push 3 weight updates BEFORE the first game_start.
@@ -236,7 +257,12 @@ class TestInferenceServerWeightSync:
         static, dyn, refs, payments = env_state
 
         torch.manual_seed(100)
-        srv = InferenceServer(_cfg(), n_workers=1, network_factory_path='training.paradigms.az.network.Agent', inference_handlers_module_path='training.paradigms.az._inference_handlers')
+        srv = InferenceServer(
+            _cfg(),
+            n_workers=1,
+            network_factory_path='training.paradigms.az.network.Agent',
+            inference_handlers_module_path='training.paradigms.az._inference_handlers',
+        )
         srv.start()
         pipe = srv.get_worker_pipe(0)
         try:

@@ -27,6 +27,8 @@ ACTION_SKILL = 0
 ACTION_CARD = 1
 ACTION_SWITCH = 2
 ACTION_END_TURN = 3
+ACTION_TUNE = 4
+ACTION_REROLL = 5
 
 # ---------------------------------------------------------------------------
 # Observation schema constants — MUST stay in sync with
@@ -34,7 +36,7 @@ ACTION_END_TURN = 3
 # ---------------------------------------------------------------------------
 
 # Meta header: phase, round, is_my_turn.
-OBS_META_SIZE = 3
+OBS_META_SIZE = 19
 
 # Card pool / hand bucket sizing (engine.ObsMaxCardTypes + per-side enemy
 # hand scalar count).
@@ -47,6 +49,9 @@ OBS_MAX_CHARS = 6
 OBS_MAX_SKILLS_PER_CHAR = 10
 OBS_CHAR_SKILL_REFS_SIZE = 2 * OBS_MAX_CHARS * OBS_MAX_SKILLS_PER_CHAR
 OBS_CHAR_ELEMENT_SLOTS = 2 * OBS_MAX_CHARS
+OBS_MAX_DEFINITION_LINKS = 16384
+OBS_DEFINITION_LINK_SCHEMA_VERSION = 1
+OBS_DEFINITION_LINK_SLOTS = 2 + 2 * OBS_MAX_DEFINITION_LINKS
 
 # ADR-0019 §B.3c typed damage event ring.
 OBS_RECENT_DAMAGE_EVENTS = 8
@@ -93,3 +98,8 @@ REWARD_EVENTS_FIELDS = (
     'energy_overflow',
 )
 REWARD_EVENTS_COUNT = len(REWARD_EVENTS_FIELDS)
+
+# Ordered buff instances paired with their static rule hooks.
+OBS_BUFF_ROWS = 1024
+OBS_BUFF_FIELDS = 16
+OBS_BUFF_SLOTS = OBS_BUFF_ROWS * OBS_BUFF_FIELDS

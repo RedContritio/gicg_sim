@@ -1,0 +1,681 @@
+{
+  "seed": 29,
+  "trace": [
+    {
+      "index": 1,
+      "label": [
+        "Switch",
+        "墨客",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Switch",
+        "刻师傅",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 34,
+      "label": [
+        "Card",
+        "占星",
+        3
+      ],
+      "target": false
+    },
+    {
+      "index": 40,
+      "label": [
+        "Tune",
+        "铁枪",
+        3
+      ],
+      "target": false
+    },
+    {
+      "index": 32,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 105,
+      "label": [
+        "Card",
+        "铁枪",
+        4
+      ],
+      "target": false
+    },
+    {
+      "index": 24,
+      "label": [
+        "Card",
+        "伏兵之术",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 21,
+      "label": [
+        "Card",
+        "占星",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 3,
+      "label": [
+        "Tune",
+        "铁剑",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 1,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 30,
+      "label": [
+        "Tune",
+        "刺刺猫爪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 30,
+      "label": [
+        "Switch",
+        "墨客",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Switch",
+        "刻师傅",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 17,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 1,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 14,
+      "label": [
+        "Tune",
+        "伏兵之术",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 7,
+      "label": [
+        "Tune",
+        "铁剑",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Skill",
+        "猫爪护盾",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 130,
+      "label": [
+        "Tune",
+        "荷花酥",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 15,
+      "label": [
+        "Skill",
+        "箭",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 39,
+      "label": [
+        "Card",
+        "反制",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 3,
+      "label": [
+        "Skill",
+        "箭",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 32,
+      "label": [
+        "Tune",
+        "刺刺猫爪",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 11,
+      "label": [
+        "Card",
+        "反制",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Switch",
+        "刻师傅",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 3,
+      "label": [
+        "Switch",
+        "墨客",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 3,
+      "label": [
+        "Switch",
+        "天星",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 2,
+      "label": [
+        "Tune",
+        "蝶鳞",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 2,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 1,
+      "label": [
+        "Switch",
+        "天星",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 22,
+      "label": [
+        "Card",
+        "诅咒",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 13,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 23,
+      "label": [
+        "Card",
+        "诅咒",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Card",
+        "西风剑",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 2,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 16,
+      "label": [
+        "Tune",
+        "西风剑",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 10,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 2,
+      "label": [
+        "Switch",
+        "墨客",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 1,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 65,
+      "label": [
+        "Card",
+        "佛跳墙",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "Skill",
+        "枪",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 59,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 6,
+      "label": [
+        "Skill",
+        "枪",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 20,
+      "label": [
+        "Card",
+        "佛跳墙",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 3,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 29,
+      "label": [
+        "Card",
+        "铁弓",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 11,
+      "label": [
+        "Tune",
+        "以逸待劳",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 9,
+      "label": [
+        "Switch",
+        "猫咪",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Card",
+        "以逸待劳",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 14,
+      "label": [
+        "Switch",
+        "刻师傅",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 11,
+      "label": [
+        "Tune",
+        "以牙还牙",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 12,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 82,
+      "label": [
+        "Card",
+        "瞬身之术",
+        3
+      ],
+      "target": false
+    },
+    {
+      "index": 47,
+      "label": [
+        "Switch",
+        "墨客",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 35,
+      "label": [
+        "Card",
+        "荷花酥",
+        2
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "Card",
+        "铁弓",
+        1
+      ],
+      "target": false
+    },
+    {
+      "index": 3,
+      "label": [
+        "Switch",
+        "赤蝶",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "Skill",
+        "剑",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Card",
+        "以牙还牙",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 14,
+      "label": [
+        "Card",
+        "美味烧鸡",
+        0
+      ],
+      "target": false
+    },
+    {
+      "index": 0,
+      "label": [
+        "Skill",
+        "剑",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 4,
+      "label": [
+        "EndTurn",
+        "-",
+        -1
+      ],
+      "target": false
+    },
+    {
+      "index": 37,
+      "label": [
+        "Card",
+        "美味烧鸡",
+        1
+      ],
+      "target": false
+    }
+  ],
+  "error": "DSL rule failed (round=7 player=0 hook=-1 source=\"\"): line 22: attempt to call a <nil> value"
+}

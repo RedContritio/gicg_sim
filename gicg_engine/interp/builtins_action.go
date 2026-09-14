@@ -1,13 +1,11 @@
 package interp
 
 import (
+	"fmt"
 	engine "gicg_mono/gicg_engine"
 )
 
-// Action builtins: deal_damage, heal, defer_fn, get/set_active_char,
-// get_next_char, context_player, force_switch_next, cancel.
-// resolveTargetHP + registerDeathCheck helpers live here since they
-// are invoked only by these actions.
+// Damage/heal actions, target resolution and active-character helpers.
 
 func (rt *Runtime) builtinDealDamage(args []Value) (Value, error) {
 	target, _ := ToInt(args[0])
@@ -26,8 +24,32 @@ func (rt *Runtime) builtinDealDamage(args []Value) (Value, error) {
 	// attacks vs 泼墨=2 expected). Affected DSL: 墨客_水龙吟 / 蝶鳞 /
 	// 星愿 / 以逸待劳 / 玄冰 / 以牙还牙 / 歼灭机关_技能 (11+ files).
 	source := engine.SrcNone
+	var actor *CharProxy
+	var targetCounter *PerCharProxy
+	otherCharacters := false
 	if len(args) > 3 && args[3] != nil {
 		if opts, ok := args[3].(*Table); ok && opts != nil {
+			if v, ok := opts.Fields["other_characters"]; ok {
+				var valid bool
+				otherCharacters, valid = v.(bool)
+				if !valid {
+					return nil, fmt.Errorf("other_characters requires boolean")
+				}
+			}
+			if v, ok := opts.Fields["actor"]; ok {
+				var valid bool
+				actor, valid = v.(*CharProxy)
+				if !valid || actor == nil || actor.Entry == nil {
+					return nil, fmt.Errorf("deal_damage actor requires a character")
+				}
+			}
+			if v, ok := opts.Fields["target_counter"]; ok {
+				var valid bool
+				targetCounter, valid = v.(*PerCharProxy)
+				if !valid || targetCounter == nil || targetCounter.RefKind != RefKindNone {
+					return nil, fmt.Errorf("deal_damage target_counter requires a numeric PerChar counter")
+				}
+			}
 			if v, ok := opts.Fields["source"]; ok {
 				si, _ := ToInt(v)
 				source = engine.Source(si)
@@ -35,7 +57,29 @@ func (rt *Runtime) builtinDealDamage(args []Value) (Value, error) {
 		}
 	}
 
+	if actor != nil {
+		frame := rt.Game.MustCurrentEvent("deal_damage actor")
+		frame.Player, frame.Char = actor.Entry.PlayerIdx, actor.Entry.CharIdx
+		rt.Game.PushEvent(frame)
+		defer rt.Game.PopEvent()
+	}
 	hpIDs := rt.resolveTargetHP(target)
+	if ch, ok := args[0].(*CharProxy); ok {
+		hpIDs = nil
+		if rt.Game.Players[ch.Entry.PlayerIdx].Chars[ch.Entry.CharIdx].Alive {
+			hpIDs = []int{ch.Entry.HPCounterID}
+		}
+	}
+	if otherCharacters {
+		ch, ok := args[0].(*CharProxy)
+		if !ok || ch == nil || ch.Entry == nil {
+			return nil, fmt.Errorf("other_characters requires a character target")
+		}
+		hpIDs = rt.otherCharacterHP(ch)
+	}
+	if targetCounter != nil {
+		hpIDs = rt.filterDamageTargets(hpIDs, targetCounter)
+	}
 	for _, hpID := range hpIDs {
 		rt.Game.DealDamage(hpID, elem, value, engine.DamageOpts{
 			Source:      source,
@@ -45,17 +89,6 @@ func (rt *Runtime) builtinDealDamage(args []Value) (Value, error) {
 		if rt.Game.Phase == engine.PhaseGameOver {
 			break
 		}
-	}
-	return nil, nil
-}
-
-func (rt *Runtime) builtinHeal(args []Value) (Value, error) {
-	target, _ := ToInt(args[0])
-	value, _ := ToInt(args[1])
-
-	hpIDs := rt.resolveTargetHP(target)
-	for _, hpID := range hpIDs {
-		rt.Game.Heal(hpID, value)
 	}
 	return nil, nil
 }
@@ -102,7 +135,7 @@ func (rt *Runtime) builtinSetActiveChar(args []Value) (Value, error) {
 	p, _ := ToInt(args[0])
 	c, _ := ToInt(args[1])
 	rp := rt.ResolvePlayer(p)
-	rt.Game.Players[rp].ActiveChar = c
+	rt.Game.ForceSwitchTo(rp, c)
 	return nil, nil
 }
 
@@ -135,7 +168,7 @@ func (rt *Runtime) builtinForceSwitchNext(args []Value) (Value, error) {
 	for i := 1; i < n; i++ {
 		idx := (pl.ActiveChar + i) % n
 		if pl.Chars[idx].Alive {
-			pl.ActiveChar = idx
+			rt.Game.ForceSwitchTo(rp, idx)
 			break
 		}
 	}
@@ -143,10 +176,10 @@ func (rt *Runtime) builtinForceSwitchNext(args []Value) (Value, error) {
 }
 
 func (rt *Runtime) builtinCancel(args []Value) (Value, error) {
-	// cancel() sets Cancelled on the current event context
-	// This is handled by the hook dispatch — the DSL sets ctx.cancelled = true
-	// For standalone cancel(), we need access to the current ctx
-	// This is typically called within a hook where ctx is available
+	if rt.currentHookContext == nil {
+		return nil, fmt.Errorf("cancel: no active hook context")
+	}
+	rt.currentHookContext.Cancelled = true
 	return nil, nil
 }
 
@@ -154,7 +187,9 @@ func (rt *Runtime) builtinCancel(args []Value) (Value, error) {
 
 func (rt *Runtime) resolveTargetHP(target int) []int {
 	g := rt.Game
-	cur := g.CurrentEvent()
+	// 目标解析必须有事件帧(含 CardTarget:卡目标解析只发生在 card-play
+	// 帧内)。空栈 = 无帧 hook 误调伤害类 builtin,fail loud。
+	cur := g.MustCurrentEvent("resolveTargetHP")
 	actorPlayer := cur.Player
 
 	switch target {
@@ -199,7 +234,8 @@ func (rt *Runtime) resolveTargetHP(target int) []int {
 			return []int{entry.HPCounterID}
 		}
 	case 6: // CardTarget
-		entry := rt.Chars.BySlot[rt.CurrentCardTargetPlayer][rt.CurrentCardTargetChar]
+		p, c := g.CardTarget()
+		entry := rt.Chars.BySlot[p][c]
 		if entry != nil {
 			return []int{entry.HPCounterID}
 		}

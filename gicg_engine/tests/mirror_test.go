@@ -11,6 +11,9 @@ import (
 // attached to BOTH players' chars, not just the second-bound one.
 func TestMirrorMatchSkillsWork(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶"}, []string{"赤蝶"})
+	// Rule test: explicitly fund both players rather than depend on random rolls.
+	env.SetDice(0, map[int]int{7: 8})
+	env.SetDice(1, map[int]int{7: 8})
 
 	e0 := env.RT.Chars.BySlot[0][0]
 	e1 := env.RT.Chars.BySlot[1][0]

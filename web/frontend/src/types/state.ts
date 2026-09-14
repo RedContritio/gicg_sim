@@ -33,6 +33,8 @@ export interface CharView {
 }
 
 export interface PlayerView {
+  dice?: number[]
+  statuses?: StatusView[]
   active_char: number
   alive_count: number
   chars: CharView[]
@@ -41,6 +43,7 @@ export interface PlayerView {
 }
 
 export interface StateView {
+  acting_player?: number
   phase: Phase
   round: number
   turn: number
@@ -55,6 +58,8 @@ export interface StateView {
 // Frontend uses this to render playable moves and to match clicks on
 // hand / char portraits back to the action index.
 export interface LegalAction {
+  identity?: number[]
+  payment?: number[]
   index: number              // echo back in {'type':'action', index}
   kind: number               // numeric engine enum (0=Skill/1=Card/2=Switch/3=EndTurn)
   kind_name: string          // "Skill" | "Card" | "Switch" | "EndTurn"
@@ -127,6 +132,7 @@ export interface ReplayDetail {
 // Live WebSocket frames
 export interface LiveStateFrame {
   type: 'state'
+  history?: string[]
   view: StateView
   done: boolean
   current_player: number

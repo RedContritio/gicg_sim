@@ -24,38 +24,50 @@ on_card_play(function(ctx)
 end)
 
 -- 枪造成伤害时给敌方附加蝶印
-on_after_damage(function(ctx)
+on_after_damage({ order = active }, function(ctx)
+  if ctx.source ~= Source.Skill then return end
   if active:get() <= 0 then return end
   if 蝶火_active:get() <= 0 then return end
   if ctx.skill_index ~= 枪 then return end
   if not ctx.hit then return end
-  local enemy_active = get_active_char(Player.Enemy)
-  蝶印:set_at(Player.Enemy, enemy_active, 1)
+  local victim = _char_by_slot[ctx.target_player][ctx.target_char]
+  if not victim or not victim:alive() then return end
+  蝶印:set_at(ctx.target_player, ctx.target_char, 1)
 end)
 
--- 回火额外 +1 治疗（原有 hook 给 2+N，蝶鳞额外 +1 = 3+N）
--- 同时如果敌方有蝶印，额外 1 火伤害
-on_after_damage(function(ctx)
+-- 修改回火已经满足低血量条件的治疗，避免基础治疗先抬高生命后漏判。
+on_before_heal({ order = active }, function(ctx)
+  if ctx.source ~= Source.Skill then return end
+  if ctx.skill_index ~= 回火 then return end
+  if active:get() <= 0 or 蝶火_active:get() <= 0 then return end
+  ctx.value = ctx.value + 1
+end)
+
+-- 回火命中带蝶印的敌人时，仅追加一次状态伤害。
+on_after_damage({ order = active }, function(ctx)
+  if ctx.source ~= Source.Skill then return end
   if active:get() <= 0 then return end
   if ctx.skill_index ~= 回火 then return end
   if 蝶火_active:get() <= 0 then return end
 
-  local hp = 赤蝶:hp():get()
-  if hp < 赤蝶:hp():cmax() / 2 then
-    heal(Target.OwnActive, 1)
-  end
-
-  local enemy_active = get_active_char(Player.Enemy)
-  if 蝶印:get_at(Player.Enemy, enemy_active) > 0 then
-    deal_damage(Target.EnemyActive, Element.Fire, 1, { source = Source.Status })
+  local victim = _char_by_slot[ctx.target_player][ctx.target_char]
+  if not victim or not victim:alive() then return end
+  if 蝶印:get_at(ctx.target_player, ctx.target_char) > 0 then
+    deal_damage(victim, Element.Fire, 1, { source = Source.Status })
   end
 end)
 
--- 蝶印：回合结束造成 1 火伤害并清除
-on_round_end(function(ctx)
-  local active_c = get_active_char(Player.Enemy)
-  if 蝶印:get_at(Player.Enemy, active_c) > 0 then
-    蝶印:set_at(Player.Enemy, active_c, 0)
-    deal_damage(Target.EnemyActive, Element.Fire, 1, { source = Source.Status })
+-- 用户确认：后台角色的蝶印也在回合末造成 1 火，然后清除。
+-- 每枚印独立入队，跨双方按印的产生顺序；伤害归属施加方。
+on_round_end({ order = 蝶印, order_on = "target" }, function(ctx)
+  local victim = _char_by_slot[ctx.actor_player][ctx.actor_char]
+  local source_player = 1 - ctx.actor_player
+  local source_char = _char_by_slot[source_player][get_active_char(source_player)]
+  if victim and victim:alive() then
+    deal_damage(victim, Element.Fire, 1, { source = Source.Status, actor = source_char })
   end
+  蝶印:set_at(ctx.actor_player, ctx.actor_char, 0)
 end)
+
+register_buff(蝶印, { remove_on_death = true })
+register_buff(active)

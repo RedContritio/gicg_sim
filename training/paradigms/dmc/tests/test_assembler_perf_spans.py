@@ -8,6 +8,8 @@ Reuses payload-building helpers from test_go_assembler.py (local module, same di
 
 from __future__ import annotations
 
+from training.paradigms.dmc.tests.test_go_assembler import _build_dyn_obs
+
 import json
 
 import numpy as np
@@ -28,11 +30,25 @@ _SCENARIO = {
 
 
 def _static_obs() -> np.ndarray:
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE, OBS_CHAR_ELEMENT_SLOTS
+    from training.core.obs_constants import (
+        OBS_CHAR_ELEMENT_SLOTS,
+        OBS_CHAR_SKILL_REFS_SIZE,
+        OBS_DEFINITION_LINK_SCHEMA_VERSION,
+        OBS_DEFINITION_LINK_SLOTS,
+    )
 
     s = _SCENARIO
-    total = s['n_counter_slots'] * 3 + OBS_CHAR_SKILL_REFS_SIZE + s['n_hooks'] * s['max_ops_per_hook'] * s['fields_per_op'] + OBS_CHAR_ELEMENT_SLOTS
-    return np.arange(total, dtype=np.int32)
+    total = (
+        s['n_counter_slots'] * 3
+        + OBS_CHAR_SKILL_REFS_SIZE
+        + s['n_hooks'] * s['max_ops_per_hook'] * s['fields_per_op']
+        + OBS_CHAR_ELEMENT_SLOTS
+        + OBS_DEFINITION_LINK_SLOTS
+    )
+    obs = np.arange(total, dtype=np.int32)
+    obs[-OBS_DEFINITION_LINK_SLOTS:] = 0
+    obs[-OBS_DEFINITION_LINK_SLOTS] = OBS_DEFINITION_LINK_SCHEMA_VERSION
+    return obs
 
 
 def _payload(step: int, reward: float, static_hash: bytes, with_static: bool, n_legal: int = 5) -> bytes:
@@ -44,7 +60,7 @@ def _payload(step: int, reward: float, static_hash: bytes, with_static: bool, n_
         reward=reward,
         n_legal=n_legal,
         static_hash=static_hash,
-        dyn_obs=np.arange(4096, dtype=np.float32),
+        dyn_obs=_build_dyn_obs(_SCENARIO['n_counter_slots']),
         refs=refs,
         pay=pay,
         static=_static_obs() if with_static else None,

@@ -18,6 +18,10 @@ from typing import Any
 
 import numpy as np
 
+from training.core.step_encoding import parse_buffs_np
+from training.paradigms.dmc._capture_obs import _capture_obs_np as _capture_obs_np
+from training.core.network.static_links import parse_definition_links_np
+
 
 def decode_dmc_request(
     obs_bytes: bytes,
@@ -42,8 +46,6 @@ def decode_dmc_request(
     """
     import torch
 
-    from training.core.step_encoding import typed_segment_offsets
-    from training.core.structural import compute_structural_values
     from training.core.obs_constants import (
         OBS_HAND_BUCKETS,
         OBS_MAX_CARD_TYPES,
@@ -53,6 +55,8 @@ def decode_dmc_request(
         OBS_RECENT_DAMAGE_EVENTS,
         OBS_RECENT_DAMAGE_FIELD_COUNT,
     )
+    from training.core.step_encoding import typed_segment_offsets
+    from training.core.structural import compute_structural_values
 
     payload = pickle.loads(obs_bytes)
     device = torch.device(device_str)
@@ -111,6 +115,7 @@ def decode_dmc_request(
         'active_slot_mask': static_cache['active_slot_mask'],
         'hook_emb': static_cache['hook_emb'],
         'hook_mask': static_cache['hook_mask'],
+        'definition_links': static_cache['definition_links'],
         'card_buckets': card_buckets,
         'enemy_sizes': enemy_sizes,
         'meta': meta,
@@ -121,6 +126,7 @@ def decode_dmc_request(
         'recent_damage': recent_damage,
         'prepare_skill': prepare_skill,
         'modifier_log': modifier_log,
+        'buffs': torch.as_tensor(parse_buffs_np(payload['dyn_obs'], n_counter_slots), device=device).unsqueeze(0),
     }
     return obs_dict, None
 
@@ -148,6 +154,17 @@ def _server_encode_static(static_obs_np: np.ndarray, device: Any, network: Any) 
     max_ops_per_hook = int(actor_critic.max_ops_per_hook)
     fields_per_op = int(actor_critic.fields_per_op)
     d_model = int(actor_critic.d_model)
+    definition_links_np = parse_definition_links_np(
+        static_obs_np,
+        n_counter_slots=n_counter_slots,
+        n_hooks=n_hooks,
+        max_ops_per_hook=max_ops_per_hook,
+        fields_per_op=fields_per_op,
+    )
+
+    from training.core.network.obs_layout import validate_static_layout
+
+    validate_static_layout(static_obs_np, actor_critic)
 
     with torch.no_grad():
         static = torch.from_numpy(np.ascontiguousarray(static_obs_np, dtype=np.float32)).to(device)
@@ -191,6 +208,7 @@ def _server_encode_static(static_obs_np: np.ndarray, device: Any, network: Any) 
         'active_slot_mask': active_slot_mask_b,
         'hook_emb': hook_emb_b,
         'hook_mask': hook_mask_b,
+        'definition_links': torch.as_tensor(definition_links_np, dtype=torch.long, device=device).unsqueeze(0),
         'char_skill_refs': char_skill_refs_b,
         'structural_obspos': structural_obspos,
         'n_counter_slots': n_counter_slots,
@@ -209,12 +227,14 @@ def _encode_static_np(
     forward — server-side only). Returns the fields ``capture_obs``
     consumes for buffer reconstruction.
     """
+    from training.core.network.obs_layout import validate_static_dimensions
     from training.core.obs_constants import (
         OBS_CHAR_SKILL_REFS_SIZE,
         OBS_MAX_CHARS,
         OBS_MAX_SKILLS_PER_CHAR,
     )
 
+    validate_static_dimensions(static_obs_np, n_counter_slots, n_hooks, max_ops_per_hook, fields_per_op)
     meta_size = n_counter_slots * 3
     counter_meta = static_obs_np[:meta_size].reshape(n_counter_slots, 3)
     active_slot_mask = (counter_meta[:, 0] != 0) | (counter_meta[:, 1] != 0)
@@ -242,64 +262,18 @@ def _encode_static_np(
     else:
         active_ir = np.zeros((1, max_ops_per_hook, fields_per_op), dtype=np.int64)
         hook_mask = np.zeros(1, dtype=bool)
+    definition_links = parse_definition_links_np(
+        static_obs_np,
+        n_counter_slots=n_counter_slots,
+        n_hooks=n_hooks,
+        max_ops_per_hook=max_ops_per_hook,
+        fields_per_op=fields_per_op,
+    )
     return {
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask.astype(bool),
         'char_skill_refs': char_skill_refs,
         'hook_ir': active_ir,
         'hook_mask': hook_mask,
-    }
-
-
-def _capture_obs_np(
-    *,
-    dyn_obs: np.ndarray,
-    n_legal: int,
-    refs_nlegal: np.ndarray,
-    pay_nlegal: np.ndarray,
-    n_counter_slots: int,
-    static_np: dict,
-) -> dict:
-    """Pure-numpy mirror of
-    :func:`training.paradigms.dmc._episode.capture_obs` — lets the actor
-    build the buffer-side obs_dict without importing torch. Returns
-    ``{}`` on ``n_legal == 0`` (matches legacy early return).
-
-    I29 P2 (wire v3): refs/pay/legal_mask 存 nlegal-sized,不 pad 到 max_actions
-    (per-trans mem ~10x 降)。 collate_batch sample 时 pad 到 cfg.max_actions。
-    """
-    if n_legal == 0:
-        return {}
-    from training.core.step_encoding import (
-        parse_dynamic_np,
-        parse_dynamic_typed_np,
-    )
-
-    counter_values, meta, card_buckets, enemy_sizes = parse_dynamic_np(dyn_obs, n_counter_slots, copy=True)
-    recent_damage, prepare_skill, modifier_log = parse_dynamic_typed_np(
-        dyn_obs,
-        n_counter_slots,
-        copy=True,
-        include_modifier_log=True,
-    )
-
-    return {
-        'counter_values': counter_values,
-        'meta': meta,
-        'card_buckets': card_buckets,
-        'enemy_sizes': enemy_sizes,
-        'recent_damage': recent_damage,
-        'prepare_skill': prepare_skill,
-        'modifier_log': modifier_log,
-        # nlegal-sized (per-trans),collate_batch pad 到 cfg.max_actions for batch。
-        'action_refs': refs_nlegal.astype(np.int64),
-        'action_payments': pay_nlegal.astype(np.float32),
-        # 全 True 长 nlegal — pad 后 batch (B, max_actions) bool 由 collate_batch 算。
-        'legal_mask': np.ones(n_legal, dtype=bool),
-        'n_legal': n_legal,
-        'counter_sids': static_np['counter_sids'],
-        'active_slot_mask': static_np['active_slot_mask'],
-        'char_skill_refs': static_np['char_skill_refs'],
-        'hook_ir': static_np['hook_ir'],
-        'hook_mask': static_np['hook_mask'],
+        'definition_links': definition_links,
     }

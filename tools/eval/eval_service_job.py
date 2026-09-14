@@ -80,6 +80,7 @@ def run_gauntlet_job(req: dict, state: ServiceState) -> None:
     The request must contain ``players`` (list of 2 specs), ``mode``,
     either fixed teams or char_pool+team_size, and ``result_path``."""
     from training.core.matchup.matchup import run_matchup
+    from training.core.scenario import decks_arg
 
     req_id = req.get('id', f'g{req.get("game_marker", 0):05d}')
     game_marker = int(req.get('game_marker', 0))
@@ -102,6 +103,7 @@ def run_gauntlet_job(req: dict, state: ServiceState) -> None:
             data_dir=req.get('data_dir'),
             deck_padding=req.get('deck_padding'),
             pool=req.get('pool'),
+            decks=decks_arg(req.get('deck_0'), req.get('deck_1')),
             swap_sides=bool(req.get('swap_sides', True)),
         )
         wall_s = time.perf_counter() - t0

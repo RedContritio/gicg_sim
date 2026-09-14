@@ -1,0 +1,131 @@
+package tests
+
+// 怀疑论验证探针(不入库):验证 on_after_damage / on_after_heal 阶段
+// g.Defer 入队的 fn 是否被执行。
+//
+// 候选 bug 主张:damage.go 仅在 :140/:185 两处 DrainDeferred,均在
+// fireAfterDamage 之前;DealDamage 帧由 defer PopEvent(:36)弹出,
+// HookAfterDamage 内 queue 的 deferred 条目随帧静默丢弃。
+
+import (
+	"testing"
+
+	engine "gicg_mono/gicg_engine"
+)
+
+// 探针 1:HookAfterDamage 内 g.Defer 的 fn 是否执行(正常扣血路径)。
+func TestProbe_DeferInAfterDamage_NormalPath(t *testing.T) {
+	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	g := env.G
+
+	fired := false
+	g.Hooks.Register(engine.Hook{
+		Type:        engine.HookAfterDamage,
+		OwnerPlayer: -1,
+		OwnerChar:   -1,
+		Enabled:     true,
+		Fn: func(g *engine.Game, ctx *engine.EventContext) {
+			g.Defer(func(g *engine.Game) { fired = true })
+		},
+	})
+
+	hpID := env.RT.Chars.BySlot[1][0].HPCounterID
+	before := g.Counters[hpID].Value
+	g.DealDamage(hpID, engine.ElemPhysical, 2, engine.DamageOpts{
+		Source: engine.SrcSupport, ActorPlayer: 0, ActorChar: 0,
+	})
+	after := g.Counters[hpID].Value
+
+	t.Logf("HP %d -> %d", before, after)
+	if before == after {
+		t.Fatalf("damage did not land; probe invalid")
+	}
+	if !fired {
+		t.Errorf("DROPPED: deferred fn queued inside HookAfterDamage never executed")
+	}
+}
+
+// 探针 2:对照组 — HookReactionDamage 阶段 g.Defer 的 fn(排在 :185
+// drain 之前)应正常执行。
+func TestProbe_DeferInReactionStage_ControlGroup(t *testing.T) {
+	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	g := env.G
+
+	fired := false
+	g.Hooks.Register(engine.Hook{
+		Type:        engine.HookReactionDamage,
+		OwnerPlayer: -1,
+		OwnerChar:   -1,
+		Enabled:     true,
+		Fn: func(g *engine.Game, ctx *engine.EventContext) {
+			g.Defer(func(g *engine.Game) { fired = true })
+		},
+	})
+
+	hpID := env.RT.Chars.BySlot[1][0].HPCounterID
+	g.DealDamage(hpID, engine.ElemPhysical, 2, engine.DamageOpts{
+		Source: engine.SrcSupport, ActorPlayer: 0, ActorChar: 0,
+	})
+
+	if !fired {
+		t.Errorf("control group failed: reaction-stage deferred fn also dropped")
+	}
+}
+
+// 探针 3:HookAfterHeal 内 g.Defer,heal 发生在一个 event 帧内
+// (模拟技能帧内的治疗)。
+func TestProbe_DeferInAfterHeal_InsideFrame(t *testing.T) {
+	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	g := env.G
+
+	fired := false
+	g.Hooks.Register(engine.Hook{
+		Type:        engine.HookAfterHeal,
+		OwnerPlayer: -1,
+		OwnerChar:   -1,
+		Enabled:     true,
+		Fn: func(g *engine.Game, ctx *engine.EventContext) {
+			g.Defer(func(g *engine.Game) { fired = true })
+		},
+	})
+
+	hpID := env.RT.Chars.BySlot[0][0].HPCounterID
+	// 先扣血,保证 heal 有空间
+	g.Counters[hpID].Value -= 3
+
+	// 模拟技能/action 帧:推一层 event frame 再 heal(production 中
+	// builtins_skill.go:147 / action_execute.go:30 等都会推帧)
+	g.PushEvent(engine.EventFrame{Player: 0, Char: 0})
+	g.Heal(hpID, 2)
+	g.PopEvent()
+
+	if !fired {
+		t.Errorf("DROPPED: deferred fn queued inside HookAfterHeal (in-frame heal) never executed")
+	}
+}
+
+// 探针 4:HookAfterHeal + 空事件栈(round-end heal 场景)— 按
+// game_counter.go:142-144 应立即执行。
+func TestProbe_DeferInAfterHeal_EmptyStack(t *testing.T) {
+	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	g := env.G
+
+	fired := false
+	g.Hooks.Register(engine.Hook{
+		Type:        engine.HookAfterHeal,
+		OwnerPlayer: -1,
+		OwnerChar:   -1,
+		Enabled:     true,
+		Fn: func(g *engine.Game, ctx *engine.EventContext) {
+			g.Defer(func(g *engine.Game) { fired = true })
+		},
+	})
+
+	hpID := env.RT.Chars.BySlot[0][0].HPCounterID
+	g.Counters[hpID].Value -= 3
+	g.Heal(hpID, 2) // 空栈 heal
+
+	if !fired {
+		t.Errorf("empty-stack heal: deferred fn not executed immediately (contradicts game_counter.go:142-144)")
+	}
+}

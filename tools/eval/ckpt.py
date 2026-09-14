@@ -99,7 +99,9 @@ def main():
     out_root = Path(args.output_dir) if args.output_dir else None
     if out_root is not None:
         out_root.mkdir(parents=True, exist_ok=True)
-    summary: dict = {'ckpts': {}}
+    from training.core.artifact_io import provenance
+
+    summary: dict = {'provenance': provenance(), 'ckpts': {}}
 
     for ckpt_str in args.ckpts:
         label = _ckpt_label(ckpt_str)
@@ -120,6 +122,11 @@ def main():
             for name, r in results.items():
                 per_baseline[name] = {
                     'wp_mean': r.wp_mean,
+                    'score_definition': 'win=1, draw=0.5, loss=0',
+                    'ci_method': 'scenario-paired bootstrap',
+                    'wins': r.wins,
+                    'draws': r.draws,
+                    'losses': r.losses,
                     'wp_swap_p0': r.wp_swap_p0,
                     'wp_swap_p1': r.wp_swap_p1,
                     'n_games': r.n_games,

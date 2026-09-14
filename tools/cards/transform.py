@@ -46,7 +46,13 @@ def transform_monster(
     return out
 
 
-def transform(raw_path: Path, hash_collector: dict | None = None, keys_lang: str = 'zh') -> tuple[dict | None, dict]:
+def transform(
+    raw_path: Path,
+    hash_collector: dict | None = None,
+    keys_lang: str = 'zh',
+    *,
+    raw_list_dir: Path | None = None,
+) -> tuple[dict | None, dict]:
     """raw json → 规范化 dict。从 data/raw_list/ 自动 join 对应 list ext。
 
     keys_lang:
@@ -67,7 +73,7 @@ def transform(raw_path: Path, hash_collector: dict | None = None, keys_lang: str
         cid_int = int(cid)
     except (TypeError, ValueError) as e:
         raise ValueError(f'card id={cid!r} 无法转 int (raw_path={raw_path})') from e
-    list_ext_index = load_list_ext_index()
+    list_ext_index = load_list_ext_index(raw_list_dir)
     list_ext = list_ext_index.get(cid_int)
     if list_ext is None:
         raise ValueError(

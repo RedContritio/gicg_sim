@@ -1,5 +1,10 @@
 package engine
 
+import (
+	"fmt"
+	"sort"
+)
+
 // Observation layout constants + BuildStaticObs (counter meta +
 // char-skill refs + hook tokens, computed once per episode).
 // BuildDynamicObs and grouping helpers live in observation_dynamic.go.
@@ -14,7 +19,7 @@ const (
 	ObsMaxCardTypes     = 80  // card types × 1.5
 	ObsMaxHooks         = 900 // (6 chars × 6 skills + 30 cards) × 9 hooks/file × 1.5
 	ObsMaxTokensPerHook = 120 // 80 max observed × 1.5
-	ObsMetaSize         = 3   // phase, round, is_my_turn
+	ObsMetaSize         = 19  // public decision state; see observation_public.go
 
 	// ADR-0019 §B.3c — RL obs typed damage + prepare-skill 段。
 	// 修 P0-3 黑盒(reaction kind / shield absorbed / element transition 进 obs)
@@ -53,6 +58,17 @@ const (
 // Phantom (unbound) slots store -1; network handles as "no char".
 const ObsCharElementSlots = 2 * ObsMaxChars // 12
 
+// Definition links connect a canonical skill/card hook to the hooks that
+// implement its effects.  They are part of static observation because all
+// inference and replay paths, including the Go actor, need the same rule
+// incidence.  The trailer stores schema version, used row count, then pairs.
+// Capacity overflow fails loudly in BuildStaticObs instead of truncating rules.
+const (
+	ObsMaxDefinitionLinks          = 16384
+	ObsDefinitionLinkSchemaVersion = 1
+	ObsDefinitionLinkSlots         = 2 + 2*ObsMaxDefinitionLinks
+)
+
 // Counter slots total (same layout for static and dynamic)
 func obsCounterSlots() int {
 	return 2*ObsMaxChars*ObsCharSlots + 2*ObsPlayerSlots + ObsGlobalSlots
@@ -67,7 +83,7 @@ func StaticObsSize() int {
 	counterMeta := obsCounterSlots() * 3 // (min, max, sid) per slot
 	charSkillRefs := 2 * ObsMaxChars * ObsMaxSkillsPerChar
 	hookOps := ObsMaxHooks * ObsIntsPerHook
-	return counterMeta + charSkillRefs + hookOps + ObsCharElementSlots
+	return counterMeta + charSkillRefs + hookOps + ObsCharElementSlots + ObsDefinitionLinkSlots
 }
 
 // DynamicObsSize: counter values + hand cards + meta + recent damage +
@@ -77,7 +93,7 @@ func DynamicObsSize() int {
 	counterValues := obsCounterSlots() // 1 value per slot
 	handBlock := 4*ObsMaxCardTypes + 2
 	return ObsMetaSize + counterValues + handBlock +
-		ObsRecentDamageSlots + ObsPrepareSkillSlots + ObsModifierLogSlots
+		ObsRecentDamageSlots + ObsPrepareSkillSlots + ObsModifierLogSlots + ObsBuffSlots
 }
 
 // ActiveCounterSlotLabels returns one label per observation counter slot,
@@ -98,20 +114,25 @@ func DynamicObsSize() int {
 // live in obs_labels.go.
 
 func (g *Game) BuildStaticObs() []int32 {
+	g.RequireHealthy()
 	obs := make([]int32, StaticObsSize())
 	offset := 0
 
 	reversePerm := g.buildReversePerm()
+	refKinds := g.observationReferenceKinds()
 
 	writeCounterMeta := func(ids []int, maxSlots int) {
 		n := len(ids)
 		if n > maxSlots {
-			n = maxSlots
+			panic(fmt.Sprintf("counter observation capacity exceeded: %d > %d", n, maxSlots))
 		}
 		for i := 0; i < n; i++ {
 			c := &g.Counters[ids[i]]
 			obs[offset] = int32(c.Min)
 			obs[offset+1] = int32(c.Max)
+			if refKinds[ids[i]] != 0 {
+				obs[offset], obs[offset+1] = 0, 1
+			}
 			obs[offset+2] = int32(reversePerm[ids[i]])
 			offset += 3
 		}
@@ -214,6 +235,34 @@ func (g *Game) BuildStaticObs() []int32 {
 			obs[offset] = v
 			offset++
 		}
+	}
+
+	// Definition-reference incidence.  Merge skill and card relations: both
+	// have identical semantics for the network (canonical definition -> effect
+	// hook).  Sort and deduplicate so the trailer is deterministic.
+	graph := g.BuildObservationRuleGraph()
+	links := append(append(make([][2]int, 0, len(graph.SkillLinks)+len(graph.CardHookLinks)),
+		graph.SkillLinks...), graph.CardHookLinks...)
+	sort.Slice(links, func(i, j int) bool {
+		return links[i][0] < links[j][0] || (links[i][0] == links[j][0] && links[i][1] < links[j][1])
+	})
+	unique := links[:0]
+	for _, row := range links {
+		if len(unique) == 0 || unique[len(unique)-1] != row {
+			unique = append(unique, row)
+		}
+	}
+	if len(unique) > ObsMaxDefinitionLinks {
+		panic(fmt.Sprintf("definition-link observation capacity exceeded: %d > %d",
+			len(unique), ObsMaxDefinitionLinks))
+	}
+	obs[offset] = ObsDefinitionLinkSchemaVersion
+	offset++
+	obs[offset] = int32(len(unique))
+	offset++
+	for _, row := range unique {
+		obs[offset], obs[offset+1] = int32(row[0]), int32(row[1])
+		offset += 2
 	}
 
 	return obs

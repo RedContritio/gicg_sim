@@ -53,8 +53,10 @@ on_after_write(pending_heal, Op.Add, function(ctx)
   local c1 = get_next_char(p, 天星:owner_char())
   if c1 == 天星:owner_char() then return end
   local ch = _char_by_slot[p][c1]
-  if ch and ch.hp:get() > 0 and ch.hp:get() < ch.hp:cmax() then
-    ch.hp:add(1)
+  if not ch then return end
+  local hp = ch.hp
+  if hp:get() > 0 and hp:get() < hp:cmax() then
+    hp:add(1)
     pending_heal:set(0)
   end
 end)
@@ -68,8 +70,10 @@ on_after_write(pending_heal, Op.Add, function(ctx)
   local c2 = get_next_char(p, c1)
   if c2 == 天星:owner_char() then return end
   local ch = _char_by_slot[p][c2]
-  if ch and ch.hp:get() > 0 and ch.hp:get() < ch.hp:cmax() then
-    ch.hp:add(1)
+  if not ch then return end
+  local hp = ch.hp
+  if hp:get() > 0 and hp:get() < hp:cmax() then
+    hp:add(1)
     pending_heal:set(0)
   end
 end)

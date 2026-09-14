@@ -6,12 +6,14 @@ interface Props {
   onChange: (v: OpponentSpec) => void
 }
 
-const TYPES: OpponentSpec['type'][] = ['mcts_pure', 'random', 'az', 'cfr']
+const TYPES: OpponentSpec['type'][] = ['semantic_rl', 'mcts_pure', 'random', 'az', 'cfr']
 
 export function OpponentPicker({ value, onChange }: Props) {
   const setType = (t: OpponentSpec['type']) => {
     // Default fields per type
-    if (t === 'random') {
+    if (t === 'semantic_rl') {
+      onChange({ type: 'semantic_rl' })
+    } else if (t === 'random') {
       onChange({ type: 'random' })
     } else if (t === 'mcts_pure') {
       onChange({ type: 'mcts_pure', n_simulations: 200 })
@@ -37,7 +39,7 @@ export function OpponentPicker({ value, onChange }: Props) {
         >
           {TYPES.map((t) => (
             <option key={t} value={t}>
-              {t}
+              {t === 'semantic_rl' ? '当前配置的语义 RL 模型' : t}
             </option>
           ))}
         </select>
@@ -47,7 +49,7 @@ export function OpponentPicker({ value, onChange }: Props) {
             value={(value as { ckpt: string }).ckpt}
             onChange={(c) =>
               onChange({
-                ...(value as Exclude<OpponentSpec, { type: 'random' } | { type: 'mcts_pure'; n_simulations: number }>),
+                ...(value as Exclude<OpponentSpec, { type: 'semantic_rl' } | { type: 'random' } | { type: 'mcts_pure'; n_simulations: number }>),
                 ckpt: c,
               })
             }

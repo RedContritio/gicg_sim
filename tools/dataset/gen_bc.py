@@ -17,6 +17,8 @@ Usage::
 
 from __future__ import annotations
 
+from training.core.artifact_io import save_dataset
+
 import argparse
 import json
 import sys
@@ -35,6 +37,7 @@ except ImportError:
 from gicg_env import GicgEnv
 from training.core.matchup.greedy_player import GreedyPlayer
 from training.core.obs_constants import DICE_COLOR_COUNT
+from training.core.scenario import decks_arg
 from training.core.step_encoding import pad_action_payments, pad_action_refs
 
 
@@ -42,7 +45,7 @@ from training.core.step_encoding import pad_action_payments, pad_action_refs
 # Stale keys (e.g. teacher_paradigm) SHALL raise per CLAUDE.md "意外输入必须抛异常".
 _KNOWN_CFG_KEYS = frozenset(
     'run_label seed teacher teacher_dice_greedy opponent_mix target_decisions max_games max_actions'
-    ' fix_dice teams card_pool max_rounds data_dir obs_mask deck_padding pool meta'.split()
+    ' fix_dice teams card_pool max_rounds data_dir obs_mask deck_padding pool deck_0 deck_1 meta'.split()
 )
 
 
@@ -92,6 +95,7 @@ def collect(cfg: dict) -> dict[str, Any]:
     pool = cfg.get('pool')
     if pool is not None and not isinstance(pool, str):
         pool = list(pool)
+    decks = decks_arg(cfg.get('deck_0'), cfg.get('deck_1'))
 
     # Per-game accumulators
     game_static_buf: list[np.ndarray] = []  # (n_games, static_obs_size)
@@ -133,6 +137,7 @@ def collect(cfg: dict) -> dict[str, Any]:
             obs_mask=obs_mask,
             deck_padding=deck_padding,
             pool=pool,
+            decks=decks,
             reward_shaping=None,
         )
         try:
@@ -230,6 +235,7 @@ def collect(cfg: dict) -> dict[str, Any]:
             'fix_dice': fix_dice,
             'obs_mask': obs_mask,
             'card_pool': card_pool,
+            'decks': decks,
             'max_rounds': max_rounds,
             'teams_p0': teams_p0,
             'teams_p1': teams_p1,
@@ -273,7 +279,7 @@ def main(argv: list | None = None) -> int:
 
     out_path = out_dir / 'dataset.npz'
     np_kwargs = {k: v for k, v in data.items() if k != 'meta'}
-    np.savez_compressed(out_path, **np_kwargs)
+    save_dataset(out_path, **np_kwargs)
 
     meta_path = out_dir / 'meta.json'
     with open(meta_path, 'w', encoding='utf-8') as f:

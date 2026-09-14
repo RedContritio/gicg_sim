@@ -1,190 +1,42 @@
 package engine
 
-import (
-	"math/rand"
-)
-
-// DeepCopy returns an independent copy of the game's dynamic state, suitable
-// for parallel speculative rollouts. Immutable metadata (Hooks registry,
-// SkillNames, CharNames, CounterNames, CardNames, counterCharMap, CounterPerm,
-// HookPerm) is shared by pointer aliasing — the engine guarantees these are
-// populated once at DSL load time and never mutated thereafter.
-//
-// The caller is responsible for setting Extra on the returned Game (typically
-// pointing to a new interp.Runtime that wraps this clone).
+// DeepCopy returns an independent simulation at a decision boundary. Definitions
+// are shared, while all gameplay state is copied by the same path as pooled
+// snapshots. Extra and Log are external attachments; Runtime.Clone rebinds Extra.
 func (g *Game) DeepCopy() *Game {
-	clone := &Game{
-		// Immutable / shared
-		Hooks:               g.Hooks,
-		counterCharMap:      g.counterCharMap,
-		SkillNames:          g.SkillNames,
-		CardNames:           g.CardNames,
-		CharNames:           g.CharNames,
-		CounterNames:        g.CounterNames,
-		CounterPerm:         g.CounterPerm,
-		HookPerm:            g.HookPerm,
-		CardPerm:            g.CardPerm,
-		SkillSlotPerm:       g.SkillSlotPerm,
-		CanonicalSkillHooks: g.CanonicalSkillHooks,
-		CanonicalCardHooks:  g.CanonicalCardHooks,
-		Obs:                 g.Obs,
-
-		// Dynamic scalars
-		Phase:        g.Phase,
-		Round:        g.Round,
-		Turn:         g.Turn,
-		FirstEnd:     g.FirstEnd,
-		Winner:       g.Winner,
-		BaseSeed:     g.BaseSeed,
-		DicePaid:     g.DicePaid, // value copy of [2][8]int arrays
-		DiceTunedOut: g.DiceTunedOut,
-		DiceTunedIn:  g.DiceTunedIn,
-		// RewardAccum is a value-copy [2]RewardEvents; the clone's
-		// downstream events (e.g. speculative rollouts inside
-		// GreedyPlayer depth>=2) accumulate into the clone without
-		// polluting the parent. Passing the value at construction
-		// time is correct — a later RestoreFrom will overwrite it.
-		RewardAccum: g.RewardAccum,
-		// MaxRounds / FixDice are static config, set once at GameNew
-		// and never mutated — safe to alias FixDice (it's read-only).
-		MaxRounds: g.MaxRounds,
-		FixDice:   g.FixDice,
-		depth:     0, // never carry recursion depth across clone
-	}
-
-	// Deep-copy counter values (schemas Min/Max/Init are shared via value copy)
-	clone.Counters = make([]Counter, len(g.Counters))
-	copy(clone.Counters, g.Counters)
-
-	// ADR-0019 §B.3 — RecentDamageEvents ring buffer (跨 damage 累积,obs encoder
-	// 读 → 必须 deep copy 保 clone 与原独立);Modifiers 内嵌 slice 也深拷贝。
-	if len(g.RecentDamageEvents) > 0 {
-		clone.RecentDamageEvents = make([]RecentDamageEvent, len(g.RecentDamageEvents))
-		for i, e := range g.RecentDamageEvents {
-			clone.RecentDamageEvents[i] = e
-			if len(e.Modifiers) > 0 {
-				clone.RecentDamageEvents[i].Modifiers = append([]Modifier(nil), e.Modifiers...)
-			}
-		}
-	}
-	// damageLogStack only lives across DealDamage execution; snapshot
-	// points are between Step calls (event stack drained) so stack is
-	// empty here — no copy needed, leave clone's stack nil.
-
-	// Deep-copy players
-	for pi := 0; pi < 2; pi++ {
-		src := &g.Players[pi]
-		dst := &clone.Players[pi]
-		dst.Chars = make([]CharInfo, len(src.Chars))
-		for ci, ch := range src.Chars {
-			// CharInfo.Skills is populated at bind time and never mutated
-			// during play, so we share the slice.
-			dst.Chars[ci] = ch
-		}
-		dst.ActiveChar = src.ActiveChar
-		dst.Hand = append([]CardInst(nil), src.Hand...)
-		dst.Deck = append([]CardInst(nil), src.Deck...)
-		dst.Discard = append([]CardInst(nil), src.Discard...)
-		dst.Supports = append([]SupportInst(nil), src.Supports...)
-		dst.InitDeck = src.InitDeck // initial deck is immutable
-		dst.DeclaredEnd = src.DeclaredEnd
-	}
-
-	// Preserve pending state so snapshots taken at decision points that
-	// include a pending forced-switch or pending card-target survive the
-	// clone. These are POD structs; we deep-copy to keep the snap fully
-	// independent from the original's mutation.
-	//
-	// eventStack is kept nil because all snapshot-worthy points are at
-	// Step boundaries where the event stack has been drained — see
-	// docs/az/decisions.md D2 and docs/az/mcts_design.md for the contract.
-	if g.PendingAction != nil {
-		actionCopy := *g.PendingAction
-		clone.PendingAction = &actionCopy
-	}
-	if g.PendingCardTarget != nil {
-		targetCopy := *g.PendingCardTarget
-		clone.PendingCardTarget = &targetCopy
-	}
+	snap := g.SnapshotPooled()
+	defer ReleaseSnap(snap)
+	clone := *g
+	// Empty scratch slices can retain backing storage. Sharing that capacity
+	// lets independent clones overwrite each other's next event frame.
 	clone.eventStack = nil
-
-	// RNG: fork deterministically from current state. math/rand doesn't
-	// expose its state portably, so we re-seed from a fresh int64 derived
-	// from the current Rng. Callers that need deterministic cloning should
-	// pass an explicit seed via a higher-level API.
-	if g.Rng != nil {
-		clone.Rng = rand.New(rand.NewSource(g.Rng.Int63()))
+	clone.damageLogStack = nil
+	clone.depth = 0
+	clone.executing = nil
+	clone.Buffs = nil
+	clone.Counters = make([]Counter, len(g.Counters))
+	clone.Players = [2]PlayerState{}
+	for pi := range clone.Players {
+		clone.Players[pi].Chars = append([]CharInfo(nil), g.Players[pi].Chars...)
 	}
-	// review D.5: deck RNGs also fork-by-int63 — same caveats as Rng.
-	clone.DeckSeeds = g.DeckSeeds
-	for pi := 0; pi < 2; pi++ {
-		if g.DeckRngs[pi] != nil {
-			clone.DeckRngs[pi] = rand.New(rand.NewSource(g.DeckRngs[pi].Int63()))
-		}
-	}
-
-	// Log: clones get a fresh log (don't inherit the original's event history).
-	// If the caller wants to record clone play, they can attach a new EventLog.
+	clone.PendingAction = nil
+	clone.PendingCardTarget = nil
+	clone.PendingDice = nil
+	clone.RecentDamageEvents = nil
+	clone.Rng = nil
+	clone.DeckRngs = [2]*Random{}
+	clone.Extra = nil
 	clone.Log = nil
-
-	return clone
+	clone.RestoreFromSnap(snap)
+	return &clone
 }
 
-// RestoreFrom copies dynamic state from snap into the receiver, preserving
-// static identity (Hooks, Extra, name maps, CounterPerm/HookPerm). Intended
-// for use with snapshots taken at quiescent points (between Step calls),
-// where the event stack is empty. Counter slices must have matching lengths
-// — snapshots from a different ruleset are not supported.
+// RestoreFrom restores the exact gameplay and random state without modifying
+// snap. Definition identity must match; diagnostics and Extra stay attached.
 func (g *Game) RestoreFrom(snap *Game) {
-	if len(g.Counters) != len(snap.Counters) {
-		return
-	}
-	copy(g.Counters, snap.Counters)
-	for pi := 0; pi < 2; pi++ {
-		src := &snap.Players[pi]
-		dst := &g.Players[pi]
-		for ci := range dst.Chars {
-			if ci < len(src.Chars) {
-				dst.Chars[ci].Alive = src.Chars[ci].Alive
-			}
-		}
-		dst.ActiveChar = src.ActiveChar
-		dst.DeclaredEnd = src.DeclaredEnd
-		dst.Hand = append(dst.Hand[:0], src.Hand...)
-		dst.Deck = append(dst.Deck[:0], src.Deck...)
-		dst.Discard = append(dst.Discard[:0], src.Discard...)
-	}
-	g.Phase = snap.Phase
-	g.Round = snap.Round
-	g.Turn = snap.Turn
-	g.FirstEnd = snap.FirstEnd
-	g.Winner = snap.Winner
-	g.BaseSeed = snap.BaseSeed
-	g.DicePaid = snap.DicePaid
-	g.DiceTunedOut = snap.DiceTunedOut
-	g.DiceTunedIn = snap.DiceTunedIn
-	g.RewardAccum = snap.RewardAccum
-	g.PendingAction = snap.PendingAction
-	g.PendingCardTarget = snap.PendingCardTarget
-	g.eventStack = nil
-	g.depth = 0
-	// ADR-0019 §B.3 — RecentDamageEvents ring buffer (obs encoder 读 → 必须
-	// 跟 snapshot 一致;deep copy + Modifiers 内嵌 slice)
-	if len(snap.RecentDamageEvents) > 0 {
-		g.RecentDamageEvents = make([]RecentDamageEvent, len(snap.RecentDamageEvents))
-		for i, e := range snap.RecentDamageEvents {
-			g.RecentDamageEvents[i] = e
-			if len(e.Modifiers) > 0 {
-				g.RecentDamageEvents[i].Modifiers = append([]Modifier(nil), e.Modifiers...)
-			}
-		}
-	} else {
-		g.RecentDamageEvents = nil
-	}
-	g.damageLogStack = nil // 永远 quiescent point 时为空
-	if snap.Rng != nil {
-		g.Rng = rand.New(rand.NewSource(snap.Rng.Int63()))
-	}
+	state := snap.SnapshotPooled()
+	defer ReleaseSnap(state)
+	g.RestoreFromSnap(state)
 }
 
 // ResetDynamicState restores all dynamic per-game state in place. Counter
@@ -196,6 +48,11 @@ func (g *Game) RestoreFrom(snap *Game) {
 // preserved. The interpreter Runtime that wraps this Game is responsible
 // for re-firing spawn hooks and re-building decks via Runtime.ResetDynamic.
 func (g *Game) ResetDynamicState(seed int64) {
+	g.Failure = nil
+	g.Buffs = nil
+	g.BuffSerial = 0
+	g.resume = nil
+	g.executing = nil
 	for i := range g.Counters {
 		g.Counters[i].Value = g.Counters[i].Init
 	}
@@ -203,12 +60,14 @@ func (g *Game) ResetDynamicState(seed int64) {
 		p := &g.Players[pi]
 		for ci := range p.Chars {
 			p.Chars[ci].Alive = true
+			p.Chars[ci].SpecialtyCardRef = -1
 		}
 		p.ActiveChar = -1
 		p.DeclaredEnd = false
 		p.Hand = p.Hand[:0]
 		p.Deck = p.Deck[:0]
 		p.Discard = p.Discard[:0]
+		p.Supports = p.Supports[:0]
 		p.InitDeck = nil
 	}
 	g.Phase = PhaseSelectActive
@@ -220,8 +79,11 @@ func (g *Game) ResetDynamicState(seed int64) {
 	g.DiceTunedOut = [2][DiceColorCount]int{} // zero tune-out history
 	g.DiceTunedIn = [2][DiceColorCount]int{}  // zero tune-in history
 	g.RewardAccum = [2]RewardEvents{}         // fresh episode — zero all 14 signals
+	g.Preparing = [2]int{}
+	g.PendingReactionKind = ReactionNone
 	g.PendingAction = nil
 	g.PendingCardTarget = nil
+	g.PendingDice = nil
 	g.eventStack = nil
 	g.depth = 0
 	// ADR-0019 §B.3 / §B.2 — clear damage history on episode reset
@@ -230,15 +92,15 @@ func (g *Game) ResetDynamicState(seed int64) {
 	if g.Log != nil {
 		g.Log = NewEventLog()
 	}
-	g.Rng = rand.New(rand.NewSource(seed))
+	g.Rng = NewRandom(seed)
 	g.BaseSeed = seed
 	// review D.5: deck RNGs init from same seed by default (backward compat
 	// with single-seed callers). ResetDynamicStateWithSeeds allows the eval
 	// path to override these independently.
 	g.DeckSeeds = [2]int64{seed, seed}
-	g.DeckRngs = [2]*rand.Rand{
-		rand.New(rand.NewSource(seed)),
-		rand.New(rand.NewSource(seed)),
+	g.DeckRngs = [2]*Random{
+		NewRandom(seed),
+		NewRandom(seed),
 	}
 }
 
@@ -251,9 +113,9 @@ func (g *Game) ResetDynamicState(seed int64) {
 func (g *Game) ResetDynamicStateWithSeeds(diceSeed int64, deckSeeds [2]int64) {
 	g.ResetDynamicState(diceSeed)
 	g.DeckSeeds = deckSeeds
-	g.DeckRngs = [2]*rand.Rand{
-		rand.New(rand.NewSource(deckSeeds[0])),
-		rand.New(rand.NewSource(deckSeeds[1])),
+	g.DeckRngs = [2]*Random{
+		NewRandom(deckSeeds[0]),
+		NewRandom(deckSeeds[1]),
 	}
 }
 

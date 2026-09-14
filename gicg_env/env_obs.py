@@ -45,10 +45,8 @@ def compute_mask_slots(obs_mask, labels):
 
     Returns a 2-element list ``[p0_slots, p1_slots]``; for obs built from
     perspective P, ``_get_obs`` zeros ``out[p_slots]``. Per-perspective
-    because slot meaning swaps: a slot whose label starts with "P1:"
-    holds P1's data when perspective=0 (= enemy), and P1's data when
-    perspective=1 (= own) — so "mask enemy" is a different slot set
-    per perspective.
+    because the enemy changes, while counter slot identity stays fixed in
+    the same canonical P0/P1 layout as static min/max/SID metadata.
 
     Accepted categories (``obs_mask`` is a list of str):
     - ``"enemy_dice"``: zero all enemy dice_* PerPlayer counter slots

@@ -47,13 +47,16 @@ def _batch(B: int = 2, mixed_action_kinds: bool = True):
             action_refs[:, i, 2] = 1 if k == 2 else 0  # char_idx for SWITCH
     return {
         'counter_values': torch.randn(B, N_COUNTER_SLOTS),
+        'buffs': torch.tensor([[[1, 0, 0, 2, 1, 3, 0, 0, 1, 100, 1, 0, 0, -1, -1, -1]]], dtype=torch.float32)
+        .expand(B, -1, -1)
+        .clone(),
         'counter_sids': torch.randint(0, N_COUNTER_SLOTS, (B, N_COUNTER_SLOTS)),
         'active_slot_mask': torch.ones(B, N_COUNTER_SLOTS, dtype=torch.bool),
         'hook_emb_cached': torch.randn(B, N_HOOKS_ACTIVE, D_MODEL),
         'hook_mask': torch.ones(B, N_HOOKS_ACTIVE, dtype=torch.bool),
         'card_buckets': torch.randn(B, 4, 80),
         'enemy_sizes': torch.randn(B, 2),
-        'meta': torch.randn(B, 3),
+        'meta': torch.cat((torch.randn(B, 18), torch.zeros(B, 1)), dim=1),
         'action_refs': action_refs,
         'action_payments': torch.randn(B, MAX_ACTIONS, 8),
         'structural_values': torch.randn(B, 66),  # N_STRUCTURAL
@@ -62,6 +65,7 @@ def _batch(B: int = 2, mixed_action_kinds: bool = True):
             -1,
             dtype=torch.long,
         ),
+        'definition_links': torch.tensor([[[0, 1]]], dtype=torch.long).expand(B, -1, -1).clone(),
     }
 
 

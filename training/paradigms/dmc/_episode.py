@@ -17,6 +17,8 @@ import random
 from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
+from training.core.step_encoding import pad_buffs_np
+from training.core.matchup.outcome import terminal_outcome
 import torch
 
 from gicg_env import GicgEnv
@@ -63,6 +65,7 @@ def capture_obs(env: GicgEnv, agent: DmcAgent) -> dict:
         'recent_damage': recent_damage_t.squeeze(0).cpu().numpy().astype(np.float32),
         'prepare_skill': prepare_skill_t.squeeze(0).cpu().numpy().astype(np.float32),
         'modifier_log': modifier_log_t.squeeze(0).cpu().numpy().astype(np.float32),
+        'buffs': agent._parse_buff_single(dyn_obs).squeeze(0).cpu().numpy(),
         # nlegal-sized — pad-to-max_actions deferred to collate_batch。
         'action_refs': refs_nlegal,
         'action_payments': pay_nlegal,
@@ -74,18 +77,13 @@ def capture_obs(env: GicgEnv, agent: DmcAgent) -> dict:
         'char_skill_refs': agent._char_skill_refs.squeeze(0).cpu().numpy().astype(np.int64),
         'hook_ir': agent._hook_ir_cache.cpu().numpy().astype(np.int64) if agent._hook_ir_cache is not None else None,
         'hook_mask': agent._hook_mask.squeeze(0).cpu().numpy().astype(bool),
+        'definition_links': agent._definition_links.squeeze(0).cpu().numpy().astype(np.int64),
     }
 
 
 def terminal_z(winner: int, perspective: int) -> float:
-    """+1 if perspective player won, -1 if lost, 0 if draw / unknown."""
-    if winner < 0:
-        return 0.0
-    if winner == perspective:
-        return 1.0
-    if winner == 2:
-        return 0.0
-    return -1.0
+    """Only engine-confirmed terminal outcomes may supervise Monte Carlo returns."""
+    return float(terminal_outcome(winner, perspective))
 
 
 def play_one_episode(
@@ -142,10 +140,12 @@ def play_one_episode(
             transitions.append(DmcTransition(obs_dict=obs, action_idx=int(action_idx), G=0.0))
         else:
             action_idx = opponent.select_action(env)
-            if action_idx < 0 or action_idx >= n_legal:
-                action_idx = 0
+        if action_idx < 0 or action_idx >= n_legal:
+            raise ValueError('DMC episode player returned illegal action')
         env.step(action_idx)
 
+    if not env.done:
+        raise RuntimeError('DMC episode ended before terminal state; increase step budget or fix the environment')
     G = terminal_z(env.winner, agent_side)
     return transitions, G, step_idx + 1
 
@@ -190,6 +190,11 @@ def collate_batch(
         'active_slot_mask',
         'char_skill_refs',
     )
+    from training.core.obs_constants import OBS_BUFF_FIELDS
+
+    out['buffs'] = pad_buffs_np(
+        [t.obs_dict.get('buffs', np.zeros((1, OBS_BUFF_FIELDS), dtype=np.float32)) for t in transitions]
+    )
     for k in fixed_keys:
         out[k] = np.stack([t.obs_dict[k] for t in transitions], axis=0)
 
@@ -231,6 +236,13 @@ def collate_batch(
         hook_mask[i, :n_act] = hm
     out['hook_ir'] = hook_ir
     out['hook_mask'] = hook_mask
+
+    link_list = [t.obs_dict['definition_links'] for t in transitions]
+    max_links = max(rows.shape[0] for rows in link_list)
+    definition_links = np.full((B, max_links, 2), -1, dtype=np.int64)
+    for i, rows in enumerate(link_list):
+        definition_links[i, : rows.shape[0]] = rows
+    out['definition_links'] = definition_links
 
     action_idx = torch.tensor([t.action_idx for t in transitions], dtype=torch.long, device=device)
     returns = torch.tensor([t.G for t in transitions], dtype=torch.float32, device=device)

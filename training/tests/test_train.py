@@ -61,6 +61,7 @@ def _game_static(rng: np.random.RandomState):
         'counter_sids': np.arange(N_SLOTS, dtype=np.int64),
         'active_slot_mask': np.ones(N_SLOTS, dtype=bool),
         'char_skill_refs': -np.ones((2, 6, 10), dtype=np.int64),
+        'definition_links': -np.ones((1, 2), dtype=np.int64),
     }
 
 
@@ -87,7 +88,7 @@ def _step(
         'counter_values': rng.randn(N_SLOTS).astype(np.float32),
         'counter_target': rng.randn(N_SLOTS).astype(np.float32),
         'has_counter_target': True,
-        'meta': np.array([3.0, 1.0, 1.0], dtype=np.float32),
+        'meta': np.array([3.0, 1.0, 1.0, 0, 0, -1] + [0] * 13, dtype=np.float32),
         'card_buckets': np.zeros((4, 80), dtype=np.float32),
         'enemy_sizes': np.zeros(2, dtype=np.float32),
         # ADR-0019 §B.2/§B.3c typed obs segments — Round-5 S2: 与 engine

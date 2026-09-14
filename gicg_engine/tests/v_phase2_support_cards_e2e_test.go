@@ -100,17 +100,9 @@ func TestSupport_派蒙_TwoRoundLifecycle(t *testing.T) {
 	}
 }
 
-func TestSupport_派蒙_BlockedWhenFull(t *testing.T) {
+func TestSupport_派蒙_ReplacementWhenFull(t *testing.T) {
 	env, paimonRef := paimonSetupCanonical(t)
-	// Supports 满 4 槽位
-	env.G.Players[0].Supports = make([]engine.SupportInst, engine.MaxSupportSlots)
-	for i := range env.G.Players[0].Supports {
-		env.G.Players[0].Supports[i] = engine.SupportInst{Ref: paimonRef, ActivatedAt: 1}
-	}
-	if idx := env.FindAction(engine.ActionCard, "派蒙"); idx >= 0 {
-		t.Errorf("派蒙 still offered with Supports full (n=%d), idx=%d",
-			engine.MaxSupportSlots, idx)
-	}
+	assertFullSupportReplacement(t, env, paimonRef)
 }
 
 // kamisatoSetupCanonical:setup NewGameWithDeck + 出鸣神大社(cost match=2)。
@@ -230,17 +222,30 @@ func TestSupport_鸣神大社(t *testing.T) {
 	})
 }
 
-func TestSupport_鸣神大社_BlockedWhenFull(t *testing.T) {
+func TestSupport_鸣神大社_ReplacementWhenFull(t *testing.T) {
 	env := NewGameWithDeck(t, []string{"凯亚"}, []string{"克洛琳德"})
 	card := env.RT.Cards.ByName["鸣神大社"]
 	env.G.Players[0].Hand = append(env.G.Players[0].Hand, engine.CardInst{Ref: card.Ref})
 	env.SetDice(0, map[int]int{int(engine.DiceColorFire): 2})
-	// Supports 满 4
-	env.G.Players[0].Supports = make([]engine.SupportInst, engine.MaxSupportSlots)
-	for i := range env.G.Players[0].Supports {
-		env.G.Players[0].Supports[i] = engine.SupportInst{Ref: card.Ref, ActivatedAt: 1}
+	assertFullSupportReplacement(t, env, card.Ref)
+}
+
+func assertFullSupportReplacement(t *testing.T, env *GameEnv, ref int) {
+	t.Helper()
+	for range engine.MaxSupportSlots {
+		env.G.EnterSupport(0, ref)
 	}
-	if idx := env.FindAction(engine.ActionCard, "鸣神大社"); idx >= 0 {
-		t.Errorf("鸣神大社 still offered with Supports full, idx=%d", idx)
+	slots := map[int]bool{}
+	for _, action := range env.G.GetLegalActions() {
+		if action.Kind != engine.ActionCard || env.G.Players[0].Hand[action.Index].Ref != ref {
+			continue
+		}
+		if !action.HasSupportTarget || action.TargetPlayer != 0 || action.TargetChar != -1 || action.TargetSupport < 0 || action.TargetSupport >= engine.MaxSupportSlots {
+			t.Fatalf("full zone offered invalid replacement: %+v", action)
+		}
+		slots[action.TargetSupport] = true
+	}
+	if len(slots) != engine.MaxSupportSlots {
+		t.Fatalf("replacement slots=%v, want all four", slots)
 	}
 }

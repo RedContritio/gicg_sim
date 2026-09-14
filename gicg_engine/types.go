@@ -151,7 +151,8 @@ const (
 	HookSupportRemove // 支援卡从 PlayerState.Supports 移除时；ctx.ActorPlayer + ctx.CardRef
 
 	// 通用
-	HookAction // 任意动作兜底
+	HookAction        // 任意动作兜底
+	HookAfterReaction // reaction resolved; before damage mitigation/collateral
 )
 
 // 同类型 hook 按注册顺序执行，无 priority 机制。
@@ -175,7 +176,8 @@ const (
 	ActionCard
 	ActionSwitch
 	ActionEndTurn
-	ActionTune // 消耗 1 手牌 + 转换 1 非本色非 omni 骰子 → 本色
+	ActionTune   // 消耗 1 手牌 + 转换 1 非本色非 omni 骰子 → 本色
+	ActionReroll // select count for one color; color 8 confirms the assembled choice
 )
 
 type StepResult int
@@ -188,10 +190,11 @@ const (
 
 // Counter 是纯值容器，所有生命周期逻辑由 DSL hook 管理。
 type Counter struct {
-	Value int
-	Init  int // Game.Reset() 时恢复
-	Min   int
-	Max   int
+	BuffIndex int // immutable definition index; -1 for plain counters
+	Value     int
+	Init      int // Game.Reset() 时恢复
+	Min       int
+	Max       int
 }
 
 func (c *Counter) Clamp() {

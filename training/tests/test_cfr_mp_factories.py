@@ -110,12 +110,14 @@ def _static() -> dict:
         'counter_sids': np.zeros((_NET_CFG.n_counter_slots,), dtype=np.int64),
         'active_slot_mask': np.ones((_NET_CFG.n_counter_slots,), dtype=bool),
         'char_skill_refs': np.full((2, 4), -1, dtype=np.int64),
+        'definition_links': np.full((1, 2), -1, dtype=np.int64),
     }
 
 
 def _dynamic() -> dict:
     return {
         'counter_values': np.zeros((_NET_CFG.n_counter_slots,), dtype=np.float32),
+        'buffs': np.zeros((128, 16), dtype=np.float32),
         'meta': np.zeros((8,), dtype=np.float32),
         'card_buckets': np.zeros((4,), dtype=np.float32),
         'enemy_sizes': np.zeros((2,), dtype=np.float32),

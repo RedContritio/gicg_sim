@@ -8,6 +8,9 @@ import (
 
 func TestDamage_BasicSkill(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	// Rule test: explicitly fund both players rather than depend on random rolls.
+	env.SetDice(0, map[int]int{7: 8})
+	env.SetDice(1, map[int]int{7: 8})
 	hpBefore := env.HP(1, 0)
 
 	// Wait for P0 turn, use 枪

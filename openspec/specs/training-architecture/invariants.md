@@ -182,7 +182,8 @@ subtopic: invariants
     `master_seed + game_idx`,reset 后返回。GicgEnv 构造参数 SHALL 严格
     从 `cfg.scenario` 转发(`team_0` / `team_1` / `card_pool` /
     `data_dir` / `max_rounds` / `fix_dice` / `obs_mask` / `deck_padding` /
-    `pool`)。
+    `pool` / `deck_0`+`deck_1` → `decks`,转换走
+    `training.core.scenario.decks_arg`)。
 
 25. **PA-EF6 — single source-of-truth**:**SHALL** be the only
     `make_env_factory` symbol in `training/core/`。**SHALL NOT** 共存

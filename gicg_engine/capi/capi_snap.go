@@ -20,8 +20,9 @@ import "C"
 
 //export GameSnapshot
 func GameSnapshot(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
-	if h == nil {
+	if h == nil || !h.Game.IsQuiescent() {
 		return -1
 	}
 	snap := h.Game.DeepCopy()
@@ -35,6 +36,7 @@ func GameSnapshot(id C.int) C.int {
 
 //export GameRestore
 func GameRestore(id C.int, snapID C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -42,10 +44,24 @@ func GameRestore(id C.int, snapID C.int) C.int {
 	snapMu.Lock()
 	snap := snapshots[int(snapID)]
 	snapMu.Unlock()
-	if snap == nil {
+	if snap == nil || !h.Game.CanRestoreFrom(snap) {
 		return -1
 	}
 	h.Game.RestoreFrom(snap)
+	return 0
+}
+
+// GameSetSimulationSeed explicitly changes chance events in a speculative game.
+// Snapshot/restore themselves are exact and never fork the random stream.
+//
+//export GameSetSimulationSeed
+func GameSetSimulationSeed(id C.int, seed C.longlong) C.int {
+	defer recoverRuleError(id)
+	h := getHandle(int(id))
+	if h == nil || !h.Game.IsQuiescent() {
+		return -1
+	}
+	h.Game.SetSimulationSeed(int64(seed))
 	return 0
 }
 
@@ -67,6 +83,7 @@ func GameSnapshotFree(snapID C.int) {
 //
 //export GameLogSuspend
 func GameLogSuspend(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -86,6 +103,7 @@ func GameLogSuspend(id C.int) C.int {
 //
 //export GameLogResume
 func GameLogResume(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1

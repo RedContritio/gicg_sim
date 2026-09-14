@@ -42,18 +42,17 @@ func (rt *Runtime) builtinDeclareChar(args []Value) (Value, error) {
 	}
 
 	entry := &CharEntry{
-		Name:             name,
-		HPCounterID:      -1,
-		EnergyCounterID:  -1,
-		AliveCounterID:   -1,
-		ActiveCounterID:  -1,
-		Element:          element,
-		Weapon:           weapon,
-		PlayerIdx:        -1,
-		CharIdx:          -1,
-		Skills:           make(map[string]int),
-		NormalAttackID:   -1,
-		SpecialtyCardRef: -1,
+		Name:            name,
+		HPCounterID:     -1,
+		EnergyCounterID: -1,
+		AliveCounterID:  -1,
+		ActiveCounterID: -1,
+		Element:         element,
+		Weapon:          weapon,
+		PlayerIdx:       -1,
+		CharIdx:         -1,
+		Skills:          make(map[string]int),
+		NormalAttackID:  -1,
 	}
 	rt.Chars.ByName[name] = entry
 	return &CharProxy{Entry: entry}, nil
@@ -100,18 +99,17 @@ func (rt *Runtime) builtinBindChar(args []Value) (Value, error) {
 	// Mirror matches need each slot to be independently addressable so
 	// per-slot CounterProxy / CharProxy don't alias.
 	entry := &CharEntry{
-		Name:             template.Name,
-		Element:          template.Element,
-		Weapon:           template.Weapon,
-		PlayerIdx:        playerIdx,
-		CharIdx:          charIdx,
-		Skills:           make(map[string]int),
-		HPCounterID:      -1,
-		EnergyCounterID:  -1,
-		AliveCounterID:   -1,
-		ActiveCounterID:  -1,
-		NormalAttackID:   template.NormalAttackID, // inherit from template
-		SpecialtyCardRef: -1,
+		Name:            template.Name,
+		Element:         template.Element,
+		Weapon:          template.Weapon,
+		PlayerIdx:       playerIdx,
+		CharIdx:         charIdx,
+		Skills:          make(map[string]int),
+		HPCounterID:     -1,
+		EnergyCounterID: -1,
+		AliveCounterID:  -1,
+		ActiveCounterID: -1,
+		NormalAttackID:  template.NormalAttackID, // inherit from template
 	}
 	rt.Chars.BySlot[playerIdx][charIdx] = entry
 
@@ -132,6 +130,7 @@ func (rt *Runtime) builtinBindChar(args []Value) (Value, error) {
 	// without crossing into the interp layer.
 	if playerIdx >= 0 && playerIdx < 2 && charIdx >= 0 && charIdx < len(g.Players[playerIdx].Chars) {
 		g.Players[playerIdx].Chars[charIdx].Element = engine.Element(entry.Element)
+		g.Players[playerIdx].Chars[charIdx].SpecialtyCardRef = -1
 	}
 
 	g.RegisterCounterChar(entry.HPCounterID, playerIdx, charIdx)

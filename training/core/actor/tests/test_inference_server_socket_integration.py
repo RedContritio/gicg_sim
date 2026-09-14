@@ -60,7 +60,12 @@ def _build_dmc_inference_net() -> DMCInferenceNet:
 def _build_static_obs_int32() -> np.ndarray:
     """Minimal static_obs as int32(Go wire dtype)— layout 同
     ``test_socket_decoder_dmc_dispatch._build_static_obs_int32``。"""
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
+    from training.core.obs_constants import (
+        OBS_CHAR_ELEMENT_SLOTS,
+        OBS_CHAR_SKILL_REFS_SIZE,
+        OBS_DEFINITION_LINK_SCHEMA_VERSION,
+        OBS_DEFINITION_LINK_SLOTS,
+    )
 
     meta_size = _N_COUNTER_SLOTS * 3
     refs_size = OBS_CHAR_SKILL_REFS_SIZE
@@ -75,7 +80,10 @@ def _build_static_obs_int32() -> np.ndarray:
     hook_ir = np.zeros(hook_size, dtype=np.int32)
     hook_ir[0] = 1  # hook[0] op[0] opcode=1 → non_empty
 
-    return np.concatenate([counter_meta, char_skill_refs, hook_ir])
+    char_elements = np.zeros(OBS_CHAR_ELEMENT_SLOTS, dtype=np.int32)
+    definition_links = np.zeros(OBS_DEFINITION_LINK_SLOTS, dtype=np.int32)
+    definition_links[0] = OBS_DEFINITION_LINK_SCHEMA_VERSION
+    return np.concatenate([counter_meta, char_skill_refs, hook_ir, char_elements, definition_links])
 
 
 def _build_dyn_obs_np() -> np.ndarray:

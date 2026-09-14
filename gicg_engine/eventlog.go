@@ -13,7 +13,8 @@ type LogEntry struct {
 	Fields map[string]interface{}
 }
 
-// StateSnapshot captures the full game state at a point in time.
+// StateSnapshot is a human-readable diagnostic projection. Checkpoint, when
+// present, additionally preserves the complete gameplay state at a round pause.
 //
 // ⚠ Ref scope contract: Hands / Decks store bare `[]int` card refs.
 // These refs are PROCESS-SCOPED (assigned during DSL load by the
@@ -30,6 +31,7 @@ type LogEntry struct {
 // the semantic replay won't match. Serialize-to-string (via
 // record.Export) before cross-process transfer when round-trip matters.
 type StateSnapshot struct {
+	Checkpoint  []byte // exact portable gameplay checkpoint, when captured at round pause
 	Round       int
 	Turn        int
 	FirstPlayer int // who will go first in the upcoming round (resolved from FirstEnd at round pause)

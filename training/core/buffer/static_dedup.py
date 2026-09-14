@@ -23,6 +23,7 @@ GAME_STATIC_KEYS = (
     'counter_sids',
     'active_slot_mask',
     'char_skill_refs',
+    'definition_links',
 )
 
 
@@ -33,6 +34,7 @@ class _GameStatic:
     counter_sids: np.ndarray
     active_slot_mask: np.ndarray
     char_skill_refs: np.ndarray
+    definition_links: np.ndarray
     refcount: int = 0
 
 
@@ -56,6 +58,7 @@ class StaticDedupBufferBase:
             counter_sids=np.asarray(static['counter_sids'], dtype=np.int64),
             active_slot_mask=np.asarray(static['active_slot_mask'], dtype=bool),
             char_skill_refs=np.asarray(static['char_skill_refs'], dtype=np.int64),
+            definition_links=np.asarray(static['definition_links'], dtype=np.int64),
             refcount=0,
         )
         return gid
@@ -93,6 +96,8 @@ class StaticDedupBufferBase:
         active_slot_mask = np.zeros((B, n_slots), dtype=bool)
         csr_shape = statics[0].char_skill_refs.shape
         char_skill_refs = np.zeros((B,) + csr_shape, dtype=np.int64)
+        max_links = max(s.definition_links.shape[0] for s in statics)
+        definition_links = np.full((B, max_links, 2), -1, dtype=np.int64)
         for i, s in enumerate(statics):
             n_active = s.hook_ir.shape[0]
             hook_ir[i, :n_active] = s.hook_ir
@@ -100,10 +105,12 @@ class StaticDedupBufferBase:
             counter_sids[i] = s.counter_sids
             active_slot_mask[i] = s.active_slot_mask
             char_skill_refs[i] = s.char_skill_refs
+            definition_links[i, : s.definition_links.shape[0]] = s.definition_links
         return {
             'hook_ir': hook_ir,
             'hook_mask': hook_mask,
             'counter_sids': counter_sids,
             'active_slot_mask': active_slot_mask,
             'char_skill_refs': char_skill_refs,
+            'definition_links': definition_links,
         }

@@ -1,13 +1,13 @@
 -- characters/墨客/墨客_水龙吟.lua
--- 大招：消耗 3 AP + 2 能量，获得 2 层泼墨出战角色状态
+-- 大招：消耗 3 AP + 2 能量，获得 2 次泼墨队伍状态
 -- 泼墨：每次对敌方造成技能伤害时，额外造成 2 水伤害，持续 2 回合
 
 local 墨客 = get_char("墨客")
 local my_player = 墨客:owner_player()
 local my_char = 墨客:owner_char()
 
-local 泼墨 = declare_counter("泼墨", Scope.ActiveStatus, 0, { min = 0, max = 10 })
-local 泼墨_rounds = declare_counter("泼墨_rounds", Scope.ActiveStatus, 0, { min = 0, max = 10 })
+local 泼墨 = declare_counter("泼墨", Scope.PerPlayer, 0, { min = 0, max = 10 })
+local 泼墨_rounds = declare_counter("泼墨_rounds", Scope.PerPlayer, 0, { min = 0, max = 10 })
 local 水龙吟 = declare_skill(墨客, "水龙吟", { dices = { water = 3 }, energy = 2 })
 
 on_skill_use(function(ctx)
@@ -18,10 +18,12 @@ on_skill_use(function(ctx)
 end)
 
 -- 泼墨触发：己方出战角色技能伤害后，额外造成 2 水伤害
-on_after_damage(function(ctx)
+on_after_damage({ order = 泼墨 }, function(ctx)
   if ctx.actor_player ~= my_player then return end
   if get_active_char(ctx.actor_player) ~= ctx.actor_char then return end
   if ctx.source ~= Source.Skill then return end
+  if ctx.target_player == my_player then return end
+  if not ctx.hit then return end
   if 泼墨:get() <= 0 then return end
 
   deal_damage(Target.EnemyActive, Element.Water, 2, { source = Source.Status })
@@ -29,7 +31,7 @@ on_after_damage(function(ctx)
 end)
 
 -- 持续时间衰减
-on_round_end_decay(function(ctx)
+on_round_end_decay({ order = 泼墨 }, function(ctx)
   if 泼墨_rounds:get() > 0 then
     泼墨_rounds:sub(1)
     if 泼墨_rounds:get() <= 0 then
@@ -37,3 +39,5 @@ on_round_end_decay(function(ctx)
     end
   end
 end)
+
+register_buff(泼墨, { duration = 泼墨_rounds })

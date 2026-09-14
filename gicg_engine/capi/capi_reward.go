@@ -38,6 +38,7 @@ import (
 //
 //export GameGetRewardEvents
 func GameGetRewardEvents(id C.int, player C.int, out *C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -72,6 +73,7 @@ func GameGetRewardEvents(id C.int, player C.int, out *C.int) {
 //
 //export GameResetReward
 func GameResetReward(id C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return

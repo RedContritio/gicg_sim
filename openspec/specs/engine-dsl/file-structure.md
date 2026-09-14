@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-06-12
 status: LIVE
 schema_version: 0
 parent: ./spec.md
@@ -145,7 +145,25 @@ constraint;详 `memory feedback_char_skill_no_get_card`)。
 反向引用 SHALL 通过 `sharedFiles` 模式从 card 文件引用 char(`requires_char`
 marker)实现。
 
-## 9. Cross-reference
+## 9. Topo loader fail-loud(F3)
+
+交给 topo loader(`Runtime.LoadFilesWithDeps` / `topoSortWithMeta`)的
+文件 SHALL 全部可加载:任一文件的依赖(`get_counter` / `get_char` /
+`get_skill` / `get_card`)不可解析 —— 直接缺失,或 provider 文件自身
+broken —— 时 SHALL 在构造期报错,错误信息 SHALL 列出每个 broken 文件
+与缺失符号。Loader SHALL NOT 静默剔除不可解析文件(历史事故:以逸待劳
+的 "ap" counter 依赖在 AP 系统移除后失效,整卡静默消失,跨 session
+无人察觉)。
+
+依赖扫描 SHALL 为 comment-blind:regex 跑在原始 src 字节上,注释中的
+`get_counter("X")` 字面文本同样计入依赖。声明级 optionality(如
+`requires_char` talent 预过滤)SHALL 位于 topo 上游(文件集合构造时,
+`factory.FilterTalentCardsForSlotUniqueness`),不在 topo 内。
+
+契约测试:`gicg_engine/interp/loader_topo_test.go` +
+`gicg_engine/tests/pool_load_guard_test.go`。
+
+## 10. Cross-reference
 
 - Counter declare-get 文件级模式详 [`./counter.md`](./counter.md) §1.4
 - Skill pattern char-binding / mirror filter / talent shared-load 详

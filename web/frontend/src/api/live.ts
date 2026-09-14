@@ -5,16 +5,37 @@ import type { LiveFrame } from '../types/state'
 // For "mcts_pure":   n_simulations required (>0).
 // For "random":      no extra fields.
 export type OpponentSpec =
+  | { type: 'semantic_rl' }
   | { type: 'random' }
   | { type: 'mcts_pure'; n_simulations: number }
   | { type: 'az'; ckpt: string; n_simulations?: number }
   | { type: 'cfr'; ckpt: string; n_simulations?: number }
+
+export interface LiveProfile {
+  name: string
+  model_type: 'semantic_rl'
+  available: boolean
+  unavailable_reason: string | null
+  characters: string[]
+  team_0: string[]
+  team_1: string[]
+  team_size: number
+  disjoint_teams: boolean
+  allow_overlap: boolean
+  max_rounds: number
+  evaluation: Record<string, number>
+  checkpoint_format: string
+}
 
 export interface LiveNewMessage {
   type: 'new'
   team_0: string[]
   team_1: string[]
   card_pool?: string[] | null
+  // F4: explicit per-player decks ([deck_p0, deck_p1], per-entry null =
+  // implicit path). Omitted → backend falls back to its pinned
+  // truncation-era default decks for the default-pool scenario.
+  decks?: (string[] | null)[] | null
   data_dir?: string
   human_player?: 0 | 1
   opponent: OpponentSpec

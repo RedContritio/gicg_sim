@@ -22,6 +22,7 @@ import (
 //
 //export GameExportReplay
 func GameExportReplay(id C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return nil
@@ -40,6 +41,7 @@ func GameExportReplay(id C.int) *C.char {
 //
 //export GameExportViewJSON
 func GameExportViewJSON(id C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return nil
@@ -65,6 +67,7 @@ func GameExportViewJSON(id C.int) *C.char {
 //
 //export GameReplayToJSON
 func GameReplayToJSON(id C.int, yamlPath *C.char, step C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return C.CString(`{"error":"invalid handle"}`)

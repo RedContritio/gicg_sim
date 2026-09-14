@@ -10,6 +10,8 @@ RuntimeError if check returns False.
 
 from __future__ import annotations
 
+from training.core.artifact_io import save_checkpoint
+
 import json
 import pickle
 from pathlib import Path
@@ -71,7 +73,7 @@ class NaNGuard:
         # Pre-step ckpt
         if network is not None:
             try:
-                torch.save(
+                save_checkpoint(
                     {
                         'net': network.state_dict(),
                         'optimizer': optimizer.state_dict() if optimizer is not None else None,

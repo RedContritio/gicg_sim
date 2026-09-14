@@ -46,21 +46,24 @@ def _derive_seed(master_seed: int, *labels: Any) -> int:
 def build_env_factory(cfg: Any, seed: int):
     del seed
     from gicg_env import GicgEnv
+    from training.core.scenario import decks_arg
 
     scen = cfg.scenario
     fd = list(scen.fix_dice) if getattr(scen, 'fix_dice', None) else None
+    decks = decks_arg(getattr(scen, 'deck_0', None), getattr(scen, 'deck_1', None))
 
     def _factory(scenario_seed: int):
         env = GicgEnv(
             list(scen.team_0),
             list(scen.team_1),
-            card_pool=list(getattr(scen, 'card_pool', None) or ()),
+            card_pool=getattr(scen, 'card_pool', None),
             seed=int(scenario_seed),
             data_dir=str(getattr(scen, 'data_dir', 'data')),
             max_rounds=int(getattr(scen, 'max_rounds', 3)),
             fix_dice=fd,
             deck_padding=getattr(scen, 'deck_padding', None),
             pool=getattr(scen, 'pool', ['v_legacy', 'test_basic']),
+            decks=decks,
         )
         env.reset(seed=int(scenario_seed))
         return env

@@ -111,6 +111,9 @@ func TestExportView_AfterDamage(t *testing.T) {
 	env := NewGame(t,
 		[]string{"赤蝶", "墨客"},
 		[]string{"猫咪"})
+	// Rule test: explicitly fund both players rather than depend on random rolls.
+	env.SetDice(0, map[int]int{7: 8})
+	env.SetDice(1, map[int]int{7: 8})
 	for env.G.Phase == engine.PhaseSelectActive {
 		env.Step(0)
 	}

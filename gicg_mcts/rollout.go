@@ -15,6 +15,7 @@ type inFlightRollout struct {
 
 	path     []int32
 	leafIdx  int32
+	leafTurn int8 // perspective of this rollout's evaluation, never shared on Node
 	legalIds []ActionId
 
 	terminal    bool
@@ -61,10 +62,14 @@ func startRollout2(
 	rt *interp.Runtime, game *engine.Game, rng *rand.Rand,
 	sendCh chan<- *evalJob,
 	fl *inFlightRollout, prof *Profile,
-) error {
+) (err error) {
+	defer recoverRolloutFailure(&err)
 	// --- 1. Restore + reset runtime scratch ---
 	t0 := timeIfProf(prof)
 	game.RestoreFrom(input.Snap)
+	// Chance sampling belongs to the rollout, never to restoring the shared
+	// root snapshot. Index-based seeds are independent of worker scheduling.
+	game.SetSimulationSeed(int64(input.Seed + uint64(fl.rolloutIdx)*0x9e3779b97f4a7c15))
 	rt.CurrentOwnerPlayer = -1
 	rt.CurrentOwnerChar = -1
 	rt.CurrentContextPlayer = int(game.Turn)
@@ -94,10 +99,10 @@ func startRollout2(
 		nodeIdx := fl.path[len(fl.path)-1]
 		node := pool.Get(nodeIdx)
 
-		if node.Terminal {
+		if game.Phase == engine.PhaseGameOver {
 			fl.leafIdx = nodeIdx
 			fl.terminal = true
-			fl.leafValueP0 = node.TerminalZ
+			fl.leafValueP0 = terminalZ(game.Winner)
 			addNS(prof, prof_descendNS, descendStart)
 			return nil
 		}
@@ -118,6 +123,7 @@ func startRollout2(
 			// Leaf. Record legal ids + build eval request, optionally
 			// random rollout, queue an eval job.
 			fl.leafIdx = nodeIdx
+			fl.leafTurn = int8(game.Turn)
 			fl.legalIds = legalIds
 			fl.req = buildEvalRequest(game, input, legalIds)
 			fl.resp.Prior = make([]float32, len(legalIds))
@@ -189,7 +195,7 @@ func startRollout2(
 
 		// Select + step.
 		chosenChildIdx, chosenAction, stepIdx, selErr := selectAndMap(
-			pool, node, legalIds, cfg.CPuct)
+			pool, node, legalIds, cfg.CPuct, int8(game.Turn))
 		if selErr != nil {
 			return fmt.Errorf("rollout %d: %w", fl.rolloutIdx, selErr)
 		}
@@ -212,20 +218,16 @@ func startRollout2(
 		fl.path = append(fl.path, chosenChildIdx)
 		AddVirtualLoss(pool, []int32{chosenChildIdx})
 
-		chosenChild := pool.Get(chosenChildIdx)
 		if game.Phase == engine.PhaseGameOver {
 			z := terminalZ(game.Winner)
-			chosenChild.Terminal = true
-			chosenChild.TerminalZ = z
-			chosenChild.Turn = -1
-			chosenChild.InstallExpansion(nil, nil, z)
+			// A terminal outcome belongs to this sampled hidden state, not
+			// every determinization sharing this action-history node.
 			fl.leafIdx = chosenChildIdx
 			fl.terminal = true
 			fl.leafValueP0 = z
 			addNS(prof, prof_descendNS, descendStart)
 			return nil
 		}
-		chosenChild.Turn = int8(game.Turn)
 
 		depth++
 		if depth > cfg.MaxRolloutDepth {
@@ -251,7 +253,7 @@ func commitRollout(
 	} else {
 		vNetActing := fl.resp.Value
 		var vNetP0 float32
-		if leaf.Turn == 0 {
+		if fl.leafTurn == 0 {
 			vNetP0 = vNetActing
 		} else {
 			vNetP0 = -vNetActing

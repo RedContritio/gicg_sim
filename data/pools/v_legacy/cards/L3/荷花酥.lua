@@ -17,7 +17,7 @@ on_card_play(function(ctx)
   buff:set_at(ctx.target_player, ctx.target_char, 1)
 end)
 
-on_damage_reduce_buff(function(ctx)
+on_damage_reduce_buff({ priority = 100, order = buff }, function(ctx)
   if buff:get_at(ctx.target_player, ctx.target_char) <= 0 then return end
   if ctx.value > 2 then
     ctx.value = 0
@@ -25,6 +25,8 @@ on_damage_reduce_buff(function(ctx)
   end
 end)
 
-on_round_end_decay(function(ctx)
-  buff:decay_all(context_player())
+on_round_end_decay({ order = buff }, function(ctx)
+  buff:set_at(ctx.actor_player, ctx.actor_char, 0)
 end)
+
+register_buff(buff, { remove_on_death = true, expires_round_end = true })

@@ -6,6 +6,8 @@ in a ckpt). Output is the per-action regret vector.
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint, save_checkpoint
+
 import torch
 import torch.nn as nn
 
@@ -36,6 +38,8 @@ class AdvantageNet(nn.Module):
         action_payments,
         structural_values,
         char_skill_refs,
+        definition_links,
+        buffs=None,
     ):
         """Returns (B, max_actions) regret scores. No nonlinearity."""
         out = self.trunk.encode(
@@ -51,12 +55,14 @@ class AdvantageNet(nn.Module):
             action_payments,
             structural_values,
             char_skill_refs,
+            definition_links,
+            buffs=buffs,
         )
         return _pointer_net_logits(out)
 
     def save(self, path: str) -> None:
         """Optional debug snapshot (not part of inference deliverable)."""
-        torch.save(
+        save_checkpoint(
             {
                 'cfg': vars(self.cfg),
                 'net': self.state_dict(),
@@ -66,7 +72,7 @@ class AdvantageNet(nn.Module):
         )
 
     def load(self, path: str, map_location: str = 'cpu') -> None:
-        blob = torch.load(path, weights_only=True, map_location=map_location)
+        blob = load_checkpoint(path, weights_only=True, map_location=map_location)
         if not isinstance(blob, dict) or 'net' not in blob:
             raise RuntimeError(f"AdvantageNet.load: {path} missing 'net'")
         if blob.get('kind') not in (self.KIND, None):

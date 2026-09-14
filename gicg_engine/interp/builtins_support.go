@@ -1,9 +1,5 @@
 package interp
 
-import (
-	engine "gicg_mono/gicg_engine"
-)
-
 // Support zone DSL builtins:
 //   - remove_support(player, card_ref) — splice from Supports, push to
 //     Discard, fire HookSupportRemove. No-op if card_ref absent (DSL
@@ -31,15 +27,13 @@ func (rt *Runtime) registerSupportBuiltins() {
 			return nil, nil
 		}
 		sup := rt.Game.Players[rp].Supports
+		var instance uint64
+		if rt.currentHookContext != nil {
+			instance = rt.currentHookContext.BuffID
+		}
 		for i, s := range sup {
-			if s.Ref == cardRef {
-				rt.Game.Players[rp].Supports = append(sup[:i], sup[i+1:]...)
-				rt.Game.Players[rp].Discard = append(
-					rt.Game.Players[rp].Discard,
-					engine.CardInst{Ref: cardRef, DrawnAtRound: rt.Game.Round},
-				)
-				ctx := &engine.EventContext{ActorPlayer: rp, CardRef: cardRef}
-				rt.Game.FireEventHooks(engine.HookSupportRemove, ctx)
+			if s.Ref == cardRef && (instance == 0 || s.BuffID == 0 || s.BuffID == instance) {
+				rt.Game.RemoveSupportAt(rp, i)
 				return nil, nil
 			}
 		}

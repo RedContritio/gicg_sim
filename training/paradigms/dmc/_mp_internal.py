@@ -178,13 +178,7 @@ def _adapt_episode_record(record: Any) -> tuple[list, int]:
 
 
 def _terminal_z(winner: int, our_player: int) -> float:
-    """Mirror :func:`training.paradigms.dmc._episode.terminal_z` —
-    +1 win, -1 lose, 0 draw / unknown. Inlined to avoid pulling
-    :mod:`_episode` at collector load (cycle with buffer.py)."""
-    if winner is None or winner < 0:
-        return 0.0
-    if winner == our_player:
-        return 1.0
-    if winner == 2:  # draw sentinel
-        return 0.0
-    return -1.0
+    """Reject truncated/unknown records before they enter the DMC buffer."""
+    from training.core.matchup.outcome import terminal_outcome
+
+    return float(terminal_outcome(winner, our_player))

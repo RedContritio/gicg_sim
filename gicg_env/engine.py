@@ -17,6 +17,7 @@ from gicg_env._constants import (
     ACTION_END_TURN,
     ACTION_SKILL,
     ACTION_SWITCH,
+    ACTION_TUNE,
     DICE_COLOR_COUNT,
     PHASE_ACTION,
     PHASE_GAME_OVER,

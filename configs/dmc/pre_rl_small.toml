@@ -1,0 +1,13 @@
+# Frozen first RL budget. No warm start; run each seed as an independent registry run.
+[meta]
+extends = "readiness_base.toml"
+seed = 41
+run_label = "small_rl_v14"
+
+[paradigm.dmc]
+total_frames = 3000
+max_game_steps = 512
+eval_interval_episodes = 0
+
+[shape]
+dropout = 0.0

@@ -25,22 +25,33 @@ _SCENARIO = {
 
 def _build_static_obs(n_counter_slots: int, n_hooks: int, max_ops_per_hook: int, fields_per_op: int) -> np.ndarray:
     """Stub static_obs with non-trivial structure — counter_meta + char_skill_refs + hook_ir。"""
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE, OBS_CHAR_ELEMENT_SLOTS
+    from training.core.obs_constants import (
+        OBS_CHAR_ELEMENT_SLOTS,
+        OBS_CHAR_SKILL_REFS_SIZE,
+        OBS_DEFINITION_LINK_SCHEMA_VERSION,
+        OBS_DEFINITION_LINK_SLOTS,
+    )
 
     meta_size = n_counter_slots * 3
     refs_size = OBS_CHAR_SKILL_REFS_SIZE
     hook_size = n_hooks * max_ops_per_hook * fields_per_op
     elem_size = OBS_CHAR_ELEMENT_SLOTS
-    total = meta_size + refs_size + hook_size + elem_size
+    total = meta_size + refs_size + hook_size + elem_size + OBS_DEFINITION_LINK_SLOTS
     obs = np.arange(total, dtype=np.int32)
+    obs[-OBS_DEFINITION_LINK_SLOTS:] = 0
+    obs[-OBS_DEFINITION_LINK_SLOTS] = OBS_DEFINITION_LINK_SCHEMA_VERSION
     return obs
 
 
 def _build_dyn_obs(n_counter_slots: int) -> np.ndarray:
     """Stub dyn_obs sized to match scenario(real call goes through parse_dynamic_np)。"""
-    # 走 parse_dynamic_np 算 dynamic obs size,这里 over-allocate 然后 trim
-    # 实际 sizing logic 在 engine.DynamicObsSize();这里走个保守 4096
-    return np.arange(4096, dtype=np.float32)
+    from training.core.obs_constants import OBS_BUFF_SLOTS
+    from training.core.step_encoding import typed_segment_offsets
+
+    start = typed_segment_offsets(n_counter_slots)['ml_end']
+    obs = np.arange(start + OBS_BUFF_SLOTS, dtype=np.float32)
+    obs[start:] = 0
+    return obs
 
 
 def _build_refs_pay(n_legal: int) -> tuple[np.ndarray, np.ndarray]:

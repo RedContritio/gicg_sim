@@ -27,6 +27,10 @@ class _ActionMixin:
         """Release a snapshot handle."""
         self._engine.snapshot_free(snap_id)
 
+    def set_simulation_seed(self, seed: int):
+        """Set future chance events for a speculative branch after snapshot."""
+        self._engine.set_simulation_seed(seed)
+
     def log_suspend(self):
         """Stop recording engine events into the replay log. Use around
         MCTS forward-simulation so rollout events don't end up in the

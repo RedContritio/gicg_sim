@@ -12,12 +12,20 @@ import (
 // find_slot at each access).
 
 type CounterProxy struct {
-	ID      int
-	RefKind int
+	InstanceID uint64 // only a write callback's concrete instance argument
+	ID         int
+	RefKind    int
 }
 
 func (c *CounterProxy) CallMethod(rt *Runtime, method string, args []Value) (Value, error) {
 	g := rt.Game
+	if c.InstanceID != 0 {
+		frame := g.CurrentEvent()
+		frame.BuffID, frame.BuffCounterID = c.InstanceID, c.ID
+		g.PushEvent(frame)
+		defer g.PopEvent()
+		defer g.DrainDeferred()
+	}
 	// Null proxy (ID < 0): returned by LazyCharProxy / LazyCharProxy-derived
 	// counter accessors (e.g. hp(), energy()) when the current runtime
 	// context player has no char matching the lazy's target name. Reads
@@ -41,7 +49,7 @@ func (c *CounterProxy) CallMethod(rt *Runtime, method string, args []Value) (Val
 	}
 	switch method {
 	case "get":
-		raw := g.Counters[c.ID].Value
+		raw := g.ReadCounter(c.ID)
 		if c.RefKind != RefKindNone {
 			return wrapRef(rt, c.RefKind, raw), nil
 		}
@@ -96,7 +104,7 @@ func (pp *PerPlayerProxy) CallMethod(rt *Runtime, method string, args []Value) (
 	g := rt.Game
 	switch method {
 	case "get":
-		raw := g.Counters[pp.resolve(rt)].Value
+		raw := g.ReadCounter(pp.resolve(rt))
 		if pp.RefKind != RefKindNone {
 			return wrapRef(rt, pp.RefKind, raw), nil
 		}
@@ -124,7 +132,7 @@ func (pp *PerPlayerProxy) CallMethod(rt *Runtime, method string, args []Value) (
 		return nil, nil
 	case "get_at":
 		id := pp.resolveAt(rt, args)
-		raw := g.Counters[id].Value
+		raw := g.ReadCounter(id)
 		if pp.RefKind != RefKindNone {
 			return wrapRef(rt, pp.RefKind, raw), nil
 		}
@@ -220,7 +228,7 @@ func (sp *SelfSlotProxy) CallMethod(rt *Runtime, method string, args []Value) (V
 			}
 			return 0, nil
 		}
-		raw := g.Counters[id].Value
+		raw := g.ReadCounter(id)
 		if sp.RefKind != RefKindNone {
 			return wrapRef(rt, sp.RefKind, raw), nil
 		}

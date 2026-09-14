@@ -7,16 +7,14 @@ static-cache / parse-scaffolding from ``AgentBase``.
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint, save_checkpoint
+
 import numpy as np
 import torch
 
 from training.paradigms.cfr.strategy_net import CFRNetConfig, CFRStrategyNet
 from training.core.network import AgentBase
-from training.core.step_encoding import (
-    build_legal_mask,
-    pad_action_payments,
-    pad_action_refs,
-)
+from training.core.step_encoding import pad_action_payments, pad_action_refs
 from training.core.structural import compute_structural_values
 
 
@@ -35,7 +33,7 @@ class CFRAgent(AgentBase):
 
     def load(self, path: str) -> None:
         """Load CFRStrategyNet weights from a ckpt."""
-        blob = torch.load(path, weights_only=True, map_location=self.device)
+        blob = load_checkpoint(path, weights_only=True, map_location=self.device)
         if not isinstance(blob, dict) or 'net' not in blob:
             raise RuntimeError(f"CFRAgent.load: {path} missing 'net'")
         if blob.get('kind') not in (CFRStrategyNet.KIND, None):
@@ -44,7 +42,7 @@ class CFRAgent(AgentBase):
 
     def save(self, path: str) -> None:
         """Save the wrapped CFRStrategyNet."""
-        torch.save(
+        save_checkpoint(
             {
                 'cfg': vars(self.cfr_cfg),
                 'net': self.net.state_dict(),
@@ -78,8 +76,6 @@ class CFRAgent(AgentBase):
 
         refs_padded = pad_action_refs(refs_np, self.cfr_cfg.max_actions)
         pay_padded = pad_action_payments(payments_np, self.cfr_cfg.max_actions)
-        mask = build_legal_mask(self.cfr_cfg.max_actions, n_legal)
-
         with torch.no_grad():
             # CFR currently does not consume the typed obs segments
             # (recent_damage / prepare_skill / modifier_log). AZ stack
@@ -111,6 +107,8 @@ class CFRAgent(AgentBase):
                 action_payments=pay_t,
                 structural_values=structural_values,
                 char_skill_refs=self._char_skill_refs,
+                definition_links=self._definition_links,
+                buffs=self._parse_buff_single(dyn_obs_np),
             )
             legal_logits = logits[0, :n_legal]
             prior = torch.softmax(legal_logits, dim=-1).cpu().numpy()

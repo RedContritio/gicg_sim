@@ -21,7 +21,7 @@ from training.core.cfg import (
 # Shared base shape fields (per factories.py _BASE_SHAPE_FIELDS).
 _BASE_N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16  # 1832
 _BASE_N_HOOKS = 900
-_BASE_MAX_TOKENS_PER_HOOK = 64
+_BASE_MAX_TOKENS_PER_HOOK = 128
 _BASE_MAX_ACTIONS = 2048
 _BASE_DROPOUT = 0.0
 

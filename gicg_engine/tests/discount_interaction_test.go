@@ -28,7 +28,7 @@ func (env *GameEnv) setBuffToOne(t *testing.T, name string, p, c int) {
 		}
 		m := env.G.GetCounterChar(id)
 		if m[0] == p && m[1] == c {
-			env.G.Counters[id].Value = 1
+			env.G.WriteCounter(id, engine.OpSet, 1)
 			return
 		}
 	}
@@ -45,7 +45,7 @@ func (env *GameEnv) setCounterPerPlayer(t *testing.T, name string, p, value int)
 		}
 		m := env.G.GetCounterChar(id)
 		if m[0] == p && m[1] == -1 {
-			env.G.Counters[id].Value = value
+			env.G.WriteCounter(id, engine.OpSet, value)
 			return
 		}
 	}
@@ -136,107 +136,49 @@ func TestDiscount_反制_Alone(t *testing.T) {
 	}
 }
 
-// TestDiscount_乘胜追击_4thActionFree verifies the 4th battle action
-// of the round is free under 乘胜追击. Uses the fact that cost_mod
-// All -99 zeros every slot after clamp.
-func TestDiscount_乘胜追击_4thActionFree(t *testing.T) {
+// Other discounts settle before 乘胜追击's fourth-costed-operation discount.
+func TestDiscount_乘胜追击_RestrictedFirst(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
-
-	// Activate 乘胜追击 on P0
 	env.setCounterPerPlayer(t, "乘胜追击_active", 0, 1)
-	// Pretend 3 battle actions already happened this round
 	env.setCounterPerPlayer(t, "乘胜追击_count", 0, 3)
-
-	env.PlayUntilTurn(0, 10)
-	poolBefore := env.DiceTotal(0)
-
-	// Play 枪 — should be free under 乘胜追击 4th-action bonus.
+	env.SetDice(0, map[int]int{engine.DiceColorFire: 8})
 	if !env.StepSkill("枪") {
-		t.Fatal("枪 not available")
+		t.Fatal("枪 unavailable")
 	}
-
-	poolAfter := env.DiceTotal(0)
-	if poolAfter != poolBefore {
-		t.Errorf("dice pool changed by %d; want 0 (4th action is free)",
-			poolBefore-poolAfter)
+	if env.DiceTotal(0) != 8 {
+		t.Fatal("1 fire + 2 any must reduce to zero")
 	}
 }
 
-// TestDiscount_速速茶点_NotWasted_When_乘胜追击_Frees verifies the
-// key requirement: when 乘胜追击 makes an action free, 速速茶点's
-// buff is NOT consumed (waste prevention).
-func TestDiscount_速速茶点_NotWasted_When_乘胜追击_Frees(t *testing.T) {
+func TestDiscount_速速茶点_Before_乘胜追击(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
-
-	// Both buffs active
 	env.setBuffToOne(t, "速速茶点_buff", 0, 0)
 	env.setCounterPerPlayer(t, "乘胜追击_active", 0, 1)
-	env.setCounterPerPlayer(t, "乘胜追击_count", 0, 3) // next action = 4th
-
-	env.PlayUntilTurn(0, 10)
-	poolBefore := env.DiceTotal(0)
-
-	// Play 枪 — 乘胜追击 zeros cost; 速速茶点 should short-circuit
-	// (cost_total == 0 gate) and NOT consume its buff.
+	env.setCounterPerPlayer(t, "乘胜追击_count", 0, 3)
+	env.SetDice(0, map[int]int{engine.DiceColorFire: 8})
 	if !env.StepSkill("枪") {
-		t.Fatal("枪 not available")
+		t.Fatal("枪 unavailable")
 	}
-
-	// Free action: pool unchanged
-	poolAfter := env.DiceTotal(0)
-	if poolAfter != poolBefore {
-		t.Errorf("dice pool changed by %d; want 0 (4th action is free)",
-			poolBefore-poolAfter)
-	}
-
-	// 速速茶点 buff should be preserved (not wasted on already-free
-	// action)
-	buffAfter := env.counterByChar("速速茶点_buff", 0, 0)
-	if buffAfter != 1 {
-		t.Errorf("速速茶点_buff after free action = %d, want 1 (not consumed)",
-			buffAfter)
+	if env.DiceTotal(0) != 8 || env.counterByChar("速速茶点_buff", 0, 0) != 0 {
+		t.Fatal("tea applies first; remaining cost reduces to zero")
 	}
 }
 
-// TestDiscount_伏兵之术_NotWasted_When_乘胜追击_Frees verifies the
-// other direction: when switching and 乘胜追击 would make the switch
-// free anyway, 伏兵之术's used flag should NOT flip.
-func TestDiscount_伏兵之术_NotWasted_When_乘胜追击_Frees(t *testing.T) {
+func TestDiscount_伏兵之术_FreeSwitchDoesNotCount(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶", "墨客"}, []string{"墨客"})
-
-	// Activate 伏兵之术 on P0
 	env.setCounterPerPlayer(t, "伏兵之术_active", 0, 1)
-	// Activate 乘胜追击 4th action
 	env.setCounterPerPlayer(t, "乘胜追击_active", 0, 1)
 	env.setCounterPerPlayer(t, "乘胜追击_count", 0, 3)
-
-	env.PlayUntilTurn(0, 10)
-	poolBefore := env.DiceTotal(0)
-
-	// Switch to 墨客 (char index 1)
-	actions := env.G.GetLegalActions()
-	switchIdx := -1
-	for i, a := range actions {
-		if a.Kind == engine.ActionSwitch && a.Index == 1 {
-			switchIdx = i
-			break
-		}
+	before := env.DiceTotal(0)
+	auditSwitch(t, env, 0, 1)
+	if env.DiceTotal(0) != before {
+		t.Fatal("switch should be free")
 	}
-	if switchIdx < 0 {
-		t.Fatal("switch to 墨客 not available")
+	if env.G.ReadCounter(findCounterIDPerPlayer(env, "伏兵之术_used", 0)) != 1 {
+		t.Fatal("ambush charge not consumed")
 	}
-	env.Step(switchIdx)
-
-	// Pool unchanged (free from 乘胜追击)
-	if env.DiceTotal(0) != poolBefore {
-		t.Errorf("pool changed by %d; want 0",
-			poolBefore-env.DiceTotal(0))
-	}
-
-	// 伏兵之术 used flag should NOT be set (gate blocked)
-	used := env.G.Counters[findCounterIDPerPlayer(env, "伏兵之术_used", 0)].Value
-	if used != 0 {
-		t.Errorf("伏兵之术_used = %d, want 0 (gate short-circuited)", used)
+	if env.G.ReadCounter(findCounterIDPerPlayer(env, "乘胜追击_count", 0)) != 3 {
+		t.Fatal("already-free switch counted")
 	}
 }
 

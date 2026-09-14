@@ -89,6 +89,15 @@ class OpponentPool:
     def seed(self, seed: int) -> None:
         self._rng.seed(seed)
 
+    def state_dict(self) -> dict:
+        return {'ring': list(self._ring), 'ring_size': self.cfg.ring_size, 'rng': self._rng.getstate()}
+
+    def load_state_dict(self, state: dict) -> None:
+        if state['ring_size'] != self.cfg.ring_size or len(state['ring']) > self.cfg.ring_size:
+            raise ValueError('historical opponent ring capacity mismatch')
+        self._ring = deque(state['ring'], maxlen=self.cfg.ring_size)
+        self._rng.setstate(state['rng'])
+
     def add_snapshot(self, state_dict) -> None:
         """Add a learner ckpt snapshot to historical ring."""
         self._ring.append(state_dict)

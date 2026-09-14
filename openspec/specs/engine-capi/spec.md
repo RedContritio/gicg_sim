@@ -115,10 +115,20 @@ change 提案修订,而非在代码中静默偏离。
    支撑 search 树的复制 / 快照恢复(详
    [`search-ismcts`](../search-ismcts/spec.md))。
 
+   快照与恢复 SHALL 不推进源局或快照的随机流。相同快照和动作输入 SHALL
+   产生相同后续状态；`GameSetSimulationSeed` 显式修改私有模拟局的未来随机流。
+   复制 SHALL 包含待处理目标、蓄力、区域、装备占用、奖励累计及随机状态。
+   执行中的调用栈 SHALL 不被当作可复制的决策边界；等待玩家输入的受管理
+   动作 SHALL 支持克隆与恢复，并保留后续结算。
+
 7. **动作循环函数**:Engine SHALL expose 动作循环:`GameStep` /
    `GameStepTarget` / `GameGetLegalActionCount` / `GameGetLegalActions` /
    `GameGetActionRefs`(`kind / hook_idx / char_idx` triple)/
    `GameGetActionLabels` / `GameIsForcedSwitchPending`。
+
+   旧式卡牌目标选择 SHALL 在 `GameStep` 与 `GameStepTarget` 使用同一解析
+   路径，不重复出牌或扣费；原动作的费用修正信息 SHALL 保留到效果执行。
+   无效目标 SHALL 保持等待状态不变。
 
 8. **观测张量函数**:Engine SHALL expose 观测:`GameGetStaticObsSize` /
    `GameGetDynamicObsSize` / `GameGetStaticObs`(每 episode 一次)/

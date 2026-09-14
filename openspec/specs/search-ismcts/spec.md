@@ -120,9 +120,9 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
 
 10. **Hidden state via clone-snapshot**:Rollout SHALL inject sampled
     hidden state via engine clone-snapshot — 每次 rollout 开始 `env.
-    restore(root_snap)` 推进 RNG → 采样 hidden state → `apply_
+    restore(root_snap)` 精确恢复 → 显式 `set_simulation_seed` → 采样 hidden state → `apply_
     determinization(env, hidden, opponent)`(setter API)→ 沿树下降。
-    机会节点(掷骰子 / 抽牌)由 snapshot RNG 自动承担,**不**显式建模。
+    机会节点(掷骰子 / 抽牌)由模拟局的随机流承担,**不**显式建模。
     详 [`./determinization.md`](./determinization.md) §3 + [`./tree-structure.md`](./tree-structure.md) §5。
 
 ## 4. Subtopics

@@ -33,7 +33,7 @@ func (pc *PerCharProxy) CallMethod(rt *Runtime, method string, args []Value) (Va
 	g := rt.Game
 	switch method {
 	case "get":
-		raw := g.Counters[pc.resolve(rt)].Value
+		raw := g.ReadCounter(pc.resolve(rt))
 		if pc.RefKind != RefKindNone {
 			return wrapRef(rt, pc.RefKind, raw), nil
 		}
@@ -69,7 +69,7 @@ func (pc *PerCharProxy) CallMethod(rt *Runtime, method string, args []Value) (Va
 			}
 			return 0, nil
 		}
-		raw := g.Counters[id].Value
+		raw := g.ReadCounter(id)
 		if pc.RefKind != RefKindNone {
 			return wrapRef(rt, pc.RefKind, raw), nil
 		}
@@ -115,7 +115,7 @@ func (pc *PerCharProxy) CallMethod(rt *Runtime, method string, args []Value) (Va
 		rp := rt.ResolvePlayer(p)
 		for c := 0; c < MaxChars; c++ {
 			id := pc.IDs[rp*MaxChars+c]
-			if g.Counters[id].Value > 0 {
+			if g.ReadCounter(id) > 0 {
 				g.WriteCounter(id, engine.OpSub, 1)
 			}
 		}
@@ -160,7 +160,7 @@ func (v *PerPlayerView) CallMethod(rt *Runtime, method string, args []Value) (Va
 	id := v.resolvedID(rt)
 	switch method {
 	case "get":
-		return g.Counters[id].Value, nil
+		return g.ReadCounter(id), nil
 	case "set":
 		val, _ := ToInt(args[0])
 		g.WriteCounter(id, engine.OpSet, val)

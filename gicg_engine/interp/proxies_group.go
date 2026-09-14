@@ -25,7 +25,7 @@ func (cg *CounterGroupProxy) iterCounterIDs(rt *Runtime, pLo, pHi int, fn func(i
 			for p := pLo; p <= pHi; p++ {
 				for c := 0; c < MaxChars; c++ {
 					id := pc.IDs[p*MaxChars+c]
-					if g.Counters[id].Value > 0 {
+					if g.ReadCounter(id) > 0 {
 						fn(id)
 					}
 				}
@@ -33,7 +33,7 @@ func (cg *CounterGroupProxy) iterCounterIDs(rt *Runtime, pLo, pHi int, fn func(i
 		case ScopePerPlayer:
 			pp := e.Ref.(*PerPlayerProxy)
 			for p := pLo; p <= pHi; p++ {
-				if g.Counters[pp.IDs[p]].Value > 0 {
+				if g.ReadCounter(pp.IDs[p]) > 0 {
 					fn(pp.IDs[p])
 				}
 			}
@@ -45,14 +45,14 @@ func (cg *CounterGroupProxy) iterCounterIDs(rt *Runtime, pLo, pHi int, fn func(i
 			for p := pLo; p <= pHi; p++ {
 				for c := 0; c < MaxChars; c++ {
 					id := e.SlotIDs[p*MaxChars+c]
-					if id >= 0 && g.Counters[id].Value > 0 {
+					if id >= 0 && g.ReadCounter(id) > 0 {
 						fn(id)
 					}
 				}
 			}
 		default:
 			cp := e.Ref.(*CounterProxy)
-			if g.Counters[cp.ID].Value > 0 {
+			if g.ReadCounter(cp.ID) > 0 {
 				fn(cp.ID)
 			}
 		}

@@ -32,7 +32,7 @@ on_skill_use(function(ctx)
   -- "造成 1 物理(spike 用火)+ 此角色额外获得 1 充能"
   deal_damage(Target.EnemyActive, Element.Fire, 1, { source = Source.Skill })
   -- 额外充能(在 silent invoke 时 engine canonical 不增加,DSL 自己处理)
-  local energy_counter = get_counter("energy", Scope.Self)
+  local energy_counter = 歼灭机关:energy()
   energy_counter:add(1)
 end)
 

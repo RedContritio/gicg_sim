@@ -16,6 +16,45 @@ def engine():
     yield eng
 
 
+# F4: the engine no longer silently truncates an over-full eligible set
+# (v_legacy 3v3 eligibility > 15), so the fixture pins the historical
+# truncation-era composition explicitly (probe 2026-06-12, byte order).
+GAME_DECK_P0 = [
+    '乘胜追击',
+    '以攻代守',
+    '以牙还牙',
+    '伏兵之术',
+    '佛跳墙',
+    '刺刺猫爪',
+    '占星',
+    '反制',
+    '复刻',
+    '守正',
+    '清洁时间',
+    '玄冰',
+    '瞬身之术',
+    '美味烧鸡',
+    '荷花酥',
+]
+GAME_DECK_P1 = [
+    '乘胜追击',
+    '以攻代守',
+    '以牙还牙',
+    '伏兵之术',
+    '佛跳墙',
+    '刺刺猫爪',
+    '占星',
+    '反制',
+    '发现静电',
+    '复刻',
+    '星愿',
+    '清洁时间',
+    '玄冰',
+    '瞬身之术',
+    '美味烧鸡',
+]
+
+
 @pytest.fixture
 def game(engine):
     engine.new_game(
@@ -24,6 +63,7 @@ def game(engine):
         data_dir=DATA_DIR,
         # Pre-ADR-0011 deck shape: 15 cards capped via 碌碌无为 padding.
         deck_padding={'card': '碌碌无为', 'target_size': 15},
+        decks=[GAME_DECK_P0, GAME_DECK_P1],
     )
     # Advance past the PhaseSelectActive phase (both players pick char 0
     # as their initial active) so existing tests can assume PhaseAction.
@@ -61,6 +101,7 @@ class TestLegalActions:
         assert len(kinds) == len(indices)
 
     def test_skills_available(self, game):
+        game.set_player_dice(0, [0, 0, 0, 0, 0, 0, 0, 8])
         kinds, indices = game.get_legal_actions()
         assert ACTION_SKILL in kinds
 
@@ -71,6 +112,7 @@ class TestLegalActions:
 
 class TestGameplay:
     def test_step_skill(self, game):
+        game.set_player_dice(0, [0, 0, 0, 0, 0, 0, 0, 8])
         kinds, indices = game.get_legal_actions()
         skill_idx = np.where(kinds == ACTION_SKILL)[0]
         assert len(skill_idx) > 0

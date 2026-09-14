@@ -28,10 +28,9 @@ from training.core.step_encoding import (
     pad_action_refs,
 )
 from training.core.structural import (
-    compute_structural_obspos,
     compute_structural_values,
 )
-
+from training.paradigms.dmc._agent_batch import _DmcBatchMixin
 
 # DMC head subset: single Q head (decision A1, logit-as-Q per spec D2.1).
 # QHead and PolicyHead share identical implementation (state_proj MLP +
@@ -40,7 +39,7 @@ from training.core.structural import (
 DMC_HEAD_KINDS = frozenset({'q'})
 
 
-class DmcAgent(AgentBase):
+class DmcAgent(_DmcBatchMixin, AgentBase):
     """ActorCritic-backed DMC agent (single Q head).
 
     Player interface: ``select_action(env) -> int``.
@@ -148,6 +147,8 @@ class DmcAgent(AgentBase):
                 recent_damage,
                 prepare_skill,
                 modifier_log,
+                buffs=self._parse_buff_single(dyn_obs_np),
+                definition_links=self._definition_links,
             )
             # Generic ActorCritic returns dict; DMC uses 'q' head (logit-as-Q).
             return out['q'][0, :n_legal].clone()
@@ -193,6 +194,7 @@ class DmcAgent(AgentBase):
             'active_slot_mask': self._active_slot_mask,
             'hook_emb': self._hook_emb,
             'hook_mask': self._hook_mask,
+            'definition_links': self._definition_links,
             'card_buckets': card_buckets,
             'enemy_sizes': enemy_sizes,
             'meta': meta,
@@ -203,6 +205,7 @@ class DmcAgent(AgentBase):
             'recent_damage': recent_damage,
             'prepare_skill': prepare_skill,
             'modifier_log': modifier_log,
+            'buffs': self._parse_buff_single(dyn_obs),
         }
 
     def act_via_provider(self, env: GicgEnv, provider: Any) -> tuple[int, float]:
@@ -229,56 +232,6 @@ class DmcAgent(AgentBase):
         return idx, float(legal_logits[idx].item())
 
     # --- Training interface ---------------------------------------- #
-
-    def forward_batch(self, batch: dict):
-        """Batched forward (same as AZ for now). Returns (logits, value, delta_pred)."""
-
-        def _t(key, dtype):
-            x = batch[key]
-            if isinstance(x, torch.Tensor):
-                return x.to(self.device).to(dtype)
-            return torch.as_tensor(x, dtype=dtype, device=self.device)
-
-        counter_values = _t('counter_values', torch.float32)
-        counter_sids = _t('counter_sids', torch.long)
-        active_slot_mask = _t('active_slot_mask', torch.bool)
-        hook_ir = _t('hook_ir', torch.long)
-        hook_mask = _t('hook_mask', torch.bool)
-        card_buckets = _t('card_buckets', torch.float32)
-        enemy_sizes = _t('enemy_sizes', torch.float32)
-        meta = _t('meta', torch.float32)
-        action_refs = _t('action_refs', torch.long)
-        action_payments = _t('action_payments', torch.float32)
-        char_skill_refs = _t('char_skill_refs', torch.long)
-        recent_damage = _t('recent_damage', torch.float32)
-        prepare_skill = _t('prepare_skill', torch.float32)
-        modifier_log = _t('modifier_log', torch.float32)
-
-        hook_emb = self.net.hook_encoder(hook_ir, hook_mask)
-        structural_obspos = compute_structural_obspos(counter_sids, active_slot_mask)
-        structural_values = compute_structural_values(counter_values, structural_obspos)
-
-        out = self.net(
-            counter_values,
-            counter_sids,
-            active_slot_mask,
-            hook_emb,
-            hook_mask,
-            card_buckets,
-            enemy_sizes,
-            meta,
-            action_refs,
-            action_payments,
-            structural_values,
-            char_skill_refs,
-            recent_damage,
-            prepare_skill,
-            modifier_log,
-        )
-        # DMC uses single Q head; loss expects (logits, value, delta) 3-tuple
-        # (DMCLogitAsQLoss only reads logits, the latter two are unused
-        # placeholders for AZ-style protocol compatibility).
-        return out['q'], None, None
 
     # --- Save / Load ---------------------------------------------- #
 

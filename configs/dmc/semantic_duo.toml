@@ -1,0 +1,20 @@
+[meta]
+extends = "semantic_goal.toml"
+run_label = "semantic_duo"
+host = "remote"
+device = "cuda"
+
+[scenario]
+team_0 = ["赤蝶", "墨客"]
+team_1 = ["猫咪", "刻师傅"]
+char_pool = ["赤蝶", "墨客", "猫咪", "刻师傅", "天星"]
+team_size = 2
+disjoint_teams = true
+# Allow DSL round-10 forced winner adjudication before engine hard cap.
+max_rounds = 10
+
+[remote]
+ssh = "dev@192.168.31.56"
+root = "D:/gicg_goal"
+os = "windows"
+hostname = "DESKTOP-GHJCC7Q"

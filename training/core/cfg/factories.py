@@ -20,7 +20,7 @@ from training.core.cfg.shape import ObsShape
 _BASE_SHAPE_FIELDS = dict(
     n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,  # 1832
     n_hooks=900,
-    max_ops_per_hook=64,  # IR-4: matches engine.ObsMaxOpsPerHook (was 120 in token era)
+    max_ops_per_hook=128,  # IR-4: matches engine.ObsMaxOpsPerHook (was 120 in token era)
     max_actions=2048,
     dropout=0.0,
 )

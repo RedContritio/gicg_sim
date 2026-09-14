@@ -1,0 +1,15 @@
+[meta]
+extends = "semantic_duo.toml"
+run_label = "curriculum_l4"
+host = "remote"
+device = "cuda"
+
+[scenario]
+random_deck_size = 30
+card_pool = ["乘胜追击", "以牙还牙", "伏兵之术", "佛跳墙", "占星", "反制", "测试卡_增幅", "测试卡_碎片", "清洁时间", "玄冰", "瞬身之术", "碌碌无为", "美味烧鸡", "荷花酥", "西风剑", "西风长枪", "诅咒", "速速茶点", "铁剑", "铁弓", "铁枪"]
+
+[remote]
+ssh = "dev@192.168.31.56"
+root = "D:/gicg_goal"
+os = "windows"
+hostname = "DESKTOP-GHJCC7Q"

@@ -1,9 +1,5 @@
 package engine
 
-import (
-	"math/rand"
-)
-
 // CharInfo 引擎只知道角色的结构信息，不知道 HP/能量/冻结等游戏概念。
 //
 // Element 是 Phase IV 后引擎认识的"角色元素色",用于 dice 系统
@@ -16,51 +12,38 @@ type CharInfo struct {
 	Skills    []int
 	Alive     bool
 	Element   Element
+	// SpecialtyCardRef is per-game slot occupancy; -1 means empty.
+	SpecialtyCardRef int
 }
 
 // CardInst / PendingCard / PlayerState / SupportInst / MaxSupportSlots
 // 见 engine/player.go。
 
-// --- 事件栈（每层是队列） ---
-
-type EventFrame struct {
-	ActionCtx  ActionContext
-	Source     Source
-	Player     int
-	Char       int
-	SkillIndex int // set when source is a skill
-	CardRef    int // set when source is a card
-}
-
-type deferredEntry struct {
-	Frame     EventFrame
-	Fn        func(g *Game) // 自动执行
-	Action    *Action       // 需要玩家输入（Fn 为 nil 时使用）
-	NeedInput bool
-}
-
-type eventLayer struct {
-	Current  EventFrame
-	Deferred []deferredEntry
-}
-
 const MaxDepth = 16
 
 type Game struct {
 	// 核心数据
-	Counters []Counter
-	Hooks    *HookRegistry
-	Players  [2]PlayerState
+	BuffDefinitions []BuffDefinition // immutable after rules load
+	BuffSerial      uint64
+	Buffs           []BuffInstance // live ordered instances
+	Counters        []Counter
+	Hooks           *HookRegistry
+	RulesDigest     string // ordered, slot-bound DSL source digest; immutable after loading
+	Players         [2]PlayerState
 
 	// 游戏状态
 	Phase    Phase
 	Round    int
-	Turn     int // 当前行动方（0 或 1）
-	FirstEnd int // 本回合先声明结束的玩家（-1 = 尚无）
-	Winner   int // -1=进行中, 0=P0胜, 1=P1胜, 2=平局
+	Turn     int        // 当前行动方（0 或 1）
+	FirstEnd int        // 本回合先声明结束的玩家（-1 = 尚无）
+	Winner   int        // -1=进行中, 0=P0胜, 1=P1胜, 2=平局
+	Failure  *RuleError // sticky execution failure; reset before reuse
 
 	PendingAction     *Action
 	PendingCardTarget *PendingCard
+	PendingDice       *DiceSelection
+	resume            *continuation // immutable history for an interrupted operation
+	executing         *execution    // transient reconstruction cursor; never snapshotted
 
 	// 事件栈
 	eventStack []eventLayer
@@ -128,7 +111,7 @@ type Game struct {
 	// RNG. Rng is the legacy general-purpose RNG (dice rolls + DSL
 	// random_non_active + obs InitShuffle). BaseSeed re-seeds it on
 	// each NewRound for replay determinism (see NewRound).
-	Rng      *rand.Rand
+	Rng      *Random
 	BaseSeed int64
 
 	// review D.5 (2026-05-14): independent per-player deck RNGs. Allows
@@ -137,7 +120,7 @@ type Game struct {
 	// DeckSeeds[pi] survives clone/snapshot for replay. Backward compat:
 	// ResetDynamicState(seed) sets DeckSeeds=[seed, seed], so legacy
 	// single-seed callers see identical deck shuffles as before.
-	DeckRngs  [2]*rand.Rand
+	DeckRngs  [2]*Random
 	DeckSeeds [2]int64
 
 	// Counter → 角色映射（由 DSL 层注册）

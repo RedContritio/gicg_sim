@@ -130,6 +130,7 @@ class TraverserBase:
                 action_payments=action_payments_t,
                 structural_values=structural_values_t,
                 char_skill_refs=static.char_skill_refs_t,
+                definition_links=static.definition_links_t,
             )
             policy_t = regret_to_policy(regret, legal_mask_t)
             policy = policy_t.squeeze(0).cpu().numpy().astype(np.float32)

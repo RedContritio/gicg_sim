@@ -17,13 +17,14 @@ on_card_play(function(ctx)
   equipped:set_at(ctx.target_player, ctx.target_char, ref)
 end)
 
-on_damage_add(function(ctx)
+on_damage_add({ order = equipped }, function(ctx)
   if ctx.source ~= Source.Skill then return end
   if equipped:get_at(ctx.actor_player, ctx.actor_char) ~= ref then return end
   ctx.value = ctx.value + 1
 end)
 
-on_after_damage(function(ctx)
+on_after_damage({ order = equipped }, function(ctx)
+  if ctx.source ~= Source.Skill then return end
   if equipped:get_at(ctx.actor_player, ctx.actor_char) ~= ref then return end
   if not ctx.hit then return end
   local next_c = get_next_char(ctx.actor_player, ctx.actor_char)
@@ -32,13 +33,15 @@ on_after_damage(function(ctx)
   end
 end)
 
-on_skill_use(function(ctx)
+on_skill_use({ order = next_bonus }, function(ctx)
   if next_bonus:get_at(ctx.actor_player, ctx.actor_char) <= 0 then return end
   local c = _char_by_slot[ctx.actor_player][ctx.actor_char]
   if c then gain_energy(c.energy, 1) end
   next_bonus:set_at(ctx.actor_player, ctx.actor_char, 0)
 end)
 
-on_round_end_decay(function(ctx)
-  next_bonus:decay_all(context_player())
+on_round_end_decay({ order = next_bonus }, function(ctx)
+  next_bonus:set_at(ctx.actor_player, ctx.actor_char, 0)
 end)
+
+register_buff(next_bonus, { remove_on_death = true, expires_round_end = true })

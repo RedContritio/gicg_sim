@@ -10,8 +10,12 @@
 
 | 路径 | 内容 |
 |---|---|
+| [`dynamic_execution_to_training.md`](dynamic_execution_to_training.md) | 当前主路线：保留动态执行、验收、小模型验证、5070 Ti 长训和新卡适应；含新 session 交接清单 |
+| [`commit_readiness_20260912.md`](commit_readiness_20260912.md) | 当前分支的提交范围、验收结果与阻碍 |
+| [`versioning.md`](versioning.md) | 项目版本 vA.B.C 规则与历史映射 |
 | [`backlog.md`](backlog.md) | 跨项目待办 + 监控节奏约定 |
 | [`cards/`](cards/) | 卡设计与难度分级资料(curriculum 输入) |
+| [`cards/in_game_rule_verification.md`](cards/in_game_rule_verification.md) | 规则边界统一核验表：复现场景、当前处理、用户实测结果 |
 | [`v_phase2_deferred.md`](v_phase2_deferred.md) | v_phase2 deferred backlog(23 项 TODO) |
 
 ## 已归档的 plans
@@ -39,3 +43,9 @@
 - LIVE plan 跑完一次 closure 写入,**整 plan 沉淀到** `5_history/`(顶部加 ARCHIVED note)
 - 主 plan 改了用新 commit + commit message 描述差异
 - 完成的计划归档时,留指针到产出(artifact / commit / postmortem)
+
+- [从零开始的纯强化学习长期方向](pure_rl_long_term.md)：用户2026-09-13确认，当前全池基准完成后研究。
+
+- [原生角色与卡牌分批接入](cards/native_content_curriculum.md)：从教学池迁移到审核完整的原生内容和3v3，每批1–2角色与配套牌。
+
+- [PvE决策辅助与论文路线](pve_assistant_and_research.md)：最新用户目标，只支持最新正式服，逐动作建议、估值校准与新内容适应研究。

@@ -9,11 +9,13 @@ on_reaction_damage(function(ctx)
 
   if ctx.element == Element.Water and attached_ice:get_at(tp, tc) > 0 then
     attached_ice:set_at(tp, tc, 0)
+    ctx.value = ctx.value + 1
     ctx.element = Element.None
     frozen:set_at(tp, tc, 1)
     set_reaction_kind(R_FROZEN)
   elseif ctx.element == Element.Ice and attached_water:get_at(tp, tc) > 0 then
     attached_water:set_at(tp, tc, 0)
+    ctx.value = ctx.value + 1
     ctx.element = Element.None
     frozen:set_at(tp, tc, 1)
     set_reaction_kind(R_FROZEN)

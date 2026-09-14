@@ -17,23 +17,35 @@ type HookFn func(g *Game, ctx *EventContext)
 type HookRepresentation interface {
 	// WriteObsInts serializes this hook representation into the obs buffer
 	// slice. Caller-provided slot is exactly OBS_INTS_PER_HOOK ints. The
-	// implementation pads/truncates to fit.
+	// implementation pads to fit and rejects insufficient capacity.
 	WriteObsInts(out []int32)
 	// IsEmpty reports whether this hook has any meaningful ops. Used by
 	// the obs filter to skip empty hooks during indexing.
 	IsEmpty() bool
 }
 
+type HookCounterAccess struct {
+	Symbol, Method string
+	Line           int
+	CounterIDs     []int
+}
+
 type Hook struct {
-	ID          int
-	Type        HookType
-	CounterID   int
-	Op          Op
-	Fn          HookFn
-	OwnerPlayer int
-	OwnerChar   int
-	Enabled     bool
-	Priority    int
+	SystemRule      bool                // audit origin: loaded from data/system, not inferred from hook type
+	CounterAccess   []HookCounterAccess // immutable audit metadata, never executed
+	SkillReferences []int               // immutable typed definition references; not trigger predicates
+	ID              int
+	Type            HookType
+	CounterID       int
+	Op              Op
+	Fn              HookFn
+	OwnerPlayer     int
+	OwnerChar       int
+	Enabled         bool
+	Priority        int
+	OrderTarget     bool                    // governing buff belongs to the target
+	OrderCounter    func(*EventContext) int // immutable selector of governing buff
+	OrderIDs        []int                   // immutable buff counter IDs; order lives in Game.Buffs
 	// Repr is the IR observation representation, set by the DSL-load
 	// finalization step (capi.FinalizeHookIRs). Hooks registered before
 	// finalization (or whose body fails to compile) leave Repr nil.
@@ -41,7 +53,8 @@ type Hook struct {
 	// BodyAny holds the closure body AST (*interp.Chunk) untyped, so the
 	// engine package stays free of interp/ir dependencies. The
 	// finalization step casts it back.
-	BodyAny any
+	BodyAny      any
+	CounterParam string // optional write-hook counter argument
 	// Source is a short tag identifying which DSL file registered this
 	// hook (e.g. "铁剑", "赤蝶_蝶火", "round"). Used by the visualizer to
 	// disambiguate the dozens of on_card_play / on_damage_boost hooks
@@ -54,34 +67,34 @@ type Hook struct {
 // ObsMaxOpsPerHook × ObsFieldsPerOp. Python encoder must use the same
 // constant to slice the obs buffer.
 const (
-	ObsMaxOpsPerHook = 64
+	ObsMaxOpsPerHook = 128 // complete bodies + lambda delimiters; 64 truncated system reactions
 	ObsFieldsPerOp   = 5
 	ObsIntsPerHook   = ObsMaxOpsPerHook * ObsFieldsPerOp
 )
 
-// canonicalReprOpLoadImm mirrors ir.OpLoadImm = 1. Kept here so engine
-// can synthesize canonical hooks (procedurally registered, not from DSL)
-// without importing interp/ir. Invariant guarded by an ir-side test:
-// TestInvariant_CanonicalReprOpcodeMatch.
-const canonicalReprOpLoadImm int32 = 1
+// Canonical observation marker is not a numeric literal or a definition ID.
+// Opcode 15 is reserved for this observation-only node (IR opcodes 0..14).
+const canonicalReprOpcode int32 = 15
 
 // CanonicalHookRepr is a synthetic HookRepresentation for procedurally
 // registered hooks (canonical card_play / canonical skill_use, see
 // interp/builtins_card.go + builtins_skill.go). These hooks don't come
 // from DSL AST — they exist as pointer-net dispatch markers. The
-// representation is a single OpLoadImm carrying the Ref/Skill-ID marker
-// so the encoder can still identify the hook slot.
+// representation carries only definition kind. Identity is represented by graph
+// pointers, never by an arbitrary Ref/Skill-ID embedded as a literal.
 type CanonicalHookRepr struct {
-	Marker int16
+	Marker int16 // retained as internal metadata; never exported to the network
+	Kind   int16 // 1 skill, 2 card; 0 generic marker used by engine fixtures
 }
 
-// WriteObsInts: emit a single OpLoadImm dst=0 imm=Marker. Remaining
+// WriteObsInts: emit a single canonical opcode with its definition kind. Remaining
 // slots stay zero-padded (OpNop), which the encoder masks.
 func (c CanonicalHookRepr) WriteObsInts(out []int32) {
 	if len(out) >= 3 {
-		out[0] = canonicalReprOpLoadImm
+		clear(out)
+		out[0] = canonicalReprOpcode
 		out[1] = 0
-		out[2] = int32(c.Marker)
+		out[2] = int32(c.Kind)
 	}
 }
 

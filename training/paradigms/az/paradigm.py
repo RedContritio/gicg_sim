@@ -11,6 +11,8 @@ SHALL #2 (Paradigm protocol).
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint
+
 from typing import Any
 
 import torch
@@ -68,7 +70,7 @@ class AZParadigm:
 
         Accepts either ``{'cfg': dict, 'net': state_dict}`` (Agent.save
         format) or a plain state_dict (legacy ckpt blob)."""
-        blob = torch.load(ckpt_path, map_location='cpu', weights_only=True)
+        blob = load_checkpoint(ckpt_path, map_location='cpu', weights_only=True)
         state = blob['net'] if isinstance(blob, dict) and 'net' in blob else blob
         network.load_net_only(state)
         print(f'[az_paradigm] init_from_ckpt: loaded BC pretrain from {ckpt_path}')

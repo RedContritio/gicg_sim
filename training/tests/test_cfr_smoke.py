@@ -66,6 +66,7 @@ def _forward_cfr(cfr_module, obs_dict) -> torch.Tensor:
     action_refs = _t('action_refs', torch.long)
     action_payments = _t('action_payments', torch.float32)
     char_skill_refs = _t('char_skill_refs', torch.long)
+    definition_links = _t('definition_links', torch.long)
 
     hook_encoder = cfr_module.hook_encoder if hasattr(cfr_module, 'hook_encoder') else cfr_module.trunk.hook_encoder
     hook_emb = hook_encoder(hook_ir, hook_mask)
@@ -84,6 +85,7 @@ def _forward_cfr(cfr_module, obs_dict) -> torch.Tensor:
         action_payments,
         structural_values,
         char_skill_refs,
+        definition_links=definition_links,
     )
     if isinstance(out, tuple):
         return out[0]
@@ -133,6 +135,7 @@ class CFRSmokeBuilder:
         B = 2
         agent_cfg = make_tiny_agent_cfg(max_actions=ma, n_counter_slots=128)
         obs_dict = make_structural_batch_dict(agent_cfg, batch_size=B, seed=19)
+        obs_dict['definition_links'] = torch.tensor([[[0, 1]]], dtype=torch.long).expand(B, -1, -1)
         adv_net = network.advantage_head(0)
         pred = _forward_cfr(adv_net, obs_dict)  # (B, ma)
         target = torch.zeros(B, ma)
@@ -148,6 +151,7 @@ class CFRSmokeBuilder:
         ma = 6
         agent_cfg = make_tiny_agent_cfg(max_actions=ma, n_counter_slots=128)
         obs_dict = make_structural_batch_dict(agent_cfg, batch_size=1, seed=23)
+        obs_dict['definition_links'] = torch.tensor([[[0, 1]]], dtype=torch.long)
         with torch.no_grad():
             logits = _forward_cfr(network.strategy_net, obs_dict)
         legal_mask = torch.ones(1, ma, dtype=torch.bool)

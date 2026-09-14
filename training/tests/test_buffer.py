@@ -31,6 +31,7 @@ def _fake_static(n_slots=128, n_hooks=8, d_model=16, max_ops=12, fields_per_op=5
         'counter_sids': np.arange(n_slots, dtype=np.int64),
         'active_slot_mask': np.ones(n_slots, dtype=bool),
         'char_skill_refs': -np.ones((2, 6, 10), dtype=np.int64),
+        'definition_links': -np.ones((1, 2), dtype=np.int64),
     }
 
 
@@ -60,7 +61,7 @@ def _fake_step(
         'counter_values': np.random.randn(n_slots).astype(np.float32),
         'counter_target': np.random.randn(n_slots).astype(np.float32),
         'has_counter_target': True,
-        'meta': np.array([3.0, 1.0, 1.0], dtype=np.float32),
+        'meta': np.array([3.0, 1.0, 1.0, 0, 0, -1] + [0] * 13, dtype=np.float32),
         'card_buckets': np.zeros((4, 80), dtype=np.float32),
         'enemy_sizes': np.zeros(2, dtype=np.float32),
         # ADR-0019 §B.2/§B.3c typed obs segments — Round-5 S2 sentinel:
@@ -79,6 +80,14 @@ def _fake_step(
 
 
 class TestBufferAddSample:
+    def test_one_slot_retains_static_when_same_game_replaces_itself(self):
+        rb = ReplayBuffer(capacity=1)
+        gid = rb.add_trajectory(_fake_static(), [_fake_step(z=-1), _fake_step(z=1)])
+        assert rb.n_games() == 1
+        assert rb._game_static[gid].refcount == 1
+        batch = rb.sample(batch_size=1, rng=random.Random(0))
+        assert batch['z_target'].item() == 1
+
     def test_add_then_sample_roundtrip(self):
         rb = ReplayBuffer(capacity=100)
         static = _fake_static()
@@ -96,7 +105,7 @@ class TestBufferAddSample:
         assert batch['counter_sids'].shape == (3, 128)
         assert batch['card_buckets'].shape == (3, 4, 80)
         assert batch['enemy_sizes'].shape == (3, 2)
-        assert batch['meta'].shape == (3, 3)
+        assert batch['meta'].shape == (3, 19)
         assert batch['action_refs'].shape == (3, 6, 3)
         assert batch['action_payments'].shape == (3, 6, 8)
         assert batch['legal_mask'].shape == (3, 6)

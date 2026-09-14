@@ -1,19 +1,4 @@
-"""TOML cfg loader with extends chain + override + strict validation.
-
-Spec: config-schema/spec.md §4 + §5 (loader sequence).
-Pipeline: load_toml_with_extends → apply_overrides →
-``resolve_inheritance`` → ``validate_schema`` → paradigm dispatch →
-build dataclass.
-
-Loader strictness (CS4):
-- unknown top-level key → raise
-- missing required → raise
-- placement R1-R7 enforced post-resolve
-- paradigm dispatch (FU-W1B): cfg.paradigm dict is validated against
-  the paradigm-specific schema (e.g. DMCParadigmConfig.from_dict) so
-  unknown paradigm-section fields fail at load time, not later when
-  the adapter would surface a much later traceback.
-"""
+"""TOML cfg loader with extends chain + override + strict validation."""
 
 from __future__ import annotations
 
@@ -36,19 +21,14 @@ from training.core.config.base import (
 )
 from training.core.config.inheritance import resolve_inheritance
 from training.core.config.schema import check_extends_placement_sync, validate_schema
+from training.core.scenario import check_char_pool_deck_exclusive
 
 
 MAX_EXTENDS_DEPTH = 5
 
 
 def _load_paradigm_validator(paradigm: str) -> Callable[[dict], Any]:
-    """Resolve `cfg.meta.paradigm` → paradigm-specific `from_dict` validator.
-
-    Lazy import keeps cross-paradigm transitive deps out of cfg load
-    when the user is loading a single-paradigm cfg. Raises ValueError
-    if the paradigm name is unknown (orthogonal to PARADIGM_VALUES enum
-    check in schema.py — that check fires first if paradigm isn't in
-    the closed set)."""
+    """Resolve `cfg.meta.paradigm` → paradigm-specific `from_dict` validator."""
     if paradigm == 'dmc':
         from training.paradigms.dmc.config import DMCParadigmConfig
 
@@ -176,15 +156,7 @@ def _build_inference(d: Optional[dict]) -> Optional[InferenceCfg]:
 
 
 def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
-    """Map resolved dict → TrainingConfig nested dataclasses.
-
-    Args:
-        cfg: resolved top-level cfg dict (post extends + override + inheritance).
-        paradigm_flat: paradigm-scoped flat dict produced by
-            ``training.core.cfg.loader.load_paradigm_cfg`` (extracts
-            ``[paradigm.<name>]`` + merges ``[shape]`` into agent sub-dict).
-            See cfg-toml-restructure-paradigm-scoped N6.5 / CC-306.
-    """
+    """Map resolved dict → TrainingConfig nested dataclasses."""
     meta_d = cfg['meta']
     meta = MetaCfg(
         seed=meta_d['seed'],
@@ -209,6 +181,15 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     )
 
     sc_d = cfg['scenario']
+    # strict — 不容忍 [scenario] 内未知字段(同 [eval]/[debug] CS4 风格)。
+    # F4: deck_0/deck_1 拼写错若被静默吞掉会回落隐式 deck 路径,必须 fail-loud。
+    allowed_sc = {f.name for f in ScenarioCfg.__dataclass_fields__.values()}
+    unknown_sc = set(sc_d.keys()) - allowed_sc
+    if unknown_sc:
+        raise ValueError(f'config: unknown field in [scenario]: {sorted(unknown_sc)} (allowed: {sorted(allowed_sc)})')
+    # F4 互斥:ScenarioCfg 是无验证 frozen dataclass(ScenarioConfig.__post_init__
+    # 只覆盖 ScenarioConfig 实例化路径),loader 必须自己强制。
+    check_char_pool_deck_exclusive(sc_d.get('char_pool'), sc_d.get('deck_0'), sc_d.get('deck_1'))
     scenario = ScenarioCfg(
         team_0=sc_d['team_0'],
         team_1=sc_d['team_1'],
@@ -222,6 +203,9 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
         data_dir=sc_d.get('data_dir'),
         fix_dice=sc_d.get('fix_dice'),
         obs_mask=sc_d.get('obs_mask'),
+        deck_0=sc_d.get('deck_0'),
+        deck_1=sc_d.get('deck_1'),
+        random_deck_size=sc_d.get('random_deck_size', 0),
     )
 
     eval_cfg = None
@@ -281,19 +265,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
 
 
 def load_cfg(path: str | Path, overrides: Optional[list] = None) -> TrainingConfig:
-    """End-to-end loader: extends → override → resolve → validate →
-    paradigm dispatch → build.
-
-    Args:
-        path: cfg TOML file path.
-        overrides: ['key.path=value', ...] from CLI.
-    Returns:
-        TrainingConfig frozen dataclass.
-    Raises:
-        ValueError on any schema / inheritance / placement violation,
-        OR on paradigm-specific schema violation (unknown field in
-        `[paradigm]` block).
-    """
+    """End-to-end loader: extends → override → resolve → validate →"""
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f'config: cfg file {p} not found')

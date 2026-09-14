@@ -133,6 +133,8 @@ per request(no persistent connection)。
 - `team_0` / `team_1` — required iff `mode=fixed`
 - `char_pool` + `team_size` — required iff `mode=enumerate_disjoint`
 - `card_pool` / `deck_padding` / `pool` — ADR-0011 scenario cfg
+- `deck_0` / `deck_1` — F4 explicit per-player decks(card-name
+  multiset;requires `mode=fixed`;null = 隐式 eligible-set 路径)
 - `games_per_cell: int ≥ 1`(default 10)
 - `max_game_steps: int ≥ 1`(default 400)
 - `swap_sides: bool`(default true)

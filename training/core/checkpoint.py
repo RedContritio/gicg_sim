@@ -8,6 +8,8 @@ Owns ckpt directory layout + RNG capture/restore + optimizer migration.
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint, save_checkpoint
+
 import json
 import shutil
 from datetime import datetime
@@ -17,6 +19,7 @@ from typing import Any, Optional
 import torch
 
 from training.core.protocols import PipelineState
+from training.core.checkpoint_runtime import capture_runtime, restore_runtime
 
 
 def load_net_state_dict(ckpt_path: Any, *, map_location: Any = 'cpu') -> dict:
@@ -39,7 +42,7 @@ def load_net_state_dict(ckpt_path: Any, *, map_location: Any = 'cpu') -> dict:
     Returns:
         state_dict suitable for ``net.load_state_dict()``.
     """
-    blob = torch.load(ckpt_path, map_location=map_location, weights_only=False)
+    blob = load_checkpoint(ckpt_path, map_location=map_location, weights_only=False)
     state_dict = blob['net']
     if state_dict and all(k.startswith('net.') for k in state_dict.keys()):
         state_dict = {k[len('net.') :]: v for k, v in state_dict.items()}
@@ -64,6 +67,7 @@ class CheckpointManager:
         self.optimizer = optimizer
         self.buffer = buffer
         self.artifacts_dir: Optional[Path] = None
+        self.runtime_components = {}
 
     @staticmethod
     def compute_dir_name(ts: str, run_label: str) -> str:
@@ -158,15 +162,21 @@ class CheckpointManager:
             'optimizer': self.optimizer.state_dict() if self.optimizer is not None else None,
             'state': state.snapshot(),
             'cfg_run_label': self.cfg.meta.run_label,
+            'runtime': capture_runtime(self.runtime_components),
         }
         if extra:
             payload.update(extra)
-        torch.save(payload, ckpt_path)
+        save_checkpoint(payload, ckpt_path)
         shutil.copy2(ckpt_path, ckpts_dir / 'latest.pt')
+        keep = getattr(self.cfg.checkpoint, 'keep_last_n', 0)
+        if keep > 0:
+            older = sorted(ckpts_dir.glob('ckpt_*.pt'), key=lambda p: int(p.stem.split('_')[1]))[:-keep]
+            for old in older:
+                old.unlink()
         return ckpt_path
 
     def try_resume(self, path: Path, device: str = 'cpu') -> PipelineState:
-        ckpt = torch.load(path, map_location=device, weights_only=False)
+        ckpt = load_checkpoint(path, map_location=device, weights_only=False)
         self.network.load_state_dict(ckpt['net'])
         if self.optimizer is not None and ckpt.get('optimizer') is not None:
             self.optimizer.load_state_dict(ckpt['optimizer'])
@@ -176,6 +186,7 @@ class CheckpointManager:
                     if torch.is_tensor(v):
                         group[k] = v.to(device)
         sd = ckpt.get('state', {})
+        restore_runtime(ckpt.get('runtime'), self.runtime_components)
         st = PipelineState(**{k: sd[k] for k in sd if k in PipelineState.__dataclass_fields__})
         if 'cfg_run_label' in ckpt and ckpt['cfg_run_label'] != self.cfg.meta.run_label:
             print(

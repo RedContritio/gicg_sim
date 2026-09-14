@@ -24,6 +24,7 @@ type Closure struct {
 // Table is a simple string-keyed map (no array part needed).
 type Table struct {
 	Fields map[string]Value
+	frozen bool
 }
 
 func NewTable() *Table {
@@ -60,6 +61,7 @@ type IndexProvider interface {
 // (实测 binary cmp 比 map lookup 快 ~50ns/op for small N)。 完全 alloc-free 等
 // 价于「lazy map + 0-overflow common case」。
 type Env struct {
+	frozen bool
 	parent *Env
 	keys   [4]string
 	vals   [4]Value

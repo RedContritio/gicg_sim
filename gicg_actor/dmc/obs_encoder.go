@@ -118,8 +118,10 @@ func BuildInferRequest(g *engine.Game, staticHash [16]byte, clientID, reqID uint
 		a := actions[i]
 		kind := int64(a.Kind)
 		hookIdx := int64(-1)
-		charIdx := int64(-1)
+		charIdx := int64(engine.ActionCharRef(a))
 		switch a.Kind {
+		case engine.ActionReroll:
+			hookIdx = int64(a.Index) // quantity, not a hook for this action kind
 		case engine.ActionSkill:
 			pi := a.PlayerIdx
 			ci := g.Players[pi].ActiveChar
@@ -128,7 +130,7 @@ func BuildInferRequest(g *engine.Game, staticHash [16]byte, clientID, reqID uint
 					hookIdx = int64(ai)
 				}
 			}
-		case engine.ActionCard:
+		case engine.ActionCard, engine.ActionTune:
 			pi := a.PlayerIdx
 			ref := -1
 			if a.Index >= 0 && a.Index < len(g.Players[pi].Hand) {

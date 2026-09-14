@@ -10,9 +10,10 @@ import ctypes
 import json
 
 from gicg_env._constants import DICE_COLOR_COUNT
+from gicg_env._engine_state import _EngineStateMixin
 
 
-class _LifecycleMixin:
+class _LifecycleMixin(_EngineStateMixin):
     """Provides __init__, game creation, snapshot/restore/clone,
     hidden-state setters, and close/context-manager plumbing."""
 
@@ -43,6 +44,8 @@ class _LifecycleMixin:
             OBS_ENEMY_SIZES,
             OBS_HAND_BUCKETS,
             OBS_MAX_CARD_TYPES,
+            OBS_MAX_DEFINITION_LINKS,
+            OBS_DEFINITION_LINK_SCHEMA_VERSION,
             OBS_MODIFIER_LOG_SLOTS,
             OBS_PREPARE_SKILL_SLOTS,
             OBS_RECENT_DAMAGE_SLOTS,
@@ -71,6 +74,23 @@ class _LifecycleMixin:
             "dylib likely stale; rebuild via 'go build -buildmode=c-shared "
             "-o gicg_env/libgicg.dylib ./gicg_engine/capi/'"
         )
+
+        self._lib.GameGetDefinitionLinkCapacity.argtypes = []
+        self._lib.GameGetDefinitionLinkCapacity.restype = ctypes.c_int
+        engine_definition_links = int(self._lib.GameGetDefinitionLinkCapacity())
+        if engine_definition_links != OBS_MAX_DEFINITION_LINKS:
+            raise RuntimeError(
+                f'OBS_MAX_DEFINITION_LINKS mismatch: engine={engine_definition_links}, '
+                f'Python={OBS_MAX_DEFINITION_LINKS}. {rebuild_msg}'
+            )
+        self._lib.GameGetDefinitionLinkSchemaVersion.argtypes = []
+        self._lib.GameGetDefinitionLinkSchemaVersion.restype = ctypes.c_int
+        engine_link_schema = int(self._lib.GameGetDefinitionLinkSchemaVersion())
+        if engine_link_schema != OBS_DEFINITION_LINK_SCHEMA_VERSION:
+            raise RuntimeError(
+                f'OBS_DEFINITION_LINK_SCHEMA_VERSION mismatch: engine={engine_link_schema}, '
+                f'Python={OBS_DEFINITION_LINK_SCHEMA_VERSION}. {rebuild_msg}'
+            )
 
         if engine_recent_slots != py_recent_slots:
             raise RuntimeError(
@@ -117,6 +137,7 @@ class _LifecycleMixin:
         fix_dice=None,
         deck_padding=None,
         pool=None,
+        decks=None,
     ):
         """Create a new game.
 
@@ -157,6 +178,18 @@ class _LifecycleMixin:
                 and chars; pass "test_basic" or ["v_legacy",
                 "test_basic"] to include synthetic 测试角色 / 测试卡
                 fixtures.
+            decks: optional explicit per-player deck declaration (F4 —
+                mirrors training cfg [scenario].deck_0/deck_1). None,
+                or a length-2 sequence where entry i is None (implicit
+                eligible-set path for player i) or a non-empty list of
+                card names (multiset — duplicates allowed; an empty
+                list raises — the implicit path is expressed by None
+                only). Cards must already be
+                declared in the loaded ruleset (card_pool / pool); the
+                engine fails game creation otherwise. Without an
+                explicit deck the engine errors when the eligible set
+                exceeds deck_padding.target_size — there is no silent
+                truncation.
         """
         config = {
             'seed': seed,
@@ -190,6 +223,22 @@ class _LifecycleMixin:
             else:
                 pools = [str(p) for p in pool]
             config['pools'] = pools
+        if decks is not None:
+            if not isinstance(decks, (list, tuple)):
+                raise TypeError(f'decks must be a 2-entry list/tuple or None, got {type(decks).__name__}')
+            if len(decks) != 2:
+                raise ValueError(f'decks must have exactly 2 entries (one per player), got {len(decks)}')
+            for pi, deck in enumerate(decks):
+                if deck is None:
+                    continue
+                if isinstance(deck, str) or not isinstance(deck, (list, tuple)):
+                    raise TypeError(f'decks[{pi}] must be a list of card names or None, got {type(deck).__name__}')
+                if len(deck) == 0:
+                    raise ValueError(
+                        f'decks[{pi}] is an empty list — an explicit deck must name '
+                        'at least one card; use None for the implicit path'
+                    )
+                config['players'][pi]['deck'] = [str(c) for c in deck]
 
         config_json = json.dumps(config).encode('utf-8')
         handle = self._lib.GameNew(config_json)
@@ -224,149 +273,6 @@ class _LifecycleMixin:
                 'typed_damage.py REACTION_VOCAB needs raising (BREAKING ckpt).'
             )
 
-    def reset_dynamic(self, seed):
-        """Restart the dynamic state of the current game without re-loading
-        DSL files. The team and card pool are preserved."""
-        self._check()
-        self._lib.GameReset(self._handle, seed)
-
-    def reset_dynamic_with_seeds(self, dice_seed, deck_seed_p0, deck_seed_p1):
-        """Review D.5 (2026-05-14): 3-axis seed reset for daemon eval
-        'team 同 deck 不同' ablation. dice_seed controls Rng (dice rolls
-        + DSL randomness + obs perm); deck_seed_p0 / deck_seed_p1
-        independently seed per-player deck Fisher-Yates shuffle."""
-        self._check()
-        self._lib.GameResetSeeds(self._handle, dice_seed, deck_seed_p0, deck_seed_p1)
-
-    def clone(self):
-        """Return a new GicgEngine wrapping a clone of this game.
-
-        The clone shares the static Ruleset (DSL definitions) but owns its
-        own dynamic state — stepping the clone does not affect this engine.
-        """
-        self._check()
-        new_handle = self._lib.GameClone(self._handle)
-        if new_handle < 0:
-            raise RuntimeError('Failed to clone game')
-        from gicg_env.engine import GicgEngine
-
-        twin = GicgEngine.__new__(GicgEngine)
-        twin._lib = self._lib
-        twin._handle = new_handle
-        return twin
-
-    def snapshot(self):
-        """Capture the current dynamic state into a cheap handle. Use
-        restore(snap_id) to roll back, snapshot_free(snap_id) to release.
-        Snapshots are valid only at quiescent points (between Step calls).
-        """
-        self._check()
-        sid = self._lib.GameSnapshot(self._handle)
-        if sid < 0:
-            raise RuntimeError('Failed to snapshot game')
-        return sid
-
-    def restore(self, snap_id):
-        """Restore dynamic state from a snapshot taken via snapshot()."""
-        self._check()
-        if self._lib.GameRestore(self._handle, snap_id) < 0:
-            raise RuntimeError(f'Failed to restore snapshot {snap_id}')
-
-    def snapshot_free(self, snap_id):
-        """Release a snapshot handle."""
-        self._lib.GameSnapshotFree(snap_id)
-
-    def log_suspend(self):
-        """Detach the event log so subsequent engine events aren't
-        recorded. Use around MCTS rollouts (or any speculative forward
-        simulation): the inner events don't belong in the replay, and
-        skipping the Log.Append + string-formatting overhead per step
-        is a meaningful speedup. Idempotent: calling while already
-        suspended raises."""
-        self._check()
-        rc = self._lib.GameLogSuspend(self._handle)
-        if rc < 0:
-            raise RuntimeError(f'GameLogSuspend failed (rc={rc}); is the log already suspended?')
-
-    def log_resume(self):
-        """Re-attach the event log suspended by ``log_suspend``.
-        Events written while suspended are permanently lost — that's
-        the point of this API. Raises if no log was suspended."""
-        self._check()
-        rc = self._lib.GameLogResume(self._handle)
-        if rc < 0:
-            raise RuntimeError(f'GameLogResume failed (rc={rc}); was log_suspend() called first?')
-
-    def set_player_hand(self, player, refs):
-        """Overwrite a player's hand with the given card refs. Each ref
-        becomes a new CardInst with DrawnAtRound stamped to the current
-        round.
-
-        Intended for IS-MCTS determinization: the sampler generates a
-        hypothetical opponent hand and injects it into a cloned engine
-        before rolling forward. Caller is responsible for ref validity.
-
-        Args:
-            player: 0 or 1
-            refs: list/sequence of int card refs. Empty list clears hand.
-        """
-        self._check()
-        if player not in (0, 1):
-            raise ValueError(f'set_player_hand: player must be 0 or 1, got {player}')
-        n = len(refs)
-        arr = (ctypes.c_int * n)(*refs) if n > 0 else (ctypes.c_int * 0)()
-        rc = self._lib.GameSetPlayerHand(self._handle, int(player), arr, n)
-        if rc < 0:
-            raise RuntimeError(f'GameSetPlayerHand failed for player {player}')
-
-    def set_player_deck(self, player, refs):
-        """Overwrite a player's deck with the given card refs. ``refs[0]``
-        is the top of the deck (next to be drawn). Each ref becomes a
-        new CardInst with DrawnAtRound=0.
-
-        Intended for IS-MCTS determinization.
-
-        Args:
-            player: 0 or 1
-            refs: list/sequence of int card refs. Empty list clears deck.
-        """
-        self._check()
-        if player not in (0, 1):
-            raise ValueError(f'set_player_deck: player must be 0 or 1, got {player}')
-        n = len(refs)
-        arr = (ctypes.c_int * n)(*refs) if n > 0 else (ctypes.c_int * 0)()
-        rc = self._lib.GameSetPlayerDeck(self._handle, int(player), arr, n)
-        if rc < 0:
-            raise RuntimeError(f'GameSetPlayerDeck failed for player {player}')
-
-    def set_player_dice(self, player, counts):
-        """Overwrite a player's dice pool with exact per-color counts.
-
-        ``counts`` must be an 8-length sequence indexed by dice color
-        (fire=0, ice=1, water=2, electro=3, geo=4, anemo=5, dendro=6,
-        omni=7). Negative values are clamped to zero on the Go side.
-        Intended for IS-MCTS determinization — the sampler draws a
-        multinomial dice distribution for the opponent and injects it
-        into the cloned engine before rolling forward.
-
-        Args:
-            player: 0 or 1
-            counts: sequence of 8 ints. Longer/shorter inputs raise.
-        """
-        self._check()
-        if player not in (0, 1):
-            raise ValueError(f'set_player_dice: player must be 0 or 1, got {player}')
-        if len(counts) != DICE_COLOR_COUNT:
-            raise ValueError(f'set_player_dice expects {DICE_COLOR_COUNT} counts, got {len(counts)}')
-        ints = [int(x) for x in counts]
-        for i, v in enumerate(ints):
-            if v < 0:
-                raise ValueError(f'set_player_dice: counts[{i}]={v} is negative')
-        arr = (ctypes.c_int * DICE_COLOR_COUNT)(*ints)
-        rc = self._lib.GameSetPlayerDice(self._handle, int(player), arr)
-        if rc < 0:
-            raise RuntimeError(f'GameSetPlayerDice failed for player {player}')
-
     def close(self):
         """Free the game resources."""
         if self._handle is not None:
@@ -382,6 +288,11 @@ class _LifecycleMixin:
     def __exit__(self, *args):
         self.close()
 
-    def _check(self):
+    def _check(self, *, allow_failed=False):
         if self._handle is None:
             raise RuntimeError('No active game')
+
+        from gicg_env._engine_errors import raise_rule_error
+
+        if not allow_failed:
+            raise_rule_error(self._lib, self._handle)

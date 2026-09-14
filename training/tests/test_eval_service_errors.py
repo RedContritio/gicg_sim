@@ -198,7 +198,7 @@ class TestEvalService:
         cfr_cfg = CFRNetConfig(
             n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
             n_hooks=900,
-            max_ops_per_hook=64,
+            max_ops_per_hook=128,
             max_actions=2048,
             d_model=16,
             n_cross_layers=1,

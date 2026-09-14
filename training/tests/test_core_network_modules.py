@@ -142,11 +142,12 @@ def test_actor_critic_forward_shape():
     hook_mask = torch.ones(B, n_hooks, dtype=torch.bool)
     card_buckets = torch.randn(B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES)
     enemy_sizes = torch.randn(B, OBS_ENEMY_SIZES)
-    meta = torch.randn(B, OBS_META_SIZE)
+    meta = torch.cat((torch.randn(B, OBS_META_SIZE - 1), torch.zeros(B, 1)), dim=1)
     action_refs = torch.zeros(B, max_actions, 3, dtype=torch.long)
     action_payments = torch.randn(B, max_actions, DICE_COLOR_COUNT)
     structural_values = torch.randn(B, N_STRUCTURAL)
     char_skill_refs = torch.full((B, 2, 6, 10), -1, dtype=torch.long)
+    definition_links = torch.full((B, 1, 2), -1, dtype=torch.long)
 
     out = net(
         counter_values,
@@ -161,6 +162,7 @@ def test_actor_critic_forward_shape():
         action_payments,
         structural_values,
         char_skill_refs,
+        definition_links=definition_links,
     )
     assert out['policy'].shape == (B, max_actions)
     assert out['value'].shape == (B,)

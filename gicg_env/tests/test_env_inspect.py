@@ -189,6 +189,7 @@ class TestExportView:
         """Play one step and verify the view actually updated."""
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
+            env.set_player_dice(0, [0, 0, 0, 0, 0, 0, 0, 8])
             before = env.export_view()
             kinds, _ = env.get_legal_actions()
             if len(kinds) > 0:

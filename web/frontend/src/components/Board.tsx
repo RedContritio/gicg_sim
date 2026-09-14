@@ -68,8 +68,8 @@ function PlayerRow({ view, playerIdx, onPlayCard, onSelectChar, humanPlayer }: R
   // In PhaseSelectActive the acting player picks their active char but
   // view.turn semantics differ, so also treat select_active as the
   // human's interactive moment.
-  const isActionTurn = view.turn === playerIdx && view.phase === 'action'
-  const isSelectTurn = view.turn === playerIdx && view.phase === 'select_active'
+  const isActionTurn = (view.acting_player ?? view.turn) === playerIdx && view.phase === 'action'
+  const isSelectTurn = (view.acting_player ?? view.turn) === playerIdx && view.phase === 'select_active'
   const isCurrentTurn = isActionTurn || isSelectTurn
   const handClickable = isHuman && isActionTurn && onPlayCard
     ? (idx: number) => onPlayCard(playerIdx, idx)
@@ -107,7 +107,9 @@ function PlayerRow({ view, playerIdx, onPlayCard, onSelectChar, humanPlayer }: R
           )
         })}
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
+        {pv.dice && <div className="text-xs text-sky-200 mb-2">骰子：{pv.dice.map((n, i) => n ? `${['火','冰','水','雷','岩','风','草','万能'][i]}×${n}` : '').filter(Boolean).join(' · ') || '已用完'}</div>}
+        {pv.statuses?.length ? <div className="text-xs text-violet-200 mb-2">{pv.statuses.map(s => `${s.name} ${s.value}`).join(' · ')}</div> : null}
         <Hand
           hand={pv.hand}
           deckCount={pv.deck_count}

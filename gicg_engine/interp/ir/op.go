@@ -27,6 +27,8 @@
 // observation schema, capi, or Python — those are IR-2/3/4.
 package ir
 
+import "fmt"
+
 // Op is one 3-address-code instruction. Operand semantics depend on Opcode.
 type Op struct {
 	Opcode int16
@@ -37,21 +39,40 @@ type Op struct {
 }
 
 // WriteObsInts implements the engine.HookRepresentation contract: serialize
-// MainOps into the caller-provided obs slot (5 int32 per op, NOP-padded to
-// engine.ObsMaxOpsPerHook). Lambdas are written sequentially after MainOps
-// when there's room — IR-2.b will formalize layout when the encoder lands.
+// MainOps followed by length-delimited lambda bodies into a fixed-size slot.
+// Branch offsets inside each body retain their local instruction coordinates.
+// Insufficient capacity is an error, never a truncated rule description.
 func (h CompiledHook) WriteObsInts(out []int32) {
-	maxOps := len(out) / 5
-	n := min(len(h.MainOps), maxOps)
-	for i := range n {
-		op := h.MainOps[i]
+	if len(out)%5 != 0 || h.ObsOpCount() > len(out)/5 {
+		panic(fmt.Sprintf("IR observation needs %d ops, buffer has %d ints", h.ObsOpCount(), len(out)))
+	}
+	clear(out)
+	i := 0
+	write := func(op Op) {
 		out[i*5+0] = int32(op.Opcode)
 		out[i*5+1] = int32(op.Dst)
 		out[i*5+2] = int32(op.Op1)
 		out[i*5+3] = int32(op.Op2)
 		out[i*5+4] = int32(op.Op3)
+		i++
 	}
-	// Remaining slots stay zero — OpNop-padded, which the encoder masks.
+	for _, op := range h.MainOps {
+		write(op)
+	}
+	for idx, body := range h.Lambdas {
+		write(Op{Opcode: OpLambda, Dst: int16(idx), Op1: int16(len(body)), Op2: NullReg, Op3: NullReg})
+		for _, op := range body {
+			write(op)
+		}
+	}
+}
+
+func (h CompiledHook) ObsOpCount() int {
+	n := len(h.MainOps)
+	for _, body := range h.Lambdas {
+		n += 1 + len(body)
+	}
+	return n
 }
 
 // IsEmpty: CompiledHook is "empty" when its MainOps slice is zero-length.
@@ -74,6 +95,7 @@ const (
 	OpKwArg   int16 = 11 // Op1=key_token, Op2=value_reg — immediate prefix to next OpCall
 	OpDeferFn int16 = 12 // Op1=lambda_idx into CompiledHook.Lambdas
 	OpLoadNil int16 = 13 // Dst=reg — distinct from OpLoadImm 0 (engine may distinguish nil from 0)
+	OpLambda  int16 = 14 // observation-only delimiter: Dst=lambda index, Op1=body length
 )
 
 // AddrKind — memory address class for OpLoadAddr / OpStoreAddr.

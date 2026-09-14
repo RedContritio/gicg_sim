@@ -96,3 +96,34 @@ def build_legal_mask(max_actions: int, n_legal: int) -> np.ndarray:
     mask = np.zeros(max_actions, dtype=bool)
     mask[:n_legal] = True
     return mask
+
+
+def parse_buffs_np(dyn_obs, n_counter_slots, *, copy=True):
+    """Parse the versioned tail, retaining only live rows (one padding row if empty)."""
+    from training.core.obs_constants import OBS_BUFF_ROWS, OBS_BUFF_FIELDS, OBS_BUFF_SLOTS
+
+    start = typed_segment_offsets(n_counter_slots)['ml_end']
+    if len(dyn_obs) == start:  # old hand-built fixtures only; GicgEnv rejects old ABI
+        return np.zeros((1, OBS_BUFF_FIELDS), dtype=np.float32)
+    if len(dyn_obs) != start + OBS_BUFF_SLOTS:
+        raise ValueError('unsupported buff observation layout')
+    rows = np.asarray(dyn_obs[start:], dtype=np.float32).reshape(OBS_BUFF_ROWS, OBS_BUFF_FIELDS)
+    live = np.flatnonzero(rows[:, 0])
+    rows = rows[: int(live[-1]) + 1 if len(live) else 1]
+    return rows.copy() if copy else rows
+
+
+def pad_buffs_np(instances):
+    """Pad a batch to its longest live effect sequence, not the wire capacity."""
+    from training.core.obs_constants import OBS_BUFF_FIELDS
+
+    if not instances:
+        raise ValueError('empty buff batch')
+    longest = max(1, max(len(rows) for rows in instances))
+    out = np.zeros((len(instances), longest, OBS_BUFF_FIELDS), dtype=np.float32)
+    for i, rows in enumerate(instances):
+        rows = np.asarray(rows)
+        if rows.ndim != 2 or rows.shape[1] != OBS_BUFF_FIELDS:
+            raise ValueError('invalid buff row layout')
+        out[i, : len(rows)] = rows
+    return out

@@ -59,6 +59,10 @@ func (rt *Runtime) RegisterBuiltins() {
 	g.SetLocal("invoke_skill_silent", GoFunc((*Runtime).builtinInvokeSkillSilent))
 	// Prepare-skill / draw_card / add_dice 拆到 builtins_adr0012.go
 	rt.registerADR0012Builtins()
+	rt.registerBuffInstanceBuiltins()
+	rt.registerBuffProgressBuiltins()
+	rt.registerEnergyTransferBuiltins()
+	g.SetLocal("choose_reroll", GoFunc((*Runtime).builtinChooseReroll))
 
 	// --- Card API ---
 	g.SetLocal("declare_card", GoFunc((*Runtime).builtinDeclareCard))
@@ -73,6 +77,15 @@ func (rt *Runtime) RegisterBuiltins() {
 	g.SetLocal("heal", GoFunc((*Runtime).builtinHeal))
 	g.SetLocal("defer_fn", GoFunc((*Runtime).builtinDeferFn))
 	g.SetLocal("get_active_char", GoFunc((*Runtime).builtinGetActiveChar))
+	g.SetLocal("is_char_alive", GoFunc(func(rt *Runtime, args []Value) (Value, error) {
+		p, _ := ToInt(args[0])
+		c, _ := ToInt(args[1])
+		p = rt.ResolvePlayer(p)
+		if p < 0 || p >= len(rt.Game.Players) || c < 0 || c >= len(rt.Game.Players[p].Chars) {
+			return false, nil
+		}
+		return rt.Game.Players[p].Chars[c].Alive, nil
+	}))
 	g.SetLocal("set_active_char", GoFunc((*Runtime).builtinSetActiveChar))
 	g.SetLocal("get_next_char", GoFunc((*Runtime).builtinGetNextChar))
 	g.SetLocal("find_char_by_kind", GoFunc((*Runtime).builtinFindCharByKind)) // ADR-0019 §A.2
@@ -87,8 +100,6 @@ func (rt *Runtime) RegisterBuiltins() {
 	}))
 	g.SetLocal("set_reaction_kind", GoFunc(func(rt *Runtime, args []Value) (Value, error) {
 		id, _ := ToInt(args[0])
-		cur := rt.Game.CurrentEvent()
-		_ = cur
 		// set_reaction_kind 应当在 HookReactionDamage 内调用,此时 ctx 是
 		// 当前 reaction handler 的 reactionCtx (见 damage.go ② 阶段)。
 		// 但 reactionCtx 是 damage.go 局部变量,DSL hook 接 ctx 是该
@@ -101,7 +112,9 @@ func (rt *Runtime) RegisterBuiltins() {
 		return nil, nil
 	}))
 	g.SetLocal("context_player", GoFunc((*Runtime).builtinContextPlayer))
+	g.SetLocal("apply_element", GoFunc((*Runtime).builtinApplyElement))
 	g.SetLocal("force_switch_next", GoFunc((*Runtime).builtinForceSwitchNext))
+	g.SetLocal("force_switch_previous", GoFunc((*Runtime).builtinForceSwitchPrevious))
 	g.SetLocal("cancel", GoFunc((*Runtime).builtinCancel))
 	g.SetLocal("gain_energy", GoFunc(func(rt *Runtime, args []Value) (Value, error) {
 		proxy, ok := args[0].(*CounterProxy)
@@ -206,7 +219,10 @@ func (rt *Runtime) RegisterBuiltins() {
 		return rt.GetDiceCount(rp, color), nil
 	}))
 
+	g.SetLocal("register_buff", GoFunc((*Runtime).builtinRegisterBuff))
+
 	// --- Cost modification API ---
+	g.SetLocal("cost_reduce", GoFunc((*Runtime).builtinCostReduce))
 	// cost_mod(ctx, slot, delta) — mutate ctx.Cost by delta in the
 	// identified CostSlot. Automatically records the currently firing
 	// hook ID into ctx.AppliedMods so consumer hooks can later query
@@ -221,12 +237,17 @@ func (rt *Runtime) RegisterBuiltins() {
 		}
 		slot, _ := ToInt(args[1])
 		delta, _ := ToInt(args[2])
+		before := cp.Ctx.Cost.ClampedTotal()
 		cp.Ctx.Cost.Mod(engine.CostSlot(slot), delta)
+		cp.Ctx.Cost.Clamp()
+		if delta != 0 && cp.Ctx.Cost.ClampedTotal() == before {
+			return nil, nil
+		}
 		if cp.Ctx.CurrentHookID >= 0 {
 			if cp.Ctx.AppliedMods == nil {
 				cp.Ctx.AppliedMods = make(map[int]bool)
 			}
-			cp.Ctx.AppliedMods[cp.Ctx.CurrentHookID] = true
+			cp.Ctx.MarkApplied()
 		}
 		return nil, nil
 	}))
@@ -253,7 +274,7 @@ func (rt *Runtime) RegisterBuiltins() {
 		if cp.Ctx.AppliedMods == nil {
 			return false, nil
 		}
-		return cp.Ctx.AppliedMods[hookID], nil
+		return cp.Ctx.AppliedMods[cp.Ctx.ApplicationKey(hookID)], nil
 	}))
 
 	// --- Write hook API ---

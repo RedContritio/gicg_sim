@@ -1,10 +1,10 @@
 package factory
 
 import (
+	"errors"
 	"fmt"
 	engine "gicg_mono/gicg_engine"
 	"gicg_mono/gicg_engine/interp"
-	"math/rand"
 	"os"
 	"strings"
 )
@@ -26,7 +26,16 @@ type GameHandle struct {
 // shim and the Go-native actor pool — keeping a single initialization
 // path means the two callers can never drift apart (e.g. on hook IR
 // finalization or pool resolution).
-func NewGame(cfg GameConfig) (*GameHandle, error) {
+func NewGame(cfg GameConfig) (handle *GameHandle, err error) {
+	defer func() {
+		if v := recover(); v != nil {
+			failure, ok := v.(*engine.RuleError)
+			if !ok {
+				panic(v)
+			}
+			handle, err = nil, failure
+		}
+	}()
 	dataDir := cfg.DataDir
 	if dataDir == "" {
 		dataDir = FindDataDir()
@@ -34,14 +43,14 @@ func NewGame(cfg GameConfig) (*GameHandle, error) {
 
 	g := &engine.Game{
 		Hooks:    engine.NewHookRegistry(),
-		Rng:      rand.New(rand.NewSource(cfg.Seed)),
+		Rng:      engine.NewRandom(cfg.Seed),
 		BaseSeed: cfg.Seed,
 		// review D.5: init per-player deck RNGs at GameNew time. Default to
 		// cfg.Seed so legacy single-seed callers see identical deck shuffles.
 		// PeriodicEvaluator overrides via ResetDynamicStateWithSeeds per scenario.
-		DeckRngs: [2]*rand.Rand{
-			rand.New(rand.NewSource(cfg.Seed)),
-			rand.New(rand.NewSource(cfg.Seed)),
+		DeckRngs: [2]*engine.Random{
+			engine.NewRandom(cfg.Seed),
+			engine.NewRandom(cfg.Seed),
 		},
 		DeckSeeds: [2]int64{cfg.Seed, cfg.Seed},
 		Winner:    -1,
@@ -69,6 +78,9 @@ func NewGame(cfg GameConfig) (*GameHandle, error) {
 			Card:       cfg.DeckPadding.Card,
 			TargetSize: cfg.DeckPadding.TargetSize,
 		}
+	}
+	for pi := 0; pi < 2; pi++ {
+		rt.ExplicitDecks[pi] = cfg.Players[pi].Deck
 	}
 
 	poolIDs := cfg.Pools
@@ -155,30 +167,21 @@ func NewGame(cfg GameConfig) (*GameHandle, error) {
 		}
 	}
 
-	// IR-2.b: compile each hook body AST → ir.CompiledHook and attach
-	// to Hook.Repr. Post-IR-cutover (IR-2.b.2), obs hook section is
-	// IR-encoded — Repr-nil hooks contribute all-zero, which the encoder
-	// masks. That silent fall-back hid a 0% compile success rate before
-	// G1 landed; threshold below fail-loud on any future schema drift.
-	okN, failN := finalizeHookIRs(g, rt)
+	// A training observation must represent every loaded DSL hook completely.
+	okN, failures := finalizeHookIRs(g, rt)
 	if os.Getenv("IR_DIAG") != "" {
-		fmt.Fprintf(os.Stderr, "[IR-DIAG] finalizeHookIRs: ok=%d fail=%d total=%d\n", okN, failN, okN+failN)
+		fmt.Fprintf(os.Stderr, "[IR-DIAG] compiled=%d failed=%d\n", okN, len(failures))
 	}
-	total := okN + failN
-	if total > 0 {
-		failRate := float64(failN) / float64(total)
-		if failRate > 0.02 {
-			return nil, fmt.Errorf(
-				"IR finalize failure rate %.1f%% (ok=%d fail=%d) exceeds 2%% — schema mismatch or builtin coverage gap (set IR_DIAG=1 for per-failure detail)",
-				failRate*100, okN, failN,
-			)
-		}
+	if len(failures) > 0 {
+		return nil, fmt.Errorf("IR finalization failed: %w", errors.Join(failures...))
 	}
 
 	g.Log = engine.NewEventLog()
 
 	for pi := 0; pi < 2; pi++ {
-		rt.BuildDeck(pi)
+		if err := rt.BuildDeck(pi); err != nil {
+			return nil, err
+		}
 	}
 
 	// Start game: leave both players in PhaseSelectActive so the agent

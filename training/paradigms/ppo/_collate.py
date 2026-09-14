@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
+from training.core.step_encoding import pad_buffs_np
 
 from training.core.protocols import Transition
 
@@ -45,6 +46,7 @@ def transitions_to_collated(
     recent_damage_list: list[np.ndarray] = []
     prepare_skill_list: list[np.ndarray] = []
     modifier_log_list: list[np.ndarray] = []
+    buffs_list = []
 
     refs_list: list[np.ndarray] = []
     payments_list: list[np.ndarray] = []
@@ -52,6 +54,7 @@ def transitions_to_collated(
 
     for i, t in enumerate(transitions):
         p = t.payload
+        buffs_list.append(agent._parse_buff_single(p['dyn_obs']).squeeze(0).cpu().numpy())
         (
             counter_values_t,
             meta_t,
@@ -91,6 +94,11 @@ def transitions_to_collated(
         char_skill_refs_cached,
         (B,) + char_skill_refs_cached.shape,
     ).copy()
+    definition_links_cached = agent._definition_links.squeeze(0).cpu().numpy()
+    definition_links = np.broadcast_to(
+        definition_links_cached,
+        (B,) + definition_links_cached.shape,
+    ).copy()
     hook_ir_cached = agent._hook_ir_cache.cpu().numpy()
     hook_mask_cached = agent._hook_mask.squeeze(0).cpu().numpy()
     hook_ir = np.broadcast_to(hook_ir_cached, (B,) + hook_ir_cached.shape).copy()
@@ -104,12 +112,14 @@ def transitions_to_collated(
         'recent_damage': np.stack(recent_damage_list, axis=0),
         'prepare_skill': np.stack(prepare_skill_list, axis=0),
         'modifier_log': np.stack(modifier_log_list, axis=0),
+        'buffs': pad_buffs_np(buffs_list),
         'action_refs': np.stack(refs_list, axis=0).astype(np.int64),
         'action_payments': np.stack(payments_list, axis=0).astype(np.float32),
         'legal_mask': legal_mask,
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
         'char_skill_refs': char_skill_refs,
+        'definition_links': definition_links,
         'hook_ir': hook_ir,
         'hook_mask': hook_mask,
     }

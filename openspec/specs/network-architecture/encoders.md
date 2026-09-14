@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: network-architecture
@@ -20,7 +20,7 @@ subtopic: encoders
 
 本 subtopic 覆盖:
 
-- HookEncoder(Transformer 2L × 4H)消费 `hook_tokens` raw int + with-grad 路径
+- HookEncoder(Transformer 2L × 4H)消费 `hook_ir` raw int + with-grad 路径
 - CounterEncoder(sid + value proj + active mask)消费 `counter_values` +
   `counter_meta`
 - CardEncoder(bucket + slot table + count proj)消费 `card_buckets` +
@@ -46,17 +46,27 @@ subtopic: encoders
 ### 2.2 结构
 
 ```python
-HookEncoder(vocab_size=256, token_dim=d_model, n_heads=4, n_layers=2,
-            max_tokens=120, dropout=cfg.dropout)
+HookEncoder(opcode_vocab=16, operand_vocab=2048, token_dim=d_model,
+            n_heads=4, n_layers=2, max_ops=128, dropout=cfg.dropout)
 ```
 
-1. `tok_emb = token_embed(types.clamp(0,255)) + value_proj(value) + pos_embed`
-   - `token_embed`:`nn.Embedding(256, d)` — token 类型 embedding
-   - `value_proj`:`nn.Linear(1, d)` — **标量投影**,让数值 token 天然
-     有序(`value_proj(2)` 与 `value_proj(3)` 线性相邻)
-   - `pos_embed`:`nn.Embedding(120, d)`
-2. `nn.TransformerEncoder(2 layers, d, 4 heads, FFN=4d, batch_first)`
-3. Mean-pool over non-pad tokens → `(B, N_hooks, d)`
+输入为 `hook_ir (B, N_hooks, max_ops, 5)`，每条指令依次为
+`opcode, dst, op1, op2, op3`。
+
+1. `tok = opcode_embed(opcode) + operand_projection(concat(E(dst), E(op1), E(op2), E(op3))) + pos_embed`
+   - `E` 为共享操作数词表，空引用 -1 使用保留项，引用 0 使用另一项；`operand_projection` 为无偏置 `Linear(4d, d)`。
+   - 字段 SHALL 按角色拼接，SHALL NOT 将四字段嵌入直接求和。
+     给字段加固定角色向量后再求和同样不能消除交换对称性，不符合此要求。
+   - `pos_embed` 标识指令位置；opcode 0 为 padding。
+2. `nn.TransformerEncoder(2 layers, d, 4 heads, FFN=4d, batch_first)`。
+3. Mean-pool over non-padding operations → `(B, N_hooks, d)`。
+4. `OpLoadImm`（opcode 1）的值 SHALL 在词表查找中被遮蔽，并通过
+   `MLP([value/10, sign(value)*log1p(abs(value))])` 加入指令嵌入，保留符号及数值尺度。
+   其他操作数仍为离散引用/类型词表，SHALL NOT 一律解释为数值大小。
+   canonical定义节点使用独立观察opcode 15，只携带技能/卡牌种类，不携带内部编号。
+   这提供数值可学习性，不保证训练后已学会算术或规则语义。
+5. 字段投影参数属于模型结构。缺少该参数的旧权重 SHALL 被严格加载拒绝；
+   源码兼容指纹随此结构变更，正式训练 SHALL 使用新鲜权重与经验。
 
 ## 3. CounterEncoder
 

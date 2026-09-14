@@ -5,17 +5,22 @@ import "testing"
 func TestShield_CatShieldAbsorbs(t *testing.T) {
 	// 猫咪 has 猫爪护盾 (creates shield that absorbs damage)
 	env := NewGame(t, []string{"赤蝶"}, []string{"猫咪"})
+	// Rule test: explicitly fund both players rather than depend on random rolls.
+	env.SetDice(0, map[int]int{7: 8})
+	env.SetDice(1, map[int]int{7: 8})
 
 	// Let 猫咪 (P1) use 猫爪护盾 first
 	env.PlayUntilTurn(1, 10)
-	if env.StepSkill("猫爪护盾") {
-		t.Log("猫咪 used 猫爪护盾")
+	if !env.StepSkill("猫爪护盾") {
+		t.Fatal("shield skill unavailable")
 	}
 
 	// Now 赤蝶 (P0) attacks
 	env.PlayUntilTurn(0, 10)
 	hpBefore := env.HP(1, 0)
-	env.StepSkill("枪")
+	if !env.StepSkill("枪") {
+		t.Fatal("attack unavailable")
+	}
 	hpAfter := env.HP(1, 0)
 
 	damage := hpBefore - hpAfter

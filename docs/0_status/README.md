@@ -1,207 +1,77 @@
 ---
-last_updated: 2026-06-02 (I31 squash merge main + 维护治理: M1 archive ID 去重 / M3 docs/1_specs 全量清理 / 0a spec delta 全 merged 确认 / I12 sync subdir guard / backlog I13-I23 audit 确认已修)
+last_updated: 2026-09-14
 status: LIVE
 ---
 
-# Status — 现在在哪
+# 当前状态：新 session 第一站
 
-## 新 session 第一站
+本页是当前工作入口。旧实验中的“当前/正在运行/下一步”只具有历史意义。规约读 [项目目的](../../openspec/project.md) 和 [开发约定](../../CLAUDE.md)，具体接手读 [HANDOFF](../HANDOFF.md)。
 
-> 进入 docs 的第一站。读完这一页 30 秒应能回答:**现在在干什么 / 困难是什么 / 下一步怎么走**。
->
-> 三个入口互补:
-> - **OpenSpec**(规约 + change workflow): [`openspec/project.md`](../../openspec/project.md) — 项目层 spec / SHALL invariants
-> - **Paradigm landscape**(科研复盘): [`docs/paradigms/README.md`](../paradigms/README.md) — 5 paradigm × verdict × 数据
-> - **本页**(LIVE 状态):当前 phase / 困难 / 下一步
->
-> docs/ 编号导航(P1 后): `0_status` → `1_specs` (待迁 `openspec/specs/`) → `2_decisions` (已迁 `openspec/changes/archive/`,mirror 保留) → `3_plans` (active only) → `4_runs` (experiment log) → `5_history` (archived plans + 复盘)。
->
-> LIVE 状态文件:phase / 里程碑 commit 内更新。
+## 全局位置
 
-## 元任务
+长期产品目标：最新正式版七圣召唤 PvE 决策辅助工具，并积累可复现研究证据。当前阶段是**模拟环境、规则表达和训练方法验证**，还不是可交付的正式 PvE 助手。
 
-**两条主线并行**:
-1. **算法可学性验证**:GICG 这种 imperfect-info mirror Nash 游戏,RL/AZ/CFR 哪个栈能学
-2. **正式版卡池 + DSL 形态稳定**:引入七圣召唤实际游戏全量卡牌 + 平衡性版本管理,验证 algorithm scalability + 锁定 DSL spec
+当前活动目标：**解决学习不到规则的问题，在随机变体下稳定胜过 D2**。未达成。
 
-不是训 SOTA agent。
-
-## 当前 phase(2026-05-28 EOD)
-
-### 0. Stage 3 Win pilot + DMC policy collapse 验证 + 多 perf/safety fix ship(2026-05-28,7 commits)
-
-**Stage 3 Win N=16 production pilot 跑通 → 主动停于 3.7%(iter 2500)** 做 policy 诊断:
-- ckpt vs F1-D2 wp **0/256 (CI 上限 1.5%)** vs random ε=1.0 拿 22%(CI 11-39%)— **CI 完全不重叠 → DMC 早期 policy collapse 固化**(PLAN.md §A.2 机制 verified:ε=0.05 + MC return ±1 → MSE depress 被选 action → argmax 永选 never-chosen 烂手 self-reinforcing)
-- **C1 决策:走路径 A(继续训 full 1M,12-16h),赌后期 self-recover**;失败则进 PLAN.md §A.4 closure
-- 详:私有 memory `project_stage3_pilot_policy_collapse_2026_05_28`
-
-**同 session ship 7 commits(`b5f45e2..836be01`)分三批**:
-
-| 类 | Commit | Scope |
+| 领域 | 已完成 | 尚未证明或未完成 |
 |---|---|---|
-| Stage 3 unblock | `b5f45e2` | `tools/eval`:random-baseline policy-collapse 诊断 + Win remote rsync fallback |
-| H2 root cause | `d5987d0` | `gicg_actor/dmc/greedy_player`:minimax 热路径 DeepCopy → SnapshotPooled(bench 1.45x ns/op + 16→0 alloc + 32 KB→0 byte;原 budget cap 是 GC churn workaround,改完 root cause 后 production cfg 可恢复 unbounded) |
-| C3 cross-lang safety | `a613c6e` | `wire/paradigm-payload`:加 `PayloadVer u8` prefix(DMC/AZ/PPO 各独立版本)+ decode mismatch fail-loud + DMC byte-layout golden test |
-| Pre-existing | `b3609b6` | `configs/dmc/eval_stage3_b_v_legacy`:补 `[meta] paradigm = "dmc"`(FU-W1B schema) |
-| H3 visibility | `2804539` | `training/core/actor/ipc`:`peek_count_and_full_at_head` race-aware ring 探针 — 返 `(count, n_full_at_head)` 区分 over-reserve race vs actor stall(B-go-sustained-collection-deadlock 调试必备) |
-| H1 GPU perf | `049e722` | `training/core/actor`:InferenceServer forward 走 `priority=-1` CUDA stream — 抢占 train backward kernel 间隙,降 inference tail latency(实测 run 149 GPU 7-92% util 抖动信号) |
-| Pre-existing | `4e4257a` | `gicg_engine/dsl/audit_test`:补 8 个漏列 builtin whitelist(`declare_reaction` / `set_reaction_kind` / `on_shield_absorb` / 4 个 `on_damage_*` / `remove_support`) |
-| Pre-existing | `836be01` | `gicg_engine/tests/set_hidden_state`:sort map iter 消除偶发 fail |
+| 模拟环境 | 引擎、Lua DSL、快照恢复、强制切换/反应等规则修复；原生五角色与23张行动牌可运行 | 游戏内边界逐项实测；全官方卡池完整规则覆盖 |
+| 当前训练环境 | 凯亚、迪卢克、芭芭拉、砂糖、菲谢尔；3v3；固定30张随机合法牌组；观测布局shuffle | 其他正式角色扩展与PvE关卡接入 |
+| NN表达 | 类型化IR、操作数角色、数值编码、技能/卡牌到效果关联；兼容性指纹 | 模型稳定利用规则变化做出更好选择 |
+| 训练与评估 | 56远端CUDA、采样/恢复、BC/RL、D2评估、场景聚类置信区间、配对比较 | 当前原生变体环境下稳定超过D2 |
+| 产品与研究 | 长期规划、实验记录、已有网页接口 | 网页体验后续优化；真实PvE验证、概率校准、论文结论 |
 
-**挂起的项**(估 ROI 排序,本 session 决策不做):
-- **H4 GOMEMLIMIT validation**(~50 LOC):Win 长跑 OOM 防 silent regression — *方案 C 折中已规划,下个 session 开*
-- **IPC Risk #5 stale-episode 检测**(~30 LOC):`_go_assembler` LRU evict 加 stale + warn log,给 C1 long-run debug visibility — *已规划,下个 session 开*
-- **H5 Lua interp 优化**(LONG TERM):LuaJIT 替换违反立约(`openspec/project.md:33` "自研解释器,非 LuaJIT")+ 8000 LOC 自研 + IR 系统全推倒数月工程;真要做需先 profile 验证占比(估 10-15% 待真测),路径是 bytecode cache / hot hook 移到 Go-native,不切外部 VM
-- ~~**M1 OpenSpec archive 重复 ID**~~:**done** — `0006-i29-*`/`0007-i29-*` 重命名为 `i29-go-actor-pool`/`i29-r7-n-subprocess`(去数字前缀,对齐新命名惯例)+ 5 文件引用更新
-- ~~**M3 docs/1_specs vs openspec/specs truth 重复**~~:**done** — 17 MOVED 文件删除 + 3 training 历史文件迁 `docs/5_history/` + `docs/1_specs/` 整目录删除 + CLAUDE.md/project.md/status 引用更新 + 7 openspec spec 死链修复
+## 当前证据
 
-### 0a. core/network 重设计 + 5 paradigm 完全统一 ship(2026-05-17,34+ commits)
+- 当前规则变体：每局修改1–2个参数，训练50%原生/50%变体；30个参数覆盖五角色的直接伤害、治疗与指定元素骰费。训练/开发修改值分开。持续回合和禁用技能仍未加入这一阶段。
+- 当前保留基线：`artifacts/202609140533_000016_semantic_rl/ckpts/iteration_7.pt`（路径相对56根目录）。不同独立变体开发复核胜率约39–43%，尚未超过D2。
+- 普通DAgger和保守DAgger均未改善胜率。凯亚3v3交换普攻/霜袭伤害2↔6、4↔8时，仍固定偏好霜袭；这是受限反事实失败证据，不能等同全规则诊断。
+- 新增9字段引擎结算辅助头，与RL共享规则/动作编码。14项相关测试通过；GPU保存/恢复冒烟通过，辅助优化器步数18→32。本轮对照未证明胜率收益，规则数值响应仍不足。
 
-单 session 跑完 architecture unification 大主线:
-- **`core-network-generic-promotion`** parent change(13 commits,Phase 0-6 ship):generic `ActorCritic` thin composition + DI `AgentBase` + `typed_damage` first-class + `core/network/legacy/` 物理删除 + 5 paradigm 全切 generic backbone + ckpt self-describing schema + symmetric smoke template + `tools/runs/` CLI suite
-- **6 follow-up changes**(15 commits):docs-pre-redesign-refs-sweep + env-factory-unification(3-arg canonical)+ cfg-schema-unification(ObsShape + ParadigmConfigBase + version)+ ppo-structural-backbone-migration(PPO 切 generic)+ cfg-toml-restructure-paradigm-scoped(hybrid TOML)+ paradigm-smoke-full-tier(opt-in `@pytest.mark.smoke_full`)
-- **#7 ppo-cfg-shape-alignment**(1 commit):闭 5/5 paradigm cfg dataclass 完全对称(D3 closure)
-- 5 paradigm:**AZ/BC/DMC/CFR/PPO 全部走 `make_actor_critic` generic ActorCritic backbone**(spec invariant A4 100% 闭环)
-- 完整统一度 ~92-95%(剩 5% 是 CFR algorithm-inherent paradigm-specific intentional divergence per D-207)
-- 详:`project_session_ship_2026_05_17_core_network_redesign` + `project_archive_handoff_2026_05_17` memories
+## 最近完成的训练
 
-~~待处理:17 spec deltas × 8 capability spec.md merge~~:**audit 确认全部 34 个 spec delta 已 merge 到 live spec**,无遗留。`tools.runs.*` + `tools.ckpt.info` CLI 用法见 CLAUDE.md Build & Test 段。
+56主机：`dev@192.168.31.56`；目录`D:/gicg_native`；Python `D:/gicg_native/venv/Scripts/python.exe`。
+配置：[native_starter.toml](../../configs/dmc/native_starter.toml)。
+任务：`artifacts/native_auxiliary_comparison_20260914`。
 
-## 当前 phase(2026-05-16)
+同起点、同seed94700：先辅助RL(beta0.5)，再普通RL，各4×256局、8workers；value baseline、温度0.5、D2相同。每轮原生开发93100，变体开发93990选模（含初始），94890独立440局/模型复核。单训练种子的发展阶段对照，不是最终稳定性验收。
 
-**✅ doc 体系全量迁移 OpenSpec(P0 完 + P1 进行)+ v_phase2 / DMC infra 多线 ship**
+流程已成功完成，耗时62.4分钟。辅助臂开发选模退回初始模型；普通RL候选独立胜率29.55%，初始33.64%，差值−4.09个百分点，配对95%区间[−9.55,+1.36]。未证明收益。结果和结算预测审计见[实验报告](../5_history/auxiliary_rule_comparison_20260914.md)。
 
-### 1. 文档体系迁移 OpenSpec(2026-05-15/16,P0+P1 17 commits)
+按需查询（stdout≤200 UTF-8字节）：
 
-- **P0 完(8 commits)**:`openspec/` scaffold + `project.md` + 3 capability spec(`openspec-policy` / `engine-dsl` / `training-architecture`)+ `tools/_meta/check_openspec_indices.py` + pre-commit hooks 串接
-- **P1 进行(9 commits)**:15 ADR 迁 `openspec/changes/archive/` + 8 capability spec(network/search-ismcts/search-parallel/engine-actions/dice/capi/runtime/env-config/eval-protocol)+ 5 paradigm dossier(`docs/paradigms/{az,bc,cfr,dmc,ppo}/`)+ 7 archived plan 迁 `5_history/`
-- 旧 `docs/2_decisions/` 作 mirror 保留(ADR 实际权威在 `openspec/changes/archive/`);`docs/1_specs/` 已清理删除(全部迁移至 `openspec/specs/`,3 个 training 历史文件迁 `docs/5_history/`)
+```bash
+.venv/bin/python -m tools.experiments.semantic_training.progress configs/dmc/native_starter.toml artifacts/native_auxiliary_comparison_20260914
+```
 
-### 2. v_phase2 真实卡 e2e 测试 + 支援区生命周期 ship(2026-05-15)
+状态文件可滞后，不独立证明进程存活。`completion.json`是流程终态，失败时含error。不要因新session无旧工具句柄或查询超时重复启动任务。远端操作使用`tools.runs._host`封装；不用手写SSH/SCP。训练源保持冻结，其他旧远端目录不清理。
 
-- **support zone lifecycle**(commit `62d641f` + `f8a8529` + `840b9c5` 等):`PlayerState.Supports` state / `MaxSupportSlots=4` / `HookSupportRemove` + `remove_support`/`count_support` builtin + `on_support_remove` DSL hook;6 区生命周期 spike test PASS
-- **v_phase2 卡 e2e tests**(commit `c02bc88` 事件 3 卡 + `10ce0c9` 支援 2 卡 + `2fca63b` 装备 2 卡):7 case 覆盖事件/支援/装备真路径 + cleaned yaml ground truth 断言
+## 新实验与并行验收
 
-### 3. DMC Phase 3.5 multi-process actor-learner ship(2026-05-13/14/15)
+用户已授权直接并行。56配对反事实结算实验`artifacts/native_paired_20260914`已完成（267.4秒）：双臂各1500步，360对五角色伤害/治疗样本；本轮数值验证差值MAE初始2.755→配对0.555/普通监督0.645，尚非对战收益。原凯亚探针结算排名16/16，策略仍8/16；360对完整观测检查通过。[结果](../5_history/paired_consequence_20260914.md)。冻结旧源码上运行，完成记录已拉回，勿重复启动。[固定协议与恢复说明](../3_plans/cards/paired_consequence_training.md)。本机三项修复集成验收已通过：training 1150 passed，semantic/web 82 passed，Go及五范式完整冒烟均通过。详见[验收证据](../3_plans/inference_consistency_repairs.md)。
 
-- **Phase 3.5 multi-process actor-learner**(commit `8cdd56c` DouZero pattern + `ce5049e` 合并 single/mp entry)
-- **NaN/inf fail-fast guard**(`5ae3f7c`):dump batch+ckpt+diag 后 raise RuntimeError
-- **`tools/eval` + `tools/runs` paradigm-agnostic refactor**(12 task 全 done,见 [`dmc_phase35_infra(archived)`](../5_history/dmc_phase35_infra.md))
-- **41 项 DMC review critique 落盘**(2026-05-14,`docs/5_history/reviews/dmc_review.md`)
+## 当前运行：配对监督联合RL
 
-### 4. v_phase2 RL smoke + DSL v6 strict 仍 LIVE
+56已启动`artifacts/native_paired_rl_20260914`，辅助/普通RL各4×512局、16 workers，master seed95100。从同一配对预训练模型出发；首个run为`202609141059_000032_semantic_rl`，启动确认时辅助第1轮39/512局。后续自动选模及独立D2评估。执行等待器session80476；只依据completion判断完成。[固定协议、来源与恢复边界](../3_plans/cards/paired_joint_rl.md)。
 
-- v_phase2 池(7 char / 6 卡)+ RL smoke s070 跑通(2026-05-12,commit `a0c26e9`)
-- ADR-0019 DSL v6 strict 23 commits 链 2026-05-04~05-07 已落,Accepted de-facto;详 [`dsl_v6_progress.md`](dsl_v6_progress.md)
-- v_phase2 deferred 机制 23 项仍 backlog(见 [`../3_plans/v_phase2_deferred.md`](../3_plans/v_phase2_deferred.md))
+## 下一步
 
-ADR-0011 pool versioning 仍然有效:`data/pools/{test_basic,v_legacy,v_phase2,spike}/`,manifest fold + 内存 cache。
+1. 三项修复已通过集成验收，工程阻塞解除；用户已授权将dev压缩合入main，按Git实际状态确认提交结果。56冻结训练不受影响。
+2. 配对监督已证明受控数值预测可学习（原凯亚探针16/16），但策略仍8/16。持续联合RL已启动，完成后用自然对局、规则响应和独立D2结果共同验证；不要直接把即时伤害排序当策略目标。
+3. 有可靠收益再扩展训练与多种子验证。既有最终预留训练seed971000/981000/991000，最终变体seed971900/981900/991900；当前实验未使用。最终各模型场景聚类95%胜率下界须超过50%，并有规则响应证据。
+4. 规则边界待用户游戏内实测；不阻止已授权的方法实验，但不能宣称全部官方规则已获实测认证。
 
----
+## 工作区与恢复边界
 
-## 已确定方向(2 条主线)
+分支`dev`。2026-09-14用户要求将累积实现提交为开发快照；提交说明与5项未通过回归见[提交验收记录](../5_history/dev_submission_20260914.md)。原5项回归阻塞已处理并通过集成验收，本轮按用户授权将dev压缩合入main，再同步合并基线回dev；最终提交与工作区以Git状态为准。接手时仍先检查git status，不能假定工作区永远干净。
 
-### A. 算法路线 — RL sweep 至 final verdict
+模型和大部分产物在56及本地被gitignore的`artifacts/`，并非Git备份的一部分。本轮56冻结实验的核心/观测指纹：`7b4ef71f7f13fed5d148fb2df3c21f7260c6375bec99a91daf9caf4dfe104ad1`；额外工具源码hash保存在pipeline报告。本机正在修改观测schema和网络链路，新代码不能直接视为兼容本轮旧权重。不得给旧权重重标指纹。结束聊天不等于停止远端训练，也不承诺关闭客户端后仍有自动唤醒。
 
-| 数据点 | F1-D2 |
-|---|---|
-| Stage 3 1-card mirror baseline (s064-66, n=3) | 0.104 |
-| Stage 3 1-card mirror + BC warm-start (r010-12, n=3) | 0.167 |
-| Stage 3 1-card asymmetric (s068, n=3) | 0.271 ← +0.167 vs mirror |
-| **s069 5× rollouts asymmetric (seed42 only, n=1)** | **0.5** ← 若 confirm 越过 stricter_pass |
-| Production fallback BC alone (r009 ckpt) | 0.75 |
+## 资料入口
 
-阶梯:s069 → s071 capacity → D2 NFSP / D3 deep CFR
-
-### B. Infra 路线 — 正式版卡池准备
-
-ADR-0011 落地了:
-- 目录式版本(`data/pools/<id>/`)
-- manifest.toml 描述 parent 链 + remove diff
-- loader 沿链 fold + 整目录 override 语义
-- pool resolution 走 process-global cache(脱耦磁盘)
-- filler 字面量 hardcode 移除(Engine Ignorance 恢复)
-- cfg 显式 deck_padding + pool 字段
-
-下一步:渐进录入七圣召唤正式卡池(版本快照 + 平衡 patch)。已找到 `~/Documents/gicg_sim/data/raw/` 含 JSON 形式角色 / action 数据可作录入源。
-
----
-
-## 主要困难(按严重度)
-
-| # | 困难 | 严重度 | 缓解状态 |
-|---|---|---|---|
-| 1 | RL plateau 结构性(mirror Nash 锁) | 高 | s068 / s069 显示部分可破,sweep 中 |
-| 2 | 数据基础窄(每 cfg n=3,std≈0.078) | 中 | multi-seed required,等 sweep 完整 |
-| 3 | 正式卡池录入工作量(300+ 张 × 几十行 Lua) | 高 | infra ready;下一步:从 gicg_sim raw JSON 工具化转 Lua DSL |
-| 4 | 旧 replay yaml 跨池引用 | 低 | 临时双池 union 兼容,长期重生成 |
-| 5 | bit-exact baseline 兼容脆弱 | 中 | base preset 默认值集中管控 |
-| 6 | pre-existing `seeds` field bug | 低 | test_shipped_configs 挂,与 ADR-0011 无关,后续单独 fix |
-
----
-
-## 解决路径(按时间)
-
-**~3.5h 内** — s069 跑完
-- seed43/44 出齐 → s069 mean ± std
-- F1-D2 ≥ 0.40 mean → closure 再被推翻,compute 是主因 → 推 production scale
-- 0.27-0.39 之间 → s071 capacity probe(d_model 128→256, ~2h)
-
-**1-2 天** — sweep cheap probe phase
-- s071 跑完 → 进 / 出 algorithm probe
-- capacity 也不行 → D2 NFSP / D3 deep CFR(2-3 周主线)
-- 顺手 fix `seeds` field bug
-
-**1-2 周(并行,与 RL sweep 解耦)** — 正式卡池 infra 验证
-- 复制 `~/Documents/gicg_sim/` 工具到本仓库,拉取 raw JSON 数据
-- 设计 JSON → Lua DSL 转换器(基于 raw schema 分析)
-- 选第一个真实游戏版本(建议 v3.3 开服版,基础卡集最小)创建 `data/pools/v3.3/`
-- 录 1-2 张真实卡走通端到端,验证 cfg `pool="v3.3"` 训练切换 work
-
-**1-2 月** — 全量录入
-- 主流版本(v3.3 → v4.5)所有卡 + 角色入 pool
-- 训练 cfg 可 pin 单一版本 / 跨版本 ablation
-
----
-
-## 上一里程碑
-
-- **2026-05-15/16** OpenSpec 全量迁移 P0+P1 共 17 commits — scaffold + 11 capability spec + 15 ADR archive + 5 paradigm dossier + 7 plan archive (heads `9d8a4af`)
-- **2026-05-15** v_phase2 卡 e2e tests ship — 事件/支援/装备 7 case 真路径 + cleaned yaml ground truth (commits `c02bc88` / `10ce0c9` / `2fca63b`)
-- **2026-05-15** support zone lifecycle ship — `SlotSupport` state + 6 hooks + 6 区生命周期 spike test (commits `62d641f` / `f8a8529` / `840b9c5`)
-- **2026-05-13/14** DMC Phase 3.5 multi-process actor-learner ship — DouZero pattern (commit `8cdd56c`),Phase 3.5 infra plan 12 task 全 done
-- **2026-05-14** DMC review 41 项 critique 落盘 (`5_history/reviews/dmc_review.md`)
-- **2026-05-12** v_phase2 真实角色 / 卡牌池建立 + RL smoke 跑通 (commits `c43a587` cleansing 链路重做 / `9969f2e` v_phase2 池 + spike test / `0f2a951` training pool_spec 修 / `d011859` smoke cfg)。详见 `../3_plans/v_phase2_deferred.md`
-- **2026-04-28 PM** ADR-0011 落地:pool versioning + filler 引擎清理 + multi_seed resume + s069 重启 (commit `525296b`)
-- **2026-04-28 PM** s068 D4 mirror-break probe F1-D2=0.271 (n=3),+0.167 vs mirror baseline,**部分推翻 closure**;reopen research(ADR-0010)
-- **2026-04-28 AM** ADR-0009 paradigm pivot terminus — RL 三栈 × 5 stage 全失败(被 s068 部分推翻)
-- **2026-04-28** r009 BC pretrain ep=3 ckpt vs F1-D2 = 0.75(production fallback)
-- **2026-04-26** Stage 0-3 AZ pure self-play 完整 4-stage curriculum 双栈闭环
-- **2026-04-25** Stage 1+2 BC→PPO PASS,multi-seed infra 落地
-- **2026-04-24** RL paradigm pivot — pure end-to-end 路线证否
-
-更长时间线: [`timeline.md`](timeline.md)
-
-## 关键 link
-
-### OpenSpec(P0/P1 落地后的新权威)
-- 项目层 spec: [`openspec/project.md`](../../openspec/project.md) — SHALL invariants + 工具入口
-- 活规约(capability spec): [`openspec/specs/`](../../openspec/specs/) — 11 capability(engine/search/network/training/env-config/eval-protocol/openspec-policy)
-- 决策 archive: [`openspec/changes/archive/`](../../openspec/changes/archive/) — 15 ADR(0001-0019)
-
-### Paradigm 科研复盘
-- Paradigm landscape: [`docs/paradigms/README.md`](../paradigms/README.md) — 5 paradigm × verdict × 数据(AZ / BC / CFR / DMC / PPO)
-
-### docs/ legacy 区(迁移中)
-- 当前 shipped 代码状态: [`../1_specs/`](../1_specs/) (P1 迁移中,新内容在 `openspec/specs/`)
-- 设计决策: [`../2_decisions/`](../2_decisions/) (已迁 `openspec/changes/archive/`,mirror 保留)
-- 计划与 roadmap: [`../3_plans/`](../3_plans/) (active only;已实施/closed 移到 `5_history/`)
-- 训练 run 注册: `python -m tools.runs.list` CLI(live);[`../5_history/runs_pre_redesign_2026_05_17.md`](../5_history/runs_pre_redesign_2026_05_17.md)(pre-redesign 2026-05-17 之前)
-- 历史复盘 / archived plan: [`../5_history/`](../5_history/) — 新归档:`curriculum/` / `algorithm_sweep_2026_04_28.md` / `acceptance.md` / `az_plans/` + 3 个 implemented plan(`support_lifecycle_impl.md` / `v_phase2_cards_e2e_impl.md` / `dmc_phase35_infra.md`)
-- 术语速查: [`glossary.md`](glossary.md)
-
-## 编辑规则
-
-- **本文件 LIVE**,phase 切换/里程碑达成 commit 内更新
-- 顶部 `last_updated` 字段必须改
-- 旧 phase status 沉淀到 `5_history/`,本文只反映当前
+- [规则辅助联合训练](../3_plans/cards/rule_auxiliary_training.md)
+- [随机变体工具与协议](../../tools/rule_validation/VARIANTS.md)
+- [原生内容路线](../3_plans/cards/native_content_curriculum.md)
+- [待游戏内验证的边界](../3_plans/cards/in_game_rule_verification.md)
+- [PvE与研究长期规划](../3_plans/pve_assistant_and_research.md)
+- [旧状态页存档](../5_history/status_before_handoff_cleanup_20260914.md)

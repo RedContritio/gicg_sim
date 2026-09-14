@@ -1,0 +1,5 @@
+name = "原生五角色 3v3 · 语义 RL"
+type = "semantic_rl"
+cfg = "configs/dmc/native_starter.toml"
+ckpt = "artifacts/live_models/semantic_rl/model.pt"
+report = "artifacts/live_models/semantic_rl/evaluation.json"

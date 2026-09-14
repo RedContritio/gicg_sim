@@ -1,8 +1,7 @@
 package engine
 
 // Token type constants — the ~200 ID vocabulary the DSL tokenizer
-// emits. Grouped by category (keywords, operators, API calls, enum
-// values, ctx fields, method calls, literals).
+// emits: keywords, operators, API calls, enums, ctx fields, methods, literals.
 
 const (
 	TokPad = 0
@@ -193,6 +192,7 @@ const (
 	TokCtxActionContext = 215
 	TokCtxPaid          = 216
 	TokCtxNeedTarget    = 217
+	TokCtxAbsorbed      = 218 // ADR-0019 §B.5 ctx.absorbed(以逸待劳类反击 idiom)
 
 	// Methods (220-239)
 	TokMGet         = 220
@@ -227,11 +227,12 @@ const (
 	// kwargs to builtin calls in hook bodies (deal_damage etc.).
 	// Compiler emits OpKwArg(key=TokKw*, value=reg) immediately before
 	// the OpCall that consumes them.
-	TokKwSource    = 260
-	TokKwElement   = 261
-	TokKwTarget    = 262
-	TokKwPenetrate = 263
-	TokKwReact     = 264
+	TokKwSource        = 260
+	TokKwElement       = 261
+	TokKwTarget        = 262
+	TokKwPenetrate     = 263
+	TokKwReact         = 264
+	TokKwTargetCounter = 265
 
 	// IR-1.6 bridge global accessors (290-299) — Lua tables populated at
 	// engine init (_chars[i], _char_by_slot[p][c]); compiler pattern-matches
@@ -239,10 +240,7 @@ const (
 	TokBridgeChars      = 290
 	TokBridgeCharBySlot = 291
 
-	// RC2 builtins (300-319) — DSL builtins that hooks call but the IR
-	// compiler had no token for, causing finalizeHookIRs to reject 40%+
-	// of hooks. Added as opaque OpCall tokens (no new opcode needed —
-	// pure dispatch on Op1).
+	// RC2 builtins (300-319): opaque OpCall tokens dispatched through Op1.
 	TokRollDice         = 300
 	TokClearDicePool    = 301
 	TokSetReactionKind  = 302
@@ -253,16 +251,19 @@ const (
 	TokSetPreparing     = 307
 	TokHasCardInOwnHand = 308
 	TokRemoveSupport    = 309
+	// element_to_dice_color — Element enum → DiceColor index bridge
+	// (the two spaces are offset by one: Element.None occupies 0).
+	TokElementToDiceColor = 310
+	TokRegisterBuff       = 313
+	TokKwActor            = 314
+	TokIsCharAlive        = 315
+	TokCostReduce         = 312 // restricted-first total dice discount
+	TokRequestSwitch      = 311 // deferred player input; distinct from automatic force_switch
 
-	// RC2 char-attr method extension (319) — `c.normal_attack` reads the
-	// char's normal-attack skill index. Same shape as TokMHp etc. (lives
-	// in method-token space to share AddrCharAttr lookup).
+	// Normal attack attribute shares method-token AddrCharAttr lookup.
 	TokMNormalAttack = 319
 
-	// RC2 enum extensions (320-349) — CostSlot / DiceColor namespaces.
-	// Compiler resolves <NS>.<Field> via enumMap; these IDs are opaque
-	// embeddings for the Python obs encoder (same treatment as
-	// TokElementFire etc.).
+	// CostSlot / DiceColor enums: opaque NN embeddings, resolved via enumMap.
 	TokCostSlotFire    = 320
 	TokCostSlotIce     = 321
 	TokCostSlotWater   = 322
@@ -285,5 +286,3 @@ const (
 
 	TokVocabSize = 512
 )
-
-// TokenPair is (token_type, token_value)

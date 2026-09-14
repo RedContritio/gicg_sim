@@ -101,16 +101,6 @@ type CharEntry struct {
 	// cards (速速茶点, 铁剑) to check "is the current skill a normal
 	// attack" without hard-coding per-char skill names.
 	NormalAttackID int
-
-	// SpecialtyCardRef holds the card_ref currently equipped to this
-	// char's specialty slot (-1 = empty; 0 is a valid card ref). Set
-	// when a Slot.Specialty card is played targeting this char; checked
-	// by on_action_check on other Slot.Specialty cards to reject
-	// (1-card cap per char). See ADR-0012 § 2.
-	//
-	// Default is initialized to -1 in BindChar (NewCharEntry can't —
-	// declare time CharEntry doesn't run through a constructor).
-	SpecialtyCardRef int
 }
 
 type CharRegistry struct {

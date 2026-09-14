@@ -23,8 +23,11 @@ func init() {
 		"deal_damage": TokDealDamage, "heal": TokHeal,
 		"defer_fn": TokDeferFn, "get_active_char": TokGetActiveChar,
 		"set_active_char": TokSetActiveChar, "get_next_char": TokGetNextChar,
-		"context_player": TokContextPlayer, "force_switch": TokForceSwitch,
-		"gain_energy": TokGainEnergy, "consume_energy": TokConsumeEnergy,
+		"context_player": TokContextPlayer, "force_switch_next": TokForceSwitch,
+		"force_switch_previous": TokForceSwitchPrevious,
+		"apply_element":         TokApplyElement,
+		"is_char_alive":         TokIsCharAlive,
+		"gain_energy":           TokGainEnergy, "consume_energy": TokConsumeEnergy,
 		"set_winner": TokSetWinner, "get_turn": TokGetTurn,
 		"draw_card": TokDrawCard, "cancel": TokCancel,
 		"min": TokMin, "max": TokMax, "pcall": TokPcall,
@@ -32,6 +35,7 @@ func init() {
 		// Hooks
 		"on_reaction_damage": TokOnReactionDamage,
 		"on_after_damage":    TokOnAfterDamage,
+		"on_after_reaction":  TokOnAfterReaction,
 		"on_before_heal":     TokOnBeforeHeal, "on_after_heal": TokOnAfterHeal,
 		"on_action_check": TokOnActionCheck, "on_action_prepare": TokOnActionPrepare,
 		"on_skill_use": TokOnSkillUse, "on_card_play": TokOnCardPlay,
@@ -59,16 +63,34 @@ func init() {
 		// dispatch through OpCall on the Op1 token (same path as
 		// deal_damage etc.); IR-3 runtime looks the name back up via
 		// engine.LookupBuiltin → handler table at execution time.
-		"roll_dice":            TokRollDice,
-		"clear_dice_pool":      TokClearDicePool,
-		"set_reaction_kind":    TokSetReactionKind,
-		"cost_total":           TokCostTotal,
-		"cost_mod":             TokCostMod,
-		"was_applied":          TokWasApplied,
-		"add_dice":             TokAddDice,
-		"set_preparing":        TokSetPreparing,
-		"has_card_in_own_hand": TokHasCardInOwnHand,
-		"remove_support":       TokRemoveSupport,
+		"roll_dice":                       TokRollDice,
+		"clear_dice_pool":                 TokClearDicePool,
+		"set_reaction_kind":               TokSetReactionKind,
+		"cost_total":                      TokCostTotal,
+		"cost_mod":                        TokCostMod,
+		"register_buff":                   TokRegisterBuff,
+		"spawn_buff":                      TokSpawnBuff,
+		"spawn_support_buff":              TokSpawnSupportBuff,
+		"buff_progress":                   TokBuffProgress,
+		"set_buff_progress":               TokSetBuffProgress,
+		"get_dice_total":                  TokGetDiceTotal,
+		"selected_buff":                   TokSelectedBuff,
+		"background_energy":               TokBackgroundEnergy,
+		"transfer_energy_from_background": TokTransferBackgroundEnergy,
+		"choose_reroll":                   TokChooseReroll,
+		"buff_duration":                   TokBuffDuration,
+		"set_buff_duration":               TokSetBuffDuration,
+		"cost_reduce":                     TokCostReduce,
+		"was_applied":                     TokWasApplied,
+		"add_dice":                        TokAddDice,
+		"set_preparing":                   TokSetPreparing,
+		"has_card_in_own_hand":            TokHasCardInOwnHand,
+		"remove_support":                  TokRemoveSupport,
+		"request_switch":                  TokRequestSwitch,
+
+		// Element → DiceColor bridge (paired with add_dice; the two enum
+		// spaces are offset by one because Element.None occupies 0).
+		"element_to_dice_color": TokElementToDiceColor,
 	}
 }
 
@@ -131,7 +153,10 @@ var enumMap = map[string]int{
 
 var ctxFieldMap = map[string]int{
 	"ctx.value": TokCtxValue, "ctx.element": TokCtxElement,
-	"ctx.actor_player": TokCtxActorPlayer, "ctx.actor_char": TokCtxActorChar,
+	"ctx.attachment_only":  TokCtxAttachmentOnly,
+	"ctx.reaction_element": TokCtxReactionElement,
+	"ctx.reaction_kind":    TokCtxReactionKind,
+	"ctx.actor_player":     TokCtxActorPlayer, "ctx.actor_char": TokCtxActorChar,
 	"ctx.skill_index": TokCtxSkillIndex, "ctx.card_ref": TokCtxCardRef,
 	"ctx.target_player": TokCtxTargetPlayer, "ctx.target_char": TokCtxTargetChar,
 	"ctx.playable":      TokCtxPlayable,
@@ -139,6 +164,7 @@ var ctxFieldMap = map[string]int{
 	"ctx.source": TokCtxSource, "ctx.action_kind": TokCtxActionKind,
 	"ctx.penetrate": TokCtxPenetrate, "ctx.action_context": TokCtxActionContext,
 	"ctx.paid": TokCtxPaid, "ctx.need_target": TokCtxNeedTarget,
+	"ctx.absorbed": TokCtxAbsorbed,
 }
 
 var methodMap = map[string]int{
@@ -157,11 +183,14 @@ var methodMap = map[string]int{
 // OpKwArg ops. Audit shows deal_damage is the only hook-body caller
 // using TableCtor; the listed keys cover its observed kwargs.
 var kwArgMap = map[string]int{
-	"source":    TokKwSource,
-	"element":   TokKwElement,
-	"target":    TokKwTarget,
-	"penetrate": TokKwPenetrate,
-	"react":     TokKwReact,
+	"source":           TokKwSource,
+	"target_counter":   TokKwTargetCounter,
+	"other_characters": TokKwOtherCharacters,
+	"actor":            TokKwActor,
+	"element":          TokKwElement,
+	"target":           TokKwTarget,
+	"penetrate":        TokKwPenetrate,
+	"react":            TokKwReact,
 }
 
 // bridgeMap — engine-managed Lua global table names that compiler

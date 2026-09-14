@@ -21,7 +21,7 @@ func (rt *Runtime) makeHookFn(cl *Closure, passRef Value) engine.HookFn {
 	return func(g *engine.Game, ctx *engine.EventContext) {
 		activeRT, ok := g.Extra.(*Runtime)
 		if !ok || activeRT == nil {
-			return
+			g.FailRule(fmt.Errorf("DSL hook requires an attached runtime"), ctx.CurrentHookID)
 		}
 		prevCtx := activeRT.CurrentContextPlayer
 		// Panic-safe restore. callClosure catches DSL errors via
@@ -33,6 +33,11 @@ func (rt *Runtime) makeHookFn(cl *Closure, passRef Value) engine.HookFn {
 		}()
 		if ctx.ActorPlayer >= 0 {
 			activeRT.CurrentContextPlayer = ctx.ActorPlayer
+		}
+		if ctx.BuffID != 0 {
+			if owner := g.BuffOwner(ctx.BuffID); owner[0] >= 0 {
+				activeRT.CurrentContextPlayer = owner[0]
+			}
 		}
 		ctxProxy := &CtxProxy{Ctx: ctx}
 		args := []Value{ctxProxy}
@@ -70,7 +75,7 @@ func (rt *Runtime) makeWriteHookFn(cl *Closure, passRef Value, counterID int) en
 	return func(g *engine.Game, ctx *engine.EventContext) {
 		activeRT, ok := g.Extra.(*Runtime)
 		if !ok || activeRT == nil {
-			return
+			g.FailRule(fmt.Errorf("DSL write hook requires an attached runtime"), ctx.CurrentHookID)
 		}
 		prevCtxP := activeRT.CurrentContextPlayer
 		prevOwnerP := activeRT.CurrentOwnerPlayer
@@ -96,7 +101,13 @@ func (rt *Runtime) makeWriteHookFn(cl *Closure, passRef Value, counterID int) en
 		ctxProxy := &CtxProxy{Ctx: ctx}
 		args := []Value{ctxProxy}
 		if passRef != nil {
-			args = append(args, passRef)
+			ref := passRef
+			if cp, ok := passRef.(*CounterProxy); ok && ctx.WriteBuffID != 0 {
+				copy := *cp
+				copy.InstanceID = ctx.WriteBuffID
+				ref = &copy
+			}
+			args = append(args, ref)
 		}
 		activeRT.callClosure(cl, args)
 		if activeRT.lastError != nil && activeRT.traceEnabled {
@@ -118,6 +129,13 @@ func MakeWriteHookFnForTest(rt *Runtime, cl *Closure, passRef Value, counterID i
 }
 
 func (rt *Runtime) callClosure(cl *Closure, args []Value) {
+	previous := rt.currentHookContext
+	defer func() { rt.currentHookContext = previous }()
+	if len(args) > 0 {
+		if ctx, ok := args[0].(*CtxProxy); ok {
+			rt.currentHookContext = ctx.Ctx
+		}
+	}
 	callEnv := NewEnv(cl.Env)
 	for i, param := range cl.Params {
 		if i < len(args) {
@@ -132,6 +150,15 @@ func (rt *Runtime) callClosure(cl *Closure, args []Value) {
 		return
 	}
 	rt.lastError = err
+	if err != nil {
+		hookID := -1
+		if len(args) > 0 {
+			if ctx, ok := args[0].(*CtxProxy); ok {
+				hookID = ctx.Ctx.CurrentHookID
+			}
+		}
+		rt.Game.FailRule(err, hookID)
+	}
 }
 
 func (rt *Runtime) registerHookFunctions() {
@@ -147,6 +174,7 @@ func (rt *Runtime) registerHookFunctions() {
 		"on_shield_absorb":      engine.HookShieldAbsorb,
 		"on_damage_immunity":    engine.HookDamageImmunity,
 		"on_after_damage":       engine.HookAfterDamage,
+		"on_after_reaction":     engine.HookAfterReaction,
 
 		"on_before_heal":           engine.HookBeforeHeal,
 		"on_after_heal":            engine.HookAfterHeal,
@@ -176,25 +204,60 @@ func (rt *Runtime) registerHookFunctions() {
 		g.SetLocal(name, GoFunc(func(rt *Runtime, args []Value) (Value, error) {
 			// Two forms: on_xxx(fn) or on_xxx(priority, fn)
 			var priority int
+			var order Value
+			var targetOrder bool
 			var fn *Closure
 			if len(args) == 1 {
 				fn, _ = args[0].(*Closure)
 			} else {
-				priority, _ = ToInt(args[0])
+				if opts, ok := args[0].(*Table); ok {
+					priority, _ = ToInt(opts.Fields["priority"])
+					order = opts.Fields["order"]
+					if v, ok := opts.Fields["order_on"]; ok {
+						if v != "target" {
+							return nil, fmt.Errorf("invalid order_on")
+						}
+						targetOrder = true
+					}
+				} else {
+					priority, _ = ToInt(args[0])
+				}
 				fn, _ = args[1].(*Closure)
 			}
 			if fn == nil {
 				return nil, fmt.Errorf("%s: expected function argument", name)
 			}
 			hookFn := rt.makeHookFn(fn, nil)
-			id := rt.registerHook(engine.Hook{
-				Type:        ht,
-				Fn:          hookFn,
-				OwnerPlayer: rt.CurrentOwnerPlayer,
-				OwnerChar:   rt.CurrentOwnerChar,
-				Priority:    priority,
-				BodyAny:     fn.Body, // *Chunk; engine treats as opaque
-			})
+			h := engine.Hook{
+				Type:            ht,
+				Fn:              hookFn,
+				OwnerPlayer:     rt.CurrentOwnerPlayer,
+				OwnerChar:       rt.CurrentOwnerChar,
+				Priority:        priority,
+				CounterAccess:   hookCounterAccess(fn),
+				SkillReferences: rt.hookSkillReferences(fn),
+				BodyAny:         fn.Body, // *Chunk; engine treats as opaque
+			}
+			if order != nil {
+				var err error
+				h.OrderCounter, h.OrderIDs, err = rt.hookOrder(order, ht)
+				if err != nil {
+					return nil, err
+				}
+			}
+			if targetOrder {
+				if h.OrderCounter == nil {
+					return nil, fmt.Errorf("order_on requires order")
+				}
+				h.OrderTarget = true
+				resolve := h.OrderCounter
+				h.OrderCounter = func(ctx *engine.EventContext) int {
+					copy := *ctx
+					copy.ActorPlayer, copy.ActorChar = ctx.TargetPlayer, ctx.TargetChar
+					return resolve(&copy)
+				}
+			}
+			id := rt.registerHook(h)
 			return id, nil
 		}))
 	}
@@ -231,10 +294,3 @@ func (r *charBySlotRow) GetIndex(key Value) (Value, error) {
 	}
 	return &CharProxy{Entry: slot}, nil
 }
-
-// --- Skill/Card hook registration (Go-native hooks) ---
-
-// registerSkillHooks wires the engine-side action_check (energy gate),
-// action_prepare (battle_action flag), and skill_use (energy gain/spend)
-// hooks for a declared skill. Dice cost is handled by engine's
-// GetLegalActions directly from SkillCost, not by these hooks.

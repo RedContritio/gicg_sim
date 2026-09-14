@@ -1,332 +1,183 @@
 package engine
 
-// game_snap.go — sync.Pool-backed lightweight snapshot for hot-path
-// speculative rollout (GreedyPlayer minimax + MCTS rollout + capi
-// GameSnapshot/Restore).
-//
-// I29 R3 (2026-05-25):pure-Go Mac M4 bench 显示 `g.DeepCopy()` 单次 14
-// allocs / 26 KB(slice 重 alloc 主因:Counters / Hand / Deck /
-// Discard / Supports × 2 players + RecentDamageEvents)。 多 actor
-// 并发下(Go subprocess N=4 共享 single heap),DeepCopy 累计 GC
-// pressure 是 Mac N=4 production fps 落后 Python mp(每子进程独立
-// heap)的主因之一。
-//
-// 设计:
-//   - GameSnap 是独立 struct,只持游戏 dynamic state(immutable
-//     Hooks / Perms / Names / Obs / Extra 不入 snap)。
-//   - sync.Pool 重用 GameSnap struct + 内嵌 slice backing array;
-//     Snapshot() 从 pool 取 → in-place copy(slice 容量足时 0 alloc)。
-//   - Hot-path caller:`snap := g.SnapshotPooled(); defer engine.ReleaseSnap(snap)
-//     ... g.RestoreFromSnap(snap)`。
-//   - 命名:Snapshot() 已被 round.go 用于 *StateSnapshot(EventLog 状态),
-//     故新 API 用 SnapshotPooled 避免冲突。
-//   - 保留旧 DeepCopy()/RestoreFrom(*Game) — 测试 / interp.Runtime.Clone
-//     等非 hot-path 路径还需 full *Game 语义(SetPlayerHand 等 mutator
-//     仅 *Game 提供)。
-//
-// 注意:GameSnap 跨 goroutine 复用 必须 经 Release。 caller 不持引用
-// 后再 Release 是 use-after-free,行为未定义。
-
 import (
-	"math/rand"
+	"maps"
 	"sync"
 )
 
-// GameSnap captures all dynamic state needed to restore a Game to a
-// quiescent point (between Step calls; event stack drained).
-// Layout mirrors the fields written by DeepCopy() but excludes
-// pointers to immutable / shared metadata (Hooks, Obs, name maps,
-// CounterPerm/HookPerm, Extra) — those are held by the live *Game
-// and don't need snapshotting.
+// GameSnap captures gameplay at quiescent decision boundaries. Definitions are
+// immutable; hook-registry identity guards restores. Logs and Extra stay attached.
 type GameSnap struct {
-	// --- Dynamic scalars ---
-	Phase    Phase
-	Round    int
-	Turn     int
-	FirstEnd int
-	Winner   int
-	BaseSeed int64
-	depth    int
-
-	DicePaid     [2][DiceColorCount]int
-	DiceTunedOut [2][DiceColorCount]int
-	DiceTunedIn  [2][DiceColorCount]int
-	RewardAccum  [2]RewardEvents
-	Preparing    [2]int
-
-	// --- Variable-length slices (pool-reused backing arrays) ---
-	Counters           []Counter
-	RecentDamageEvents []RecentDamageEvent
-
-	// Per-player snapshot (Hand/Deck/Discard/Supports use pool-reused
-	// backing arrays; Chars only carries .Alive flag since CharInfo's
-	// other fields are immutable post-bind).
-	Players [2]playerSnap
-
-	// --- Pending state (cleared if nil on snapshot, value-copied if set) ---
-	PendingAction        *Action
-	HasPendingAction     bool
-	PendingCardTarget    PendingCard
-	HasPendingCardTarget bool
-
-	// --- RNG seeds (captured via Int63 fork, restored by re-seeding) ---
-	RngSeed     int64
-	HasRng      bool
-	DeckSeeds   [2]int64
-	DeckRngSeed [2]int64
-	HasDeckRng  [2]bool
-
-	// reactionKind: PendingReactionKind value (transient, usually 0 at
-	// quiescent points; included for completeness).
-	PendingReactionKind int
+	Phase                               Phase
+	Round, Turn, FirstEnd, Winner       int
+	BaseSeed                            int64
+	DicePaid, DiceTunedOut, DiceTunedIn [2][DiceColorCount]int
+	RewardAccum                         [2]RewardEvents
+	Preparing                           [2]int
+	PendingReactionKind                 int
+	BuffSerial                          uint64
+	Buffs                               []BuffInstance
+	Counters                            []Counter
+	RecentDamageEvents                  []RecentDamageEvent
+	Players                             [2]PlayerState
+	PendingAction                       *Action
+	PendingCardTarget                   *PendingCard
+	PendingDice                         *DiceSelection
+	Rng                                 *Random
+	DeckRngs                            [2]*Random
+	DeckSeeds                           [2]int64
+	hooks                               *HookRegistry
+	resume                              *continuation
 }
 
-// playerSnap captures dynamic PlayerState fields. CharInfo is reduced
-// to per-char Alive flag (Skills / Element / PlayerIdx / CharIdx are
-// static identity, restored by reference to the live Game's Chars).
-type playerSnap struct {
-	ActiveChar  int
-	DeclaredEnd bool
-	AliveFlags  []bool // len == len(g.Players[pi].Chars)
-	Hand        []CardInst
-	Deck        []CardInst
-	Discard     []CardInst
-	Supports    []SupportInst
+var snapPool = sync.Pool{New: func() any { return &GameSnap{} }}
+
+func copyAction(a *Action) *Action {
+	if a == nil {
+		return nil
+	}
+	copy := *a
+	copy.AppliedMods = maps.Clone(a.AppliedMods)
+	return &copy
 }
 
-// snapPool reuses *GameSnap allocations. Slices inside the snap are
-// reused across cycles when capacities are sufficient (caller-side
-// `append(s[:0], src...)` pattern in Snapshot).
-var snapPool = sync.Pool{
-	New: func() any {
-		return &GameSnap{}
-	},
+func copyPendingCard(p *PendingCard) *PendingCard {
+	if p == nil {
+		return nil
+	}
+	copy := *p
+	copy.AppliedMods = maps.Clone(p.AppliedMods)
+	return &copy
 }
 
-// SnapshotPooled captures the receiver's dynamic state into a pool-backed
-// GameSnap. Caller must release via ReleaseSnap when done (typically
-// `defer engine.ReleaseSnap(snap)` after take, before RestoreFromSnap).
-//
-// Quiescent contract: caller must only invoke at Step boundaries
-// (eventStack drained, damageLogStack empty). Same contract as
-// existing DeepCopy. See docs/az/decisions.md D2.
-//
-// 命名:Snapshot() 已被 round.go 占用(返 *StateSnapshot 给 EventLog),
-// 故 pool-backed 新 API 取名 SnapshotPooled。
+func copyPlayer(dst *PlayerState, src *PlayerState) {
+	dst.ActiveChar = src.ActiveChar
+	dst.DeclaredEnd = src.DeclaredEnd
+	dst.Chars = append(dst.Chars[:0], src.Chars...)
+	// Skills are immutable after binding; remaining CharInfo fields are values.
+	dst.Hand = append(dst.Hand[:0], src.Hand...)
+	dst.Deck = append(dst.Deck[:0], src.Deck...)
+	dst.Discard = append(dst.Discard[:0], src.Discard...)
+	dst.Supports = append(dst.Supports[:0], src.Supports...)
+	dst.InitDeck = append(dst.InitDeck[:0], src.InitDeck...)
+}
+
+func copyDamageEvents(src []RecentDamageEvent) []RecentDamageEvent {
+	if src == nil {
+		return nil
+	}
+	dst := make([]RecentDamageEvent, len(src))
+	for i, e := range src {
+		dst[i] = e
+		dst[i].Modifiers = append([]Modifier(nil), e.Modifiers...)
+	}
+	return dst
+}
+
+func (g *Game) requireQuiescent() {
+	g.RequireHealthy()
+	if !g.IsQuiescent() {
+		panic("snapshot/restore requires a quiescent decision boundary")
+	}
+}
+
+func (g *Game) IsQuiescent() bool {
+	return g.Failure == nil && g.executing == nil && len(g.eventStack) == 0 && len(g.damageLogStack) == 0 && g.depth == 0
+}
+
+// CanRestoreFrom lets foreign-function callers reject invalid handles/shapes
+// without propagating a Go panic across the C boundary.
+func (g *Game) CanRestoreFrom(s *Game) bool {
+	if s == nil || !g.IsQuiescent() || !s.IsQuiescent() || g.Hooks != s.Hooks || len(g.Counters) != len(s.Counters) {
+		return false
+	}
+	for pi := range g.Players {
+		if len(g.Players[pi].Chars) != len(s.Players[pi].Chars) {
+			return false
+		}
+	}
+	return true
+}
+
+// SnapshotPooled never advances RNGs. Release once after the final restore.
 func (g *Game) SnapshotPooled() *GameSnap {
-	snap := snapPool.Get().(*GameSnap)
-
-	// Scalars (value copy)
-	snap.Phase = g.Phase
-	snap.Round = g.Round
-	snap.Turn = g.Turn
-	snap.FirstEnd = g.FirstEnd
-	snap.Winner = g.Winner
-	snap.BaseSeed = g.BaseSeed
-	snap.depth = 0 // never carry recursion depth
-	snap.DicePaid = g.DicePaid
-	snap.DiceTunedOut = g.DiceTunedOut
-	snap.DiceTunedIn = g.DiceTunedIn
-	snap.RewardAccum = g.RewardAccum
-	snap.Preparing = g.Preparing
-	snap.PendingReactionKind = g.PendingReactionKind
-
-	// Counters: reuse backing array
-	snap.Counters = append(snap.Counters[:0], g.Counters...)
-
-	// RecentDamageEvents: ring buffer with embedded Modifiers slice.
-	// Truncate to zero first to drop stale Modifier sub-slices' alias,
-	// then re-append. Each event's Modifiers slice is reused if cap
-	// suffices.
-	if cap(snap.RecentDamageEvents) < len(g.RecentDamageEvents) {
-		snap.RecentDamageEvents = make([]RecentDamageEvent, len(g.RecentDamageEvents))
-	} else {
-		snap.RecentDamageEvents = snap.RecentDamageEvents[:len(g.RecentDamageEvents)]
+	g.requireQuiescent()
+	s := snapPool.Get().(*GameSnap)
+	s.hooks = g.Hooks
+	s.resume = g.resume
+	s.Phase, s.Round, s.Turn = g.Phase, g.Round, g.Turn
+	s.FirstEnd, s.Winner, s.BaseSeed = g.FirstEnd, g.Winner, g.BaseSeed
+	s.DicePaid, s.DiceTunedOut, s.DiceTunedIn = g.DicePaid, g.DiceTunedOut, g.DiceTunedIn
+	s.RewardAccum, s.Preparing = g.RewardAccum, g.Preparing
+	s.PendingReactionKind = g.PendingReactionKind
+	s.Counters = append(s.Counters[:0], g.Counters...)
+	s.BuffSerial = g.BuffSerial
+	s.Buffs = append(s.Buffs[:0], g.Buffs...)
+	s.RecentDamageEvents = copyDamageEvents(g.RecentDamageEvents)
+	for pi := range g.Players {
+		copyPlayer(&s.Players[pi], &g.Players[pi])
 	}
-	for i, e := range g.RecentDamageEvents {
-		// Copy scalars
-		dst := &snap.RecentDamageEvents[i]
-		mods := dst.Modifiers
-		*dst = e
-		// Re-attach pooled Modifiers backing array
-		if len(e.Modifiers) > 0 {
-			dst.Modifiers = append(mods[:0], e.Modifiers...)
-		} else {
-			dst.Modifiers = mods[:0]
-		}
+	s.PendingAction = copyAction(g.PendingAction)
+	s.PendingCardTarget = copyPendingCard(g.PendingCardTarget)
+	s.PendingDice = copyDiceSelection(g.PendingDice)
+	s.Rng = copyRandom(s.Rng, g.Rng)
+	s.DeckSeeds = g.DeckSeeds
+	for pi := range g.DeckRngs {
+		s.DeckRngs[pi] = copyRandom(s.DeckRngs[pi], g.DeckRngs[pi])
 	}
-
-	// Per-player snapshots
-	for pi := 0; pi < 2; pi++ {
-		src := &g.Players[pi]
-		dst := &snap.Players[pi]
-		dst.ActiveChar = src.ActiveChar
-		dst.DeclaredEnd = src.DeclaredEnd
-
-		// AliveFlags — derived from CharInfo.Alive
-		if cap(dst.AliveFlags) < len(src.Chars) {
-			dst.AliveFlags = make([]bool, len(src.Chars))
-		} else {
-			dst.AliveFlags = dst.AliveFlags[:len(src.Chars)]
-		}
-		for ci, ch := range src.Chars {
-			dst.AliveFlags[ci] = ch.Alive
-		}
-
-		dst.Hand = append(dst.Hand[:0], src.Hand...)
-		dst.Deck = append(dst.Deck[:0], src.Deck...)
-		dst.Discard = append(dst.Discard[:0], src.Discard...)
-		dst.Supports = append(dst.Supports[:0], src.Supports...)
-	}
-
-	// Pending state — value copy via has-flag pattern (avoid *Action /
-	// *PendingCard alloc for the common nil case).
-	if g.PendingAction != nil {
-		snap.PendingAction = g.PendingAction
-		snap.HasPendingAction = true
-	} else {
-		snap.PendingAction = nil
-		snap.HasPendingAction = false
-	}
-	if g.PendingCardTarget != nil {
-		snap.PendingCardTarget = *g.PendingCardTarget
-		snap.HasPendingCardTarget = true
-	} else {
-		snap.HasPendingCardTarget = false
-	}
-
-	// RNG fork via Int63 — preserves DeepCopy semantics (re-seeded
-	// restore yields the same downstream sequence).
-	if g.Rng != nil {
-		snap.RngSeed = g.Rng.Int63()
-		snap.HasRng = true
-	} else {
-		snap.HasRng = false
-	}
-	snap.DeckSeeds = g.DeckSeeds
-	for pi := 0; pi < 2; pi++ {
-		if g.DeckRngs[pi] != nil {
-			snap.DeckRngSeed[pi] = g.DeckRngs[pi].Int63()
-			snap.HasDeckRng[pi] = true
-		} else {
-			snap.HasDeckRng[pi] = false
-		}
-	}
-
-	return snap
+	return s
 }
 
-// RestoreFromSnap copies dynamic state from snap into the receiver.
-// Mirror of RestoreFrom(*Game) but uses pool-backed GameSnap.
-//
-// Quiescent contract: same as Snapshot — caller must only invoke at
-// Step boundaries. Counter slices must have matching lengths (snap
-// from a different ruleset is unsupported; mismatch → silent return,
-// matching legacy RestoreFrom behavior).
-func (g *Game) RestoreFromSnap(snap *GameSnap) {
-	if len(g.Counters) != len(snap.Counters) {
-		return
+// RestoreFromSnap never consumes or aliases mutable snapshot data. Invalid
+// restores fail before mutation. Log and Extra are external attachments.
+func (g *Game) RestoreFromSnap(s *GameSnap) {
+	g.requireQuiescent()
+	if s == nil || s.hooks != g.Hooks || len(s.Counters) != len(g.Counters) {
+		panic("restore: incompatible ruleset or counter shape")
 	}
-	copy(g.Counters, snap.Counters)
-
-	for pi := 0; pi < 2; pi++ {
-		src := &snap.Players[pi]
-		dst := &g.Players[pi]
-		for ci := range dst.Chars {
-			if ci < len(src.AliveFlags) {
-				dst.Chars[ci].Alive = src.AliveFlags[ci]
-			}
-		}
-		dst.ActiveChar = src.ActiveChar
-		dst.DeclaredEnd = src.DeclaredEnd
-		dst.Hand = append(dst.Hand[:0], src.Hand...)
-		dst.Deck = append(dst.Deck[:0], src.Deck...)
-		dst.Discard = append(dst.Discard[:0], src.Discard...)
-		dst.Supports = append(dst.Supports[:0], src.Supports...)
-	}
-
-	g.Phase = snap.Phase
-	g.Round = snap.Round
-	g.Turn = snap.Turn
-	g.FirstEnd = snap.FirstEnd
-	g.Winner = snap.Winner
-	g.BaseSeed = snap.BaseSeed
-	g.DicePaid = snap.DicePaid
-	g.DiceTunedOut = snap.DiceTunedOut
-	g.DiceTunedIn = snap.DiceTunedIn
-	g.RewardAccum = snap.RewardAccum
-	g.Preparing = snap.Preparing
-	g.PendingReactionKind = snap.PendingReactionKind
-
-	if snap.HasPendingAction {
-		g.PendingAction = snap.PendingAction
-	} else {
-		g.PendingAction = nil
-	}
-	if snap.HasPendingCardTarget {
-		target := snap.PendingCardTarget // value copy out of snap
-		g.PendingCardTarget = &target
-	} else {
-		g.PendingCardTarget = nil
-	}
-
-	g.eventStack = nil
-	g.depth = 0
-
-	// RecentDamageEvents — restore ring. Existing g.RecentDamageEvents
-	// can't be safely reused (caller may hold references via obs encode
-	// path that's still alive); allocate fresh per restore (matches
-	// existing RestoreFrom behavior).
-	if len(snap.RecentDamageEvents) > 0 {
-		g.RecentDamageEvents = make([]RecentDamageEvent, len(snap.RecentDamageEvents))
-		for i, e := range snap.RecentDamageEvents {
-			g.RecentDamageEvents[i] = e
-			if len(e.Modifiers) > 0 {
-				g.RecentDamageEvents[i].Modifiers = append([]Modifier(nil), e.Modifiers...)
-			}
-		}
-	} else {
-		g.RecentDamageEvents = nil
-	}
-	g.damageLogStack = nil
-
-	if snap.HasRng {
-		if g.Rng != nil {
-			// Reuse existing *Rand by re-seeding — avoids the
-			// rand.New + NewSource alloc pair per Restore (5+ ns
-			// saved + 2 fewer allocs/op on hot path).
-			g.Rng.Seed(snap.RngSeed)
-		} else {
-			g.Rng = rand.New(rand.NewSource(snap.RngSeed))
+	for pi := range g.Players {
+		if len(g.Players[pi].Chars) != len(s.Players[pi].Chars) {
+			panic("restore: incompatible character shape")
 		}
 	}
-	g.DeckSeeds = snap.DeckSeeds
-	for pi := 0; pi < 2; pi++ {
-		if snap.HasDeckRng[pi] {
-			if g.DeckRngs[pi] != nil {
-				g.DeckRngs[pi].Seed(snap.DeckRngSeed[pi])
-			} else {
-				g.DeckRngs[pi] = rand.New(rand.NewSource(snap.DeckRngSeed[pi]))
-			}
-		}
+	g.restoreGameplay(s)
+}
+
+// Internal restoration at a reconstructed input boundary keeps live execution
+// scratch intact. Public callers must use RestoreFromSnap and its validation.
+func (g *Game) restoreGameplay(s *GameSnap) {
+	g.resume = s.resume
+	copy(g.Counters, s.Counters)
+	g.BuffSerial = s.BuffSerial
+	g.Buffs = append(g.Buffs[:0], s.Buffs...)
+	for pi := range g.Players {
+		copyPlayer(&g.Players[pi], &s.Players[pi])
+	}
+	g.Phase, g.Round, g.Turn = s.Phase, s.Round, s.Turn
+	g.FirstEnd, g.Winner, g.BaseSeed = s.FirstEnd, s.Winner, s.BaseSeed
+	g.DicePaid, g.DiceTunedOut, g.DiceTunedIn = s.DicePaid, s.DiceTunedOut, s.DiceTunedIn
+	g.RewardAccum, g.Preparing = s.RewardAccum, s.Preparing
+	g.PendingReactionKind = s.PendingReactionKind
+	g.PendingAction = copyAction(s.PendingAction)
+	g.PendingCardTarget = copyPendingCard(s.PendingCardTarget)
+	g.PendingDice = copyDiceSelection(s.PendingDice)
+	g.RecentDamageEvents = copyDamageEvents(s.RecentDamageEvents)
+	g.Rng = copyRandom(g.Rng, s.Rng)
+	g.DeckSeeds = s.DeckSeeds
+	for pi := range g.DeckRngs {
+		g.DeckRngs[pi] = copyRandom(g.DeckRngs[pi], s.DeckRngs[pi])
 	}
 }
 
-// ReleaseSnap returns snap to the pool for reuse. Caller must not
-// access snap after release. Idempotent: nil snap is a no-op.
-//
-// Slice fields are NOT zeroed — their backing arrays are reused on
-// next Snapshot via `append(s[:0], src...)`. CardInst / SupportInst
-// are POD (no pointer fields) so leftover entries can't pin GC-tracked
-// memory.
-func ReleaseSnap(snap *GameSnap) {
-	if snap == nil {
+// ReleaseSnap(nil) is a no-op. Non-nil snapshots must be released once only.
+func ReleaseSnap(s *GameSnap) {
+	if s == nil {
 		return
 	}
-	// Clear pointer fields to avoid pinning unrelated *Action objects
-	// in the pool's idle state.
-	snap.PendingAction = nil
-	snap.HasPendingAction = false
-	snap.HasPendingCardTarget = false
-	snapPool.Put(snap)
+	s.PendingAction, s.PendingCardTarget = nil, nil
+	s.PendingDice = nil
+	s.RecentDamageEvents = nil
+	s.hooks = nil
+	s.resume = nil
+	snapPool.Put(s)
 }

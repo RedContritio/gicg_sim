@@ -9,7 +9,7 @@ on_card_play(function(ctx)
 end)
 
 -- 比超导(默认优先级0)更高，拦截超导条件
-on_reaction_damage(1, function(ctx)
+on_reaction_damage({ priority = 1, order = active }, function(ctx)
   if active:get() <= 0 then return end
 
   local tp, tc = ctx.target_player, ctx.target_char
@@ -31,3 +31,5 @@ on_reaction_damage(1, function(ctx)
     deal_damage(Target.EnemyAll, Element.Ice, 1, { source = Source.Reaction })
   end)
 end)
+
+register_buff(active)

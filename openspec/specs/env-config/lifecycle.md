@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-06-12
 status: LIVE
 schema_version: 0
 capability: env-config
@@ -56,6 +56,7 @@ GicgEnv(
     obs_mask=None,           # list[str] | None
     deck_padding=None,       # dict | None — ADR-0011
     pool=None,               # str | list[str] | None — ADR-0011
+    decks=None,              # [deck_p0, deck_p1] | None — F4 explicit decks
 )
 ```
 
@@ -69,7 +70,7 @@ GicgEnv(
 
 3. `__init__` SHALL persist cfg(`_team_0` / `_team_1` / `_card_pool`
    / `_obs_config` / `_reward_shaping` / `_max_rounds` / `_fix_dice`
-   / `_deck_padding` / `_pool`)给 `reset` / `clone` 复用。
+   / `_deck_padding` / `_pool` / `_decks`)给 `reset` / `clone` 复用。
 
 4. `obs_config` mutable dict SHALL be **defensively copied**(`dict(arg)`)
    on persist — caller mutation 不影响 env。
@@ -95,12 +96,61 @@ GicgEnv(
 - `pool=["v_legacy", "spike"]` list → sibling-pool union(manifest fold)
 - 任一 pool ID SHALL 存在于 `data/pools/` 目录
 
-### 3.2 `deck_padding`(ADR-0011)
+### 3.2 `deck_padding`(ADR-0011,F4 修订)
 
-- `deck_padding=None` → 无 filler(deck length = eligible-card count)
+- `deck_padding=None` → 无 filler(deck length = eligible-card count
+  或 explicit deck 原样长度)
 - `deck_padding={"card": "碌碌无为", "target_size": 15}` → filler 卡
   指定 + 目标 deck size。Filler 卡 SHALL be a valid card ID in current
-  pool union。
+  pool union — padding 实际需要补卡时 filler 缺失 SHALL fail game
+  creation(F4 — 旧静默短 deck 路径已删)。
+- **F4 fail-loud**:无 explicit deck 时 eligible-card count >
+  `target_size` SHALL fail game creation,错误信息 SHALL 列出溢出卡名
+  并指示声明 `[scenario].deck_0/deck_1`。引擎 SHALL NOT 静默截断。
+
+### 3.2a `decks`(F4 explicit decks)
+
+- `decks=None` → 双方走隐式 eligible-set 路径(受 3.2 fail-loud 约束)
+- `decks=[deck_p0, deck_p1]` → per-player 显式逐卡声明;每元素为
+  `None`(该方走隐式路径)或 `list[str]` 卡名 multiset(允许重复)。
+- 空列表显式 deck(`[]` 非 `None`)SHALL 报错 — Python `new_game`
+  raise ValueError,Go `resolveExplicitDeck` error;隐式路径 SHALL
+  只经 `None` 表达,不得以空列表静默落入全 filler deck。
+- 训练 cfg 侧映射:`[scenario].deck_0` / `deck_1` → `decks`(转换走
+  `training.core.scenario.decks_arg`;两者均 None 时 SHALL 折叠为
+  `decks=None`)。
+- Wire 格式:`GameConfig.players[i].deck`(`gicg_engine/factory/
+  config.go::PConfig.Deck`)— Python ctypes 路径与 Go subprocess
+  `game_spec` 路径共享同一格式。
+- 声明卡 SHALL 已在 ruleset 中(card_pool / pool 决定声明集);deck
+  SHALL NOT 扩展声明集(obs 卡 vocab 只由 card_pool 控制)。未声明卡
+  名 / 不满足 weapon / named-char eligibility 的卡 SHALL fail game
+  creation。
+- `deck_padding` 共存语义:explicit deck 长度 > `target_size` SHALL
+  fail;< `target_size` SHALL 以 filler 补齐;== `target_size` 时
+  padding no-op。
+- deck spec 在 NewGame 后 SHALL 视为 immutable static spec:`reset` /
+  `clone` SHALL 复用同一声明重建 deck(reset 期 BuildDeck 失败 = 引擎
+  bug,Go 侧 panic 断言)。
+- `char_pool`(random teams)允许双方完全相同且非空的 explicit deck；
+  单侧或非对称 explicit deck SHALL 拒绝。具体队伍的卡牌 eligibility
+  SHALL 仍由引擎构建校验，不允许静默删牌；课程启用前 SHALL 覆盖全部
+  可采样队伍进行构建验证。强制点共享
+  `training.core.scenario.check_char_pool_deck_exclusive`:
+  `ScenarioConfig.__post_init__` + cfg loader `[scenario]` 解析
+  (ScenarioCfg 路径)+ DMC eval `_apply_overrides` 后重检。
+
+### 随机合法构筑
+
+- `scenario.random_deck_size=0` 保持原行为；正整数启用随机明确构筑，
+  与手写 `deck_0/deck_1` 互斥，要求明确 `card_pool`。
+- 环境工厂 SHALL 用实际队伍的引擎隐式牌组取得合法卡集合，并与
+  候选 `card_pool` 求交以排除角色生成牌。每种最多两份，从物理
+  副本集合无放回抽样；不足目标大小时使用全部副本，不自动填充。
+- 构筑使用独立派生种子 `deck-composition` 和玩家编号；不得使用
+  observation layout seed。构筑后以明确牌组建立实际对局，reset
+  SHALL 保持该构筑，仅重洗牌序。最终全池课程 SHALL 另验证所有
+  队伍均有容量形成用户要求的30张牌组。
 
 ### 3.3 `fix_dice`
 
@@ -132,9 +182,9 @@ GicgEnv(
 
 ### 4.1 SHALL invariants
 
-1. `reset(seed=42)` SHALL re-roll dynamic state(dice / deck shuffle /
-   obs perm)with single seed,**SHALL NOT** reload DSL or rebuild
-   teams。
+1. `reset(seed=42)` SHALL re-roll dynamic state(dice / deck shuffle)
+   with single seed，SHALL preserve observation permutations，**SHALL NOT** reload DSL
+   or rebuild teams。更换排列 SHALL 构造新环境，并刷新静态观测、归一化和隐私遮罩。
 
 2. `reset(seed=42, deck_seeds=(p0_seed, p1_seed))` SHALL split deck
    Fisher-Yates seed per player — 用于 ablation(同 dice seed 但不

@@ -139,8 +139,19 @@ func (rt *Runtime) invokeSkillCommon(args []Value, silent bool) (Value, error) {
 		skillID = v
 	}
 	g := rt.Game
-	cur := g.CurrentEvent()
+	cur := g.MustCurrentEvent("invoke_skill")
 	inheritedSource := cur.Source
+	if len(args) > 1 {
+		if opts, ok := args[1].(*Table); ok {
+			if source, ok := opts.Fields["source"]; ok {
+				value, valid := ToInt(source)
+				if !valid {
+					return nil, fmt.Errorf("invoke_skill source must be an enum")
+				}
+				inheritedSource = engine.Source(value)
+			}
+		}
+	}
 	if inheritedSource == engine.SrcNone {
 		inheritedSource = engine.SrcSkill
 	}
@@ -163,6 +174,7 @@ func (rt *Runtime) invokeSkillCommon(args []Value, silent bool) (Value, error) {
 		IsSpecialty:    silent,
 	}
 	g.FireEventHooks(engine.HookSkillUse, ctx)
+	g.DrainDeferred()
 	g.PopEvent()
 	return nil, nil
 }
@@ -224,7 +236,7 @@ func (rt *Runtime) registerSkillHooks(skillID int, cost engine.Cost, charEntry *
 		Priority:    1000, // high priority, runs before DSL hooks
 		OwnerPlayer: slotPlayer,
 		OwnerChar:   slotChar,
-		Repr:        engine.CanonicalHookRepr{Marker: int16(skillID)},
+		Repr:        engine.CanonicalHookRepr{Marker: int16(skillID), Kind: 1},
 		Fn: func(g *engine.Game, ctx *engine.EventContext) {
 			if ctx.ActorPlayer != slotPlayer || ctx.ActorChar != slotChar {
 				return
@@ -236,13 +248,13 @@ func (rt *Runtime) registerSkillHooks(skillID int, cost engine.Cost, charEntry *
 			if !ctx.Paid {
 				if energyCost > 0 {
 					// Ultimate: consume energy
-					g.WriteCounter(energyID, engine.OpSub, energyCost)
+					g.ConsumeEnergy(energyID, energyCost)
 				}
 			}
 			// Energy gain: normal skills always gain 1 energy (even when
 			// invoked via card)
 			if energyCost == 0 {
-				g.WriteCounter(energyID, engine.OpAdd, 1)
+				g.GainEnergy(energyID, 1)
 			}
 		},
 	})

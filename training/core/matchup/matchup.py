@@ -113,6 +113,7 @@ def _play_cell(
     card_pool: List[str] | None,
     deck_padding: dict | None = None,
     pool: object | None = None,
+    decks: list | None = None,
     swap_sides: bool = True,
 ) -> CellStats:
     """Play games and tally win/loss/draw from players[0]'s perspective."""
@@ -138,6 +139,7 @@ def _play_cell(
             data_dir=data_dir,
             deck_padding=deck_padding,
             pool=pool,
+            decks=decks,
         )
         env.reset(seed=seed)
         try:
@@ -196,6 +198,7 @@ def run_matchup(
     data_dir: str | None = None,
     deck_padding: dict | None = None,
     pool: object | None = None,
+    decks: list | None = None,
     swap_sides: bool = True,
 ) -> MatchupResult:
     """Run one matchup: two players, over one or many team pairs."""
@@ -203,6 +206,10 @@ def run_matchup(
         raise ValueError(f'run_matchup: expected 2 players, got {len(players)}')
     if games_per_cell <= 0:
         raise ValueError(f'games_per_cell must be positive, got {games_per_cell}')
+    if decks is not None and mode != 'fixed':
+        # Sampled teams cannot statically guarantee explicit-deck
+        # eligibility (talent / weapon cards depend on the drawn chars).
+        raise ValueError(f'run_matchup: explicit decks require mode=fixed, got mode={mode!r}')
 
     if mode == 'fixed':
         if team_0 is None or team_1 is None:
@@ -236,6 +243,7 @@ def run_matchup(
             card_pool,
             deck_padding=deck_padding,
             pool=pool,
+            decks=decks,
             swap_sides=swap_sides,
         )
         result.per_cell.append(

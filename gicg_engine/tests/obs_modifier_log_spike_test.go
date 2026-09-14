@@ -32,7 +32,7 @@ func TestObsModifierLogSpike(t *testing.T) {
 	}
 
 	// modifier_log 段位置:dyn obs 末尾(recent_damage → prepare → modifier_log)
-	modLogOffset := engine.DynamicObsSize() - engine.ObsModifierLogSlots
+	modLogOffset := engine.DynamicObsSize() - engine.ObsBuffSlots - engine.ObsModifierLogSlots
 
 	// 初始(无 damage event)— Round-2 review M1 修复后:padding 字段
 	// categorical (kind=0 / element_before=3 / element_after=4) = -1,

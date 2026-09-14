@@ -115,6 +115,7 @@ def _random_batch(*, B=2, d_model=16, n_slots=128, n_hooks=8, max_actions=6, n_l
         'action_payments': payments,
         'structural_values': structural_values,
         'char_skill_refs': char_skill_refs,
+        'definition_links': torch.full((B, 1, 2), -1, dtype=torch.long),
         # ADR-0019 §B.2/§B.3c typed obs segments — Round-6 S-3 sentinel
         'recent_damage': make_recent_damage_padding_torch(B=B),
         'prepare_skill': make_prepare_skill_padding_torch(B=B),
@@ -145,6 +146,7 @@ class TestActorCriticForward:
             batch['recent_damage'],
             batch['prepare_skill'],
             batch['modifier_log'],
+            definition_links=batch['definition_links'],
         )
         logits, value = out['policy'], out['value']
         assert logits.shape == (2, 6)
@@ -174,6 +176,7 @@ class TestActorCriticForward:
                 batch['recent_damage'],
                 batch['prepare_skill'],
                 batch['modifier_log'],
+                definition_links=batch['definition_links'],
             )
             logits = out['policy']
         # Illegal slots (index >= n_legal) should NOT be the very-negative
@@ -227,6 +230,7 @@ class TestActorCriticForward:
                 recent_damage,
                 prepare_skill,
                 modifier_log,
+                definition_links=torch.full((B, 1, 2), -1, dtype=torch.long),
             )
             logits = out['policy']
         assert not torch.allclose(logits[0, 0], logits[0, 1], atol=1e-6)

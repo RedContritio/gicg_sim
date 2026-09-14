@@ -20,7 +20,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
 N_COUNTER_SLOTS = 2 * 6 * 128 + 2 * 140 + 16
 N_HOOKS = 900
-MAX_TOK = 64
+MAX_TOK = 128
 MAX_ACTIONS = 1024
 D_MODEL = 16
 

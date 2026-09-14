@@ -6,33 +6,32 @@ on_card_play(function(ctx)
   active:set(1)
 end)
 
-on_round_start(function(ctx)
+-- 回合开始:生成 2 个当前出战角色元素的骰子(原 +2 AP 效果随 AP 系统
+-- 整体删除后改写;不用万能骰以制衡强度)。Element 与 DiceColor 两枚举
+-- 不对齐(Element.None 占 0 位),必须经 element_to_dice_color 转换。
+on_round_start({ order = active }, function(ctx)
   if active:get() <= 0 then return end
-  local ap = get_counter("ap", Scope.PerPlayer)
-  ap:add(2)
+  local p = context_player()
+  local c = _char_by_slot[p][get_active_char(p)]
+  add_dice(p, element_to_dice_color(c.element), 2)
 end)
 
--- 治疗后反击
-on_after_heal(function(ctx)
+-- 治疗事件请求量包含过量治疗。反击归属于支援所属一方，目标相对该方解析。
+on_after_heal({ order = active, order_on = "target" }, function(ctx)
   if active:get_at(ctx.target_player) <= 0 then return end
   if ctx.value <= 0 then return end
   local p = ctx.target_player
-  local own_active = get_active_char(p)
-  local elem = _char_by_slot[p][own_active].element
-  defer_fn(function()
-    deal_damage(Target.EnemyActive, elem, ctx.value, { source = Source.Support })
-  end)
+  local c = _char_by_slot[p][get_active_char(p)]
+  deal_damage(Target.EnemyActive, c.element, ctx.value, { source = Source.Support, actor = c })
 end)
 
--- ADR-0019 §B.5 改写: priority bracket idiom 失效后,改 on_after_damage
--- 直接读 ctx.absorbed (engine 在 reduce 阶段后 set 的吸收量)。
-on_after_damage(function(ctx)
+-- 减伤反击归属支援持有方。
+on_after_damage({ order = active, order_on = "target" }, function(ctx)
   if active:get_at(ctx.target_player) <= 0 then return end
   if ctx.absorbed <= 0 then return end
   local p = ctx.target_player
-  local own_active = get_active_char(p)
-  local elem = _char_by_slot[p][own_active].element
-  defer_fn(function()
-    deal_damage(Target.EnemyActive, elem, ctx.absorbed, { source = Source.Support })
-  end)
+  local c = _char_by_slot[p][get_active_char(p)]
+  deal_damage(Target.EnemyActive, c.element, ctx.absorbed, { source = Source.Support, actor = c })
 end)
+
+register_buff(active)

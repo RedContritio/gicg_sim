@@ -42,6 +42,8 @@ func (rt *Runtime) builtinDeclareCard(args []Value) (Value, error) {
 					targetMode = 1
 				case "enemy":
 					targetMode = 2
+				case "enemy_summon":
+					targetMode = 3
 				default:
 					targetMode, _ = ToInt(v)
 				}
@@ -143,6 +145,7 @@ func (rt *Runtime) builtinAddCard(args []Value) (Value, error) {
 // --- Action Builtins ---
 
 func (rt *Runtime) registerCardHooks(entry *CardRef) {
+	rt.registerCardEnergy(entry)
 	// action_check: verify weapon/char eligibility
 	rt.registerHook(engine.Hook{
 		Type: engine.HookActionCheck,
@@ -151,8 +154,12 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 				return
 			}
 			// Check weapon requirement
-			if entry.RequiresWeapon > 0 {
-				charEntry := rt.Chars.BySlot[ctx.ActorPlayer][ctx.ActorChar]
+			if entry.RequiresWeapon > 0 && (entry.TargetMode == 0 || ctx.TargetPlayer >= 0) {
+				p, c := ctx.ActorPlayer, ctx.ActorChar
+				if entry.TargetMode != 0 {
+					p, c = ctx.TargetPlayer, ctx.TargetChar
+				}
+				charEntry := rt.Chars.BySlot[p][c]
 				if charEntry == nil || charEntry.Weapon != entry.RequiresWeapon {
 					ctx.Playable = false
 					return
@@ -174,15 +181,7 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 			// state expires (e.g. 夜魂值 to 0 discards 刃轮装束).
 			if entry.Slot == SlotSpecialty {
 				charEntry := rt.Chars.BySlot[ctx.ActorPlayer][ctx.ActorChar]
-				if charEntry != nil && charEntry.SpecialtyCardRef >= 0 {
-					ctx.Playable = false
-					return
-				}
-			}
-			// Support zone cap (GICG canonical 4): reject if Supports full。
-			// 不实现 "替换某槽位" — 满则 5th 卡不可出,与 Specialty 同语义。
-			if entry.Slot == SlotSupport {
-				if len(g.Players[ctx.ActorPlayer].Supports) >= engine.MaxSupportSlots {
+				if charEntry != nil && g.Players[ctx.ActorPlayer].Chars[ctx.ActorChar].SpecialtyCardRef >= 0 {
 					ctx.Playable = false
 					return
 				}
@@ -203,7 +202,7 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 				}
 				charEntry := rt.Chars.BySlot[ctx.ActorPlayer][ctx.ActorChar]
 				if charEntry != nil {
-					charEntry.SpecialtyCardRef = entry.Ref
+					g.Players[ctx.ActorPlayer].Chars[ctx.ActorChar].SpecialtyCardRef = entry.Ref
 				}
 			},
 		})
@@ -220,10 +219,7 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 				if ctx.CardRef != entry.Ref {
 					return
 				}
-				g.Players[ctx.ActorPlayer].Supports = append(
-					g.Players[ctx.ActorPlayer].Supports,
-					engine.SupportInst{Ref: entry.Ref, ActivatedAt: g.Round},
-				)
+				g.EnterSupport(ctx.ActorPlayer, entry.Ref)
 			},
 		})
 	}
@@ -236,6 +232,10 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 				return
 			}
 			ctx.BattleAction = entry.BattleAction
+			if entry.Slot == SlotSupport && len(g.Players[ctx.ActorPlayer].Supports) >= engine.MaxSupportSlots {
+				ctx.NeedTarget, ctx.TargetMode = true, 4
+				return
+			}
 			if entry.TargetMode > 0 {
 				ctx.NeedTarget = true
 				ctx.TargetMode = entry.TargetMode
@@ -248,7 +248,7 @@ func (rt *Runtime) registerCardHooks(entry *CardRef) {
 	hookID := rt.registerHook(engine.Hook{
 		Type:     engine.HookCardPlay,
 		Priority: 1000,
-		Repr:     engine.CanonicalHookRepr{Marker: int16(entry.Ref)},
+		Repr:     engine.CanonicalHookRepr{Marker: int16(entry.Ref), Kind: 2},
 		Fn: func(g *engine.Game, ctx *engine.EventContext) {
 			// intentionally empty: canonical hook exists for policy head
 			// embedding lookup, not for gameplay side effects

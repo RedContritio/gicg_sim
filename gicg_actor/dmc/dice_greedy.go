@@ -107,6 +107,8 @@ func actionIdentity(g *engine.Game, a engine.Action) [5]int {
 	tgtP := -1
 	tgtC := -1
 	switch a.Kind {
+	case engine.ActionReroll:
+		subject, aux = a.Index, a.RerollColor
 	case engine.ActionSkill:
 		subject = a.Index // globally-unique skill ID
 	case engine.ActionCard:
@@ -117,6 +119,12 @@ func actionIdentity(g *engine.Game, a engine.Action) [5]int {
 		if a.HasTarget {
 			tgtP = a.TargetPlayer
 			tgtC = a.TargetChar
+		}
+		if a.HasBuffTarget {
+			aux, tgtP, tgtC = a.TargetBuff, a.TargetPlayer, -1
+		}
+		if a.HasSupportTarget {
+			aux, tgtP, tgtC = engine.ObsBuffRows+a.TargetSupport, a.PlayerIdx, -1
 		}
 	case engine.ActionSwitch:
 		subject = a.Index // target char slot

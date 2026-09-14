@@ -2,8 +2,6 @@ package interp
 
 import (
 	"fmt"
-
-	engine "gicg_mono/gicg_engine"
 )
 
 // Counter-family builtins: declare_counter, get_counter, get_counter_group,
@@ -277,21 +275,6 @@ func (rt *Runtime) builtinGetCounterGroup(args []Value) (Value, error) {
 	tag, _ := ToInt(args[0])
 	entries := rt.Counters.TagGroups[tag]
 	return &CounterGroupProxy{Entries: entries}, nil
-}
-
-func (rt *Runtime) builtinRegisterOnTagWrite(args []Value) (Value, error) {
-	tag, _ := ToInt(args[0])
-	hookType, _ := args[1].(string)
-	opVal, _ := ToInt(args[2])
-	fn, _ := args[3].(*Closure)
-	op := engine.Op(opVal)
-
-	entries := rt.Counters.TagGroups[tag]
-	for _, e := range entries {
-		ref := e.Ref
-		rt.registerWriteHooksForProxy(ref, hookType, op, fn, ref)
-	}
-	return nil, nil
 }
 
 // Write-hook helpers + registerHook live in builtins_counter_hooks.go.

@@ -3,11 +3,15 @@ StaticDedupBufferBase. Subclasses specialize the target key."""
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_dataset, save_dataset
+
 import random
 from pathlib import Path
 from typing import Any, Dict
 
 import numpy as np
+from training.core.step_encoding import pad_buffs_np
+from training.core.obs_constants import OBS_BUFF_FIELDS
 
 from training.core.buffer.static_dedup import (
     GAME_STATIC_KEYS,
@@ -19,6 +23,7 @@ from training.core.buffer.static_dedup import (
 # Per-sample dynamic fields shared across all CFR target types.
 SAMPLE_DYNAMIC_KEYS = (
     'counter_values',
+    'buffs',
     'meta',
     'card_buckets',
     'enemy_sizes',
@@ -62,7 +67,7 @@ class CFRReservoirBase(StaticDedupBufferBase):
         if the sample landed in the buffer."""
         if game_id not in self._game_static:
             raise KeyError(f'add_sample: unknown game_id {game_id}')
-        missing = set(SAMPLE_DYNAMIC_KEYS) - set(dynamic.keys())
+        missing = set(SAMPLE_DYNAMIC_KEYS) - {'buffs'} - set(dynamic.keys())
         if missing:
             raise KeyError(f'add_sample: dynamic missing {sorted(missing)}')
         self._validate_target(target)
@@ -71,6 +76,7 @@ class CFRReservoirBase(StaticDedupBufferBase):
             'game_id': game_id,
             'iteration': int(iteration),
             'counter_values': np.asarray(dynamic['counter_values'], dtype=np.float32),
+            'buffs': np.asarray(dynamic.get('buffs', np.zeros((1, OBS_BUFF_FIELDS))), dtype=np.float32),
             'meta': np.asarray(dynamic['meta'], dtype=np.float32),
             'card_buckets': np.asarray(dynamic['card_buckets'], dtype=np.float32),
             'enemy_sizes': np.asarray(dynamic['enemy_sizes'], dtype=np.float32),
@@ -91,9 +97,11 @@ class CFRReservoirBase(StaticDedupBufferBase):
             j = rng.randrange(0, self._n_added + 1)
             if j < self.capacity:
                 old = self._entries[j]
+                # Acquire first: replacing this game's last sample must not
+                # delete the static data that the replacement still needs.
+                self._incref(game_id)
                 self._decref(old['game_id'])
                 self._entries[j] = entry
-                self._incref(game_id)
                 landed = True
         self._n_added += 1
         return landed
@@ -144,6 +152,7 @@ class CFRReservoirBase(StaticDedupBufferBase):
 
         return {
             'counter_values': counter_values,
+            'buffs': pad_buffs_np([e['buffs'] for e in entries]),
             'meta': meta,
             'card_buckets': card_buckets,
             'enemy_sizes': enemy_sizes,
@@ -178,11 +187,11 @@ class CFRReservoirBase(StaticDedupBufferBase):
                 arrays[f'game_{gid}_{key}'] = getattr(s, key)
             arrays[f'game_{gid}_refcount'] = np.int64(s.refcount)
         path.parent.mkdir(parents=True, exist_ok=True)
-        np.savez(str(path), **arrays)
+        save_dataset(str(path), **arrays)
 
     def load(self, path: str | Path) -> None:
         """Restore buffer state from an npz file."""
-        data = np.load(str(path), allow_pickle=False)
+        data = load_dataset(str(path), allow_pickle=False)
         self.capacity = int(data['capacity'].item())
         self._n_added = int(data['n_added'].item())
         self._next_game_id = int(data['next_game_id'].item())
@@ -199,6 +208,7 @@ class CFRReservoirBase(StaticDedupBufferBase):
                     counter_sids=data[f'game_{gid}_counter_sids'],
                     active_slot_mask=data[f'game_{gid}_active_slot_mask'].astype(bool),
                     char_skill_refs=data[f'game_{gid}_char_skill_refs'],
+                    definition_links=data[f'game_{gid}_definition_links'],
                     refcount=int(data[f'game_{gid}_refcount'].item()),
                 )
 

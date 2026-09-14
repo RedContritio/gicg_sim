@@ -106,17 +106,14 @@ class DMCEpisodePolicy:
 
         Args:
             transitions: list of (obs, action, meta) tuples or dicts.
-            winner: env winner id (0 / 1 / -1 draw / 2 timeout-draw).
+            winner: terminal env winner id (0 / 1 / 2 draw).
             acting_player: our perspective side (0 or 1).
         Returns:
             list of dicts {obs, action, return, meta} ready for buffer.
         """
-        if winner < 0 or winner == 2:
-            G = 0.0
-        elif winner == acting_player:
-            G = 1.0
-        else:
-            G = -1.0
+        from training.core.matchup.outcome import terminal_outcome
+
+        G = float(terminal_outcome(winner, acting_player))
         out: list = []
         for t in transitions:
             if isinstance(t, dict):

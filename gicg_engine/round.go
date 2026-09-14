@@ -1,14 +1,22 @@
 package engine
 
-import "math/rand"
-
 // enterRoundPause 进入回合间暂停状态。在 PhaseRoundStart 中，counter 值即为
 // 即将开始的回合的"初始状态"（hooks 未触发，AP 未重置，卡未摸）。
 // 此处捕获 RoundStartSnap，下次 Step/GetLegalActions 会自动调用 NewRound 推进。
 func (g *Game) enterRoundPause() {
 	g.Phase = PhaseRoundStart
 	if g.Log != nil {
+		// This operation is complete at the round pause. Its private driver
+		// is not gameplay state and must not make the checkpoint appear busy.
+		executing := g.executing
+		g.executing = nil
+		defer func() { g.executing = executing }()
 		snap := g.Snapshot()
+		var err error
+		snap.Checkpoint, err = g.ExportCheckpoint()
+		if err != nil {
+			panic(err)
+		}
 		// Resolve who will go first next round (same logic as NewRound).
 		firstPlayer := g.Turn
 		if g.FirstEnd >= 0 {
@@ -22,6 +30,10 @@ func (g *Game) enterRoundPause() {
 // NewRound 开始新回合：推进回合计数，触发 round_start hooks，进入行动阶段。
 // 调用前 g.Phase 应为 PhaseRoundStart。
 func (g *Game) NewRound() {
+	g.runBoundary(boundaryOperation{kind: boundaryNewRound})
+}
+
+func (g *Game) newRound() {
 	g.Round++
 
 	// Re-seed Rng deterministically from (BaseSeed, Round) before any
@@ -30,7 +42,7 @@ func (g *Game) NewRound() {
 	// rounds — so replaying from a mid-game snapshot produces the same
 	// rolls as the original recording.
 	if g.BaseSeed != 0 || g.Round > 0 {
-		g.Rng = rand.New(rand.NewSource(g.BaseSeed + int64(g.Round)*999331))
+		g.Rng = NewRandom(g.BaseSeed + int64(g.Round)*999331)
 	}
 
 	if g.Log != nil {
@@ -55,6 +67,10 @@ func (g *Game) NewRound() {
 
 // EndPhase 执行结束阶段（严格顺序触发 hook）。
 func (g *Game) EndPhase() {
+	g.runBoundary(boundaryOperation{kind: boundaryEndPhase})
+}
+
+func (g *Game) endPhase() {
 	g.Phase = PhaseRoundEnd
 	if g.Log != nil {
 		g.Log.Append(g, "round_end", -1, -1, nil)
@@ -68,7 +84,7 @@ func (g *Game) EndPhase() {
 
 	ctx := &EventContext{ActionCtx: ActNone}
 
-	// ① 状态结算（先手方 → 后手方）
+	// ① 状态结算（双方 buff 按全局产生顺序）
 	g.FirePerPlayerHooks(HookRoundEnd, ctx, order)
 	if g.Phase == PhaseGameOver {
 		return
@@ -114,6 +130,7 @@ func (g *Game) EndPhase() {
 
 // GetReward 返回游戏结束后的奖励
 func (g *Game) GetReward(player int) float32 {
+	g.RequireHealthy()
 	if g.Winner == 2 {
 		return 0
 	}

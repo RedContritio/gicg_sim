@@ -10,10 +10,11 @@ package engine
 func (g *Game) CreateCounter(value, min, max int) int {
 	id := len(g.Counters)
 	c := Counter{
-		Value: value,
-		Init:  value,
-		Min:   min,
-		Max:   max,
+		BuffIndex: -1,
+		Value:     value,
+		Init:      value,
+		Min:       min,
+		Max:       max,
 	}
 	c.Clamp()
 	c.Init = c.Value
@@ -22,6 +23,9 @@ func (g *Game) CreateCounter(value, min, max int) int {
 }
 
 func (g *Game) ReadCounter(id int) int {
+	if value, ok := g.readIndependentCounter(id); ok {
+		return value
+	}
 	return g.Counters[id].Value
 }
 
@@ -36,13 +40,8 @@ func (g *Game) ReadCounterMax(id int) int {
 // --- 写入管道 ---
 
 func (g *Game) FireBeforeWrite(id int, op Op, ctx *EventContext) bool {
-	for _, h := range g.Hooks.GetBeforeWrite(id, op) {
-		if !h.Enabled {
-			continue
-		}
-		ctx.CurrentHookID = h.ID
-		h.Fn(g, ctx)
-		ctx.CurrentHookID = -1
+	for _, call := range g.scheduleHooks(g.Hooks.GetBeforeWrite(id, op), ctx) {
+		g.invokeBuffHook(call, ctx)
 		if ctx.Cancelled {
 			return false
 		}
@@ -51,7 +50,11 @@ func (g *Game) FireBeforeWrite(id int, op Op, ctx *EventContext) bool {
 }
 
 func (g *Game) ApplyWrite(id int, op Op, value int) {
+	if g.writeIndependentCounter(id, op, value) {
+		return
+	}
 	c := &g.Counters[id]
+	before := c.Value
 	switch op {
 	case OpSet:
 		c.Value = value
@@ -61,33 +64,31 @@ func (g *Game) ApplyWrite(id int, op Op, value int) {
 		c.Value -= value
 	}
 	c.Clamp()
+	g.updateBuffInstance(id, before)
 }
 
 func (g *Game) FireAfterWrite(id int, op Op, ctx *EventContext) {
-	for _, h := range g.Hooks.GetAfterWrite(id, op) {
-		if !h.Enabled {
-			continue
-		}
-		ctx.CurrentHookID = h.ID
-		h.Fn(g, ctx)
-		ctx.CurrentHookID = -1
+	for _, call := range g.scheduleHooks(g.Hooks.GetAfterWrite(id, op), ctx) {
+		g.invokeBuffHook(call, ctx)
 	}
 }
 
 func (g *Game) WriteCounter(id int, op Op, value int) {
-	before := g.Counters[id].Value
+	before := g.ReadCounter(id)
 	g.depth++
 	defer func() { g.depth-- }()
-	if g.depth > MaxDepth {
-		return
-	}
+	g.requireEffectDepth("WriteCounter")
 	ctx := &EventContext{
 		CounterID: id,
 		Op:        op,
 		Value:     value,
 		Before:    before,
 	}
-	if cur := g.currentEvent(); cur.ActionCtx != ActNone {
+	cur := g.currentEvent()
+	if cur.BuffCounterID == id {
+		ctx.WriteBuffID = cur.BuffID
+	}
+	if cur.ActionCtx != ActNone {
 		ctx.ActionCtx = cur.ActionCtx
 		ctx.Source = cur.Source
 		ctx.ActorPlayer = cur.Player
@@ -97,7 +98,7 @@ func (g *Game) WriteCounter(id int, op Op, value int) {
 		return
 	}
 	g.ApplyWrite(id, op, ctx.Value)
-	after := g.Counters[id].Value
+	after := g.ReadCounter(id)
 	ctx.After = after
 	if g.Log != nil && before != after {
 		mapping := g.GetCounterChar(id)
@@ -144,13 +145,13 @@ func (g *Game) Defer(fn func(g *Game)) {
 		return
 	}
 	layer := &g.eventStack[len(g.eventStack)-1]
-	layer.Deferred = append(layer.Deferred, deferredEntry{Fn: fn})
+	layer.Deferred = append(layer.Deferred, deferredEntry{Fn: fn, Frame: layer.Current})
 }
 
 // DeferAction 将需要玩家输入的延后动作追加到队列
 func (g *Game) DeferAction(action *Action) {
 	if len(g.eventStack) == 0 {
-		g.PendingAction = action
+		g.requestDeferredInput(action)
 		return
 	}
 	layer := &g.eventStack[len(g.eventStack)-1]
@@ -165,16 +166,25 @@ func (g *Game) DrainDeferred() {
 	if len(g.eventStack) == 0 {
 		return
 	}
-	layer := &g.eventStack[len(g.eventStack)-1]
-	for len(layer.Deferred) > 0 {
-		entry := layer.Deferred[0]
-		layer.Deferred = layer.Deferred[1:]
+	idx := len(g.eventStack) - 1
+	for len(g.eventStack[idx].Deferred) > 0 {
+		if g.Phase == PhaseGameOver {
+			g.eventStack[idx].Deferred = nil
+			return
+		}
+		// A callback may PushEvent and reallocate eventStack. Never keep a
+		// pointer into the stack across that call.
+		entry := g.eventStack[idx].Deferred[0]
+		g.eventStack[idx].Deferred = g.eventStack[idx].Deferred[1:]
 		if entry.NeedInput {
-			g.PendingAction = entry.Action
-			return // 暂停，等待玩家输入
+			g.requestDeferredInput(entry.Action)
+			if g.PendingAction != nil {
+				return
+			}
+			continue
 		}
 		if entry.Fn != nil {
-			entry.Fn(g)
+			g.runDeferredBuffContext(entry)
 		}
 	}
 }
@@ -182,47 +192,13 @@ func (g *Game) DrainDeferred() {
 // --- 事件触发辅助 ---
 
 func (g *Game) FireEventHooks(hookType HookType, ctx *EventContext) {
-	for _, h := range g.Hooks.GetEventHooks(hookType) {
-		if !h.Enabled {
-			continue
-		}
-		ctx.CurrentHookID = h.ID
-		h.Fn(g, ctx)
-		ctx.CurrentHookID = -1
-		if g.Phase == PhaseGameOver {
+	for _, call := range g.scheduleHooks(g.Hooks.GetEventHooks(hookType), ctx) {
+		if (hookType == HookDamageReduceBuff || hookType == HookShieldAbsorb || hookType == HookDamageImmunity) && ctx.Value <= 0 {
 			return
 		}
-	}
-}
-
-// FirePerPlayerHooks 触发 PerPlayer 事件 hook。
-// system hook (OwnerPlayer == FilterAny) 对每个玩家各 fire 一次（ctx.ActorPlayer 依次设为 0, 1）。
-// character hook (OwnerPlayer >= 0) 只 fire 一次（ctx.ActorPlayer 设为 OwnerPlayer）。
-// playerOrder 控制玩家遍历顺序（如先手/后手）。
-func (g *Game) FirePerPlayerHooks(hookType HookType, ctx *EventContext, playerOrder []int) {
-	for _, h := range g.Hooks.GetEventHooks(hookType) {
-		if !h.Enabled {
-			continue
-		}
-		if h.OwnerPlayer == FilterAny {
-			// system hook: fire once per player
-			for _, pi := range playerOrder {
-				ctx.ActorPlayer = pi
-				ctx.CurrentHookID = h.ID
-				h.Fn(g, ctx)
-				ctx.CurrentHookID = -1
-				if g.Phase == PhaseGameOver {
-					return
-				}
-			}
-		} else {
-			ctx.ActorPlayer = h.OwnerPlayer
-			ctx.CurrentHookID = h.ID
-			h.Fn(g, ctx)
-			ctx.CurrentHookID = -1
-			if g.Phase == PhaseGameOver {
-				return
-			}
+		g.invokeBuffHook(call, ctx)
+		if g.Phase == PhaseGameOver {
+			return
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-09-13
 status: LIVE
 schema_version: 0
 ---
@@ -12,19 +12,19 @@ schema_version: 0
 > 本文件只描述 **稳定的项目立约**(architecture / invariants / paradigm
 > landscape current state),不替代 ADR / runs registry / curriculum plan。
 
+> 当前工作状态与接手顺序（2026-09-14）：[实时状态页](../docs/0_status/README.md) 与 [接手清单](../docs/HANDOFF.md)。
+> [保留动态执行的设计路线](../docs/3_plans/dynamic_execution_to_training.md)仍为设计背景；具体活动任务以实时状态页为准。
+
 ## 1. Purpose
 
-GICG(Genius Invokation Card Game)是一个 **算法可学性研究项目**:用《原神》
-七圣召唤这个 imperfect-information、mirror Nash 卡牌游戏作 testbed,验证
-RL / AZ / CFR / BC / DMC 等 paradigm 在 hidden-info + 大动作空间 + 长 horizon
-游戏类的可学性边界。
+用户于2026-09-13明确当前两个核心目的：
 
-**两条并行主线**:
+1. 制作七圣召唤PvE决策辅助工具，为玩家提供每个决策的评分或经校准的成功率估计，帮助更快完成关卡。
+2. 基于可靠环境、小模型规则表达与新内容适应的可验证实验，争取形成研究论文。
 
-1. **算法可学性验证**:跨 paradigm sweep 至 final verdict。不是训 SOTA agent;
-   verdict 本身是输出。
-2. **正式卡池 + DSL 形态稳定**:引入七圣召唤实际游戏全量卡牌 + 平衡版本管理,
-   验证 algorithm scalability + 锁定 DSL spec。
+产品只支持最新官方正式服，不维护过时玩法。单次实验保留固定来源快照用于可复现；这不构成历史版本产品支持。当前教学池训练属于方法与工程验证，不能替代真实PvE验收。
+
+详细分阶段规划与研究假设见 [PvE决策辅助与研究路线](../docs/3_plans/pve_assistant_and_research.md)。原有RL / AZ / CFR / BC / DMC框架是实现与研究手段；早期“仅算法可学性验证”的定位由以上最新用户目标取代。
 
 ## 2. Tech Stack
 

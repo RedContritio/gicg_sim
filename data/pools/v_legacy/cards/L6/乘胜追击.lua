@@ -7,28 +7,28 @@ on_card_play(function(ctx)
   active:set(1)
 end)
 
--- Count actually executed battle actions. on_before_turn_flip fires
--- once per real action execution (not per candidate enumeration), so
--- this reliably advances the counter one per turn.
--- 语义差异说明:免费行动(例如被伏兵之术免费的切换)也会计入这个 count。
--- 原版 GI TCG 里免费行动不计入,这里接受这个 minor drift —— 精确区分
--- 需要把"是否真有支付骰子"传到 before_turn_flip 这一帧,新 ctx 字段。
-on_before_turn_flip(function(ctx)
+-- 用户规则(2026-09-11):每回合第四次需要消耗骰子的操作减少三个任意骰费用。
+-- 同类别按 buff 产生顺序结算；已免费操作不计数。优先减少指定元素、同色费用，最后减少无色费用。
+-- 零幅 cost_mod 为候选记录资格；查询本身不改变计数。
+local prepare_id = on_action_prepare({ order = active }, function(ctx)
   if active:get_at(ctx.actor_player) <= 0 then return end
-  if not ctx.battle_action then return end
+  if cost_total(ctx) <= 0 then return end
+  if action_count:get_at(ctx.actor_player) == 3 then
+    cost_reduce(ctx, 3)
+  else
+    cost_mod(ctx, CostSlot.Any, 0)
+  end
+end)
+
+-- 每个已执行操作仅结算一次，包括非战斗牌、快速切换，以及被本卡减至免费
+-- 的第四次操作。调和、结束回合和强制切换不支付骰子，不进入该计数。
+on_before_turn_flip({ order = active }, function(ctx)
+  if not was_applied(ctx, prepare_id) then return end
   action_count:add_at(ctx.actor_player, 1)
 end)
 
--- 第 4 次 battle action 免费。优先级 2000 让这个 hook 在所有 discount
--- (包括 priority=1000 的 伏兵之术)之前 fire,所以 乘胜追击 清零之后
--- 其他折扣会被 gate 短路掉,不会浪费 charge。
-on_action_prepare(2000, function(ctx)
-  if active:get_at(ctx.actor_player) <= 0 then return end
-  if action_count:get_at(ctx.actor_player) ~= 3 then return end
-  if cost_total(ctx) == 0 then return end
-  cost_mod(ctx, CostSlot.All, -99)
-end)
-
-on_round_start(function(ctx)
+on_round_start({ order = active }, function(ctx)
   action_count:set(0)
 end)
+
+register_buff(active, { progress = action_count })

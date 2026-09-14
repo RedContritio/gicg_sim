@@ -4,8 +4,20 @@ package engine
 // entry points plus the forced-switch / card-target pending flows.
 
 func (g *Game) Step(actionIdx int) StepResult {
+	g.RequireHealthy()
+	if g.resume != nil && g.executing == nil {
+		return g.resumeTarget(actionIdx)
+	}
+	return g.runBoundary(boundaryOperation{kind: boundaryStep, index: actionIdx})
+}
+
+func (g *Game) step(actionIdx int) StepResult {
+	g.RequireHealthy()
 	if g.Phase == PhaseGameOver {
 		return StepGameOver
+	}
+	if g.PendingCardTarget != nil {
+		return g.resolveCardTarget(actionIdx)
 	}
 
 	// 回合间暂停：自动推进到下一回合
@@ -24,26 +36,7 @@ func (g *Game) Step(actionIdx int) StepResult {
 		return g.executeSelectActive(action)
 	}
 
-	// Log action
-	if g.Log != nil {
-		g.Log.NextStep()
-		pi := action.PlayerIdx
-		ci := g.Players[pi].ActiveChar
-		switch action.Kind {
-		case ActionSkill:
-			g.Log.Append(g, "action_skill", pi, ci, map[string]interface{}{"skill_id": action.Index})
-		case ActionCard:
-			ref := -1
-			if action.Index < len(g.Players[pi].Hand) {
-				ref = g.Players[pi].Hand[action.Index].Ref
-			}
-			g.Log.Append(g, "action_card", pi, ci, map[string]interface{}{"card_ref": ref, "hand_idx": action.Index})
-		case ActionSwitch:
-			g.Log.Append(g, "action_switch", pi, ci, map[string]interface{}{"target_char": action.Index})
-		case ActionEndTurn:
-			g.Log.Append(g, "action_end_turn", pi, ci, nil)
-		}
-	}
+	g.logAction(action)
 
 	switch action.Kind {
 	case ActionSkill:
@@ -51,6 +44,10 @@ func (g *Game) Step(actionIdx int) StepResult {
 	case ActionCard:
 		return g.executeCard(action)
 	case ActionSwitch:
+		if !action.Forced && g.executing != nil {
+			g.executing.public = publicCause{CauseSwitch, action.PlayerIdx, g.Players[action.PlayerIdx].ActiveChar,
+				-1, action.PlayerIdx, action.Index, 0}
+		}
 		actCtx := ActSwitch
 		if action.Forced {
 			g.PendingAction = nil
@@ -66,6 +63,15 @@ func (g *Game) Step(actionIdx int) StepResult {
 }
 
 func (g *Game) StepTarget(targetIdx int) StepResult {
+	g.RequireHealthy()
+	if g.resume != nil && g.executing == nil {
+		return g.resumeTarget(targetIdx)
+	}
+	return g.runBoundary(boundaryOperation{kind: boundaryTarget, index: targetIdx})
+}
+
+func (g *Game) stepTarget(targetIdx int) StepResult {
+	g.RequireHealthy()
 	if g.Phase == PhaseGameOver {
 		return StepGameOver
 	}
@@ -83,7 +89,6 @@ func (g *Game) StepTarget(targetIdx int) StepResult {
 
 func (g *Game) resolveSwitchTarget(targetIdx int) StepResult {
 	pending := g.PendingAction
-	g.PendingAction = nil
 
 	pi := pending.PlayerIdx
 	p := &g.Players[pi]
@@ -98,7 +103,9 @@ func (g *Game) resolveSwitchTarget(targetIdx int) StepResult {
 	if targetIdx < 0 || targetIdx >= len(targets) {
 		return StepContinue
 	}
+	g.PendingAction = nil
 	charIdx := targets[targetIdx]
+	g.logAction(Action{Kind: ActionSwitch, PlayerIdx: pi, Index: charIdx, Forced: pending.Forced})
 
 	actCtx := ActSwitch
 	if pending.Forced {
@@ -120,6 +127,7 @@ func (g *Game) resolveSwitchTarget(targetIdx int) StepResult {
 		ActorChar:   charIdx,
 	}
 	g.FireEventHooks(HookSwitch, ctx)
+	g.DrainDeferred()
 	g.PopEvent()
 
 	if g.Phase == PhaseGameOver {
@@ -129,6 +137,7 @@ func (g *Game) resolveSwitchTarget(targetIdx int) StepResult {
 }
 
 func (g *Game) cardTargetActions(pc *PendingCard) []Action {
+	pc.validate(g)
 	var targetPlayerIdx int
 	if pc.TargetMode == 1 {
 		targetPlayerIdx = pc.PlayerIdx
@@ -147,6 +156,7 @@ func (g *Game) cardTargetActions(pc *PendingCard) []Action {
 			CardRef:      pc.CardRef,
 			TargetPlayer: targetPlayerIdx,
 			TargetChar:   k,
+			AppliedMods:  pc.AppliedMods,
 		}
 		g.FireEventHooks(HookActionCheck, ctx)
 		if ctx.Playable {
@@ -162,27 +172,5 @@ func (g *Game) cardTargetActions(pc *PendingCard) []Action {
 }
 
 func (g *Game) resolveCardTarget(targetIdx int) StepResult {
-	pc := g.PendingCardTarget
-	g.PendingCardTarget = nil
-
-	targets := g.cardTargetActions(pc)
-	if targetIdx < 0 || targetIdx >= len(targets) {
-		return StepContinue
-	}
-	chosen := targets[targetIdx]
-
-	// Attach target info to the most recent action_card log entry
-	if g.Log != nil {
-		for i := len(g.Log.Entries) - 1; i >= 0; i-- {
-			if g.Log.Entries[i].Type == "action_card" {
-				g.Log.Entries[i].Fields["target_player"] = chosen.PlayerIdx
-				g.Log.Entries[i].Fields["target_char"] = chosen.Index
-				break
-			}
-		}
-	}
-
-	return g.resolveCard(pc.PlayerIdx, pc.CardRef, pc.BattleAction, chosen.PlayerIdx, chosen.Index)
+	return g.PendingCardTarget.Resume(g, targetIdx)
 }
-
-// executeSkill 执行技能动作

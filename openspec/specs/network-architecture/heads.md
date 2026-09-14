@@ -106,6 +106,10 @@ C1v7 加入 struct_readout 后,delta head 不再是主要训练信号路径,但�
    - **END_TURN**:`end_turn_emb` — 全局 learned const
 4. `action_emb` SHALL add `dice_combo_proj(payment)` 残差,end with
    `action_emb_norm`(LayerNorm)。
+   对有目标的 CARD，SHALL 同时加入 `card_target_emb[target_slot]`；
+   `action_refs[..., 2]` 为相对执行者的己方槽 0..5、敌方槽 6..11，
+   无目标为 -1。C API 与 Go actor SHALL 使用同一映射。不得将同牌、同付款、
+   不同目标合并为同一个动作表示；SWITCH 的己方槽语义保持不变。
 5. Policy head input SHALL include `legal_mask`;mask SHALL be applied
    in loss(详 [`./loss.md`](./loss.md)),SHALL NOT silently zero
    logits before softmax。
@@ -119,6 +123,7 @@ state_vec = state_proj(global_state)  # (B, d)
 # 2. action_emb per legal action
 action_emb = gather_or_const(kind, hook_emb[hook_idx],
                              char_slot_emb[char_idx], end_turn_emb)
+action_emb += targeted_card_mask * card_target_emb[safe_target_slot]
 action_emb = action_emb + dice_combo_proj(payment)  # (B, N_act, d)
 action_emb = action_emb_norm(action_emb)
 

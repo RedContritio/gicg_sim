@@ -83,7 +83,7 @@ def _prepare_isolated_workspace(tmp_path: Path) -> Path:
 def _gen_bc_npz(fixture_dir: Path) -> Path:
     """Mirror ``test_bc_smoke_full._gen_bc_npz_for_smoke`` — 20 decisions /
     5 games NPZ for BC dispatch. ~1.3 s wall on Mac CPU."""
-    import numpy as np
+    from training.core.artifact_io import save_dataset
 
     from tools.dataset.gen_bc import collect
 
@@ -108,7 +108,7 @@ def _gen_bc_npz(fixture_dir: Path) -> Path:
     data = collect(cfg)
     assert int(data['chosen_action'].shape[0]) > 0, 'gen_bc dispatch fixture produced 0 decisions'
     npz_path = fixture_dir / 'dataset.npz'
-    np.savez_compressed(npz_path, **{k: v for k, v in data.items() if k != 'meta'})
+    save_dataset(npz_path, **{k: v for k, v in data.items() if k != 'meta'})
     return npz_path
 
 

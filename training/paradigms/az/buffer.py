@@ -18,6 +18,8 @@ import random
 from typing import Optional
 
 import numpy as np
+from training.core.step_encoding import pad_buffs_np
+from training.core.obs_constants import OBS_BUFF_FIELDS
 
 from training.core.buffer.static_dedup import (
     GAME_STATIC_KEYS,
@@ -99,6 +101,7 @@ class ReplayBuffer(StaticDedupBufferBase):
             'recent_damage': np.asarray(step['recent_damage'], dtype=np.float32),
             'prepare_skill': np.asarray(step['prepare_skill'], dtype=np.float32),
             'modifier_log': np.asarray(step['modifier_log'], dtype=np.float32),
+            'buffs': np.asarray(step.get('buffs', np.zeros((1, OBS_BUFF_FIELDS))), dtype=np.float32),
             'action_refs': np.asarray(step['action_refs'], dtype=np.int64),
             'action_payments': np.asarray(step['action_payments'], dtype=np.float32),
             'legal_mask': np.asarray(step['legal_mask'], dtype=bool),
@@ -106,6 +109,9 @@ class ReplayBuffer(StaticDedupBufferBase):
             'z_target': float(step['z_target']),
             'is_discovery': bool(step['is_discovery']),
         }
+        # Hold the incoming reference before releasing an evicted sample,
+        # which may be the last sample from the very same game.
+        self._incref(game_id)
         if len(self._entries) < self.capacity:
             self._entries.append(entry)
         else:
@@ -113,7 +119,6 @@ class ReplayBuffer(StaticDedupBufferBase):
             self._decref(old['game_id'])
             self._entries[self._cursor] = entry
             self._cursor = (self._cursor + 1) % self.capacity
-        self._incref(game_id)
 
     # --- Read path -------------------------------------------------- #
 
@@ -182,6 +187,7 @@ class ReplayBuffer(StaticDedupBufferBase):
             'recent_damage': recent_damage,
             'prepare_skill': prepare_skill,
             'modifier_log': modifier_log,
+            'buffs': pad_buffs_np([e['buffs'] for e in entries]),
             'meta': meta,
             'action_refs': action_refs,
             'action_payments': action_payments,

@@ -16,10 +16,13 @@ on_reaction_damage(function(ctx)
   end
 
   if triggered then
+    ctx.value = ctx.value + 1
     ctx.element = Element.None
     set_reaction_kind(R_ELECTRO_CHARGED)
+    if ctx.attachment_only then return end
+    local victim = _char_by_slot[tp][tc]
     defer_fn(function()
-      deal_damage(Target.EnemyAll, Element.Piercing, 1, { source = Source.Reaction })
+      deal_damage(victim, Element.Piercing, 1, { source = Source.Reaction, other_characters = true })
     end)
   end
 end)

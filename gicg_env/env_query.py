@@ -11,6 +11,9 @@ import numpy as np
 
 
 class _QueryMixin:
+    def get_rule_graph(self):
+        return self._engine.get_rule_graph()
+
     def get_legal_actions(self):
         return self._engine.get_legal_actions()
 

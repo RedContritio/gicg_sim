@@ -9,11 +9,14 @@ package tests
 import (
 	"testing"
 
+	"gicg_mono/gicg_engine/interp"
+
 	engine "gicg_mono/gicg_engine"
 )
 
 func TestDeclareShieldSpike(t *testing.T) {
 	env := NewGameWithDeck(t, []string{"墨客"}, []string{"墨客"})
+	sandbox := interp.NewEnv(env.RT.Interp.Global)
 	g := env.G
 
 	// declare_shield 创建 PerPlayer scope 护盾,初始 0
@@ -22,7 +25,7 @@ declare_shield("test_shield", Scope.PerPlayer, 0, { max = 10 })
 local s = get_counter("test_shield", Scope.PerPlayer)
 test_shield_init = s:get_at(0)  -- expect 0 for P0
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src), sandbox); err != nil {
 		t.Fatalf("declare_shield: %v", err)
 	}
 
@@ -44,7 +47,7 @@ test_shield_init = s:get_at(0)  -- expect 0 for P0
 local s = get_counter("test_shield", Scope.PerPlayer)
 s:set_at(1, 3)  -- P1 shield = 3
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src2), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src2), sandbox); err != nil {
 		t.Fatalf("set shield: %v", err)
 	}
 
@@ -69,10 +72,10 @@ s:set_at(1, 3)  -- P1 shield = 3
 local s = get_counter("test_shield", Scope.PerPlayer)
 shield_remaining = s:get_at(1)
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src3), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src3), sandbox); err != nil {
 		t.Fatalf("read shield: %v", err)
 	}
-	v, _ := env.RT.Interp.Global.Get("shield_remaining")
+	v, _ := sandbox.Get("shield_remaining")
 	got, _ := toIntForShield(v)
 	if got != 0 {
 		t.Errorf("shield remaining = %d, want 0", got)
@@ -83,7 +86,7 @@ shield_remaining = s:get_at(1)
 local s = get_counter("test_shield", Scope.PerPlayer)
 s:set_at(1, 5)
 `
-	env.RT.Interp.ExecFile(env.RT, []byte(src4), env.RT.Interp.Global)
+	env.RT.Interp.ExecFile(env.RT, []byte(src4), sandbox)
 
 	hpBefore = g.Counters[p1HpID].Value
 	g.PushEvent(engine.EventFrame{Player: 0, Char: 0, ActionCtx: engine.ActUseSkill})
@@ -101,8 +104,8 @@ s:set_at(1, 5)
 local s = get_counter("test_shield", Scope.PerPlayer)
 shield_after_piercing = s:get_at(1)
 `
-	env.RT.Interp.ExecFile(env.RT, []byte(src5), env.RT.Interp.Global)
-	v2, _ := env.RT.Interp.Global.Get("shield_after_piercing")
+	env.RT.Interp.ExecFile(env.RT, []byte(src5), sandbox)
+	v2, _ := sandbox.Get("shield_after_piercing")
 	got2, _ := toIntForShield(v2)
 	if got2 != 5 {
 		t.Errorf("shield after Piercing = %d, want 5 (未消耗)", got2)

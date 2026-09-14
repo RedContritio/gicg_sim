@@ -37,7 +37,7 @@ export default function App() {
         </header>
         <div className="flex-1 overflow-hidden">
           <Routes>
-            <Route path="/" element={<Navigate to="/replay" replace />} />
+            <Route path="/" element={<Navigate to="/live" replace />} />
             <Route path="/replay" element={<Replay />} />
             <Route path="/live" element={<Live />} />
           </Routes>

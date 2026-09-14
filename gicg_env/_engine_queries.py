@@ -16,6 +16,19 @@ from gicg_env._constants import PHASE_GAME_OVER, REWARD_EVENTS_COUNT
 class _QueriesMixin:
     """Provides read-only state / obs / label / replay accessors."""
 
+    def get_rule_graph(self):
+        """Public counter/rule/card links in this episode's shuffled layout."""
+        import json
+
+        self._check()
+        ptr = self._lib.GameGetRuleGraphJSON(self._handle)
+        if not ptr:
+            raise RuntimeError('rule graph export failed')
+        try:
+            return json.loads(ctypes.string_at(ptr).decode('utf-8'))
+        finally:
+            self._lib.GameFreeString(ptr)
+
     def get_counters(self):
         """Returns shuffled counter values as numpy array."""
         self._check()
@@ -203,18 +216,10 @@ class _QueriesMixin:
     def get_dynamic_obs(self, perspective=None):
         """Returns dynamic observation (counter values + hand cards). Call each step.
 
-        ``perspective`` picks which player's view the counter block is
-        oriented around (own-first then enemy-first). Defaults to
-        ``acting_player`` — the player currently owed a decision —
-        **not** ``turn``. The distinction matters during forced-switch
-        pending: ``turn`` is the originally-acting player, but the
-        decision-maker is the victim of the death trigger. MCTS /
-        training code reads ``env.acting_player`` as the node's turn
-        and writes ``pi_target / z_target`` in that player's view, so
-        the observation must match or the counter ``own/enemy``
-        mapping is mirror-flipped relative to the decision-maker.
-
-        (Audit E-1 in docs/az/env_audit.md.)
+        Counter slots always use the static P0/P1 layout. Other public
+        player-relative fields use ``perspective``, which defaults to
+        ``acting_player`` (the decision-maker, including forced switches).
+        Meta field 18 explicitly identifies this observer.
         """
         self._check()
         if perspective is None:

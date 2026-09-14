@@ -14,6 +14,7 @@ def play_and_record(cfg, scenario, agent, opponent, *, agent_side: int, max_step
     """Play one game with the engine event log enabled; return
     (outcome, replay_yaml, action_log). outcome: +1/-1/0 from agent view."""
     from gicg_env import GicgEnv
+    from training.core.scenario import decks_arg
 
     env = GicgEnv(
         team_0=scenario.team_0,
@@ -25,6 +26,9 @@ def play_and_record(cfg, scenario, agent, opponent, *, agent_side: int, max_step
         obs_mask=cfg.scenario.obs_mask,
         deck_padding=cfg.scenario.deck_padding,
         pool=cfg.scenario.pool,
+        # F4: explicit decks (char_pool × decks is excluded by
+        # ScenarioConfig, so scenario teams == cfg teams here).
+        decks=decks_arg(cfg.scenario.deck_0, cfg.scenario.deck_1),
     )
     deck_seeds = None
     if scenario.deck_seed_p0 is not None and scenario.deck_seed_p1 is not None:
@@ -129,6 +133,9 @@ def dump_replays_for_ckpt(
                 continue
             for tag, yaml_str, act_list in (('caseA', yaml_a, act_a), ('caseB', yaml_b, act_b)):
                 (b_dir / f'sid{s.scenario_id}_{tag}.yaml').write_text(yaml_str)
+                from training.core.artifact_io import provenance
+
+                (b_dir / f'sid{s.scenario_id}_{tag}.provenance.json').write_text(json.dumps(provenance(), indent=2))
                 (b_dir / f'sid{s.scenario_id}_{tag}_actions.json').write_text(json.dumps(act_list, indent=2))
             print(
                 f'  {ckpt_label} vs {baseline_name} sid={s.scenario_id} '

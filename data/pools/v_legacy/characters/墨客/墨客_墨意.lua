@@ -16,7 +16,7 @@ on_skill_use(function(ctx)
   水云:add(2)
 end)
 
-on_damage_reduce_buff(function(ctx)
+on_damage_reduce_buff({ order = 水云 }, function(ctx)
   if ctx.target_player ~= my_player or ctx.target_char ~= my_char then return end
   if 水云:get() <= 0 then return end
   if ctx.value < 3 then return end
@@ -24,3 +24,5 @@ on_damage_reduce_buff(function(ctx)
   水云:sub(1)
   ctx.value = ctx.value - 1
 end)
+
+register_buff(水云, { remove_on_death = true })

@@ -33,7 +33,7 @@ def _tiny_agent_cfg() -> AgentConfig:
     return AgentConfig(
         n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
         n_hooks=900,
-        max_ops_per_hook=64,
+        max_ops_per_hook=128,
         max_actions=256,
         d_model=16,
         n_cross_layers=1,
@@ -196,6 +196,9 @@ def test_batched_forward_padding_does_not_affect_valid_rows():
     action_refs_b[..., 1] = _clip_refs_to_valid_or_unbound(action_refs_b[..., 1], n_active_b)
     obs_b['action_refs'] = action_refs_b
     obs_b['char_skill_refs'] = _clip_refs_to_valid_or_unbound(obs_a['char_skill_refs'], n_active_b)
+    definition_links_b = obs_a['definition_links'].clone()
+    definition_links_b[(definition_links_b >= n_active_b).any(dim=-1)] = -1
+    obs_b['definition_links'] = definition_links_b
     # Re-run single forward for obs_a with the same _clip applied to its
     # refs is NOT needed — obs_a uses full n_active_a and its refs are
     # naturally in range.

@@ -40,21 +40,22 @@ var allowedFunctions = map[string]bool{
 	"declare_skill": true, "get_skill": true, "invoke_skill": true,
 	"invoke_skill_silent": true,
 	"set_preparing":       true, "get_preparing": true, "clear_preparing": true,
-	"add_dice": true,
+	"add_dice": true, "element_to_dice_color": true,
 	// card
 	"declare_card": true, "get_card": true, "add_card": true,
 	// damage/heal
 	"deal_damage": true, "heal": true,
 	// action
 	"defer_fn": true, "get_active_char": true, "set_active_char": true,
-	"get_next_char": true, "context_player": true, "force_switch": true,
-	"draw_card": true, "has_card_in_own_hand": true,
+	"get_next_char": true, "context_player": true, "force_switch_next": true,
+	"is_char_alive": true,
+	"draw_card":     true, "has_card_in_own_hand": true,
 	"roll_dice": true, "clear_dice_pool": true, "get_dice_count": true,
 	// cost modification API
-	"cost_mod": true, "cost_total": true, "was_applied": true,
+	"register_buff": true, "cost_reduce": true, "cost_mod": true, "cost_total": true, "was_applied": true,
 	// hooks
 	"on_damage_boost": true, "on_reaction_damage": true,
-	"on_damage_reduce": true, "on_after_damage": true,
+	"on_damage_reduce": true, "on_after_damage": true, "on_after_reaction": true,
 	"on_action_check": true, "on_action_prepare": true,
 	"on_skill_use": true, "on_card_play": true,
 	"on_switch": true, "on_before_turn_flip": true,
@@ -76,6 +77,11 @@ var allowedFunctions = map[string]bool{
 	"on_before_energy_consume": true, "on_after_energy_consume": true,
 	// misc
 	"cancel": true, "min": true, "max": true, "pcall": true,
+	"force_switch_previous": true, "apply_element": true,
+	"spawn_support_buff": true, "selected_buff": true,
+	"background_energy": true, "transfer_energy_from_background": true,
+	"choose_reroll": true,
+	"buff_progress": true, "set_buff_progress": true, "get_dice_total": true,
 	// system-level (used in system/ DSL files)
 	"set_winner": true, "get_turn": true,
 	"build_deck": true, "deal_initial_hand": true,

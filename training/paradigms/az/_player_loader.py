@@ -11,6 +11,8 @@ that path becomes lazy + paradigm-local。
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint
+
 import torch
 
 from training.core.matchup.loaders import (
@@ -32,7 +34,7 @@ def _load_az_agent_from_ckpt(ckpt_path: str) -> Agent:
     key — the latter was removed by Phase 0 (2026-05-17) but earlier
     pre-redesign archives may still surface in retro-bench runs。
     """
-    blob = torch.load(ckpt_path, weights_only=True, map_location='cpu')
+    blob = load_checkpoint(ckpt_path, weights_only=True, map_location='cpu')
     if not isinstance(blob, dict) or 'cfg' not in blob:
         raise RuntimeError(f"matchup: az ckpt {ckpt_path} missing 'cfg' key")
     state_key = 'net_state_dict' if 'net_state_dict' in blob else 'net'

@@ -1,0 +1,12 @@
+# Isolated source tree for semantic NN goal; historical runs stay in D:/gicg_dev.
+[meta]
+extends = "pre_rl_small.toml"
+host = "remote"
+device = "cuda"
+run_label = "semantic_goal"
+
+[remote]
+ssh = "dev@192.168.31.56"
+root = "D:/gicg_goal"
+os = "windows"
+hostname = "DESKTOP-GHJCC7Q"

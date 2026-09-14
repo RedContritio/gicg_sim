@@ -3,10 +3,13 @@ package interp
 import (
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 // Dependency resolution for DSL file loading. Copied from lua/state.go,
 // pure Go. The file loader (loader.go) consumes topoSortWithMeta output.
+// 依赖扫描 regex 跑在原始 src 上(comment-blind):注释中的
+// get_counter("X") 字面文本同样计入依赖。
 
 type sortedFile struct {
 	path    string
@@ -81,54 +84,64 @@ func topoSortWithMeta(paths []string, preExisting []string) ([]sortedFile, error
 		}
 	}
 
+	// Fail-loud dependency check (F3). Files with unresolvable deps were
+	// previously excluded from the load with zero warning, so broken DSL
+	// vanished from games silently — the 以逸待劳 dead-card incident: its
+	// "ap" counter dep outlived the AP-system removal and the card never
+	// loaded again, unnoticed across sessions. A file whose deps cannot
+	// resolve — directly, or because a provider file is itself broken —
+	// is now a load error naming each file and dep. Declarative
+	// optionality lives upstream of the topo (the requires_char
+	// pre-filter in factory.FilterTalentCardsForSlotUniqueness), never
+	// here: every file handed to the topo MUST load.
 	n := len(files)
-	inDeg := make([]int, n)
-	edges := make([][]int, n)
-	for i := range edges {
-		edges[i] = nil
-	}
-	excluded := make([]bool, n)
+	broken := make([]bool, n)
+	reasons := make([][]string, n)
 	changed := true
 	for changed {
 		changed = false
 		for i, fi := range files {
-			if excluded[i] {
+			if broken[i] {
 				continue
 			}
+			seenSym := map[string]bool{}
 			for _, sym := range fi.depends {
+				if seenSym[sym] {
+					continue
+				}
+				seenSym[sym] = true
 				pIdx, inProvider := provider[sym]
 				if !inProvider {
-					excluded[i] = true
-					changed = true
-					for _, ps := range fi.provides {
-						if provider[ps] == i {
-							delete(provider, ps)
-						}
-					}
-					break
+					reasons[i] = append(reasons[i], "missing "+sym)
+				} else if pIdx >= 0 && broken[pIdx] {
+					reasons[i] = append(reasons[i], sym+" comes from broken file "+files[pIdx].path)
+				} else {
+					continue
 				}
-				if pIdx >= 0 && excluded[pIdx] {
-					excluded[i] = true
-					changed = true
-					for _, ps := range fi.provides {
-						if provider[ps] == i {
-							delete(provider, ps)
-						}
-					}
-					break
-				}
+				broken[i] = true
+				changed = true
 			}
 		}
 	}
-
-	for i, fi := range files {
-		if excluded[i] {
-			continue
+	var failed []string
+	for i := range files {
+		if broken[i] {
+			failed = append(failed, files[i].path+": "+strings.Join(reasons[i], "; "))
 		}
+	}
+	if len(failed) > 0 {
+		return nil, fmt.Errorf(
+			"DSL load: %d file(s) have unresolvable dependencies:\n  %s\ndeclare the missing symbol, fix the reference, or remove the file from the pool",
+			len(failed), strings.Join(failed, "\n  "))
+	}
+
+	inDeg := make([]int, n)
+	edges := make([][]int, n)
+	for i, fi := range files {
 		seen := map[int]bool{}
 		for _, sym := range fi.depends {
-			j, ok := provider[sym]
-			if ok && j >= 0 && j != i && !seen[j] {
+			j := provider[sym]
+			if j >= 0 && j != i && !seen[j] {
 				seen[j] = true
 				edges[j] = append(edges[j], i)
 				inDeg[i]++
@@ -138,7 +151,7 @@ func topoSortWithMeta(paths []string, preExisting []string) ([]sortedFile, error
 
 	queue := make([]int, 0, n)
 	for i := 0; i < n; i++ {
-		if !excluded[i] && inDeg[i] == 0 {
+		if inDeg[i] == 0 {
 			queue = append(queue, i)
 		}
 	}
@@ -155,16 +168,10 @@ func topoSortWithMeta(paths []string, preExisting []string) ([]sortedFile, error
 		}
 	}
 
-	expectedCount := 0
-	for i := 0; i < n; i++ {
-		if !excluded[i] {
-			expectedCount++
-		}
-	}
-	if len(sorted) != expectedCount {
+	if len(sorted) != n {
 		var cycle []string
 		for i := 0; i < n; i++ {
-			if !excluded[i] && inDeg[i] > 0 {
+			if inDeg[i] > 0 {
 				cycle = append(cycle, files[i].path)
 			}
 		}

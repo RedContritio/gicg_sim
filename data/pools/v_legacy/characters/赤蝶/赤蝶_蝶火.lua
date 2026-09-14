@@ -27,7 +27,7 @@ on_skill_use(function(ctx)
   蝶火_rounds:set(2)
 end)
 
-on_damage_type(function(ctx)
+on_damage_type({ order = 蝶火_active }, function(ctx)
   if ctx.actor_player ~= my_player or ctx.actor_char ~= my_char then return end
   if ctx.source ~= Source.Skill then return end
   if 蝶火_active:get() > 0 and ctx.element == Element.Physical then
@@ -35,7 +35,7 @@ on_damage_type(function(ctx)
   end
 end)
 
-on_damage_add(function(ctx)
+on_damage_add({ order = 蝶火_active }, function(ctx)
   if ctx.actor_player ~= my_player or ctx.actor_char ~= my_char then return end
   if ctx.source ~= Source.Skill then return end
   if ctx.skill_index ~= 枪 then return end
@@ -44,19 +44,20 @@ on_damage_add(function(ctx)
   end
 end)
 
-on_after_damage(function(ctx)
+on_after_damage({ order = 蝶火_active }, function(ctx)
+  if ctx.source ~= Source.Skill then return end
   if ctx.actor_player ~= my_player or ctx.actor_char ~= my_char then return end
   if ctx.skill_index ~= 回火 then return end
   if 蝶火_active:get() <= 0 then return end
   local hp = 赤蝶:hp():get()
-  if hp < 赤蝶:hp():cmax() / 2 then
+  if hp * 2 < 赤蝶:hp():cmax() then
     local enemy_alive = get_counter("alive_count", Scope.PerPlayer, Player.Enemy)
     local enemy_count = enemy_alive:get()
     heal(Target.OwnActive, 2 + enemy_count)
   end
 end)
 
-on_round_end_decay(function(ctx)
+on_round_end_decay({ order = 蝶火_active }, function(ctx)
   -- round_end_decay is global (fires once per round end), not
   -- per-actor — but 蝶火_active counter is Self-scope so each
   -- binding only decays its own counter. Still, safety: skip when
@@ -68,3 +69,5 @@ on_round_end_decay(function(ctx)
     end
   end
 end)
+
+register_buff(蝶火_active, { duration = 蝶火_rounds, remove_on_death = true })

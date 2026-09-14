@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-06-12
 status: LIVE
 schema_version: 0
 capability: env-config
@@ -27,8 +27,8 @@ capability: env-config
   界(哪些 SHALL paradigm-agnostic、哪些 paradigm-specific)模糊
 - obs / action / reward 编码与下游网络消费契约脱节(已发生:ADR-0019
   typed obs 落地时 env_obs.py 与网络 embedders 字段约定二次确认)
-- Scenario injection(`pool` / `deck_padding` / `fix_dice` / `obs_mask`)
-  分散在 env / cfg / matchup 三层,无统一 spec
+- Scenario injection(`pool` / `deck_padding` / `decks` / `fix_dice` /
+  `obs_mask`)分散在 env / cfg / matchup 三层,无统一 spec
 - IS-MCTS determinization(`set_player_dice` / `set_player_hand` /
   `set_player_deck`)等 hidden-state injection 入口未规约,被搜索代
   码假定存在又随时被搬移
@@ -53,7 +53,7 @@ capability: env-config
 - Reward terminal signal(`info['z']`)与可选 dense shaping
   (`RewardShaping`)的 paradigm-agnostic 接口
 - Scenario cfg 字段(`team_0` / `team_1` / `card_pool` / `pool` /
-  `deck_padding` / `fix_dice` / `obs_mask` / `max_rounds`)
+  `deck_padding` / `decks` / `fix_dice` / `obs_mask` / `max_rounds`)
 - IS-MCTS determinization injection(`set_player_dice` /
   `set_player_hand` / `set_player_deck` / snapshot / restore)
 - Mirror-match disjoint teams(ADR-0011 `disjoint_teams=True`)交互
@@ -121,14 +121,18 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
 
 9. **Scenario injection cfg-driven**:`__init__` SHALL accept
    `team_0` / `team_1`(必需)+ optional `card_pool` / `pool` /
-   `deck_padding` / `fix_dice` / `max_rounds` / `obs_mask` /
+   `deck_padding` / `decks` / `fix_dice` / `max_rounds` / `obs_mask` /
    `obs_config` / `reward_shaping` / `seed` / `data_dir` / `lib_path`。
    不接受未声明 kwarg。详 [`./lifecycle.md`](./lifecycle.md)。
 
-10. **ADR-0011 pool spec**:Env SHALL respect ADR-0011 pool versioning
-    via `pool` cfg 字段(单 str 或 list[str]),deck filler 由
-    `deck_padding={"card": str, "target_size": int}` 控制。`pool=None`
-    时引擎 default `["v_legacy"]`。详 [`./lifecycle.md`](./lifecycle.md)。
+10. **ADR-0011 pool spec + F4 explicit decks**:Env SHALL respect
+    ADR-0011 pool versioning via `pool` cfg 字段(单 str 或
+    list[str]),deck filler 由 `deck_padding={"card": str,
+    "target_size": int}` 控制,per-player 显式 deck 由
+    `decks=[deck_p0, deck_p1]` 声明(F4)。无显式 deck 且 eligible >
+    target_size SHALL fail game creation — 引擎 SHALL NOT 静默截断。
+    `pool=None` 时引擎 default `["v_legacy"]`。详
+    [`./lifecycle.md`](./lifecycle.md)。
 
 11. **IS-MCTS determinization injection**:Env SHALL expose
     `snapshot()` / `restore(snap_id)` / `snapshot_free(snap_id)` +
@@ -153,7 +157,7 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
   perspective-of-actor 约定
 - [Lifecycle + scenario](./lifecycle.md) — `__init__` cfg 字段、
   `reset` / `step` / `clone` / `close` 生命周期、pool / deck_padding /
-  fix_dice / obs_mask / max_rounds 注入、context manager
+  decks / fix_dice / obs_mask / max_rounds 注入、context manager
 
 ## 5. Cross-references
 

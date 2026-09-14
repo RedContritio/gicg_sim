@@ -20,6 +20,7 @@ import (
 
 //export GameGetCurrentRound
 func GameGetCurrentRound(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return 0
@@ -33,6 +34,7 @@ func GameGetCurrentRound(id C.int) C.int {
 //
 //export GameGetCardNames
 func GameGetCardNames(id C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return nil
@@ -58,6 +60,7 @@ func GameGetCardNames(id C.int) *C.char {
 //
 //export GameGetActionLabels
 func GameGetActionLabels(id C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return nil
@@ -69,6 +72,12 @@ func GameGetActionLabels(id C.int) *C.char {
 		var kind, name string
 		slot := -1
 		switch a.Kind {
+		case engine.ActionReroll:
+			kind = "Reroll"
+			name = fmt.Sprintf("颜色%d 重投%d枚", a.RerollColor, a.Index)
+			if a.RerollColor == engine.DiceColorCount {
+				name = "确认重投"
+			}
 		case engine.ActionSkill:
 			kind = "Skill"
 			name = g.SkillNames[a.Index]
@@ -122,6 +131,7 @@ func GameGetActionLabels(id C.int) *C.char {
 //
 //export GameGetActiveCounterSlotLabels
 func GameGetActiveCounterSlotLabels(id C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return nil
@@ -136,6 +146,7 @@ func GameGetActiveCounterSlotLabels(id C.int) *C.char {
 //
 //export GameGetActiveHookLabels
 func GameGetActiveHookLabels(id C.int) *C.char {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return nil
@@ -152,6 +163,7 @@ func GameFreeString(s *C.char) {
 
 //export GameGetDynamicObs
 func GameGetDynamicObs(id C.int, perspective C.int, out *C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -168,6 +180,7 @@ func GameGetDynamicObs(id C.int, perspective C.int, out *C.int) {
 //
 //export GameIsForcedSwitchPending
 func GameIsForcedSwitchPending(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return 0

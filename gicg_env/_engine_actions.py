@@ -106,9 +106,14 @@ class _ActionsMixin:
           - ActionSkill: hook_idx = active-hook index of the canonical
             on_skill_use hook for (actor_player, actor_char, skill_id).
           - ActionCard:  hook_idx = active-hook index of the canonical
-            on_card_play hook for the card_ref.
+            on_card_play hook for the card_ref; char_idx = target slot,
+            own 0..5 / enemy 6..11, or -1 when untargeted.
           - ActionSwitch: char_idx = target char slot (NOT shuffled).
           - ActionEndTurn: both -1 (head uses a learned constant).
+          - ActionTune: hook_idx identifies the discarded card rule;
+            char_idx is the converted die's source color (0..7).
+          - ActionReroll: field 1 is the selected count, NOT a hook;
+            field 2 is color 0..7, or 8 for confirmation (count 0).
         hook_idx / char_idx unused by a given kind are -1.
         """
         self._check()

@@ -105,7 +105,13 @@ class EvalCfg:
 
 @dataclass(frozen=True)
 class ScenarioCfg:
-    """[scenario] section. Pool + team + max_rounds + deck_padding."""
+    """[scenario] section. Pool + team + max_rounds + deck_padding.
+
+    deck_0 / deck_1 (F4): explicit per-player deck declaration — list of
+    card names (multiset, duplicates allowed), every name declared in
+    card_pool / pool. None = implicit path: deck is the full eligible
+    set, and the engine errors when that exceeds
+    deck_padding.target_size (silent truncation removed)."""
 
     team_0: list
     team_1: list
@@ -119,6 +125,9 @@ class ScenarioCfg:
     data_dir: Optional[str] = None
     fix_dice: Optional[list] = None
     obs_mask: Optional[list] = None
+    deck_0: Optional[list] = None
+    deck_1: Optional[list] = None
+    random_deck_size: int = 0
 
 
 @dataclass(frozen=True)

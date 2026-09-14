@@ -1,9 +1,4 @@
-"""DMC collectors — serial + multi-process (per-class docstrings).
-
-``_dmc_build_*`` resolve paradigm-supplied factories (picklable dotted
-paths) inside spawned children; required by the legacy ``_bootstrap``
-path. The current mp path wires ``training.paradigms.dmc.mp_factories``
-directly (E target / P2-PoC) and bypasses these resolvers."""
+"""DMC serial and multi-process collectors; factories live in mp_factories."""
 
 from __future__ import annotations
 
@@ -17,40 +12,33 @@ from training.paradigms.dmc._episode import play_one_episode
 from training.paradigms.dmc._opponent import OpponentPool
 
 
-def derive_seed(master_seed: int, *labels: Any) -> int:
-    """Deterministic seed derivation from master + arbitrary labels."""
-    h = master_seed & 0xFFFFFFFF
-    for lab in labels:
-        s = repr(lab).encode('utf-8')
-        for b in s:
-            h = (h * 1000003) ^ b
-            h &= 0xFFFFFFFF
-    return int(h & 0x7FFFFFFF)
+from training.core.episode_seeds import derive_seed, episode_seeds
 
 
 class DMCSerialCollector:
-    """Single-process DMC collector. Lazy LocalNetworkProvider(
-    DMCInferenceNet(agent.net)); the pipeline ``provider`` arg is
-    ignored (DMC's 15-tensor obs_dict shape mismatch). Indirection
-    unblocks GPU collector + torch.compile."""
+    """Serial collector with a lazy DMCInferenceNet provider for DMC's
+    observation layout; ignores the generic pipeline provider."""
 
     requires_network_in_collect = True
+    checkpoint_complete = True
 
-    def __init__(self, cfg: Any, paradigm_cfg: Any, agent: Any, opp_pool: OpponentPool, env: Any) -> None:
+    def __init__(
+        self, cfg: Any, paradigm_cfg: Any, agent: Any, opp_pool: OpponentPool, env: Any, env_factory=None
+    ) -> None:
         self.cfg = cfg
         self.pcfg = paradigm_cfg
         self.agent = agent
         self.opp_pool = opp_pool
         self.env = env
+        self._env_factory = env_factory
         self._episode_seq = 0
         self._master_seed = int(cfg.meta.seed)
         self._rng_side = random.Random(derive_seed(self._master_seed, 'side'))
         self._rng_action = random.Random(derive_seed(self._master_seed, 'explore-action'))
+        self.agent.rng = self._rng_action
         self._dmc_provider: Optional[Any] = None
 
     def _ensure_dmc_provider(self) -> Any:
-        # Lazy LocalNetworkProvider(DMCInferenceNet(agent.net)); same
-        # nn.Module so optimizer.step() updates are visible.
         if self._dmc_provider is None:
             from training.core.actor.network_provider import LocalNetworkProvider
             from training.paradigms.dmc.inference_net import DMCInferenceNet
@@ -73,14 +61,19 @@ class DMCSerialCollector:
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
         del provider  # ignored — see class docstring
+        if self._env_factory is None:
+            raise ValueError('serial DMC requires a layout-aware env_factory')
         dmc_provider = self._ensure_dmc_provider()
         episodes_for_buffer: list = []
         episode_stats: list = []
         n_trans_total = 0
         for _ in range(max(1, n_episodes)):
             self._episode_seq += 1
-            ep_seed = derive_seed(self._master_seed, 'episode', self._episode_seq)
-            self.env.reset(seed=ep_seed)
+            seeds = episode_seeds(self._master_seed, self._episode_seq)
+            fresh = self._env_factory(self._episode_seq, layout_seed=seeds['layout'])
+            self.env.close()
+            self.env = fresh
+            self.env.reset(seed=seeds['episode'], deck_seeds=(seeds['deck_0'], seeds['deck_1']))
             opponent = self.opp_pool.sample()
             agent_side = self._rng_side.randint(0, 1)
             transitions, G, n_steps = play_one_episode(
@@ -98,6 +91,7 @@ class DMCSerialCollector:
             episode_stats.append(
                 {
                     'ep_idx': self._episode_seq,
+                    'seeds': seeds,
                     'n_steps': int(n_steps),
                     'G': float(G),
                     'opp': type(opponent).__name__,
@@ -136,10 +130,7 @@ class DMCSerialCollector:
             self._rng_action.setstate(sd['rng_action'])
 
 
-# ---------- DMC multi-process collector (FU-W3b-DMC) ---------- #
-# Mp internals (legacy resolvers + spec_sampler + inference pool helper)
-# live in _mp_internal to keep this file under 300 lines. Re-export the
-# names the existing tests import via `from collector import ...`.
+# Re-export legacy resolvers, sampler and inference helpers for callers.
 from training.paradigms.dmc._mp_internal import (  # noqa: E402,F401
     _DMC_ACTOR_EP_SEQ,
     _adapt_episode_record,
@@ -177,14 +168,8 @@ class DMCMultiProcessCollector:
         self._episode_seq = 0
         self._weights_version = 0
         self.runtime = runtime if runtime is not None else Runtime(cfg)
-        # SHMRing sizing: each DMC EpisodeRecord pickles to ~270 KB per
-        # transition (hook_ir + action_refs + action_payments dominate);
-        # episode length scales with card-pool size. Measured payloads:
-        # 4-5 MB for the 6-card smoke pool, 10-13 MB for v_legacy
-        # 26-card pool. We ship 32 MB × 64 slots = 2 GB SHM to keep
-        # headroom for outlier episodes (100+ transitions on richer
-        # pools). Capacity 64 caps queued backlog — actors backpressure
-        # via push==False yield rather than memory pressure.
+        # Measured episodes: 4-5 MB smoke / 10-13 MB v_legacy.
+        # 32 MB slots allow outliers; capacity 64 bounds queue backlog.
         self.ring = ring if ring is not None else SHMRing(capacity=64, slot_payload_max=32 * 1024 * 1024)
         self._spawned = False
         self._inference_server: Optional[Any] = None
@@ -194,18 +179,13 @@ class DMCMultiProcessCollector:
         self._metrics_logger: Optional[Any] = None
 
     def attach_metrics_logger(self, logger: Any) -> None:
-        """Wire master MetricsLogger to drain InfServer stats — kind="inf_server"
-        rows入 metrics.jsonl(queue_depth / batch_size / process_ms / batches_per_sec
-        etc.,每 5s aggregate)。 Idempotent before _bootstrap;after spawn
-        无效(InfServer 已起,stats_q 已固定)。"""
+        """Attach the inference metrics queue before its server is spawned."""
         if self._spawned:
             return
         self._metrics_logger = logger
 
     def _bootstrap(self) -> None:
-        """Publish initial weights, stand up shared InferenceServer + N
-        InferenceClients, then spawn actors. Idempotent. Mp factories
-        in :mod:`training.paradigms.dmc.mp_factories`."""
+        """Idempotently publish weights, start inference, then spawn actors."""
         if self._spawned:
             return
         sd_cpu = {k: v.detach().cpu() for k, v in self.network.state_dict().items()}
@@ -263,6 +243,7 @@ class DMCMultiProcessCollector:
             episode_stats.append(
                 {
                     'ep_idx': self._episode_seq,
+                    'scenario_seed': item.scenario_seed,
                     'n_transitions': n_trans,
                     'n_dropped': n_dropped,
                     'winner': winner,

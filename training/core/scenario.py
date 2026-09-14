@@ -31,6 +31,32 @@ class ObsConfig:
         }
 
 
+def check_char_pool_deck_exclusive(char_pool, deck_0, deck_1) -> None:
+    """Random teams allow only a shared explicit deck, or implicit decks.
+
+    Concrete engine construction still validates every card against each
+    sampled team. A curriculum must preflight all its team combinations;
+    shared decks do not make character-specific cards universally eligible.
+    Used by the dataclass, config loader and DMC eval override path.
+    """
+    if char_pool is not None and (deck_0 is not None or deck_1 is not None):
+        if not deck_0 or deck_0 != deck_1:
+            raise ValueError('char_pool is incompatible with asymmetric or one-sided explicit decks')
+
+
+def decks_arg(deck_0: Optional[list], deck_1: Optional[list]) -> Optional[list]:
+    """Convert per-player deck declarations (cfg ``deck_0``/``deck_1``)
+    to the ``GicgEnv``/``new_game`` ``decks`` argument. Returns None when
+    neither side declares (implicit eligible-set path), else a 2-entry
+    list with per-player None passthrough."""
+    if deck_0 is None and deck_1 is None:
+        return None
+    return [
+        None if deck_0 is None else list(deck_0),
+        None if deck_1 is None else list(deck_1),
+    ]
+
+
 @dataclass
 class ScenarioConfig:
     """Which game to play during self-play and eval."""
@@ -59,8 +85,16 @@ class ScenarioConfig:
     # (["v_legacy"]). Accepts a single str or a list[str] for sibling
     # pool union; see GicgEnv `pool` for semantics.
     pool: Optional[object] = None
+    # F4: explicit per-player deck declaration (card-name multiset).
+    # None = implicit eligible-set path — the engine errors when that
+    # set exceeds deck_padding.target_size (silent truncation removed).
+    deck_0: Optional[list[str]] = None
+    deck_1: Optional[list[str]] = None
+    random_deck_size: int = 0
 
     def __post_init__(self):
+        # A random-subset deck mode is a separate feature — see helper doc.
+        check_char_pool_deck_exclusive(self.char_pool, self.deck_0, self.deck_1)
         if self.char_pool is not None:
             if len(self.team_0) != self.team_size:
                 raise ValueError(

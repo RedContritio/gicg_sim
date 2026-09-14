@@ -1,0 +1,27 @@
+name = "B17：致死超载自动换到下一名存活角色（待游戏内实测）"
+actions = [["Skill", "仪典剑术"]]
+
+[[patches]]
+path = "pools/native_latest/characters/凯亚/凯亚_仪典剑术.lua"
+before = 'local 凯亚 = get_char("凯亚")'
+after = '''local 凯亚 = get_char("凯亚")
+local probe_aura = get_counter("雷元素附着", Scope.PerChar)'''
+
+[[patches]]
+path = "pools/native_latest/characters/凯亚/凯亚_仪典剑术.lua"
+before = "deal_damage(Target.EnemyActive, Element.Physical, 2)"
+after = '''probe_aura:set_at(1 - my_player, get_active_char(1 - my_player), 1)
+  deal_damage(Target.EnemyActive, Element.Fire, 10)'''
+
+[scene]
+team_0 = ["凯亚", "迪卢克", "芭芭拉"]
+team_1 = ["砂糖", "菲谢尔", "芭芭拉"]
+fix_dice = [0, 0, 0, 0, 0, 0, 0, 8]
+player = 0
+
+[expected]
+done = false
+pending = false
+"hp_loss.1" = 10
+"after.players.1.active_char" = 1
+"after.players.1.alive_count" = 2

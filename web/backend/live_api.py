@@ -1,51 +1,4 @@
-"""Live-play WebSocket endpoint.
-
-One WebSocket connection = one GicgEnv + one AI opponent. The human
-drives their side of the board; the server auto-advances the AI side
-between human decisions.
-
-Opponent construction delegates to training.core.matchup.matchup.load_player — same
-LOADERS registry used by the gauntlet, so every opponent type the
-eval pipeline supports is available for live play without duplicate
-glue. Supported types: ``az``, ``cfr``, ``mcts_pure``, ``random``.
-
-Message protocol (JSON):
-
-    Client → server: start a new game
-        {"type": "new",
-         "team_0": ["赤蝶"], "team_1": ["墨客"],
-         "card_pool": [...] | null,
-         "data_dir": "data",
-         "human_player": 0,               # 0 (default) or 1
-         "opponent": {"type": "mcts_pure", "n_simulations": 200}}
-
-        # Other opponent specs:
-        # {"type": "az",        "ckpt": "...", "n_simulations": 200}
-        # {"type": "cfr",       "ckpt": "...", "n_simulations": 0}
-        # {"type": "random"}
-
-    Server → client: board state after AI has auto-advanced up to the
-    human's next decision point (or terminal)
-        {"type": "state",
-         "view": {...StateView...},
-         "done": false,
-         "current_player": 0,
-         "winner": -1,
-         "legal_actions": [
-             {"index": 0, "kind": 0, "kind_name": "Skill", "name": "枪"},
-             ...
-         ]}
-
-    Client → server: human picks an action
-        {"type": "action", "index": 3}
-
-    Server → client: error (malformed input, illegal move, etc.)
-        {"type": "error", "message": "..."}
-
-Session-building, ckpt validation, agent advancement, and the
-LRU builder cache live in ``web.backend.live_session`` — this file
-owns only the router, websocket handler, and message dispatch.
-"""
+"""Live WebSocket games: new/action requests and human-perspective states."""
 
 from __future__ import annotations
 
@@ -63,21 +16,79 @@ from web.backend.live_session import (
     build_legal_actions,
     build_opponent_player,
     get_winner,
+    record_action,
     sanitize_error,
 )
 
 router = APIRouter()
 
+# F4 pinned default decks. The pre-F4 engine silently truncated the
+# implicit eligible set to deck_padding.target_size (byte-order head);
+# the default union pool ['v_legacy', 'test_basic'] has > 15 eligible
+# cards, so under F4 fail-loud a default 'new' (no card_pool, no decks)
+# would error out 100% of the time. These are the truncation-era
+# effective decks — byte-order first 15 of each single-char team's
+# eligible set, captured with the pre-F4 engine via
+# `_f4_probe_decks.py before` (scenario union_chidie_moke, 2026-06-12;
+# 守正 is 墨客-only, hence the per-team split; 以逸待劳 was a dead card
+# in the truncation era so it is correctly absent). Applied only when
+# the message leaves the whole deck context at defaults and both teams
+# are pinned-known; client-supplied decks always win.
+_DEFAULT_POOL = ['v_legacy', 'test_basic']
+_DEFAULT_DECK_PADDING = {'card': '碌碌无为', 'target_size': 15}
+_DEFAULT_DECKS_BY_TEAM = {
+    ('赤蝶',): '乘胜追击 以攻代守 以牙还牙 伏兵之术 佛跳墙 占星 反制 测试卡_增幅 测试卡_碎片 '
+    '测试卡_神秘水流 清洁时间 玄冰 瞬身之术 美味烧鸡 荷花酥'.split(),
+    ('墨客',): '乘胜追击 以攻代守 以牙还牙 伏兵之术 佛跳墙 占星 反制 守正 测试卡_增幅 测试卡_碎片 '
+    '测试卡_神秘水流 清洁时间 玄冰 瞬身之术 美味烧鸡'.split(),
+}
+
+
+def _default_decks(team_0, team_1, card_pool, pool, deck_padding):
+    """Return the pinned truncation-era decks for the default-pool
+    scenario, or None (implicit path — fail-loud on overflow). Any
+    deviation from the default deck context (custom card_pool / pool /
+    deck_padding) or a non-pinned team falls through to None."""
+    if card_pool is not None or pool != _DEFAULT_POOL or deck_padding != _DEFAULT_DECK_PADDING:
+        return None
+    d0 = _DEFAULT_DECKS_BY_TEAM.get(tuple(team_0))
+    d1 = _DEFAULT_DECKS_BY_TEAM.get(tuple(team_1))
+    if d0 is None or d1 is None:
+        return None
+    return [list(d0), list(d1)]
+
 
 async def _send_state(ws: WebSocket, sess: LiveSession) -> None:
     view = sess.env.export_view()
+    for pi, player in enumerate(view['players']):
+        if pi != sess.human_player:
+            player['hand'] = [{'ref': -1, 'name': '暗牌'} for _ in player['hand'] or []]
+    from gicg_env._constants import OBS_META_SIZE, OBS_COUNTER_SLOTS
+
+    raw = sess.env._engine.get_dynamic_obs()
+    counters = zip(sess.env.get_active_counter_slot_labels(), raw[OBS_META_SIZE : OBS_META_SIZE + OBS_COUNTER_SLOTS])
+    for player in view['players']:
+        player['statuses'] = []
+    for label, value in counters:
+        parts = label.split(':')
+        if (
+            len(parts) == 2
+            and parts[0] in ('P0', 'P1')
+            and value > 0
+            and parts[1] != '存活数'
+            and any('\u4e00' <= c <= '\u9fff' for c in parts[1])
+        ):
+            view['players'][int(parts[0][1])]['statuses'].append({'name': parts[1], 'value': int(value), 'max': 0})
+    view['acting_player'] = sess.env.acting_player
+    view['players'][sess.human_player]['dice'] = sess.env.dice_counts(sess.human_player).tolist()
     payload = {
         'type': 'state',
         'view': view,
         'done': sess.env.done,
-        'current_player': sess.env.current_player,
+        'current_player': sess.env.acting_player,
         'legal_actions': build_legal_actions(sess.env),
         'human_player': sess.human_player,
+        'history': sess.history[-100:],
     }
     if sess.env.done:
         payload['winner'] = get_winner(sess.env)
@@ -105,6 +116,15 @@ async def _handle_new(
     data_dir = msg.get('data_dir', 'data')
     pool = msg.get('pool', ['v_legacy', 'test_basic'])
     deck_padding = msg.get('deck_padding', {'card': '碌碌无为', 'target_size': 15})
+    # F4: optional explicit per-player decks ([deck_p0, deck_p1], per-entry
+    # None = implicit path). Without this, the engine fail-louds when the
+    # eligible set exceeds deck_padding.target_size — silent truncation is
+    # gone, so full-pool games must declare decks (or shrink card_pool).
+    # When the client omits decks and the deck context is at defaults,
+    # fall back to the pinned truncation-era decks (see module top).
+    decks = msg.get('decks')
+    if decks is None:
+        decks = _default_decks(team_0, team_1, card_pool, pool, deck_padding)
     human_player = int(msg.get('human_player', 0))
     if human_player not in (0, 1):
         raise ValueError(f'human_player must be 0 or 1, got {human_player}')
@@ -123,6 +143,19 @@ async def _handle_new(
 
     # Construct new player + env FIRST so a failure doesn't kill the
     # previous session. Only release prev after both succeed.
+    if opponent_spec.get('type') == 'semantic_rl':
+        from web.backend.semantic_live import build_session
+
+        sess = build_session(msg, seed, human_player)
+        try:
+            auto_advance_agent(sess)
+        except BaseException:
+            sess.env.close()
+            raise
+        if prev is not None:
+            prev.env.close()
+        return sess
+
     player = build_opponent_player(opponent_spec, seed)
     env = GicgEnv(
         team_0,
@@ -131,6 +164,7 @@ async def _handle_new(
         data_dir=data_dir,
         pool=pool,
         deck_padding=deck_padding,
+        decks=decks,
     )
     env.reset(seed=seed)
 
@@ -158,7 +192,7 @@ async def _handle_action(ws: WebSocket, msg: dict, sess: LiveSession) -> None:
     error frame)."""
     if sess.env.done:
         raise ValueError('game already ended')
-    if sess.env.current_player != sess.human_player:
+    if sess.env.acting_player != sess.human_player:
         raise ValueError('not your turn')
     try:
         idx = int(msg.get('index'))
@@ -167,6 +201,7 @@ async def _handle_action(ws: WebSocket, msg: dict, sess: LiveSession) -> None:
     kinds, _ = sess.env.get_legal_actions()
     if idx < 0 or idx >= len(kinds):
         raise ValueError(f'illegal action index {idx}')
+    record_action(sess, idx)
     sess.env.step(idx)
     auto_advance_agent(sess)
 

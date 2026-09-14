@@ -28,7 +28,7 @@ MAX_HOOKS = 3
 MAX_CHARS = 2
 MAX_SKILLS = 2
 MAX_ACTIONS = 5
-META_SIZE = 3
+META_SIZE = 19
 N_STRUCTURAL = 4
 
 
@@ -43,12 +43,14 @@ def _game_static(k: int = 0) -> dict:
         'counter_sids': np.arange(N_SLOTS, dtype=np.int64),
         'active_slot_mask': np.ones(N_SLOTS, dtype=bool),
         'char_skill_refs': np.full((2, MAX_CHARS, MAX_SKILLS), -1, dtype=np.int64),
+        'definition_links': np.full((1, 2), -1, dtype=np.int64),
     }
 
 
 def _sample_dynamic(k: int = 0) -> dict:
     return {
         'counter_values': np.full(N_SLOTS, float(k), dtype=np.float32),
+        'buffs': np.zeros((128, 16), dtype=np.float32),
         'meta': np.zeros(META_SIZE, dtype=np.float32),
         'card_buckets': np.zeros((4, 10), dtype=np.float32),
         'enemy_sizes': np.ones(2, dtype=np.float32),

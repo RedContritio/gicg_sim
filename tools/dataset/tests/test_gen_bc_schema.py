@@ -164,7 +164,9 @@ def test_collect_produces_az_shape_only() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         npz_path = Path(tmpdir) / 'dataset.npz'
         np_kwargs = {k: v for k, v in data.items() if k != 'meta'}
-        np.savez_compressed(npz_path, **np_kwargs)
+        from training.core.artifact_io import save_dataset
+
+        save_dataset(npz_path, **np_kwargs)
         # Persist meta too for completeness;BCDataset doesn't need it
         with (Path(tmpdir) / 'meta.json').open('w', encoding='utf-8') as f:
             json.dump(data['meta'], f, ensure_ascii=False, indent=2)

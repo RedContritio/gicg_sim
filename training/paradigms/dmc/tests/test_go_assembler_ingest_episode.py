@@ -12,6 +12,8 @@ Tests:
 
 from __future__ import annotations
 
+from training.paradigms.dmc.tests.test_go_assembler import _build_dyn_obs
+
 import numpy as np
 import pytest
 
@@ -30,14 +32,21 @@ _SCENARIO = {
 
 
 def _build_static_obs() -> np.ndarray:
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE, OBS_CHAR_ELEMENT_SLOTS
+    from training.core.obs_constants import (
+        OBS_CHAR_ELEMENT_SLOTS,
+        OBS_CHAR_SKILL_REFS_SIZE,
+        OBS_DEFINITION_LINK_SCHEMA_VERSION,
+        OBS_DEFINITION_LINK_SLOTS,
+    )
 
     n = _SCENARIO['n_counter_slots']
     h = _SCENARIO['n_hooks']
     moph = _SCENARIO['max_ops_per_hook']
     fpo = _SCENARIO['fields_per_op']
     total = n * 3 + OBS_CHAR_SKILL_REFS_SIZE + h * moph * fpo + OBS_CHAR_ELEMENT_SLOTS
-    return np.arange(total, dtype=np.int32)
+    trailer = np.zeros(OBS_DEFINITION_LINK_SLOTS, dtype=np.int32)
+    trailer[0] = OBS_DEFINITION_LINK_SCHEMA_VERSION
+    return np.concatenate((np.arange(total, dtype=np.int32), trailer))
 
 
 def _make_payload(
@@ -50,7 +59,7 @@ def _make_payload(
 ) -> bytes:
     static = _build_static_obs() if with_static else None
     n_legal_eff = n_legal
-    dyn = np.zeros(4096, dtype=np.float32)
+    dyn = np.zeros_like(_build_dyn_obs(_SCENARIO['n_counter_slots']))
     refs = np.zeros(n_legal_eff * 3, dtype=np.int64)
     pay = np.zeros(n_legal_eff * 8, dtype=np.float32)
     return encode_dmc_payload(

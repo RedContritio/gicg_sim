@@ -144,6 +144,10 @@ class PPOAgent(AgentBase):
         """Single forward returning (legal_logits, value).
 
         legal_logits shape (n_legal,); value shape (scalar,)."""
+        if n_legal > self.cfg.max_actions:
+            raise ValueError(f'PPO legal actions {n_legal} exceed max_actions={self.cfg.max_actions}')
+        if n_legal != len(refs_np) or n_legal != len(payments_np):
+            raise ValueError('PPO action refs/payments must align with legal actions')
         refs_padded = pad_action_refs(refs_np, self.cfg.max_actions)
         pay_padded = pad_action_payments(payments_np, self.cfg.max_actions)
 
@@ -177,6 +181,8 @@ class PPOAgent(AgentBase):
                 recent_damage,
                 prepare_skill,
                 modifier_log,
+                buffs=self._parse_buff_single(dyn_obs_np),
+                definition_links=self._definition_links,
             )
             legal_logits = out['policy'][0, :n_legal].clone()
             value = out['value'][0]
@@ -211,6 +217,7 @@ class PPOAgent(AgentBase):
         action_refs = _t('action_refs', torch.long)
         action_payments = _t('action_payments', torch.float32)
         char_skill_refs = _t('char_skill_refs', torch.long)
+        definition_links = _t('definition_links', torch.long)
         recent_damage = _t('recent_damage', torch.float32)
         prepare_skill = _t('prepare_skill', torch.float32)
         modifier_log = _t('modifier_log', torch.float32)
@@ -235,6 +242,8 @@ class PPOAgent(AgentBase):
             recent_damage,
             prepare_skill,
             modifier_log,
+            buffs=_t('buffs', torch.float32) if 'buffs' in batch else None,
+            definition_links=definition_links,
         )
         return out['policy'], out['value']
 

@@ -2,9 +2,12 @@
 
 import numpy as np
 
+from gicg_env.env_state import _StateMixin
+
+from ._constants import OBS_BUFF_SLOTS
 from .engine import (
-    GicgEngine,
     STEP_NEED_TARGET,
+    GicgEngine,
 )
 from .env_action import _ActionMixin
 from .env_obs import (
@@ -60,7 +63,7 @@ def _terminal_z(winner: int) -> float:
     )
 
 
-class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
+class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
     """Self-play environment. Team rosters / card pool fixed at
     construction; reset(seed) starts a fresh game with same ruleset.
     step() → (obs, reward, done, info). Two reward modes:
@@ -85,6 +88,7 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
         obs_mask=None,
         deck_padding=None,
         pool=None,
+        decks=None,
     ):
         self._engine = GicgEngine(lib_path=lib_path)
         self._team_0 = list(team_0)
@@ -100,6 +104,9 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
         self._fix_dice = None if fix_dice is None else list(fix_dice)
         self._deck_padding = None if deck_padding is None else dict(deck_padding)
         self._pool = pool if (pool is None or isinstance(pool, str)) else list(pool)
+        # F4 explicit per-player decks — shape validated by new_game
+        # (str entries kept as-is so its type check can reject them).
+        self._decks = None if decks is None else [d if (d is None or isinstance(d, str)) else list(d) for d in decks]
         self._engine.new_game(
             players=[self._team_0, self._team_1],
             seed=seed,
@@ -110,9 +117,21 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
             fix_dice=self._fix_dice,
             deck_padding=self._deck_padding,
             pool=self._pool,
+            decks=self._decks,
         )
         self._static_obs_size = self._engine._lib.GameGetStaticObsSize()
         self._dynamic_obs_size = self._engine._lib.GameGetDynamicObsSize()
+        expected_dynamic = (
+            OBS_META_SIZE
+            + OBS_COUNTER_SLOTS
+            + OBS_HAND_BLOCK_SIZE
+            + OBS_RECENT_DAMAGE_SLOTS
+            + OBS_PREPARE_SKILL_SLOTS
+            + OBS_MODIFIER_LOG_SLOTS
+            + OBS_BUFF_SLOTS
+        )
+        if self._dynamic_obs_size != expected_dynamic:
+            raise RuntimeError('engine buff observation schema mismatch; rebuild libgicg')
         self._static_obs = self._engine.get_static_obs()
 
         # Per-slot (min, max) normalization: the static obs layout
@@ -137,7 +156,7 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
         """Restart with the same teams and card pool. Cheap — no DSL reload.
 
         review D.5 (2026-05-14): optional 3-axis seed split. seed controls
-        dice rolls + DSL randomness + obs perm (same as before); deck_seeds
+        dice rolls + DSL randomness; observation layout stays unchanged. deck_seeds
         = (deck_seed_p0, deck_seed_p1) optionally overrides per-player deck
         Fisher-Yates shuffle. Default deck_seeds=None → both fall back to
         seed (backward compat with single-seed callers)."""
@@ -170,6 +189,7 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
         twin._fix_dice = self._fix_dice
         twin._deck_padding = None if self._deck_padding is None else dict(self._deck_padding)
         twin._pool = self._pool if (self._pool is None or isinstance(self._pool, str)) else list(self._pool)
+        twin._decks = None if self._decks is None else [None if d is None else list(d) for d in self._decks]
         twin._mask_slots_per_perspective = self._mask_slots_per_perspective
         return twin
 
@@ -257,113 +277,6 @@ class GicgEnv(_ActionMixin, _ObsMixin, _QueryMixin):
             self._engine.winner,
             me,
         )
-
-    @property
-    def obs_size(self):
-        return self._dynamic_obs_size
-
-    @property
-    def static_obs_size(self):
-        return self._static_obs_size
-
-    @property
-    def static_obs(self):
-        return self._static_obs
-
-    @property
-    def current_player(self):
-        """Alias for acting_player. The player currently owed a decision,
-        which accounts for pending forced-switch states correctly."""
-        return self._engine.acting_player
-
-    @property
-    def acting_player(self):
-        """The player currently owed a decision. MCTS / search code
-        should use this to determine node.turn, not raw engine.turn
-        (which doesn't track forced-switch pending state)."""
-        return self._engine.acting_player
-
-    @property
-    def has_pending(self):
-        """True if a pending card target or forced switch is waiting."""
-        return self._engine.has_pending
-
-    @property
-    def done(self):
-        return self._engine.done
-
-    @property
-    def engine_handle(self):
-        """Public access to the underlying c-shared engine handle for
-        external cgo bindings(e.g. AZ MCTS go bindings call MCTSSearch
-        directly on the engine handle)。 Pre W2-5 callers reached into
-        ``env._engine._handle`` (audit finding 高优 — MCTS bindings 自
-        ctypes 绕过 env);this property is the supported access path。"""
-        return self._engine._handle
-
-    @property
-    def winner(self) -> int:
-        """Engine winner code. -1 = game in progress, 0/1 = that player won,
-        2 = draw. Callers querying terminal outcomes SHALL guard with
-        ``env.done`` first; ``info['winner']`` returned from ``step()`` is
-        the same value scoped to the step boundary."""
-        return self._engine.winner
-
-    @property
-    def phase(self) -> int:
-        """Engine phase enum (gicg_env._constants.PHASE_*). Matchup /
-        selfplay loops use ``env.phase == PHASE_SELECT_ACTIVE`` to detect
-        the initial active-char selection sub-phase before the regular
-        action loop kicks in."""
-        return self._engine.phase
-
-    @property
-    def current_round(self) -> int:
-        """Current round number (1-based). Engine method name historically
-        ``get_current_round()``; exposed as a property here so callers do
-        not need to differentiate property vs method when reading raw
-        engine state."""
-        return self._engine.get_current_round()
-
-    def hand_refs(self, player: int):
-        """Hand card refs for ``player``. Forwards to the engine's pool
-        query; exposed on env so callers do not need to reach into
-        ``env._engine`` directly."""
-        return self._engine.hand_refs(player)
-
-    def dice_total(self, player: int) -> int:
-        """Total dice count for ``player``. Forwards to the engine's pool
-        query."""
-        return self._engine.dice_total(player)
-
-    def get_dynamic_obs(self, perspective: int | None = None):
-        """Raw (un-normalized) dynamic obs from the Go side. ``_get_obs``
-        already applies per-slot normalization for training paths;
-        callers that need the raw int32 layout (AZ selfplay typed-segment
-        decoding) use this method."""
-        return self._engine.get_dynamic_obs(perspective=perspective)
-
-    def random_rollout(self, seed: int, max_steps: int) -> tuple[int, int]:
-        """Bypass-step random rollout to a terminal. Returns
-        ``(winner, steps)``. Forwards to the engine's native rollout
-        path used by AZ MCTS leaf evaluation."""
-        return self._engine.random_rollout(seed=seed, max_steps=max_steps)
-
-    @property
-    def team_0(self):
-        return list(self._team_0)
-
-    @property
-    def team_1(self):
-        return list(self._team_1)
-
-    @property
-    def data_dir(self):
-        return self._data_dir
-
-    @property
-    def card_pool(self):
-        return None if self._card_pool is None else list(self._card_pool)
 
     def close(self):
         self._engine.close()

@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"math/rand"
 )
 
 // Per-game shuffle permutations (InitShuffle) and general state
@@ -22,7 +21,10 @@ func identityPerm(n int) []int {
 	return p
 }
 
-func (g *Game) InitShuffle(rng *rand.Rand) {
+func (g *Game) InitShuffle(rng interface {
+	Perm(int) []int
+	Shuffle(int, func(int, int))
+}) {
 	n := len(g.Counters)
 
 	switch {
@@ -133,6 +135,9 @@ func (g *Game) GetState() []float32 {
 func (g *Game) SetAlive(playerIdx, charIdx int, alive bool) {
 	g.Players[playerIdx].Chars[charIdx].Alive = alive
 	if !alive {
+		g.removeCharacterBuffs(playerIdx, charIdx)
+	}
+	if !alive {
 		// Credit kill to the opponent, death to the victim. Kills /
 		// Deaths are "this step" counters that Python-side code may
 		// reset between decisions; Total* mirror them as a running
@@ -186,6 +191,9 @@ func (g *Game) DrawCard(playerIdx int) {
 // "whose global turn is it" — ActingPlayer is the decision-maker
 // overlay.
 func (g *Game) ActingPlayer() int {
+	if g.PendingDice != nil {
+		return g.PendingDice.Player
+	}
 	if g.PendingAction != nil {
 		return g.PendingAction.PlayerIdx
 	}
@@ -199,7 +207,7 @@ func (g *Game) ActingPlayer() int {
 // vs StepTarget, eliminating the need for a local _pending_target flag
 // that would have to be tracked through snapshot / restore.
 func (g *Game) HasPending() bool {
-	return g.PendingAction != nil || g.PendingCardTarget != nil
+	return g.PendingAction != nil || g.PendingCardTarget != nil || g.PendingDice != nil
 }
 
 // SetPlayerHand overwrites player pi's hand with the given refs.

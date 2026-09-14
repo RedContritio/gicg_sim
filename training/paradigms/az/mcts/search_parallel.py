@@ -101,6 +101,7 @@ def mcts_search_parallel(
             if do_profile:
                 t0 = _pc()
             env.restore(root_snap)
+            env.set_simulation_seed(rng.getrandbits(63))
             if do_profile:
                 prof.n_restore += 1
                 prof.restore_s += _pc() - t0

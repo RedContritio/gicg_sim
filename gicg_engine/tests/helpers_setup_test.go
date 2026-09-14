@@ -1,16 +1,12 @@
 package tests
 
 import (
-	"math/rand"
-	"os"
+	engine "gicg_mono/gicg_engine"
+	"gicg_mono/gicg_engine/interp"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"testing"
-
-	engine "gicg_mono/gicg_engine"
-	"gicg_mono/gicg_engine/interp"
 )
 
 // Game construction helpers — NewGame / NewGameSeed / NewGameWithDeck
@@ -40,17 +36,17 @@ func NewGameWithDeck(t *testing.T, team0, team1 []string) *GameEnv {
 	return newGame(t, team0, team1, 42, true)
 }
 
-func newGame(t *testing.T, team0, team1 []string, seed int64, withDecks bool) *GameEnv {
+func newGame(t *testing.T, team0, team1 []string, seed int64, withDecks bool, pools ...string) *GameEnv {
 	t.Helper()
 	g := &engine.Game{
 		Hooks:    engine.NewHookRegistry(),
-		Rng:      rand.New(rand.NewSource(seed)),
+		Rng:      engine.NewRandom(seed),
 		BaseSeed: seed,
 		// review D.5: init per-player deck RNGs (default to single seed for
 		// test backward compat — production callers pass via cfg.DeckSeeds).
-		DeckRngs: [2]*rand.Rand{
-			rand.New(rand.NewSource(seed)),
-			rand.New(rand.NewSource(seed)),
+		DeckRngs: [2]*engine.Random{
+			engine.NewRandom(seed),
+			engine.NewRandom(seed),
 		},
 		DeckSeeds: [2]int64{seed, seed},
 		Obs:       engine.NewDefaultObsConfig(),
@@ -77,7 +73,7 @@ func newGame(t *testing.T, team0, team1 []string, seed int64, withDecks bool) *G
 
 	// Chars: declare + bind, reading paths from the cached pool.
 	teams := [2][]string{team0, team1}
-	pool, dslPaths := collectDSLPaths(teams)
+	pool, dslPaths := collectDSLPaths(teams, pools...)
 	for pi := 0; pi < 2; pi++ {
 		for ci, name := range teams[pi] {
 			entry := pool.Chars[name]
@@ -164,12 +160,16 @@ func newGame(t *testing.T, team0, team1 []string, seed int64, withDecks bool) *G
 	// Optionally build decks; initial hand is drawn by system/draw.lua on
 	// round 1 start, so we must build before select-active. Tests default
 	// to the legacy 碌碌无为 / 15-slot padding so existing fixtures keep
-	// their pre-ADR-0011 deck shape; tests exercising the no-padding path
-	// can override rt.DeckPadding before calling NewGameWithDeck.
+	// their pre-ADR-0011 deck shape. F4 (deck fail-loud): the engine no
+	// longer truncates an over-full eligible set silently, so the fixture
+	// pins the historical composition explicitly via ExplicitDecks.
 	if withDecks {
 		rt.DeckPadding = &interp.DeckPaddingSpec{Card: "碌碌无为", TargetSize: 15}
 		for pi := 0; pi < 2; pi++ {
-			rt.BuildDeck(pi)
+			rt.ExplicitDecks[pi] = legacyTruncatedDeck(rt, pi, 15)
+			if err := rt.BuildDeck(pi); err != nil {
+				t.Fatalf("BuildDeck(%d): %v", pi, err)
+			}
 		}
 	}
 
@@ -197,97 +197,31 @@ func newGame(t *testing.T, team0, team1 []string, seed int64, withDecks bool) *G
 	return env
 }
 
-func systemFiles() []string {
-	ordered := []string{
-		"system/round.lua", "system/dice.lua", "system/alive.lua", "system/draw.lua",
-		"system/element.lua", "system/frozen.lua", "system/food.lua",
-		"system/equip.lua", "system/timeout.lua",
-		"system/arche.lua", // ADR-0019 §A.3 Phase 1: Arkhe enum + marker counter
-	}
-	reactDir := filepath.Join(dataDir, "system", "reactions")
-	entries, _ := os.ReadDir(reactDir)
-	for _, e := range entries {
-		if filepath.Ext(e.Name()) == ".lua" {
-			ordered = append(ordered, "system/reactions/"+e.Name())
-		}
-	}
-	ordered = append(ordered, "system/reaction.lua")
-
-	var out []string
-	for _, n := range ordered {
-		p := filepath.Join(dataDir, n)
-		if _, err := os.Stat(p); err == nil {
-			out = append(out, p)
-		}
-	}
-	return out
-}
-
-// filterTalentCardsForSlotUniqueness drops shared card files whose
-// `requires_char = "X"` marker refers to a char that no side of the
-// match has. Mirror (both sides have X) is supported via the shared-
-// load talent path (SelfSlotProxy + LazyCharProxy + LazySkillRef lazy-
-// resolving at hook-fire time), so k>=1 is kept.
-func filterTalentCardsForSlotUniqueness(paths []string, teams [2][]string) []string {
-	slotCount := map[string]int{}
-	for pi := 0; pi < 2; pi++ {
-		for _, name := range teams[pi] {
-			slotCount[name]++
-		}
-	}
-	requiresRe := regexp.MustCompile(`requires_char\s*=\s*"([^"]+)"`)
-	out := make([]string, 0, len(paths))
-	for _, p := range paths {
-		data, err := os.ReadFile(p)
-		if err != nil {
-			out = append(out, p)
+// legacyTruncatedDeck reproduces the pre-F4 implicit deck for test
+// fixtures: eligible cards sorted by name (padding card excluded),
+// capped at target. The engine's implicit path now fail-louds when the
+// eligible set exceeds the padding target (F4), but these tests load
+// broad pool unions (testPools) where eligibility regularly exceeds 15
+// and only exercise hook/damage mechanics, not deck composition — so
+// the historical composition is pinned explicitly here, at fixture
+// level, where any future drift is a visible test-code decision.
+func legacyTruncatedDeck(rt *interp.Runtime, pi, target int) []string {
+	names := make([]string, 0, len(rt.Cards.ByName))
+	for n := range rt.Cards.ByName {
+		if n == rt.DeckPadding.Card {
 			continue
 		}
-		m := requiresRe.FindStringSubmatch(string(data))
-		if m == nil {
-			out = append(out, p)
-			continue
-		}
-		if slotCount[m[1]] > 0 {
-			out = append(out, p)
-		}
+		names = append(names, n)
 	}
-	return out
-}
-
-// testPools lists the pools Go engine tests load from. v_legacy holds
-// the prod chars/cards (赤蝶/墨客/... + L1..L6) used by most tests;
-// test_basic holds synthetic 测试角色/测试卡 fixtures used by a few
-// shape/element tests. The two pools are sibling roots with disjoint
-// name sets, so a flat union is the right semantics here. Tests that
-// want to exercise the parent-chain overlay mechanism specifically
-// should call interp.ResolvePool directly with a single pool ID.
-var testPools = []string{"v_phase2", "v_legacy", "test_basic", "spike"}
-
-func collectDSLPaths(teams [2][]string) (*interp.PoolResolution, []string) {
-	pool, err := interp.ResolvePoolUnion(dataDir, testPools)
-	if err != nil {
-		panic(err)
-	}
-	seen := map[string]bool{}
-	var paths []string
-	for pi := 0; pi < 2; pi++ {
-		for _, name := range teams[pi] {
-			entry := pool.Chars[name]
-			if entry == nil {
-				continue
-			}
-			for _, p := range entry.Skills {
-				if !seen[p] {
-					seen[p] = true
-					paths = append(paths, p)
-				}
+	sort.Strings(names)
+	deck := make([]string, 0, target)
+	for _, n := range names {
+		if rt.CardEligibleFor(rt.Cards.ByName[n], pi) {
+			deck = append(deck, n)
+			if len(deck) == target {
+				break
 			}
 		}
 	}
-	for _, p := range pool.Cards {
-		paths = append(paths, p)
-	}
-	sort.Strings(paths)
-	return pool, paths
+	return deck
 }

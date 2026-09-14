@@ -20,7 +20,19 @@ func findActionIdx(g *engine.Game, desc Action) int {
 		if a.PlayerIdx != desc.Player {
 			continue
 		}
+		if desc.Input != nil && engine.InputForAction(a) != *desc.Input {
+			continue
+		}
+		if a.HasTarget && desc.TargetPlayer >= 0 {
+			if a.TargetPlayer != desc.TargetPlayer || g.CharNames[[2]int{a.TargetPlayer, a.TargetChar}] != desc.TargetChar {
+				continue
+			}
+		}
 		switch desc.Kind {
+		case ActReroll:
+			if a.Kind == engine.ActionReroll && desc.Input != nil {
+				return i
+			}
 		case ActSkill:
 			if a.Kind != engine.ActionSkill {
 				continue
@@ -28,8 +40,12 @@ func findActionIdx(g *engine.Game, desc Action) int {
 			if n, ok := g.SkillNames[a.Index]; ok && n == desc.Name {
 				return i
 			}
-		case ActCard:
-			if a.Kind != engine.ActionCard {
+		case ActCard, ActTune:
+			want := engine.ActionCard
+			if desc.Kind == ActTune {
+				want = engine.ActionTune
+			}
+			if a.Kind != want {
 				continue
 			}
 			if a.Index < len(g.Players[a.PlayerIdx].Hand) {
@@ -61,7 +77,7 @@ func (r *Replayer) Step(round int, actIdx int) error {
 		return fmt.Errorf("round %d out of range", round)
 	}
 	rd := r.Rec.Rounds[round-1]
-	if actIdx >= len(rd.Actions) {
+	if actIdx < 0 || actIdx >= len(rd.Actions) {
 		return fmt.Errorf("action %d out of range for round %d", actIdx, round)
 	}
 	desc := rd.Actions[actIdx]
@@ -72,7 +88,13 @@ func (r *Replayer) Step(round int, actIdx int) error {
 	}
 	r.Runtime.CurrentContextPlayer = g.Turn
 	result := g.Step(idx)
-	if result == engine.StepNeedTarget {
+	if result == engine.StepNeedTarget && g.PendingCardTarget != nil {
+		if desc.Input != nil && desc.TargetPlayer < 0 {
+			// A newly recorded, unfinished card play has not selected a
+			// target yet. Preserve that decision boundary instead of inventing
+			// a choice. Input-less legacy records keep their historical default.
+			return nil
+		}
 		tIdx := 0
 		if desc.TargetPlayer >= 0 && desc.TargetChar != "" {
 			tIdx = findTargetIdx(g, desc.TargetPlayer, desc.TargetChar)
@@ -163,10 +185,10 @@ func ExtractTeams(rec *Record) ([2][]string, error) {
 // round 1, step=TotalSteps(rec) returns the terminal state.
 //
 // The runtime must already be initialized with matching teams and card
-// declarations. Implementation: jump to the target round via record.Load
-// (fast, cached snapshot) then Step forward any remaining in-round
-// actions. This avoids re-running every preceding round at the cost of
-// trusting each round's cached Start snapshot.
+// declarations. Implementation: load the target round checkpoint, then Step
+// forward any remaining in-round actions. New checkpoints validate DSL source
+// and registry layout and restore full gameplay state; legacy records still
+// use their incomplete human-readable Start projection.
 func ReplayTo(rt *interp.Runtime, rec *Record, step int) error {
 	if step < 0 {
 		return fmt.Errorf("step %d must be non-negative", step)

@@ -50,7 +50,7 @@ class _Cfg:
     meta = _Meta()
 
 
-def _real_env_agent_cfg(max_actions: int = 64, d_model: int = 16) -> AgentConfig:
+def _real_env_agent_cfg(max_actions: int = 2048, d_model: int = 16) -> AgentConfig:
     """AgentConfig sized to a real GicgEnv obs. Engine pins
     n_counter_slots / n_hooks to production values; smoke must match
     so encode_static / parse_dynamic_single accept the obs vector.
@@ -58,12 +58,23 @@ def _real_env_agent_cfg(max_actions: int = 64, d_model: int = 16) -> AgentConfig
     return AgentConfig(
         n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
         n_hooks=900,
-        max_ops_per_hook=64,
+        max_ops_per_hook=128,
         max_actions=max_actions,
         d_model=d_model,
         n_cross_layers=1,
         dropout=0.0,
     )
+
+
+def test_ppo_action_overflow_is_rejected_before_sampling():
+    import pytest
+    from training.paradigms.ppo.agent import PPOAgent
+
+    agent = PPOAgent(_real_env_agent_cfg(max_actions=4, d_model=8))
+    with pytest.raises(ValueError, match='exceed max_actions=4'):
+        agent._forward_logits_value(np.zeros(0), np.zeros((5, 3)), np.zeros((5, 8)), 5)
+    with pytest.raises(ValueError, match='must align'):
+        agent._forward_logits_value(np.zeros(0), np.zeros((3, 3)), np.zeros((4, 8)), 4)
 
 
 def test_collector_self_play_emits_transitions_with_gae() -> None:
@@ -74,14 +85,14 @@ def test_collector_self_play_emits_transitions_with_gae() -> None:
                 'n_counter_slots': 128,
                 'n_hooks': 4,
                 'max_ops_per_hook': 8,
-                'max_actions': 64,
+                'max_actions': 2048,
                 'd_model': 16,
                 'n_cross_layers': 1,
             },
             'rollout': {'n_games_per_iter': 2, 'max_steps_per_game': 80, 'rollout_opponent': 'self'},
         }
     )
-    agent_cfg = _real_env_agent_cfg(max_actions=64, d_model=16)
+    agent_cfg = _real_env_agent_cfg(max_actions=2048, d_model=16)
     net = PPONetwork(agent_cfg)
     coll = PPORolloutCollector(_Cfg(), pcfg, net, env_factory=lambda i: None)
     out = coll.collect(n_units=0, provider=None)
@@ -106,14 +117,14 @@ def test_collector_asymmetric_random_opponent_only_collects_p0() -> None:
                 'n_counter_slots': 128,
                 'n_hooks': 4,
                 'max_ops_per_hook': 8,
-                'max_actions': 64,
+                'max_actions': 2048,
                 'd_model': 16,
                 'n_cross_layers': 1,
             },
             'rollout': {'n_games_per_iter': 2, 'max_steps_per_game': 80, 'rollout_opponent': 'random'},
         }
     )
-    agent_cfg = _real_env_agent_cfg(max_actions=64, d_model=16)
+    agent_cfg = _real_env_agent_cfg(max_actions=2048, d_model=16)
     net = PPONetwork(agent_cfg)
     coll = PPORolloutCollector(_Cfg(), pcfg, net, env_factory=lambda i: None)
     out = coll.collect(n_units=0, provider=None)
@@ -162,14 +173,14 @@ def test_collector_transition_loss_round_trip() -> None:
                 'n_counter_slots': 128,
                 'n_hooks': 4,
                 'max_ops_per_hook': 8,
-                'max_actions': 64,
+                'max_actions': 2048,
                 'd_model': 16,
                 'n_cross_layers': 1,
             },
             'rollout': {'n_games_per_iter': 1, 'max_steps_per_game': 40, 'rollout_opponent': 'self'},
         }
     )
-    agent_cfg = _real_env_agent_cfg(max_actions=64, d_model=16)
+    agent_cfg = _real_env_agent_cfg(max_actions=2048, d_model=16)
     net = PPONetwork(agent_cfg)
     coll = PPORolloutCollector(_Cfg(), pcfg, net, env_factory=lambda i: None)
     out = coll.collect(n_units=0, provider=None)

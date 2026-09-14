@@ -176,6 +176,8 @@ class PeriodicEvaluator:
         key = (tuple(team_0), tuple(team_1))
         env = self._env_cache.get(key)
         if env is None:
+            from training.core.scenario import decks_arg
+
             env = GicgEnv(
                 team_0=team_0,
                 team_1=team_1,
@@ -186,6 +188,7 @@ class PeriodicEvaluator:
                 obs_mask=self.cfg.scenario.obs_mask,
                 deck_padding=self.cfg.scenario.deck_padding,
                 pool=self.cfg.scenario.pool,
+                decks=decks_arg(self.cfg.scenario.deck_0, self.cfg.scenario.deck_1),
             )
             self._env_cache[key] = env
         return env

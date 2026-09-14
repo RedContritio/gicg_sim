@@ -9,6 +9,9 @@ import (
 // P1 先结束回合 → 下一回合 P1 先手
 func TestTurnOrder_P1EndsFirstGoesFirstNextRound(t *testing.T) {
 	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	// Rule test: explicitly fund both players rather than depend on random rolls.
+	env.SetDice(0, map[int]int{7: 8})
+	env.SetDice(1, map[int]int{7: 8})
 
 	// Round 1 starts with P0
 	if env.G.Turn != 0 {

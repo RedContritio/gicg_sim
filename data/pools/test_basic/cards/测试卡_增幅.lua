@@ -10,9 +10,11 @@ on_card_play(function(ctx)
   buff:set_at(ctx.actor_player, 1)
 end)
 
-on_damage_mul(function(ctx)
+on_damage_mul({ order = buff }, function(ctx)
   if ctx.source ~= Source.Skill then return end
   if buff:get_at(ctx.actor_player) <= 0 then return end
   ctx.value = ctx.value * 2
   buff:set_at(ctx.actor_player, 0)
 end)
+
+register_buff(buff)

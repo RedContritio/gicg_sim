@@ -22,10 +22,9 @@ import (
 // finalizeHookIRs walks rt.LoadedFiles, extracts per-file top-level
 // bindings (declare_*/get_* LocalDecls), then walks g.Hooks and compiles
 // each hook body AST to ir.CompiledHook with the matching file's bindings.
-// Compile errors are silently skipped — Hook.Repr stays nil, observation
-// layer falls back to the legacy Tokens path. Total successful and failed
-// compile counts are returned for diagnostic logging.
-func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
+// Every compile or capacity error is returned to the factory. A partial rule
+// observation is not an acceptable training environment.
+func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN int, failures []error) {
 	fileBindings := map[string]map[string]ir.TypedBinding{}
 	var nextID int16 = 1
 	for _, path := range rt.LoadedFiles {
@@ -51,9 +50,21 @@ func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
 			sourceKey = sourceKey[:i]
 		}
 		bindings := fileBindings[sourceKey]
+		if h.CounterParam != "" {
+			local := make(map[string]ir.TypedBinding, len(bindings)+1)
+			for k, v := range bindings {
+				local[k] = v
+			}
+			local[h.CounterParam] = ir.TypedBinding{Kind: ir.BindingCounter, ID: nextID}
+			nextID++
+			bindings = local
+		}
 		compiled, err := ir.CompileHookIR(body, bindings)
+		if err == nil && compiled.ObsOpCount() > engine.ObsMaxOpsPerHook {
+			err = fmt.Errorf("rule observation needs %d ops, capacity is %d", compiled.ObsOpCount(), engine.ObsMaxOpsPerHook)
+		}
 		if err != nil {
-			failN++
+			failures = append(failures, fmt.Errorf("hook %d source %q: %w", h.ID, h.Source, err))
 			if diag {
 				fmt.Fprintf(os.Stderr, "[IR-DIAG-FAIL] source=%q nbindings=%d err=%v\n", h.Source, len(bindings), err)
 			}
@@ -62,7 +73,7 @@ func finalizeHookIRs(g *engine.Game, rt *interp.Runtime) (okN, failN int) {
 		h.Repr = compiled
 		okN++
 	}
-	return okN, failN
+	return okN, failures
 }
 
 // extractTopLevelBindings scans a parsed file chunk for top-level locals

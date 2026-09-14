@@ -24,7 +24,7 @@ def az_smoke_agent_config() -> AgentConfig:
     return AgentConfig(
         n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
         n_hooks=900,
-        max_ops_per_hook=64,
+        max_ops_per_hook=128,
         max_actions=2048,
         d_model=16,
         n_cross_layers=1,
@@ -34,7 +34,11 @@ def az_smoke_agent_config() -> AgentConfig:
 
 def az_smoke_scenario(data_dir: Optional[str] = None) -> ScenarioConfig:
     """ScenarioConfig matching the old ``smoke_config().scenario`` —
-    赤蝶 mirror 1v1, v_legacy+test_basic pool, 15-slot deck padding."""
+    赤蝶 mirror 1v1, v_legacy+test_basic pool, 15-slot deck padding.
+    F4: deck pinned explicitly (engine no longer truncates the over-full
+    union eligibility silently)."""
+    from training.tests.smoke_template import SMOKE_MIRROR_DECK
+
     return ScenarioConfig(
         team_0=['赤蝶'],
         team_1=['赤蝶'],
@@ -42,6 +46,8 @@ def az_smoke_scenario(data_dir: Optional[str] = None) -> ScenarioConfig:
         data_dir=data_dir,
         deck_padding={'card': '碌碌无为', 'target_size': 15},
         pool=['v_legacy', 'test_basic'],
+        deck_0=list(SMOKE_MIRROR_DECK),
+        deck_1=list(SMOKE_MIRROR_DECK),
     )
 
 

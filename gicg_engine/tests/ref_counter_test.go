@@ -6,6 +6,30 @@ import (
 	engine "gicg_mono/gicg_engine"
 )
 
+func TestRefCounter_铁枪_RepeatSkillDamage(t *testing.T) {
+	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	env.giveCard(t, 0, "铁枪")
+	env.SetDice(0, map[int]int{engine.DiceColorOmni: 16})
+	if !env.playCard(t, "铁枪") {
+		t.Fatal("铁枪 not playable")
+	}
+	before := env.HP(1, 0)
+	if !env.StepSkill("枪") {
+		t.Fatal("first 枪 unavailable")
+	}
+	if got := before - env.HP(1, 0); got != 2 {
+		t.Fatalf("first skill damage=%d, want 2", got)
+	}
+	env.StepEndTurn() // P1 passes; next repeated skill remains in this round.
+	before = env.HP(1, 0)
+	if !env.StepSkill("枪") {
+		t.Fatal("second 枪 unavailable")
+	}
+	if got := before - env.HP(1, 0); got != 3 {
+		t.Fatalf("repeat skill damage=%d, want 3", got)
+	}
+}
+
 // TestRefCounter_铁剑_RepeatSkillDiscount verifies the 铁剑 weapon
 // card's "same skill twice = -1 cost" effect fires correctly now
 // that its last_skill counter uses ref_kind = RefKind.Skill (so

@@ -276,7 +276,7 @@ def resume_and_continue(
     This helper asserts all three.
 
     Per SF-102 functional verify: assert subprocess exit 0 + new ckpt
-    file count > pre-resume. Do NOT bit-identical compare weights.
+    step > the prior final step (retention may cap file count). Do NOT bit-identical compare weights.
 
     Args:
         ckpt_file: a ckpt_*.pt file produced by the train run, lying
@@ -367,11 +367,7 @@ def resume_and_continue(
     )
 
     post_resume_ckpts = sorted(ckpts_dir.glob('ckpt_*.pt'))
-    assert len(post_resume_ckpts) > len(pre_resume_ckpts), (
-        f'smoke_full A1.6.3: expected new ckpt(s) after resume from '
-        f'{ckpt_file.name}, but ckpt count unchanged ({len(pre_resume_ckpts)} → '
-        f'{len(post_resume_ckpts)}). Resume subprocess succeeded but driver '
-        f'did not advance state.step past last_ckpt_at_step + save_every. '
-        f'Bump terminus in smoke_full toml.'
-    )
+    before = max(int(p.stem.split('_')[1]) for p in pre_resume_ckpts)
+    after = max(int(p.stem.split('_')[1]) for p in post_resume_ckpts)
+    assert after > before, f'resume did not advance checkpoints: {before} -> {after}'
     return post_resume_ckpts

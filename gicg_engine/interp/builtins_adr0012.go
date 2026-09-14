@@ -6,8 +6,8 @@ import (
 	engine "gicg_mono/gicg_engine"
 )
 
-// ADR-0012 spike: prepare-skill state + draw_card + add_dice。
-// Registered from RegisterBuiltins in builtins.go.
+// ADR-0012 spike: prepare-skill state + draw_card + add_dice +
+// element_to_dice_color。Registered from RegisterBuiltins in builtins.go.
 func (rt *Runtime) registerADR0012Builtins() {
 	g := rt.Interp.Global
 
@@ -86,5 +86,20 @@ func (rt *Runtime) registerADR0012Builtins() {
 		}
 		rt.Game.Counters[rt.diceSlot(rp, elem)].Value += n
 		return nil, nil
+	}))
+
+	// element_to_dice_color(element) — map a game Element enum value to
+	// the DiceColor index the dice APIs (add_dice / get_dice_count)
+	// expect. The two enums are intentionally distinct spaces
+	// (Element.None occupies 0, so Element.Fire=1 ≠ DiceColor.Fire=0);
+	// this builtin is the only supported bridge. Non-elemental input
+	// (None / Physical / Piercing) has no dice color and raises.
+	g.SetLocal("element_to_dice_color", GoFunc(func(rt *Runtime, args []Value) (Value, error) {
+		e, _ := ToInt(args[0])
+		color := engine.ElementToDiceColor(engine.Element(e))
+		if color < 0 {
+			return nil, fmt.Errorf("element_to_dice_color: element %d has no dice color", e)
+		}
+		return color, nil
 	}))
 }

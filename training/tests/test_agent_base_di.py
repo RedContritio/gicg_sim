@@ -16,6 +16,12 @@ import torch.nn as nn
 
 from training.core.network.agent_base import AgentBase, AgentConfig
 from training.core.network.encoder import HookEncoder
+from training.core.obs_constants import (
+    OBS_CHAR_ELEMENT_SLOTS,
+    OBS_CHAR_SKILL_REFS_SIZE,
+    OBS_DEFINITION_LINK_SCHEMA_VERSION,
+    OBS_DEFINITION_LINK_SLOTS,
+)
 
 
 def _make_cfg() -> AgentConfig:
@@ -39,6 +45,17 @@ def _make_hook_encoder(d_model: int = 16) -> HookEncoder:
     )
 
 
+def _make_static(cfg: AgentConfig) -> np.ndarray:
+    meta_size = cfg.n_counter_slots * 3
+    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
+    obs = np.zeros(
+        meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size + OBS_CHAR_ELEMENT_SLOTS + OBS_DEFINITION_LINK_SLOTS,
+        dtype=np.float32,
+    )
+    obs[-OBS_DEFINITION_LINK_SLOTS] = OBS_DEFINITION_LINK_SCHEMA_VERSION
+    return obs
+
+
 def test_di_constructor_signature():
     """AgentBase requires hook_encoder at construction (no self.net lookup)."""
     cfg = _make_cfg()
@@ -60,11 +77,7 @@ def test_no_self_net_required_at_init():
     agent = BareAgent(cfg, hook_encoder=he)
     assert not hasattr(agent, 'net')
     # encode_static works without self.net (uses self._hook_encoder)
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
-
-    meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
-    static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
+    static = _make_static(cfg)
     # mark one slot active by setting min/max non-zero
     static[0] = 1.0  # slot 0 min
     static[1] = 10.0  # slot 0 max
@@ -87,11 +100,7 @@ def test_game_start_returns_cache_dict():
     cfg = _make_cfg()
     he = _make_hook_encoder(d_model=cfg.d_model)
     agent = AgentBase(cfg, hook_encoder=he)
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
-
-    meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
-    static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
+    static = _make_static(cfg)
     static[0] = 1.0
     static[1] = 10.0
     cache = agent.game_start(static)
@@ -101,6 +110,7 @@ def test_game_start_returns_cache_dict():
         'counter_sids',
         'active_slot_mask',
         'char_skill_refs',
+        'definition_links',
     }
 
 
@@ -125,11 +135,8 @@ def test_mock_hook_encoder_injection():
     he = IdentityHookEncoder()
     agent = AgentBase(cfg, hook_encoder=he)
     # encode_static still works with mock encoder
-    from training.core.obs_constants import OBS_CHAR_SKILL_REFS_SIZE
-
     meta_size = cfg.n_counter_slots * 3
-    hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
-    static = np.zeros(meta_size + OBS_CHAR_SKILL_REFS_SIZE + hook_size, dtype=np.float32)
+    static = _make_static(cfg)
     # active hook token to force forward path
     static[meta_size + OBS_CHAR_SKILL_REFS_SIZE] = 5.0  # hook[0][0] type=5
     agent.encode_static(static)

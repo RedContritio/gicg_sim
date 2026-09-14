@@ -107,7 +107,7 @@ func TestInvariant_CharAttrMethodsExact(t *testing.T) {
 // LookupKwArg to a non-zero token. Sweep via LookupKwArg on each known
 // kwarg name.
 func TestInvariant_KwArgKeysResolve(t *testing.T) {
-	keys := []string{"source", "element", "target", "penetrate", "react"}
+	keys := []string{"source", "element", "target", "penetrate", "react", "target_counter"}
 	for _, k := range keys {
 		id, ok := engine.LookupKwArg(k)
 		if !ok || id == 0 {

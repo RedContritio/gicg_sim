@@ -1,7 +1,13 @@
 package record
 
+import (
+	"encoding/json"
+	engine "gicg_mono/gicg_engine"
+)
+
 // Record is a parsed game record.
 type Record struct {
+	Config *ReplayConfig
 	Rounds []Round
 	Winner int // -1 if not set
 }
@@ -12,9 +18,12 @@ type Round struct {
 	Actions []Action
 }
 
-// State is a full game state snapshot at a point in time.
+// State combines the legacy human-readable projection with an optional exact
+// checkpoint. Legacy fields alone do not represent every gameplay field.
 type State struct {
-	FirstPlayer int // 0 or 1: who goes first in this round
+	Checkpoint  json.RawMessage
+	ActiveChars *[2]int // engine slots, independent of DSL active counters
+	FirstPlayer int     // 0 or 1: who goes first in this round
 	P0          PlayerState
 	P1          PlayerState
 }
@@ -35,9 +44,12 @@ const (
 	ActCard    = "card"
 	ActSwitch  = "switch"
 	ActEndTurn = "end_turn"
+	ActTune    = "tune"
+	ActReroll  = "reroll"
 )
 
 type Action struct {
+	Input  *engine.ActionInput
 	Player int    // 0 or 1
 	Kind   string // ActSkill, ActCard, ActSwitch, ActEndTurn
 	Name   string // skill/card/target-char name

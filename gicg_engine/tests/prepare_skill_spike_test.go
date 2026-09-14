@@ -90,11 +90,9 @@ func TestPrepareSkillSpike_ResolveOnNextTurn(t *testing.T) {
 		t.Errorf("after prepare resolve: P1 HP %d → %d, want -2 from 高频+超速", p1Hp0, p1HpFinal)
 	}
 	p0EnergyFinal := g.Counters[env.RT.Chars.BySlot[0][0].EnergyCounterID].Value
-	// P0 用了 高频(普攻类:engine canonical +1)+ 超速 silent(DSL 自加 +1)
-	// = +2 总能量。但 engine canonical 也对 silent invoke fire,可能
-	// double count;spike 阶段先看实际值再验证。
-	if p0EnergyFinal <= p0Energy0 {
-		t.Errorf("after 高频 + auto-超速: P0 energy %d → %d, want strictly greater", p0Energy0, p0EnergyFinal)
+	// 高频 canonical +1; preparing skips canonical hooks and its DSL adds +1.
+	if p0EnergyFinal != p0Energy0+2 {
+		t.Errorf("after 高频 + auto-超速: P0 energy %d → %d, want +2", p0Energy0, p0EnergyFinal)
 	}
-	t.Logf("P0 energy %d → %d (expected ≥ +2 from 高频 canonical + 超速 silent DSL)", p0Energy0, p0EnergyFinal)
+	t.Logf("P0 energy %d → %d", p0Energy0, p0EnergyFinal)
 }

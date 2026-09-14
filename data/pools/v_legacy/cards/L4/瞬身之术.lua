@@ -7,20 +7,22 @@ on_card_play(function(ctx)
   active:set(1)
 end)
 
-on_action_prepare(function(ctx)
+on_action_prepare({ order = active }, function(ctx)
   if ctx.action_kind ~= ActionKind.Switch then return end
   if active:get_at(ctx.actor_player) <= 0 then return end
   if used:get_at(ctx.actor_player) > 0 then return end
   ctx.battle_action = false
 end)
 
-on_switch(function(ctx)
+on_switch({ order = active }, function(ctx)
   if ctx.action_context ~= Action.Switch then return end
   if active:get_at(ctx.actor_player) <= 0 then return end
   if used:get_at(ctx.actor_player) > 0 then return end
   used:set_at(ctx.actor_player, 1)
 end)
 
-on_round_start(function(ctx)
+on_round_start({ order = active }, function(ctx)
   used:set(0)
 end)
+
+register_buff(active, { progress = used })

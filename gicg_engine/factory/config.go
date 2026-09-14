@@ -70,6 +70,14 @@ type ObsConfigJSON struct {
 
 type PConfig struct {
 	Chars []CharDef `json:"chars"`
+	// Deck pins this player's deck to an explicit card-name list
+	// (F4 — mirrors training cfg [scenario].deck_0/deck_1; multiset,
+	// duplicates allowed). nil = implicit path: deck is the full set of
+	// declared cards eligible for this player, padded per DeckPadding.
+	// Every name must already be declared in the ruleset (card_pool /
+	// pool) — Deck never extends the loaded card set, so the obs card
+	// vocabulary stays controlled by CardPool alone.
+	Deck []string `json:"deck"`
 }
 
 type CharDef struct {

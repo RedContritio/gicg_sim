@@ -83,12 +83,21 @@ func (g *Game) enumerateCards(pi int, pool [DiceColorCount]int, rt DicePoolProvi
 			continue
 		}
 		if ctx.NeedTarget && ctx.TargetMode > 0 {
+			if ctx.TargetMode == 4 {
+				actions = g.enumerateSupportReplacement(pi, j, ctx, payments, actions)
+				continue
+			}
+			if ctx.TargetMode == 3 {
+				actions = g.enumerateBuffCards(pi, j, cardRef, ctx, payments, actions)
+				continue
+			}
 			// Joint compound action: enumerate (target × payment).
 			pc := &PendingCard{
 				PlayerIdx:    pi,
 				CardRef:      cardRef,
 				BattleAction: ctx.BattleAction,
 				TargetMode:   ctx.TargetMode,
+				AppliedMods:  ctx.AppliedMods,
 			}
 			targets := g.cardTargetActions(pc)
 			for _, t := range targets {

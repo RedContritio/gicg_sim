@@ -1,28 +1,11 @@
-"""Snapshot / restore mid-game invariant contract tests (Phase 0a for CFR).
+"""Exact snapshot/restore contracts shared by CFR and search.
 
-These tests pin down what `engine.snapshot() / engine.restore() /
-engine.snapshot_free()` guarantees, which Deep CFR outcome-sampling
-traversal will rely on:
-
-  snap = engine.snapshot()
-  engine.step(a)           # mutate
-  engine.restore(snap)     # roll back
-  engine.step(b)           # explore alternative
-
-For CFR correctness, every observable that the trained network consumes
-(`get_dynamic_obs`, legal actions, counters, hands, dice) must bit-match
-the pre-step state after `restore`. The RNG is re-seeded deterministically
-from `snap.Rng.Int63()` on restore; this advances `snap.Rng` by one call,
-so repeated restores of the same snap draw independent substreams — that
-is CFR-correct (independent exploration) and pinned by a test here.
-
-Audit (see gicg_engine/game.go:239 DeepCopy, :329 RestoreFrom):
-  captured: Phase, Round, Turn, FirstEnd, Winner, BaseSeed,
-            DicePaid/TunedOut/TunedIn, Counters[:].Value,
-            Hand/Deck/Discard refs, ActiveChar, Alive, DeclaredEnd,
-            PendingAction, PendingCardTarget, Rng (via Int63() re-seed).
-  shared:   Hooks, name maps, Perms (immutable post-DSL-load).
-  nulled:   eventStack (snap-at-quiescent-point contract).
+Snapshots preserve all gameplay and random state without advancing the source.
+Restoring the same snapshot reproduces the same future under the same actions.
+Algorithms requiring fresh chance samples must call set_simulation_seed explicitly
+on a private simulation after restore. Independent objects never share mutable
+state. Go lifecycle inventory and behavioral tests cover fields beyond the Python
+observation API; these tests verify the C/Python boundary and full trajectories.
 """
 
 import os
@@ -383,7 +366,7 @@ class TestSnapshotPendingState:
 class TestFullRolloutUnderSnapshot:
     """Bigger smoke: snap at an early decision point, roll out to terminal,
     restore, roll out again. Both full rollouts must reach a terminal state
-    (possibly different due to independent RNG substreams)."""
+    with identical observable trajectories and outcomes."""
 
     def test_snap_then_two_full_rollouts(self):
         eng = _fresh_game()
@@ -395,9 +378,11 @@ class TestFullRolloutUnderSnapshot:
                 eng.step(0)
             snap = eng.snapshot()
             try:
+                trajectory = []
                 steps_a = 0
                 while not eng.done and steps_a < 500:
                     eng.step(0)
+                    trajectory.append(_snapshot_observables(eng))
                     steps_a += 1
                 assert eng.done, 'rollout A did not terminate in 500 steps'
                 outcome_a = eng.winner
@@ -408,15 +393,15 @@ class TestFullRolloutUnderSnapshot:
                 steps_b = 0
                 while not eng.done and steps_b < 500:
                     eng.step(0)
+                    assert steps_b < len(trajectory)
+                    _assert_observables_equal(trajectory[steps_b], _snapshot_observables(eng), note=f'step {steps_b}')
                     steps_b += 1
                 assert eng.done, 'rollout B did not terminate in 500 steps'
                 outcome_b = eng.winner
 
-                # Under deterministic action=0 policy + RNG re-seed on restore,
-                # rollout B's RNG substream differs from rollout A's. Outcomes
-                # may or may not match. We only assert both reached terminal.
-                assert outcome_a in (-1, 0, 1)
-                assert outcome_b in (-1, 0, 1)
+                assert steps_a == steps_b
+                assert outcome_a == outcome_b
+                assert outcome_a in (-1, 0, 1, 2)
             finally:
                 eng.snapshot_free(snap)
         finally:

@@ -11,6 +11,8 @@
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint
+
 import random
 import sys
 from pathlib import Path
@@ -30,7 +32,7 @@ def main() -> int:
     ckpt_path = Path(sys.argv[1])
     seed = int(sys.argv[2]) if len(sys.argv) > 2 else 0
 
-    blob = torch.load(ckpt_path, weights_only=True, map_location='cpu')
+    blob = load_checkpoint(ckpt_path, weights_only=True, map_location='cpu')
     cfg = CFRNetConfig(**blob['cfg'])
     agent = CFRAgent(cfg)
     agent.net.load_state_dict(blob['net'])

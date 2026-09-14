@@ -17,7 +17,7 @@ on_card_play(function(ctx)
   equipped:set_at(ctx.target_player, ctx.target_char, ref)
 end)
 
-on_skill_use(function(ctx)
+on_skill_use({ order = equipped }, function(ctx)
   if equipped:get_at(ctx.actor_player, ctx.actor_char) ~= ref then return end
   if last_skill:get_at(ctx.actor_player, ctx.actor_char) == ctx.skill_index then
     -- Same skill as last time → streak consumed, reset marker
@@ -28,7 +28,7 @@ on_skill_use(function(ctx)
   end
 end)
 
-on_action_prepare(function(ctx)
+on_action_prepare({ order = equipped }, function(ctx)
   if ctx.action_kind ~= ActionKind.Skill then return end
   if equipped:get_at(ctx.actor_player, ctx.actor_char) ~= ref then return end
   if last_skill:get_at(ctx.actor_player, ctx.actor_char) ~= ctx.skill_index then return end

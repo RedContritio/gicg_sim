@@ -149,13 +149,16 @@ add_card(card_ref, zone [, player])
 ```lua
 deal_damage(target, element, value [, opts])
 heal(target, value)
+apply_element(target, element) -- 纯附着：只执行反应/附着与非伤害后果
 invoke_skill(skill_id [, {paid=true}])
 defer_fn(fn)
 get_active_char(player)
+is_char_alive(player, char) -- boolean; invalid slot returns false
 set_active_char(player, char)
 get_next_char(player, char)
 context_player()
 force_switch_next(player)
+force_switch_previous(player) -- 向前循环跳过阵亡角色；复用强制切换事件与暂停/恢复
 register_on_all_hp(op, fn)
 register_on_all_energy(op, fn)
 ```
@@ -177,6 +180,12 @@ counter ref(详 §3.4)。
 | `set_active_char(player, char)` / `force_switch_next(player)` / `get_active_char(player)` / `get_next_char(player, char)` | Active-char bookkeeping;SHALL emit `HookSwitch` only when active char changes。 |
 | `context_player()` | Returns the frame's current context player(`Player.Own` / `Player.Enemy` resolution anchor)。 |
 | `register_on_all_hp(op, fn)` / `register_on_all_energy(op, fn)` | Shorthands that register `on_before_write` / `on_after_write` hooks on every known HP / energy counter — used by `system/` files to implement global HP / energy contracts(死亡检测 / 大招触发 etc.)。 |
+
+用户确认（2026-09-12）：强制切换也 SHALL 派发 `HookSwitch`；实际未改变出战角色
+时 SHALL NOT 派发。规则自动切换使用 `ActForcedReaction`，死亡选人使用
+`ActForcedDeath`，均不额外扣骰或翻转行动权。主动切换专属效果仍可按 ActionContext
+过滤；事件派发本身不跳过强制切换。会请求玩家输入的原生调用 SHALL 位于
+`Step` / `ExecuteEffect` 等 managed boundary 内，以保留暂停后的剩余效果。
 
 ### 3.4 Target enum
 
@@ -281,3 +290,123 @@ int ID)。
 - Lexer / parser / eval / loader 实现位置:
   `gicg_engine/interp/{lexer,parser,eval,builtins,loader,registry}.go`
 - DSL exemplar(以牙还牙)详 `memory reference_dsl_example`
+
+## 费用总量减免（2026-09-11）
+
+`cost_reduce(ctx, amount)` SHALL 减少最多 amount 个骰子费用，按指定元素
+（枚举顺序）、同色、无色的顺序扣减。非正费用槽不占用减免额度；不能
+将正费用减为负数。amount SHALL 为非负整数，错误参数 SHALL 报错。
+不修改能量费用。调用 SHALL 将当前 hook ID 记录到 AppliedMods，包括
+零减免，用于执行后消费或计数；查询阶段不得直接推进持久计数。
+Tokenizer / IR builtin ID 为 312。参见 `verify-current-cards` change。
+
+## 条件伤害目标（2026-09-11）
+
+`deal_damage(target, element, value, {target_counter = counter, source = ...})`
+支持可选 target_counter，必须是数值型 PerChar counter，否则报错。先按
+原 target 解析目标，再于首击之前筛选该 counter >0 的角色；未选角色
+不产生伤害或反应事件。保留原发起者、逐个目标和死亡选择恢复流程。
+不隐式修改筛选 counter；标记清除由 DSL 显式执行。
+IR SHALL 保留筛选计数绑定，关键字 token 为 265。
+见 `confirm-current-card-rules-v2` change。
+
+## Ordered buff instances (v4)
+
+`register_buff(counter, opts)` binds aggregate state; options include `duration`, `progress`,
+`expires_round_end`, `remove_on_death`, and `independent` (zero-valued template).
+`on_xxx({order=counter, priority=0}, fn)` binds the consuming/effect hook to that instance.
+`order_on="target"` selects the target's buff for target-triggered events.
+Write hooks also accept options before the callback:
+`on_after_write(counter, Op.Sub, {order=buff}, fn)` and
+`register_on_tag_write(Tag.Shield, "after", Op.Add, {order=buff}, fn)`.
+
+`spawn_buff(template, value, duration[, player, char])` creates an independent layer;
+`buff_duration()` reads the current layer, `set_buff_duration(n)` updates it (0 removes, -1 permanent).
+Within a bound hook, counter reads/writes address that layer. Outside it, reads sum layers;
+only set(0) is permitted for bulk removal. Duration decay is explicit in the bound decay hook.
+
+`spawn_support_buff(template, value, duration)` SHALL create an independent instance
+bound to the support that just entered in the current card-play callback. It accepts
+a PerPlayer template, exposes no lifecycle ID, and rejects already-bound supports.
+`remove_support(player, card)` from that instance's bound hook SHALL remove its own
+support; outside an instance hook it removes the first matching support. Removal
+also clears that support's associated buff, preserving other same-name instances.
+Support/buff associations SHALL survive clone/checkpoint and clear on reset.
+Token 359 identifies `spawn_support_buff`; internal association IDs SHALL NOT be NN inputs.
+
+A support card played into four occupied slots SHALL enumerate the selected own
+replacement slot jointly with payment. The chosen support's lifecycle identity
+is captured before payment; later slot shifts SHALL NOT change that choice.
+Its linked effect leaves before the new support enters with a fresh identity.
+Action reference field 2 uses `-2 - ObsBuffRows - support_slot`; NN target lookup
+SHALL gather the own support entity row, not an enemy row or a live buff position.
+C API, Go actor and MCTS identities use aux=`ObsBuffRows + support_slot`,
+target_player=actor, target_char=-1. Exact action records preserve the slot,
+including slot zero, with an explicit `has_support_target` flag.
+
+`buff_progress()` / `set_buff_progress(n)` SHALL read/write the current live
+independent instance's progress (nonnegative int32). Counter-backed aggregate
+effects continue using their declared progress counter. Tokens 360/361 identify
+these operations. Progress is preserved through clone/checkpoint and visible in
+buff observation field 5. A bound support row also carries its effect value in
+field 3 and progress in field 5; field 4 remains the support's age. No raw ID is exposed.
+`get_dice_total(player)` (token 362) returns the current sum across dice colors.
+`ctx.reaction_kind` (token 363) is available to the rule encoder as well as the executor.
+
+`declare_card(..., {target="enemy_summon"})` SHALL enumerate a joint card/payment/
+live enemy summon choice. `selected_buff()` (token 364) returns the chosen effect's
+counter proxy for `get/set/add/sub`; it SHALL NOT refer to the currently executing
+buff. Selection preserves instance identity across payment; a removed target is null.
+Action references use field 2 = `-2 - live_buff_position` for buff-target cards;
+`-1` remains no target and nonnegative character slots retain their meaning.
+NN actions SHALL gather the chosen instance's live rule/state tokens. C API, Go
+actor and MCTS identities use aux=live_buff_position, target_player=owner,
+target_char=-1, preserving separate summon choices under payment deduplication.
+
+`background_energy(player)` (365) reads total energy on living background characters.
+`transfer_energy_from_background(player, amount, max_sources)` (366) snapshots
+living background donors in slot order, consumes up to amount from each positive
+donor (at most max_sources), then gains the actually consumed total on the original
+active character. Donor consumption SHALL NOT stop at the receiver's energy cap;
+the receiver's ordinary gain/clamp applies, allowing overflow. The card's legality
+hook separately checks whether the receiver is full or no donor has energy.
+
+`choose_reroll(player, times)` (367) SHALL pause the current managed rule for
+owner-controlled dice selection. Nonempty colors are visited in dice-color order,
+with quantities 0..available, then an explicit confirmation. Selection does not
+pay dice or advance RNG. Confirmation replaces selected dice with uniform rolls;
+subsequent rerolls can select dice retained previously. Remaining rule hooks resume
+after all selections; neither card payment nor discard is repeated.
+`ActionReroll` (5) semantic references are `[5, quantity, color]`, where color 8
+means confirmation with quantity 0. Field 1 is NOT a rule-hook reference for this
+kind. C API, Go actor and MCTS use identity subject=quantity, aux=color. Payment
+remains zero. The NN uses quantity features and a separate color/confirmation
+embedding; own execution entities expose pool, selected counts, current color
+and remaining rolls, while the opponent receives no private selection data.
+Records SHALL preserve exact color and quantity. In-process snapshots/clones
+support waiting selection; archival checkpoints retain the existing prohibition
+on exporting/importing replay continuations.
+
+`deal_damage(..., {actor=char_proxy})` explicitly supplies damage ownership and the viewpoint
+for relative targets. Used for reactions to events initiated by the other player.
+
+Current provisional cross-player round order and NN contract:
+[Buff lifecycle v4](../../changes/buff-lifecycle-v4/design.md).
+
+## 纯附着与原目标相对选择（2026-09-14）
+
+`apply_element` SHALL 与 `deal_damage` 区分。纯附着的反应回调收到只读
+`ctx.attachment_only = true`，SHALL 不产生伤害事件或反应附加伤害；冻结、
+强制切换等非伤害后果仍可执行。反应规则 SHALL 在创建伤害分支前检查此字段。
+最终伤害被护盾吸收不等同纯附着，不能用最终HP差决定是否运行反应。
+
+`deal_damage(character, element, value, {other_characters=true})` SHALL 对该角色
+同队其他存活角色造成伤害，排除原目标而非当前出战角色。用于超导/感电，
+也适用于主目标原本就在后台或后续改变出战位置的情况。
+
+## 原生天赋技能来源（2026-09-14）
+
+`invoke_skill(skill, {source=Source.Skill})` SHALL 显式覆盖调用来源，用于原生天赋的立即使用技能。
+未指定source时继续继承原调用来源；调用本身不再次扣骰子/能量，天赋牌自身须声明正确费用和能量要求。
+普通/元素战技仍增加一次能量。`heal(character, value)` 支持明确的存活角色引用，以免技能后出战变化导致治疗错人。
+穿透伤害 SHALL 跳过元素类型修改与伤害加成阶段，也不经过反应和减伤阶段；不得因来源是技能而获得增伤。

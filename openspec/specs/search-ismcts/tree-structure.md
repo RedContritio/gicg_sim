@@ -115,10 +115,12 @@ subtopic: tree-structure
 1. 从根节点开始的 MCTS 下降 SHALL call `env.snapshot()` once 在根节点,
    存为 `root_snap`,然后每次 rollout 开始 SHALL call `env.restore
    (root_snap)`。
-2. 每次 `restore` SHALL advance the snapshot's internal RNG — 使各
-   rollout 自动获得不同的随机结果(掷骰子 / 抽牌的差异)。
+2. `restore` SHALL 精确恢复随机状态，且不得推进快照或源局的 RNG。
+   每个 rollout SHALL 在私有模拟局恢复后显式调用 `set_simulation_seed`
+   （Go: `SetSimulationSeed`）设置该次采样的随机流；种子 SHALL 由搜索种子
+   与 rollout 序号决定，不得依赖 worker 调度顺序。
 3. MCTS SHALL NOT have explicit chance node — 机会节点(掷骰子 /
-   抽牌)由 snapshot RNG 隐式承担,树内只表示玩家决策节点。
+   抽牌)由显式设置的模拟随机流承担,树内只表示玩家决策节点。
 4. 搜索结束后 SHALL `env.restore(root_snap)` 一次(留 env 在根节点
    状态)+ `env.snapshot_free(root_snap)` 释放。
 5. 底层原语契约(`gicg_engine/game.go::DeepCopy` + `RestoreFrom`)

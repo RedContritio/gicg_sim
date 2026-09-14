@@ -1,6 +1,7 @@
 package record
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -18,6 +19,7 @@ func Export(rt *interp.Runtime) string {
 	}
 	roleMap := buildRoleMap(rt)
 	var b strings.Builder
+	writeConfig(&b, g)
 	writeRounds(&b, g, roleMap)
 	return b.String()
 }
@@ -52,6 +54,13 @@ func writeRounds(b *strings.Builder, g *engine.Game, roleMap RoleMap) {
 			b.WriteString("  actions:\n")
 			for _, a := range curActions {
 				fmt.Fprintf(b, "    - %s:\n", a.Header)
+				if a.Input != nil {
+					data, err := json.Marshal(a.Input)
+					if err != nil {
+						panic(err)
+					}
+					fmt.Fprintf(b, "        input: %s\n", data)
+				}
 				for _, e := range a.Effects {
 					fmt.Fprintf(b, "        - %s\n", e)
 				}
@@ -81,9 +90,12 @@ func writeRounds(b *strings.Builder, g *engine.Game, roleMap RoleMap) {
 			phase = "roundend"
 			curAction = nil
 
-		case "action_skill", "action_card", "action_switch", "action_end_turn":
+		case "action_skill", "action_card", "action_switch", "action_end_turn", "action_tune", "action_reroll":
 			phase = "actions"
 			curAction = &actionBuilder{}
+			if input, ok := e.Fields["input"].(engine.ActionInput); ok {
+				curAction.Input = &input
+			}
 			curAction.Header = formatActionHeader(g, e)
 			curActions = append(curActions, curAction)
 

@@ -249,6 +249,11 @@ team_0 = ["凯亚"]
 team_1 = ["凯亚"]
 max_rounds = 15
 deck_padding = { card = "碌碌无为", target_size = 15 }
+# F4 (optional): explicit per-player decks — card-name multiset, 每名
+# SHALL 已在 card_pool/pool 声明集中。缺省 = 隐式 eligible-set 路径,
+# eligible > target_size 时引擎 fail-loud(无静默截断)。
+# deck_0 = ["佛跳墙", "占星", ...]
+# deck_1 = ["佛跳墙", "守正", ...]
 
 [paradigm]                      # schema 由 cfg.meta.paradigm = "dmc" 决定
 epsilon = 0.01

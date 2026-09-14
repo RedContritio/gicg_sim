@@ -64,6 +64,7 @@ import numpy as np
 
 from gicg_env import GicgEnv
 from training.core.matchup.greedy_scorers import SCORERS, ScorerFn
+from training.core.matchup.greedy_reroll import reroll_choice
 
 
 @dataclass
@@ -111,6 +112,17 @@ def _score_best_response(
     ``gicg_actor/dmc/greedy_player.go`` ``scoreBestResponse`` semantics for
     cross-language fair benchmarking (budget consumed per candidate snapshot
     on both sides)."""
+    choice = None if env.done else reroll_choice(env)
+    if choice is not None:
+        snap = env.snapshot()
+        try:
+            while choice is not None:
+                env.step(choice)
+                choice = None if env.done else reroll_choice(env)
+            return _score_best_response(env, view_root, events_root, me, scorer, depth, dice_greedy, budget)
+        finally:
+            env.restore(snap)
+            env.snapshot_free(snap)
     if env.done or depth <= 0 or (budget is not None and budget[0] <= 0):
         return scorer(view_root, env.export_view(), events_root, env.reward_events(me), me)
     acting = env.acting_player
@@ -193,6 +205,9 @@ class GreedyPlayer:
         kinds, _ = env.get_legal_actions()
         if len(kinds) == 0:
             raise RuntimeError('GreedyPlayer: env has no legal actions')
+        choice = reroll_choice(env)
+        if choice is not None:
+            return choice, {'scored': [(choice, 0.0)], 'tied': [choice], 'best_score': 0.0}
         candidates = _candidate_indices(env, self.dice_greedy)
         if len(candidates) == 0:
             raise RuntimeError('GreedyPlayer: no candidate actions after dice-filter')

@@ -10,17 +10,6 @@ import (
 	"gicg_mono/gicg_engine/interp"
 )
 
-// Determinization carries one pre-sampled hidden-state assignment
-// for the opponent. Python's CardPoolSpec samples these before
-// entering Go. Go applies via SetPlayerHand/Deck/Dice at the
-// start of each rollout.
-type Determinization struct {
-	Opponent int32
-	Hand     []int32
-	Deck     []int32
-	Dice     []int32
-}
-
 // SearchInput bundles everything Python passes into a Go search call.
 type SearchInput struct {
 	// Runtime owning the live engine at the root state. Cloned once
@@ -131,6 +120,9 @@ type evalJob struct {
 //     stack on the inference_server pipe, enabling real batching.
 //  3. Tree is shared lock-free; PUCT + VL handle concurrent descent.
 func Search(input *SearchInput) (*SearchResult, error) {
+	if input.Runtime.Game.Failure != nil {
+		return nil, input.Runtime.Game.Failure
+	}
 	cfg := input.Config
 	pool := NewPool(cfg.NRollouts*300 + 2048)
 	defer pool.Reset()
@@ -175,9 +167,9 @@ func Search(input *SearchInput) (*SearchResult, error) {
 	sendCh := make(chan *evalJob, par)
 	pending := make(chan *evalJob, par)
 
-	var dispatchErr atomic.Value
+	var dispatchErr atomic.Pointer[searchFailure]
 	setErr := func(err error) {
-		dispatchErr.CompareAndSwap(nil, err)
+		dispatchErr.CompareAndSwap(nil, &searchFailure{err})
 	}
 
 	// Sender dispatcher: one goroutine that owns SendEval calls.
@@ -187,6 +179,10 @@ func Search(input *SearchInput) (*SearchResult, error) {
 	go func() {
 		defer dispatcherWG.Done()
 		for job := range sendCh {
+			if dispatchErr.Load() != nil {
+				close(job.done)
+				continue
+			}
 			// Order matters: do the Python-side send first, THEN
 			// publish to the pending channel. The receiver pops
 			// from pending and immediately calls RecvEval, which
@@ -202,7 +198,7 @@ func Search(input *SearchInput) (*SearchResult, error) {
 			if err := input.SendEval(job.req); err != nil {
 				setErr(err)
 				close(job.done)
-				return
+				continue
 			}
 			pending <- job
 		}
@@ -214,10 +210,14 @@ func Search(input *SearchInput) (*SearchResult, error) {
 	go func() {
 		defer dispatcherWG.Done()
 		for job := range pending {
+			if dispatchErr.Load() != nil {
+				close(job.done)
+				continue
+			}
 			if err := input.RecvEval(job.resp); err != nil {
 				setErr(err)
 				close(job.done)
-				return
+				continue
 			}
 			close(job.done)
 		}
@@ -240,7 +240,7 @@ func Search(input *SearchInput) (*SearchResult, error) {
 
 			for rolloutIdx := range workCh {
 				if dispatchErr.Load() != nil {
-					return
+					continue // drain work so the producer cannot deadlock
 				}
 				fl := &inFlightRollout{rolloutIdx: rolloutIdx}
 				if err := startRollout2(
@@ -248,7 +248,7 @@ func Search(input *SearchInput) (*SearchResult, error) {
 					sendCh, fl, prof,
 				); err != nil {
 					setErr(err)
-					return
+					continue
 				}
 				if fl.terminal {
 					commitRollout(pool, fl, cfg, prof)
@@ -257,7 +257,7 @@ func Search(input *SearchInput) (*SearchResult, error) {
 				// Job was sent by startRollout2; wait for response.
 				<-fl.job.done
 				if dispatchErr.Load() != nil {
-					return
+					continue
 				}
 				commitRollout(pool, fl, cfg, prof)
 			}
@@ -274,7 +274,7 @@ func Search(input *SearchInput) (*SearchResult, error) {
 	dispatcherWG.Wait()
 
 	if err := dispatchErr.Load(); err != nil {
-		return nil, err.(error)
+		return nil, err.err
 	}
 
 	visits := make([]int32, len(rootChildren))

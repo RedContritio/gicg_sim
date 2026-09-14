@@ -31,7 +31,7 @@ func TestObsEncoderB3cSpike(t *testing.T) {
 
 	// 计算 prepare-skill 段 offset。dyn obs 末尾顺序:
 	//   recent_damage (88) → prepare_skill (4) → modifier_log (160)
-	prepareOffset := engine.DynamicObsSize() - engine.ObsModifierLogSlots - engine.ObsPrepareSkillSlots
+	prepareOffset := engine.DynamicObsSize() - engine.ObsBuffSlots - engine.ObsModifierLogSlots - engine.ObsPrepareSkillSlots
 	for i := 0; i < engine.ObsPrepareSkillSlots; i++ {
 		if obs[prepareOffset+i] != -1 {
 			t.Errorf("initial obs prepare[%d] = %d, want -1 (no prepare)",
@@ -48,7 +48,7 @@ func TestObsEncoderB3cSpike(t *testing.T) {
 	g.PopEvent()
 
 	obs = g.BuildDynamicObs(0)
-	damageOffset := engine.DynamicObsSize() - engine.ObsModifierLogSlots - engine.ObsPrepareSkillSlots - engine.ObsRecentDamageSlots
+	damageOffset := engine.DynamicObsSize() - engine.ObsBuffSlots - engine.ObsModifierLogSlots - engine.ObsPrepareSkillSlots - engine.ObsRecentDamageSlots
 	// event 0 字段:
 	//   0 actor_player / 1 actor_char / 2 target_player / 3 target_char /
 	//   4 element / 5 raw / 6 final / 7 absorbed / 8 is_piercing / 9 is_hit / 10 reaction_kind

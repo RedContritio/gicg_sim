@@ -7,6 +7,7 @@ import random
 from dataclasses import dataclass, field
 
 import numpy as np
+from training.core.step_encoding import parse_buffs_np
 
 from gicg_env import GicgEnv
 from gicg_env.env import _terminal_z
@@ -220,6 +221,7 @@ def _build_step_dict(
         'recent_damage': recent_damage,
         'prepare_skill': prepare_skill,
         'modifier_log': modifier_log,
+        'buffs': parse_buffs_np(dyn_obs, n_counter_slots),
         'action_refs': padded_refs.astype(np.int64),
         'action_payments': padded_payments.astype(np.float32),
         'legal_mask': legal_mask,

@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-06-12
 status: LIVE
 schema_version: 0
 parent: ./spec.md
@@ -83,7 +83,12 @@ strict 8 时机 damage pipeline,详 `memory project_adr_0019_strict`):
   TargetMode
 - `HookSkillUse` — 技能效果
 - `HookCardPlay` — 卡牌效果
-- `HookSwitch` — 切换角色事件
+- `HookSwitch` / `on_switch` — 出战角色实际变化事件，包含主动切换、超载等规则强制
+  切换和阵亡换人；目标已是出战角色的强制设置不产生事件。
+  “进行切换角色操作”专指主动操作，效果消费须在 `on_switch` 中额外检查
+  `ctx.action_context == Action.Switch`；强制变化不满足此条件。
+  `HookActionPrepare` 可在合法动作查询中执行，只用于准备/费用计算，不用来统计
+  已执行的切换次数。该语义区分依据用户2026-09-12确认。
 - `HookBeforeTurnFlip` — 行动权翻转前;可修改 BattleAction
 - `HookOnTune` — 调和(Tune);ADR-0019 §A.4 / dsl_gaps D3,卡作元素调和使用时
 
@@ -175,7 +180,22 @@ toggle 控制(详 `gicg_engine/observation.go` L140 +
 Engine SHALL expose `char_skill_refs` slot,SHALL guarantee每个 char-skill
 hook 在 obs 中可被定位到其 owner char。
 
-## 7. Hook 数据来源 cross-reference
+## 7. Actor 事件帧契约(F1)
+
+`deal_damage` / `heal` / `invoke_skill` / `gain_energy` / `consume_energy`
+SHALL only be called from hooks dispatched with an actor event frame
+(engine 在 dispatch 前 `PushEvent` actor 帧)。事件栈空时引擎 SHALL
+panic(`Game.MustCurrentEvent`,fail-loud)— SHALL NOT 静默回退零值帧
+(Player=0)以 P0 视角结算(run-150 回合末友伤 bug 的根因)。无帧
+dispatch 站点(如 `on_before_turn_flip` / `on_action_check`)的 DSL
+callback SHALL NOT 调用上述 builtin。
+
+消费端断言点:`DealDamage` / `Heal` / `GainEnergy` / `ConsumeEnergy`
+(`gicg_engine/damage.go`)+ `resolveTargetHP` / `invoke_skill`
+(`gicg_engine/interp/`)。契约测试:
+`gicg_engine/tests/empty_stack_actor_test.go`。
+
+## 8. Hook 数据来源 cross-reference
 
 - **Engine 数据模型**:`gicg_engine/types.go`(L100+ `HookType` 枚举);
   `gicg_engine/hook.go`(hook 数组 + dispatch 实现)
@@ -187,3 +207,10 @@ hook 在 obs 中可被定位到其 owner char。
   `memory project_adr_0019_strict`
 - **Mirror match bug history**:`#152` 已修复(DSL filter + B-plan
   talent),详 `memory feedback_mirror_match_hook_bug`
+
+## 反应解析完成事件（2026-09-14）
+
+`on_after_reaction` SHALL 在成功反应解析后、主伤害减免与反应附加伤害前触发。
+`ctx.reaction_kind` 标识反应，`ctx.reaction_element` 是由DSL设置的关联元素（扩散的被扩散元素）。
+纯附着也可产生此反应事件，带 `ctx.attachment_only=true`；它不是伤害事件。
+伤害管道中的 `Element.None` 消耗标记 SHALL 不抹去最终伤害元素类型。

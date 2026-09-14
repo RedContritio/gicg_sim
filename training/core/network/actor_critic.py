@@ -16,8 +16,7 @@ Forward returns dict {head_name: tensor, '_state_vec', '_action_emb',
 custom masks externally (e.g. PPO masked_softmax, AZ MCTS prior).
 
 Spec: ``openspec/changes/core-network-generic-promotion/specs/network-architecture/spec.md``
-invariants A1 (composition) + A3 (typed_damage first-class) + A4 (5
-paradigm unification).
+invariants A1 (composition), A3 (typed_damage first-class), A4 (5 paradigms).
 """
 
 from __future__ import annotations
@@ -44,9 +43,11 @@ from training.core.network.heads import (
 from training.core.network.hook_emb import CharSkillPooler, CharSlotEmbedder
 from training.core.network.struct_readout import StructReadoutBlock
 from training.core.network.typed_damage import TypedDamageEncoder
+from training.core.network.buffs import BuffEncoder
+from training.core.network.definition_relation import DefinitionRelation
+from training.core.network.action_embedding import encode_actions
+from training.core.network.perspective import relative_structural
 from training.core.obs_constants import (
-    ACTION_END_TURN,
-    ACTION_SWITCH,
     DICE_COLOR_COUNT,
     OBS_META_SIZE,
 )
@@ -122,6 +123,12 @@ class ActorCritic(nn.Module):
         self.readout = StructReadoutBlock(d_model)
         self.char_skill_pooler = CharSkillPooler(d_model)
         self.char_slot_emb = CharSlotEmbedder(d_model)
+        self.card_target_emb = nn.Embedding(2 * self.char_slot_emb.emb.num_embeddings, d_model)
+        self.tune_source_emb = nn.Embedding(8, d_model)
+        self.tune_action_emb = nn.Parameter(torch.randn(d_model) * 0.02)
+        self.definition_relation = DefinitionRelation(d_model)
+        self.reroll_color_emb = nn.Embedding(9, d_model)  # eight colors plus confirmation
+        self.reroll_count_proj = nn.Linear(2, d_model)
         self.meta_proj = nn.Linear(OBS_META_SIZE, d_model)
         self.end_turn_emb = nn.Parameter(torch.zeros(d_model))
         nn.init.normal_(self.end_turn_emb, std=0.02)
@@ -132,6 +139,7 @@ class ActorCritic(nn.Module):
             nn.Linear(d_model, d_model),
         )
 
+        self.buff_encoder = BuffEncoder(d_model, self.counter_encoder.sid_embed)
         self.typed_damage = typed_damage
 
         self._n_pools = 7 if typed_damage is not None else 6
@@ -162,6 +170,9 @@ class ActorCritic(nn.Module):
         recent_damage: Optional[torch.Tensor] = None,
         prepare_skill: Optional[torch.Tensor] = None,
         modifier_log: Optional[torch.Tensor] = None,
+        buffs: Optional[torch.Tensor] = None,
+        *,
+        definition_links: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Common encode pipeline → (state_vec, action_emb, combined).
 
@@ -171,7 +182,7 @@ class ActorCritic(nn.Module):
         """
         counter_emb, counter_mask = self.counter_encoder(counter_values, counter_sids, active_slot_mask)
 
-        hook_emb = hook_emb_cached
+        hook_emb = self.definition_relation(hook_emb_cached, definition_links)
         for layer in self.cross_layers:
             counter_emb, hook_emb = layer(counter_emb, hook_emb, counter_mask, hook_mask)
 
@@ -183,7 +194,7 @@ class ActorCritic(nn.Module):
         char_skill_pool = self.char_skill_pooler(hook_emb, char_skill_refs)
         meta_emb = self.meta_proj(meta)
         card_emb = self.card_encoder(card_buckets, enemy_sizes)
-        struct_feat = self.readout(structural_values)
+        struct_feat = self.readout(relative_structural(structural_values, meta))
 
         pools = [counter_pool, hook_pool, char_skill_pool, card_emb, meta_emb, struct_feat]
         if self.typed_damage is not None:
@@ -198,31 +209,10 @@ class ActorCritic(nn.Module):
 
         normed = [norm(p) for norm, p in zip(self.pool_norms, pools)]
         combined = torch.cat(normed, dim=-1)
-        state_vec = self.state_proj(combined)
+        buff_pool, buff_tokens = self.buff_encoder(buffs, hook_emb, return_tokens=True)
+        state_vec = self.state_proj(combined) + buff_pool
 
-        B, n_act, _ = action_refs.shape
-        kinds = action_refs[..., 0]
-        hook_idx = action_refs[..., 1]
-        char_idx = action_refs[..., 2]
-        n_hooks_cached = hook_emb.shape[1]
-        hook_valid_idx = hook_idx.clamp(min=0).long().clamp(max=max(n_hooks_cached - 1, 0))
-        mask_hook = hook_idx >= 0
-        gathered = torch.gather(
-            hook_emb,
-            dim=1,
-            index=hook_valid_idx.unsqueeze(-1).expand(-1, -1, self.d_model),
-        )
-        char_embs = self.char_slot_emb(char_idx)
-        end_emb = self.end_turn_emb.view(1, 1, -1).expand(B, n_act, -1)
-
-        action_emb = torch.zeros_like(gathered)
-        action_emb = torch.where(mask_hook.unsqueeze(-1), gathered, action_emb)
-        action_emb = torch.where((kinds == ACTION_SWITCH).unsqueeze(-1), char_embs, action_emb)
-        action_emb = torch.where((kinds == ACTION_END_TURN).unsqueeze(-1), end_emb, action_emb)
-
-        pay_emb = self.dice_combo_proj(action_payments.float())
-        action_emb = action_emb + pay_emb
-        action_emb = self.action_emb_norm(action_emb)
+        action_emb = encode_actions(self, hook_emb, action_refs, action_payments, buffs, buff_tokens)
 
         return state_vec, action_emb, combined
 

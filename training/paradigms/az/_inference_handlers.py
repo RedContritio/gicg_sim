@@ -24,6 +24,7 @@ from __future__ import annotations
 import multiprocessing.connection as mp_conn
 
 import numpy as np
+from training.core.step_encoding import pad_buffs_np
 
 
 def handle_game_start(agent, cache, req, pipe, state) -> None:
@@ -39,6 +40,7 @@ def handle_game_start(agent, cache, req, pipe, state) -> None:
         active_slot_mask,
         hook_ir,
         char_skill_refs,
+        definition_links,
     ) = agent.encode_static_tensors_with_tokens(static_obs)
     cache[(wid, gid)] = {
         'hook_emb': hook_emb,
@@ -46,6 +48,7 @@ def handle_game_start(agent, cache, req, pipe, state) -> None:
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
         'char_skill_refs': char_skill_refs,
+        'definition_links': definition_links,
     }
     pipe.send(
         {
@@ -57,6 +60,7 @@ def handle_game_start(agent, cache, req, pipe, state) -> None:
                 'counter_sids': counter_sids.detach().cpu().numpy().astype(np.int64),
                 'active_slot_mask': active_slot_mask.detach().cpu().numpy().astype(bool),
                 'char_skill_refs': char_skill_refs.detach().cpu().numpy().astype(np.int64),
+                'definition_links': definition_links.detach().cpu().numpy().astype(np.int64),
             },
         }
     )
@@ -105,6 +109,9 @@ def handle_eval_batch(
             raise RuntimeError(f'eval for ungameplay-started key {key} — worker must call game_start before eval')
         n_actives.append(int(cache[key]['hook_emb'].shape[0]))
     max_n_active = max(n_actives)
+    max_definition_links = max(
+        cache[(int(req['worker_id']), int(req['game_id']))]['definition_links'].shape[0] for req, _ in entries
+    )
     D = cfg.d_model
 
     hook_emb_batch = torch.zeros(B, max_n_active, D, device=device)
@@ -156,7 +163,16 @@ def handle_eval_batch(
         dtype=torch.long,
         device=device,
     )
+    definition_links_batch = torch.full(
+        (B, max_definition_links, 2),
+        -1,
+        dtype=torch.long,
+        device=device,
+    )
 
+    from training.core.step_encoding import parse_buffs_np
+
+    buffs_batch = []
     n_legals: list[int] = []
 
     for b, (req, _pipe) in enumerate(entries):
@@ -168,7 +184,10 @@ def handle_eval_batch(
         counter_sids_batch[b] = entry['counter_sids']
         active_slot_mask_batch[b] = entry['active_slot_mask']
         char_skill_refs_batch[b] = entry['char_skill_refs']
+        n_links = entry['definition_links'].shape[0]
+        definition_links_batch[b, :n_links] = entry['definition_links']
 
+        buffs_batch.append(parse_buffs_np(req['dyn'], cfg.n_counter_slots))
         dyn = torch.as_tensor(req['dyn'], dtype=torch.float32, device=device)
         meta_batch[b] = dyn[:OBS_META_SIZE]
         c_end = OBS_META_SIZE + cfg.n_counter_slots
@@ -235,6 +254,8 @@ def handle_eval_batch(
             recent_damage_batch,
             prepare_skill_batch,
             modifier_log_batch,
+            buffs=torch.as_tensor(pad_buffs_np(buffs_batch), dtype=torch.float32, device=device),
+            definition_links=definition_links_batch,
         )
         # AZ ActorCritic returns dict with 'policy' + 'value' + 'delta' heads。
         logits = out['policy']

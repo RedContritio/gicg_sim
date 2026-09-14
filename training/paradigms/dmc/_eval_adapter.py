@@ -3,6 +3,8 @@ builder behind the paradigm-agnostic interface in _paradigm.py."""
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint
+
 from pathlib import Path
 from typing import Optional
 
@@ -83,7 +85,7 @@ def ckpt_frame(ckpt_path: Path) -> Optional[int]:
     import torch
 
     try:
-        blob = torch.load(ckpt_path, map_location='cpu', weights_only=False)
+        blob = load_checkpoint(ckpt_path, map_location='cpu', weights_only=False)
     except Exception:
         return None
     return (blob.get('state') or {}).get('frames')

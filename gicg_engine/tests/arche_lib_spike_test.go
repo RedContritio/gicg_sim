@@ -12,10 +12,13 @@ package tests
 
 import (
 	"testing"
+
+	"gicg_mono/gicg_engine/interp"
 )
 
 func TestArcheLibSpike(t *testing.T) {
 	env := NewGameWithDeck(t, []string{"墨客"}, []string{"墨客"})
+	sandbox := interp.NewEnv(env.RT.Interp.Global)
 
 	// Test 1: Arkhe enum 全局可访问 + 值正确
 	src1 := `
@@ -23,7 +26,7 @@ result_none = Arkhe.None
 result_pneuma = Arkhe.Pneuma
 result_ousia = Arkhe.Ousia
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src1), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src1), sandbox); err != nil {
 		t.Fatalf("Arkhe enum access: %v", err)
 	}
 	type expectVal struct {
@@ -36,7 +39,7 @@ result_ousia = Arkhe.Ousia
 		{"result_ousia", 2},
 	}
 	for _, e := range expects {
-		v, _ := env.RT.Interp.Global.Get(e.name)
+		v, _ := sandbox.Get(e.name)
 		got, _ := toIntForArche(v)
 		if got != e.want {
 			t.Errorf("%s = %d, want %d", e.name, got, e.want)
@@ -49,10 +52,10 @@ local arche = get_counter("_arche_marker", Scope.Global)
 arche:set(Arkhe.Ousia)
 result_marker = arche:get()
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src2), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src2), sandbox); err != nil {
 		t.Fatalf("counter set/get: %v", err)
 	}
-	v, _ := env.RT.Interp.Global.Get("result_marker")
+	v, _ := sandbox.Get("result_marker")
 	got, _ := toIntForArche(v)
 	if got != 2 {
 		t.Errorf("after arche:set(Ousia) result = %d, want 2", got)
@@ -63,10 +66,10 @@ result_marker = arche:get()
 local arche = get_counter("_arche_marker", Scope.Global)
 result_persisted = arche:get()
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src3), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src3), sandbox); err != nil {
 		t.Fatalf("counter persisted: %v", err)
 	}
-	v2, _ := env.RT.Interp.Global.Get("result_persisted")
+	v2, _ := sandbox.Get("result_persisted")
 	got2, _ := toIntForArche(v2)
 	if got2 != 2 {
 		t.Errorf("counter persisted across ExecFile = %d, want 2", got2)
@@ -78,10 +81,10 @@ local arche = get_counter("_arche_marker", Scope.Global)
 arche:set(Arkhe.None)
 result_reset = arche:get()
 `
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src4), env.RT.Interp.Global); err != nil {
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src4), sandbox); err != nil {
 		t.Fatalf("reset: %v", err)
 	}
-	v3, _ := env.RT.Interp.Global.Get("result_reset")
+	v3, _ := sandbox.Get("result_reset")
 	got3, _ := toIntForArche(v3)
 	if got3 != 0 {
 		t.Errorf("after arche:set(None) = %d, want 0", got3)

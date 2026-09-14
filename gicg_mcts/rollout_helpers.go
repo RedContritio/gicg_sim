@@ -59,7 +59,7 @@ func hasNewActions(node *Node, legalIds []ActionId) bool {
 }
 
 func selectAndMap(
-	pool *Pool, node *Node, legalIds []ActionId, cPuct float32,
+	pool *Pool, node *Node, legalIds []ActionId, cPuct float32, turn int8,
 ) (childIdx int32, action ActionId, stepIdx int, err error) {
 	node.BeginRead()
 	children := node.children
@@ -79,7 +79,7 @@ func selectAndMap(
 			pool.Get(children[i]).NAvail.Add(1)
 		}
 	}
-	slot := SelectChild(pool, node, legalMask, cPuct)
+	slot := selectChildWithTurn(pool, node, legalMask, cPuct, turn)
 	childIdx = children[slot]
 	action = actions[slot]
 	node.EndRead()

@@ -390,6 +390,13 @@ class TestMinimaxBudget:
         same action (large budget 实际上不会被打破)。"""
         env = _env()
         try:
+            # Bound branching, not search depth: this tests budget equivalence,
+            # not the default full-hand payment enumeration performance.
+            for player in (0, 1):
+                env._engine.set_player_hand(player, [])
+                env._engine.set_player_deck(player, [])
+                env._engine.set_player_dice(player, [0, 0, 0, 0, 0, 0, 0, 3])
+            assert len(env.get_action_refs()) > 1
             unbounded = GreedyPlayer(features='F1', depth=4, seed=42).select_action(env)
             large_budget = GreedyPlayer(
                 features='F1', depth=4, seed=42, minimax_node_budget=1_000_000_000

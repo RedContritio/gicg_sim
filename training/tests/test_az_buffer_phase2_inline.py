@@ -40,6 +40,7 @@ def _fake_static(n_slots=64, n_hooks=4, max_ops=8, fields_per_op=5):
         'counter_sids': np.arange(n_slots, dtype=np.int64),
         'active_slot_mask': np.ones(n_slots, dtype=bool),
         'char_skill_refs': -np.ones((2, 6, 10), dtype=np.int64),
+        'definition_links': -np.ones((1, 2), dtype=np.int64),
     }
 
 
@@ -52,7 +53,7 @@ def _fake_step(*, n_slots=64, max_actions=4, n_legal=2, z=0.0, is_discovery=Fals
         'counter_values': np.random.randn(n_slots).astype(np.float32),
         'counter_target': np.random.randn(n_slots).astype(np.float32),
         'has_counter_target': True,
-        'meta': np.array([3.0, 1.0, 1.0], dtype=np.float32),
+        'meta': np.array([3.0, 1.0, 1.0, 0, 0, -1] + [0] * 13, dtype=np.float32),
         'card_buckets': np.zeros((4, 80), dtype=np.float32),
         'enemy_sizes': np.zeros(2, dtype=np.float32),
         'recent_damage': _make_recent_damage_padding(),

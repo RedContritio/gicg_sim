@@ -79,8 +79,7 @@ func (interp *Interpreter) execAssign(rt *Runtime, n *Assign, env *Env) error {
 	}
 	switch target := n.Target.(type) {
 	case *Ident:
-		env.Set(target.Name, val)
-		return nil
+		return env.setDSL(target.Name, val)
 	case *DotAccess:
 		obj, err := interp.eval(rt, target.Object, env)
 		if err != nil {
@@ -88,8 +87,7 @@ func (interp *Interpreter) execAssign(rt *Runtime, n *Assign, env *Env) error {
 		}
 		switch o := obj.(type) {
 		case *Table:
-			o.Fields[target.Field] = val
-			return nil
+			return o.setDSL(target.Field, val)
 		case FieldSetter:
 			return o.SetField(rt, target.Field, val)
 		default:
@@ -108,8 +106,7 @@ func (interp *Interpreter) execAssign(rt *Runtime, n *Assign, env *Env) error {
 		if !ok {
 			return fmt.Errorf("line %d: cannot index %T", n.GetLine(), obj)
 		}
-		t.Fields[ToString(idx)] = val
-		return nil
+		return t.setDSL(ToString(idx), val)
 	default:
 		return fmt.Errorf("line %d: cannot assign to %T", n.GetLine(), n.Target)
 	}

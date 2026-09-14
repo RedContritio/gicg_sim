@@ -11,20 +11,13 @@ type DamageOpts struct {
 func (g *Game) DealDamage(targetHP int, elem Element, value int, opts DamageOpts) {
 	g.depth++
 	defer func() { g.depth-- }()
-	if g.depth > MaxDepth {
-		if g.Log != nil {
-			g.Log.Append(g, "depth_exceeded", -1, -1, map[string]interface{}{"depth": g.depth})
-		}
-		return
-	}
+	g.requireEffectDepth("DealDamage")
 
-	// 构建事件帧：opts 可覆盖 source/actor
-	frame := g.currentEvent()
-	frame.Source = opts.Source
-	if frame.Source == SrcNone {
-		if cur := g.currentEvent(); cur.Source != SrcNone {
-			frame.Source = cur.Source
-		}
+	// 构建事件帧：opts 可覆盖 source/actor。覆盖作用于已存在的帧之上 —
+	// 空栈 + 全量 opts 不是受支持路径(调用方必须先 PushEvent actor 帧)。
+	frame := g.MustCurrentEvent("DealDamage")
+	if opts.Source != SrcNone {
+		frame.Source = opts.Source
 	}
 	if opts.ActorPlayer >= 0 {
 		frame.Player = opts.ActorPlayer
@@ -63,9 +56,13 @@ func (g *Game) DealDamage(targetHP int, elem Element, value int, opts DamageOpts
 	//   Mul:乘法 (GI TCG 无,future-proof)
 	// ADR-0019 §B.2 record stage modifier 合并整 boost stage
 	boostBeforeVal, boostBeforeElem := ctx.Value, ctx.Element
-	g.FireEventHooks(HookDamageType, ctx)
-	g.FireEventHooks(HookDamageAdd, ctx)
-	g.FireEventHooks(HookDamageMul, ctx)
+	if !ctx.Element.IsPiercing() {
+		g.FireEventHooks(HookDamageType, ctx)
+		if !ctx.Element.IsPiercing() {
+			g.FireEventHooks(HookDamageAdd, ctx)
+			g.FireEventHooks(HookDamageMul, ctx)
+		}
+	}
 	g.recordStageModifier(ModBoost, boostBeforeVal, boostBeforeElem, ctx)
 	if ctx.Cancelled || g.Phase == PhaseGameOver {
 		return
@@ -87,12 +84,7 @@ func (g *Game) DealDamage(targetHP int, elem Element, value int, opts DamageOpts
 			TargetChar:   targetChar,
 		}
 		origElement := reactionCtx.Element
-		for _, h := range g.Hooks.GetEventHooks(HookReactionDamage) {
-			if !h.Enabled {
-				continue
-			}
-			h.Fn(g, reactionCtx)
-		}
+		g.FireEventHooks(HookReactionDamage, reactionCtx)
 		// Reaction detection: reaction hooks consume the triggering
 		// element and set it to None (0) — so a non-None → None
 		// transition is the canonical "a reaction fired" signal.
@@ -106,12 +98,20 @@ func (g *Game) DealDamage(targetHP int, elem Element, value int, opts DamageOpts
 		}
 		ctx.Value = reactionCtx.Value
 		ctx.Element = reactionCtx.Element
+		ctx.ReactionElement = reactionCtx.ReactionElement
+		// None is a reaction-consumed marker, not the final damage type.
+		if ctx.Element == ElemNone {
+			ctx.Element = origElement
+		}
 	}
 	// ADR-0019 §B.3: DSL set_reaction_kind 写入 PendingReactionKind,
 	// 在 reaction stage 完成后 copy 到 ctx.ReactionKind。
 	if g.PendingReactionKind != ReactionNone {
 		ctx.ReactionKind = g.PendingReactionKind
 		g.PendingReactionKind = ReactionNone
+	}
+	if ctx.ReactionKind != ReactionNone {
+		g.FireEventHooks(HookAfterReaction, ctx)
 	}
 	// ADR-0019 §B.2 record reaction stage modifier(无论是否真触发反应,
 	// stage 的 fire 事实本身要 record;skip 时 ValueBefore == ValueAfter)
@@ -139,6 +139,7 @@ func (g *Game) DealDamage(targetHP int, elem Element, value int, opts DamageOpts
 			ctx.Absorbed = absorbed // ADR-0019 §B.5: 全吸收路径 absorbed = preShieldValue
 			g.DrainDeferred()
 			g.fireAfterDamage(ctx)
+			g.DrainDeferred()
 			return
 		}
 	}
@@ -186,6 +187,7 @@ func (g *Game) DealDamage(targetHP int, elem Element, value int, opts DamageOpts
 
 	// ⑤ AfterDamage
 	g.fireAfterDamage(ctx)
+	g.DrainDeferred()
 
 	// ADR-0019 §B.3: emit RecentDamageEvent 到 ring (DSL hook chain 全完后).
 	// Modifier list 深拷贝,避免后续 damage call 污染 ring 中的 snapshot。
@@ -220,107 +222,4 @@ func (g *Game) fireAfterDamage(ctx *EventContext) {
 		h.Fn(g, ctx)
 	}
 	g.recordStageModifier(ModAfterDamage, beforeVal, beforeElem, ctx)
-}
-
-// Heal 回复 HP，走治疗管道
-func (g *Game) Heal(targetHP int, value int) {
-	targetPlayer, targetChar := g.findCharByCounter(targetHP)
-
-	cur := g.currentEvent()
-	ctx := &EventContext{
-		Value:        value,
-		Source:       cur.Source,
-		ActorPlayer:  cur.Player,
-		ActorChar:    cur.Char,
-		ActionCtx:    cur.ActionCtx,
-		TargetPlayer: targetPlayer,
-		TargetChar:   targetChar,
-	}
-
-	g.FireEventHooks(HookBeforeHeal, ctx)
-	if ctx.Value <= 0 {
-		return
-	}
-
-	g.WriteCounter(targetHP, OpAdd, ctx.Value)
-	ctx.Hit = true
-
-	// Credit heal to both sides: the healed player sees HealDone,
-	// the opponent sees EnemyHealDone. Symmetric bookkeeping lets a
-	// consumer that only reads its own slot still know how much the
-	// opponent healed.
-	if targetPlayer >= 0 && targetPlayer < 2 {
-		g.RewardAccum[targetPlayer].HealDone += ctx.Value
-		enemy := 1 - targetPlayer
-		g.RewardAccum[enemy].EnemyHealDone += ctx.Value
-	}
-
-	// Log heal
-	if g.Log != nil {
-		g.Log.Append(g, "heal", targetPlayer, targetChar, map[string]interface{}{
-			"tgt_player": targetPlayer,
-			"tgt_char":   targetChar,
-			"value":      ctx.Value,
-		})
-	}
-
-	g.FireEventHooks(HookAfterHeal, ctx)
-}
-
-// GainEnergy 走能量获得管道
-func (g *Game) GainEnergy(targetEnergy int, value int) {
-	targetPlayer, targetChar := g.findCharByCounter(targetEnergy)
-
-	cur := g.currentEvent()
-	ctx := &EventContext{
-		Value:        value,
-		Source:       cur.Source,
-		ActorPlayer:  cur.Player,
-		ActorChar:    cur.Char,
-		ActionCtx:    cur.ActionCtx,
-		TargetPlayer: targetPlayer,
-		TargetChar:   targetChar,
-	}
-
-	g.FireEventHooks(HookBeforeEnergyGain, ctx)
-	if ctx.Value <= 0 {
-		return
-	}
-
-	g.WriteCounter(targetEnergy, OpAdd, ctx.Value)
-	g.FireEventHooks(HookAfterEnergyGain, ctx)
-}
-
-// ConsumeEnergy 走能量消耗管道
-func (g *Game) ConsumeEnergy(targetEnergy int, value int) {
-	targetPlayer, targetChar := g.findCharByCounter(targetEnergy)
-
-	cur := g.currentEvent()
-	ctx := &EventContext{
-		Value:        value,
-		Source:       cur.Source,
-		ActorPlayer:  cur.Player,
-		ActorChar:    cur.Char,
-		ActionCtx:    cur.ActionCtx,
-		TargetPlayer: targetPlayer,
-		TargetChar:   targetChar,
-	}
-
-	g.FireEventHooks(HookBeforeEnergyConsume, ctx)
-	if ctx.Value <= 0 {
-		return
-	}
-
-	g.WriteCounter(targetEnergy, OpSub, ctx.Value)
-	g.FireEventHooks(HookAfterEnergyConsume, ctx)
-}
-
-// findCharByCounter 根据 counter ID 查找所属角色
-func (g *Game) findCharByCounter(counterID int) (playerIdx, charIdx int) {
-	if g.counterCharMap != nil {
-		if pair, ok := g.counterCharMap[counterID]; ok {
-			return pair[0], pair[1]
-		}
-	}
-	return -1, -1
 }

@@ -1,0 +1,19 @@
+name = "普攻伤害补丁：立即获胜"
+actions = [["Skill", "仪典剑术"]]
+
+[[patches]]
+path = "pools/native_latest/characters/凯亚/凯亚_仪典剑术.lua"
+before = "deal_damage(Target.EnemyActive, Element.Physical, 2)"
+after = "deal_damage(Target.EnemyActive, Element.Physical, 10)"
+
+[scene]
+team_0 = ["凯亚"]
+team_1 = ["凯亚"]
+fix_dice = [0, 0, 0, 0, 0, 0, 0, 8]
+player = 0
+
+[expected]
+done = true
+winner = 0
+pending = false
+"hp_loss.1" = 10

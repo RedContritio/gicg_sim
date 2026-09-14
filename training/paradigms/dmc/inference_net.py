@@ -60,6 +60,8 @@ class DMCInferenceNet(nn.Module):
             obs['recent_damage'],
             obs['prepare_skill'],
             obs['modifier_log'],
+            buffs=obs.get('buffs'),
+            definition_links=obs['definition_links'],
         )
         return out['q']
 
@@ -103,6 +105,24 @@ class DMCInferenceNet(nn.Module):
             'modifier_log',
         )
         batched = {k: torch.cat([o[k] for o in obs_list], dim=0) for k in fixed_keys}
+        if any('buffs' in o for o in obs_list) and not all('buffs' in o for o in obs_list):
+            raise ValueError('mixed buff observation schemas in inference batch')
+        if all('buffs' in o for o in obs_list):
+            longest = max(o['buffs'].shape[1] for o in obs_list)
+            batched['buffs'] = torch.cat(
+                [torch.nn.functional.pad(o['buffs'], (0, 0, 0, longest - o['buffs'].shape[1])) for o in obs_list], dim=0
+            )
+
+        max_links = max(o['definition_links'].shape[1] for o in obs_list)
+        batched['definition_links'] = torch.cat(
+            [
+                torch.nn.functional.pad(
+                    o['definition_links'], (0, 0, 0, max_links - o['definition_links'].shape[1]), value=-1
+                )
+                for o in obs_list
+            ],
+            dim=0,
+        )
 
         # Variable-length fields: hook_emb is (1, n_active_i, D),
         # hook_mask is (1, n_active_i). Pad to batch-max n_active across
@@ -140,5 +160,7 @@ class DMCInferenceNet(nn.Module):
             batched['recent_damage'],
             batched['prepare_skill'],
             batched['modifier_log'],
+            buffs=batched.get('buffs'),
+            definition_links=batched['definition_links'],
         )
         return out['q']

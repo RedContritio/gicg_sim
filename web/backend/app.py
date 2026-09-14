@@ -20,7 +20,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from web.backend import live_api, replay_api
@@ -72,6 +72,12 @@ def create_app() -> FastAPI:
     @app.get('/api/health')
     def health() -> dict:
         return {'ok': True, 'replay_count': len(store.list())}
+
+    @app.get('/api/live/profile')
+    def live_profile():
+        from web.backend.semantic_live import profile
+
+        return profile()
 
     @app.get('/api/data/chars')
     def list_chars() -> dict:
@@ -195,6 +201,12 @@ def create_app() -> FastAPI:
     # Static frontend — only mount when the dist dir exists, so
     # running the backend without a built frontend doesn't 500.
     if FRONTEND_DIST.exists():
+
+        @app.get('/live')
+        @app.get('/replay')
+        def frontend_route():
+            return FileResponse(FRONTEND_DIST / 'index.html')
+
         app.mount('/', StaticFiles(directory=str(FRONTEND_DIST), html=True), name='frontend')
     else:
 

@@ -108,6 +108,10 @@ class ESMixin:
         legal_mask = dynamic['legal_mask']
 
         if is_traverser:
+            # Exact restore deliberately shares the engine chance state across
+            # sibling actions. Policy sampling uses self.rng independently;
+            # fresh traversals get their seed from the collector's env_factory.
+            # restore itself must never advance or mutate the snapshot RNG.
             snap = env.snapshot()
             try:
                 action_vals = np.zeros(self.max_actions, dtype=np.float64)

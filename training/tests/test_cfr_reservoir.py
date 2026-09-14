@@ -24,7 +24,7 @@ MAX_HOOKS = 3
 MAX_CHARS = 2
 MAX_SKILLS = 2
 MAX_ACTIONS = 5
-META_SIZE = 3
+META_SIZE = 19
 N_STRUCTURAL = 4
 
 
@@ -38,12 +38,14 @@ def _game_static(k: int = 0) -> dict:
         'counter_sids': np.arange(N_SLOTS, dtype=np.int64),
         'active_slot_mask': np.ones(N_SLOTS, dtype=bool),
         'char_skill_refs': np.full((2, MAX_CHARS, MAX_SKILLS), -1, dtype=np.int64),
+        'definition_links': np.full((1, 2), -1, dtype=np.int64),
     }
 
 
 def _sample_dynamic(k: int = 0) -> dict:
     return {
         'counter_values': np.full(N_SLOTS, float(k), dtype=np.float32),
+        'buffs': np.array([[1, 0, -1, k + 1, 2, 3, 0, 0, 1, 0, 0, 0, 0, -1, -1, -1]], dtype=np.float32),
         'meta': np.zeros(META_SIZE, dtype=np.float32),
         'card_buckets': np.zeros((4, 10), dtype=np.float32),
         'enemy_sizes': np.ones(2, dtype=np.float32),
@@ -228,6 +230,19 @@ class TestReservoirUniformity:
 
 
 class TestGameStaticRefcount:
+    @pytest.mark.parametrize('kind', ['advantage', 'strategy', 'value'])
+    def test_replacing_only_sample_keeps_same_game_static(self, kind):
+        cls = {'advantage': AdvantageBuffer, 'strategy': StrategyBuffer, 'value': ValueBuffer}[kind]
+        buf = cls(capacity=1, **({'max_actions': MAX_ACTIONS} if kind != 'value' else {}))
+        target = {'advantage': _advantage_target(), 'strategy': _policy_target(), 'value': 0.5}[kind]
+        gid = buf.register_game(_game_static())
+        rng = random.Random(1)  # accepts the second sample into slot zero
+        assert buf.add_sample(gid, _sample_dynamic(0), target, iteration=1, rng=rng)
+        assert buf.add_sample(gid, _sample_dynamic(1), target, iteration=2, rng=rng)
+        assert buf._game_static[gid].refcount == 1
+        batch = buf.sample(1, rng)
+        np.testing.assert_array_equal(batch['counter_values'], np.ones((1, N_SLOTS)))
+
     def test_drops_static_when_all_samples_evicted(self):
         """A game that only contributes samples which all get evicted
         should have its static released."""
@@ -295,6 +310,7 @@ class TestSaveLoad:
             assert orig['iteration'] == rest['iteration']
             np.testing.assert_array_equal(orig['regret'], rest['regret'])
             np.testing.assert_array_equal(orig['counter_values'], rest['counter_values'])
+            np.testing.assert_array_equal(orig['buffs'], rest['buffs'])
 
     def test_save_load_value_buffer(self, tmp_path):
         buf = ValueBuffer(capacity=4)

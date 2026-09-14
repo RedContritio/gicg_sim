@@ -1,0 +1,368 @@
+{
+  "provenance": {
+    "schema": 1,
+    "epoch": "clean-reset-2026-09-11-v1",
+    "source_observation_sha256": "b0e1a9d49c344d1fc5d6ff67020155cd8c6cba76ecadacc4ecc08970f82e16ea",
+    "session": "ea47bd7cca754460af19b0d4f760f020",
+    "parents": []
+  },
+  "groups": {
+    "a": [
+      "\u901f\u901f\u8336\u70b9"
+    ],
+    "b": [
+      "\u4e58\u80dc\u8ffd\u51fb"
+    ],
+    "combination": [
+      "\u901f\u901f\u8336\u70b9",
+      "\u4e58\u80dc\u8ffd\u51fb"
+    ],
+    "primitive": [
+      "\u4ee5\u9038\u5f85\u52b3",
+      "\u8377\u82b1\u9165"
+    ]
+  },
+  "unseen_existing_opcodes": [],
+  "note": "Engine cost supervision, not game win rate. Primitive means supported opcode absent from base data.",
+  "results": [
+    {
+      "seed": 41,
+      "base": {
+        "a": {
+          "n": 445,
+          "mse": 0.28008234158231554,
+          "rounded_accuracy": 0.7146067415730337,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "b": {
+          "n": 418,
+          "mse": 0.682006175956969,
+          "rounded_accuracy": 0.7009569377990431,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "combination": {
+          "n": 411,
+          "mse": 0.6655414602462553,
+          "rounded_accuracy": 0.6228710462287105,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "primitive": {
+          "n": 369,
+          "mse": 2.6071733794785006,
+          "rounded_accuracy": 0.7425474254742548,
+          "constant_mean_mse": 4.097408771514893
+        }
+      },
+      "combination_16": {
+        "target": {
+          "n": 411,
+          "mse": 0.6613226382187815,
+          "rounded_accuracy": 0.7226277372262774,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.2892475044560158,
+          "rounded_accuracy": 0.8471910112359551,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5047154085769875,
+          "rounded_accuracy": 0.84688995215311,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "combination_64": {
+        "target": {
+          "n": 411,
+          "mse": 0.6273503471763551,
+          "rounded_accuracy": 0.7007299270072993,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.26507075092988414,
+          "rounded_accuracy": 0.8067415730337079,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5289779596209513,
+          "rounded_accuracy": 0.8157894736842105,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "primitive_16": {
+        "target": {
+          "n": 369,
+          "mse": 1.778640905986923,
+          "rounded_accuracy": 0.7289972899728997,
+          "constant_mean_mse": 4.097408771514893
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.601449661626166,
+          "rounded_accuracy": 0.701123595505618,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5700123076969409,
+          "rounded_accuracy": 0.7416267942583732,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "primitive_64": {
+        "target": {
+          "n": 369,
+          "mse": 1.8744582896471422,
+          "rounded_accuracy": 0.8373983739837398,
+          "constant_mean_mse": 4.097408771514893
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.33429265833497235,
+          "rounded_accuracy": 0.8382022471910112,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5124405121408667,
+          "rounded_accuracy": 0.8349282296650717,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      }
+    },
+    {
+      "seed": 42,
+      "base": {
+        "a": {
+          "n": 445,
+          "mse": 0.34806769136992016,
+          "rounded_accuracy": 0.8426966292134831,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "b": {
+          "n": 418,
+          "mse": 0.4566484834785821,
+          "rounded_accuracy": 0.8397129186602871,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "combination": {
+          "n": 411,
+          "mse": 0.7272640688866465,
+          "rounded_accuracy": 0.7250608272506083,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "primitive": {
+          "n": 369,
+          "mse": 2.1413343960059175,
+          "rounded_accuracy": 0.8455284552845529,
+          "constant_mean_mse": 4.097408771514893
+        }
+      },
+      "combination_16": {
+        "target": {
+          "n": 411,
+          "mse": 0.5817270677097476,
+          "rounded_accuracy": 0.7274939172749392,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.32551058426045354,
+          "rounded_accuracy": 0.8179775280898877,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.4579358548823063,
+          "rounded_accuracy": 0.8349282296650717,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "combination_64": {
+        "target": {
+          "n": 411,
+          "mse": 0.7975004927798326,
+          "rounded_accuracy": 0.7445255474452555,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.4407176068770721,
+          "rounded_accuracy": 0.8247191011235955,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.4203066251101821,
+          "rounded_accuracy": 0.8779904306220095,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "primitive_16": {
+        "target": {
+          "n": 369,
+          "mse": 1.5137431412139002,
+          "rounded_accuracy": 0.6449864498644986,
+          "constant_mean_mse": 4.097408771514893
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.8517861273826998,
+          "rounded_accuracy": 0.6134831460674157,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.4752055406814127,
+          "rounded_accuracy": 0.7200956937799043,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "primitive_64": {
+        "target": {
+          "n": 369,
+          "mse": 1.733176849384113,
+          "rounded_accuracy": 0.7886178861788617,
+          "constant_mean_mse": 4.097408771514893
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.5357954422768308,
+          "rounded_accuracy": 0.7685393258426966,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.40749446381250776,
+          "rounded_accuracy": 0.8588516746411483,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      }
+    },
+    {
+      "seed": 43,
+      "base": {
+        "a": {
+          "n": 445,
+          "mse": 0.33327308289488916,
+          "rounded_accuracy": 0.8247191011235955,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "b": {
+          "n": 418,
+          "mse": 0.5766567324390401,
+          "rounded_accuracy": 0.8014354066985646,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "combination": {
+          "n": 411,
+          "mse": 0.7407978483859334,
+          "rounded_accuracy": 0.6909975669099757,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "primitive": {
+          "n": 369,
+          "mse": 2.2374327886016467,
+          "rounded_accuracy": 0.8265582655826558,
+          "constant_mean_mse": 4.097408771514893
+        }
+      },
+      "combination_16": {
+        "target": {
+          "n": 411,
+          "mse": 0.5806790181852062,
+          "rounded_accuracy": 0.7347931873479319,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.27453154527911977,
+          "rounded_accuracy": 0.8471910112359551,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5268760864405218,
+          "rounded_accuracy": 0.8564593301435407,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "combination_64": {
+        "target": {
+          "n": 411,
+          "mse": 0.6125839946198052,
+          "rounded_accuracy": 0.708029197080292,
+          "constant_mean_mse": 1.5946394205093384
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.26601981995452795,
+          "rounded_accuracy": 0.8269662921348314,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5209103201459476,
+          "rounded_accuracy": 0.8157894736842105,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "primitive_16": {
+        "target": {
+          "n": 369,
+          "mse": 1.7175214216147991,
+          "rounded_accuracy": 0.7452574525745257,
+          "constant_mean_mse": 4.097408771514893
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.4106090513934392,
+          "rounded_accuracy": 0.7078651685393258,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5447344622696154,
+          "rounded_accuracy": 0.7440191387559809,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      },
+      "primitive_64": {
+        "target": {
+          "n": 369,
+          "mse": 1.8329484511650416,
+          "rounded_accuracy": 0.8319783197831978,
+          "constant_mean_mse": 4.097408771514893
+        },
+        "retention_a": {
+          "n": 445,
+          "mse": 0.2628104477137805,
+          "rounded_accuracy": 0.7887640449438202,
+          "constant_mean_mse": 1.368375301361084
+        },
+        "retention_b": {
+          "n": 418,
+          "mse": 0.5973958111716495,
+          "rounded_accuracy": 0.7751196172248804,
+          "constant_mean_mse": 1.9359972476959229
+        },
+        "unique_games": 1
+      }
+    }
+  ]
+}

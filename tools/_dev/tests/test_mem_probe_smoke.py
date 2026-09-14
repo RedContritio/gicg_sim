@@ -1,6 +1,6 @@
-"""mem_probe daemon thread + Go runtime stats integration smoke。
+"""mem_probe daemon thread + Python heap reporting integration smoke。
 
-证明 mem_probe enable 后 _loop 实际 tick + 末尾打 Go stats 行 + 新 cfg-driven
+证明 mem_probe enable 后 _loop 实际 tick + Python heap 分项 + cfg-driven
 maybe_enable_from_cfg 入口正确读 cfg.debug 字段。
 
 实现注意:capfd 在 daemon thread 中抓 fd 2 的支持有限(pytest 在 test 入口
@@ -14,14 +14,9 @@ from __future__ import annotations
 import io
 import sys
 import time
-from pathlib import Path
+import tracemalloc
 
 import pytest
-
-
-def _lib_built() -> bool:
-    name = {'darwin': 'libgicg_actor.dylib', 'win32': 'libgicg_actor.dll'}.get(sys.platform, 'libgicg_actor.so')
-    return (Path(__file__).resolve().parents[3] / 'gicg_env' / name).exists()
 
 
 def test_maybe_enable_from_cfg_no_op_when_disabled():
@@ -56,9 +51,8 @@ def test_maybe_enable_from_cfg_missing_debug_no_op():
     assert mp._THREAD is None
 
 
-@pytest.mark.skipif(not _lib_built(), reason='libgicg_actor not built')
-def test_mem_probe_emits_go_stats_line():
-    """drive mem_probe 1s interval ~2.5s 跑,断言 stderr 含 Go stats 行 + 全字段。"""
+def test_mem_probe_emits_python_heap_lines():
+    """drive mem_probe 1s interval ~2.5s 跑,断言 stderr 含 Python heap 总量、来源与增量。"""
     import tools._dev.mem_probe as mp
 
     if mp._THREAD is not None:
@@ -66,6 +60,7 @@ def test_mem_probe_emits_go_stats_line():
 
     # 替 sys.stderr 为 StringIO buffer — daemon thread 的 print(..., file=sys.stderr)
     # 会同步写入同一对象(GIL 保护 StringIO.write 是 atomic)。
+    was_tracing = tracemalloc.is_tracing()
     real_stderr = sys.stderr
     buf = io.StringIO()
     sys.stderr = buf
@@ -79,18 +74,14 @@ def test_mem_probe_emits_go_stats_line():
         if mp._THREAD is not None:
             mp._THREAD.join(timeout=2.0)
         sys.stderr = real_stderr
+        mp._THREAD = None
+        mp._STOP_EVENT = None
+        if not was_tracing:
+            tracemalloc.stop()
 
     captured = buf.getvalue()
     assert '[mem_probe t=' in captured, f'no tick output in stderr buffer:\n{captured}'
-    assert '[mem_probe go] HeapAlloc=' in captured, f'Go stats line missing:\n{captured}'
-    for field_name in (
-        'HeapAlloc=',
-        'HeapSys=',
-        'HeapInuse=',
-        'HeapIdle=',
-        'HeapReleased=',
-        'Sys=',
-        'NumGC=',
-        'PauseTotal=',
-    ):
-        assert field_name in captured, f'field {field_name!r} missing from Go stats line:\n{captured}'
+    assert 'tracemalloc_total=' in captured
+    assert 'mem_probe.py:' in captured
+    assert 'delta top 3' in captured
+    assert '[mem_probe go]' not in captured  # Go runtime now belongs to actor subprocesses.

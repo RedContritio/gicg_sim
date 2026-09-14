@@ -5,13 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from training.core.step_encoding import parse_buffs_np
 import torch
 
 from training.core.obs_constants import (
     OBS_CHAR_SKILL_REFS_SIZE,
     OBS_MAX_CHARS,
     OBS_MAX_SKILLS_PER_CHAR,
-    OBS_META_SIZE,
     N_STRUCTURAL,
 )
 from training.core.step_encoding import (
@@ -21,6 +21,7 @@ from training.core.step_encoding import (
     parse_dynamic_np,
 )
 from training.core.structural import compute_structural_obspos
+from training.core.network.static_links import parse_definition_links_np
 
 
 @dataclass
@@ -32,6 +33,7 @@ class _StaticBundle:
     counter_sids_t: torch.Tensor
     active_slot_mask_t: torch.Tensor
     char_skill_refs_t: torch.Tensor
+    definition_links_t: torch.Tensor
     structural_obspos: torch.Tensor
     static_np: dict
 
@@ -89,6 +91,18 @@ def encode_static_for_traversal(
     active_slot_mask_1 = active_slot_mask.unsqueeze(0)
     counter_sids_1 = counter_sids.unsqueeze(0)
     char_skill_refs_1 = char_skill_refs.unsqueeze(0)
+    definition_links = torch.as_tensor(
+        parse_definition_links_np(
+            static_obs_np,
+            n_counter_slots=n_counter_slots,
+            n_hooks=n_hooks_capacity,
+            max_ops_per_hook=max_ops_per_hook,
+            fields_per_op=fields_per_op,
+        ),
+        dtype=torch.long,
+        device=device,
+    )
+    definition_links_1 = definition_links.unsqueeze(0)
     structural_obspos = compute_structural_obspos(
         counter_sids_1,
         active_slot_mask_1,
@@ -100,6 +114,7 @@ def encode_static_for_traversal(
         'counter_sids': counter_sids.detach().cpu().numpy().astype(np.int64),
         'active_slot_mask': active_slot_mask.detach().cpu().numpy().astype(bool),
         'char_skill_refs': char_skill_refs.detach().cpu().numpy().astype(np.int64),
+        'definition_links': definition_links.detach().cpu().numpy().astype(np.int64),
     }
     return _StaticBundle(
         hook_emb=hook_emb.unsqueeze(0),
@@ -107,6 +122,7 @@ def encode_static_for_traversal(
         counter_sids_t=counter_sids_1,
         active_slot_mask_t=active_slot_mask_1,
         char_skill_refs_t=char_skill_refs_1,
+        definition_links_t=definition_links_1,
         structural_obspos=structural_obspos,
         static_np=static_np,
     )
@@ -145,6 +161,7 @@ def build_dynamic(
 
     dynamic = {
         'counter_values': counter_values,
+        'buffs': parse_buffs_np(dyn, n_counter_slots),
         'meta': meta,
         'card_buckets': card_buckets,
         'enemy_sizes': enemy_sizes,

@@ -177,9 +177,17 @@ def make_env_factory(
    BC paradigm(无 ObsConfig 字段)pass None
 4. AZ paradigm(持有 `cfg.obs: ObsConfig`)pass `cfg.obs.to_engine_json()`
 5. 返回 closure `env_factory(game_idx)`:per-game seed = master_seed +
-   game_idx,reset 后返回
+   game_idx,reset 后返回。可选 keyword `layout_seed` SHALL 仅覆盖构造时观测排列种子；
+   不传时保留旧行为。cheap reset SHALL 保持排列。
 6. SHALL be the only `make_env_factory` symbol in `training/core/` —
    no `env_factory_legacy.py` / `env_factory_v2.py` 并行版本
+
+serial DMC SHALL 每局调用支持 `layout_seed` 的工厂创建新环境，按 master/episode_seq
+分别派生 layout、episode、deck_0、deck_1 种子，记录在 episode_stats；双方 game_start
+SHALL 使用新 static_obs。checkpoint SHALL 保存实际 episode_seq 与 RNG，恢复后产生相同后续序列。
+该要求已接入 serial DMC；其他范式和异步路径不在本次迁移范围。
+`tools.experiments.evaluate_clean` SHALL 每 scenario 派生独立 eval-layout，双方换边及
+不同基线共享该布局；评估结果 SHALL 保存布局种子。旧 periodic evaluator 未迁移。
 
 ## 4. Integration points
 

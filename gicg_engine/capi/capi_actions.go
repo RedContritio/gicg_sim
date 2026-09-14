@@ -18,6 +18,7 @@ import (
 
 //export GameGetActingPlayer
 func GameGetActingPlayer(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -33,6 +34,7 @@ func GameGetActingPlayer(id C.int) C.int {
 //
 //export GameHasPending
 func GameHasPending(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return 0
@@ -45,6 +47,7 @@ func GameHasPending(id C.int) C.int {
 
 //export GameSetPlayerHand
 func GameSetPlayerHand(id C.int, player C.int, refs *C.int, n C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -67,6 +70,7 @@ func GameSetPlayerHand(id C.int, player C.int, refs *C.int, n C.int) C.int {
 //
 //export GameSetPlayerDeck
 func GameSetPlayerDeck(id C.int, player C.int, refs *C.int, n C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -91,6 +95,7 @@ func GameSetPlayerDeck(id C.int, player C.int, refs *C.int, n C.int) C.int {
 //
 //export GameSetPlayerDice
 func GameSetPlayerDice(id C.int, player C.int, counts *C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -106,6 +111,7 @@ func GameSetPlayerDice(id C.int, player C.int, counts *C.int) C.int {
 
 //export GameReset
 func GameReset(id C.int, seed C.long) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -121,6 +127,7 @@ func GameReset(id C.int, seed C.long) {
 //
 //export GameResetSeeds
 func GameResetSeeds(id C.int, diceSeed C.long, deckSeed0 C.long, deckSeed1 C.long) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -129,7 +136,8 @@ func GameResetSeeds(id C.int, diceSeed C.long, deckSeed0 C.long, deckSeed1 C.lon
 }
 
 //export GameStep
-func GameStep(id C.int, actionIdx C.int) C.int {
+func GameStep(id C.int, actionIdx C.int) (ret C.int) {
+	defer recoverRuleErrorInt(id, &ret)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -140,7 +148,8 @@ func GameStep(id C.int, actionIdx C.int) C.int {
 }
 
 //export GameStepTarget
-func GameStepTarget(id C.int, targetIdx C.int) C.int {
+func GameStepTarget(id C.int, targetIdx C.int) (ret C.int) {
+	defer recoverRuleErrorInt(id, &ret)
 	h := getHandle(int(id))
 	if h == nil {
 		return -1
@@ -169,7 +178,8 @@ func GameStepTarget(id C.int, targetIdx C.int) C.int {
 // mutates the game state to terminal (or maxSteps).
 //
 //export GameRandomRollout
-func GameRandomRollout(id C.int, seed C.ulonglong, maxSteps C.int, nStepsOut *C.int) C.int {
+func GameRandomRollout(id C.int, seed C.ulonglong, maxSteps C.int, nStepsOut *C.int) (ret C.int) {
+	defer recoverRuleErrorInt(id, &ret)
 	h := getHandle(int(id))
 	if h == nil {
 		return -99

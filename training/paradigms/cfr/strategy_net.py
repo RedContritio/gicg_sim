@@ -11,7 +11,11 @@ wrapping works unchanged.
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_checkpoint, save_checkpoint
+
 from dataclasses import dataclass
+from training.core.network.buffs import BuffEncoder
+from training.core.network.perspective import relative_structural
 
 import torch
 import torch.nn as nn
@@ -22,6 +26,7 @@ from training.core.network.encoder import (
     CrossAttentionBlock,
     HookEncoder,
 )
+from training.core.network.definition_relation import DefinitionRelation
 from training.core.obs_constants import (
     ACTION_END_TURN,
     ACTION_SWITCH,
@@ -64,7 +69,9 @@ class _CFRTrunk(nn.Module):
             dropout=cfg.dropout,
         )
         self.counter_encoder = CounterEncoder(max_slots=2000, embed_dim=d)
+        self.buff_encoder = BuffEncoder(d, self.counter_encoder.sid_embed)
         self.card_encoder = CardEncoder(d_model=d)
+        self.definition_relation = DefinitionRelation(d)
 
         self.cross_layers = nn.ModuleList(
             [CrossAttentionBlock(d, n_heads=4, dropout=cfg.dropout) for _ in range(cfg.n_cross_layers)]
@@ -105,6 +112,8 @@ class _CFRTrunk(nn.Module):
         action_payments,
         structural_values,
         char_skill_refs,
+        definition_links,
+        buffs=None,
     ):
         """Run the encoder. Returns a dict of intermediate tensors."""
         d = self.cfg.d_model
@@ -114,7 +123,7 @@ class _CFRTrunk(nn.Module):
             counter_sids,
             active_slot_mask,
         )
-        hook_emb = hook_emb_cached
+        hook_emb = self.definition_relation(hook_emb_cached, definition_links)
         for layer in self.cross_layers:
             counter_emb, hook_emb = layer(
                 counter_emb,
@@ -147,13 +156,13 @@ class _CFRTrunk(nn.Module):
 
         meta_emb = self.meta_proj(meta)
         card_emb = self.card_encoder(card_buckets, enemy_sizes)
-        struct_feat = self.struct_head(structural_values)
+        struct_feat = self.struct_head(relative_structural(structural_values, meta))
 
         combined = torch.cat(
             [counter_pool, hook_pool, char_skill_pool, card_emb, meta_emb, struct_feat],
             dim=-1,
         )
-        state_vec = self.state_proj(combined)
+        state_vec = self.state_proj(combined) + self.buff_encoder(buffs, hook_emb)
 
         N_act = action_refs.shape[1]
         kinds = action_refs[..., 0]
@@ -247,6 +256,8 @@ class CFRStrategyNet(nn.Module):
         action_payments,
         structural_values,
         char_skill_refs,
+        definition_links,
+        buffs=None,
     ):
         """Returns (logits, value)."""
         out = self.trunk.encode(
@@ -262,13 +273,15 @@ class CFRStrategyNet(nn.Module):
             action_payments,
             structural_values,
             char_skill_refs,
+            definition_links,
+            buffs=buffs,
         )
         logits = _pointer_net_logits(out)
         value = torch.tanh(self.value_head(out['combined']).squeeze(-1))
         return logits, value
 
     def save(self, path: str) -> None:
-        torch.save(
+        save_checkpoint(
             {
                 'cfg': vars(self.cfg),
                 'net': self.state_dict(),
@@ -278,7 +291,7 @@ class CFRStrategyNet(nn.Module):
         )
 
     def load(self, path: str, map_location: str = 'cpu') -> None:
-        blob = torch.load(path, weights_only=True, map_location=map_location)
+        blob = load_checkpoint(path, weights_only=True, map_location=map_location)
         if not isinstance(blob, dict) or 'net' not in blob:
             raise RuntimeError(f"CFRStrategyNet.load: {path} missing 'net'")
         if blob.get('kind') not in (self.KIND, None):

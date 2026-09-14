@@ -107,11 +107,13 @@ func GameNew(configJSON *C.char) C.int {
 
 //export GameFree
 func GameFree(id C.int) {
+	defer recoverRuleError(id)
 	removeHandle(int(id))
 }
 
 //export GameClone
-func GameClone(id C.int) C.int {
+func GameClone(id C.int) (ret C.int) {
+	defer recoverRuleErrorInt(id, &ret)
 	src := getHandle(int(id))
 	if src == nil {
 		return -1

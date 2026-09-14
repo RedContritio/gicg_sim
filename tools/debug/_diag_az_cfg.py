@@ -31,6 +31,29 @@ def diag_agent_config() -> AgentConfig:
     )
 
 
+# F4: union eligibility > 15 fail-louds now — pin the truncation-era
+# composition (probe 2026-06-12, byte order). Duplicated from
+# training/tests/smoke_template.SMOKE_MIRROR_DECK because tools must
+# not import test fixtures (see module docstring).
+_DIAG_MIRROR_DECK = [
+    '乘胜追击',
+    '以攻代守',
+    '以牙还牙',
+    '伏兵之术',
+    '佛跳墙',
+    '占星',
+    '反制',
+    '测试卡_增幅',
+    '测试卡_碎片',
+    '测试卡_神秘水流',
+    '清洁时间',
+    '玄冰',
+    '瞬身之术',
+    '美味烧鸡',
+    '荷花酥',
+]
+
+
 def diag_scenario(data_dir: str = 'data') -> ScenarioConfig:
     """ScenarioConfig matching the old fixed_1v1_config().scenario
     (赤蝶 mirror 1v1, v_legacy+test_basic pool, 15-slot deck padding)."""
@@ -41,6 +64,8 @@ def diag_scenario(data_dir: str = 'data') -> ScenarioConfig:
         data_dir=data_dir,
         deck_padding={'card': '碌碌无为', 'target_size': 15},
         pool=['v_legacy', 'test_basic'],
+        deck_0=list(_DIAG_MIRROR_DECK),
+        deck_1=list(_DIAG_MIRROR_DECK),
     )
 
 

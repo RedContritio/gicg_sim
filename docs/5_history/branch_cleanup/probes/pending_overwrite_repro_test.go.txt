@@ -1,0 +1,81 @@
+package tests
+
+import (
+	"testing"
+
+	engine "gicg_mono/gicg_engine"
+)
+
+// Repro probe for the candidate bug "PendingAction unconditional
+// overwrite": two sequential lethal DealDamage calls (the exact shape
+// FirePerPlayerHooks produces during EndPhase when both players have
+// round-end damage hooks, e.g. mirror 以牙还牙 / 蝶鳞) each kill the
+// opposing active. The first kill queues a forced switch for P1; the
+// second kill's DrainDeferred overwrites g.PendingAction with P0's
+// forced switch, silently dropping P1's.
+func TestPendingActionOverwriteOnDoubleActiveKill(t *testing.T) {
+	env := NewGame(t,
+		[]string{"刻师傅", "赤蝶", "墨客"},
+		[]string{"刻师傅", "赤蝶", "墨客"})
+	env.T = nil // we intentionally walk into the broken state
+	for env.G.Phase == engine.PhaseSelectActive {
+		env.Step(0)
+	}
+
+	p0Active := env.G.Players[0].ActiveChar
+	p1Active := env.G.Players[1].ActiveChar
+	hp0 := env.RT.Chars.BySlot[0][p0Active].HPCounterID
+	hp1 := env.RT.Chars.BySlot[1][p1Active].HPCounterID
+
+	// First kill: P1's active dies -> forced switch queued for P1.
+	env.G.DealDamage(hp1, engine.ElemPhysical, 99, engine.DamageOpts{ActorPlayer: 0, ActorChar: p0Active})
+	if env.G.PendingAction == nil || env.G.PendingAction.PlayerIdx != 1 {
+		t.Fatalf("after first kill expected pending forced switch for P1, got %+v", env.G.PendingAction)
+	}
+
+	// Second kill in the same hook chain (no Step in between, exactly
+	// like consecutive round-end hooks): P0's active dies.
+	env.G.DealDamage(hp0, engine.ElemPhysical, 99, engine.DamageOpts{ActorPlayer: 1, ActorChar: p1Active})
+
+	if env.G.PendingAction == nil {
+		t.Fatalf("expected a pending action, got nil")
+	}
+	t.Logf("surviving PendingAction = %+v", env.G.PendingAction)
+	if env.G.PendingAction.PlayerIdx == 0 {
+		t.Logf("CONFIRMED: P1's forced switch was overwritten by P0's")
+	}
+
+	// Consume the surviving pending switch (P0's), then check P1 state:
+	// dead active with no pending switch == the exact invariant-violating
+	// state helpers_test.go invariant #3 defines as an engine bug.
+	env.G.Phase = engine.PhaseAction
+	la := env.G.GetLegalActions()
+	if len(la) == 0 || la[0].PlayerIdx != 0 || !la[0].Forced {
+		t.Fatalf("expected forced switch actions for P0, got %+v", la)
+	}
+	env.G.Step(0)
+
+	if env.G.Players[1].Chars[env.G.Players[1].ActiveChar].Alive {
+		t.Fatalf("P1 active unexpectedly alive")
+	}
+	errs := invariantErrors(env.G, 0)
+	found := false
+	for _, e := range errs {
+		t.Logf("invariant violation: %s", e)
+		if containsStr(e, "is dead in PhaseAction") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected 'dead in PhaseAction' invariant violation for P1 — bug NOT reproduced")
+	}
+}
+
+func containsStr(s, sub string) bool {
+	for i := 0; i+len(sub) <= len(s); i++ {
+		if s[i:i+len(sub)] == sub {
+			return true
+		}
+	}
+	return false
+}

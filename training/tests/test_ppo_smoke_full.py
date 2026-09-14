@@ -46,6 +46,6 @@ def test_ppo_smoke_full(tmp_path) -> None:
         ckpts[-1],
         extra_overrides=['paradigm.ppo.total_iterations=80'],
     )
-    assert len(new_ckpts) > len(ckpts), (
-        f'expected new ckpt(s) after resume from {ckpts[-1].name}, got {len(ckpts)} → {len(new_ckpts)} files'
-    )
+    old_steps = {int(p.stem.split('_')[1]) for p in ckpts}
+    new_steps = {int(p.stem.split('_')[1]) for p in new_ckpts}
+    assert max(new_steps) > max(old_steps), 'resume must advance beyond the prior final checkpoint'

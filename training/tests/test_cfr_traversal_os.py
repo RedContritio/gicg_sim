@@ -26,7 +26,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 # the engine's capacity (set at engine build time: 900 hooks, 120 tokens
 # per hook) — the static obs layout encodes that size exactly.
 D_MODEL = 8
-MAX_TOK = 64
+MAX_TOK = 128
 N_HOOKS_CAP = 900
 MAX_ACTIONS = 2048
 BUFFER_CAP = 2048

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { LiveClient, type OpponentSpec } from '../api/live'
-import { listChars } from '../api/data'
+import { LiveClient, type LiveProfile, type OpponentSpec } from '../api/live'
+
 import type { LegalAction, LiveFrame, StateView } from '../types/state'
 import { Board } from '../components/Board'
 import { LegalActionList } from '../components/LegalActionList'
@@ -10,16 +10,19 @@ export function Live() {
   const [allChars, setAllChars] = useState<string[]>([])
   const [team0, setTeam0] = useState<string[]>([])
   const [team1, setTeam1] = useState<string[]>([])
+  const [profile, setProfile] = useState<LiveProfile | null>(null)
   const [humanPlayer, setHumanPlayer] = useState<0 | 1>(0)
   const [opponent, setOpponent] = useState<OpponentSpec>({
-    type: 'mcts_pure',
-    n_simulations: 200,
+    type: 'semantic_rl',
   })
 
+  const [history, setHistory] = useState<string[]>([])
   const [view, setView] = useState<StateView | null>(null)
   const [legalActions, setLegalActions] = useState<LegalAction[]>([])
   const [currentPlayer, setCurrentPlayer] = useState<number>(0)
   const [done, setDone] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [gameHuman, setGameHuman] = useState<0 | 1>(0)
   const [err, setErr] = useState<string | null>(null)
   const [connState, setConnState] = useState<
     'idle' | 'connected' | 'reconnecting' | 'disconnected' | 'closed'
@@ -27,15 +30,12 @@ export function Live() {
   const clientRef = useRef<LiveClient | null>(null)
 
   useEffect(() => {
-    listChars()
-      .then((chars) => {
-        setAllChars(chars)
-        if (chars.length > 0) {
-          setTeam0((t) => (t.length === 0 ? [chars[0]] : t))
-          setTeam1((t) =>
-            t.length === 0 ? [chars[1] ?? chars[0]] : t,
-          )
-        }
+    fetch('/api/live/profile').then((r) => { if (!r.ok) throw new Error('无法读取对战配置'); return r.json() })
+      .then((profile: LiveProfile) => {
+        setProfile(profile)
+        setAllChars(profile.characters)
+        setTeam0(profile.team_0)
+        setTeam1(profile.team_1)
       })
       .catch((e) => setErr(String(e)))
     return () => {
@@ -44,11 +44,14 @@ export function Live() {
   }, [])
 
   const onFrame = (frame: LiveFrame) => {
+    setBusy(false)
     if (frame.type === 'error') {
       setErr(frame.message)
       return
     }
     setErr(null)
+    setGameHuman(frame.human_player as 0 | 1)
+    setHistory(frame.history ?? [])
     setView(frame.view)
     setLegalActions(frame.legal_actions || [])
     setCurrentPlayer(frame.current_player)
@@ -56,6 +59,16 @@ export function Live() {
   }
 
   const validate = (): string | null => {
+    if (opponent.type === 'semantic_rl') {
+      if (!profile) return '对战配置仍在加载'
+      if (!profile.available) return profile.unavailable_reason || '当前 RL 模型不可用'
+      if (team0.length !== profile.team_size || team1.length !== profile.team_size) {
+        return `双方各选择 ${profile.team_size} 名角色`
+      }
+      if (profile.disjoint_teams && team0.some((name) => team1.includes(name))) {
+        return '双方角色不能重叠'
+      }
+    }
     if (team0.length === 0) return 'Team P0 is empty'
     if (team1.length === 0) return 'Team P1 is empty'
     if (opponent.type === 'az' || opponent.type === 'cfr') {
@@ -79,6 +92,7 @@ export function Live() {
     setView(null)
     setLegalActions([])
     setDone(false)
+    setBusy(true)
 
     // Close the previous client before creating a new one — otherwise
     // stale WS messages from the old session bleed into this state.
@@ -99,13 +113,15 @@ export function Live() {
       // Connection failed — clear ref so pickAction doesn't throw
       // on the dead client (A8).
       clientRef.current = null
+      setBusy(false)
       setConnState('disconnected')
       setErr(String(e))
     }
   }
 
   const pickAction = (idx: number) => {
-    if (!clientRef.current || done) return
+    if (!clientRef.current || done || busy) return
+    setBusy(true)
     clientRef.current.send({ type: 'action', index: idx })
   }
 
@@ -121,7 +137,7 @@ export function Live() {
   }
 
   const selectChar = (playerIdx: number, charIdx: number) => {
-    if (playerIdx !== humanPlayer || !view) return
+    if (playerIdx !== gameHuman || !view) return
     // Match by char slot. Covers both PhaseAction's voluntary Switch
     // action (kind_name === 'Switch') and PhaseSelectActive's initial
     // pick, which the engine models as Switch as well.
@@ -131,22 +147,29 @@ export function Live() {
     if (act) pickAction(act.index)
   }
 
-  const isHumanTurn = currentPlayer === humanPlayer && !done
+  const isHumanTurn = currentPlayer === gameHuman && !done && !busy
 
   return (
     <div className="flex flex-col h-full overflow-y-auto p-4 gap-4">
+      <p className="text-sm text-slate-300">
+        {profile
+          ? `${profile.name}。每队选择 ${profile.team_size} 名角色；${profile.allow_overlap ? '双方阵容可重叠' : '双方阵容不可重叠'}。沿用训练牌组与最多 ${profile.max_rounds} 回合规则。`
+          : '正在读取当前模型与训练规则…'}
+      </p>
       <div className="flex flex-wrap items-end gap-3 p-3 rounded-lg border border-slate-700 bg-slate-900/60">
         <TeamPicker
           label={`Team P0${humanPlayer === 0 ? ' (you)' : ''}`}
           team={team0}
           setTeam={setTeam0}
           allChars={allChars}
+          limit={profile?.team_size ?? 1}
         />
         <TeamPicker
           label={`Team P1${humanPlayer === 1 ? ' (you)' : ''}`}
           team={team1}
           setTeam={setTeam1}
           allChars={allChars}
+          limit={profile?.team_size ?? 1}
         />
         <div className="flex flex-col gap-1">
           <div className="text-xs text-slate-400">You play as</div>
@@ -171,7 +194,7 @@ export function Live() {
           onClick={start}
           className="px-3 py-1 rounded bg-sky-500 hover:bg-sky-400 text-slate-950 text-sm font-medium"
         >
-          {connState === 'idle' ? 'Start' : 'Restart'}
+          {connState === 'idle' ? '开始对战' : '重新开局'}
         </button>
         {connState === 'reconnecting' && (
           <span className="text-xs text-amber-300">
@@ -184,9 +207,14 @@ export function Live() {
           </span>
         )}
         {err && <span className="text-xs text-rose-400">{err}</span>}
+        {profile && !profile.available && !err && (
+          <span className="text-xs text-rose-400">
+            当前 RL 模型不可用：{profile.unavailable_reason}
+          </span>
+        )}
         {done && view && (
           <span className="text-xs text-amber-300">
-            Game over (winner P{view.winner})
+            对局结束：{view.winner === gameHuman ? '你赢了' : view.winner === 2 ? '平局' : '模型获胜'}
           </span>
         )}
         {view && !done && isHumanTurn && view.phase === 'select_active' && (
@@ -196,11 +224,11 @@ export function Live() {
         )}
         {view && !done && isHumanTurn && view.phase === 'action' && (
           <span className="text-xs text-sky-300">
-            Your turn — click a card, char, or legal action
+            轮到你了：在下方选择行动与骰子支付
           </span>
         )}
         {view && !done && !isHumanTurn && (
-          <span className="text-xs text-slate-400">Opponent thinking…</span>
+          <span className="text-xs text-slate-400">模型行动中…</span>
         )}
       </div>
 
@@ -208,7 +236,7 @@ export function Live() {
         <>
           <Board
             view={view}
-            humanPlayer={humanPlayer}
+            humanPlayer={gameHuman}
             onPlayCard={playCard}
             onSelectChar={selectChar}
           />
@@ -222,6 +250,7 @@ export function Live() {
               disabled={!isHumanTurn}
             />
           </section>
+          <details open className="text-xs text-slate-300"><summary>对局记录</summary><div className="max-h-40 overflow-auto flex flex-col-reverse">{[...history].reverse().map((line, i) => <div key={i}>{line}</div>)}</div></details>
         </>
       )}
     </div>
@@ -233,11 +262,12 @@ interface TeamPickerProps {
   team: string[]
   setTeam: (t: string[]) => void
   allChars: string[]
+  limit: number
 }
 
-function TeamPicker({ label, team, setTeam, allChars }: TeamPickerProps) {
+function TeamPicker({ label, team, setTeam, allChars, limit }: TeamPickerProps) {
   const toggle = (name: string) => {
-    setTeam(team.includes(name) ? team.filter((n) => n !== name) : [...team, name])
+    setTeam(team.includes(name) ? team.filter((n) => n !== name) : team.length < limit ? [...team, name] : team)
   }
   if (allChars.length === 0) {
     return (
@@ -261,7 +291,7 @@ function TeamPicker({ label, team, setTeam, allChars }: TeamPickerProps) {
                 : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-400'
             }`}
           >
-            {name}
+            {name}{team.includes(name) ? ` ${team.indexOf(name) + 1}` : ''}
           </button>
         ))}
       </div>

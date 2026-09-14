@@ -80,6 +80,7 @@ class BCNetwork(nn.Module):
         action_refs = _t('action_refs', torch.long)
         action_payments = _t('action_payments', torch.float32)
         char_skill_refs = _t('char_skill_refs', torch.long)
+        definition_links = _t('definition_links', torch.long)
         recent_damage = _t('recent_damage', torch.float32)
         prepare_skill = _t('prepare_skill', torch.float32)
         modifier_log = _t('modifier_log', torch.float32)
@@ -104,6 +105,8 @@ class BCNetwork(nn.Module):
             recent_damage,
             prepare_skill,
             modifier_log,
+            buffs=_t('buffs', torch.float32) if 'buffs' in batch else None,
+            definition_links=definition_links,
         )
         return out['policy'], out['value']
 

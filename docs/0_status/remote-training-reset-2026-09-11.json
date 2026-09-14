@@ -1,0 +1,979 @@
+{
+  "host": "dev@192.168.31.56",
+  "root": "D:/gicg_dev",
+  "date": "2026-09-11",
+  "verified": true,
+  "directories": [
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202604131620_replays",
+      "files": 2,
+      "bytes": 18328
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605140605_dmc_stage3_smoke",
+      "files": 2,
+      "bytes": 88
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605140610_dmc_stage3_smoke",
+      "files": 8,
+      "bytes": 11358154
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605150219_dmc_stage3_pilot_20k",
+      "files": 2,
+      "bytes": 948
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605150235_dmc_stage3_pilot_20k",
+      "files": 12,
+      "bytes": 207936396
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605151019_dmc_stage3_pilot_20k",
+      "files": 14,
+      "bytes": 207929476
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605182347_000001_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18067008
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605182351_000002_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18100613
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605182354_000003_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18078599
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605182357_000004_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18110099
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605182358_000005_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18089595
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190000_000006_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18087038
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000007_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18087623
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000008_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717761
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000009_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717760
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000010_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717760
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000011_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717761
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000012_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717761
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000013_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717761
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000014_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717761
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000015_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717761
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190005_000016_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717760
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190010_000017_dmc_stage3_micro",
+      "files": 12,
+      "bytes": 86576352
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190011_000018_dmc_stage3_micro",
+      "files": 9,
+      "bytes": 53226648
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190016_000019_dmc_stage3_micro",
+      "files": 0,
+      "bytes": null
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190020_000020_dmc_stage3_micro",
+      "files": 12,
+      "bytes": 86582470
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190022_000021_dmc_stage3_micro",
+      "files": 9,
+      "bytes": 53221090
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190028_000022_dmc_stage3_pilot",
+      "files": 7,
+      "bytes": 3076
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190028_000023_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717789
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190036_000024_dmc_stage3_pilot",
+      "files": 7,
+      "bytes": 3076
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190036_000025_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 17717789
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190044_000026_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18088382
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190048_000027_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18096947
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190051_000028_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 18081582
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605190105_000029_dmc_stage3_pilot",
+      "files": 12,
+      "bytes": 87508424
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605191840_000032_dmc_stage3_pilot",
+      "files": 7,
+      "bytes": 7126
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605191858_000033_dmc_stage3_pilot",
+      "files": 9,
+      "bytes": 60431647
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192019_000034_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192020_000035_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192021_000036_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192021_000037_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4038
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192022_000038_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192022_000039_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192022_000040_dmc_stage3_pilot",
+      "files": 7,
+      "bytes": 786196
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192024_000041_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192034_000042_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192038_000043_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192039_000044_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192039_000045_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192040_000046_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4039
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192059_000047_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58588533
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605192101_000048_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4038
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200118_000049_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4035
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200120_000050_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4035
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200124_000051_dmc_stage3_b_v_legacy",
+      "files": 4,
+      "bytes": 4035
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200125_000052_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 19921152
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200208_000053_dmc_stage3_b_v_legacy",
+      "files": 132,
+      "bytes": 1594726882
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200235_000054_dmc_stage3_b_v_legacy",
+      "files": 43,
+      "bytes": 455998267
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200308_000055_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59399918
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200311_000056_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58988566
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200319_000057_dmc_stage3_b_v_legacy",
+      "files": 7,
+      "bytes": 1503368
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200355_000058_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59198889
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200401_000059_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59045774
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200403_000060_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59062010
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200407_000061_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59046189
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200410_000062_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59022313
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200434_000063_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59008536
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200437_000064_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59016628
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200538_000065_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58892104
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200541_000066_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58903433
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200614_000067_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58884115
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200616_000068_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58884143
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200633_000069_dmc_stage3_b_v_legacy",
+      "files": 7,
+      "bytes": 271870
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200637_000070_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58847935
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200639_000071_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58834462
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200707_000072_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58879305
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200710_000073_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58871400
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200712_000074_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58869779
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200720_000075_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58843341
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200722_000076_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58820919
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200735_000077_dmc_stage3_b_v_legacy",
+      "files": 7,
+      "bytes": 426547
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605200740_000078_dmc_stage3_b_v_legacy",
+      "files": 7,
+      "bytes": 4254249
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201020_000079_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59029647
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201039_000080_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 58862692
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201042_000081_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59395666
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201903_000082_bench_n8_030321",
+      "files": 4,
+      "bytes": 4693
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201910_000083_bench_n8_030947",
+      "files": 4,
+      "bytes": 4693
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201917_000084_bench_n8_031737",
+      "files": 7,
+      "bytes": 504069
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201928_000085_bench_n12_032805",
+      "files": 7,
+      "bytes": 433515
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201934_000086_bench_n16_033412",
+      "files": 7,
+      "bytes": 389785
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201940_000087_bench_n20_034025",
+      "files": 7,
+      "bytes": 379671
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605201946_000088_bench_n24_034638",
+      "files": 7,
+      "bytes": 434094
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210348_000089_dmc_perf_bench_n8",
+      "files": 16,
+      "bytes": 15241915
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210352_000090_dmc_perf_bench_n16",
+      "files": 18,
+      "bytes": 23478782
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210400_000091_dmc_perf_bench_n8",
+      "files": 9,
+      "bytes": 58994215
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210405_000092_dmc_perf_bench_n16",
+      "files": 9,
+      "bytes": 58959183
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210412_000093_dmc_perf_bench_n24",
+      "files": 9,
+      "bytes": 58941548
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210439_000094_dmc_perf_bench_n16",
+      "files": 9,
+      "bytes": 58954422
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210453_000095_dmc_perf_bench_n16",
+      "files": 9,
+      "bytes": 58995744
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210659_000096_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59056139
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210722_000097_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59043044
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605210836_000098_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 59049652
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605220311_000099_dmc_stage3_b_v_legacy_go",
+      "files": 9,
+      "bytes": 19511105
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605220314_000100_dmc_stage3_b_v_legacy_go",
+      "files": 10,
+      "bytes": 35417164
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605220554_000101_dmc_stage3_b_v_legacy_go",
+      "files": 27,
+      "bytes": 242151731
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605220803_000102_dmc_stage3_b_v_legacy_go",
+      "files": 12,
+      "bytes": 60750908
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605220813_000103_dmc_stage3_b_v_legacy_go",
+      "files": 12,
+      "bytes": 62286174
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605220933_000104_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 3491474
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605221140_000105_dmc_stage3_b_v_legacy_go",
+      "files": 36,
+      "bytes": 367829826
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605221216_000106_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 164089
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605222356_000107_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 384477
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605230511_000108_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 1068532
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605230659_000109_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 3762445
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605231847_000110_dmc_stage3_b_v_legacy_go",
+      "files": 9,
+      "bytes": 59195215
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605231914_000111_dmc_stage3_b_v_legacy_go",
+      "files": 9,
+      "bytes": 59007512
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605231931_000112_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 437191
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605231942_000113_dmc_stage3_b_v_legacy",
+      "files": 9,
+      "bytes": 19829962
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605240056_000114_bench_v_legacy_python_mp",
+      "files": 10,
+      "bytes": 89171711
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605240122_000115_bench_v_legacy_go",
+      "files": 10,
+      "bytes": 90042167
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605240901_000116_bench_v_legacy_go",
+      "files": 10,
+      "bytes": 90061946
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605241436_000117_bench_v_legacy_go",
+      "files": 10,
+      "bytes": 90295434
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605252204_000118_sweep_go_n16_5k",
+      "files": 9,
+      "bytes": 19511502
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605252207_000119_sweep_go_n16_5k",
+      "files": 9,
+      "bytes": 19511503
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605252211_000120_sweep_go_n16_5k",
+      "files": 7,
+      "bytes": 278486
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605252243_000121_sweep_go_n2_smoke",
+      "files": 7,
+      "bytes": 120036
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605260949_000122_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 68734
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605260956_000123_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 841675
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261136_000124_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 66602
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261146_000125_dmc_stage3_b_v_legacy_go",
+      "files": 9,
+      "bytes": 19512857
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261150_000126_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 117962
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261200_000127_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 125595
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261211_000128_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 73925
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261224_000129_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 95343
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261232_000130_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 137524
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261240_000131_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 40947
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261244_000132_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 42639
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261247_000133_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 127661
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261249_000134_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 104144
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261258_000135_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 163277
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261312_000136_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 60987
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261317_000137_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 34966
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261319_000138_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 57890
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261325_000139_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 21400
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605261336_000140_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 206573
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270127_000141_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 999815
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270317_000142_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 647025
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270428_000143_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 242610
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270448_000144_dmc_stage3_b_v_legacy_go",
+      "files": 7,
+      "bytes": 52711
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270539_000145_dmc_stage3_b_v_legacy_go",
+      "files": 10,
+      "bytes": 93463820
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270647_000146_dmc_stage3_b_v_legacy_go",
+      "files": 9,
+      "bytes": 59242976
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270738_000147_dmc_stage3_b_v_legacy_go",
+      "files": 10,
+      "bytes": 94484650
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605270902_000148_dmc_stage3_b_v_legacy_go",
+      "files": 12,
+      "bytes": 158699942
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202605271150_000149_dmc_stage3_b_v_legacy_go",
+      "files": 9,
+      "bytes": 61416298
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202606021719_000150_dmc_stage3_b_v_legacy",
+      "files": 49,
+      "bytes": 1260180514
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202606032110_000151_dmc_stage3_per",
+      "files": 32,
+      "bytes": 741252030
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\202606040743_000152_dmc_stage3_gamma",
+      "files": 26,
+      "bytes": 559026491
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_actor_logs",
+      "files": 34,
+      "bytes": 8326
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs",
+      "files": 18,
+      "bytes": 40419980
+    }
+  ],
+  "files": 1580,
+  "bytes": 9662919290,
+  "extra_entries": [
+    {
+      "path": "D:\\gicg_dev\\artifacts\\replays_final_fixed_F1D4",
+      "files": 1,
+      "bytes": 853
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\replays_final_sid1",
+      "files": 5,
+      "bytes": 23043
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\replays_peak_fixed_F1D4",
+      "files": 5,
+      "bytes": 26263
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\replays_pilot20k_F1D4",
+      "files": 5,
+      "bytes": 21030
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n16_B",
+      "files": 18,
+      "bytes": 1024535
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n16_I25",
+      "files": 18,
+      "bytes": 992240
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n24_B",
+      "files": 26,
+      "bytes": 4025020
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n24_I25",
+      "files": 26,
+      "bytes": 3148969
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n4_after",
+      "files": 6,
+      "bytes": 329918
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n4_B",
+      "files": 6,
+      "bytes": 324382
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n8_after",
+      "files": 10,
+      "bytes": 1518046
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_perf_logs_n8_B",
+      "files": 10,
+      "bytes": 624215
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\eval_4cls.log",
+      "files": 1,
+      "bytes": 1904
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\eval_final.log",
+      "files": 1,
+      "bytes": 1530
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\eval_fixed.log",
+      "files": 1,
+      "bytes": 4222
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\eval_peak.log",
+      "files": 1,
+      "bytes": 1532
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\eval_peak_hist.log",
+      "files": 1,
+      "bytes": 1282
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\pilot.err",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\pilot.log",
+      "files": 1,
+      "bytes": 476
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\pilot20k.log",
+      "files": 1,
+      "bytes": 448904
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\pilot20k_fixed.log",
+      "files": 1,
+      "bytes": 439572
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_b_train2.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_b_train3.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_b_train_inline.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_eval_service.err.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_eval_service.log",
+      "files": 1,
+      "bytes": 83
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_i25.err",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_i25.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_mem_probe.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_mem_trajectory.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_n16_probe.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_n24_probe.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_test.log",
+      "files": 1,
+      "bytes": 7
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_test_b.log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "D:\\gicg_dev\\artifacts\\_test_pilot.log",
+      "files": 1,
+      "bytes": 0
+    }
+  ],
+  "extra_files": 159,
+  "extra_bytes": 12958026
+}

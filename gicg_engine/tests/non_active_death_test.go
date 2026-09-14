@@ -104,7 +104,9 @@ func TestActiveDeath_DoesForceSwitch(t *testing.T) {
 	entry := env.RT.Chars.BySlot[1][0]
 	hpID := entry.HPCounterID
 	cur := env.G.Counters[hpID].Value
-	env.G.WriteCounter(hpID, engine.OpSub, cur)
+	env.G.ExecuteEffect(engine.EventFrame{Player: 0, Char: 0}, func(g *engine.Game) {
+		g.WriteCounter(hpID, engine.OpSub, cur)
+	})
 
 	if env.Alive(1, 0) {
 		t.Fatal("P1 active should be dead")

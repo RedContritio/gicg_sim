@@ -124,10 +124,18 @@ func TestTalent_蝶鳞_DieYinBurn(t *testing.T) {
 	}
 
 	// End both turns to reach round_end; 蝶印 should burn + clear.
+	hp0BeforeRoundEnd := env.HP(0, 0)
 	env.playToRoundEnd(t)
 	if env.counterByChar("蝶印", 1, 0) != 0 {
 		t.Errorf("蝶印 should clear at round end, got %d",
 			env.counterByChar("蝶印", 1, 0))
+	}
+	// Burn must hit the enemy (P1) active, never the owner's side.
+	if got := env.HP(1, 0); got != hpAfterSpear-1 {
+		t.Errorf("P1 active HP = %d, want %d (蝶印 burn should hit P1)", got, hpAfterSpear-1)
+	}
+	if got := env.HP(0, 0); got != hp0BeforeRoundEnd {
+		t.Errorf("P0 active HP = %d, want %d (burn must not hit owner)", got, hp0BeforeRoundEnd)
 	}
 }
 
@@ -258,43 +266,4 @@ func TestTalent_发现静电_Electrons(t *testing.T) {
 	if got := env.counterByChar("正电", 1, 0); got != 1 {
 		t.Errorf("enemy active should have 1 正电 after follow-up 剑, got %d", got)
 	}
-}
-
-// --- helpers specific to talent card tests ---
-
-// playCard finds a card in the current player's hand by name and plays it,
-// handling any pending target selection. Returns false if the card isn't
-// currently a legal action.
-func (env *GameEnv) playCard(t *testing.T, name string) bool {
-	t.Helper()
-	idx := env.FindAction(engine.ActionCard, name)
-	if idx < 0 {
-		return false
-	}
-	env.Step(idx)
-	return true
-}
-
-// playToRoundEnd advances both players through EndTurn until round increments.
-func (env *GameEnv) playToRoundEnd(t *testing.T) {
-	t.Helper()
-	startRound := env.G.Round
-	for i := 0; i < 40 && env.G.Round == startRound; i++ {
-		if env.G.Phase == engine.PhaseGameOver {
-			return
-		}
-		// Just spam EndTurn for whoever's turn it is.
-		if !env.endTurnIfPossible() {
-			env.Step(0)
-		}
-	}
-}
-
-func (env *GameEnv) endTurnIfPossible() bool {
-	idx := env.FindAction(engine.ActionEndTurn, "")
-	if idx < 0 {
-		return false
-	}
-	env.Step(idx)
-	return true
 }

@@ -3,6 +3,7 @@ package record
 import (
 	engine "gicg_mono/gicg_engine"
 	"gicg_mono/gicg_engine/interp"
+	"sort"
 )
 
 // StateView is the structured, JSON-serializable snapshot of the LIVE
@@ -166,6 +167,19 @@ func buildCharView(g *engine.Game, rt *interp.Runtime, roleMap RoleMap,
 			Max:   c.Max,
 		})
 	}
+	// This list is a projection of an unordered counter map, not the ordered
+	// buff-instance queue. Stable serialization makes repeated read-only views
+	// and clone comparisons deterministic without changing buff resolution.
+	sort.Slice(cv.Statuses, func(i, j int) bool {
+		a, b := cv.Statuses[i], cv.Statuses[j]
+		if a.Name != b.Name {
+			return a.Name < b.Name
+		}
+		if a.Value != b.Value {
+			return a.Value < b.Value
+		}
+		return a.Max < b.Max
+	})
 	return cv
 }
 

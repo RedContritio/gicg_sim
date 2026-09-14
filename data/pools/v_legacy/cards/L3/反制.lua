@@ -6,18 +6,20 @@ on_card_play(function(ctx)
   debuff:set_at(ctx.target_player, ctx.target_char, 1)
 end)
 
-local prepare_id = on_action_prepare(function(ctx)
+local prepare_id = on_action_prepare({ order = debuff }, function(ctx)
   if ctx.action_kind ~= ActionKind.Skill then return end
   if debuff:get_at(ctx.actor_player, ctx.actor_char) <= 0 then return end
   if cost_total(ctx) == 0 then return end
   cost_mod(ctx, CostSlot.Any, 1)
 end)
 
-on_skill_use(function(ctx)
+on_skill_use({ order = debuff }, function(ctx)
   if not was_applied(ctx, prepare_id) then return end
   debuff:sub_at(ctx.actor_player, ctx.actor_char, 1)
 end)
 
-on_round_end_decay(function(ctx)
-  debuff:decay_all(context_player())
+on_round_end_decay({ order = debuff }, function(ctx)
+  debuff:set_at(ctx.actor_player, ctx.actor_char, 0)
 end)
+
+register_buff(debuff, { remove_on_death = true, expires_round_end = true })

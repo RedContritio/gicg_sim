@@ -50,15 +50,16 @@ def _next_after_u(u: lxml.etree._Element) -> lxml.etree._Element | None:
 def strip_html(html_str: str) -> str:
     """删 HTML tag + unescape entities + 删尾随 ``[详情]``。
 
-    用 lxml.html 解析 fragment 后取 text_content;wiki 数据 data-name 双重 escape
-    的部分需要循环 unescape + reparse(直到稳定)。
+    先解析标签再解码文本，避免把 data-name 属性里的转义引号/HTML
+    提前展开成正文。整体转义的片段逐层解码直到稳定。
     """
     if not html_str:
         return ''
     text = html_str
     for _ in range(64):
         prev = text
-        text = html.unescape(text)
+        if '<' not in text:
+            text = html.unescape(text)
         if '<' in text:
             tree = _parse_fragment(text)
             if tree is not None:
@@ -82,9 +83,12 @@ def html_to_multiline_text(html_str: str) -> str:
     text = html_str
     for _ in range(64):
         prev = text
-        text = html.unescape(text)
         if '<' not in text:
-            break
+            text = html.unescape(text)
+        if '<' not in text:
+            if text == prev:
+                break
+            continue
         tree = _parse_fragment(text)
         if tree is None:
             break

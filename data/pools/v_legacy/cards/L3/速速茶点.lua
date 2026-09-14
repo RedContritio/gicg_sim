@@ -17,7 +17,7 @@ on_card_play(function(ctx)
   buff:set_at(ctx.target_player, ctx.target_char, 2)
 end)
 
-local prepare_id = on_action_prepare(function(ctx)
+local prepare_id = on_action_prepare({ order = buff }, function(ctx)
   if ctx.action_kind ~= ActionKind.Skill then return end
   if buff:get_at(ctx.actor_player, ctx.actor_char) <= 0 then return end
   local c = _char_by_slot[ctx.actor_player][ctx.actor_char]
@@ -26,11 +26,13 @@ local prepare_id = on_action_prepare(function(ctx)
   cost_mod(ctx, CostSlot.Any, -1)
 end)
 
-on_skill_use(function(ctx)
+on_skill_use({ order = buff }, function(ctx)
   if not was_applied(ctx, prepare_id) then return end
   buff:sub_at(ctx.actor_player, ctx.actor_char, 1)
 end)
 
-on_round_end_decay(function(ctx)
-  buff:fill_all(context_player(), 0)
+on_round_end_decay({ order = buff }, function(ctx)
+  buff:set_at(ctx.actor_player, ctx.actor_char, 0)
 end)
+
+register_buff(buff, { remove_on_death = true, expires_round_end = true })

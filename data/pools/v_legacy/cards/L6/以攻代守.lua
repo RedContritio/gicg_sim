@@ -6,7 +6,7 @@ on_card_play(function(ctx)
   active:set(1)
 end)
 
-register_on_tag_write(Tag.Shield, "after", Op.Add, function(ctx, shield_ref)
+register_on_tag_write(Tag.Shield, "after", Op.Add, { order = active }, function(ctx, shield_ref)
   if active:get() <= 0 then return end
   local current = shield_ref:get()
   if current > 1 then
@@ -15,3 +15,5 @@ register_on_tag_write(Tag.Shield, "after", Op.Add, function(ctx, shield_ref)
     deal_damage(Target.EnemyActive, Element.Piercing, overflow, { source = Source.Support })
   end
 end)
+
+register_buff(active)

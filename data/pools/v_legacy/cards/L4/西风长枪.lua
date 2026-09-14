@@ -18,7 +18,7 @@ on_card_play(function(ctx)
 end)
 
 -- 每次装备角色获得能量时，下一个角色也获得 1 点
-on_after_energy_gain(function(ctx)
+on_after_energy_gain({ order = equipped, order_on = "target" }, function(ctx)
   if equipped:get_at(ctx.target_player, ctx.target_char) ~= ref then return end
   local next_c = get_next_char(ctx.target_player, ctx.target_char)
   if next_c ~= ctx.target_char then
@@ -28,7 +28,7 @@ on_after_energy_gain(function(ctx)
 end)
 
 -- 每回合第二次使用技能，额外 +1 能量
-on_skill_use(function(ctx)
+on_skill_use({ order = equipped }, function(ctx)
   if equipped:get_at(ctx.actor_player, ctx.actor_char) ~= ref then return end
   skill_count:add_at(ctx.actor_player, 1)
   if skill_count:get_at(ctx.actor_player) == 2 then
@@ -40,3 +40,5 @@ end)
 on_round_start(function(ctx)
   skill_count:set(0)
 end)
+
+register_buff(equipped)

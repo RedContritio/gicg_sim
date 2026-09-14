@@ -366,6 +366,7 @@ class _FakeTraverser:
         gid_v = self.val_col.register_game(static)
         dyn = {
             'counter_values': np.zeros(2, dtype=np.float32),
+            'buffs': np.zeros((128, 16), dtype=np.float32),
             'meta': np.zeros(4, dtype=np.float32),
             'card_buckets': np.zeros(2, dtype=np.float32),
             'enemy_sizes': np.zeros(2, dtype=np.float32),

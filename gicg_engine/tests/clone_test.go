@@ -61,6 +61,9 @@ func TestRuntimeClone_IndependentStep(t *testing.T) {
 // dynamic state.
 func TestSnapshotRestore_RoundTrip(t *testing.T) {
 	env := NewGameWithDeck(t, []string{"赤蝶"}, []string{"刻师傅"})
+	// Rule test: explicitly fund both players rather than depend on random rolls.
+	env.SetDice(0, map[int]int{7: 8})
+	env.SetDice(1, map[int]int{7: 8})
 
 	origHP1 := env.HP(1, 0)
 	origRound := env.G.Round

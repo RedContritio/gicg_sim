@@ -11,7 +11,7 @@ PARADIGMS: dict[str, dict[str, str]] = {
     'dmc': {
         'load_config': 'training.paradigms.dmc._run_config:load_config',
         'build_agent': 'training.paradigms.dmc._eval_adapter:build_eval_agent',
-        'build_evaluator': 'training.paradigms.dmc._eval_adapter:build_evaluator',
+        'build_evaluator': 'tools.eval.paired:build_evaluator',
         'build_baseline': 'training.paradigms.dmc._eval_adapter:build_baseline',
         'ckpt_frame': 'training.paradigms.dmc._eval_adapter:ckpt_frame',
         'build_random_agent': 'training.paradigms.dmc._eval_adapter:build_random_agent',

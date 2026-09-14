@@ -1,0 +1,20 @@
+# Fresh small-run entry; environment preparation does NOT launch this training.
+[meta]
+extends = "default.toml"
+seed = 41
+run_label = "ready_base_v10"
+
+[scenario]
+max_rounds = 8
+
+[paradigm.dmc]
+total_frames = 3000
+max_game_steps = 512
+epsilon = 0.2
+lr = 0.0003
+buffer_cap = 10000
+eval_interval_episodes = 0
+
+[checkpoint]
+save_every = 50
+keep_last_n = 2

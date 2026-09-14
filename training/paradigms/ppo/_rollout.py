@@ -125,9 +125,11 @@ def run_training_game(
     ``agent.act(env, rng)`` — replacing the legacy
     ``net.forward(obs_flat)`` flat-MLP path.
     """
+    from training.core.scenario import decks_arg
+
     del device  # agent owns its own device; legacy arg kept for caller compat
     fix_dice = list(scen.fix_dice) if getattr(scen, 'fix_dice', None) else None
-    card_pool = list(getattr(scen, 'card_pool', None) or ())
+    card_pool = getattr(scen, 'card_pool', None)
     obs_mask = list(getattr(scen, 'obs_mask', None) or ()) or None
     env = GicgEnv(
         list(scen.team_0),
@@ -140,6 +142,7 @@ def run_training_game(
         obs_mask=obs_mask,
         deck_padding=getattr(scen, 'deck_padding', None),
         pool=getattr(scen, 'pool', ['v_legacy', 'test_basic']),
+        decks=decks_arg(getattr(scen, 'deck_0', None), getattr(scen, 'deck_1', None)),
         reward_shaping=dict(pcfg.reward_shaping),
     )
     is_self_play = p1_opponent is None

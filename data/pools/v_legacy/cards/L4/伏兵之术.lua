@@ -7,11 +7,8 @@ on_card_play(function(ctx)
   active:set(1)
 end)
 
--- High priority so 伏兵之术 runs before ordinary discounts and its
--- gate check sees the unmodified switch cost. If another free-action
--- source (e.g. 乘胜追击) has already zeroed the cost, the gate fails
--- and 伏兵之术 does not consume its charge.
-local prepare_id = on_action_prepare(1000, function(ctx)
+-- 同类别减费按 buff 产生顺序结算；费用归零后不消费本效果。
+local prepare_id = on_action_prepare({ order = active }, function(ctx)
   if ctx.action_kind ~= ActionKind.Switch then return end
   if active:get_at(ctx.actor_player) <= 0 then return end
   if used:get_at(ctx.actor_player) > 0 then return end
@@ -19,12 +16,14 @@ local prepare_id = on_action_prepare(1000, function(ctx)
   cost_mod(ctx, CostSlot.Any, -1)
 end)
 
-on_switch(function(ctx)
+on_switch({ order = active }, function(ctx)
   if ctx.action_context ~= Action.Switch then return end
   if not was_applied(ctx, prepare_id) then return end
   used:set_at(ctx.actor_player, 1)
 end)
 
-on_round_start(function(ctx)
+on_round_start({ order = active }, function(ctx)
   used:set(0)
 end)
+
+register_buff(active, { progress = used })

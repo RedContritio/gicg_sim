@@ -35,6 +35,30 @@ from typing import Any, Protocol
 import torch
 
 
+# F4: explicit 15-card deck for the 赤蝶-mirror v_legacy+test_basic
+# union-pool smoke scenario. The union eligibility exceeds the 15-slot
+# padding target and the engine no longer truncates silently — this
+# pins the historical truncation-era composition (probe 2026-06-12,
+# byte order). Shared by the AZ fixtures (_az_fixtures /
+# test_az_paradigm / test_az_mp_factories) which use the same scenario.
+SMOKE_MIRROR_DECK = [
+    '乘胜追击',
+    '以攻代守',
+    '以牙还牙',
+    '伏兵之术',
+    '佛跳墙',
+    '占星',
+    '反制',
+    '测试卡_增幅',
+    '测试卡_碎片',
+    '测试卡_神秘水流',
+    '清洁时间',
+    '玄冰',
+    '瞬身之术',
+    '美味烧鸡',
+    '荷花酥',
+]
+
 # Smoke wall-time budget (per paradigm). Spec A1.5: ≤ 60s. We assert at
 # 60s with a generous + 5s buffer for CI variance — tests should normally
 # finish < 30s on a developer Mac.
@@ -311,10 +335,13 @@ def make_structural_batch_dict(agent_cfg: Any, *, batch_size: int = 2, seed: int
         'hook_mask': hook_mask,
         'card_buckets': rng.standard_normal((B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES)).astype(np.float32),
         'enemy_sizes': rng.standard_normal((B, OBS_ENEMY_SIZES)).astype(np.float32),
-        'meta': rng.standard_normal((B, OBS_META_SIZE)).astype(np.float32),
+        'meta': np.concatenate(
+            (rng.standard_normal((B, OBS_META_SIZE - 1)), rng.integers(0, 2, (B, 1))), axis=1
+        ).astype(np.float32),
         'action_refs': np.full((B, ma, 3), -1, dtype=np.int64),
         'action_payments': rng.standard_normal((B, ma, DICE_COLOR_COUNT)).astype(np.float32),
         'char_skill_refs': np.full((B, 2, OBS_MAX_CHARS, OBS_MAX_SKILLS_PER_CHAR), -1, dtype=np.int64),
+        'definition_links': np.full((B, 1, 2), -1, dtype=np.int64),
         'recent_damage': recent_damage,
         'prepare_skill': prepare_skill,
         'modifier_log': modifier_log,
@@ -347,6 +374,8 @@ def make_dummy_cfg(paradigm_name: str, paradigm_dict: dict, *, seed: int = 42, d
             max_rounds=10,
             deck_padding={'card': '碌碌无为', 'target_size': 15},
             data_dir='data',
+            deck_0=SMOKE_MIRROR_DECK,
+            deck_1=SMOKE_MIRROR_DECK,
         ),
         paradigm=paradigm_dict,
         checkpoint=CheckpointCfg(save_every=1000, keep_last_n=3, artifacts_root='artifacts'),

@@ -15,7 +15,8 @@ import (
 // and counts. Step / setters / rollout live in capi_actions.go.
 
 //export GameGetLegalActionCount
-func GameGetLegalActionCount(id C.int) C.int {
+func GameGetLegalActionCount(id C.int) (ret C.int) {
+	defer recoverRuleErrorInt(id, &ret)
 	h := getHandle(int(id))
 	if h == nil {
 		return 0
@@ -54,6 +55,7 @@ func GameGetLegalActionCount(id C.int) C.int {
 //
 //export GameGetActionIdentities
 func GameGetActionIdentities(id C.int, out *C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -71,6 +73,8 @@ func GameGetActionIdentities(id C.int, out *C.int) {
 		tgtP := -1
 		tgtC := -1
 		switch a.Kind {
+		case engine.ActionReroll:
+			subject, aux = a.Index, a.RerollColor
 		case engine.ActionSkill:
 			subject = a.Index // globally-unique skill ID
 		case engine.ActionCard:
@@ -81,6 +85,12 @@ func GameGetActionIdentities(id C.int, out *C.int) {
 			if a.HasTarget {
 				tgtP = a.TargetPlayer
 				tgtC = a.TargetChar
+			}
+			if a.HasBuffTarget {
+				aux, tgtP, tgtC = a.TargetBuff, a.TargetPlayer, -1
+			}
+			if a.HasSupportTarget {
+				aux, tgtP, tgtC = engine.ObsBuffRows+a.TargetSupport, a.PlayerIdx, -1
 			}
 		case engine.ActionSwitch:
 			subject = a.Index // target char slot
@@ -105,14 +115,16 @@ func GameGetActionIdentities(id C.int, out *C.int) {
 //   - ActionSkill: hook_idx = canonical on_skill_use hook's active-index
 //     for (actor_player, actor_char, skill_id); char_idx = -1.
 //   - ActionCard:  hook_idx = canonical on_card_play hook's active-index
-//     for the card_ref; char_idx = -1.
+//     for the card_ref; char_idx = ActionCharRef (own-first card target).
 //   - ActionSwitch: hook_idx = -1; char_idx = target char slot (NOT shuffled).
 //   - ActionEndTurn: hook_idx = -1; char_idx = -1.
+//   - ActionTune: hook_idx = discarded card hook; char_idx = source die color.
 //
 // Caller must pre-size `out` to 3 * GameGetLegalActionCount().
 //
 //export GameGetActionRefs
 func GameGetActionRefs(id C.int, out *C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -127,8 +139,10 @@ func GameGetActionRefs(id C.int, out *C.int) {
 	for i, a := range actions {
 		kind := int(a.Kind)
 		hookIdx := -1
-		charIdx := -1
+		charIdx := engine.ActionCharRef(a)
 		switch a.Kind {
+		case engine.ActionReroll:
+			hookIdx = a.Index // quantity, not a hook for this action kind
 		case engine.ActionSkill:
 			pi := a.PlayerIdx
 			ci := g.Players[pi].ActiveChar
@@ -137,7 +151,7 @@ func GameGetActionRefs(id C.int, out *C.int) {
 					hookIdx = ai
 				}
 			}
-		case engine.ActionCard:
+		case engine.ActionCard, engine.ActionTune:
 			pi := a.PlayerIdx
 			ref := -1
 			if a.Index >= 0 && a.Index < len(g.Players[pi].Hand) {
@@ -161,6 +175,7 @@ func GameGetActionRefs(id C.int, out *C.int) {
 
 //export GameGetLegalActions
 func GameGetLegalActions(id C.int, outKinds *C.int, outIndices *C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -187,6 +202,7 @@ func GameGetLegalActions(id C.int, outKinds *C.int, outIndices *C.int) {
 //
 //export GameGetLegalActionPayments
 func GameGetLegalActionPayments(id C.int, out *C.int) {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return
@@ -215,6 +231,7 @@ func GameGetDiceColorCount() C.int {
 
 //export GameGetCounterCount
 func GameGetCounterCount(id C.int) C.int {
+	defer recoverRuleError(id)
 	h := getHandle(int(id))
 	if h == nil {
 		return 0

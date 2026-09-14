@@ -96,11 +96,12 @@ def test_actor_critic_forward_typed_damage_off():
         hook_mask=torch.ones(B, nh, dtype=torch.bool),
         card_buckets=torch.randn(B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES),
         enemy_sizes=torch.randn(B, OBS_ENEMY_SIZES),
-        meta=torch.randn(B, OBS_META_SIZE),
+        meta=torch.cat((torch.randn(B, OBS_META_SIZE - 1), torch.zeros(B, 1)), dim=1),
         action_refs=torch.zeros(B, ma, 3, dtype=torch.long),
         action_payments=torch.randn(B, ma, DICE_COLOR_COUNT),
         structural_values=torch.randn(B, N_STRUCTURAL),
         char_skill_refs=torch.full((B, 2, 6, 10), -1, dtype=torch.long),
+        definition_links=torch.full((B, 1, 2), -1, dtype=torch.long),
     )
     assert out['policy'].shape == (B, ma)
     assert out['value'].shape == (B,)
@@ -122,7 +123,7 @@ def test_actor_critic_forward_typed_damage_on():
         hook_mask=torch.ones(B, nh, dtype=torch.bool),
         card_buckets=torch.randn(B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES),
         enemy_sizes=torch.randn(B, OBS_ENEMY_SIZES),
-        meta=torch.randn(B, OBS_META_SIZE),
+        meta=torch.cat((torch.randn(B, OBS_META_SIZE - 1), torch.zeros(B, 1)), dim=1),
         action_refs=torch.zeros(B, ma, 3, dtype=torch.long),
         action_payments=torch.randn(B, ma, DICE_COLOR_COUNT),
         structural_values=torch.randn(B, N_STRUCTURAL),
@@ -132,6 +133,7 @@ def test_actor_critic_forward_typed_damage_on():
         recent_damage=torch.zeros(B, OBS_RECENT_DAMAGE_EVENTS, OBS_RECENT_DAMAGE_FIELD_COUNT),
         prepare_skill=torch.zeros(B, 2, 2, dtype=torch.float32),
         modifier_log=torch.zeros(B, OBS_RECENT_DAMAGE_EVENTS, OBS_MODIFIER_LOG_K_MOD, OBS_MODIFIER_LOG_FIELD_COUNT),
+        definition_links=torch.full((B, 1, 2), -1, dtype=torch.long),
     )
     assert out['policy'].shape == (B, ma)
     assert out['value'].shape == (B,)
@@ -152,7 +154,7 @@ def test_actor_critic_typed_damage_mismatch_raises():
             hook_mask=torch.ones(B, nh, dtype=torch.bool),
             card_buckets=torch.randn(B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES),
             enemy_sizes=torch.randn(B, OBS_ENEMY_SIZES),
-            meta=torch.randn(B, OBS_META_SIZE),
+            meta=torch.cat((torch.randn(B, OBS_META_SIZE - 1), torch.zeros(B, 1)), dim=1),
             action_refs=torch.zeros(B, ma, 3, dtype=torch.long),
             action_payments=torch.randn(B, ma, DICE_COLOR_COUNT),
             structural_values=torch.randn(B, N_STRUCTURAL),
@@ -160,6 +162,7 @@ def test_actor_critic_typed_damage_mismatch_raises():
             recent_damage=torch.randn(B, OBS_RECENT_DAMAGE_EVENTS, OBS_RECENT_DAMAGE_FIELD_COUNT),
             prepare_skill=torch.zeros(B, 2, 2, dtype=torch.float32),
             modifier_log=torch.randn(B, OBS_RECENT_DAMAGE_EVENTS, OBS_MODIFIER_LOG_K_MOD, OBS_MODIFIER_LOG_FIELD_COUNT),
+            definition_links=torch.full((B, 1, 2), -1, dtype=torch.long),
         )
 
 
@@ -177,9 +180,10 @@ def test_actor_critic_typed_damage_missing_segments_raises():
             hook_mask=torch.ones(B, nh, dtype=torch.bool),
             card_buckets=torch.randn(B, OBS_HAND_BUCKETS, OBS_MAX_CARD_TYPES),
             enemy_sizes=torch.randn(B, OBS_ENEMY_SIZES),
-            meta=torch.randn(B, OBS_META_SIZE),
+            meta=torch.cat((torch.randn(B, OBS_META_SIZE - 1), torch.zeros(B, 1)), dim=1),
             action_refs=torch.zeros(B, ma, 3, dtype=torch.long),
             action_payments=torch.randn(B, ma, DICE_COLOR_COUNT),
             structural_values=torch.randn(B, N_STRUCTURAL),
             char_skill_refs=torch.full((B, 2, 6, 10), -1, dtype=torch.long),
+            definition_links=torch.full((B, 1, 2), -1, dtype=torch.long),
         )

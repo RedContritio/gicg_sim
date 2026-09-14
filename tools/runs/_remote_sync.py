@@ -53,27 +53,22 @@ def _git(*args: str) -> str:
 
 def _uncommitted_files() -> list[Path]:
     """Files appearing in `git status -s` that exist + are regular files."""
-    out: list[Path] = []
-    for line in _git('status', '-s').splitlines():
-        s = line[3:].strip()
-        if not s or s.startswith('.'):
-            continue
-        p = Path(s)
-        if p.exists() and p.is_file():
-            out.append(p)
-    return out
+    names = _git('diff', 'HEAD', '--name-only', '--no-renames', '-z').split('\0')
+    names += _git('ls-files', '--others', '--exclude-standard', '-z').split('\0')
+    return list(
+        dict.fromkeys(Path(name) for name in names if name and not name.startswith('.') and Path(name).is_file())
+    )
 
 
 def _committed_diff(base_sha: str | None) -> list[Path]:
     """Files changed between ``base_sha`` and HEAD. If base is None →
     full tracked file set (first sync)."""
     if base_sha is None:
-        names = _git('ls-files').splitlines()
+        names = _git('ls-files', '-z').split('\0')
     else:
-        names = _git('diff', f'{base_sha}..HEAD', '--name-only').splitlines()
+        names = _git('diff', f'{base_sha}..HEAD', '--name-only', '-z').split('\0')
     out: list[Path] = []
     for s in names:
-        s = s.strip()
         if not s:
             continue
         p = Path(s)
@@ -92,21 +87,15 @@ def _deleted_since_commit(base_sha: str | None) -> list[Path]:
     """
     if base_sha is None:
         return []
-    raw = _git('diff', '--diff-filter=D', '--name-only', f'{base_sha}..HEAD')
-    return [Path(s.strip()) for s in raw.splitlines() if s.strip()]
+    raw = _git('diff', '--diff-filter=D', '--no-renames', '--name-only', '-z', f'{base_sha}..HEAD')
+    return [Path(name) for name in raw.split('\0') if name]
 
 
 def _uncommitted_deletions() -> list[Path]:
     """`git status -s` 中 D 状态行(staged `D ` / unstaged ` D` / both `DD`)。
     `_uncommitted_files` 过滤掉了不存在的路径 → 不包含删除;本函数补集。"""
-    out: list[Path] = []
-    for line in _git('status', '-s').splitlines():
-        if len(line) < 4:
-            continue
-        x, y = line[0], line[1]
-        if x == 'D' or y == 'D':
-            out.append(Path(line[3:].strip()))
-    return out
+    raw = _git('diff', 'HEAD', '--diff-filter=D', '--no-renames', '--name-only', '-z')
+    return [Path(name) for name in raw.split('\0') if name]
 
 
 def _ssh_delete_paths(remote: RemoteCfg, paths: list[Path]) -> int:

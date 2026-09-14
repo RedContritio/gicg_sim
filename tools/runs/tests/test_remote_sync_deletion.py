@@ -44,15 +44,15 @@ def test_deleted_since_commit_calls_git_with_diff_filter_D():
     """命令应为 `git diff --diff-filter=D --name-only <sha>..HEAD`。 必须 D-filter,
     且 **不带 -M** —— 否则 rename 走 R 而非 D+A,旧路径漏。"""
     with patch('tools.runs._remote_sync._git') as g:
-        g.return_value = 'gicg_actor/capi_init.go\ntools/runs/foo.py\n'
+        g.return_value = 'gicg_actor/capi_init.go\0tools/runs/foo.py\0'
         out = _deleted_since_commit('abc123')
-        g.assert_called_once_with('diff', '--diff-filter=D', '--name-only', 'abc123..HEAD')
+        g.assert_called_once_with('diff', '--diff-filter=D', '--no-renames', '--name-only', '-z', 'abc123..HEAD')
         assert out == [Path('gicg_actor/capi_init.go'), Path('tools/runs/foo.py')]
 
 
 def test_deleted_since_commit_filters_empty_lines():
     with patch('tools.runs._remote_sync._git') as g:
-        g.return_value = 'a.py\n\n\nb.py\n'
+        g.return_value = 'a.py\0\0b.py\0'
         assert _deleted_since_commit('sha') == [Path('a.py'), Path('b.py')]
 
 
@@ -60,21 +60,12 @@ def test_deleted_since_commit_filters_empty_lines():
 
 
 def test_uncommitted_deletions_captures_D_states():
-    """`git status -s` 输出:`D file` / ` D file` / `DD file` 都算 deletion。
-    `M file` / `A file` 不算。 路径从第 4 字符起。"""
-    raw = (
-        'D  staged_del.py\n'
-        ' D unstaged_del.py\n'
-        'DD both_del.py\n'
-        'M  modified.py\n'
-        ' M wt_modified.py\n'
-        'A  added.py\n'
-        'R  old.py -> new.py\n'  # 非 D，不收
-    )
+    """HEAD diff includes staged and unstaged deletions as NUL-separated paths."""
+    raw = 'staged_del.py\0unstaged_del.py\0both_del.py\0'
     with patch('tools.runs._remote_sync._git') as g:
         g.return_value = raw
         out = _uncommitted_deletions()
-        g.assert_called_once_with('status', '-s')
+        g.assert_called_once_with('diff', 'HEAD', '--diff-filter=D', '--no-renames', '--name-only', '-z')
     assert out == [Path('staged_del.py'), Path('unstaged_del.py'), Path('both_del.py')]
 
 

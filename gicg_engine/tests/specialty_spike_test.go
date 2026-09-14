@@ -60,9 +60,9 @@ func TestSpecialtySpike_EquipAndCap(t *testing.T) {
 		t.Fatal("P0 char 0 not bound")
 	}
 	// driveCard.Ref may be 0 (first declared card in registry) so we
-	// can't use 0 as "empty" sentinel — that's why CharEntry uses -1.
-	if maviChar.SpecialtyCardRef != driveCard.Ref {
-		t.Errorf("after 驰轮车 play: P0 SpecialtyCardRef = %d, want %d", maviChar.SpecialtyCardRef, driveCard.Ref)
+	// can't use 0 as "empty" sentinel — that's why CharInfo uses -1.
+	if g.Players[0].Chars[0].SpecialtyCardRef != driveCard.Ref {
+		t.Errorf("after 驰轮车 play: P0 SpecialtyCardRef = %d, want %d", g.Players[0].Chars[0].SpecialtyCardRef, driveCard.Ref)
 	}
 
 	// add_dice should have generated 2 omni dice for P0.
@@ -80,7 +80,7 @@ func TestSpecialtySpike_EquipAndCap(t *testing.T) {
 		if a.PlayerIdx == 0 && a.Kind == engine.ActionCard {
 			handIdx := a.Index
 			if handIdx < len(g.Players[0].Hand) && g.Players[0].Hand[handIdx].Ref == driveCard.Ref {
-				t.Errorf("specialty slot is full (SpecialtyCardRef=%d) but 驰轮车 still in legal card actions", maviChar.SpecialtyCardRef)
+				t.Errorf("specialty slot is full (SpecialtyCardRef=%d) but 驰轮车 still in legal card actions", g.Players[0].Chars[0].SpecialtyCardRef)
 			}
 		}
 	}

@@ -12,6 +12,29 @@ import (
 // After Load, the game is left in PhaseRoundStart — the next Step or
 // GetLegalActions call will advance into the round by firing round_start hooks.
 func Load(rt *interp.Runtime, rec *Record, atRound int) error {
+	if rec == nil {
+		return fmt.Errorf("nil record")
+	}
+	if !rt.Game.IsQuiescent() {
+		return fmt.Errorf("load requires a quiescent boundary")
+	}
+	tmp := rt.Clone()
+	candidate := tmp.Game
+	if err := loadInto(tmp, rec, atRound); err != nil {
+		return err
+	}
+	rt.Game.RestoreFrom(candidate)
+	rt.Game.MaxRounds = candidate.MaxRounds
+	rt.Game.FixDice = append([]int(nil), candidate.FixDice...)
+	return nil
+}
+
+func loadInto(rt *interp.Runtime, rec *Record, atRound int) error {
+	if rec.Config != nil {
+		if err := rec.Config.validate(); err != nil {
+			return err
+		}
+	}
 	if atRound < 1 || atRound > len(rec.Rounds) {
 		return fmt.Errorf("round %d out of range [1, %d]", atRound, len(rec.Rounds))
 	}
@@ -20,6 +43,31 @@ func Load(rt *interp.Runtime, rec *Record, atRound int) error {
 		return fmt.Errorf("round %d has no start state", atRound)
 	}
 	g := rt.Game
+	if state.Checkpoint != nil {
+		// Load's private candidate owns its random/configuration state.
+		if err := g.RestoreCheckpoint(state.Checkpoint); err != nil {
+			return err
+		}
+		if g.Phase != engine.PhaseRoundStart || g.Round != atRound-1 {
+			return fmt.Errorf("checkpoint does not match round %d", atRound)
+		}
+		if diffs := VerifyState(rt, state); len(diffs) != 0 {
+			return fmt.Errorf("checkpoint disagrees with record state: %v", diffs[0])
+		}
+		return nil
+	}
+	if state.ActiveChars != nil {
+		for pi, ci := range *state.ActiveChars {
+			if ci < -1 || ci >= len(g.Players[pi].Chars) {
+				return fmt.Errorf("invalid P%d active slot %d", pi, ci)
+			}
+		}
+	}
+	if rec.Config != nil {
+		g.SetSimulationSeed(rec.Config.BaseSeed)
+		g.MaxRounds = rec.Config.MaxRounds
+		g.FixDice = append([]int(nil), rec.Config.FixDice...)
+	}
 
 	nameToRef := make(map[string]int, len(g.CardNames))
 	for ref, name := range g.CardNames {
@@ -30,6 +78,9 @@ func Load(rt *interp.Runtime, rec *Record, atRound int) error {
 	for pi, pe := range [2]PlayerState{state.P0, state.P1} {
 		if err := loadPlayer(rt, roleMap, pi, pe, nameToRef); err != nil {
 			return fmt.Errorf("P%d: %w", pi, err)
+		}
+		if state.ActiveChars != nil {
+			g.Players[pi].ActiveChar = state.ActiveChars[pi]
 		}
 	}
 
@@ -61,7 +112,7 @@ func loadPlayer(rt *interp.Runtime, roleMap RoleMap, pi int, pe PlayerState, nam
 	for displayName, val := range pe.Counters {
 		id := findPlayerCounterByDisplay(g, pi, displayName)
 		if id < 0 {
-			continue // unknown counter — silently skip
+			return fmt.Errorf("unknown player counter %q", displayName)
 		}
 		g.Counters[id].Value = val
 	}
@@ -108,7 +159,7 @@ func loadPlayer(rt *interp.Runtime, roleMap RoleMap, pi int, pe PlayerState, nam
 		for expName, expVal := range cs.Counters {
 			id, ok := charCounters[expName]
 			if !ok {
-				continue
+				return fmt.Errorf("unknown counter %q for char %q", expName, cs.Name)
 			}
 			g.Counters[id].Value = expVal
 			setIDs[id] = true

@@ -1,6 +1,7 @@
 package interp
 
 import (
+	"crypto/sha256"
 	"fmt"
 	engine "gicg_mono/gicg_engine"
 	"os"
@@ -217,6 +218,14 @@ func (rt *Runtime) ExecFileSandboxed(path string) error {
 	// Execute in sandboxed env (child of global, writes stay local)
 	env := NewEnv(rt.Interp.Global)
 	err = rt.Interp.ExecChunk(rt, pf.chunk, env)
+	if err == nil {
+		freezeDefinitions(env)
+		// Hash the cached bytes actually executed, never re-read a possibly
+		// edited source file. Binding context and load order affect hooks.
+		sourceHash := sha256.Sum256(pf.src)
+		identity := fmt.Sprintf("%s:%d:%d:%x", rt.Game.RulesDigest, rt.CurrentOwnerPlayer, rt.CurrentOwnerChar, sourceHash)
+		rt.Game.RulesDigest = fmt.Sprintf("%x", sha256.Sum256([]byte(identity)))
+	}
 
 	rt.CurrentSourceFile = prevSource
 	rt.CurrentSourceHookIdx = prevIdx

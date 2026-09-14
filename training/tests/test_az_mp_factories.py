@@ -29,6 +29,7 @@ import pytest
 import training.paradigms.az.mp_factories as mpf
 from training.core.protocols import EpisodeSpec
 from training.core.scenario import ScenarioConfig
+from training.tests.smoke_template import SMOKE_MIRROR_DECK
 from training.paradigms.az.config import AZParadigmConfig
 from training.paradigms.az.mp_factories import (
     _SPEC_COUNTERS,
@@ -62,6 +63,9 @@ _SCENARIO = ScenarioConfig(
     data_dir='data',
     deck_padding={'card': '碌碌无为', 'target_size': 15},
     pool=['v_legacy', 'test_basic'],
+    # F4: explicit deck — union eligibility > 15 fail-louds now.
+    deck_0=list(SMOKE_MIRROR_DECK),
+    deck_1=list(SMOKE_MIRROR_DECK),
 )
 
 

@@ -2,6 +2,8 @@ package engine
 
 // EventContext 是 hook 回调的上下文。不同 HookType 使用不同字段子集。
 type EventContext struct {
+	AttachmentOnly bool   // pure element application; never a damage attempt
+	WriteBuffID    uint64 // lifecycle of the counter instance being written
 	// 事件分类
 	ActionCtx ActionContext
 	Source    Source
@@ -52,6 +54,7 @@ type EventContext struct {
 	// builtin to auto-tag AppliedMods with the calling hook's identity.
 	// Reset to -1 outside a hook body.
 	CurrentHookID int
+	BuffID        uint64
 
 	EnergyCost   int
 	BattleAction bool
@@ -64,6 +67,7 @@ type EventContext struct {
 	// 目标信息
 	TargetPlayer int
 	TargetChar   int
+	TargetBuffID uint64 // internal selected instance, distinct from the executing BuffID
 
 	// 控制
 	Cancelled    bool // on_before_write 中调用 cancel() 置 true
@@ -88,7 +92,8 @@ type EventContext struct {
 	// 0 = no reaction(默认 Reaction.None);> 0 = registered reaction ID。
 	// 支持新增反应:任何 DSL 文件 declare_reaction 即可,engine 0 hardcode
 	// 反应名(register 是 runtime allocation,跟 declare_counter 同模式)。
-	ReactionKind int
+	ReactionKind    int
+	ReactionElement Element // secondary element selected by DSL reaction rules
 
 	// Absorbed: ADR-0019 §B.5 — damage 管线 reduce 阶段后被护盾/减伤吸收的量
 	// (preShieldValue - ctx.Value 之差,单 damage 累计)。on_after_damage hook

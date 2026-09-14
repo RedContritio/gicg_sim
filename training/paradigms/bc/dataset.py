@@ -6,9 +6,13 @@ Split out of ``training.paradigms.bc.legacy.bc_train`` to keep that file under t
 
 from __future__ import annotations
 
+from training.core.artifact_io import load_dataset
+
 from pathlib import Path
 
 import numpy as np
+from training.core.step_encoding import pad_buffs_np
+from training.core.step_encoding import parse_buffs_np
 
 from training.core.obs_constants import (
     OBS_CHAR_SKILL_REFS_SIZE,
@@ -17,6 +21,7 @@ from training.core.obs_constants import (
     OBS_META_SIZE,
 )
 from training.core.step_encoding import parse_dynamic_np, parse_dynamic_typed_np
+from training.core.network.static_links import parse_definition_links_np
 
 
 def parse_static_obs_np(
@@ -55,12 +60,20 @@ def parse_static_obs_np(
     active_ir = hook_ir_all[non_empty]
     n_active = active_ir.shape[0]
     hook_mask = np.ones(n_active, dtype=bool) if n_active > 0 else np.zeros(0, dtype=bool)
+    definition_links = parse_definition_links_np(
+        s,
+        n_counter_slots=n_counter_slots,
+        n_hooks=n_hooks,
+        max_ops_per_hook=max_ops_per_hook,
+        fields_per_op=fields_per_op,
+    )
     return {
         'hook_ir': active_ir,
         'hook_mask': hook_mask,
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
         'char_skill_refs': char_skill_refs,
+        'definition_links': definition_links,
     }
 
 
@@ -79,6 +92,8 @@ def stack_static_batch(statics: list[dict], max_ops_per_hook: int) -> dict:
     counter_sids = np.zeros((B, n_slots), dtype=np.int64)
     active_slot_mask = np.zeros((B, n_slots), dtype=bool)
     char_skill_refs = np.zeros((B,) + csr_shape, dtype=np.int64)
+    max_links = max(s['definition_links'].shape[0] for s in statics)
+    definition_links = np.full((B, max_links, 2), -1, dtype=np.int64)
 
     for i, s in enumerate(statics):
         n = s['hook_ir'].shape[0]
@@ -88,6 +103,7 @@ def stack_static_batch(statics: list[dict], max_ops_per_hook: int) -> dict:
         counter_sids[i] = s['counter_sids']
         active_slot_mask[i] = s['active_slot_mask']
         char_skill_refs[i] = s['char_skill_refs']
+        definition_links[i, : s['definition_links'].shape[0]] = s['definition_links']
 
     return {
         'hook_ir': hook_ir,
@@ -95,6 +111,7 @@ def stack_static_batch(statics: list[dict], max_ops_per_hook: int) -> dict:
         'counter_sids': counter_sids,
         'active_slot_mask': active_slot_mask,
         'char_skill_refs': char_skill_refs,
+        'definition_links': definition_links,
     }
 
 
@@ -108,7 +125,7 @@ class BCDataset:
     """
 
     def __init__(self, npz_path: Path, n_counter_slots: int, n_hooks: int, max_ops_per_hook: int):
-        d = np.load(npz_path)
+        d = load_dataset(npz_path)
         self.game_id = np.ascontiguousarray(d['game_id'])
         self.dyn_obs = np.ascontiguousarray(d['dyn_obs'])
         self.action_refs = np.ascontiguousarray(d['action_refs'])
@@ -188,6 +205,7 @@ class BCDataset:
             'recent_damage': recent_damage,
             'prepare_skill': prepare_skill,
             'modifier_log': modifier_log,
+            'buffs': pad_buffs_np([parse_buffs_np(self.dyn_obs[i], self.n_counter_slots) for i in indices]),
             'action_refs': self.action_refs[indices],
             'action_payments': self.action_payments[indices],
             'legal_mask': self.legal_mask[indices],

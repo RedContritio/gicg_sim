@@ -6,7 +6,6 @@ _KNOWN_TERMS 跨卡 term 表(cli pre-scan 后 populate)。
 
 from __future__ import annotations
 
-import html
 import re
 
 from tools.cards.html_utils import _next_after_u, _parse_fragment, strip_html
@@ -63,7 +62,7 @@ def collect_layout_a_terms(html_str: str) -> set[str]:
         if not raw_surface:
             continue
         surface = _TERM_SURFACE_REPLACEMENTS.get(raw_surface, raw_surface)
-        inner_html = html.unescape(raw_dataname)
+        inner_html = raw_dataname
         explanation = strip_html(inner_html).strip()
         for sep in ('：', ':'):
             if explanation.startswith(surface + sep):
@@ -92,7 +91,7 @@ def extract_terms(html_str: str) -> dict[str, str]:
                 f'extract_terms: surface name 超长 (len={len(surface)} > {_SURFACE_NAME_MAX_LEN}): '
                 f'{surface!r};若是合法 wiki term,加入 _KNOWN_LONG_SURFACES 白名单(见 parse.py)'
             )
-        inner_html = html.unescape(raw_dataname)
+        inner_html = raw_dataname
         explanation = strip_html(inner_html).strip()
         # layout 检查:
         # A1 严格:explanation startswith surface + ':' (strip 前缀)
@@ -128,7 +127,7 @@ def find_term_refs(html_str: str) -> list[str]:
     seen_set: set[str] = set()
     _, refs = _collect_term_pairs(html_str)
     for raw_dataname in refs:
-        inner = html.unescape(raw_dataname)
+        inner = raw_dataname
         text = strip_html(inner)
         m = re.match(r'^([^:：]+)[:：]', text)
         if not m:

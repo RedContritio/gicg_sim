@@ -7,6 +7,7 @@ package engine
 func (g *Game) executeSkill(action Action) StepResult {
 	pi := action.PlayerIdx
 	p := &g.Players[pi]
+	g.publicSkill(pi, p.ActiveChar, action.Index)
 
 	// Pay dice (Phase IV: skill cost is in dice, not AP)
 	g.PayDice(pi, action.DicePayment)
@@ -48,6 +49,7 @@ func (g *Game) executeSkill(action Action) StepResult {
 	}
 	g.FireEventHooks(HookSkillUse, ctx)
 
+	g.DrainDeferred()
 	g.PopEvent()
 
 	if g.Phase == PhaseGameOver {
@@ -86,10 +88,29 @@ func (g *Game) executeCard(action Action) StepResult {
 	if action.Index >= len(p.Hand) {
 		return StepContinue
 	}
+	var selectedBuff uint64
+	var selectedSupport uint64
+	if action.HasSupportTarget {
+		if action.TargetSupport < 0 || action.TargetSupport >= len(p.Supports) {
+			panic("invalid support replacement")
+		}
+		selectedSupport = p.Supports[action.TargetSupport].ID
+	}
+	if action.HasBuffTarget {
+		if action.TargetBuff < 0 || action.TargetBuff >= len(g.Buffs) {
+			panic("invalid selected buff position")
+		}
+		selectedBuff = g.Buffs[action.TargetBuff].ID
+	}
 	// Pay dice (Phase IV: card cost is in dice, not AP)
 	g.PayDice(pi, action.DicePayment)
 
 	card := p.Hand[action.Index]
+	targetPlayer, targetChar := -1, -1
+	if action.HasTarget {
+		targetPlayer, targetChar = action.TargetPlayer, action.TargetChar
+	}
+	g.publicCard(pi, p.ActiveChar, card.Ref, targetPlayer, targetChar)
 	p.Hand = append(p.Hand[:action.Index], p.Hand[action.Index+1:]...)
 	p.Discard = append(p.Discard, card)
 	if g.Log != nil {
@@ -114,6 +135,12 @@ func (g *Game) executeCard(action Action) StepResult {
 	// Joint-action style: if the card needs a target, the target was
 	// baked into the Action by GetLegalActions. We no longer pause
 	// via PendingCardTarget + StepNeedTarget.
+	if action.HasBuffTarget {
+		return g.resolveCardWithBuff(pi, card.Ref, prepCtx.BattleAction, action.TargetPlayer, -1, action.AppliedMods, selectedBuff, 0)
+	}
+	if action.HasSupportTarget {
+		return g.resolveCardWithBuff(pi, card.Ref, prepCtx.BattleAction, pi, -1, action.AppliedMods, 0, selectedSupport)
+	}
 	if action.HasTarget {
 		return g.resolveCardWithMods(pi, card.Ref, prepCtx.BattleAction, action.TargetPlayer, action.TargetChar, action.AppliedMods)
 	}
@@ -127,6 +154,7 @@ func (g *Game) executeCard(action Action) StepResult {
 			CardRef:      card.Ref,
 			BattleAction: prepCtx.BattleAction,
 			TargetMode:   prepCtx.TargetMode,
+			AppliedMods:  action.AppliedMods,
 		}
 		return StepNeedTarget
 	}
@@ -134,21 +162,23 @@ func (g *Game) executeCard(action Action) StepResult {
 	return g.resolveCardWithMods(pi, card.Ref, prepCtx.BattleAction, -1, -1, action.AppliedMods)
 }
 
-// resolveCard is the legacy entry point (no AppliedMods). Kept for
-// PendingCardTarget path.
-func (g *Game) resolveCard(pi, cardRef int, battleAction bool, targetPlayer, targetChar int) StepResult {
-	return g.resolveCardWithMods(pi, cardRef, battleAction, targetPlayer, targetChar, nil)
+func (g *Game) resolveCardWithMods(pi, cardRef int, battleAction bool, targetPlayer, targetChar int, appliedMods map[int]bool) StepResult {
+	return g.resolveCardWithBuff(pi, cardRef, battleAction, targetPlayer, targetChar, appliedMods, 0, 0)
 }
 
-func (g *Game) resolveCardWithMods(pi, cardRef int, battleAction bool, targetPlayer, targetChar int, appliedMods map[int]bool) StepResult {
+func (g *Game) resolveCardWithBuff(pi, cardRef int, battleAction bool, targetPlayer, targetChar int, appliedMods map[int]bool, buffID, supportID uint64) StepResult {
 	p := &g.Players[pi]
+	g.publicCard(pi, p.ActiveChar, cardRef, targetPlayer, targetChar)
 
 	g.PushEvent(EventFrame{
-		ActionCtx: ActPlayCard,
-		Source:    SrcCard,
-		Player:    pi,
-		Char:      p.ActiveChar,
-		CardRef:   cardRef,
+		ActionCtx:        ActPlayCard,
+		Source:           SrcCard,
+		Player:           pi,
+		Char:             p.ActiveChar,
+		CardRef:          cardRef,
+		HasCardTarget:    targetPlayer >= 0 && targetChar >= 0,
+		CardTargetPlayer: targetPlayer,
+		CardTargetChar:   targetChar,
 	})
 
 	ctx := &EventContext{
@@ -159,11 +189,17 @@ func (g *Game) resolveCardWithMods(pi, cardRef int, battleAction bool, targetPla
 		CardRef:       cardRef,
 		TargetPlayer:  targetPlayer,
 		TargetChar:    targetChar,
+		TargetBuffID:  buffID,
 		AppliedMods:   appliedMods,
 		CurrentHookID: -1,
 	}
+	if supportID != 0 {
+		g.RemoveSupportByID(pi, supportID)
+		g.DrainDeferred()
+	}
 	g.FireEventHooks(HookCardPlay, ctx)
 
+	g.DrainDeferred()
 	g.PopEvent()
 
 	if g.Phase == PhaseGameOver {

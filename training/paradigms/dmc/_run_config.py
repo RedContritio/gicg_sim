@@ -35,7 +35,7 @@ except ImportError:
 
 from training.core.config.legacy import TrainingConfig
 from training.core.network import AgentConfig
-from training.core.scenario import ScenarioConfig
+from training.core.scenario import ScenarioConfig, check_char_pool_deck_exclusive
 from training.paradigms.dmc._opponent import OpponentPoolConfig  # re-export
 
 
@@ -132,7 +132,7 @@ def smoke_config(data_dir: Optional[str] = None) -> DmcConfig:
         agent=AgentConfig(
             n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
             n_hooks=900,
-            max_ops_per_hook=64,
+            max_ops_per_hook=128,
             max_actions=2048,
             d_model=64,
             n_cross_layers=2,
@@ -218,6 +218,9 @@ def load_config(path: Union[str, Path], data_dir: str = 'data') -> DmcConfig:
         data.pop(k, None)
     cfg = BASE_PRESETS[base_name](data_dir=data_dir)
     _apply_overrides(cfg, data, path=str(path), trail='')
+    # F4: _apply_overrides 走 setattr,绕过 ScenarioConfig.__post_init__ —
+    # char_pool × deck_0/deck_1 互斥需在 override 后重检。
+    check_char_pool_deck_exclusive(cfg.scenario.char_pool, cfg.scenario.deck_0, cfg.scenario.deck_1)
     return cfg
 
 

@@ -53,6 +53,8 @@ func (cp *CtxProxy) GetField(rt *Runtime, field string) (Value, error) {
 		return int(ctx.Source), nil
 	case "playable":
 		return ctx.Playable, nil
+	case "attachment_only":
+		return ctx.AttachmentOnly, nil
 	case "skip_reaction":
 		return ctx.SkipReaction, nil
 	case "hit":
@@ -71,6 +73,8 @@ func (cp *CtxProxy) GetField(rt *Runtime, field string) (Value, error) {
 		return ctx.Paid, nil
 	case "is_specialty":
 		return ctx.IsSpecialty, nil
+	case "reaction_element":
+		return int(ctx.ReactionElement), nil
 	case "reaction_kind":
 		// ADR-0019 §B.3: typed reaction ID (0 = ReactionNone).
 		return ctx.ReactionKind, nil
@@ -91,6 +95,9 @@ func (cp *CtxProxy) SetField(rt *Runtime, field string, val Value) error {
 	case "element":
 		v, _ := ToInt(val)
 		ctx.Element = engine.Element(v)
+	case "reaction_element":
+		v, _ := ToInt(val)
+		ctx.ReactionElement = engine.Element(v)
 	case "playable":
 		ctx.Playable = ToBool(val)
 	case "skip_reaction":

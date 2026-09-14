@@ -1,0 +1,71 @@
+{
+  "ready_for_small_rl": true,
+  "source_observation_sha256": "da13e79441ec5f885c48c6a22ccac07335f1267cc476353185a6fac95673c01d",
+  "engine_sha256": "2d4a1c698264e217dc854e8ad8664c2efd036ad60103c8c88e04c1b4bc5e914f",
+  "parameter_count": 278880,
+  "environment_gate": "passed",
+  "action_alias_gate": "passed",
+  "regression": "passed",
+  "seeding": "passed",
+  "exact_resume": "passed",
+  "full_smoke": "passed",
+  "python": {
+    "passed": 2153,
+    "skipped": 14,
+    "warnings": 22,
+    "seconds": 107.48,
+    "excluded": "test_budget_uncapped_equals_old_const"
+  },
+  "go": "go test ./gicg_engine/... ./gicg_mcts/... ./gicg_actor/... passed; engine/tests 6.544s, others cached",
+  "target_seeds": [
+    41,
+    42,
+    43
+  ],
+  "rule_seeds": [
+    41,
+    42,
+    43
+  ],
+  "training_started": false,
+  "target_accuracy": {
+    "41": [
+      1.0
+    ],
+    "42": [
+      1.0
+    ],
+    "43": [
+      1.0
+    ]
+  },
+  "target_erased_accuracy": {
+    "41": 0.5,
+    "42": 0.5,
+    "43": 0.5
+  },
+  "evaluation_entrypoint": "fresh:41 and uniform random; developer seed99000, 1 paired scenario per opponent; verified, not a policy-capability claim",
+  "rule_balanced_accuracy": {
+    "41": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "42": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "43": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "full_smoke_details": {
+    "passed": 10,
+    "seconds": 694.36,
+    "deselected": 1117
+  },
+  "switch_semantics": "voluntary operation vs actual character change: 3 targeted tests passed 1.229s, then full Go suites passed"
+}

@@ -27,13 +27,18 @@ type Action struct {
 	// target (e.g. heal cards), the target is baked into the action
 	// rather than going through a separate STEP_NEED_TARGET pending
 	// state.
-	HasTarget    bool
-	TargetPlayer int
-	TargetChar   int
+	HasTarget        bool
+	TargetPlayer     int
+	TargetChar       int
+	HasBuffTarget    bool
+	TargetBuff       int // position in live creation-ordered Buffs, never a raw ID
+	HasSupportTarget bool
+	TargetSupport    int // replacement slot in own support zone
 
 	// Tune source: which dice color to convert to the char element.
 	// Only meaningful when Kind == ActionTune.
 	TuneSourceColor int
+	RerollColor     int // 0..7 selects a count; DiceColorCount confirms
 }
 
 // GetLegalActions enumerates legal actions for the current acting
@@ -53,8 +58,12 @@ type Action struct {
 //  5. Payment variants are enumerated from the effective cost
 //  6. ctx.AppliedMods is baked into each enumerated Action
 func (g *Game) GetLegalActions() []Action {
+	g.RequireHealthy()
 	if g.Phase == PhaseGameOver {
 		return nil
+	}
+	if g.PendingDice != nil {
+		return g.diceSelectionActions()
 	}
 
 	// 首回合选择出战角色：所有角色可选
@@ -67,10 +76,6 @@ func (g *Game) GetLegalActions() []Action {
 		g.NewRound()
 	}
 
-	if g.Phase != PhaseAction {
-		return nil
-	}
-
 	if g.PendingAction != nil && g.PendingAction.Kind == ActionSwitch {
 		return g.forcedSwitchActions(g.PendingAction.PlayerIdx)
 	}
@@ -80,6 +85,9 @@ func (g *Game) GetLegalActions() []Action {
 	// code path that still sets PendingCardTarget directly.
 	if g.PendingCardTarget != nil {
 		return g.cardTargetActions(g.PendingCardTarget)
+	}
+	if g.Phase != PhaseAction {
+		return nil
 	}
 
 	pi := g.ActingPlayer()

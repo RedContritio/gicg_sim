@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from gicg_env import GicgEnv
 
+from training.core.scenario import decks_arg
+
 
 def resolve_pool_refs(scenario) -> dict[int, list[int]]:
     """Build per-player SharedFixedPool ref lists from the scenario's
@@ -22,6 +24,7 @@ def resolve_pool_refs(scenario) -> dict[int, list[int]]:
         obs_mask=scenario.obs_mask,
         deck_padding=scenario.deck_padding,
         pool=scenario.pool,
+        decks=decks_arg(getattr(scenario, 'deck_0', None), getattr(scenario, 'deck_1', None)),
     )
     try:
         env.reset(seed=0)

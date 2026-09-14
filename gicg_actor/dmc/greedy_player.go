@@ -102,6 +102,16 @@ func (gp *GreedyPlayer) scoreBestResponse(
 	budget *int,
 ) float64 {
 	g := rt.Game
+	if g.PendingDice != nil {
+		// Complete the card's internal choices before consuming a combat ply.
+		snap := g.SnapshotPooled()
+		defer engine.ReleaseSnap(snap)
+		defer g.RestoreFromSnap(snap)
+		for g.PendingDice != nil {
+			g.Step(greedyRerollChoice(g))
+		}
+		return gp.scoreBestResponse(rt, viewRoot, eventsRoot, me, depth, budget)
+	}
 	// budget 耗尽 → 停止展开,当前节点直接评分。 budget==nil 视作 unbounded。
 	budgetExhausted := budget != nil && *budget <= 0
 	if g.Phase == engine.PhaseGameOver || depth <= 0 || budgetExhausted {
@@ -156,6 +166,9 @@ func (gp *GreedyPlayer) scoreBestResponse(
 func (gp *GreedyPlayer) SelectAction(rt *interp.Runtime) (int, error) {
 	defer gicg_actor.Span("dmc.opp_minimax_select").End()
 	g := rt.Game
+	if g.PendingDice != nil {
+		return greedyRerollChoice(g), nil
+	}
 	if len(g.GetLegalActions()) == 0 {
 		return -1, fmt.Errorf("GreedyPlayer: env has no legal actions")
 	}

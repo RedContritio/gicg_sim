@@ -47,6 +47,10 @@ func PUCTScore(child *Node, parentTurn int8, cPuct float32) float32 {
 // child (pool index). Panics if no legal child found — that's a
 // caller bug (terminal state reached without detection).
 func SelectChild(pool *Pool, node *Node, legalMask []bool, cPuct float32) int32 {
+	return selectChildWithTurn(pool, node, legalMask, cPuct, node.Turn)
+}
+
+func selectChildWithTurn(pool *Pool, node *Node, legalMask []bool, cPuct float32, turn int8) int32 {
 	children := node.children
 	actions := node.actions
 
@@ -59,7 +63,7 @@ func SelectChild(pool *Pool, node *Node, legalMask []bool, cPuct float32) int32 
 			continue
 		}
 		child := pool.Get(children[i])
-		score := PUCTScore(child, node.Turn, cPuct)
+		score := PUCTScore(child, turn, cPuct)
 		action := actions[i]
 
 		if bestIdx == -1 ||

@@ -35,7 +35,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
+from training.core.artifact_io import save_dataset
 import pytest
 
 from training.tests.smoke_full_template import (
@@ -123,7 +123,7 @@ def _gen_bc_npz_for_smoke(tmp_path: Path) -> Path:
 
     npz_path = tmp_path / 'dataset.npz'
     np_kwargs = {k: v for k, v in data.items() if k != 'meta'}
-    np.savez_compressed(npz_path, **np_kwargs)
+    save_dataset(npz_path, **np_kwargs)
     return npz_path
 
 
@@ -170,6 +170,6 @@ def test_bc_smoke_full(tmp_path) -> None:
         ckpts[0],
         extra_overrides=[dataset_override, 'paradigm.bc.n_epochs=130'],
     )
-    assert len(new_ckpts) > len(ckpts), (
-        f'expected new ckpt(s) after resume from {ckpts[0].name}, got {len(ckpts)} → {len(new_ckpts)} files'
-    )
+    old_steps = {int(p.stem.split('_')[1]) for p in ckpts}
+    new_steps = {int(p.stem.split('_')[1]) for p in new_ckpts}
+    assert max(new_steps) > max(old_steps), 'resume must advance beyond the prior final checkpoint'

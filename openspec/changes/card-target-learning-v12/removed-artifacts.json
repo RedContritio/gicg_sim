@@ -1,0 +1,66 @@
+[
+  {
+    "path": "artifacts/learnability_v11_cost/a_test.npz",
+    "bytes": 18867
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/a_train.npz",
+    "bytes": 31933
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/b_test.npz",
+    "bytes": 16520
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/b_train.npz",
+    "bytes": 26472
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/combination_test.npz",
+    "bytes": 19618
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/probe_41.pt",
+    "bytes": 391815
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/probe_42.pt",
+    "bytes": 391815
+  },
+  {
+    "path": "artifacts/learnability_v11_cost/probe_43.pt",
+    "bytes": 391815
+  },
+  {
+    "path": "artifacts/learnability_v11_tactics/dataset.pt",
+    "bytes": 47493165
+  },
+  {
+    "path": "artifacts/learnability_v11_tactics/tactics_41.pt",
+    "bytes": 1155928
+  },
+  {
+    "path": "artifacts/learnability_v11_tactics/tactics_42.pt",
+    "bytes": 1155928
+  },
+  {
+    "path": "artifacts/learnability_v11_tactics/tactics_43.pt",
+    "bytes": 1155928
+  },
+  {
+    "path": "artifacts/card_target_v12/dataset.pt",
+    "bytes": 34295853
+  },
+  {
+    "path": "artifacts/card_target_v12/target_41.pt",
+    "bytes": 1157707
+  },
+  {
+    "path": "artifacts/card_target_v12/target_42.pt",
+    "bytes": 1157707
+  },
+  {
+    "path": "artifacts/card_target_v12/target_43.pt",
+    "bytes": 1157707
+  }
+]

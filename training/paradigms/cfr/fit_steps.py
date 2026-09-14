@@ -43,6 +43,7 @@ def forward_cfr_batch(
     action_refs = _t('action_refs', torch.long)
     action_payments = _t('action_payments', torch.float32)
     char_skill_refs = _t('char_skill_refs', torch.long)
+    definition_links = _t('definition_links', torch.long)
 
     hook_emb = net.trunk.hook_encoder(hook_ir, hook_mask)
     structural_obspos = compute_structural_obspos(
@@ -64,6 +65,8 @@ def forward_cfr_batch(
         action_payments=action_payments,
         structural_values=structural_values,
         char_skill_refs=char_skill_refs,
+        definition_links=definition_links,
+        buffs=_t('buffs', torch.float32) if 'buffs' in batch else None,
     )
     if returns_value:
         logits, value = result

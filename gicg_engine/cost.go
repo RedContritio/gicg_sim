@@ -86,6 +86,25 @@ func (c *DiceCost) Mod(s CostSlot, delta int) {
 	}
 }
 
+// Reduce removes up to amount dice, specific elements first (enum order),
+// then same-color requirements, then unrestricted dice. Nonpositive amounts
+// do nothing; negative intermediate slots neither consume nor add budget.
+func (c *DiceCost) Reduce(amount int) {
+	reduce := func(slot *int) {
+		if amount <= 0 || *slot <= 0 {
+			return
+		}
+		n := min(amount, *slot)
+		*slot -= n
+		amount -= n
+	}
+	for i := range c.Specific {
+		reduce(&c.Specific[i])
+	}
+	reduce(&c.Match)
+	reduce(&c.Any)
+}
+
 // Clamp brings every slot to >= 0 in place. Call after all mods are
 // applied, before handing the cost to EnumerateCostPayments.
 func (c *DiceCost) Clamp() {

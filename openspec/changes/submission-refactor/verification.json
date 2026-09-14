@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "source_observation_sha256": "36852b1d3aac01140971de05d7cbe07ebcc17da406e3792277297634879f342f",
+  "python": {
+    "passed": 1348,
+    "skipped": 6,
+    "warnings": 22,
+    "seconds": 42.26,
+    "command": ".venv/bin/python -m pytest -n 4 gicg_env/tests training/tests tools/cards/tests tools/eval/tests -q --durations=10",
+    "log": "artifacts/refactor_20260912/python_verified.log"
+  },
+  "go": {
+    "command": "go test ./...",
+    "status": "passed",
+    "log": "artifacts/refactor_20260912/go.log"
+  },
+  "shared_library": "rebuilt successfully",
+  "async_targeted": {
+    "passed": 17,
+    "reverse_seed_regression": "passed"
+  },
+  "moved_python_function_ast_nodes_unchanged": 42,
+  "all_changed_file_line_limits": "passed",
+  "format_and_indices": "passed",
+  "old_training_source": "8bc1dce77cd90f8eaf7f71be117bdf532df1da036bd8f62123b79521bf1a8dc5",
+  "old_training_source_archive": "artifacts/refactor_20260912/pre_refactor_source.tar.gz",
+  "remote_environment": "unchanged and stopped; no resume started",
+  "project_version": "v0.1.0",
+  "previous_baseline_alias": "submission-refactor-v18"
+}

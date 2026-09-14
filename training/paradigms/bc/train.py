@@ -19,6 +19,8 @@ Usage:
 
 from __future__ import annotations
 
+from training.core.artifact_io import save_checkpoint
+
 import argparse
 import json
 import math
@@ -254,7 +256,7 @@ def main() -> None:
 
             # Per-epoch ckpt + prune.
             ckpt_path = out_dir / f'epoch_{epoch}.pt'
-            torch.save({'cfg': agent_cfg, 'net': net.state_dict()}, ckpt_path)
+            save_checkpoint({'cfg': agent_cfg, 'net': net.state_dict()}, ckpt_path)
             keep = _keep_epochs(epoch, milestones)
             for e in range(epoch + 1):
                 if e in keep:
@@ -263,7 +265,7 @@ def main() -> None:
                 if p.exists():
                     p.unlink()
 
-    torch.save({'cfg': agent_cfg, 'net': net.state_dict()}, final_path)
+    save_checkpoint({'cfg': agent_cfg, 'net': net.state_dict()}, final_path)
     summary = {
         'run_label': run_label,
         'dataset_path': str(dataset_path),

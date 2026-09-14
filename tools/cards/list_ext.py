@@ -86,14 +86,15 @@ def parse_item_ext(item: dict, channel_id: int) -> dict:
 from tools.cards.constants import load_character_names  # noqa: F401 (back-compat)
 
 
-def load_list_ext_index() -> dict[int, dict]:
+def load_list_ext_index(raw_list_dir: Path | None = None) -> dict[int, dict]:
     """加载 data/raw_list/{character,action,monster}.json → content_id → parsed ext。
 
     任一 channel 文件缺失 → raise(必须先跑 fetch_list)。
     """
+    directory = RAW_LIST_DIR if raw_list_dir is None else Path(raw_list_dir)
     index: dict[int, dict] = {}
     for kind, ch in CHANNELS.items():
-        fp = RAW_LIST_DIR / f'{kind}.json'
+        fp = directory / f'{kind}.json'
         if not fp.exists():
             raise FileNotFoundError(f'list 数据缺失:{fp};请先跑 .venv/bin/python -m tools.cards.fetch_list')
         items = json.loads(fp.read_text(encoding='utf-8'))

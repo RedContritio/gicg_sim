@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 parent: ./spec.md
@@ -17,8 +17,8 @@ parent: ./spec.md
 伤害事件 SHALL 按以下顺序经过 5 个 phase:
 
 ```
-① on_damage_boost      — 增伤(附魔、加伤),可修改 value/element
-② on_reaction_damage   — 元素反应
+① on_damage_boost      — 增伤(附魔、加伤),可修改 value/element(仅非穿透)
+② on_reaction_damage   — 元素反应(仅非穿透)
 ③ on_damage_reduce     — 减伤(护盾吸收),可修改 value(仅非穿透)
 ④ HP write             — engine 写入 HP counter
 ⑤ on_after_damage      — 始终触发(read-only,衍生效果)
@@ -95,7 +95,12 @@ Reaction hooks 可以 read `ctx.element`(攻击元素)+ `ctx.target_element`
 
 - `ctx.value` — damage value(SHALL ≥ 0,clamp 后写 HP)
 - SHALL NOT 修改 `ctx.element`(已 final)
-- SHALL NOT 影响穿透伤害(若 future engine 引入穿透标记)
+- SHALL NOT 影响穿透伤害(`Element.Piercing`)。
+
+穿透伤害 SHALL 跳过元素修改、加法/乘法增伤、元素反应、减伤 buff、
+护盾吸收和免伤 hook；因此 SHALL NOT 消耗这些效果的次数或护盾值。
+穿透伤害仍 SHALL 扣除 HP，处理死亡并触发 `on_after_damage`。
+这些规则对双方、出战和后台角色均适用。
 
 ### 4.2 Shield 注册位置约束
 

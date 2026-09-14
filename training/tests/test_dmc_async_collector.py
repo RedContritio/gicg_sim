@@ -143,7 +143,7 @@ def test_dmc_async_collector_bootstrap_publishes_then_spawns():
         coll.close()
 
 
-def _stub_episode(n_trans: int, winner: int = 0, action_base: int = 0):
+def _stub_episode(n_trans: int, winner: int = 0, action_base: int = 0, scenario_seed: int = 12345):
     """Build a minimal EpisodeRecord ring item: list[Transition] + winner.
 
     Each Transition payload carries ``dmc_obs_dict`` (the only payload key
@@ -169,7 +169,7 @@ def _stub_episode(n_trans: int, winner: int = 0, action_base: int = 0):
         length=n_trans,
         winner=winner,
         opponent_id='random',
-        scenario_seed=0,
+        scenario_seed=scenario_seed,
     )
 
 
@@ -177,7 +177,10 @@ def test_dmc_async_collector_collect_drains_ring():
     from training.paradigms.dmc.collector import DMCMultiProcessCollector
 
     # Ring items are EpisodeRecord (post mp-provider type-mismatch fix).
-    items = [_stub_episode(3, winner=0), _stub_episode(2, winner=1, action_base=10)]
+    items = [
+        _stub_episode(3, winner=0, scenario_seed=98765),
+        _stub_episode(2, winner=1, action_base=10, scenario_seed=12345),
+    ]
     rt = _MockRuntime()
     ring = _MockRing(items=list(items))
     coll = DMCMultiProcessCollector(
@@ -193,6 +196,8 @@ def test_dmc_async_collector_collect_drains_ring():
         out = coll.collect(n_episodes=10, provider=None)
         assert out.n_units == 5  # 3 + 2 transitions
         assert len(out.episode_stats) == 2
+        assert [stat['scenario_seed'] for stat in out.episode_stats] == [98765, 12345]
+        assert all('seeds' not in stat for stat in out.episode_stats)
         assert out.runtime_metrics['n_pulled'] == 2
         assert out.runtime_metrics['n_dropped'] == 0
         # First episode (winner=0, our_player=0) → G=+1; second → G=-1.
@@ -249,7 +254,7 @@ def test_dmc_async_collector_collect_drops_missing_obs():
         length=2,
         winner=0,
         opponent_id='random',
-        scenario_seed=0,
+        scenario_seed=12345,
     )
     coll = DMCMultiProcessCollector(
         cfg=_async_cfg_obj(),
@@ -323,7 +328,7 @@ def test_dmc_async_collector_state_dict_roundtrip():
         opp_pool=None,
         env_factory=None,
         runtime=_MockRuntime(),
-        ring=_MockRing(items=[['a'], ['b']]),
+        ring=_MockRing(items=[_stub_episode(0, winner=2), _stub_episode(0, winner=2)]),
     )
     try:
         coll.collect(n_episodes=2, provider=None)

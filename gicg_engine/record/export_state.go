@@ -11,7 +11,11 @@ import (
 // writeState writes the state snapshot as a `state:` block.
 func writeState(b *strings.Builder, g *engine.Game, roleMap RoleMap, snap *engine.StateSnapshot) {
 	b.WriteString("  state:\n")
+	if len(snap.Checkpoint) > 0 {
+		fmt.Fprintf(b, "    checkpoint: %s\n", snap.Checkpoint)
+	}
 	fmt.Fprintf(b, "    先手: P%d\n", snap.FirstPlayer)
+	fmt.Fprintf(b, "    active_chars: [%d, %d]\n", snap.ActiveChars[0], snap.ActiveChars[1])
 	for pi := 0; pi < 2; pi++ {
 		fmt.Fprintf(b, "    P%d:\n", pi)
 		fmt.Fprintf(b, "      手牌: %s\n", cardListStr(g, snap.Hands[pi]))
@@ -40,15 +44,6 @@ func writeCharState(b *strings.Builder, g *engine.Game, roleMap RoleMap, snap *e
 			continue
 		}
 		value := snap.Counters[id]
-		// Active counter doesn't track engine state directly; derive from
-		// the snapshot's ActiveChars so the YAML reflects reality.
-		if role == RoleActive {
-			if snap.ActiveChars[pi] == ci {
-				value = 1
-			} else {
-				value = 0
-			}
-		}
 		ordered = append(ordered, kv{g.CounterNames[id], value, role})
 	}
 	// Sort ordered by role priority (hp, energy, alive, active)

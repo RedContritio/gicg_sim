@@ -326,10 +326,11 @@ class TestApplyDeterminization:
         # values where P1's labels claim to be.
         obs = env.get_dynamic_obs(perspective=0)
         labels = env._engine.get_active_counter_slot_labels()
-        # Skip the 3-slot meta header; counter values follow.
+        # Skip the versioned meta header; counter values follow.
         from gicg_env.engine import DICE_COLOR_COUNT
+        from gicg_env import OBS_META_SIZE
 
-        meta_size = 3
+        meta_size = OBS_META_SIZE
 
         want = {
             'P1:dice_fire': 3,

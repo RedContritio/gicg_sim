@@ -54,9 +54,19 @@ def _synthetic_static_obs(cfg: AgentConfig) -> np.ndarray:
     """Synthetic static obs matching the encode_static layout
     (counter meta + char_skill_refs + hook tokens)."""
     meta_size = cfg.n_counter_slots * 3
+    from training.core.obs_constants import (
+        OBS_CHAR_ELEMENT_SLOTS,
+        OBS_DEFINITION_LINK_SCHEMA_VERSION,
+        OBS_DEFINITION_LINK_SLOTS,
+    )
+
     refs_size = OBS_CHAR_SKILL_REFS_SIZE
     hook_size = cfg.n_hooks * cfg.max_ops_per_hook * cfg.fields_per_op
-    obs = np.zeros(meta_size + refs_size + hook_size, dtype=np.float32)
+    obs = np.zeros(
+        meta_size + refs_size + hook_size + OBS_CHAR_ELEMENT_SLOTS + OBS_DEFINITION_LINK_SLOTS,
+        dtype=np.float32,
+    )
+    obs[-OBS_DEFINITION_LINK_SLOTS] = OBS_DEFINITION_LINK_SCHEMA_VERSION
     for i in range(cfg.n_counter_slots):
         obs[i * 3 + 2] = float(i)  # distinct SIDs
     obs[meta_size : meta_size + refs_size] = -1.0
@@ -160,7 +170,7 @@ def test_inline_agent_lifecycle_game_start_end():
 
     out = agent.game_start(static)
     assert isinstance(out, dict)
-    for key in ('hook_ir', 'hook_mask', 'counter_sids', 'active_slot_mask', 'char_skill_refs'):
+    for key in ('hook_ir', 'hook_mask', 'counter_sids', 'active_slot_mask', 'char_skill_refs', 'definition_links'):
         assert key in out, f'game_start return dict missing {key!r}'
     # Cache now populated
     assert agent._hook_emb is not None

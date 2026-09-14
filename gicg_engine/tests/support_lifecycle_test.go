@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	engine "gicg_mono/gicg_engine"
+	"gicg_mono/gicg_engine/interp"
 )
 
 // fireCardPlay fires HookCardPlay for (player, cardRef). Priority 2000
@@ -66,8 +67,8 @@ func TestSupportCapacityCap(t *testing.T) {
 	}
 	env.G.FireEventHooks(engine.HookActionCheck, ctx)
 
-	if ctx.Playable {
-		t.Errorf("派蒙 with Supports full (n=%d) → Playable=true, want false",
+	if !ctx.Playable {
+		t.Errorf("派蒙 with Supports full (n=%d) must allow a replacement choice",
 			engine.MaxSupportSlots)
 	}
 
@@ -119,14 +120,16 @@ func TestSupportRemoveOnZero(t *testing.T) {
 	}
 }
 
-// evalLua runs a small lua snippet against the game's global env.
+// evalLua runs a small Lua snippet in a private diagnostic scope.
 // Used to drive the remove_support / count_support DSL builtins
 // from Go tests (走 GoFunc 闭包真路径,与 production 一致)。
-func evalLua(t *testing.T, env *GameEnv, src string) {
+func evalLua(t *testing.T, env *GameEnv, src string) *interp.Env {
 	t.Helper()
-	if err := env.RT.Interp.ExecFile(env.RT, []byte(src), env.RT.Interp.Global); err != nil {
+	scope := interp.NewEnv(env.RT.Interp.Global)
+	if err := env.RT.Interp.ExecFile(env.RT, []byte(src), scope); err != nil {
 		t.Fatalf("lua eval %q: %v", src, err)
 	}
+	return scope
 }
 
 func TestRemoveSupportIdempotent(t *testing.T) {
@@ -159,14 +162,13 @@ func TestRemoveSupportIdempotent(t *testing.T) {
 func TestCountSupport(t *testing.T) {
 	env := NewGameWithDeck(t, []string{"凯亚"}, []string{"克洛琳德"})
 	paimon := env.RT.Cards.ByName["派蒙"]
-	envLua := env.RT.Interp.Global
 
 	for n := 0; n <= 3; n++ {
 		env.G.Players[0].Supports = make([]engine.SupportInst, n)
 		for i := range env.G.Players[0].Supports {
 			env.G.Players[0].Supports[i] = engine.SupportInst{Ref: paimon.Ref, ActivatedAt: 1}
 		}
-		evalLua(t, env, "__cnt = count_support(0)")
+		envLua := evalLua(t, env, "__cnt = count_support(0)")
 		v, ok := envLua.Get("__cnt")
 		if !ok {
 			t.Fatalf("__cnt not set after count_support call")
@@ -179,7 +181,7 @@ func TestCountSupport(t *testing.T) {
 
 	// 越界 player → 0
 	for _, badP := range []int{-1, 2} {
-		evalLua(t, env, fmt.Sprintf("__cnt = count_support(%d)", badP))
+		envLua := evalLua(t, env, fmt.Sprintf("__cnt = count_support(%d)", badP))
 		v, _ := envLua.Get("__cnt")
 		got, _ := v.(int)
 		if got != 0 {

@@ -19,13 +19,15 @@ on_card_play(function(ctx)
   rounds:set(2)
 end)
 
-on_round_end_post_summon(function(ctx)
+on_round_end_post_summon({ order = rounds }, function(ctx)
   if rounds:get() <= 0 then return end
   deal_damage(Target.EnemyActive, tracked_elem:get_at(Player.Enemy), 1, { source = Source.Summon })
 end)
 
-on_round_end_decay(function(ctx)
+on_round_end_decay({ order = rounds }, function(ctx)
   if rounds:get() > 0 then
     rounds:sub(1)
   end
 end)
+
+register_buff(rounds, { duration = rounds })

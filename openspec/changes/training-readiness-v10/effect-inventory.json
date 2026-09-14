@@ -1,0 +1,6544 @@
+{
+  "configs/dmc/default.toml": {
+    "configuration": {
+      "players": [
+        {
+          "chars": [
+            {
+              "name": "赤蝶"
+            }
+          ]
+        },
+        {
+          "chars": [
+            {
+              "name": "墨客"
+            }
+          ]
+        }
+      ],
+      "seed": 42,
+      "pools": [
+        "v_legacy",
+        "test_basic"
+      ],
+      "card_pool": [
+        "测试卡_增幅",
+        "测试卡_碎片"
+      ],
+      "data_dir": "data",
+      "max_rounds": 10,
+      "deck_padding": {
+        "card": "碌碌无为",
+        "target_size": 15
+      }
+    },
+    "PublicState": [
+      {
+        "Field": "BaseSeed",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "BuffDefinitions",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "BuffSerial",
+        "Channel": "internal identity",
+        "Reason": "lifecycle equality only; exclude absolute serial to avoid spurious learning"
+      },
+      {
+        "Field": "Buffs",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "CanonicalCardHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CanonicalSkillHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CharNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Counters",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "DeckRngs",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DeckSeeds",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DicePaid",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedIn",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedOut",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "Extra",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "Failure",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "FirstEnd",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "FixDice",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "HookPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Hooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Log",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "MaxRounds",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Obs",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "PendingAction",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingCardTarget",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingReactionKind",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "Phase",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Players",
+        "Channel": "player projection",
+        "Reason": "chars, counters, support slots/age and specialty rule refs; own hand/deck multiset, public discard, enemy sizes; ended flags in meta"
+      },
+      {
+        "Field": "Preparing",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "ReactionNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "ReactionRegistry",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "RecentDamageEvents",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "RewardAccum",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "Rng",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "Round",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "RulesDigest",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillSlotPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "StructuralSids",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Turn",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Winner",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "counterCharMap",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "damageLogStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "depth",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "eventStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "executing",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "resume",
+        "Channel": "public cause / remaining limitation",
+        "Reason": "declared skill/card and round stage are encoded; private locals and remaining program are not fully encoded"
+      }
+    ],
+    "Limitations": [
+      "AST access inventory resolves captured counter proxies; computed receivers and callback arguments need separate behavioral tests",
+      "Lifecycle wiring is checked, but reading/writing a counter does not prove its gameplay semantics",
+      "General suspended programs, support-slot identity and specialty-slot identity are not fully encoded; current cards use joint targets and counter-backed support/talent effects",
+      "Typed card/skill reference counters still use legacy values; this is not a guarantee of ID-independent generalization"
+    ],
+    "Effects": [
+      {
+        "CounterID": 68,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 69,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 70,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 71,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 72,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 73,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 74,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 75,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 76,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 77,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 78,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 79,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 80,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 81,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 82,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 83,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 84,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 85,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 86,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 87,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 88,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 89,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 90,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 91,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 105,
+        "Name": "结晶护盾",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 106,
+        "Name": "结晶护盾",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 115,
+        "Name": "蝶火_active",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "蝶火_rounds",
+        "Progress": "",
+        "Hooks": [
+          "赤蝶_蝶火#3",
+          "赤蝶_蝶火#4",
+          "赤蝶_蝶火#5",
+          "赤蝶_蝶火#6"
+        ],
+        "Reads": [
+          "赤蝶_蝶火#3:33 蝶火_active:get",
+          "赤蝶_蝶火#4:42 蝶火_active:get",
+          "赤蝶_蝶火#5:51 蝶火_active:get",
+          "赤蝶_蝶火#6:65 蝶火_active:get"
+        ],
+        "Writes": [
+          "赤蝶_蝶火#2:26 蝶火_active:set",
+          "赤蝶_蝶火#6:68 蝶火_active:set"
+        ],
+        "Expiry": [
+          "赤蝶_蝶火#6"
+        ]
+      },
+      {
+        "CounterID": 117,
+        "Name": "水云",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "墨客_墨意#3"
+        ],
+        "Reads": [
+          "墨客_墨意#3:21 水云:get"
+        ],
+        "Writes": [
+          "墨客_墨意#2:16 水云:add",
+          "墨客_墨意#3:24 水云:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 118,
+        "Name": "泼墨",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 119,
+        "Name": "泼墨",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 122,
+        "Name": "测试卡_增幅_buff",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "测试卡_增幅#4"
+        ],
+        "Reads": [
+          "测试卡_增幅#4:15 buff:get_at"
+        ],
+        "Writes": [
+          "测试卡_增幅#3:10 buff:set_at",
+          "测试卡_增幅#4:17 buff:set_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 123,
+        "Name": "测试卡_增幅_buff",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "测试卡_增幅#4"
+        ],
+        "Reads": [
+          "测试卡_增幅#4:15 buff:get_at"
+        ],
+        "Writes": [
+          "测试卡_增幅#3:10 buff:set_at",
+          "测试卡_增幅#4:17 buff:set_at"
+        ],
+        "Expiry": null
+      }
+    ],
+    "Issues": null
+  },
+  "configs/dmc/readiness_base.toml": {
+    "configuration": {
+      "players": [
+        {
+          "chars": [
+            {
+              "name": "赤蝶"
+            }
+          ]
+        },
+        {
+          "chars": [
+            {
+              "name": "墨客"
+            }
+          ]
+        }
+      ],
+      "seed": 42,
+      "pools": [
+        "v_legacy",
+        "test_basic"
+      ],
+      "card_pool": [
+        "测试卡_增幅",
+        "测试卡_碎片"
+      ],
+      "data_dir": "data",
+      "max_rounds": 8,
+      "deck_padding": {
+        "card": "碌碌无为",
+        "target_size": 15
+      }
+    },
+    "PublicState": [
+      {
+        "Field": "BaseSeed",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "BuffDefinitions",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "BuffSerial",
+        "Channel": "internal identity",
+        "Reason": "lifecycle equality only; exclude absolute serial to avoid spurious learning"
+      },
+      {
+        "Field": "Buffs",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "CanonicalCardHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CanonicalSkillHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CharNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Counters",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "DeckRngs",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DeckSeeds",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DicePaid",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedIn",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedOut",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "Extra",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "Failure",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "FirstEnd",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "FixDice",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "HookPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Hooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Log",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "MaxRounds",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Obs",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "PendingAction",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingCardTarget",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingReactionKind",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "Phase",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Players",
+        "Channel": "player projection",
+        "Reason": "chars, counters, support slots/age and specialty rule refs; own hand/deck multiset, public discard, enemy sizes; ended flags in meta"
+      },
+      {
+        "Field": "Preparing",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "ReactionNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "ReactionRegistry",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "RecentDamageEvents",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "RewardAccum",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "Rng",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "Round",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "RulesDigest",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillSlotPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "StructuralSids",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Turn",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Winner",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "counterCharMap",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "damageLogStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "depth",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "eventStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "executing",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "resume",
+        "Channel": "public cause / remaining limitation",
+        "Reason": "declared skill/card and round stage are encoded; private locals and remaining program are not fully encoded"
+      }
+    ],
+    "Limitations": [
+      "AST access inventory resolves captured counter proxies; computed receivers and callback arguments need separate behavioral tests",
+      "Lifecycle wiring is checked, but reading/writing a counter does not prove its gameplay semantics",
+      "General suspended programs, support-slot identity and specialty-slot identity are not fully encoded; current cards use joint targets and counter-backed support/talent effects",
+      "Typed card/skill reference counters still use legacy values; this is not a guarantee of ID-independent generalization"
+    ],
+    "Effects": [
+      {
+        "CounterID": 68,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 69,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 70,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 71,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 72,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 73,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 74,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 75,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 76,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 77,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 78,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 79,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 80,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 81,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 82,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 83,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 84,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 85,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 86,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 87,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 88,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 89,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 90,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 91,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": null,
+        "Writes": [
+          "food#0:4 饱腹:sub_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 105,
+        "Name": "结晶护盾",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 106,
+        "Name": "结晶护盾",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 115,
+        "Name": "蝶火_active",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "蝶火_rounds",
+        "Progress": "",
+        "Hooks": [
+          "赤蝶_蝶火#3",
+          "赤蝶_蝶火#4",
+          "赤蝶_蝶火#5",
+          "赤蝶_蝶火#6"
+        ],
+        "Reads": [
+          "赤蝶_蝶火#3:33 蝶火_active:get",
+          "赤蝶_蝶火#4:42 蝶火_active:get",
+          "赤蝶_蝶火#5:51 蝶火_active:get",
+          "赤蝶_蝶火#6:65 蝶火_active:get"
+        ],
+        "Writes": [
+          "赤蝶_蝶火#2:26 蝶火_active:set",
+          "赤蝶_蝶火#6:68 蝶火_active:set"
+        ],
+        "Expiry": [
+          "赤蝶_蝶火#6"
+        ]
+      },
+      {
+        "CounterID": 117,
+        "Name": "水云",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "墨客_墨意#3"
+        ],
+        "Reads": [
+          "墨客_墨意#3:21 水云:get"
+        ],
+        "Writes": [
+          "墨客_墨意#2:16 水云:add",
+          "墨客_墨意#3:24 水云:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 118,
+        "Name": "泼墨",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 119,
+        "Name": "泼墨",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 122,
+        "Name": "测试卡_增幅_buff",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "测试卡_增幅#4"
+        ],
+        "Reads": [
+          "测试卡_增幅#4:15 buff:get_at"
+        ],
+        "Writes": [
+          "测试卡_增幅#3:10 buff:set_at",
+          "测试卡_增幅#4:17 buff:set_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 123,
+        "Name": "测试卡_增幅_buff",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "测试卡_增幅#4"
+        ],
+        "Reads": [
+          "测试卡_增幅#4:15 buff:get_at"
+        ],
+        "Writes": [
+          "测试卡_增幅#3:10 buff:set_at",
+          "测试卡_增幅#4:17 buff:set_at"
+        ],
+        "Expiry": null
+      }
+    ],
+    "Issues": null
+  },
+  "configs/dmc/readiness_tactics.toml": {
+    "configuration": {
+      "players": [
+        {
+          "chars": [
+            {
+              "name": "赤蝶"
+            },
+            {
+              "name": "墨客"
+            }
+          ]
+        },
+        {
+          "chars": [
+            {
+              "name": "墨客"
+            },
+            {
+              "name": "赤蝶"
+            }
+          ]
+        }
+      ],
+      "seed": 42,
+      "pools": [
+        "v_legacy",
+        "test_basic"
+      ],
+      "card_pool": [
+        "测试卡_增幅",
+        "测试卡_碎片",
+        "乘胜追击",
+        "佛跳墙",
+        "荷花酥",
+        "美味烧鸡",
+        "反制",
+        "玄冰"
+      ],
+      "data_dir": "data",
+      "max_rounds": 8,
+      "deck_padding": {
+        "card": "碌碌无为",
+        "target_size": 15
+      }
+    },
+    "PublicState": [
+      {
+        "Field": "BaseSeed",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "BuffDefinitions",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "BuffSerial",
+        "Channel": "internal identity",
+        "Reason": "lifecycle equality only; exclude absolute serial to avoid spurious learning"
+      },
+      {
+        "Field": "Buffs",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "CanonicalCardHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CanonicalSkillHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CharNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Counters",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "DeckRngs",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DeckSeeds",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DicePaid",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedIn",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedOut",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "Extra",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "Failure",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "FirstEnd",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "FixDice",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "HookPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Hooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Log",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "MaxRounds",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Obs",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "PendingAction",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingCardTarget",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingReactionKind",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "Phase",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Players",
+        "Channel": "player projection",
+        "Reason": "chars, counters, support slots/age and specialty rule refs; own hand/deck multiset, public discard, enemy sizes; ended flags in meta"
+      },
+      {
+        "Field": "Preparing",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "ReactionNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "ReactionRegistry",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "RecentDamageEvents",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "RewardAccum",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "Rng",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "Round",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "RulesDigest",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillSlotPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "StructuralSids",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Turn",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Winner",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "counterCharMap",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "damageLogStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "depth",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "eventStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "executing",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "resume",
+        "Channel": "public cause / remaining limitation",
+        "Reason": "declared skill/card and round stage are encoded; private locals and remaining program are not fully encoded"
+      }
+    ],
+    "Limitations": [
+      "AST access inventory resolves captured counter proxies; computed receivers and callback arguments need separate behavioral tests",
+      "Lifecycle wiring is checked, but reading/writing a counter does not prove its gameplay semantics",
+      "General suspended programs, support-slot identity and specialty-slot identity are not fully encoded; current cards use joint targets and counter-backed support/talent effects",
+      "Typed card/skill reference counters still use legacy values; this is not a guarantee of ID-independent generalization"
+    ],
+    "Effects": [
+      {
+        "CounterID": 68,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 69,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 70,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 71,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 72,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 73,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 74,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 75,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 76,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 77,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 78,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 79,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 80,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 81,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 82,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 83,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 84,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 85,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 86,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 87,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 88,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 89,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 90,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 91,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "佛跳墙#3:9 饱腹:get_at",
+          "美味烧鸡#3:8 饱腹:get_at",
+          "荷花酥#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "佛跳墙#4:16 饱腹:set_at",
+          "美味烧鸡#4:15 饱腹:set_at",
+          "荷花酥#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 105,
+        "Name": "结晶护盾",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 106,
+        "Name": "结晶护盾",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 123,
+        "Name": "蝶火_active",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "蝶火_rounds",
+        "Progress": "",
+        "Hooks": [
+          "赤蝶_蝶火#3",
+          "赤蝶_蝶火#4",
+          "赤蝶_蝶火#5",
+          "赤蝶_蝶火#6"
+        ],
+        "Reads": [
+          "赤蝶_蝶火#3:33 蝶火_active:get",
+          "赤蝶_蝶火#4:42 蝶火_active:get",
+          "赤蝶_蝶火#5:51 蝶火_active:get",
+          "赤蝶_蝶火#6:65 蝶火_active:get"
+        ],
+        "Writes": [
+          "赤蝶_蝶火#2:26 蝶火_active:set",
+          "赤蝶_蝶火#6:68 蝶火_active:set"
+        ],
+        "Expiry": [
+          "赤蝶_蝶火#6"
+        ]
+      },
+      {
+        "CounterID": 125,
+        "Name": "水云",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "墨客_墨意#3"
+        ],
+        "Reads": [
+          "墨客_墨意#3:21 水云:get"
+        ],
+        "Writes": [
+          "墨客_墨意#2:16 水云:add",
+          "墨客_墨意#3:24 水云:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 126,
+        "Name": "泼墨",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get",
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set",
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 127,
+        "Name": "泼墨",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get",
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set",
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 130,
+        "Name": "水云",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "墨客_墨意#3"
+        ],
+        "Reads": [
+          "墨客_墨意#3:21 水云:get"
+        ],
+        "Writes": [
+          "墨客_墨意#2:16 水云:add",
+          "墨客_墨意#3:24 水云:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 131,
+        "Name": "蝶火_active",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "蝶火_rounds",
+        "Progress": "",
+        "Hooks": [
+          "赤蝶_蝶火#3",
+          "赤蝶_蝶火#4",
+          "赤蝶_蝶火#5",
+          "赤蝶_蝶火#6"
+        ],
+        "Reads": [
+          "赤蝶_蝶火#3:33 蝶火_active:get",
+          "赤蝶_蝶火#4:42 蝶火_active:get",
+          "赤蝶_蝶火#5:51 蝶火_active:get",
+          "赤蝶_蝶火#6:65 蝶火_active:get"
+        ],
+        "Writes": [
+          "赤蝶_蝶火#2:26 蝶火_active:set",
+          "赤蝶_蝶火#6:68 蝶火_active:set"
+        ],
+        "Expiry": [
+          "赤蝶_蝶火#6"
+        ]
+      },
+      {
+        "CounterID": 133,
+        "Name": "测试卡_增幅_buff",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "测试卡_增幅#4"
+        ],
+        "Reads": [
+          "测试卡_增幅#4:15 buff:get_at"
+        ],
+        "Writes": [
+          "测试卡_增幅#3:10 buff:set_at",
+          "测试卡_增幅#4:17 buff:set_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 134,
+        "Name": "测试卡_增幅_buff",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "测试卡_增幅#4"
+        ],
+        "Reads": [
+          "测试卡_增幅#4:15 buff:get_at"
+        ],
+        "Writes": [
+          "测试卡_增幅#3:10 buff:set_at",
+          "测试卡_增幅#4:17 buff:set_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 135,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 136,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 137,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 138,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 139,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 140,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 141,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 142,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 143,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 144,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 145,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 146,
+        "Name": "佛跳墙_buff",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "佛跳墙#5",
+          "佛跳墙#6"
+        ],
+        "Reads": [
+          "佛跳墙#5:23 buff:get_at"
+        ],
+        "Writes": [
+          "佛跳墙#4:17 buff:set_at",
+          "佛跳墙#5:25 buff:set_at",
+          "佛跳墙#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "佛跳墙#6"
+        ]
+      },
+      {
+        "CounterID": 147,
+        "Name": "反制_debuff",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 148,
+        "Name": "反制_debuff",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 149,
+        "Name": "反制_debuff",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 150,
+        "Name": "反制_debuff",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 151,
+        "Name": "反制_debuff",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 152,
+        "Name": "反制_debuff",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 153,
+        "Name": "反制_debuff",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 154,
+        "Name": "反制_debuff",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 155,
+        "Name": "反制_debuff",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 156,
+        "Name": "反制_debuff",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 157,
+        "Name": "反制_debuff",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 158,
+        "Name": "反制_debuff",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "反制#4",
+          "反制#5",
+          "反制#6"
+        ],
+        "Reads": [
+          "反制#4:11 debuff:get_at"
+        ],
+        "Writes": [
+          "反制#3:6 debuff:set_at",
+          "反制#5:18 debuff:sub_at",
+          "反制#6:22 debuff:set_at"
+        ],
+        "Expiry": [
+          "反制#6"
+        ]
+      },
+      {
+        "CounterID": 159,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 160,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 161,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 162,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 163,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 164,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 165,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 166,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 167,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 168,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 169,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 170,
+        "Name": "荷花酥_buff",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "荷花酥#5",
+          "荷花酥#6"
+        ],
+        "Reads": [
+          "荷花酥#5:21 buff:get_at"
+        ],
+        "Writes": [
+          "荷花酥#4:17 buff:set_at",
+          "荷花酥#5:24 buff:set_at",
+          "荷花酥#6:29 buff:set_at"
+        ],
+        "Expiry": [
+          "荷花酥#6"
+        ]
+      },
+      {
+        "CounterID": 171,
+        "Name": "玄冰_active",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "玄冰#4"
+        ],
+        "Reads": [
+          "玄冰#4:13 active:get"
+        ],
+        "Writes": [
+          "玄冰#3:8 active:set",
+          "玄冰#4:29 active:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 172,
+        "Name": "玄冰_active",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "玄冰#4"
+        ],
+        "Reads": [
+          "玄冰#4:13 active:get"
+        ],
+        "Writes": [
+          "玄冰#3:8 active:set",
+          "玄冰#4:29 active:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 173,
+        "Name": "乘胜追击_active",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "乘胜追击_count",
+        "Hooks": [
+          "乘胜追击#4",
+          "乘胜追击#5",
+          "乘胜追击#6"
+        ],
+        "Reads": [
+          "乘胜追击#4:14 active:get_at"
+        ],
+        "Writes": [
+          "乘胜追击#3:7 active:set"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 174,
+        "Name": "乘胜追击_active",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "乘胜追击_count",
+        "Hooks": [
+          "乘胜追击#4",
+          "乘胜追击#5",
+          "乘胜追击#6"
+        ],
+        "Reads": [
+          "乘胜追击#4:14 active:get_at"
+        ],
+        "Writes": [
+          "乘胜追击#3:7 active:set"
+        ],
+        "Expiry": null
+      }
+    ],
+    "Issues": null
+  },
+  "configs/dmc/readiness_holdout.toml": {
+    "configuration": {
+      "players": [
+        {
+          "chars": [
+            {
+              "name": "赤蝶"
+            },
+            {
+              "name": "墨客"
+            }
+          ]
+        },
+        {
+          "chars": [
+            {
+              "name": "墨客"
+            },
+            {
+              "name": "赤蝶"
+            }
+          ]
+        }
+      ],
+      "seed": 42,
+      "pools": [
+        "v_legacy",
+        "test_basic"
+      ],
+      "card_pool": [
+        "以逸待劳",
+        "速速茶点"
+      ],
+      "data_dir": "data",
+      "max_rounds": 8,
+      "deck_padding": {
+        "card": "碌碌无为",
+        "target_size": 15
+      }
+    },
+    "PublicState": [
+      {
+        "Field": "BaseSeed",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "BuffDefinitions",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "BuffSerial",
+        "Channel": "internal identity",
+        "Reason": "lifecycle equality only; exclude absolute serial to avoid spurious learning"
+      },
+      {
+        "Field": "Buffs",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "CanonicalCardHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CanonicalSkillHooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CardPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CharNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "CounterPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Counters",
+        "Channel": "counter-values/buff-rows",
+        "Reason": "public quantities, typed references and ordered lifecycle state; enemy dice may be intentionally masked"
+      },
+      {
+        "Field": "DeckRngs",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DeckSeeds",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "DicePaid",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedIn",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "DiceTunedOut",
+        "Channel": "public history summary outside NN",
+        "Reason": "used by determinization; recurrent/history-aware belief modeling remains separate"
+      },
+      {
+        "Field": "Extra",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "Failure",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "FirstEnd",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "FixDice",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "HookPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Hooks",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Log",
+        "Channel": "attachment",
+        "Reason": "logging, runtime and diagnostic state"
+      },
+      {
+        "Field": "MaxRounds",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Obs",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "PendingAction",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingCardTarget",
+        "Channel": "meta/legal-actions/execution-entities",
+        "Reason": "target frame rule and locals; nested replay bridge explicitly incomplete"
+      },
+      {
+        "Field": "PendingReactionKind",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "Phase",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Players",
+        "Channel": "player projection",
+        "Reason": "chars, counters, support slots/age and specialty rule refs; own hand/deck multiset, public discard, enemy sizes; ended flags in meta"
+      },
+      {
+        "Field": "Preparing",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "ReactionNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "ReactionRegistry",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "RecentDamageEvents",
+        "Channel": "typed segments",
+        "Reason": "queued skills and recent damage/modifier summaries"
+      },
+      {
+        "Field": "RewardAccum",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "Rng",
+        "Channel": "hidden randomness",
+        "Reason": "never reveal future draws or random streams"
+      },
+      {
+        "Field": "Round",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "RulesDigest",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillNames",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "SkillSlotPerm",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "StructuralSids",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "Turn",
+        "Channel": "meta",
+        "Reason": "public transition settings and ending order"
+      },
+      {
+        "Field": "Winner",
+        "Channel": "training target",
+        "Reason": "reward/terminal supervision, not an input feature"
+      },
+      {
+        "Field": "counterCharMap",
+        "Channel": "static rules/layout",
+        "Reason": "static IR, slot mappings, counter metadata and character skill references"
+      },
+      {
+        "Field": "damageLogStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "depth",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "eventStack",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "executing",
+        "Channel": "execution scratch",
+        "Reason": "not a stable decision-boundary feature"
+      },
+      {
+        "Field": "resume",
+        "Channel": "public cause / remaining limitation",
+        "Reason": "declared skill/card and round stage are encoded; private locals and remaining program are not fully encoded"
+      }
+    ],
+    "Limitations": [
+      "AST access inventory resolves captured counter proxies; computed receivers and callback arguments need separate behavioral tests",
+      "Lifecycle wiring is checked, but reading/writing a counter does not prove its gameplay semantics",
+      "General suspended programs, support-slot identity and specialty-slot identity are not fully encoded; current cards use joint targets and counter-backed support/talent effects",
+      "Typed card/skill reference counters still use legacy values; this is not a guarantee of ID-independent generalization"
+    ],
+    "Effects": [
+      {
+        "CounterID": 68,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 69,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 70,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 71,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 72,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 73,
+        "Name": "冻结",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 74,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 75,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 76,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 77,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 78,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 79,
+        "Name": "冻结",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "frozen#0",
+          "frozen#1"
+        ],
+        "Reads": [
+          "frozen#0:5 frozen:get_at",
+          "解冻#0:8 frozen:get_at"
+        ],
+        "Writes": [
+          "element#0:15 frozen:set_at",
+          "frozen#1:11 frozen:sub_at",
+          "冻结#0:13 frozen:set_at",
+          "冻结#0:18 frozen:set_at",
+          "解冻#0:10 frozen:set_at"
+        ],
+        "Expiry": [
+          "frozen#1"
+        ]
+      },
+      {
+        "CounterID": 80,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 81,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 82,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 83,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 84,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 85,
+        "Name": "饱腹",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 86,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 87,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 88,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 89,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 90,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 91,
+        "Name": "饱腹",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "food#0"
+        ],
+        "Reads": [
+          "速速茶点#3:9 饱腹:get_at"
+        ],
+        "Writes": [
+          "food#0:4 饱腹:sub_at",
+          "速速茶点#4:16 饱腹:set_at"
+        ],
+        "Expiry": [
+          "food#0"
+        ]
+      },
+      {
+        "CounterID": 105,
+        "Name": "结晶护盾",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 106,
+        "Name": "结晶护盾",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "结晶#1"
+        ],
+        "Reads": [
+          "结晶#1:34 结晶护盾:get_at"
+        ],
+        "Writes": [
+          "结晶#0:29 结晶护盾:add_at",
+          "结晶#1:37 结晶护盾:sub_at"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 123,
+        "Name": "蝶火_active",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "蝶火_rounds",
+        "Progress": "",
+        "Hooks": [
+          "赤蝶_蝶火#3",
+          "赤蝶_蝶火#4",
+          "赤蝶_蝶火#5",
+          "赤蝶_蝶火#6"
+        ],
+        "Reads": [
+          "赤蝶_蝶火#3:33 蝶火_active:get",
+          "赤蝶_蝶火#4:42 蝶火_active:get",
+          "赤蝶_蝶火#5:51 蝶火_active:get",
+          "赤蝶_蝶火#6:65 蝶火_active:get"
+        ],
+        "Writes": [
+          "赤蝶_蝶火#2:26 蝶火_active:set",
+          "赤蝶_蝶火#6:68 蝶火_active:set"
+        ],
+        "Expiry": [
+          "赤蝶_蝶火#6"
+        ]
+      },
+      {
+        "CounterID": 125,
+        "Name": "水云",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "墨客_墨意#3"
+        ],
+        "Reads": [
+          "墨客_墨意#3:21 水云:get"
+        ],
+        "Writes": [
+          "墨客_墨意#2:16 水云:add",
+          "墨客_墨意#3:24 水云:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 126,
+        "Name": "泼墨",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get",
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set",
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 127,
+        "Name": "泼墨",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "泼墨_rounds",
+        "Progress": "",
+        "Hooks": [
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#4",
+          "墨客_水龙吟#5"
+        ],
+        "Reads": [
+          "墨客_水龙吟#4:27 泼墨:get",
+          "墨客_水龙吟#4:27 泼墨:get"
+        ],
+        "Writes": [
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set",
+          "墨客_水龙吟#3:16 泼墨:set",
+          "墨客_水龙吟#4:30 泼墨:sub",
+          "墨客_水龙吟#5:38 泼墨:set"
+        ],
+        "Expiry": [
+          "墨客_水龙吟#5",
+          "墨客_水龙吟#5"
+        ]
+      },
+      {
+        "CounterID": 130,
+        "Name": "水云",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "墨客_墨意#3"
+        ],
+        "Reads": [
+          "墨客_墨意#3:21 水云:get"
+        ],
+        "Writes": [
+          "墨客_墨意#2:16 水云:add",
+          "墨客_墨意#3:24 水云:sub"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 131,
+        "Name": "蝶火_active",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "蝶火_rounds",
+        "Progress": "",
+        "Hooks": [
+          "赤蝶_蝶火#3",
+          "赤蝶_蝶火#4",
+          "赤蝶_蝶火#5",
+          "赤蝶_蝶火#6"
+        ],
+        "Reads": [
+          "赤蝶_蝶火#3:33 蝶火_active:get",
+          "赤蝶_蝶火#4:42 蝶火_active:get",
+          "赤蝶_蝶火#5:51 蝶火_active:get",
+          "赤蝶_蝶火#6:65 蝶火_active:get"
+        ],
+        "Writes": [
+          "赤蝶_蝶火#2:26 蝶火_active:set",
+          "赤蝶_蝶火#6:68 蝶火_active:set"
+        ],
+        "Expiry": [
+          "赤蝶_蝶火#6"
+        ]
+      },
+      {
+        "CounterID": 133,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          0,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 134,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          0,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 135,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          0,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 136,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          0,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 137,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          0,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 138,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          0,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 139,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          1,
+          0
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 140,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          1,
+          1
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 141,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          1,
+          2
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 142,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          1,
+          3
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 143,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          1,
+          4
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 144,
+        "Name": "速速茶点_buff",
+        "Owner": [
+          1,
+          5
+        ],
+        "Independent": false,
+        "DeathBound": true,
+        "RoundExpiry": true,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "速速茶点#5",
+          "速速茶点#6",
+          "速速茶点#7"
+        ],
+        "Reads": [
+          "速速茶点#5:22 buff:get_at"
+        ],
+        "Writes": [
+          "速速茶点#4:17 buff:set_at",
+          "速速茶点#6:31 buff:sub_at",
+          "速速茶点#7:35 buff:set_at"
+        ],
+        "Expiry": [
+          "速速茶点#7"
+        ]
+      },
+      {
+        "CounterID": 145,
+        "Name": "以逸待劳_active",
+        "Owner": [
+          0,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "以逸待劳#4",
+          "以逸待劳#5",
+          "以逸待劳#6"
+        ],
+        "Reads": [
+          "以逸待劳#4:13 active:get",
+          "以逸待劳#5:21 active:get_at",
+          "以逸待劳#6:30 active:get_at"
+        ],
+        "Writes": [
+          "以逸待劳#3:6 active:set"
+        ],
+        "Expiry": null
+      },
+      {
+        "CounterID": 146,
+        "Name": "以逸待劳_active",
+        "Owner": [
+          1,
+          -1
+        ],
+        "Independent": false,
+        "DeathBound": false,
+        "RoundExpiry": false,
+        "Summon": false,
+        "Duration": "",
+        "Progress": "",
+        "Hooks": [
+          "以逸待劳#4",
+          "以逸待劳#5",
+          "以逸待劳#6"
+        ],
+        "Reads": [
+          "以逸待劳#4:13 active:get",
+          "以逸待劳#5:21 active:get_at",
+          "以逸待劳#6:30 active:get_at"
+        ],
+        "Writes": [
+          "以逸待劳#3:6 active:set"
+        ],
+        "Expiry": null
+      }
+    ],
+    "Issues": null
+  }
+}
