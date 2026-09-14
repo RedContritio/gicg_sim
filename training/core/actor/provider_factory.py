@@ -1,6 +1,6 @@
 """Provider factory — dispatch InferenceCfg → Local | Remote.
 
-Spec: design/network-provider.md §2.
+Spec: ``openspec/specs/training-architecture/protocols.md``.
 """
 
 from __future__ import annotations
@@ -25,10 +25,10 @@ def build_network_provider(
     """Return a NetworkProvider for the given InferenceCfg.
 
     Args:
-        inf_cfg: validated InferenceCfg (placement + remote闭合).
+        inf_cfg: validated InferenceCfg with a consistent remote section.
         network_blueprint: pytorch network (deep-copied for local; ignored for remote).
         inference_client: required when placement='remote'.
-        weights_shm: WeightsSHM handle (optional in P3-A scaffold).
+        weights_shm: optional WeightsSHM handle for local updates.
 
     Limitations:
         ``use_jit_trace`` is NOT plumbed from ``inf_cfg`` to

@@ -2,14 +2,14 @@
 
 > **⚠️ 已于 2026-04-14 废弃。** 本目录描述的是
 > **PPO 时代**的训练栈（课程、pool ELO、reward shaping、
-> 阶段门控），正在被 [`docs/current/az/`](../../../current/az/README.md) 中记录的
+> 阶段门控），随后被 [`docs/paradigms/az/`](../../../../paradigms/az/README.md) 中记录的
 > AlphaZero + IS-MCTS 框架所取代。
 >
 > PPO 栈在以下情况后退役：(a) `phase1b` 在优化后的栈（B3 + C + 最小奖励）下
 > 陷入持续退化，以及 (b) 可行性探测显示纯 MCTS 在三个场景下以 117-3 击败
 > 训练好的 phase1a 检查点。迁移理由参见
-> [`docs/current/az/decisions.md`](../../../current/az/decisions.md)，数据参见
-> [`docs/history/az/evidence/`](../../../history/az/evidence/)。
+> [`docs/paradigms/az/README.md`](../../../../paradigms/az/README.md)，数据参见
+> [`docs/5_history/evidence/`](../../../evidence/)。
 >
 > 以下内容仅保留供历史参考。
 

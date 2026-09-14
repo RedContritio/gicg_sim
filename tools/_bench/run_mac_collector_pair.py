@@ -151,11 +151,11 @@ def _markdown_table(results: dict, out_path: Path) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description='I29 T-C1 Mac fair collector throughput bench')
     ap.add_argument('--n-actors', type=int, nargs='+', default=[4, 8])
-    # default 5 (audit memory [[bench-variance-5seed-required]]:Mac M4 perf bench
-    # 3-seed Go CV 100%+ misleading,seed outlier 让 mean 双向震荡。 5-seed CV
+    # Default 5:the Mac M4 bench observed 3-seed Go CV above 100%,where one
+    # outlier reversed the mean. Five seeds reduced the observed variance;
     # tighten 30-67% 后 robust。 acceptance gate 必 5-seed)。 --seeds 3 quick spot
     # check OK,production claim 必 ≥ 5。
-    ap.add_argument('--seeds', type=int, default=5, help='number of seeds (1..seeds, default 5 per audit gate)')
+    ap.add_argument('--seeds', type=int, default=5, help='number of seeds (1..seeds; default 5)')
     ap.add_argument('--out', type=str, default='tools/_bench/mac_collector_results.md')
     args = ap.parse_args()
 

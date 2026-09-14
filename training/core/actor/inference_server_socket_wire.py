@@ -1,14 +1,8 @@
-"""Python side wire format for Go actor ↔ Python InferenceServer socket protocol。
+"""Python wire format for Go actor ↔ Python inference sockets.
 
-Mirror Go ``gicg_actor/wire_format.go`` 1:1 — same little-endian byte layout,无 pickle
-overhead,zero-copy via ``np.frombuffer`` view。 schema 详 design.md D5 + 实测 < 1μs RTT
-(IPC research agent 2026-05-21 验证)。
-
-Schema is declarative — header layout described by a single ``struct`` format string,
-variable-length array sections described by a list of (name, dtype, count_field) tuples。
-Adding a new field = 1 line in ``_HEADER_FMT`` / ``_HEADER_FIELDS`` (固定字段) 或一行
-``_ARRAY_SPECS`` (可变长 array),encode/decode 自动 follow。 同样 Go 端的 fixed-size
-struct + binary.Write 模式。
+It mirrors ``gicg_actor/wire_format.go`` with a little-endian binary layout.
+NumPy decoders return zero-copy views into the payload. Fixed header fields
+and variable array sections are declared centrally below.
 
 Wire format(inference request,v2):
 
@@ -17,8 +11,8 @@ Wire format(inference request,v2):
     payload  = header || dyn_obs (f32 ×N) || refs (i64 ×N) || pay (f32 ×N) || static (i32 ×N)
     outer    = [u32 len_le] || payload
 
-n_static_i32 = 0 表示 "本 request 不带 static_obs"(server 走 hash cache);> 0 时
-携带 raw int32 数组,server 端 cache by hash,后续 skip。
+``n_static == 0`` means the request relies on the server's hash cache;
+otherwise the request carries the raw int32 static observation.
 
 Wire format(inference response):
 
@@ -41,8 +35,8 @@ def _empty_int32() -> np.ndarray:
 
 
 # ─── Schema 常量 ─────────────────────────────────────────────────────────
-WIRE_VERSION = 3  # 跟 transition wire 同步 bump(Go WireVersion 跨两 wire)。inference
-# layout 未改,但版本 lock-step;详 transition_sink_wire.py。
+# Inference and transition protocols share the Go wire version.
+WIRE_VERSION = 3
 STATIC_HASH_SIZE = 16
 MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 INFER_STATUS_OK = 0
@@ -74,10 +68,10 @@ RESPONSE_HEADER_SIZE = struct.calcsize(_RESP_HEADER_FMT)
 
 @dataclass
 class InferRequest:
-    """Decoded request from Go actor。 dyn_obs/refs/pay/static 是 numpy zero-copy view。
+    """Decoded request whose arrays are zero-copy NumPy payload views.
 
-    static 可空(len=0)— actor 标记 "本 request 不带 static_obs"(server 走 cache by
-    static_hash);非空时 server 端 cache by hash + decode 后保留 decoded result。
+    An empty ``static`` array tells the server to resolve ``static_hash``
+    from its cache.
     """
 
     static_hash: bytes
@@ -86,7 +80,7 @@ class InferRequest:
     dyn_obs: np.ndarray  # float32 shape (n_dyn,)
     refs: np.ndarray  # int64 shape (n_refs,)
     pay: np.ndarray  # float32 shape (n_pay,)
-    # static 默认空 — 调用方未传时等价于 "server 走 cache by static_hash"。
+    # Empty by default: resolve the static observation from server cache.
     static: np.ndarray = field(default_factory=_empty_int32)
 
 
@@ -99,7 +93,7 @@ class InferResponse:
 
 
 def encode_infer_request(req: InferRequest) -> bytes:
-    """Serialize InferRequest 含 outer length prefix。 mirror Go EncodeInferRequest。"""
+    """Serialize a request including its outer length prefix."""
     if len(req.static_hash) != STATIC_HASH_SIZE:
         raise ValueError(f'static_hash must be {STATIC_HASH_SIZE} bytes, got {len(req.static_hash)}')
 
@@ -129,8 +123,9 @@ def encode_infer_request(req: InferRequest) -> bytes:
 
 
 def decode_infer_request(payload: bytes) -> InferRequest:
-    """Deserialize InferRequest payload (不含 outer length prefix)。 mirror Go
-    DecodeInferRequest。 numpy arrays are read-only zero-copy views into payload。
+    """Decode a request payload without the outer length prefix.
+
+    Returned arrays are read-only zero-copy views into ``payload``.
     """
     if len(payload) < HEADER_SIZE:
         raise ValueError(f'payload {len(payload)} byte < header {HEADER_SIZE}')
@@ -164,7 +159,7 @@ def decode_infer_request(payload: bytes) -> InferRequest:
 
 
 def encode_infer_response(resp: InferResponse) -> bytes:
-    """Serialize InferResponse 含 outer length prefix。 mirror Go EncodeInferResponse。
+    """Serialize a response including its outer length prefix.
 
     OK 路径:body = logits[n_logits] f32 + value[n_value] f32。 n_value=0 (DMC) 或
     1(AZ/PPO scalar V(s))。 Err 路径:body = err_msg bytes,n_logits = byte length。
@@ -191,7 +186,7 @@ def encode_infer_response(resp: InferResponse) -> bytes:
 
 
 def decode_infer_response(payload: bytes) -> InferResponse:
-    """Deserialize InferResponse payload(不含 outer length prefix)。"""
+    """Decode a response payload without the outer length prefix."""
     if len(payload) < RESPONSE_HEADER_SIZE:
         raise ValueError(f'response payload {len(payload)} byte < header {RESPONSE_HEADER_SIZE}')
     status, n_logits, n_value = struct.unpack_from(_RESP_HEADER_FMT, payload, 0)
@@ -226,9 +221,9 @@ def decode_infer_response(payload: bytes) -> InferResponse:
 
 
 def read_length_prefixed(reader) -> bytes:
-    """Read [u32 len_le][payload bytes] one message from a reader(socket / BytesIO 等
-    支持 ``read(n) -> bytes`` 的对象)。 len 超 MAX_MESSAGE_BYTES → fail loud(防 malformed
-    length DoS)。
+    """Read one length-prefixed message from a ``read(n)`` object.
+
+    Reject lengths above ``MAX_MESSAGE_BYTES`` before allocating the payload.
     """
     len_buf = _read_exact(reader, 4)
     (n,) = struct.unpack('<I', len_buf)
@@ -238,8 +233,7 @@ def read_length_prefixed(reader) -> bytes:
 
 
 def _read_exact(reader, n: int) -> bytes:
-    """Read exactly ``n`` bytes from ``reader``。 raise on short read(防 TCP coalescing
-    切分)。"""
+    """Read exactly ``n`` bytes and raise on EOF."""
     buf = bytearray()
     while len(buf) < n:
         chunk = reader.read(n - len(buf))

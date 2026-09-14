@@ -1,11 +1,15 @@
 ---
 plan: dsl_capabilities_audit
-status: ACTIVE
-last_updated: 2026-04-30
+status: HISTORICAL
+last_updated: 2026-09-14
 based_on: 全 706 张 raw cleansed yaml(518 action + 138 character + 61 monster) + tools.audit_effect_patterns 全量 normalize
 ---
 
 # DSL 能力 audit + effect 自动化可行性评估
+
+> **历史审计快照**：统计与路径记录 2026-04-30 的 706 条来源。当前
+> DSL 契约见 `openspec/specs/engine-dsl/`；最新官方内容流程见
+> [`native_content_curriculum.md`](native_content_curriculum.md)。
 
 精化 [`dsl_gaps.md`](./dsl_gaps.md) 的 ★★★ 清单。dsl_gaps 基于 sqrt(N)=52 张样本估算,
 本 audit 基于全量 717 cleansed yaml 实证 + 当前 builtin 现状对照。

@@ -95,16 +95,16 @@ def _make_historical(
 
     Delegates to ``core.matchup.loaders.load_player`` — same code path
     as gauntlet / arena, so behavior matches the canonical eval flow.
-    Builder is captured at registration; the agent inside is loaded
-    once per registry entry (closure over builder caches load_player).
+    The registry captures the checkpoint specification. Each factory
+    call resolves a player builder and creates a player for its seed.
 
     Args:
         ckpt: filesystem path to the ckpt blob ({'cfg', 'net'} keys).
-        paradigm: paradigm name in core.matchup.loaders.LOADERS。
-            B4 (2026-05-29):full 5-paradigm coverage 已 ship —
-            'az' / 'cfr' / 'dmc' / 'ppo' 各 paradigm ``_player_loader``
-            自注册;'bc' currently raises NotImplementedError 直到
-            BCAgent class 提建。
+        paradigm: player type registered in
+            ``training.core.matchup.loaders.LOADERS``. AZ, CFR, DMC,
+            and PPO checkpoints are supported; the registered BC loader
+            raises ``NotImplementedError`` because BC has no gauntlet
+            player adapter.
         n_simulations: 0 → argmax over policy head;>0 → MCTS-wrapped
             (network prior + value)。 DMC / PPO 不支持 n_simulations > 0
             (no MCTS prior+value structure)。
@@ -164,7 +164,8 @@ def register_historical_baseline(
         ckpt: filesystem path; existence SHALL NOT be pre-checked here
             (lazy — load happens on first ``reg.get(name)`` call so
             registry construction stays cheap).
-        paradigm: 'az' / 'cfr' (per core.matchup.loaders.LOADERS).
+        paradigm: checkpoint-backed player type registered in
+            ``training.core.matchup.loaders.LOADERS``.
         n_simulations: 0 = argmax, >0 = MCTS-wrapped.
         max_rollout_depth: forwarded when n_simulations > 0.
 

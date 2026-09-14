@@ -1,10 +1,8 @@
-"""Python side wire format for Go actor → Python trainer transition push socket。
+"""Python transition wire format for Go actors and the Python trainer.
 
-Mirror Go ``gicg_actor/transition_wire.go`` 1:1。 separate from inference wire(那走
-``inference_server_socket_wire.py``)。
-
-**Declarative schema** — 跟 inference wire 同模式:fixed header 走 struct format string +
-calcsize,加字段在 _HEADER_FMT / _HEADER_FIELDS 加一行即可,encode/decode 自动 follow。
+The layout mirrors ``gicg_actor/transition_wire.go`` and is independent
+from ``inference_server_socket_wire.py``. Fixed headers use declarative
+format/field tables, followed by paradigm-specific variable arrays.
 
 Outer envelope(paradigm-agnostic):
 
@@ -12,17 +10,16 @@ Outer envelope(paradigm-agnostic):
     payload = header || payload_bytes  (paradigm-specific opaque blob)
     outer   = [u32 len_le] || payload
 
-Paradigm-specific payload(DMC self-contained,P1.4 ship):mirror Go
+The self-contained DMC payload mirrors
 ``gicg_actor/dmc/obs_encoder.go EncodeDmcTransitionPayload``:
 
     header = struct.pack(_DMC_PAYLOAD_FMT, chosen, step_in_ep, reward_x1m, n_legal,
                           n_dyn, n_refs, n_pay, n_static, static_hash)
     body   = dyn_obs (f32 ×N) || refs (i64 ×N) || pay (f32 ×N) || static (i32 ×N)
 
-每条 transition self-contained — Python collector 不需要查 InfServer cache
-就能 reconstruct DmcTransition。 第一 transition per episode 携带 static_obs
-raw int32(NStatic > 0),后续 transition NStatic=0,collector 走 cache by
-static_hash 解。 reward 走 i32 fixed-point(×1e6)防 cross-lang nan-bits drift。
+The first transition in an episode carries the raw int32 static observation;
+later transitions identify it by hash. Rewards use signed fixed point at
+``1e6`` scale.
 """
 
 from __future__ import annotations
@@ -34,10 +31,10 @@ from typing import Optional
 import numpy as np
 
 # ─── Schema 常量 ─────────────────────────────────────────────────────────
-WIRE_VERSION = 3  # 跟 inference protocol 同步 bump(Go 单 WireVersion 跨两份 wire)
-# v3 (I29 P2 2026-05-23): DMC/PPO transition payload refs/pay 不再 max_actions
-# padded,改为 nlegal-sized — buffer per-trans mem 120 KB → ~12 KB (~10x 降)。
-# pad-to-cfg.max_actions 推到 sample time(collate_batch)做。
+# This stays in lockstep with the inference protocol's Go WireVersion.
+WIRE_VERSION = 3
+# DMC/PPO reference and payment arrays contain ``n_legal`` rows. Sampling
+# code pads them to the configured action capacity during collation.
 MAX_TRANSITION_PAYLOAD = 16 * 1024 * 1024
 
 # Kind byte — 区分 per-transition frame 和 episode batch frame。
@@ -62,8 +59,8 @@ EPISODE_BATCH_HEADER_SIZE = struct.calcsize(_EPISODE_BATCH_HEADER_FMT)
 # 管 paradigm payload schema)。 Go 端 obs_encoder.go DmcPayloadVer / AzPayloadVer /
 # PpoPayloadVer 须 lock-step,decode 时 mismatch fail-loud。
 #
-# 2026-05-28 audit:expected_len 校验只能 catch 部分 schema drift(改字段类型保持总
-# 长度不变时 silent corruption);1-byte version prefix 是 explicit safety net。
+# The explicit version also catches same-length field-layout changes that a
+# payload-size check cannot detect.
 DMC_PAYLOAD_VER = 1
 AZ_PAYLOAD_VER = 1
 PPO_PAYLOAD_VER = 1
@@ -154,7 +151,7 @@ _PPO_PAYLOAD_ARRAYS: tuple[tuple[str, np.dtype, str], ...] = (
 
 @dataclass
 class Transition:
-    """Envelope decoded from socket — paradigm-agnostic header + opaque payload bytes。"""
+    """Paradigm-agnostic envelope with opaque payload bytes."""
 
     client_id: int
     episode_id: int
@@ -165,11 +162,10 @@ class Transition:
 
 @dataclass
 class EpisodeBatch:
-    """Episode batch decoded from socket — F1 episode-granularity push frame。
+    """An entire episode encoded as one ``KIND_EPISODE_BATCH`` frame.
 
-    Go side encodes entire episode as single wire frame (Kind=1)。 Python listener
-    decodes to EpisodeBatch,assembler.ingest_episode 处理整 episode 一次性入 ready。
-    transitions list 包含所有 per-step transitions + terminal marker(Done=True 末条)。
+    ``transitions`` contains the step payloads and its final entry carries
+    ``done=True``.
     """
 
     client_id: int
@@ -181,9 +177,8 @@ class EpisodeBatch:
 class PpoTransitionPayload:
     """PPO paradigm-specific payload after decoding ``Transition.payload``。
 
-    log_prob 是 actor sampling time 计的 chosen action log-likelihood(PPO ratio 计算
-    needs π_old / π_new — log_prob 是 π_old 端)。 value 是 network V(s) at pre-step
-    state,GAE bootstrap target。
+    ``log_prob`` is the old-policy likelihood of the sampled action.
+    ``value`` is ``V(s)`` before the environment step and feeds GAE.
     """
 
     chosen_action: int
@@ -203,9 +198,8 @@ class PpoTransitionPayload:
 class AzTransitionPayload:
     """AZ paradigm-specific payload after decoding ``Transition.payload``。
 
-    visits 是 MCTS root visits distribution(normalized to sum 1 over legal actions),
-    用作 policy gradient training target。 root_value 是 network V(s) at root, GAE-
-    equivalent bootstrap target。
+    ``visits`` is the normalized MCTS root distribution used as the policy
+    target. ``root_value`` is the root value estimate stored with the sample.
     """
 
     chosen_action: int
@@ -223,11 +217,10 @@ class AzTransitionPayload:
 
 @dataclass
 class DmcTransitionPayload:
-    """DMC paradigm-specific payload after decoding ``Transition.payload``。
+    """DMC payload decoded from ``Transition.payload``.
 
-    Arrays are zero-copy numpy views into the socket payload bytes(read-only)。
-    static 可空(len 0)— Python collector 走 cache by static_hash 取上次 episode-第一
-    transition 缓存的 static_obs。
+    ``static`` may be empty; the collector then resolves ``static_hash`` from
+    its episode cache. Decoders copy non-empty arrays out of the wire buffer.
     """
 
     chosen_action: int
@@ -236,8 +229,8 @@ class DmcTransitionPayload:
     n_legal: int
     static_hash: bytes
     dyn_obs: np.ndarray  # float32 1D
-    refs: np.ndarray  # int64 1D (flat,reshape (max_actions, 3) by caller)
-    pay: np.ndarray  # float32 1D (flat,reshape (max_actions, 8) by caller)
+    refs: np.ndarray  # int64 1D (flat; caller reshapes to (n_legal, 3))
+    pay: np.ndarray  # float32 1D (flat; caller reshapes to (n_legal, 8))
     static: np.ndarray  # int32 1D,zero-length if cached
 
 
@@ -437,7 +430,7 @@ def decode_dmc_payload(blob: bytes, *, dyn_obs_len: Optional[int] = None) -> Dmc
         n = header[count_field]
         if n > 0:
             # `.copy()` 必须 —— `np.frombuffer` 返 view 钉着源 blob bytes,只要任一 view
-            # 存活源 blob 永不 GC(memory `project_i29_go_actor_pool_progress` audit 已记)。
+            # 存活源 blob 永不 GC。
             # 拷出独立 array 后 blob 立即可释放。 拷贝代价 ~per-trans 100 KB(max_actions
             # padded refs+pay),可承受;view-pin 在 in-flight episode 周期内累积 master
             # mem,远大于此拷贝代价。

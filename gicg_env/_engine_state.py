@@ -15,10 +15,12 @@ class _EngineStateMixin:
         self._lib.GameReset(self._handle, seed)
 
     def reset_dynamic_with_seeds(self, dice_seed, deck_seed_p0, deck_seed_p1):
-        """Review D.5 (2026-05-14): 3-axis seed reset for daemon eval
-        'team 同 deck 不同' ablation. dice_seed controls Rng (dice rolls
-        + DSL randomness + obs perm); deck_seed_p0 / deck_seed_p1
-        independently seed per-player deck Fisher-Yates shuffle."""
+        """Reset with independent dice/DSL and per-player deck seeds.
+
+        ``dice_seed`` controls dice rolls, DSL randomness, and observation
+        permutation. ``deck_seed_p0`` and ``deck_seed_p1`` independently
+        seed each player's Fisher-Yates deck shuffle.
+        """
         self._check(allow_failed=True)
         self._lib.GameResetSeeds(self._handle, dice_seed, deck_seed_p0, deck_seed_p1)
 
@@ -138,10 +140,10 @@ class _EngineStateMixin:
     def set_player_dice(self, player, counts):
         """Overwrite a player's dice pool with exact per-color counts.
 
-        ``counts`` must be an 8-length sequence indexed by dice color
+        ``counts`` must be an 8-element sequence indexed by dice color
         (fire=0, ice=1, water=2, electro=3, geo=4, anemo=5, dendro=6,
-        omni=7). Negative values are clamped to zero on the Go side.
-        Intended for IS-MCTS determinization — the sampler draws a
+        omni=7). Negative values are rejected before calling Go. Intended
+        for IS-MCTS determinization: the sampler draws a
         multinomial dice distribution for the opponent and injects it
         into the cloned engine before rolling forward.
 

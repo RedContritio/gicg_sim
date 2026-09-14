@@ -1,40 +1,13 @@
-"""GoSubprocessPipeline — InfServer + N independent Go subprocess + shared SHM trans channel atomic spawn。
+"""Atomically launch inference, Go actors, and transition SHM.
 
-I29 R7.2 (2026-05-25) — N+2 OS process topology mirror Python mp。
+The topology consists of one inference process, ``N`` independent
+``cmd/gicg_actor`` subprocesses, and one shared multiple-producer transition
+ring. Each Go process hosts one actor, connects to inference over TCP, and
+publishes raw wire frames to the ring.
 
-把三件套(InfServer + N Go subprocess + 1 shared SHM ring)打包:master Python spawns
-InferenceServer mp.Process,然后 create shared SHM trans ring + spawn **N independent
-Go subprocess**(各 cmd/gicg_actor with NActors=1,BaseActorID = i)。 每 Go subprocess
-attach 同一 SHM trans ring(MPSC,N producer)+ 起 1 TCP InferenceClient 到 InfServer +
-跑 1 actor goroutine。 master 轮询 SHM ring (try_pop_with_meta) 拿 raw wire frame bytes。
-Inference 走 TCP(I29 R7.1 删 SHM inference path,与 Python mp wire 等价)。
-
-为什么 N independent subprocess(而非 1 subprocess containing N goroutine):
-
-  R1 audit(Python mp 架构)findings: Python mp = N+2 truly independent OS process
-  (spawn ctx,1 master + N actor + 1 InfServer)。 R7.2 前 Go subprocess 是 1 process
-  containing N goroutine — collapse N+2 → 2 processes,forfeit OS-level parallelism +
-  inter-actor GIL/scheduler contention。 R7.2 起 N independent subprocess,each
-  NActors=1 + BaseActorID = i,跨 subprocess clientID 唯一(BaseActorID + local_idx = i),
-  与 Python mp 完全等价 N+2 拓扑。
-
-Lifecycle(atomic):
-  - spawn_pipeline(...) → spawn InfServer → wait ready → create_owner SHM trans ring →
-    spawn N Go subprocess(各 BaseActorID=i + NActors=1)→ each wait READY → 返
-    PipelineHandle(list[GoSubprocessHandle] + 1 SHM ring + 1 InfServer)。 partial spawn
-    failure(第 k 个 subprocess 启动失败)atomic cleanup 已 spawned 的 0..k-1 + ring + InfServer。
-  - PipelineHandle.shutdown() → SIGTERM N Go subprocess(parallel)→ wait join
-    (sequential)→ close SHM trans ring → stop InfServer。 全 try/except — 单 failure
-    不阻塞后续 cleanup。
-
-I29 redesign P3 ship (2026-05-25):本 module 是 cfg-driven dispatch
-(`DMCParadigm._make_go_collector` → `DMCGoSubprocessCollector` → `spawn_pipeline`) 的
-生产入口。 module API 故意 paradigm-agnostic (network + paradigm_name +
-paradigm_config_json),Phase 2 AZ/PPO port 时只需 register paradigm 不重写 spawn 逻辑。
-
-deal-breaker invariant #1 of I29 spec: master 进程 0 cgo lib loaded。 InferenceServer 是
-mp.Process subprocess (load torch / cuda there),Go-actor 是 N 个独立 OS subprocess
-(load Go runtime there);master driver thread 只用 python-stdlib + numpy + SHM。
+Partial startup cleans up every process and SHM object already created.
+Shutdown signals all actors first, waits for them, closes transition SHM,
+and stops inference last so in-flight actor requests can finish.
 """
 
 from __future__ import annotations
@@ -56,13 +29,12 @@ from training.core.actor.transition_shm_channel import TransitionShmChannel
 
 
 def _repo_root() -> Path:
-    """Find repo root by walking up from this file (training/core/actor/...)。"""
+    """Find the repository root relative to this module."""
     return Path(__file__).resolve().parents[3]
 
 
 def _free_port() -> int:
-    """Get an unused localhost port (bind 0 + read assigned)。 InfServer socket listener
-    需 free port (test 跑并行多 instance 时避免冲突)。"""
+    """Ask the OS for an unused loopback TCP port."""
     import socket as _socket
 
     s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
@@ -74,15 +46,14 @@ def _free_port() -> int:
 
 @dataclass
 class PipelineHandle:
-    """Multi-handle wrapper for atomic shutdown of N+2 process topology (I29 R7.2)。
+    """Handles needed to shut down the launched topology.
 
     fields:
       - server: InferenceServer mp.Process handle (network forward + socket listener)
       - go_procs: list of GoSubprocessHandle — N independent Go OS subprocess (each
-        NActors=1 + BaseActorID=i ∈ [0, N))。 mimic Python mp 的 N actor 拓扑。
-      - trans_channel: TransitionShmChannel owner (master 端 try_pop_with_meta,
-        MPSC ring,N Go subprocess 各 attach 同一 ring name)
-      - inf_port / shm_ring_name: debug 诊断用
+        NActors=1 + BaseActorID=i ∈ [0, N)).
+      - trans_channel: owner of the shared transition ring.
+      - inf_port / shm_ring_name: diagnostic connection identifiers.
     """
 
     server: InferenceServer
@@ -93,23 +64,14 @@ class PipelineHandle:
 
     @property
     def n_actors(self) -> int:
-        """Number of independent Go subprocess (= len(go_procs))。 测试 / 诊断辅助 accessor。"""
+        """Number of independent Go actor subprocesses."""
         return len(self.go_procs)
 
     def shutdown(self, *, go_timeout_s: float = 10.0, server_timeout_s: float = 5.0) -> None:
-        """Order: N Go subprocess SIGTERM(parallel)→ wait join(sequential)→ SHM
-        trans close → InfServer stop。
+        """Stop actors, close transition SHM, then stop inference.
 
-        Go 必须先停 — InfServer 仍可处理 in-flight inference (Go actor 退出前可能正发请求),
-        early stop InfServer 会让 Go actor 收到 socket EOF panic。 trans channel close
-        在 Go 死后 — close 会 unlink SHM block,Go 已死不影响。 InfServer last — 它的
-        socket listener thread 释放 port。
-
-        N subprocess SIGTERM 走 parallel(``_send_sigterm_only`` non-blocking),wait join
-        走 sequential(``terminate`` 内部 wait_timeout)。 这样总 wall ≈ max(per-proc-shutdown)
-        而非 N × per-proc-shutdown — N=4 + 5s per proc,parallel = 5s 而非 20s。
-
-        全 try/except — 保单一失败不阻塞后续 cleanup。
+        Signals are sent to all actors before sequential joins so their grace
+        periods overlap. Cleanup continues after individual failures.
         """
         import signal as _signal
 
@@ -152,52 +114,31 @@ def spawn_pipeline(
     request_decoder_path: str,
     socket_payload_encoder_path: str,
     binary_path: Optional[str] = None,
-    # C1 refactor (2026-05-26):tuning 字段全收 PipelineTuningCfg。 None → 全 default
-    # (production caller `_make_go_collector` 用此)。 override via
-    # `PipelineTuningCfg(shm_capacity=16, device='cpu')` (test fixture)。
     tuning: Optional[PipelineTuningCfg] = None,
     device: Optional[str] = None,
 ) -> PipelineHandle:
-    """Atomic spawn of InfServer + N independent Go subprocess + shared SHM trans channel。
-
-    I29 R7.2 (2026-05-25):N+2 OS process topology — N Go subprocess each NActors=1 +
-    BaseActorID=i ∈ [0, N),各 attach 同一 SHM ring (MPSC,master single consumer)。
-    与 Python mp `mp.Process(target=actor_main)` × N + InfServer mp.Process 完全等价
-    N+2 拓扑,无 OS-level GIL/scheduler contention 跨 actor。
-
-    Caller 责:network 已构造 (production wrap 是 ``DMCInferenceNet(actor_critic)``);
-    paradigm_config dict 符合 paradigm-side schema (DMC schema 见
-    gicg_actor/dmc/paradigm.go:DMCConfig)。
+    """Start inference, a shared transition ring, and ``n_actors`` processes.
 
     Args:
-        network: InfServer hosts this nn.Module (forwards inference requests batched)。
-        paradigm_name: Go side registry lookup key ("dmc" / "az" / "ppo")。
-        paradigm_config: dict serialized to JSON,透传给 Go paradigm.Configure。
-        n_actors: 起 N independent Go subprocess(R7.2 起的语义变化)— 每 subprocess
-            NActors=1,actor index ∈ [0, n_actors)。 InfServer socket_clients = n_actors。
-        shm_ring_name: SHM block 名 (Mac POSIX shm_open 31-byte 名限制,caller 短前缀 + 唯一)。
-            N Go subprocess 各 attach by name(同名 = 同 ring,MPSC push)。
-        shm_capacity: SHM ring slot 数 (≥ peak inflight episode batches × n_actors)。
-        shm_slot_size: SHM per-slot 字节上限 (DMC episode batch ~150 KB,留 headroom 1 MB)。
-        inf_max_actions: paradigm action 容量 (DMC 2048),InfServer socket adapter 用。
+        network: module hosted by the inference server.
+        paradigm_name: Go paradigm registry key.
+        paradigm_config: mapping serialized for ``paradigm.Configure``.
+        n_actors: number of independent one-actor Go subprocesses.
+        shm_ring_name: shared transition-ring name.
+        inf_max_actions: action capacity used by the socket adapter.
         request_decoder_path: dotted "module.attr" for InfServer-side decoder
-            (DMC = 'training.paradigms.dmc.mp_factories.decode_dmc_request')。
-        inf_max_batch: InfServer batch size (default n_actors,batch 满即 forward)。
-        inf_batch_timeout_ms: InfServer batch 填满前最大等待时间 ms。
-        binary_path: cmd/gicg_actor binary 路径 (default repo_root/bin/gicg_actor)。
-        ready_timeout_s: Go subprocess READY 信号超时 (含 InferenceClient connect)。
-            N subprocess 走 sequential wait READY,total wall ≈ N × per-subproc cold start
-            (Go cold start ~ms,InfServer 已 ready 时 inf connect ~ms,N=4 total 几百 ms)。
-        io_timeout_ms: Go subprocess TCP I/O deadline (传给 InferenceClient)。
-        device: InfServer torch device (cpu / cuda:0 / mps)。
+        socket_payload_encoder_path: dotted request encoder for the socket wire.
+        binary_path: optional actor executable; defaults to ``bin/gicg_actor``
+            or ``bin/gicg_actor.exe``.
+        tuning: SHM, batching, timeout, polling, and Go runtime settings.
+        device: explicit inference device overriding ``tuning.device``.
 
     Returns:
-        PipelineHandle with N go_procs + shared trans_channel + InfServer,for
-        ``trans_channel.try_pop`` + ``shutdown``。
+        Handles for transition reads and coordinated shutdown.
 
     Raises:
-        RuntimeError: InfServer 启动失败 / Go subprocess READY 超时 / binary 不存在。
-        FileNotFoundError: binary_path 不存在。
+        RuntimeError: inference startup or actor readiness fails.
+        FileNotFoundError: the actor executable does not exist.
     """
     if n_actors <= 0:
         raise ValueError(f'spawn_pipeline: n_actors must be > 0, got {n_actors}')
@@ -220,7 +161,7 @@ def spawn_pipeline(
 
     if tuning is None:
         tuning = PipelineTuningCfg()
-    # device 优先 explicit param (collector 已 resolve 过) > tuning.device > 'cpu' fallback
+    # Explicit device overrides the tuning bundle.
     resolved_device = device or tuning.device or 'cpu'
 
     # ─── Step 1: spawn InfServer ─────────────────────────────────────────
@@ -283,8 +224,7 @@ def spawn_pipeline(
                 'paradigm_config': cfg_json,
                 'io_timeout_ms': int(tuning.io_timeout_ms),
                 'go_gomaxprocs': int(tuning.go_gomaxprocs),
-                # H4: cfg-driven GOMEMLIMIT (per [[feedback_cfg_driven_only]] 不走 env);
-                # Go binary parseConfig fail-loud on missing。 0 = 显式 unbounded。
+                # Zero requests the Go runtime's unbounded default.
                 'go_mem_limit_mb': int(tuning.go_mem_limit_mb),
                 'inf_server_addr': f'127.0.0.1:{inf_port}',
             }
@@ -330,10 +270,10 @@ def spawn_pipeline(
 
 
 def make_unique_shm_name(prefix: str = 'i29_t') -> str:
-    """Generate short unique SHM ring name (Mac POSIX shm_open 31-byte 名限制)。
+    """Generate a short SHM name within the macOS POSIX limit.
 
     Format: ``<prefix>_<pid_hex4>_<mono_hex6>``,典型 14 字节 (i29_t_1234_abcdef)。
-    跨 test / 跨 run 不重 (pid + monotonic_ns 联合)。
+    PID plus the monotonic clock avoid collisions across concurrent runs.
     """
     ts = int(time.monotonic_ns()) & 0xFFFFFF
     pid_hex = f'{os.getpid() & 0xFFFF:04x}'

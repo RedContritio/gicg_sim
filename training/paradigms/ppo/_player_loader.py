@@ -1,14 +1,8 @@
-"""PPO player loader — registers ``'ppo'`` factory with
-``training.core.matchup.loaders`` registry。 Imported by core's lazy
-loader on first ``load_player({'type': 'ppo', ...})`` (B4 — close
-audit 注释 `core/eval/baselines.py:103-105` "extend LOADERS to add
-support" 流毒)。
+"""Register the PPO checkpoint player loader.
 
-PPO ckpt schema:CheckpointManager 格式(`training.core.checkpoint.
-load_net_state_dict` 已收口 'net.' wrapper strip);eval 端用 raw
-ActorCritic + PPOAgent。 n_simulations 字段忽略 — PPO 不是 MCTS
-framework,argmax over policy head only(deterministic=True path of
-`PPOAgent.act`)。
+Checkpoints use the ``CheckpointManager`` schema and are loaded through
+``load_net_state_dict``. PPO has no MCTS interface, so the loader accepts
+only ``n_simulations == 0`` and uses deterministic policy selection.
 """
 
 from __future__ import annotations
@@ -27,11 +21,7 @@ from training.core.network import AgentConfig
 
 
 def _load_ppo_agent(ckpt_path: str) -> Any:
-    """Load a PPOAgent from a CheckpointManager-format ckpt blob。
-
-    Network shape 从 `make_ppo_default_shape` 默认值取(production
-    structural backbone migration 后 PPO shape align with AZ默认)。
-    """
+    """Load a PPOAgent using the default production observation shape."""
     from training.core.cfg import make_ppo_default_shape
     from training.paradigms.ppo.agent import PPOAgent
 
@@ -45,9 +35,7 @@ def _load_ppo_agent(ckpt_path: str) -> Any:
 
 
 class _PpoArgmaxPlayer:
-    """PPOAgent wrapped as gauntlet player。 `deterministic=True` mode
-    of `PPOAgent.act` — argmax over policy logits, no stochastic
-    sampling。"""
+    """Wrap ``PPOAgent`` as a deterministic gauntlet player."""
 
     def __init__(self, agent: Any, seed: int = 0) -> None:
         self.agent = agent
@@ -58,7 +46,7 @@ class _PpoArgmaxPlayer:
         if not self._game_started:
             self.agent.game_start(env.static_obs)
             self._game_started = True
-        # PPOAgent.act 返 (action_idx, meta);deterministic=True 是 argmax。
+        # ``deterministic=True`` selects the maximum policy logit.
         action_idx, _meta = self.agent.act(env, self.rng, deterministic=True)
         return int(action_idx)
 
@@ -66,8 +54,8 @@ class _PpoArgmaxPlayer:
 def _loader_ppo(spec: dict) -> PlayerBuilder:
     if int(spec.get('n_simulations', 0)) != 0:
         raise NotImplementedError(
-            "PPO player loader: n_simulations > 0 unsupported — PPO is not an MCTS "
-            'framework。 omit n_simulations or set to 0 (deterministic argmax over policy)。'
+            'PPO player loader does not support n_simulations > 0; '
+            'omit it or set it to 0 for deterministic policy selection.'
         )
     agent = _load_ppo_agent(spec['ckpt'])
 

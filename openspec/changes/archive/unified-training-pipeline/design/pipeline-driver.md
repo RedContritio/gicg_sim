@@ -144,4 +144,4 @@ Cfg `[checkpoint] save_every = 1000` 控制频率。`maybe_resume` 读最新 ckp
 - Protocols 详细 → [`./core-protocols.md`](./core-protocols.md)
 - Async 拓扑详 → [`./async-pipeline.md`](./async-pipeline.md)
 - Eval scheduler → [`./episode-runner.md`](./episode-runner.md)
-- 主 spec → [`../../../specs/training-architecture/pipeline.md`](../../../specs/training-architecture/pipeline.md)
+- 主 spec → [`../../../../specs/training-architecture/pipeline.md`](../../../../specs/training-architecture/pipeline.md)

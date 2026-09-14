@@ -66,8 +66,8 @@ change_id: unified-training-pipeline
 - 主 design → [`./design.md`](./design.md)
 - 主 proposal → [`./proposal.md`](./proposal.md)
 - 主 capability spec(P0-T9 骨架,本 change 修订)→
-  [`../../specs/training-architecture/spec.md`](../../specs/training-architecture/spec.md)
-- OpenSpec archive workflow → [`../../specs/openspec-policy/archive-workflow.md`](../../specs/openspec-policy/archive-workflow.md)
+  [`../../../specs/training-architecture/spec.md`](../../../specs/training-architecture/spec.md)
+- OpenSpec archive workflow → [`../../../specs/openspec-policy/archive-workflow.md`](../../../specs/openspec-policy/archive-workflow.md)
 
 ## 5. Status
 

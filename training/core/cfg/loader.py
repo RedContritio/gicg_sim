@@ -44,8 +44,8 @@ def load_paradigm_cfg(toml_dict: dict, paradigm_name: str) -> dict:
     """Extract paradigm-scoped cfg from a hybrid TOML root dict.
 
     Args:
-        toml_dict: full TOML root dict (parsed by tomllib);post extends + override
-            resolution but PRE schema validation.
+        toml_dict: full TOML root dict after inheritance, overrides, and
+            top-level schema validation.
         paradigm_name: paradigm dispatch key (== ``cfg.meta.paradigm``).
 
     Returns:

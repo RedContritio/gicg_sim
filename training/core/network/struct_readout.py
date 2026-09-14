@@ -1,11 +1,8 @@
-"""Struct readout block — C1v7 fix for cross-attention 零空间.
+"""Direct structural readout for HP, energy, alive, and dice features.
 
-memory ref: project_c1v7_success — pool zero-space C18 theorem; this
-block reads structural counters directly from struct_feat (HP/energy/
-alive/dice) and feeds them as a dedicated pool slot, sidestepping the
-attention saturation pathology.
-
-Paradigm-agnostic: AZ + DMC + PPO all use the same struct readout.
+The dedicated pool bypasses the cross-attention path as specified in
+``openspec/specs/network-architecture/encoders.md``. AZ, DMC, and PPO
+share this block.
 """
 
 from __future__ import annotations
@@ -17,8 +14,7 @@ from training.core.obs_constants import N_STRUCTURAL
 
 
 class StructReadoutBlock(nn.Module):
-    """Linear projection of N_STRUCTURAL → d_model. Bypass for the
-    cross-attention zero-space C1v7 found in 2026-04 reviews."""
+    """Project ``N_STRUCTURAL`` values directly to ``d_model``."""
 
     def __init__(self, d_model: int) -> None:
         super().__init__()

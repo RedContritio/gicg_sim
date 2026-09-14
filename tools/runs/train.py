@@ -19,11 +19,8 @@ Lifecycle phases:
 - Phase C (T-10): steps 6-7 — run train + close metadata
 - Phase D (T-11+): paradigm dispatch / resume / authoritative host
 
-T-08 ``main()`` calls Phase A then prints a stub and exits 0. T-09
-inserts the Phase B call between Phase A success and the stub. T-10
-replaces the stub with Phase C (run + close metadata) so ``main()``
-now runs Phase A → B → C and returns Phase C's process exit code
-(spec §Exit codes 行 247-257).
+The shipped entry runs Phase A → B → C. Phase C performs real paradigm
+dispatch and returns the training/metadata close exit code.
 """
 
 from __future__ import annotations
@@ -75,8 +72,8 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         description=(
             'Atomic train lifecycle (clean-slate redesign): allocate NNN, mkdir '
             'per-run dir, snapshot cfg, write metadata, run train, close metadata. '
-            'T-08-T-10 ship steps 0-7 (placeholder train); T-11 swaps in real '
-            'paradigm dispatch over the same Phase C stub.'
+            'The lifecycle includes real paradigm dispatch and returns the '
+            'training/metadata close exit code.'
         ),
     )
     parser.add_argument('cfg', type=str, help='path to TOML cfg')
@@ -193,8 +190,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f'tools.runs.train: cfg/metadata snapshot failed: {exc}', file=sys.stderr)
         return 2
 
-    # Phase C: run train (T-10 stub; T-11 real paradigm dispatch) +
-    # close metadata. Phase C is the boundary that owns its own exit
+    # Phase C: dispatch the configured paradigm, run training, and close
+    # metadata. Phase C is the boundary that owns its own exit
     # code mapping (spec §Exit codes 0/1/3) and never raises SystemExit
     # back out — exceptions there map to exit 3 (final write failure)
     # so we always have a deterministic numeric return value here.

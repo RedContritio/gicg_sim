@@ -143,7 +143,7 @@ def eval_worker_main(worker_id: int, cfg: TrainingConfig,
    episode trace。Eval reproducibility 由此 invariant 保证。
 5. **OpponentRegistry 共享**:actor mix(self / mcts_pure / historical
    ckpt)与 eval scenario(F1-Dn / mcts_200 / dice_greedy)用同一注册表,
-   名字冲突 SHALL raise(详 [`../../../specs/eval-protocol/spec.md`](../../../specs/eval-protocol/spec.md))。
+   名字冲突 SHALL raise(详 [`../../../../specs/eval-protocol/spec.md`](../../../../specs/eval-protocol/spec.md))。
 
 ## 6. 与现状对比
 
@@ -164,5 +164,5 @@ runner)。
 - 6 protocol 详 → [`./core-protocols.md`](./core-protocols.md)
 - Network provider → [`./network-provider.md`](./network-provider.md)
 - Async 拓扑 → [`./async-pipeline.md`](./async-pipeline.md)
-- Eval protocol 主 spec → [`../../../specs/eval-protocol/spec.md`](../../../specs/eval-protocol/spec.md)
+- Eval protocol 主 spec → [`../../../../specs/eval-protocol/spec.md`](../../../../specs/eval-protocol/spec.md)
 - Mirror match bug fix history → memory feedback_mirror_match_hook_bug

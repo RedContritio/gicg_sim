@@ -19,8 +19,8 @@ writes metadata.toml directly)calls this at startup and the row lands
 with `status=pending`. On completion the launcher (or the human) flips
 status + fills the result cell; the ID is the return value.
 
-CLI:
-    .venv/bin/python -m tools.register_run --type r \\
+Historical CLI (the target registry no longer exists):
+    .venv/bin/python -m tools._meta.register_run --type r \\
         --label r009_foo --config 'slow 1500g, team_size=2' \\
         [--status pending] [--started 2026-04-24]
 

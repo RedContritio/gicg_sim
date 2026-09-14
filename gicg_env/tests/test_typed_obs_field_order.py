@@ -1,11 +1,11 @@
 """Cross-check Python encoder field-index assumptions against the
-engine's actual obs encoding (review B1).
+engine's actual observation encoding.
 
 The TypedDamageEncoder reads typed-obs fields by index — e.g.
 recent_damage[..., 0] is actor_player, [..., 4] is element, [..., 10]
 is reaction_kind. These indices are hand-maintained in two places:
 - gicg_engine/observation_dynamic.go::encodeRecentDamageEvents
-- training/framework/network/typed_damage.py::forward
+- training/core/network/typed_damage.py::forward
 
 If the Go encoder ever reorders fields without updating Python, the
 network silently learns garbage. This test triggers a damage event
@@ -64,8 +64,8 @@ def _slice_typed_segments(raw_obs: np.ndarray, n_counter_slots: int):
 class TestRecentDamageFieldOrder:
     """Verify Python field index assumptions match engine encodeRecentDamageEvents.
 
-    Round-3 review M3+M4: padding sentinel for recent_damage and
-    modifier_log categorical fields is **-2** (was -1 in Round-2);
+    The padding sentinel for recent_damage and modifier_log categorical
+    fields is **-2**;
     -1 is reserved as a real "no-actor / no-prepare" value (DSL
     deal_damage from summon / 反应 / 反射 emits ActorPlayer=-1).
     Scalar fields stay 0.
@@ -93,7 +93,7 @@ class TestRecentDamageFieldOrder:
         raw = env._engine.get_dynamic_obs()
         _, _, modifier = _slice_typed_segments(raw, OBS_COUNTER_SLOTS)
         assert modifier.shape == (8, 4, 5)
-        # categorical (0/3/4) = -2 (Round-3 M3 sentinel)
+        # Categorical fields (0/3/4) use the -2 sentinel.
         for fi in (0, 3, 4):
             assert (modifier[..., fi] == -2).all(), f'modifier_log field {fi} != -2: got {modifier[..., fi]}'
         # scalar (1/2) = 0
@@ -140,8 +140,7 @@ class TestEnginePythonConstSync:
         env = GicgEnv(team_0=['赤蝶'], team_1=['墨客'])
 
         # Re-read the engine constants directly and compare.
-        # Round-2 M2: 8 ints (5 typed + 3 hand-block).
-        # Round-4 S-3: 用 import 常量替 hardcode 4/2,跟 _verify_typed_obs_constants 一致。
+        # Eight ints: five typed-segment and three hand-block constants.
         import ctypes
 
         from gicg_env.env_obs import OBS_MAX_CARD_TYPES
@@ -179,11 +178,9 @@ class TestRecentDamageFieldsAfterDamage:
         """Run random selfplay until the recent_damage ring has at least
         one event with non-padding fields. Return (event_fields, n_steps).
 
-        Round-2 review P3 / M1: with engine padding now writing -1
-        sentinels for categorical fields, "valid event" detection looks
-        at scalar fields (raw_value/final_value/absorbed/is_piercing/is_hit)
-        being non-zero — those stay 0 in padding so any non-zero scalar
-        means a real event landed in that ring slot.
+        Padding uses -2 for categorical fields. "Valid event" detection
+        also considers scalar fields (raw_value/final_value/absorbed/
+        is_piercing/is_hit), which stay zero in padding.
 
         Ring is K=8 bounded; once ≥9 damage events have fired, oldest is
         dropped and the "first" event by chronological order is no longer
@@ -202,8 +199,8 @@ class TestRecentDamageFieldsAfterDamage:
 
             raw = env._engine.get_dynamic_obs()
             recent, _, _ = _slice_typed_segments(raw, OBS_COUNTER_SLOTS)
-            # M3 sentinel-aware detection: padding sentinel is -2
-            # (Round-3); real events have actor_player ∈ {-1, 0, 1}
+            # The padding sentinel is -2; real events have actor_player
+            # ∈ {-1, 0, 1}
             # (-1 = DSL no-actor real, 0/1 = P0/P1) OR scalar field
             # non-zero.
             for k in range(recent.shape[0]):
@@ -233,12 +230,11 @@ class TestRecentDamageFieldsAfterDamage:
 
     def test_cross_player_damage_observed_in_extended_run(self):
         """Across longer selfplay, the recent_damage ring should include
-        at least one cross-player attack (actor != target). Round-2
-        review S4: multi-seed loop instead of one magic seed — if any
-        of 20 seeds produces a cross-player event, test passes; only
-        if ALL fail do we conclude field-index swap.
+        at least one cross-player attack (actor != target). The multi-seed
+        loop avoids relying on one trajectory: any seed that produces a
+        cross-player event satisfies the check.
 
-        Padding sentinel = -1 (Round-2 M1) for actor_player / target_player;
+        Padding sentinel = -2 for actor_player / target_player;
         valid events have actor_player ∈ {0, 1}."""
         from gicg_env.env import GicgEnv
 
@@ -307,8 +303,8 @@ class TestRecentDamageFieldsAfterDamage:
         assert is_hit in (0, 1), f'is_hit={is_hit} not boolean — field index swap'
 
     def test_element_in_valid_range(self):
-        """element field (4) ∈ {0..8} — None/Fire/Ice/Water/Electro/Geo/
-        Anemo/Dendro/Physical, plus Piercing=9 (ADR-0019 §B.1). Reaction
+        """element field (4) is in 0..9: None/Fire/Ice/Water/Electro/Geo/
+        Anemo/Dendro/Physical/Piercing (ADR-0019 §B.1). Reaction
         consumption sets element back to None mid-pipeline; the snapshot
         in recent_damage may be the post-reaction None (=0) or the
         attacker element. Either is in range."""

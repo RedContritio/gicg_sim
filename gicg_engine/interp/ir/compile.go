@@ -193,12 +193,12 @@ func (c *compiler) compileExpr(n interp.Node) (int16, error) {
 		// preserved in the surrounding OpCall.
 		return c.emitLoadImm(0)
 	case *interp.TableCtor:
-		// RC2: positional-arg TableCtor (not the trailing-kwargs slot —
+		// Positional TableCtor (not the trailing-kwargs slot —
 		// that path is handled in compileCall before gatherArgs). E.g.
 		// `set_at({player = Player.All}, 0)` passes a literal table as
-		// first positional. The table content is opaque to the obs
-		// encoder, so lower to OpLoadNil — encoder distinguishes
-		// "table arg present" from "missing arg" via NullReg.
+		// first positional. The table content is opaque to the observation
+		// encoder, so lower it to a stable zero placeholder. The allocated
+		// register still distinguishes an argument from a missing slot.
 		return c.emitLoadImm(0)
 	case *interp.Ident:
 		if r, ok := c.scope[e.Name]; ok {
@@ -276,10 +276,8 @@ func (c *compiler) compileDotAccess(e *interp.DotAccess) (int16, error) {
 	if id, ok := engine.LookupEnum(obj.Name + "." + e.Field); ok {
 		return c.emitLoadAddr(AddrEnum, id, NullReg)
 	}
-	// OQ-3: char-attr field-style. `ch.hp` ≡ `ch:hp()` when `ch` is a
-	// Char-binding receiver. Audit confirms field-style usage in
-	// v_legacy (以牙还牙, 星愿). Method-style continues to work via
-	// compileMethodCall.
+	// Character attribute field syntax (`ch.hp`) is equivalent to the
+	// corresponding zero-argument method (`ch:hp()`).
 	if b, bok := c.bindings[obj.Name]; bok && b.Kind == BindingChar {
 		if _, isAttr := charAttrMethods[e.Field]; isAttr {
 			mid, _ := engine.LookupMethod(e.Field)
@@ -290,7 +288,7 @@ func (c *compiler) compileDotAccess(e *interp.DotAccess) (int16, error) {
 			return c.emitLoadAddr(AddrCharAttr, mid, recv)
 		}
 	}
-	// RC2: scope-local char-attr field-style. `local c = _char_by_slot[p][i];
+	// Scope-local character attribute syntax. `local c = _char_by_slot[p][i];
 	// c.weapon` — `c` is a hook-body local (lives in c.scope) holding a
 	// char proxy; field access on a known char-attr method lowers to
 	// AddrCharAttr with the scope-local reg as receiver. Without this

@@ -1,13 +1,4 @@
-"""AZ player loader — registers ``'az'`` factory with
-``training.core.matchup.loaders`` registry。 Imported by core's lazy
-loader on first ``load_player({'type': 'az', ...})`` (W2-1).
-
-Pre-W2-1 this code lived inline at ``core/matchup/loaders.py`` as
-``_loader_az`` + ``_load_agent_from_ckpt``;the inline placement made
-core statically depend on ``training.paradigms.az.network.Agent``
-(audit finding 高优 #1 — violated ADR-0006 单向依赖)。 Moved here so
-that path becomes lazy + paradigm-local。
-"""
+"""Register the lazy AZ checkpoint player loader."""
 
 from __future__ import annotations
 
@@ -27,12 +18,10 @@ from training.paradigms.az.network import Agent
 
 
 def _load_az_agent_from_ckpt(ckpt_path: str) -> Agent:
-    """Load an AZ Agent from a ckpt blob produced by AZ training。
+    """Load an AZ Agent from a checkpoint produced by AZ training.
 
-    Supports both the new ``net_state_dict`` key (post
-    core-network-generic-promotion N4 schema) and the legacy ``net``
-    key — the latter was removed by Phase 0 (2026-05-17) but earlier
-    pre-redesign archives may still surface in retro-bench runs。
+    Current checkpoints use ``net_state_dict``. The legacy ``net`` key is
+    retained for archived checkpoints used by retrospective benchmarks.
     """
     blob = load_checkpoint(ckpt_path, weights_only=True, map_location='cpu')
     if not isinstance(blob, dict) or 'cfg' not in blob:
@@ -41,7 +30,7 @@ def _load_az_agent_from_ckpt(ckpt_path: str) -> Agent:
     if state_key not in blob:
         raise RuntimeError(
             f"matchup: az ckpt {ckpt_path} missing 'net_state_dict' key "
-            f'(post core-network-generic-promotion Phase 0 schema); retrain to new schema.'
+            f"or legacy 'net' key; retrain or convert the checkpoint."
         )
     cfg = AgentConfig(**blob['cfg'])
     agent = Agent(cfg)

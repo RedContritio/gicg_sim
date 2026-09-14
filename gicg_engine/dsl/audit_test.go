@@ -66,11 +66,11 @@ var allowedFunctions = map[string]bool{
 	"on_before_write": true, "on_after_write": true,
 	"on_before_heal": true, "on_after_heal": true,
 	"on_shield_absorb": true,
-	// Damage pipeline hooks — builtins_hook.go:142-146 注册。
+	// Damage pipeline hooks.
 	"on_damage_type": true, "on_damage_add": true,
 	"on_damage_mul":         true,
 	"on_damage_reduce_buff": true,
-	// Support zone API — builtins_support.go。
+	// Support-zone API.
 	"remove_support": true,
 	"gain_energy":    true, "consume_energy": true,
 	"on_before_energy_gain": true, "on_after_energy_gain": true,
@@ -85,9 +85,8 @@ var allowedFunctions = map[string]bool{
 	// system-level (used in system/ DSL files)
 	"set_winner": true, "get_turn": true,
 	"build_deck": true, "deal_initial_hand": true,
-	// ADR-0019 §B.3 — DSL declare_reaction("X") registry + set_reaction_kind(R_X)
-	// 写 PendingReactionKind。 builtin 实装在 interp/builtins.go:80-100,system/
-	// reactions/*.lua 使用。 audit whitelist 之前漏列。
+	// Reaction registry and PendingReactionKind update API used by
+	// data/system/reactions/*.lua.
 	"declare_reaction": true, "set_reaction_kind": true,
 }
 

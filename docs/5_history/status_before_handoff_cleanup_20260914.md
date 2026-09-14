@@ -167,7 +167,7 @@ v6 后续工作现已推进到 v7：引用/通用槽位已实现，暂停执行�
 - 受污染训练产生的权重、优化器状态、回放/数据集、对手快照、指标和评估结果均不可复用。
   不用于续训、蒸馏、热启动、对手池、算法优劣判断或新实验基线；旧适配入口不能使其有效。
 - 本地 `artifacts/` 下 27 个目录、1325 个文件（2,966,506,341 字节）已删除，含嵌套远端拉取副本。
-  仅保留 `.gitignore`、主机标记和锁文件；清理清单见 [记录](training-reset-2026-09-11.json)。
+  仅保留 `.gitignore`、主机标记和锁文件；清理清单见 [记录](../0_status/training-reset-2026-09-11.json)。
   仓库其他目录扫描未发现常用格式的权重/训练缓存文件。
 - 已配置远端 D:/gicg_dev/artifacts 已清理：158 个旧目录及 35 个逐项确认条目，共 1739 文件、约 9.68 GB；无 Python 进程，最终只剩 .gitignore 和锁。仓库外其他未知副本未做全盘搜索，不得重新导入。
   本地 run 序号可能从头分配，必须使用带时间戳的完整目录引用，不能凭旧 NNN 对照结果。
@@ -246,7 +246,7 @@ v6 后续工作现已推进到 v7：引用/通用槽位已实现，暂停执行�
 ### 4. v_phase2 RL smoke + DSL v6 strict 仍 LIVE
 
 - v_phase2 池(7 char / 6 卡)+ RL smoke s070 跑通(2026-05-12,commit `a0c26e9`)
-- ADR-0019 DSL v6 strict 23 commits 链 2026-05-04~05-07 已落,Accepted de-facto;详 [`dsl_v6_progress.md`](dsl_v6_progress.md)
+- ADR-0019 DSL v6 strict 23 commits 链 2026-05-04~05-07 已落,Accepted de-facto;详 [`dsl_v6_progress.md`](../0_status/dsl_v6_progress.md)
 - v_phase2 deferred 机制 23 项仍 backlog(见 [`../3_plans/v_phase2_deferred.md`](../3_plans/v_phase2_deferred.md))
 
 ADR-0011 pool versioning 仍然有效:`data/pools/{test_basic,v_legacy,v_phase2,spike}/`,manifest fold + 内存 cache。
@@ -334,7 +334,7 @@ ADR-0011 落地了:
 - **2026-04-25** Stage 1+2 BC→PPO PASS,multi-seed infra 落地
 - **2026-04-24** RL paradigm pivot — pure end-to-end 路线证否
 
-更长时间线: [`timeline.md`](timeline.md)
+更长时间线: [`timeline.md`](../0_status/timeline.md)
 
 ## 关键 link
 
@@ -347,12 +347,12 @@ ADR-0011 落地了:
 - Paradigm landscape: [`docs/paradigms/README.md`](../paradigms/README.md) — 5 paradigm × verdict × 数据(AZ / BC / CFR / DMC / PPO)
 
 ### docs/ legacy 区(迁移中)
-- 当前 shipped 代码状态: [`../1_specs/`](../1_specs/) (P1 迁移中,新内容在 `openspec/specs/`)
+- 当前 shipped 代码状态已迁至 [`openspec/specs/`](../../openspec/specs/)
 - 设计决策: [`../2_decisions/`](../2_decisions/) (已迁 `openspec/changes/archive/`,mirror 保留)
 - 计划与 roadmap: [`../3_plans/`](../3_plans/) (active only;已实施/closed 移到 `5_history/`)
 - 训练 run 注册: `python -m tools.runs.list` CLI(live);[`../5_history/runs_pre_redesign_2026_05_17.md`](../5_history/runs_pre_redesign_2026_05_17.md)(pre-redesign 2026-05-17 之前)
 - 历史复盘 / archived plan: [`../5_history/`](../5_history/) — 新归档:`curriculum/` / `algorithm_sweep_2026_04_28.md` / `acceptance.md` / `az_plans/` + 3 个 implemented plan(`support_lifecycle_impl.md` / `v_phase2_cards_e2e_impl.md` / `dmc_phase35_infra.md`)
-- 术语速查: [`glossary.md`](glossary.md)
+- 术语速查: [`glossary.md`](../0_status/glossary.md)
 
 ## 编辑规则
 

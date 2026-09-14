@@ -4,16 +4,14 @@ Spec ref: paradigm-cfr/spec.md C1-C6. Bridges the unified pipeline
 driver to the legacy `training.paradigms.cfr` OS-MCCFR implementation. Six
 ``make_*`` factories + ``step_schedule`` iter-based cadence.
 
-Frozen-research tier (C6.1) — adapter exists for r008 reproducibility
-(C6.2). New CFR training runs SHALL NOT launch without an OpenSpec
-change unfreezing the tier (C6.3). The adapter does not block at the
-code level (paradigm cannot know "is this a new run"); the contract is
-enforced at the change-spec layer.
+Frozen-research tier: the adapter remains available for inspection and smoke
+coverage. A new production run requires an OpenSpec change that restores and
+validates the real head-specific learner path.
 
-NOTE: CFR's buffer is paradigm-specific (two reservoirs — advantage[0/1]
-+ strategy; spec C3.1). The unified driver's Buffer protocol returns
+NOTE: CFR's buffer is paradigm-specific (advantage[0/1], strategy, and value
+reservoirs; spec C3.1). The unified driver's Buffer protocol returns
 exactly one Buffer per paradigm, so this adapter returns a tiny
-``_CFRBufferBundle`` that wraps the three reservoirs behind the Buffer
+``_CFRBufferBundle`` that wraps the four logical reservoirs behind the Buffer
 protocol — ``push`` routes by sample type, ``sample`` requires a
 head-tagged ``Batch`` request (raises if called without the discriminator).
 """
@@ -118,6 +116,7 @@ class _CFRBufferBundle:
         self.value_buffer.__init__(capacity=self.value_buffer.capacity)
 
     def state_dict(self) -> dict:
+        """Return reservoir sizes for diagnostics; entries are not persisted."""
         return {
             'advantage_sizes': [len(b) for b in self.advantage_buffers],
             'strategy_size': len(self.strategy_buffer),
@@ -125,8 +124,7 @@ class _CFRBufferBundle:
         }
 
     def load_state_dict(self, sd: dict) -> None:
-        # Reservoir persistence is via legacy save/load on each reservoir
-        # individually — pipeline ckpt path will route through there.
+        """Accept checkpoint metadata without restoring reservoir entries."""
         del sd
 
 

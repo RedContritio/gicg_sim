@@ -8,8 +8,8 @@ after, diffs them, and scores the delta via ``RewardShaping`` coefs.
 Orthogonal to the pure-terminal signal — callers leave
 ``reward_shaping=None`` and read ``info['z']`` at game over for terminal
 outcome only; dense-shaping callers pass explicit ``RewardShaping``
-coefs。 See ``docs/3_plans/curriculum/plan.md`` for the canonical
-shaping schedule。
+coefficients. See ``docs/5_history/curriculum/plan.md`` for the
+historical shaping schedule.
 """
 
 from __future__ import annotations

@@ -1,5 +1,10 @@
 # DMC for GICG · Implementation Plan
 
+> **历史设计快照（2026-05）**：本文用于解释 DMC 的原始分阶段设计，
+> 其中路径、socket 方案和 pending 状态均是当时记录。当前实现以
+> `training/paradigms/dmc/`、`training/core/` 和 OpenSpec LIVE spec
+> 为准。
+
 > Step-by-step。每 Phase 完成更新 [README.md](README.md) status + [notes.md](notes.md) observations。
 
 ## Phase 3.1 · DMC core implementation(Mac dev,~200 LOC,1-2 day)

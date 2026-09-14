@@ -1,8 +1,7 @@
 """CFR paradigm e2e smoke — symmetric template (Phase 4 of
 core-network-generic-promotion).
 
-OpenSpec ref: ``openspec/changes/core-network-generic-promotion/specs/
-training-architecture/spec.md`` invariant A1 (smoke contract).
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``.
 
 CFR paradigm-specific invariant (spec A1.4):
 - strategy distribution sums to 1 over legal actions (avg_policy head

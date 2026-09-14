@@ -37,7 +37,7 @@ GICG runtime 加载需被规约化,否则会出现:
   refactor 漂移
 - AST cache 行为被破坏(mid-run 重读文件 / 跨进程 stale cache)
 - `RegisterBuiltins` 在 tokenize 但未 eval 注册造成 builtin 看似可用实则
-  fail(详 `memory feedback_builtin_registration_audit`)
+  fail(详 [`engine-dsl/builtin-api.md`](../engine-dsl/builtin-api.md) §2)
 - mirror match 角色文件每绑定执行两次时,non-Self 作用域 counter 被
   重复 declare 而 engine 未实现幂等行为
 
@@ -102,7 +102,7 @@ change 提案修订,而非在代码中静默偏离。
 3. **静态扫描架构约束**:由于扫描静态进行,char-skill 文件 SHALL NOT
    通过 `get_card("X")` 反向依赖 card 文件 — 该 pattern 在拓扑排序时
    不可见。反向用 sharedFiles 引用 char 是允许的反向 pattern。
-   (详 `memory feedback_char_skill_no_get_card`)
+   (详 [`engine-dsl/file-structure.md`](../engine-dsl/file-structure.md) §8)
 
 ### 3.2 沙箱执行
 
@@ -140,7 +140,7 @@ change 提案修订,而非在代码中静默偏离。
    仅 tokenize 注册而未 eval 注册 SHALL 在调用时 panic /
    undefined-symbol。新 builtin 加入 SHALL via `RegisterBuiltins` 在
    两侧同时注册。Counter 参数 SHALL use 类型断言而非位置 idx 推断。
-   (详 `memory feedback_builtin_registration_audit`)
+   (详 [`engine-dsl/builtin-api.md`](../engine-dsl/builtin-api.md) §2)
 
 ### 3.5 Per-binding 加载下的 counter 幂等
 
@@ -168,13 +168,14 @@ change 提案修订,而非在代码中静默偏离。
 - [`openspec/specs/openspec-policy/`](../openspec-policy/spec.md) — 格式
   与阈值
 
-**Memory cross-references**:
+**Repository references**:
 
-- 不接受变通 — declare/get 静态扫描架构约束详
-  `memory feedback_char_skill_no_get_card`
-- Builtin 双侧注册要求详 `memory feedback_builtin_registration_audit`
-- Bridge locals → global pattern(`_chars` / `_char_by_slot` 必须 global
-  以便 system DSL 访问)详 `memory feedback_locals_global`
+- declare/get 静态扫描约束见
+  [`engine-dsl/file-structure.md`](../engine-dsl/file-structure.md) §8。
+- Builtin 双侧注册要求见
+  [`engine-dsl/builtin-api.md`](../engine-dsl/builtin-api.md) §2。
+- Bridge globals 的实际注册与读取位置以
+  `gicg_engine/interp/runtime.go` 和 `builtins.go` 为准。
 
 **History / source**:
 

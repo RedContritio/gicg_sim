@@ -1,8 +1,4 @@
-"""ScenarioFactory + eval scenario seed pool helper.
-
-Adapted from training/framework/scenario.py. Same ScenarioConfig
-semantics — copy keeps DSL behavior identical (sample_teams /
-disjoint_teams)."""
+"""Scenario sampling and deterministic seed helpers for evaluation."""
 
 from __future__ import annotations
 

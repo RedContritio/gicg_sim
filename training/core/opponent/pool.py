@@ -1,7 +1,6 @@
 """OpponentPool — actor-side mixed opponent sampling.
 
-Adapted from training/dmc/opponent_pool.py (paradigm-agnostic core
-extracted). Holds a WeightedMix over registered opponent names + a
+Holds a WeightedMix over registered opponent names and a
 historical-ckpt ring buffer; paradigm provides a factory to build a
 'historical' player from a state_dict.
 """
@@ -22,7 +21,7 @@ class OpponentPool:
     """Paradigm-agnostic opponent pool.
 
     Args:
-        registry: OpponentRegistry with named opponents (random / F1-D2 ...)
+        registry: OpponentRegistry with named opponents.
         weights: dict {name: weight}; ``'historical'`` is a reserved
             name that routes to the ring buffer instead of the registry.
         ring_size: historical ckpt ring buffer size.

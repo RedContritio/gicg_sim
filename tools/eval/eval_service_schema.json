@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "gicg/eval_service/v1",
   "title": "gicg eval_service request schema",
-  "description": "JSON request body for the Unix-socket eval_service. Authoritative — server validates against this and clients generate CLI / help from this. Add a new request kind by extending the top-level `oneOf`; add a new player type by extending `$defs.player_spec.oneOf`.",
+  "description": "JSON request body for the localhost TCP eval_service. Authoritative — server validates against this and clients generate CLI / help from this. Add a new request kind by extending the top-level `oneOf`; add a new player type by extending `$defs.player_spec.oneOf`.",
 
   "$defs": {
     "player_spec_az_or_cfr": {

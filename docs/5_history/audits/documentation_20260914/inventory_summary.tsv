@@ -1,0 +1,12 @@
+metric	count
+tracked_files	4359
+untracked_files	23
+inventory_files	4382
+machine-byte-scan-only	1454
+machine-byte-scan-structured	214
+manual-full-context	306
+n/a-no-comments	44
+not-applicable-binary	38
+not-applicable-empty	28
+not-applicable-generated-lock	1
+scope-excluded-card-rule-audit	2297

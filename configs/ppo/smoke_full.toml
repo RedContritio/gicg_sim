@@ -5,11 +5,9 @@
 #   - [checkpoint] save_every short cadence
 #   - [paradigm.ppo] total_iterations bumped to ≥ 100 step
 #
-# STATUS (per SF-105): test_ppo_smoke_full.py currently pytest.skip due to
-# pre-existing bug in training/paradigms/ppo/_rollout.py:130
-# (`list(getattr(scen, 'card_pool', ()))` fails when scen.card_pool is None).
-# Follow-up change: `ppo-rollout-card-pool-none-fix`. Toml pre-tuned for
-# when bug is fixed.
+# The former `scenario.card_pool is None` blocker was fixed by
+# `ppo-rollout-card-pool-none-fix`; `test_ppo_smoke_full.py` now exercises
+# this configuration.
 
 [meta]
 extends = "smoke.toml"

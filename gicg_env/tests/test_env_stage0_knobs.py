@@ -1,8 +1,8 @@
-"""Tests for GicgEnv Stage-0 knobs: max_rounds, fix_dice (T-D).
+"""Tests for the historical curriculum Stage-0 knobs: max_rounds and fix_dice.
 
 These two flags are the minimum Go-side infrastructure needed to make
 Stage 0 of the curriculum runnable — bounded-length deterministic-dice
-episodes. See ``docs/3_plans/curriculum/plan.md`` Stage 0.
+episodes. See ``docs/5_history/curriculum/plan.md`` Stage 0.
 
 The other proposed T-D flags (fully_observable, disable_reactions) are
 deferred to later stages — Stage 0 uses ``card_pool=[]`` (trivially

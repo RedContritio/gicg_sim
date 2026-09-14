@@ -1,7 +1,7 @@
 # I29 Go-native actor pool variant of stage3_b_v_legacy.toml。
 #
 # 同 scenario / card_pool / opponent mix / network architecture,仅切 actor_backend
-# 走 Go-native goroutine pool(libgicg_actor.dll)替代 Python mp.Process pool。
+# 走 N 个 standalone `cmd/gicg_actor` subprocess 替代 Python mp.Process pool。
 #
 # 本 cfg 用途:I29 P1.5 Win box production stress + P3 1M frames benchmark
 # 对照实验(Go vs Python baseline)。
@@ -29,4 +29,4 @@ os = "windows"
 hostname = "DESKTOP-GHJCC7Q"
 
 [pipeline]
-actor_backend = "go"  # I29 — 走 gicg_actor goroutine pool(libgicg_actor.dll)
+actor_backend = "go"  # I29 R7 — N 个独立 gicg_actor subprocess

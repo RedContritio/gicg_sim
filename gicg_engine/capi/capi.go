@@ -124,7 +124,10 @@ func GameClone(id C.int) (ret C.int) {
 
 // C exports split across sibling files:
 //   capi_snap.go    — snapshot / restore / snapshot_free / log suspend-resume
-//   capi_actions.go — action loop, legal actions, setters, step
-//   capi_state.go   — state / counters / obs size + bytes
+//   capi_actions.go — action loop, setters, reset, rollout
+//   capi_actions_query.go — legal actions, identities, refs, payments
+//   capi_state.go   — state and card/dice queries
+//   capi_observation.go — observation sizes, constants, and buffers
 //   capi_reward.go  — RewardEvents accumulator getter / reset
-//   capi_labels.go  — labels / replay / utility / main()
+//   capi_labels.go  — human-readable labels
+//   capi_replay.go  — replay and view exports

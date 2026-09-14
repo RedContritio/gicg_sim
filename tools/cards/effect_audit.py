@@ -36,7 +36,9 @@ def game_config(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config', action='append', help='training TOML, repeatable; defaults to six live configs')
+    parser.add_argument(
+        '--config', action='append', help='training TOML, repeatable; defaults to six configured audits'
+    )
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     reports = {}

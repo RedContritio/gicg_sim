@@ -1,4 +1,4 @@
-"""Tests for training/paradigms/cfr/legacy/train.py — smoke / contract level only.
+"""Tests for training/paradigms/cfr/train.py — smoke / contract level only.
 
 Numerical convergence on real game scale is tens-of-minutes compute,
 not appropriate for pytest. Here we verify the loop closes, buffers

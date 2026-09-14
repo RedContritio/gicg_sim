@@ -55,7 +55,7 @@ EPSILON = 0.2
 # P1 game value = -1/18 ≈ -0.0556.
 #
 # The test samples deal+traversal, accumulates regret via the same Lanctot
-# formula used in training/paradigms/cfr/legacy/traversal/ (with path reach tracking),
+# formula used in training/paradigms/cfr/traversal/ (with path reach tracking),
 # then verifies the AVERAGE strategy at a subset of info sets converges.
 
 
@@ -119,7 +119,7 @@ def _kuhn_traverse(
     decisions,
 ):
     """Two-pass outcome-sampling MCCFR traversal matching the
-    production implementation at ``training/paradigms/cfr/legacy/traversal/``
+    production implementation at ``training/paradigms/cfr/traversal/``
     (``_regret_estimate`` / Lanctot 2013 Eq 4.14 canonical form).
 
     Phase 1 (this function, recursive): sample a trajectory z and

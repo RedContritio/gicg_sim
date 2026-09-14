@@ -13,9 +13,9 @@ import time
 
 import torch
 
-from tools.experiments.semantic_training.agent import SemanticAgent
 from tools.experiments.semantic_training.evaluate import initialize, evaluate
-from tools.experiments.semantic_training.player_loader import FORMAT
+from tools.experiments.semantic_training.player_loader import load_semantic_agent, load_semantic_payload
+from tools.experiments.semantic_training.consequence_policy import FORMAT as CONSEQUENCE_FORMAT
 from tools.experiments.semantic_training.rl_rollout import episode
 from tools.experiments.semantic_training.rl_update import update
 from tools.runs._train.setup import phase_a_setup
@@ -47,7 +47,10 @@ def run(
     variants=None,
     rule_beta=0.0,
     rule_stride=4,
+    learning_rate=1e-5,
 ):
+    if not math.isfinite(learning_rate) or learning_rate <= 0:
+        raise ValueError('learning rate must be finite and positive')
     if not math.isfinite(rule_beta) or rule_beta < 0 or rule_stride < 1:
         raise ValueError('invalid rule auxiliary settings')
     if episodes < 2 or episodes % 2 or iterations < 1:
@@ -56,6 +59,10 @@ def run(
         raise ValueError('temperature must be finite and positive')
     if variants and episodes % 4:
         raise ValueError('variant mixture requires episodes divisible by four')
+    initial = load_semantic_payload(checkpoint)
+    consequence_policy = initial['format'] == CONSEQUENCE_FORMAT
+    if consequence_policy and rule_beta:
+        raise ValueError('frozen consequence policy cannot train a separate auxiliary head')
     from tools.rule_validation.variants import specification
     from tools.experiments.semantic_training.teams import eval_cases
 
@@ -70,13 +77,13 @@ def run(
     (run_dir / 'ckpts').mkdir()
     torch.set_num_threads(1)
     torch.manual_seed(seed + 1)
-    initial = load_checkpoint(checkpoint, map_location='cpu', weights_only=False)
     shape = AgentConfig(**initial['shape'])
-    agent, anchor = SemanticAgent(shape, device), SemanticAgent(shape, device)
-    agent.net.load_state_dict(initial['net'])
-    anchor.net.load_state_dict(initial['net'])
+    agent = load_semantic_agent(checkpoint, device=device)
+    anchor = load_semantic_agent(checkpoint, device=device)
     anchor.net.requires_grad_(False)
-    optimizer = torch.optim.AdamW([p for p in agent.net.parameters() if p.requires_grad], lr=1e-5, weight_decay=0)
+    optimizer = torch.optim.AdamW(
+        [p for p in agent.net.parameters() if p.requires_grad], lr=learning_rate, weight_decay=0
+    )
     value_optimizer = None
     if value_baseline:
         from tools.experiments.semantic_training.value_baseline import attach
@@ -90,6 +97,8 @@ def run(
         if 'rule_head' in initial:
             agent.rule_head.load_state_dict(initial['rule_head'])
     algorithm = 'terminal clipped policy gradient' + (' with state baseline' if value_baseline else '')
+    if consequence_policy:
+        algorithm += ' with frozen consequence residual'
     if rule_beta:
         algorithm += ' and engine consequence supervision'
     rng, baseline, first = random.Random(seed + 2), [0.0, 0.0], 1
@@ -98,7 +107,7 @@ def run(
         episodes=episodes,
         master_seed=seed,
         epochs=2,
-        lr=1e-5,
+        lr=learning_rate,
         anchor_beta=0.02,
         clip=0.2,
         dev_seed=dev_seed,
@@ -110,6 +119,8 @@ def run(
         temperature=temperature,
     )
     scenario = asdict(load_cfg(config).scenario)
+    if consequence_policy:
+        settings['use_consequences'] = initial['use_consequences']
     if rule_beta:
         settings.update(rule_beta=rule_beta, rule_stride=rule_stride, rule_lr=0.0003, rule_schema='1.0.0')
     if variants:
@@ -168,7 +179,7 @@ def run(
 
     def save_model(iteration, path):
         payload = {
-            'format': FORMAT,
+            'format': initial['format'],
             'net': agent.net.state_dict(),
             'shape': vars(shape),
             'optimizer': optimizer.state_dict(),
@@ -181,6 +192,8 @@ def run(
             'anchor_sha256': anchor_sha,
             'settings': settings,
         }
+        if consequence_policy:
+            payload['use_consequences'] = initial['use_consequences']
         if value_baseline:
             payload.update(value_head=agent.value_head.state_dict(), value_optimizer=value_optimizer.state_dict())
         if rule_beta:

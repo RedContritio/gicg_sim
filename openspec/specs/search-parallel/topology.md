@@ -138,7 +138,7 @@ while not stop:
 
 ### 4.3 MCTS kernel 改造点
 
-唯一一处改动:`training/az/mcts/rollout.py::_eval_leaf`
+唯一一处改动:`training/paradigms/az/mcts/rollout.py::_eval_leaf`
 
 ```python
 # 之前:
@@ -179,9 +179,10 @@ result_queue.put(trajectory)
    结构与现有 `parallel_selfplay.py` 一致,`ParallelSelfPlayPool` 的
    `_ResultShim` 路径可直接复用。
 
-## 5. 增量实现顺序
+## 5. Historical implementation sequence
 
-按可独立测试的边界 SHALL implement in order:
+以下保留最初的落地顺序，用于解释当前模块边界；这些步骤已经完成或被
+后续统一训练管线取代，不是当前待办清单：
 
 1. **InferenceServer 最小骨架**:单 worker,同步 batch=1,跑通
    game_start / eval / game_end / stop 协议。对比本地 `agent.eval_state`
@@ -196,8 +197,8 @@ result_queue.put(trajectory)
 6. **基准测试**:c1-scale,`n_workers ∈ {1, 4, 8}` × 开/关 async
 7. **替换 `parallel_selfplay.py`**:老实现保留到新的通过 10 局
    c1-scale 测试后再删
-8. **文档更新**:`docs/1_specs/training/az_loop.md` 加架构小节,
-   `implementation.md` 勾上
+8. **当时的文档更新**:`docs/1_specs/training/az_loop.md` 与
+   `implementation.md`；两者后来迁入 OpenSpec / history。
 
 ## 6. 开放问题(死锁 / 失败恢复)
 

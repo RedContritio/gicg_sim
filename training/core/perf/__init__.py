@@ -1,6 +1,6 @@
-"""training.core.perf — opt-in perf tracing infrastructure.
+"""Opt-in performance tracing infrastructure.
 
-Zero overhead when ``cfg.debug.perf_trace`` is False (default). See
+Disabled by default. See
 ``trace.py`` for the public API + ``tools/perf/analyze.py`` for the
 offline analyzer.
 """

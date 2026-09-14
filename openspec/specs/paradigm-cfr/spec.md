@@ -1,183 +1,106 @@
 ---
-last_updated: 2026-05-17
+last_updated: 2026-09-14
 status: LIVE
-schema_version: 0
+schema_version: 1
 capability: paradigm-cfr
 ---
 
 # Paradigm CFR — Deep CFR 算法层不变量
 
-> CFR(Deep Counterfactual Regret Minimization)paradigm 的算法层 SHALL
-> invariants。架构层(Paradigm protocol / EpisodeRunner / NetworkProvider)
-> 继承 [`../training-architecture/spec.md`](../training-architecture/spec.md),
-> 本 spec 只列 CFR-specific 约束。
+CFR is a frozen research adapter retained for code comparison and smoke
+coverage. Historical r008 outcomes remain in the history tree; they are not a
+current checkpoint compatibility or production-readiness claim.
 
-## 1. Purpose
+## 1. Scope
 
-CFR 是 GICG r008 prototype 时代主路径,2026-04-23 之后因 r008 postmortem
-(iter 199 < random + 策略震荡)+ AZ 闭环胜出转入 `frozen-research` tier。
-本 spec 治理 CFR 算法层不变量,保证 reproducibility 与可对照:
+This specification covers OS-MCCFR traversal, the current network modules and
+reservoirs, the partial unified-driver adapter, and the explicit smoke-only
+path. Common driver and actor contracts live in
+[`training-architecture`](../training-architecture/spec.md).
 
-- OS-MCCFR(Outcome-Sampling Monte Carlo CFR)traversal
-- Reservoir buffer(advantage + strategy)
-- Advantage MSE + Strategy MSE 双 loss
-- (Avg_policy, advantage)双 head 网络
+## 2. Core SHALL invariants
 
-## 2. Scope
+### C1. Traversal
 
-**In scope**:
-- CFR paradigm 实现的 6 protocol(Paradigm / Collector / Buffer /
-  LossComputer / EpisodePolicy / NetworkProvider 各自 CFR-specific 实现要求)
-- OS-MCCFR traversal 算法契约(player iteration / cf-reach)
-- Reservoir sampling 半生命期约定
-- Advantage / Strategy 双 reservoir 隔离
+1. **C1.1** The production traversal mode SHALL be outcome-sampling MCCFR
+   (`sampling_mode='os'`). Traverser selection SHALL follow
+   `traversal.traverser_alternation`, whose default is `alternate`.
+2. **C1.2** Collection units SHALL mean tree traversals, not complete rollout
+   episodes. `traversals_per_iteration` SHALL control the units collected per
+   outer step.
+3. **C1.3** The serial collector SHALL hold direct references to the two
+   advantage networks. The async collector MAY use the shared actor runtime.
 
-**Out of scope**:
-- 通用 EpisodeRunner / NetworkProvider → `training-architecture` spec
-- CFR run 历史 / r008 postmortem → `docs/paradigms/cfr/` dossier +
-  memory `project_r008_postmortem`
-- Obs / action 张量编码 → `openspec/specs/rl-obs/`(待落地)
+### C2. Network and training targets
 
-## 3. Core SHALL invariants
+4. **C2.1** `CFRNetwork` SHALL compose one `CFRStrategyNet` and two
+   player-specific `AdvantageNet` modules.
+5. **C2.2** `CFRStrategyNet` SHALL produce policy logits and a value estimate.
+   The two advantage networks SHALL each produce per-action regret estimates
+   for one traverser player.
+6. **C2.3** These modules share trunk architecture, not trunk weights. Current
+   documentation SHALL NOT describe them as two heads on one shared encoder.
+7. **C2.4** The historical trainer's advantage fit SHALL use masked regret MSE.
+   Its strategy/value fit SHALL use legal-masked policy cross-entropy plus
+   `value_loss_alpha * value MSE`.
+8. **C2.5** The protocol adapter `CFRLoss` accepts precomputed `advantage` or
+   `strategy` predictions and applies masked MSE to one head at a time. It does
+   not run the network forward or compute the historical joint policy/value
+   fit.
 
-### C1. CFR 算法核心
+### C3. Reservoirs
 
-1. **C1.1** CFR paradigm SHALL use OS-MCCFR(Outcome-Sampling MCCFR)for
-   traversal,SHALL NOT 用 vanilla CFR(全树遍历不可行)。
-2. **C1.2** Traversal SHALL alternate by `traverser_player` ∈ {0, 1};单
-   iteration 内一个 player 为 traverser,另一为 opponent(sampling)。
-3. **C1.3** Counterfactual reach probability SHALL be tracked along
-   traversal path;regret update SHALL be cf-reach-weighted。
+9. **C3.1** The current adapter SHALL maintain four logical reservoirs:
+   advantage for player 0, advantage for player 1, strategy, and value.
+10. **C3.2** Default capacities SHALL match `CFRParadigmConfig`:
+    `100_000` for each advantage reservoir, `200_000` for strategy, and
+    `100_000` for value. Production configs may override them.
+11. **C3.3** `_CFRBufferBundle.sample(batch_size)` is intentionally ambiguous
+    and raises. Head-specific consumers SHALL use `sample_head`.
 
-### C2. Loss(双 head)
+### C4. Unified-driver limitation and smoke path
 
-4. **C2.1** CFR loss SHALL = `advantage_mse + strategy_mse`,两 head 独立
-   target,SHARED encoder。
-5. **C2.2** Advantage target SHALL = clipped regret(positive part 或
-   regret-matching+);strategy target SHALL = normalized cumulative strategy。
-6. **C2.3** Loss reduction = mean over batch,no policy-strategy weighting
-   override(避免 r008 时观察的 loss-quality 脱钩问题,见 memory)。
+12. **C4.1** The generic pipeline's ordinary single-buffer sample/loss loop
+    does not implement CFR's head-specific fit schedule. Therefore the real
+    `_CFRBufferBundle` path SHALL NOT be presented as a production-ready
+    `tools.runs.train` workflow.
+13. **C4.2** Smoke configs MAY set
+    `debug.cfr_smoke_stub_buffer=true` to exercise generic driver wiring with a
+    minimal single-buffer batch. The old
+    `GICG_CFR_SMOKE_STUB_BUFFER` environment switch is retired.
+14. **C4.3** The smoke stub validates collect/sample/backward/checkpoint
+    connectivity only. It SHALL NOT be used as CFR quality or r008
+    reproducibility evidence.
 
-### C3. Buffer(reservoir 双隔离)
+### C5. Tier and compatibility
 
-7. **C3.1** CFR SHALL use **two separate reservoirs**:`advantage_reservoir`
-   + `strategy_reservoir`,SHALL NOT 合并(advantage 短期、strategy 长期)。
-8. **C3.2** Reservoir SHALL be `ReservoirBuffer`(from
-   `training/core/buffer/reservoir.py`),uniform sampling with reservoir
-   size cap。
-9. **C3.3** Reservoir capacity SHALL be cfg-driven,default advantage =
-   200_000,strategy = 1_000_000(history-long retention)。
+15. **C5.1** CFR SHALL remain `frozen-research` until an explicit OpenSpec
+    change restores and validates a real head-specific learner path.
+16. **C5.2** Historical r008 checkpoints SHALL be reproduced only with the
+    corresponding historical code and config. Current state-dict shape or a
+    matching run label does not establish compatibility.
+17. **C5.3** Production code SHALL live under `training/paradigms/cfr/`;
+    `legacy/` and the former nested `network/` tree are not current paths.
 
-### C4. Network heads
+## 3. Implementation references
 
-10. **C4.1** CFR network SHALL have 2 heads:`avg_policy_head(logits)` +
-    `advantage_head(per-action scalar)`,both fed by shared encoder。
-11. **C4.2** Eval / production inference SHALL use `avg_policy_head` only;
-    `advantage_head` is training-only。
+- Adapter and buffer bundle: `training/paradigms/cfr/paradigm.py`
+- Config: `training/paradigms/cfr/config.py`
+- Network composition: `training/paradigms/cfr/network.py`,
+  `training/paradigms/cfr/strategy_net.py`,
+  `training/paradigms/cfr/advantage_net.py`
+- Traversal collector: `training/paradigms/cfr/collector.py`,
+  `training/paradigms/cfr/_async.py`
+- Historical fit implementation: `training/paradigms/cfr/fit_steps.py`
+- Protocol loss: `training/paradigms/cfr/loss.py`
+- Smoke-only buffer: `training/tests/_cfr_smoke_stub.py`
+- Historical pivot evidence:
+  [`docs/2_decisions/adr-0008-rl_paradigm_pivot.md`](../../../docs/2_decisions/adr-0008-rl_paradigm_pivot.md)
 
-### C5. Collector
+## 4. Historical context
 
-12. **C5.1** CFR Collector SHALL be `TraversalCollector`,parallel by
-    Python thread(I/O-bound,Go engine 持锁释放后并行)。
-13. **C5.2** `requires_network_in_collect = True`(advantage 估计需 forward)。
-14. **C5.3** Both players SHARE the network during traversal(symmetric
-    selfplay assumption)。
-
-### C6. Tier
-
-15. **C6.1** CFR tier SHALL be `frozen-research`(per memory
-    `project_rl_routes_closure_2026_05_12`)。
-16. **C6.2** **r008 ckpt reproducibility 撤销(SUPERSEDED)** —
-    > ~~CFR SHALL preserve r008 reproducibility — 本 change 迁移后,同
-    > cfg + 同 seed SHALL 复现 r008 ckpt iter 20 / 100 / 199 win rate
-    > (±5% noise band)~~ — SUPERSEDED by `core-network-generic-promotion`
-    > (archive 2026-05-17)。理由:r008 ckpt schema 在本 change 后 obsolete
-    > (同 r009)。User 决策接受所有旧 ckpt 失效;若未来需要复现 r008 行
-    > 为,通过 `git checkout pre-core-network-redesign-2026-05-17` + 老代
-    > 码 + 老 cfg 走老路径,不在 main branch 维护并行栈。
-17. **C6.3** New CFR production run SHALL NOT be launched without OpenSpec
-    change unfreezing tier(避免重复 r008 资源浪费)。
-
-18. **C6.4** Test infrastructure SHALL be allowed to inject a smoke-only
-    stub buffer into `CFRParadigm.make_buffer` via env flag
-    `GICG_CFR_SMOKE_STUB_BUFFER=1`,**仅** for `pytest -m smoke_full`
-    coverage of the generic driver(`training/core/pipeline.py`)→ CFR
-    paradigm wiring。Production runs SHALL NOT set this flag;
-    `_CFRBufferBundle`(C3.1 双 reservoir)remains the only production
-    buffer。Stub buffer SHALL NOT be used for CFR training quality
-    verification — its sole purpose is exercising driver collect →
-    sample → loss → backward → optimizer.step → ckpt save/resume infra
-    when CFR `_CFRBufferBundle.sample()` raises 由 generic single-buffer
-    driver contract gap。Tier freeze(C6.1 + C6.3)SHALL NOT be
-    considered violated by stub activation — smoke test does not launch
-    a "new CFR production run",it only validates infra connectivity
-    using a minimal valid `Batch` payload(per CFRLoss `REQUIRED_KEYS`)。
-
-### C7. Filesystem layout(扁平化)+ DI + typed_damage skip
-
-> Added by `core-network-generic-promotion` (archived 2026-05-17) —
-> `paradigms/cfr/legacy/` 整目录退役,扁平化到 `cfr/` 主目录;CFR
-> `CFRStrategyNet` 接 generic `core/network/encoder.py` HookEncoder + DI
-> 注入。
-
-19. **C7.1** `paradigms/cfr/` SHALL be 扁平结构:
-
-    ```
-    paradigms/cfr/
-    ├── __init__.py
-    ├── config.py
-    ├── network.py
-    ├── paradigm.py
-    ├── policy.py
-    ├── loss.py
-    ├── agent.py           ← 自 cfr/legacy/agent.py mv
-    ├── strategy_net.py    ← 自 cfr/legacy/network/strategy_net.py mv
-    │                        (扁平化,删 network/ 子目录)
-    └── (其它 cfr/legacy/ 内容如 trainer 等同步 mv 上)
-    ```
-
-    `cfr/legacy/` 整目录 SHALL 不存在(扁平化到 `cfr/` 主目录)。
-
-20. **C7.2** CFRAgent SHALL 改 DI:`super().__init__(cfg,
-    hook_encoder=self.net.hook_encoder, device=device)`。CFR
-    `CFRStrategyNet` 内部 own 一个 `HookEncoder` instance(来自
-    `core/network/encoder`,不是 ActorCritic 的 encoder),DI 注入这个
-    instance。Imports SHALL use generic root:`from training.core.network
-    import AgentBase` + `from training.core.network.encoder import
-    (HookEncoder, CounterEncoder, CardEncoder, CrossAttentionBlock)`(SHALL
-    NOT 引用 `training.core.network.legacy.*`,已 git rm)。
-
-21. **C7.3** **typed_damage 跳过**:若 CFR P3-B 未来切到 generic
-    `make_actor_critic`,SHALL 用 `use_typed_damage=False` — CFR 当前 not
-    consume typed segments(recent_damage / prepare_skill / modifier_log),
-    与 `core-network-generic-promotion` design Tradeoffs 决策对齐。
-
-## 4. Cross-references
-
-- 主 training architecture →
-  [`../training-architecture/spec.md`](../training-architecture/spec.md)
-- CFR paradigm dossier → `docs/paradigms/cfr/`
-- r008 postmortem → memory `project_r008_postmortem`
-- CFR closure history → memory `project_rl_routes_closure_2026_05_12`
-- Originating change(archived)→
-  [`../../changes/archive/unified-training-pipeline/`](../../changes/archive/unified-training-pipeline/)
-- Smoke stub fix(archived)→
-  [`../../changes/archive/cfr-driver-buffer-multihead-fix/`](../../changes/archive/cfr-driver-buffer-multihead-fix/)
-
-## 5. Status
-
-- **Created**:2026-05-16(unified-training-pipeline P6 archive)
-- **Revised**:2026-05-17(`core-network-generic-promotion` archive)—
-  MODIFY C6.2 r008 ckpt reproducibility SUPERSEDED;+C7 扁平化 layout +
-  DI(CFRAgent → CFRStrategyNet.hook_encoder)+ typed_damage skip(CFR
-  not consume typed segments)。Imports 切到 `core/network` root,SHALL
-  NOT 引用 `core/network/legacy/*`(已 git rm)。
-- **Revised**:2026-05-17(`cfr-driver-buffer-multihead-fix` archive)—
-  ADD C6.4 smoke-only stub buffer 允许在 frozen-research tier(env flag
-  gated),修复 `paradigm-smoke-full-tier` SF-105 CFR skip;production
-  CFR(`_CFRBufferBundle`)未动,tier 状态不变。
-- **Version**:0(初始)
-- **Implementation**:Phase 4 落地;P4 ship 时 SHALL satisfied;
-  `core-network-generic-promotion` Phase 2D(2026-05-17)CFR 扁平化 +
-  DI + generic encoder 接入完成
-- **Tier**:frozen-research — 仅保留 reproducibility,不接受 new run
+The 2026-05 specification described two reservoirs, a shared-weight two-head
+network, thread-based collection, larger default capacities, and an env-gated
+smoke buffer. The current code has four logical reservoirs, separate network
+modules, serial or process-based async collection, reduced defaults, and a
+config-gated smoke path. Archived r008 observations were not rewritten.

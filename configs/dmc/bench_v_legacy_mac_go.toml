@@ -5,12 +5,12 @@
 # pytest spawn 调 `test_go_subprocess_perf_smoke_15s` (15s 短 window)。 cfg 仅作
 # scenario/algo alignment scaffold (extends bench_v_legacy_mac_python_mp.toml,
 # 切 actor_backend = "go"); production cfg 走 `configs/dmc/stage3_b_v_legacy_go*`。
-# 详 [[i29-bench-harness]] memory。
+# Historical measurements are stored under `tools/_bench/`.
 
 #
 # 与 bench_v_legacy_mac_python_mp.toml 配对:同 commit + 同 Mac + 同 scenario /
 # card_pool / opponent_mix / network / debug,只切 [pipeline] actor_backend = "go"
-# (Go goroutine pool via libgicg_actor.dylib)。
+# (N 个 standalone gicg_actor subprocess)。
 #
 # 期望 Mac N=4(Phase A + T-B1 fix 后):
 # - fps/actor ≥ Python mp baseline(本 cfg pair 实测,不引用历史 memory)
@@ -32,4 +32,4 @@ run_label = "bench_v_legacy_mac_go"
 device = "cpu"
 
 [pipeline]
-actor_backend = "go"  # I29 — 走 gicg_actor goroutine pool(libgicg_actor.dylib)
+actor_backend = "go"  # I29 R7 — N 个独立 gicg_actor subprocess

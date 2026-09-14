@@ -1,10 +1,6 @@
 """Paradigm-specific ObsShape factory functions.
 
-Each factory returns ``ObsShape`` with paradigm 历史 production
-default values (preserved from pre-unification AgentShapeCfg
-defaults). 5 paradigm × 1 factory each — PPO added post
-``ppo-cfg-shape-alignment`` (#7) since ``ppo-structural-backbone-migration``
-(#4) switched PPO to structural backbone making ObsShape applicable。
+Each factory returns ``ObsShape`` with the paradigm's established defaults.
 
 Spec ref: config-schema/spec.md § 7 N1.2 (factory composition).
 """
@@ -61,12 +57,8 @@ def make_dmc_default_shape() -> ObsShape:
 def make_ppo_default_shape() -> ObsShape:
     """PPO structural default — d_model=128 / n_cross_layers=2.
 
-    Post ``ppo-structural-backbone-migration`` (#4) PPO uses generic structural
-    ActorCritic via ``make_actor_critic(head_kinds={'policy','value'},
-    use_typed_damage=True)``. Field defaults align with AZ structural
-    baseline (historical flat-MLP `d_model=256` retired in #4 alongside
-    `_PPOMLPTrunk`)。Closes ``ppo-cfg-shape-alignment`` (#7) — completes 5/5
-    paradigm cfg dataclass 对称 (CC-206 closure)。"""
+    PPO uses the generic structural ActorCritic with policy and value heads.
+    These defaults align with the AZ structural baseline."""
     return ObsShape(**_BASE_SHAPE_FIELDS, d_model=128, n_cross_layers=2)
 
 
@@ -77,7 +69,7 @@ def build_shape_from_toml(d: dict, factory) -> ObsShape:
     ``factory()`` values. Empty dict → equivalent to factory call.
     Unknown ObsShape field → raise (strict per CS4).
 
-    Used by 4 paradigm config.from_dict to construct ``agent: ObsShape``
+    Used by all five paradigm ``config.from_dict`` implementations to construct ``agent: ObsShape``
     from `[paradigm.agent]` dict in toml.
     """
     if not d:

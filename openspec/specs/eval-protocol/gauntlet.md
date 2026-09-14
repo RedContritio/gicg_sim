@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: eval-protocol
@@ -12,7 +12,7 @@ subtopic: gauntlet
 > `CellStats` / `MatchupResult` schema + `enumerate_disjoint_teams`
 > 算法 + swap_sides 实施细节。
 >
-> 源 truth:`training/framework/matchup/matchup.py`。
+> 源 truth:`training/core/matchup/matchup.py`。
 
 ## 1. Scope
 
@@ -249,7 +249,7 @@ to_dict() → {players, wall_s, aggregate, per_cell}
 ## 8. Status
 
 - **Created**:2026-05-15(P1-T6)
-- **Source**:`training/framework/matchup/matchup.py`
+- **Source**:`training/core/matchup/matchup.py`
 - **Known gap**:`PHASE_SELECT_ACTIVE` 时 `env.step(0)` 强制选 0 —
   未来 player 决策初始 active 时 SHALL spec 化 player 参与;目前是
   hard-coded 简化。

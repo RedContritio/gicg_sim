@@ -2,7 +2,7 @@ package enginev2
 
 // A13 — Reward attribution at commit。
 // Per-proposal owner (player + char + buff_source),RewardAccum 在 commit 阶段后累加。
-// **buff_source 仅 analytics + 卡作者 debug,不进 RL reward** (memory `feedback_no_ids`)。
+// **buff_source 仅 analytics + 卡作者 debug,不进 RL reward**。
 // RL reward 仍按 player-level (DamageDealt / DamageReceived / HealDone / ShieldAbsorbed / etc.)。
 
 type RewardAccum struct {

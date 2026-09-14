@@ -1,7 +1,6 @@
-"""training.core.config — TOML cfg + R1-R7 placement + device/seed 继承.
+"""TOML configuration, placement validation, and device/seed inheritance.
 
-OpenSpec ref: openspec/changes/unified-training-pipeline/specs/
-config-schema/spec.md (CS1-CS4 SHALL).
+OpenSpec ref: ``openspec/specs/config-schema/spec.md`` (CS1-CS4 SHALL).
 """
 
 from training.core.config.base import (

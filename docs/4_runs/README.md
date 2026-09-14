@@ -1,6 +1,6 @@
-# 4_runs/ — Run 索引与单 run 详情
+# 4_runs/ — Run lifecycle 入口与历史单 run 资料
 
-> 训练 / smoke / bench run 的注册表。
+> 2026-05-18 起不再维护 Markdown run 注册表；live 索引来自每个 artifacts 目录的 `metadata.toml`。
 >
 > 区别:
 > - 这里只有"哪个 run 跑了什么":registry + 个别 run 的 plan/result
@@ -11,21 +11,18 @@
 
 | 文件 | 用途 |
 |---|---|
-| [`registry.md`](registry.md) | LIVE,所有 r/s 的权威 index,新 run 必须 pre-register |
-| [`_individual/`](_individual/) | 单 run 的 plan / detailed result(只放需要长保留的) |
+| `python -m tools.runs.list` | 扫描 `artifacts/*/metadata.toml` 的 live 表格视图 |
+| `python -m tools.runs.show <NNN>` | 显示单 run metadata 与版本化配置快照 |
+| [`_individual/`](_individual/) | pre-redesign 单 run 的 plan / detailed result |
 
 ## 命名 (与 artifacts/ 对齐)
 
-`artifacts/YYYYMMDDHHMM_<label>/` where `<label> = <type><NNN>_<slug>`
-
-- `r` — production-style run
-- `s` — smoke / validation / bench
-
-详见 [`registry.md`](registry.md) Process 段。
+新式目录为 `artifacts/YYYYMMDDHHMM_<NNNNNN>_<slug>/`，时间戳为 UTC，序号为六位十进制。
+`python -m tools.runs.train <cfg>` 原子完成编号分配、配置快照、训练与 metadata 收尾。
+Pre-redesign 的 `rNNN` / `sNNN` 记录保存在 [`../5_history/runs_pre_redesign_2026_05_17.md`](../5_history/runs_pre_redesign_2026_05_17.md)。
 
 ## 编辑规则
 
-- 启动 run 前先 register (status `pending`)
-- run 结束后填 result + 翻 status
-- 失败的 run **不删 row**,标 `failed` 或 `superseded`
-- 单 run 的复盘 ≥ 1 页时,在 `5_history/postmortems/` 开新 doc
+- 运行训练只用 `tools.runs.train`，不要手建编号或 metadata。
+- 外部死亡用 `tools.runs.mark` 收尾；metadata 丢失用 `tools.runs.recover`。
+- 失败 run 的 artifacts 目录保留；复盘写入 `5_history/postmortems/`。

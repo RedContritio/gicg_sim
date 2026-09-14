@@ -58,7 +58,7 @@ Python's `-m` mode sets `sys.path[0]` to cwd, so imports like `from gicg_env imp
 
 ```bash
 .venv/bin/python -m tools.runs.train <config.toml>                       # 主入口:atomic 全 lifecycle(allocate NNN + snapshot cfg + train + close metadata)
-.venv/bin/python -m tools.send_matchup --help
+.venv/bin/python -m tools._meta.send_matchup --help
 
 # Run registry (post 2026-05-18 clean-slate redesign — per-run dir self-contained):
 .venv/bin/python -m tools.runs.list                                              # 表格视图,扫 artifacts/*/metadata.toml

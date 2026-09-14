@@ -1,6 +1,7 @@
 """Phase 4 end-to-end smoke: r009 ckpt load via core/matchup/loaders.py adapter path.
 
-Per AZ Phase 4 task brief (openspec/changes/az-paradigm-rewrite/tasks.md T4) + user
+Per archived AZ Phase 4 task brief
+(``openspec/changes/archive/az-paradigm-rewrite/tasks.md`` T4) + user
 reframe (2026-05-16): verify the **codepath** end-to-end through the updated adapter
 (T3a switched ``core/matchup/loaders.py`` to import ``Agent`` from
 ``training.paradigms.az.network``), NOT strict numerical regression.
@@ -8,7 +9,7 @@ reframe (2026-05-16): verify the **codepath** end-to-end through the updated ada
 Why path smoke instead of strict regression:
 
 - r009 ckpt (April 2026) predates ADR-0019 §B.3a TypedDamageEncoder addition
-  (2026-05-08, memory: ``project_typed_obs_ckpt_break``). The schema is
+  (2026-05-08;see ``docs/2_decisions/adr-0019-dsl_v6_semantic_engine.md``). The schema is
   intrinsically broken vs current ``ActorCritic`` — strict load will fail
   regardless of which Agent path (legacy or adapter) is used.
 

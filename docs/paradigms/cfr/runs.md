@@ -1,6 +1,6 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 parent: ./README.md
 ---
@@ -32,7 +32,7 @@ parent: ./README.md
 
 ## Unit / smoke 测试(代码仍保留)
 
-[`training/cfr/`](../../../training/cfr/) 16 pytest 全 PASS,涵盖:
+当时 `training/cfr/` 的实现现位于 [`training/paradigms/cfr/`](../../../training/paradigms/cfr/)；历史验收记录为 16 pytest 全 PASS，涵盖:
 
 - Kuhn poker Nash 收敛(canonical sanity check)
 - OS-MCCFR reach_q_prefix correctness(B1 修复 regression)

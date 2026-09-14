@@ -71,7 +71,7 @@ class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
     callers read terminal ``info['z']`` (P0-perspective outcome) at
     game over;``reward_shaping={...}`` (dense-shaping mode) → per-step
     reward from the RewardEvents delta scored by the supplied
-    coefficients。 See ``env_reward.py:RewardShaping``。"""
+    coefficients. See ``env_reward.py:RewardShaping``."""
 
     def __init__(
         self,
@@ -104,7 +104,7 @@ class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
         self._fix_dice = None if fix_dice is None else list(fix_dice)
         self._deck_padding = None if deck_padding is None else dict(deck_padding)
         self._pool = pool if (pool is None or isinstance(pool, str)) else list(pool)
-        # F4 explicit per-player decks — shape validated by new_game
+        # Explicit per-player decks; shape is validated by new_game
         # (str entries kept as-is so its type check can reject them).
         self._decks = None if decks is None else [d if (d is None or isinstance(d, str)) else list(d) for d in decks]
         self._engine.new_game(
@@ -147,7 +147,7 @@ class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
         # Optional partial-observability mask. obs_mask accepts:
         #   None                 — no masking (default, fully observable)
         #   ["enemy_dice"]       — mask enemy dice_* counter slots
-        #   ["enemy_dice", "enemy_hand_size"] — composable presets
+        # Only ``enemy_dice`` is currently supported.
         # Pre-compute per-perspective slot index arrays so _get_obs is O(n).
         labels = self._engine.get_active_counter_slot_labels()
         self._mask_slots_per_perspective = compute_mask_slots(obs_mask=obs_mask, labels=labels)
@@ -155,8 +155,8 @@ class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
     def reset(self, seed=42, deck_seeds=None):
         """Restart with the same teams and card pool. Cheap — no DSL reload.
 
-        review D.5 (2026-05-14): optional 3-axis seed split. seed controls
-        dice rolls + DSL randomness; observation layout stays unchanged. deck_seeds
+        ``deck_seeds`` enables an optional three-axis seed split. ``seed``
+        controls dice rolls and DSL randomness; observation layout stays unchanged. ``deck_seeds``
         = (deck_seed_p0, deck_seed_p1) optionally overrides per-player deck
         Fisher-Yates shuffle. Default deck_seeds=None → both fall back to
         seed (backward compat with single-seed callers)."""

@@ -1,9 +1,4 @@
-"""Step-level obs encoding helpers — pure numpy.
-
-Copied from training/framework/step_encoding.py. Used by EpisodePolicy
-implementations to pad/parse the env's raw obs/refs into the network's
-fixed-shape tensors.
-"""
+"""Pure NumPy helpers for fixed-shape step observations and action metadata."""
 
 from __future__ import annotations
 
@@ -82,7 +77,7 @@ def parse_dynamic_typed_np(dyn_obs, n_counter_slots, *, copy=True, include_modif
         return recent_damage, prepare_skill
     if len(dyn_obs) < ml_end:
         raise ValueError(
-            f'parse_dynamic_typed_np: dyn_obs len={len(dyn_obs)} < ml_end={ml_end} (engine pre-ADR-0019 §B.2)'
+            f'parse_dynamic_typed_np: dyn_obs len={len(dyn_obs)} < ml_end={ml_end}; modifier_log segment absent'
         )
     modifier_log = (
         dyn_obs[ps_end:ml_end]

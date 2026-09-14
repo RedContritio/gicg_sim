@@ -5,10 +5,9 @@ specific schema). DMC adapter parses that dict into this frozen
 dataclass for typed access. Spec ref: paradigm-dmc/spec.md D1-D7 +
 config-schema/spec.md § 7 (cfg-schema-unification N1-N3)。
 
-Fields mirror the legacy `training.dmc.config.DmcConfig` subset that
-the new pipeline driver consumes — NOT a 1:1 port because driver owns
-artifacts / ckpt cadence / total_frames already (cfg.checkpoint /
-cfg.meta). Paradigm-local fields stay here.
+Fields retain the DMC-specific subset consumed by the unified driver. The
+driver owns artifacts and checkpoint cadence; DMC termination remains governed
+by this config's ``total_frames`` field.
 
 cfg-schema-unification:
 - inherits ParadigmConfigBase (version + paradigm metadata, N2)
@@ -63,8 +62,7 @@ class OpponentMixCfg:
 
 @dataclass(frozen=True)
 class DMCParadigmConfig(ParadigmConfigBase):
-    """Top-level DMC paradigm cfg. Default values match
-    `configs/dmc_stage3_smoke.toml`'s legacy DmcConfig smoke preset."""
+    """Top-level DMC paradigm config with smoke-sized defaults."""
 
     paradigm: str = 'dmc'
 

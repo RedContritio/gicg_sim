@@ -16,6 +16,8 @@ export function Live() {
     type: 'semantic_rl',
   })
 
+  const [selection, setSelection] = useState<{ kind: string; slot: number } | null>(null)
+  const [gameOpponent, setGameOpponent] = useState('当前 RL 模型')
   const [history, setHistory] = useState<string[]>([])
   const [view, setView] = useState<StateView | null>(null)
   const [legalActions, setLegalActions] = useState<LegalAction[]>([])
@@ -45,6 +47,7 @@ export function Live() {
 
   const onFrame = (frame: LiveFrame) => {
     setBusy(false)
+    setSelection(null)
     if (frame.type === 'error') {
       setErr(frame.message)
       return
@@ -89,6 +92,7 @@ export function Live() {
       return
     }
     setErr(null)
+    setGameOpponent(opponent.type === 'semantic_rl' ? '当前 RL 模型' : opponent.type === 'random' ? '随机对手 · 练习对局' : opponent.type)
     setView(null)
     setLegalActions([])
     setDone(false)
@@ -104,6 +108,7 @@ export function Live() {
       await c.connect()
       c.send({
         type: 'new',
+        profile_rules: true,
         team_0: team0,
         team_1: team1,
         opponent,
@@ -127,52 +132,41 @@ export function Live() {
 
   const playCard = (_playerIdx: number, handIdx: number) => {
     if (!view) return
-    // Match by hand slot (backend sends slot=hand_idx for Card actions).
-    // This is the correct disambiguation when the hand holds multiple
-    // copies of the same card name.
-    const act = legalActions.find(
-      (a) => a.kind_name === 'Card' && a.slot === handIdx,
-    )
-    if (act) pickAction(act.index)
+    setSelection({ kind: 'Card', slot: handIdx })
   }
 
   const selectChar = (playerIdx: number, charIdx: number) => {
     if (playerIdx !== gameHuman || !view) return
-    // Match by char slot. Covers both PhaseAction's voluntary Switch
-    // action (kind_name === 'Switch') and PhaseSelectActive's initial
-    // pick, which the engine models as Switch as well.
-    const act = legalActions.find(
-      (a) => a.kind_name === 'Switch' && a.slot === charIdx,
-    )
-    if (act) pickAction(act.index)
+    setSelection({ kind: 'Switch', slot: charIdx })
   }
 
   const isHumanTurn = currentPlayer === gameHuman && !done && !busy
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto p-4 gap-4">
-      <p className="text-sm text-slate-300">
+    <div className="game-shell flex flex-col h-full overflow-y-auto p-3 md:p-5 gap-3">
+      <details className="match-settings" open={!view}><summary>对战设置 · 阵容与对手</summary>
+      <p className="text-xs text-slate-400 mb-3">
         {profile
           ? `${profile.name}。每队选择 ${profile.team_size} 名角色；${profile.allow_overlap ? '双方阵容可重叠' : '双方阵容不可重叠'}。沿用训练牌组与最多 ${profile.max_rounds} 回合规则。`
           : '正在读取当前模型与训练规则…'}
       </p>
       <div className="flex flex-wrap items-end gap-3 p-3 rounded-lg border border-slate-700 bg-slate-900/60">
         <TeamPicker
-          label={`Team P0${humanPlayer === 0 ? ' (you)' : ''}`}
+          label={`阵容 P0${humanPlayer === 0 ? ' (you)' : ''}`}
           team={team0}
           setTeam={setTeam0}
           allChars={allChars}
           limit={profile?.team_size ?? 1}
         />
         <TeamPicker
-          label={`Team P1${humanPlayer === 1 ? ' (you)' : ''}`}
+          label={`阵容 P1${humanPlayer === 1 ? ' (you)' : ''}`}
           team={team1}
           setTeam={setTeam1}
           allChars={allChars}
           limit={profile?.team_size ?? 1}
         />
         <div className="flex flex-col gap-1">
-          <div className="text-xs text-slate-400">You play as</div>
+          <div className="text-xs text-slate-400">我的席位</div>
           <div className="flex gap-1">
             {[0, 1].map((side) => (
               <button
@@ -207,19 +201,19 @@ export function Live() {
           </span>
         )}
         {err && <span className="text-xs text-rose-400">{err}</span>}
-        {profile && !profile.available && !err && (
+        {profile && !profile.available && !err && opponent.type === 'semantic_rl' && (
           <span className="text-xs text-rose-400">
             当前 RL 模型不可用：{profile.unavailable_reason}
           </span>
         )}
         {done && view && (
           <span className="text-xs text-amber-300">
-            对局结束：{view.winner === gameHuman ? '你赢了' : view.winner === 2 ? '平局' : '模型获胜'}
+            对局结束：{view.winner === gameHuman ? '你赢了' : view.winner === 2 ? '平局' : '对方获胜'}
           </span>
         )}
         {view && !done && isHumanTurn && view.phase === 'select_active' && (
           <span className="text-xs text-sky-300">
-            Click a character to select your starting active
+            点击角色选择出战
           </span>
         )}
         {view && !done && isHumanTurn && view.phase === 'action' && (
@@ -228,29 +222,35 @@ export function Live() {
           </span>
         )}
         {view && !done && !isHumanTurn && (
-          <span className="text-xs text-slate-400">模型行动中…</span>
+          <span className="text-xs text-slate-400">对方行动中…</span>
         )}
       </div>
 
+      </details>
+      {err && view && <p role="alert" className="text-sm text-rose-300">{err}</p>}
       {view && (
         <>
+          <div className="flex justify-between gap-2 text-xs text-slate-300"><span>{gameOpponent}</span><span aria-live="polite">{done ? (view.winner === gameHuman ? '你赢了' : view.winner === 2 ? '平局' : '对方获胜') : isHumanTurn ? '等待你的行动' : '对方行动中…'}</span></div>
           <Board
             view={view}
             humanPlayer={gameHuman}
-            onPlayCard={playCard}
-            onSelectChar={selectChar}
+            onPlayCard={isHumanTurn ? playCard : undefined}
+            onSelectChar={isHumanTurn ? selectChar : undefined}
           />
-          <section className="flex flex-col gap-2">
+          <section className="action-dock flex flex-col gap-2">
             <h3 className="text-xs font-semibold text-slate-300">
-              Your moves {!isHumanTurn && '(waiting for opponent)'}
+              {done ? '对局结束' : !isHumanTurn ? '对方行动中…' : view.phase === 'select_active' ? '选择出战角色，再确认出战' : selection ? '选择目标与支付方式，再执行行动' : '轮到你了 · 使用技能，或点击手牌与角色查看行动'}
+              {selection && <button className="ml-3 underline text-amber-200" onClick={() => setSelection(null)}>返回全部行动</button>}
             </h3>
             <LegalActionList
-              actions={legalActions}
+              view={view}
+              humanPlayer={gameHuman}
+              actions={selection ? legalActions.filter(a => (a.kind_name === selection.kind || (selection.kind === 'Card' && a.kind_name === 'Tune')) && a.slot === selection.slot) : legalActions.filter(a => a.kind_name !== 'Card' && a.kind_name !== 'Switch' && a.kind_name !== 'Tune')}
               onPick={pickAction}
               disabled={!isHumanTurn}
             />
           </section>
-          <details open className="text-xs text-slate-300"><summary>对局记录</summary><div className="max-h-40 overflow-auto flex flex-col-reverse">{[...history].reverse().map((line, i) => <div key={i}>{line}</div>)}</div></details>
+          <details className="text-xs text-slate-300"><summary>对局记录</summary><div className="max-h-40 overflow-auto flex flex-col-reverse">{[...history].reverse().map((line, i) => <div key={i}>{line}</div>)}</div></details>
         </>
       )}
     </div>
@@ -280,7 +280,7 @@ function TeamPicker({ label, team, setTeam, allChars, limit }: TeamPickerProps) 
   return (
     <div className="flex flex-col gap-1">
       <div className="text-xs text-slate-400">{label}</div>
-      <div className="flex gap-1">
+      <div className="flex flex-wrap gap-1">
         {allChars.map((name) => (
           <button
             key={name}

@@ -1,8 +1,7 @@
-"""Abstract base for training run configs.
+"""Shared base for legacy-style DMC and CFR run configurations.
 
-``training.az.config.AZConfig`` and ``training.cfr.config.CFRConfig``
-inherit from this to share seed / n_workers / buffer_cap / artifacts_root
-/ run_label / batch_size without leaking algorithm-specific knobs.
+The unified TOML pipeline uses ``training.core.config.base.TrainingConfig``;
+older DMC and CFR entry points retain this smaller mutable dataclass.
 """
 
 from __future__ import annotations

@@ -133,10 +133,9 @@ class _QueriesMixin:
 
     def export_replay(self):
         """Returns the engine's textual replay record (the same Chinese
-        YAML format used by Go integration tests under
-        artifacts/<timestamp>_replays/go_tests/). Captures round-by-round
-        state plus every action's effect chain. Read once after the game
-        ends."""
+        YAML format emitted by Go integration runs). Captures
+        round-by-round state plus every action's effect chain. Read once
+        after the game ends."""
         self._check()
         ptr = self._lib.GameExportReplay(self._handle)
         if not ptr:

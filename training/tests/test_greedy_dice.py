@@ -2,7 +2,7 @@
 
 Covers both the pure dice-value scoring (hand-crafted views + pools,
 expected ordering derivable by inspection) and the end-to-end filter
-against a live env. See training/framework/matchup/greedy_dice.py for
+against a live env. See training/core/matchup/greedy_dice.py for
 the heuristic rationale and the spec-quote this implements.
 """
 

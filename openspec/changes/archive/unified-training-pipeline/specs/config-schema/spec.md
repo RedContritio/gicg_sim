@@ -149,10 +149,10 @@ weight_decay = 1e-4
 
 ## 5. Cross-references
 
-- OpenSpec policy → [`../../../../specs/openspec-policy/spec.md`](../../../../specs/openspec-policy/spec.md)
+- OpenSpec policy → [`../../../../../specs/openspec-policy/spec.md`](../../../../../specs/openspec-policy/spec.md)
   SHALL #7 + #13
 - Inheritance registry impl → `training/core/config/inheritance.py`
-- 主 training architecture → [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+- 主 training architecture → [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
   SHALL #8(cfg 多层继承)
 - Placement R1-R7 design → [`../../design/config-layered.md`](../../design/config-layered.md)
 - Phase 3 实施 → [`../../tasks/phase3-core-dmc.md`](../../tasks/phase3-core-dmc.md) §3

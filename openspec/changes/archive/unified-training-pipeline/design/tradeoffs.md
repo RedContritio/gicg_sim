@@ -186,7 +186,7 @@ parent: ../design.md
 ## 11. Cross-references
 
 - 决策起点 → [`../proposal.md`](../proposal.md)
-- 历史 ADR-0006(training layout)→ [`../../archive/0006-training-layout/`](../../archive/0006-training-layout/)
+- 历史 ADR-0006(training layout)→ [`../../0006-training-layout/`](../../0006-training-layout/)
 - DMC review(41 critique 含部分 tradeoff)→
   `docs/5_history/reviews/dmc_review.md`
 - Memory:训练 layout history → `memory project_training_layout`

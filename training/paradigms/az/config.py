@@ -32,7 +32,7 @@ __all__ = [
 
 # Backward-compat alias (cfg-schema-unification CC-202): existing imports
 # `from training.paradigms.az.config import AgentShapeCfg` resolve to the
-# shared ObsShape dataclass. Field set unchanged (7 fields).
+# shared ObsShape dataclass.
 AgentShapeCfg = ObsShape
 
 # Closed enum of supported cfg schema versions (CC-204). Future bump = explicit
@@ -44,8 +44,8 @@ _AZ_SUPPORTED_VERSIONS = frozenset({'1.0.0'})
 class MCTSCfg:
     """[paradigm.mcts] section — knobs for IS-MCTS selfplay search.
 
-    Mirrors ``training.paradigms.az.mcts.MCTSConfig`` field-for-field so
-    we can build one directly without translation."""
+    Supplies the subset of ``training.paradigms.az.mcts.MCTSConfig`` used by
+    the unified adapter."""
 
     n_rollouts: int = 200
     c_puct: float = 1.4

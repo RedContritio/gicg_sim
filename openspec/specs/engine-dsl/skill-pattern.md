@@ -10,8 +10,7 @@ parent: ./spec.md
 > 治理 [`./spec.md`](./spec.md) invariant #9 / #10 / #14。
 > Skill / card 是 DSL 中最复杂的 declare-and-bind 模式。Mirror match
 > (same char on both sides)+ talent card(`requires_char`)各引入不同
-> 的 load / dispatch 规则,SHALL 一致遵循以下约定,否则会出现 #152 类
-> 双注册 bug(详 `memory feedback_mirror_match_hook_bug`)。
+> 的 load / dispatch 规则,SHALL 一致遵循以下约定,否则会出现重复注册。
 
 ## 1. Skill registration
 
@@ -47,8 +46,7 @@ Skill identity 比较 SHALL be by ref equality(pointer identity):
 if ctx.skill_index == 枪 then ... end
 ```
 
-SHALL NOT use integer ID 字段 — DSL only sees ref handle,不暴露 `.id`
-(详 `memory feedback_ctx_skill_index_type`)。
+SHALL NOT use integer ID 字段 — DSL only sees ref handle,不暴露 `.id`。
 
 ### 1.3 SkillRef 字段
 
@@ -84,8 +82,8 @@ get_card(name)  -- 返回 *CardRef
 
 `CardRef` 字段(详 `gicg_engine/interp/registry.go` L172):
 
-- `Ref` — 0-based int identity(注意:CardRef 从 0 起,字段用 -1 sentinel,
-  详 `memory feedback_dsl_sentinels_silent_invoke`)
+- `Ref` — 0-based internal identity; serialized fields use `-1` as the
+  missing-reference sentinel
 - `Name`、`Cost`、`BattleAction`、`TargetMode`、`RequiresWeapon`、
   `RequiresChar`、`Slot`(`SlotNone` / `SlotEquip` / `SlotSupport` /
   `SlotSpecialty`)
@@ -98,8 +96,8 @@ on_action_check / on_card_play 强制:
 - `SlotNone` — ordinary action card,进 hand → fire → discard
 - `SlotEquip` — weapon / artifact / talent,per-char 1 each
 - `SlotSupport` — 支援区,per-player 4 max
-- `SlotSpecialty` — 特技,per-char 1(详 ADR-0012,
-  `memory project_adr_0012_specialty_prepare`)
+- `SlotSpecialty` — 特技,per-char 1(详
+  [`0012-specialty-and-prepare-skill`](../../changes/archive/0012-specialty-and-prepare-skill/))
 
 ## 3. Mirror match — per-binding load + actor filter
 
@@ -212,8 +210,7 @@ shield owner's `active:get()` rather than the attacker's。
 
 ## 6. char-skill topo constraint
 
-char DSL files SHALL NOT call `get_card("X")` for static analysis reasons
-(详 `memory feedback_char_skill_no_get_card`):
+char DSL files SHALL NOT call `get_card("X")` for static analysis reasons:
 
 - Topo 静态扫描 architectural constraint — load-order resolver 仅扫
   `declare_*` / `get_*` 配对。
@@ -242,8 +239,9 @@ Recommended at training launch:
                      preload_dsl('data')"
 ```
 
-`tools/run.py` SHALL call this during pre-flight(已实现),
-所以 normal `train_az` runs 自动 immune to mid-run edits。
+The cache also fills lazily on first engine construction. Callers that need to
+exclude first-game parse cost MAY call `preload_dsl` explicitly; training does
+not depend on eager preload for cache correctness.
 
 ## 8. Cross-reference
 
@@ -253,8 +251,8 @@ Recommended at training launch:
 - Builtin API 签名详 [`./builtin-api.md`](./builtin-api.md)
 - `Runtime.LoadFilesWithDeps` 拓扑加载详主 [`./spec.md`](./spec.md) §5
   cross-references(待 engine-runtime spec 落地)
-- DSL exemplar 详 `memory reference_dsl_example`(以牙还牙)
-- ADR-0012 specialty / prepare-skill 详
-  `memory project_adr_0012_specialty_prepare`
-- Mirror-match bug history(#152)详
-  `memory feedback_mirror_match_hook_bug`
+- DSL exemplar: `data/pools/v_legacy/cards/L3/以牙还牙.lua`
+- Specialty / prepare-skill history:
+  [`0012-specialty-and-prepare-skill`](../../changes/archive/0012-specialty-and-prepare-skill/)
+- Mirror-match behavior is governed by this file's §3 and covered by engine
+  tests; issue numbers alone are historical context.

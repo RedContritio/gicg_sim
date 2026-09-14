@@ -1,6 +1,7 @@
 """Phase 2-δ T2.6 — adapter Agent inline verification.
 
-Per `openspec/changes/az-paradigm-rewrite/tasks.md` T2.6 (critical-risk):
+This test originated in
+`openspec/changes/archive/az-paradigm-rewrite/tasks.md` T2.6. At that stage,
 the ~178-LOC Agent class previously lived in
 ``training.paradigms.az.legacy.network.agent`` and was re-exported by
 ``training.paradigms.az.network`` (Phase 1). Phase 2-δ inlines the class
@@ -8,9 +9,8 @@ into the adapter module so:
 
 * The adapter is self-contained (no `legacy.network` import from
   adapter-level — T2.11 partial verify).
-* Production callers in ``core/{matchup,inference}`` keep using the
-  legacy module untouched (Phase 3 T3a will switch them; Phase 5 will
-  git-rm). The legacy file remains alive.
+* The migration later switched production callers and removed the legacy
+  module. The assertions below retain the adapter's self-contained boundary.
 
 Tests below cover the four contract slices:
 

@@ -1,13 +1,8 @@
-"""PPONetwork — thin nn.Module wrapper around PPOAgent for driver compat.
+"""Driver-compatible ``nn.Module`` wrapper around ``PPOAgent``.
 
-W2-6 (post-2026-05-28):pre-W2 PPONetwork 是 88 行 paradigm-local 重复
-boilerplate (audit finding 中优 #9 — 与 DMCNetwork 平行 67 行近字模重复);
-post-W2-6 继承 ``training.core.network.AgentModuleWrapper`` 把通用 dispatch
-(forward_batch / game_start / game_end / select_action / load_net_only /
-forward 抛 NotImplementedError)上提到 core,本类仅声明:
-- ``heads`` class attr(P5.1 — exposed for tests + downstream introspection)
-- PPO-specific extra ``act(env, rng, *, deterministic=False)``(rollout
-  actor — 不属于通用 AgentModuleWrapper 集合,signature 含 rng + deterministic)
+The shared ``AgentModuleWrapper`` supplies the standard module and game
+lifecycle surface. This subclass exposes its head names and PPO's rollout
+``act`` method.
 
 PPO now uses generic structural ActorCritic backbone (via
 ``make_actor_critic(head_kinds={'policy','value'}, use_typed_damage=True)``)

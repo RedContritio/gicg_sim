@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-17
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: training-architecture
@@ -26,8 +26,8 @@ subtopic: invariants
    PipelineState) -> StepPlan` 返回字段 `collect, n_episodes, train,
    n_train_batches, batch_size, eval, advance_step`;`make_episode_policy(cfg,
    instance_id, deterministic=False) -> EpisodePolicy` 供 actor + EvalWorker
-   调用。`make_*` 方法 SHALL be stateless / reentrant(idempotent factory
-   契约)。详 [`./protocols.md`](./protocols.md)。
+   调用。Paradigm 可缓存解析后的 cfg / network，但所有恢复所需状态必须
+   进入显式 checkpoint component。详 [`./protocols.md`](./protocols.md)。
 
 3. **Core paradigm-agnostic**:`training/core/` SHALL NOT import from
    `training/paradigms/*`;反向(paradigm 可 import core)允许。
@@ -38,14 +38,13 @@ subtopic: invariants
    [`./protocols.md`](./protocols.md)。
 
 5. **EpisodeRunner shared**:EpisodeRunner SHALL be the shared atomic
-   episode-execution unit,reused by ActorProcess(train data collection)
-   and EvalWorker(periodic eval),parameterized only by `EpisodeSpec`
-   (scenario_seed / opp / epsilon / deterministic)。详
-   [`./eval.md`](./eval.md)。
+   episode-execution unit for ordinary single-sided ActorProcess collection
+   and EvalWorker. AZ two-sided self-play retains a dedicated lifecycle adapter
+   around `play_self_game`。详 [`./eval.md`](./eval.md)。
 
-6. **Eval inference isolation**:Eval inference path SHALL be independent
-   from train inference path — 独立 weights snapshot,actors 与 eval
-   workers SHALL NOT share inference state。详 [`./eval.md`](./eval.md)。
+6. **Eval inference isolation**:Eval inference path SHALL use the provider
+   injected into its EvalWorker and SHALL NOT silently reuse actor inference
+   state。Snapshot transport is caller-owned。详 [`./eval.md`](./eval.md)。
 
 7. **Pipeline mode dispatch**:Pipeline mode SHALL be selectable via cfg
    `pipeline.mode = "serial" | "async"`。Driver loop SHALL be
@@ -56,10 +55,10 @@ subtopic: invariants
    意 inner section MAY override outer。详细字段规约由
    `openspec/specs/config-schema/` capability spec 承接(P2 落地)。
 
-9. **Weights sync 协议**:Weights synchronization in async mode SHALL use
-   versioned SHM slots(`latest` for actors,`snapshot_<eval-id>` for
-   eval workers)。Multi-version slot 保证 actors 与 eval workers 不互
-   相阻塞。详 [`./pipeline.md`](./pipeline.md) + [`./eval.md`](./eval.md)。
+9. **Weights sync 协议**:Async weight transport SHALL be collector-owned。
+   AZ publishes to its inference server; CFR/PPO use `WeightsSHM`; DMC chooses
+   its Python or Go collection transport。The driver only honors
+   `StepPlan.sync_weights`。详 [`./pipeline.md`](./pipeline.md)。
 
 10. **BC first-class**:BC paradigm SHALL be a first-class registered
     paradigm 在 `training/paradigms/bc/`,SHALL NOT 嵌入 AZ 或 PPO。BC
@@ -72,7 +71,7 @@ subtopic: invariants
     NOT 修改 encoder 结构。详 [`./network-sharing.md`](./network-sharing.md)。
 
 12. **Single entry tool**:Paradigm-specific 启动工具 SHALL 由单入口
-    `tools/run.py <cfg.toml>` 替代,paradigm 从 `meta.paradigm` cfg 字段
+    `tools.runs.train <cfg.toml>` 替代,paradigm 从 `meta.paradigm` cfg 字段
     auto-dispatch。详 [`../tools-layout/spec.md`](../tools-layout/spec.md)。
 
 13. **NetworkProvider 抽象**:`NetworkProvider` protocol SHALL be defined
@@ -90,8 +89,8 @@ subtopic: invariants
     NOT 持 paradigm 知识(通过 `policy: EpisodePolicy` + `provider:
     NetworkProvider` 注入);单进程内 reentrant(同 spec 同 seed → 同
     episode trace);返回 `EpisodeRecord(transitions, final_reward,
-    length, opponent_id, scenario_seed, runtime_metrics)`。Actor +
-    EvalWorker SHALL both use EpisodeRunner via the same code path
+    length, winner, opponent_id, scenario_seed, metadata)`。Ordinary actor +
+    EvalWorker SHALL use EpisodeRunner via the same code path
     (`training/core/actor/episode_runner.py`)。详
     [`./eval.md`](./eval.md)。
 
@@ -110,7 +109,7 @@ subtopic: invariants
     [`../config-schema/spec.md`](../config-schema/spec.md)。本 spec 的 cfg
     字段引用 SHALL 通过 path reference,SHALL NOT 重复字段定义。
 
-17. **Tools layout 引用**:Tools 重组(`tools/run.py` 单入口 + 子目录分
+17. **Tools layout 引用**:Tools 重组(`tools.runs.train` 单入口 + 子目录分
     类)SHALL by [`../tools-layout/spec.md`](../tools-layout/spec.md)。
     本 spec SHALL 引用 tools-layout 而 SHALL NOT 列具体目录结构。
 
@@ -134,7 +133,7 @@ subtopic: invariants
     2 min(CI / pre-commit 友好)。Default smoke pass 是 paradigm 接入
     merge gate。Additionally,每 paradigm SHALL provide a second-tier
     smoke test `training/tests/test_<paradigm>_smoke_full.py` with
-    `@pytest.mark.smoke_full` marker covering full `tools.run` driver
+    `@pytest.mark.smoke_full` marker covering full `tools.runs.train` driver
     path(100-step train + ≥ 2 ckpt save + resume verify)— opt-in only,
     SHALL NOT be collected by default `pytest`。Full smoke_full 协议
     (7 子约束 A1.6.1-A1.6.7,covering subprocess driver / ckpt cadence /
@@ -169,13 +168,12 @@ subtopic: invariants
     `obs_config_json` / `master_seed` 显式传入。
 
 22. **PA-EF3 — obs_config_json=None 合法**:`obs_config_json=None` SHALL
-    be 合法输入,语义 == engine 默认 obs config(all-on shuffle +
-    include_char_skill_refs)。适用于 paradigm 不持有 `ObsConfig` 字段
-    时(如 DMC / CFR / BC)。
+    be 合法输入,语义 == engine 默认 obs config。当前统一 run dispatcher
+    对所有已注册 paradigm 均传入 `None`。
 
-23. **PA-EF4 — AZ 调用方式**:`obs_config_json=cfg.obs.to_engine_json()`
-    SHALL 是 AZ paradigm 调用方式(AZ 持有 `cfg.obs: ObsConfig`,转 dict
-    显式传)。
+23. **PA-EF4 — 观测配置由 caller 显式选择**:需要自定义观测配置的 caller
+    SHALL 将 `ObsConfig.to_engine_json()` 结果显式传入；factory SHALL NOT
+    从 paradigm cfg 隐式读取。统一 run dispatcher 当前选择 `None`。
 
 24. **PA-EF5 — per-game seed 协议**:返回 closure
     `env_factory(game_idx: int) -> GicgEnv` SHALL 满足:per-game seed =

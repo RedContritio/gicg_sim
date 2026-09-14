@@ -24,8 +24,7 @@ type GameHandle struct {
 // NewGame constructs a fully-initialized GameHandle from a GameConfig.
 // This is the canonical game factory used by both the c-shared capi
 // shim and the Go-native actor pool — keeping a single initialization
-// path means the two callers can never drift apart (e.g. on hook IR
-// finalization or pool resolution).
+// path keeps hook-IR finalization and pool resolution consistent.
 func NewGame(cfg GameConfig) (handle *GameHandle, err error) {
 	defer func() {
 		if v := recover(); v != nil {
@@ -45,8 +44,8 @@ func NewGame(cfg GameConfig) (handle *GameHandle, err error) {
 		Hooks:    engine.NewHookRegistry(),
 		Rng:      engine.NewRandom(cfg.Seed),
 		BaseSeed: cfg.Seed,
-		// review D.5: init per-player deck RNGs at GameNew time. Default to
-		// cfg.Seed so legacy single-seed callers see identical deck shuffles.
+		// Initialize per-player deck RNGs at GameNew time. Default to
+		// cfg.Seed so single-seed callers see identical deck shuffles.
 		// PeriodicEvaluator overrides via ResetDynamicStateWithSeeds per scenario.
 		DeckRngs: [2]*engine.Random{
 			engine.NewRandom(cfg.Seed),
@@ -124,11 +123,11 @@ func NewGame(cfg GameConfig) (handle *GameHandle, err error) {
 	dslPaths := CollectDSLPaths(pool, teams, cfg.CardPool, paddingCard)
 	charFiles, sharedFiles := interp.SplitCharFiles(pool.Chars, dslPaths)
 	sharedFiles = FilterTalentCardsForSlotUniqueness(sharedFiles, teams)
-	// buildPre collects the topo-sort "preExisting" list. It must be called
+	// buildPre collects the topo-sort "preExisting" list. Call it
 	// both before per-binding char loading AND again before the shared
 	// cards load, so counters/skills/cards declared during per-binding
 	// loading are visible to the shared topo. Without the second call,
-	// L5 talent cards (蝶鳞, 守正, 星愿, 刺刺猫爪, 发现静电) that reference
+	// Talent cards that reference
 	// char-file symbols (skill:蝶火, counter:蝶火_active, card:复刻, ...)
 	// get silently excluded.
 	buildPre := func() []string {

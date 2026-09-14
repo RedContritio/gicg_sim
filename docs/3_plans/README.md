@@ -10,13 +10,14 @@
 
 | 路径 | 内容 |
 |---|---|
-| [`dynamic_execution_to_training.md`](dynamic_execution_to_training.md) | 当前主路线：保留动态执行、验收、小模型验证、5070 Ti 长训和新卡适应；含新 session 交接清单 |
-| [`commit_readiness_20260912.md`](commit_readiness_20260912.md) | 当前分支的提交范围、验收结果与阻碍 |
+| [`rule_learning_roadmap.md`](rule_learning_roadmap.md) | 当前周/月级主路线：规则响应→稳定D2收益→原生新内容→PvE；目标、验收关口、备选方案与预算 |
+| [`dynamic_execution_to_training.md`](dynamic_execution_to_training.md) | 动态执行到训练的实施细节；当前排期与关口以主路线图为准 |
+| [`commit_readiness_20260912.md`](commit_readiness_20260912.md) | 2026-09-12 提交整理记录（历史工作区快照） |
 | [`versioning.md`](versioning.md) | 项目版本 vA.B.C 规则与历史映射 |
 | [`backlog.md`](backlog.md) | 跨项目待办 + 监控节奏约定 |
 | [`cards/`](cards/) | 卡设计与难度分级资料(curriculum 输入) |
 | [`cards/in_game_rule_verification.md`](cards/in_game_rule_verification.md) | 规则边界统一核验表：复现场景、当前处理、用户实测结果 |
-| [`v_phase2_deferred.md`](v_phase2_deferred.md) | v_phase2 deferred backlog(23 项 TODO) |
+| [`v_phase2_deferred.md`](v_phase2_deferred.md) | 2026-05 `v_phase2` deferred 历史 backlog；当前原生内容入口见 `cards/native_content_curriculum.md` |
 
 ## 已归档的 plans
 

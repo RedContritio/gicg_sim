@@ -1,12 +1,11 @@
-"""Tail a remote file via cfg-driven local/ssh dispatch。
+"""Tail a local file or a file on a Windows remote host.
 
 CLI:
 
     .venv/bin/python -m tools.runs.tail <cfg.toml> <path> [--lines N --follow]
 
-cfg ``[meta].host`` decides local vs remote。On remote Windows the
-remote read goes via PowerShell ``Get-Content -Tail N``(+ ``-Wait`` when
-``--follow``)。Local mode uses POSIX ``tail``。
+The remote path uses PowerShell ``Get-Content -Tail N`` (plus ``-Wait``
+for ``--follow``). Local mode uses POSIX ``tail``.
 
 Drive-letter / absolute prefix on ``path`` → use as-is;else relative to
 ``[remote].root``(remote)or current dir(local)。

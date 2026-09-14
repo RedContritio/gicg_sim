@@ -27,15 +27,15 @@ class _LifecycleMixin(_EngineStateMixin):
         self._lib = ctypes.CDLL(lib_path)
         self._setup_api()
         self._handle = None
-        # ADR-0019 §B.2/§B.3c — verify Go↔Python typed obs constants
-        # agree (review B2). Catches silent drift if engine bumps
+        # Verify that Go and Python typed-observation constants agree.
+        # This catches silent drift if the engine changes
         # K=8/K_mod=4 etc. without Python following.
         self._verify_typed_obs_constants()
 
     def _verify_typed_obs_constants(self) -> None:
         """Cross-check Python OBS_* mirrors against engine source of truth.
 
-        Round-2 review M2: also verify hand-block constants — typed segment
+        Also verify hand-block constants: the typed segment
         slicing offset is derived from `c_end + OBS_HAND_BUCKETS * OBS_MAX_CARD_TYPES
         + OBS_ENEMY_SIZES`, so any of those drifting Go↔Python silently
         misaligns the typed segment reads.
@@ -51,7 +51,7 @@ class _LifecycleMixin(_EngineStateMixin):
             OBS_RECENT_DAMAGE_SLOTS,
         )
 
-        # GameGetTypedObsConstants returns 8 ints (Round-2 M2 widened from 5)
+        # GameGetTypedObsConstants returns eight layout constants.
         out = (ctypes.c_int * 8)()
         self._lib.GameGetTypedObsConstants(out)
         engine_recent_events = int(out[0])
@@ -109,14 +109,13 @@ class _LifecycleMixin(_EngineStateMixin):
                 f'(K={engine_recent_events} × K_mod={engine_kmod} × fields={engine_mod_fields}), '
                 f'Python={py_modifier_slots}. {rebuild_msg}'
             )
-        # Round-2 M2: hand-block constants gate typed segment offset.
+        # Hand-block constants determine the typed-segment offset.
         if engine_max_card_types != OBS_MAX_CARD_TYPES:
             raise RuntimeError(
                 f'OBS_MAX_CARD_TYPES mismatch: engine={engine_max_card_types}, '
                 f'Python={OBS_MAX_CARD_TYPES}. {rebuild_msg}'
             )
-        # Round-3 review S8: compare against Python source-of-truth
-        # (training.core.obs_constants) rather than hard-coded 4/2.
+        # Compare against the Python source of truth rather than literals.
         if engine_hand_buckets != OBS_HAND_BUCKETS:
             raise RuntimeError(
                 f'OBS_HAND_BUCKETS mismatch: engine={engine_hand_buckets}, Python={OBS_HAND_BUCKETS}. {rebuild_msg}'
@@ -245,15 +244,13 @@ class _LifecycleMixin(_EngineStateMixin):
         if handle < 0:
             raise RuntimeError('Failed to create game')
         self._handle = handle
-        # Round-6 S-1: per-game DSL declare_reaction count vs encoder
-        # vocab capacity. Catches DSL adding reactions beyond the trained
-        # network's REACTION_VOCAB at game init (远比 forward path raise
-        # 提前 + 错误位置更准)。
+        # Check the per-game DSL reaction count against encoder capacity
+        # at game creation, before the first network forward pass.
         self._verify_reaction_count_within_vocab()
         return self
 
     def _verify_reaction_count_within_vocab(self) -> None:
-        """Round-6 S-1: assert engine ReactionCount ≤ REACTION_VOCAB-3.
+        """Assert engine ReactionCount ≤ REACTION_VOCAB-3.
 
         REACTION_VOCAB - 3 = max real reaction kind id (the encoder
         +2 offset reserves slot 0 for padding, slot 1 for "real -1" /
@@ -269,7 +266,7 @@ class _LifecycleMixin(_EngineStateMixin):
             raise RuntimeError(
                 f'Engine declared {count} reactions, exceeds encoder '
                 f'REACTION_VOCAB-3={max_allowed} (vocab={REACTION_VOCAB}). '
-                'Either DSL stripped a reaction or training/framework/network/'
+                'Either DSL stripped a reaction or training/core/network/'
                 'typed_damage.py REACTION_VOCAB needs raising (BREAKING ckpt).'
             )
 

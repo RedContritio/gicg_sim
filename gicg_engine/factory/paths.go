@@ -28,7 +28,7 @@ func SystemFiles(dataDir string) []string {
 		"system/round.lua", "system/dice.lua", "system/alive.lua", "system/draw.lua",
 		"system/element.lua", "system/frozen.lua", "system/food.lua",
 		"system/equip.lua", "system/timeout.lua",
-		"system/arche.lua", // ADR-0019 §A.3 Phase 1: Arkhe enum + marker counter
+		"system/arche.lua", // Arkhe enum and marker counter
 	}
 	reactDir := filepath.Join(dataDir, "system", "reactions")
 	entries, _ := os.ReadDir(reactDir)
@@ -55,8 +55,7 @@ func SystemFiles(dataDir string) []string {
 // mirror, where both sides have X) — the shared-load talent path uses
 // per-slot SelfSlotProxy + LazyCharProxy / LazySkillRef to lazy-resolve
 // owner slots at hook-fire time, so mirror is supported without a
-// per-binding load. See gicg_engine/tests/helpers_test.go for the
-// matching implementation used by Go tests.
+// per-binding load.
 func FilterTalentCardsForSlotUniqueness(paths []string, teams [2][]string) []string {
 	slotCount := map[string]int{}
 	for pi := 0; pi < 2; pi++ {

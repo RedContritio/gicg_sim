@@ -47,17 +47,8 @@ class IPCQueue:
             return 0
 
     def close(self) -> None:
-        # cancel_join_thread drops any in-flight buffered items WITHOUT joining
-        # the feeder thread — we don't care about pending data at shutdown.
-        # This replaces a get_nowait() drain loop that DEADLOCKED when a writer
-        # process was SIGKILL'd mid-put: a CFR actor killed mid-traversal (the
-        # Go cgo call swallows SIGTERM, so the 2s grace expires → SIGKILL fires
-        # mid-put) leaves the mp.Queue pipe in a state where get_nowait() blocks
-        # in os.read forever instead of raising Empty. cancel_join_thread +
-        # close is the bounded, non-blocking reader-side shutdown. Short-episode
-        # paradigms (DMC/PPO) never hit the old hang (clean stop_event exit
-        # before SIGKILL), so this is a strict improvement for all callers.
-        # (See feedback_go_cgo_signal_handler.)
+        # Do not join the feeder thread during shutdown: a peer may have died
+        # during a write, and pending transport data is disposable at this point.
         try:
             self._q.cancel_join_thread()
         except Exception:

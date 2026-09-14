@@ -1,17 +1,14 @@
-"""TransitionShmChannel — N-producer single-ring transition channel (I29 redesign 2026-05-25)。
+"""N-producer transition channel over ``CrossLangShmRing``.
 
-Thin alias over training.core.actor.ipc.ring_shm.CrossLangShmRing。 把通用 ring 封成
-specific 用例:N goroutine push transition,master driver single-thread try_pop ingest。
-
-Wire format:payload 字节 = wire v3 episode-batch (gicg_actor/transition_wire.go encode)。
-本 channel 不 decode,只搬运 raw bytes (decoder 在 paradigm-specific `_decoder.py`)。
+Go actor processes push wire-v3 episode batches, and the Python driver
+pulls raw bytes for a paradigm-specific decoder. This wrapper does not
+decode payloads.
 
 Lifecycle:
-- Master 端 create_owner (allocate SHM block + init header,owner 负责 unlink)
-- Go subprocess attach_worker (经 stdin Config 传 name + capacity + slot_size)
-- Master close() unlink SHM;worker close() 只 detach
+- ``create_owner`` allocates and initializes the block; owner close unlinks it.
+- ``attach_worker`` opens an existing block; worker close only detaches.
 
-详 docs/superpowers/specs/2026-05-25-i29-redesign-design.md §4.2。
+See ``docs/superpowers/specs/2026-05-25-i29-redesign-design.md`` §4.2.
 """
 
 from __future__ import annotations
@@ -22,49 +19,48 @@ from training.core.actor.ipc.ring_shm import CrossLangShmRing
 
 
 class TransitionShmChannel:
-    """Single-ring N-producer transition channel。 owner = master,workers = Go goroutines。"""
+    """Single-ring, multiple-producer transition channel."""
 
     def __init__(self, ring: CrossLangShmRing) -> None:
         self._ring = ring
 
     @classmethod
     def create_owner(cls, name: str, *, capacity: int, slot_size: int) -> 'TransitionShmChannel':
-        """Master 端 create:allocate SHM block + 初始化 header。 调 close() 时 unlink。"""
+        """Allocate and initialize an owner block that unlinks on close."""
         ring = CrossLangShmRing(name, capacity, slot_size, create=True)
         return cls(ring)
 
     @classmethod
     def attach_worker(cls, name: str, *, capacity: int, slot_size: int) -> 'TransitionShmChannel':
-        """Worker 端 attach:只 attach 已存在 SHM block,不 init header,不 unlink。"""
+        """Attach to an existing block without initializing or unlinking it."""
         ring = CrossLangShmRing(name, capacity, slot_size, create=False)
         return cls(ring)
 
     def push(self, payload: bytes, *, client_id: int = 0, req_id: int = 0) -> bool:
-        """Non-blocking push — ring 满返 False (worker 端 retry / spin)。"""
+        """Push without blocking; return false when the ring is full."""
         return self._ring.push(payload, client_id=client_id, req_id=req_id)
 
     def try_pop(self) -> Optional[bytes]:
-        """Non-blocking pop payload。 empty 返 None。"""
+        """Pop without blocking; return ``None`` when the ring is empty."""
         return self._ring.try_pop()
 
     def try_pop_with_meta(self) -> Optional[tuple[int, int, bytes]]:
-        """Non-blocking pop 含 (client_id, req_id, payload) — debug / wire test 用。"""
+        """Pop ``(client_id, req_id, payload)`` without blocking."""
         return self._ring.try_pop_with_meta()
 
     def peek_count(self) -> int:
-        """Atomic-relaxed read of ring's current item count from SHM header — diagnostic only。
-        Master 端调用看跨进程视图:Go push 后 count++,master pop 后 count--,持续 0 即 actors 没 push。"""
+        """Read the diagnostic item count from the shared header."""
         return self._ring.peek_count()
 
     def peek_count_and_full_at_head(self) -> tuple[int, int]:
-        """Race-aware ring inspection — 返 (count, n_full_in_first_count_slots)。
+        """Return ``(count, full slots among the first count slots)``.
 
-        区分 over-reserve race (count > 0 但 slot 还 EMPTY) vs actor stall (count = 0)。
-        详 CrossLangShmRing.peek_count_and_full_at_head docstring。"""
+        This distinguishes a reserved but unwritten slot from an empty ring.
+        """
         return self._ring.peek_count_and_full_at_head()
 
     def close(self) -> None:
-        """Detach mmap;owner 也 unlink。"""
+        """Detach the mapping and unlink it when this channel owns it."""
         self._ring.close()
 
     def __enter__(self) -> 'TransitionShmChannel':

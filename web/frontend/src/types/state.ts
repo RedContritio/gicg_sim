@@ -22,6 +22,7 @@ export interface CardView {
 }
 
 export interface CharView {
+  element?: string
   name: string
   hp: number
   hp_max: number
@@ -33,6 +34,10 @@ export interface CharView {
 }
 
 export interface PlayerView {
+  supports?: StatusView[]
+  summons?: StatusView[]
+  dice_count?: number
+  hand_count?: number
   dice?: number[]
   statuses?: StatusView[]
   active_char: number

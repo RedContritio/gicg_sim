@@ -207,10 +207,13 @@ change 提案修订,而非在代码中静默偏离。
 - `docs/1_specs/engine/README.md` (deleted, migrated here)
   §3 事件系统 / §4 伤害管道 — engine 数据模型与事件栈
 
-**Memory cross-references**:
+**Repository references**:
 
-- Engine Ignorance 详 `memory feedback_engine_ignorance`
-- Episode step bound(~340 actions / episode)详 `memory project_episode_step_bound`
+- Engine Ignorance and the core model are summarized in
+  [`CLAUDE.md`](../../../CLAUDE.md#engine-ignorance).
+- The current actor safety bound is implemented in
+  `training/core/actor/episode_runner.py`; historical episode-length
+  measurements are not a live runtime constant.
 
 ## 5. Status
 

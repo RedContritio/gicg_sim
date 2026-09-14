@@ -1,18 +1,4 @@
-"""Paradigm-agnostic env factory — build GicgEnv from cfg.scenario.
-
-Canonical 3-arg signature per `env-factory-unification` change (ship
-2026-05-17). Replaces both the prior 2-arg orphan `core/env_factory.py`
-form and the 1-arg `core/env_factory_legacy.py` (now removed). All
-callers (AZ async_loop / tools.runs.train / tests) thread `obs_config_json`
-+ `master_seed` explicitly — no magic seed extraction from cfg, no
-implicit `cfg.obs.to_engine_json()` fallback.
-
-Invariants (training-architecture/paradigm-onboarding.md PA-EF1..6):
-- 3 arg 全 required, 无 default magic
-- cfg 只读 cfg.scenario, 不耦合 cfg.obs / cfg.seed / cfg.meta.seed
-- obs_config_json=None 合法 = engine 默认 (all-on shuffle)
-- Returned closure: per-game seed = master_seed + game_idx, reset 后返回
-"""
+"""Build seeded ``GicgEnv`` instances from ``cfg.scenario``."""
 
 from __future__ import annotations
 
@@ -31,13 +17,10 @@ def make_env_factory(
             ``training.core.scenario``). No other cfg fields are read —
             paradigm-agnostic by construction.
         obs_config_json: ``ObsConfig.to_engine_json()`` dict, or ``None``.
-            ``None`` = engine default (all-on shuffle +
-            include_char_skill_refs). AZ caller passes
-            ``cfg.obs.to_engine_json()``; DMC / CFR / BC caller passes
-            ``None`` (those configs don't carry ObsConfig).
+            ``None`` selects the engine default. The unified run dispatcher
+            passes ``None`` for every registered paradigm.
         master_seed: int base seed. Per-game seed = master_seed + game_idx.
-            AZ pass ``cfg.seed`` (legacy schema); unified-pipeline pass
-            ``cfg.meta.seed`` (new schema).
+            The unified run dispatcher passes ``cfg.meta.seed``.
 
     ``layout_seed`` optionally separates observation layout from gameplay.
     Reset preserves this layout; call the factory again to change it.

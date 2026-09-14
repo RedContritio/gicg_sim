@@ -1,13 +1,4 @@
-"""Paradigm-agnostic trunk encoders.
-
-Adapted from training/framework/network/trunk.py — exact algorithmic
-behavior preserved (HookEncoder Transformer pooling / CounterEncoder
-SID embedding + active mask gather / CardEncoder bucket × slot decomp
-with single count_proj per E2 fix / CrossAttention bidirectional with
-NaN-guard).
-
-Imports core/obs_constants (paradigm-agnostic) instead of framework.
-"""
+"""Shared hook, counter, card, and cross-attention encoders."""
 
 from __future__ import annotations
 
@@ -128,9 +119,11 @@ class CounterEncoder(nn.Module):
 
 
 class CardEncoder(nn.Module):
-    """Bucket × slot decomposition for hand/deck/discard counts.
-    E2 fix: count info via count_proj only — do NOT double-amplify by
-    multiplying tok by counts (high-count cards would dominate)."""
+    """Bucket × slot decomposition for hand, deck, and discard counts.
+
+    Counts enter through ``count_proj``; token embeddings are not also
+    multiplied by counts.
+    """
 
     def __init__(
         self,

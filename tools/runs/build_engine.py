@@ -98,8 +98,8 @@ def _build_sh_posix(remote: RemoteCfg) -> str:
 
 
 def _run_remote(remote: RemoteCfg, timeout: int, *, no_sync: bool = False) -> int:
-    # Auto-sync source before build —— 旧 workflow user 须手动 `tools.runs._remote_sync`
-    # 再 `build_engine`,否则 build stale dll(memory `tooling 教训`,I29 follow-up)。
+    # Auto-sync source before build;the retired manual two-step workflow could
+    # otherwise build a stale DLL on the remote host.
     # --no-sync 显式跳过(rare:user 想 isolate「只 build 不动源」)。
     if not no_sync:
         sync_rc = _auto_sync(remote, dry_run=False, base_sha_override=None)

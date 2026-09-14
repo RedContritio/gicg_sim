@@ -1,13 +1,12 @@
-"""Quick status check for training on remote GPU box — cfg-driven dispatch。
+"""Quick status check for a Windows remote training host.
 
 CLI:
 
     .venv/bin/python -m tools.runs.status <cfg.toml> [--watch --interval N --run NAME]
 
-cfg ``[meta].host`` decides local vs remote。Reads
-``artifacts/<latest-run>/metrics.jsonl`` over ssh + ``status.ps1`` (assumed
-synced to remote at ``<remote.root>/tools/runs/status.ps1``)。Shows GPU
-util/mem,Python proc CPU time,latest eval/train/episode rows + fps。
+The command invokes ``tools/runs/status.ps1`` over SSH and formats its GPU,
+process, memory, and recent training metrics. Local configs print a pointer to
+``tools.runs.list`` and ``tools.runs.show`` instead.
 """
 
 from __future__ import annotations
@@ -49,11 +48,11 @@ def ssh_query(remote: RemoteCfg, run_label: str = '') -> str:
 
 
 def parse_and_format(raw: str, debug: bool = False) -> str:
+    """Parse status-script sections and format recent metrics."""
     if debug:
         print('--- raw output ---')
         print(raw)
         print('--- end raw ---')
-    """Parse PS script output sections + tail metrics.jsonl, format human-readable."""
     sections = {}
     cur = None
     cur_lines: list = []
@@ -152,8 +151,7 @@ def parse_and_format(raw: str, debug: bool = False) -> str:
 
 
 def _run_local(args) -> int:
-    """Local mode — currently delegates to direct file read of latest run.
-    For now, just emit a hint(production usage is remote-only)。"""
+    """Emit the supported local inspection commands."""
     sys.stderr.write(
         '[status] local mode not implemented — use `tools.runs.list` + `tools.runs.show <NNN>` for local inspection.\n'
     )

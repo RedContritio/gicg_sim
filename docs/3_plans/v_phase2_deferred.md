@@ -1,9 +1,13 @@
 ---
 last_updated: 2026-05-12
-status: BACKLOG — v_phase2 池 7 char + 6 卡已 ship,deferred 机制 23 项待补
+status: HISTORICAL BACKLOG — 2026-05 v_phase2 snapshot
 ---
 
 # v_phase2 池 deferred 机制 backlog
+
+> **历史 backlog**：本文记录旧 `v_phase2` 池的简化项，不是当前原生
+> 内容接入清单。后续内容审核见
+> [`cards/native_content_curriculum.md`](cards/native_content_curriculum.md)。
 
 > 跨 session 工程清单。v_phase2 池建立后 (commit `9969f2e`),为加速 RL smoke 验证,
 > 所有 status / summon / 条件 buff / prepare_skill / 复杂状态机机制 lua 都标

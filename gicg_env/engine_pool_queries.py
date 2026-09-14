@@ -95,7 +95,7 @@ class _PoolQueriesMixin:
         """Return the accumulated per-color dice payment counts for a
         player as a list of 8 ints (one per DiceColor: fire, ice, water,
         electro, geo, anemo, dendro, omni). These are publicly observable
-        — in real MCG rules both players see every dice payment — and
+        — both players see every dice payment — and
         used by IS-MCTS sampling as Bayesian evidence: Dirichlet posterior
         over color shares given paid counts, then Multinomial sampling
         of the opponent's remaining dice."""

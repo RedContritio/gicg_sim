@@ -1,6 +1,6 @@
 """CFR smoke-only stub buffer — used solely by test_cfr_smoke_full.
 
-OpenSpec ref: ``openspec/changes/cfr-driver-buffer-multihead-fix/``
+OpenSpec ref: ``openspec/changes/archive/cfr-driver-buffer-multihead-fix/``
 ADD invariant paradigm-cfr/spec.md C6.4 — stub buffer allowed in
 frozen-research tier when ``cfg.debug.cfr_smoke_stub_buffer=true`` set
 (post 2026-05-24 GICG_CFR_SMOKE_STUB_BUFFER env var 砍 — cfg-driven only,

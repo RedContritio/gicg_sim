@@ -1,10 +1,13 @@
-"""扫所有 raw action JSON,按 cost icon md5 hash 分组下载到 data/cost_icons/。
+"""Scan raw action JSON and group cost icons by MD5 hash.
+
+The current command reads the historical external raw-data checkout at
+``~/Documents/gicg_sim/data/raw/action`` and writes ``data/cost_icons/``.
 
 输出:
 - data/cost_icons/<md5>.png — 每个唯一 hash 的代表图
 - data/cost_icons/_mapping.yaml — hash → [{id, name, sub_class, tags, cost}, ...] 映射
 
-User 看一张图就能批量判一组(同 hash = 字节级相同图)。
+相同 hash 表示 URL 所标识的图像内容分组相同，可按组人工判定。
 """
 
 from __future__ import annotations

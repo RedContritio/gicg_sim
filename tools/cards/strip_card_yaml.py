@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """data/full/<type>/<id>.yaml → data/cleaned/<type>/<id>.yaml — 删除纯 visual / audit 字段。
 
-Sonnet subagent 输出的 full YAML 含所有原始数据(URL/icon/HTML/version)
-+ 推断字段。本工具递归删除 ``_DROP_KEYS`` 列出的字段,只留分析需要的
+Full YAML 含所有原始数据(URL/icon/HTML/version)和推断字段。
+本工具递归删除 ``_DROP_KEYS`` 列出的字段,只留分析需要的
 机制信息。LLM gap 分析就读 cleaned/。
 
 用法(从 repo root)::
 
-    .venv/bin/python -m tools.strip_card_yaml --in data/full --out data/cleaned
-    .venv/bin/python -m tools.strip_card_yaml --in data/full --out data/cleaned --merge-glossary
+    .venv/bin/python -m tools.cards.strip_card_yaml --in data/full --out data/cleaned
+    .venv/bin/python -m tools.cards.strip_card_yaml --in data/full --out data/cleaned --merge-glossary
 
 ``--merge-glossary`` 额外产出 ``data/cleaned/_glossary.yaml`` — 全卡 terms
 合并(同名取最长解释,记 ``_seen_in: [card_id, ...]``)。

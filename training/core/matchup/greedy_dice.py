@@ -35,13 +35,9 @@ KEEP; payment "cost" = sum of (count_used_c × value_per_die_c)):
 Then among all payments for a given logical action (= same
 identity row), pick the one whose total paid value is MINIMAL.
 
-For Tune (ActionKind=4), the spec says preserve high-value cards
-and discard low-value ones. No curated card-value table exists yet,
-so we proxy using (1) the Go engine's declared card dice-cost-sum —
-more expensive cards are assumed higher value — and (2) hand index
-as tiebreak (lower index = older = "stabler" cards, preserve). This
-satisfies the "每张牌预定义一个价值" contract with a crude but
-principled table.
+For Tune (ActionKind=4), no curated per-card value table is available.
+The current fallback uses hand index as a stable ordering only; it does
+not estimate card strength.
 """
 
 from __future__ import annotations
@@ -132,27 +128,20 @@ def payment_cost(payment: np.ndarray, color_values: np.ndarray) -> int:
 
 
 def _tune_card_value(env: GicgEnv, hand_idx: int) -> int:
-    """Crude proxy for a card's "value to keep" for tune decisions.
+    """Return the stable hand-position fallback used for tune ties.
 
-    No curated value table exists yet; we use (1) the declared dice-
-    cost-sum from the engine cost as a proxy for card strength (more
-    expensive → presumed higher value), and (2) hand index as a
-    tiebreak (lower = older = more "stable"). Both pieces are
-    predefined per card/position, satisfying the "每张牌预定义一个
-    价值" contract from the spec."""
+    The environment does not expose a card-value table here. Lower hand
+    indices therefore sort first; this is deterministic but carries no
+    claim about the card's strategic value.
+    """
     try:
         hand_refs = env.hand_refs(env.acting_player)
     except Exception:
         return -hand_idx  # fallback: raw index tiebreak
     if not (0 <= hand_idx < len(hand_refs)):
         return -hand_idx
-    # We don't have a direct card-cost-sum API from Python side; use
-    # the *engine's* DeclaredCost via the card ref. As a portable
-    # proxy, use hand_refs[hand_idx] itself — higher ref numbers
-    # aren't semantic, but the contract only requires a STABLE
-    # predefined ordering. Stable ordering by (hand_idx) gives
-    # "discard oldest" which is a sensible default for a baseline.
-    # Lower value = prefer to discard FIRST.
+    # Card refs are consulted only to validate the index. Their numeric
+    # values are identifiers, so they are not used as a strength proxy.
     return hand_idx
 
 

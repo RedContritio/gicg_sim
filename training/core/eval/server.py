@@ -1,7 +1,8 @@
 """EvalServer — coordinates EvalJobs across workers + aggregates reports.
 
-In serial mode, runs in-thread with a single EvalWorker. Async mode
-(P3-B) spawns N processes + uses IPC queues for job/result transport."""
+It calls the supplied worker objects synchronously. Process-backed workers can
+be supplied by a caller, but this coordinator does not spawn processes or own
+IPC queues."""
 
 from __future__ import annotations
 
@@ -25,7 +26,7 @@ class EvalServer:
     def run_jobs(self, jobs: List[EvalJob]) -> Dict[str, EvalReport]:
         """Execute all jobs and return {opponent_id: EvalReport}.
 
-        Round-robin assigns each job to a worker (P3-B: real parallel)."""
+        Round-robin assigns each job to a supplied worker."""
         all_results: Dict[str, List[EvalResult]] = {}
         for i, job in enumerate(jobs):
             worker = self.workers[i % len(self.workers)]

@@ -1,9 +1,8 @@
 """ctypes prototype setup for gicg_env.engine.GicgEngine.
 
-Split out as a mixin so gicg_env/engine.py stays under the 500-line
-cap — _setup_api is pure boilerplate declaring argtypes / restype
-for every C function libgicg.dylib exports, and dominates the line
-count of the engine wrapper."""
+Split out as a mixin so gicg_env/engine.py stays within the repository
+line limit. ``_setup_api`` declares argtypes and restype for the C
+functions exported by the platform-specific libgicg shared library."""
 
 from __future__ import annotations
 
@@ -12,7 +11,7 @@ import ctypes
 
 class _ApiMixin:
     """Provides _setup_api(self). Expects self._lib to already be a
-    loaded ctypes.CDLL on libgicg.dylib."""
+    loaded ``ctypes.CDLL`` for libgicg."""
 
     def _setup_api(self):
         lib = self._lib
@@ -29,7 +28,7 @@ class _ApiMixin:
         lib.GameReset.argtypes = [ctypes.c_int, ctypes.c_long]
         lib.GameReset.restype = None
 
-        # review D.5: 3-axis seed reset (dice / deck_p0 / deck_p1)
+        # Three independent reset seeds: dice / deck_p0 / deck_p1.
         lib.GameResetSeeds.argtypes = [ctypes.c_int, ctypes.c_long, ctypes.c_long, ctypes.c_long]
         lib.GameResetSeeds.restype = None
 
@@ -230,11 +229,11 @@ class _ApiMixin:
         lib.GameGetDynamicObsSize.argtypes = []
         lib.GameGetDynamicObsSize.restype = ctypes.c_int
 
-        # ADR-0019 §B.2/§B.3c — typed obs constants (review B2 sync)
+        # ADR-0019 §B.2/§B.3c typed observation constants.
         lib.GameGetTypedObsConstants.argtypes = [ctypes.POINTER(ctypes.c_int)]
         lib.GameGetTypedObsConstants.restype = None
 
-        # Round-6 S-1: per-game reaction count (DSL declare_reaction 注册数)
+        # Number of reactions registered by DSL rules for this game.
         lib.GameGetReactionCount.argtypes = [ctypes.c_int]
         lib.GameGetReactionCount.restype = ctypes.c_int
 

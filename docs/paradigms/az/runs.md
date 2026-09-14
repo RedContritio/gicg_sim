@@ -1,6 +1,6 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 parent: ./README.md
 ---

@@ -18,5 +18,5 @@
 
 - **不再编辑**。一份 history 文档反映"当时知道的事实"
 - **事实纠错**允许,格式 `> 更正 (YYYY-MM-DD): ...`,加在原文附近
-- **后续进展不改旧文档**,写新的 (1_specs/ 或 3_plans/) 并在旧文顶部加 `> Superseded by: ...`
+- **后续进展不改旧文档**,写新的 (`openspec/specs/` 或 `3_plans/`) 并在旧文顶部加 `> Superseded by: ...`
 - **命名保留时间/run-id 烙印** (e.g. `r008_postmortem.md`, `c1v6_plan.md`),便于 grep

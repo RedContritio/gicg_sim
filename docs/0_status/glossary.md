@@ -1,11 +1,11 @@
 ---
-last_updated: 2026-04-26
+last_updated: 2026-09-14
 status: LIVE
 ---
 
 # Glossary — 术语速查
 
-> 跨 docs / memory / commit message 的高频术语。新人遇到不认识的词来这查。
+> 跨文档、规格和提交记录的高频术语。新人遇到不认识的词来这查。
 
 ## 项目阶段
 
@@ -21,18 +21,18 @@ status: LIVE
 |---|---|
 | **r001 ... rNNN** | production-style training run,multi-hundred games + arena + gauntlet |
 | **s001 ... sNNN** | short validation / smoke / bench / ablation run |
-| **artifacts/YYYYMMDDHHMM_\<label\>/** | 所有 run 输出位置,label = `<type><NNN>_<slug>` |
-| **registry** | `python -m tools.runs.list` CLI(post `core-network-generic-promotion` 2026-05-17 取代手维护 `4_runs/registry.md`);per-run metadata `artifacts/runs/<id>.toml`(gitignored);pre-redesign archive: `5_history/runs_pre_redesign_2026_05_17.md` |
+| **artifacts/YYYYMMDDHHMM_\<NNNNNN\>_\<label\>/** | 2026-05-18 后 run 输出位置；每个目录自带 metadata、配置快照、ckpts 与日志 |
+| **registry** | `python -m tools.runs.list` 扫描 `artifacts/*/metadata.toml`；pre-redesign r/s 记录见 `5_history/runs_pre_redesign_2026_05_17.md` |
 
 ## 训练栈
 
 | 词 | 含义 |
 |---|---|
-| **AZ** | AlphaZero 风格,IS-MCTS + 共享主干网络,在 `training/az/` |
-| **CFR** | Deep CFR,在 `training/cfr/`,r008 失败后冻结 |
-| **PPO (Curriculum era)** | Stage 0-3 用的 PPO,在 `training/ppo/`,BC warm-start 优先 |
+| **AZ** | AlphaZero 风格,IS-MCTS + 共享主干网络,在 `training/paradigms/az/` |
+| **CFR** | Deep CFR,在 `training/paradigms/cfr/`,r008 失败后冻结 |
+| **PPO (Curriculum era)** | Stage 0-3 用的 PPO,现保留在 `training/paradigms/ppo/` |
 | **BC** | Behavior Cloning warm-start,F1-D2 teacher 数据 |
-| **framework** | `training/framework/`,算法无关基础 (obs / step / matchup / inference) |
+| **core** | `training/core/`,算法无关基础 (actor / network / buffer / inference / eval / matchup) |
 
 ## Curriculum
 
@@ -77,6 +77,6 @@ status: LIVE
 
 | 词 | 含义 |
 |---|---|
-| **eval_service** | 全局 socket-based gauntlet evaluator,fixed path,跑 run 前必启 |
+| **eval_service** | 全局 localhost TCP gauntlet evaluator（默认 `localhost:9100`），需要时在 run 前启动 |
 | **gauntlet** | vs N-tier baseline 的 win rate 评估 (random / F1-D1/D2/D3 / mcts_50/100/200) |
-| **arena** | self-play 中新旧 ckpt 对战决定是否替换 (AZ-only) |
+| **arena** | 历史 AZ 新旧 ckpt 对战接口；旧 `training/az/arena.py` 已移除，当前评估见 `training/core/eval/` 与 `training/core/matchup/` |

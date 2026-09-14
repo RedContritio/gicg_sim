@@ -167,5 +167,5 @@ configs/
 
 - Spec delta → [`../specs/tools-layout/spec.md`](../specs/tools-layout/spec.md)
 - 当前 cwd 约定 → memory project_cwd_convention
-- 主 spec → [`../../../specs/training-architecture/spec.md`](../../../specs/training-architecture/spec.md) SHALL #12
+- 主 spec → [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md) SHALL #12
 - Migration plan → [`./migrations.md`](./migrations.md)

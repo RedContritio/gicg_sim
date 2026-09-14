@@ -143,7 +143,7 @@ state(self play 时同样用于 root determinization):
 3. 后续 step 调用 SHALL 自动路由到 `step_target`(`has_pending=True`),
    action_idx 现在表示 target choice。matchup runner / arena 视
    `step_info.get('need_target')` 为 raise-on-unsupported(详
-   `training/framework/matchup/matchup.py::_play_one`)。
+   `training/core/matchup/matchup.py::_play_one`)。
 
 ## 7. Cross-references
 

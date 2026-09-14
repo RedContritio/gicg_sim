@@ -10,7 +10,7 @@ GPU training box and runs PeriodicEvaluator.
 
 Usage::
 
-    .venv/bin/python -m tools.eval.daemon configs/dmc_stage3.toml \\
+    .venv/bin/python -m tools.eval.daemon configs/dmc/stage3_pilot.toml \\
         --run-label dmc_stage3_pilot \\
         --remote dev@192.168.31.56:D:/gicg_dev/artifacts \\
         --poll-seconds 30
@@ -191,7 +191,9 @@ def main():
                 # 但 daemon 历史 POSIX-only)→ rsync 失败。 fallback: 检查 local ckpt 是否
                 # 已被外部 (e.g. tools.runs.pull) 同步过来,若 在则直接跑 eval 不阻塞。
                 if latest_path.exists():
-                    print(f'[daemon] iter {iteration}: rsync failed but local ckpts/latest.pt exists — proceed with eval')
+                    print(
+                        f'[daemon] iter {iteration}: rsync failed but local ckpts/latest.pt exists — proceed with eval'
+                    )
                 else:
                     print(f'[daemon] iter {iteration}: rsync failed + no local ckpt, sleep + retry')
                     time.sleep(args.poll_seconds)

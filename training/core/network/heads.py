@@ -6,9 +6,9 @@ own ActorCritic composition (paradigms/<name>/network.py).
 | Head | Used by |
 |---|---|
 | PolicyHead | AZ / PPO / BC (policy logits) |
-| ValueHead | AZ / PPO / DMC value baseline |
-| QHead | DMC (logit-as-Q — review B.1) |
-| AvgPolicyHead | CFR (average strategy) |
+| ValueHead | AZ / PPO / BC auxiliary output |
+| QHead | DMC (unnormalized action values) |
+| AvgPolicyHead | generic average-policy option; current CFR uses its own net |
 | DeltaHead | AZ (counter delta MCTS bootstrap) |
 """
 
@@ -53,8 +53,8 @@ class ValueHead(nn.Module):
 
 
 class QHead(nn.Module):
-    """DMC review B.1 'logit-as-Q' head — outputs unnormalized Q values
-    per action. Same MLP shape as PolicyHead but the loss treats output
+    """Output unnormalized per-action Q values for DMC.
+    It has the same MLP shape as PolicyHead, but the loss treats output
     as Q (MSE vs Monte Carlo return) not policy logits."""
 
     def __init__(self, d_model: int, dropout: float = 0.1) -> None:

@@ -1,8 +1,7 @@
-"""Minimal MCTS player for GICG, using engine snapshot/restore.
+"""Minimal MCTS player using engine snapshots and restores.
 
-No learned components — pure UCT with uniform priors and random rollouts.
-Promoted from tools/ into framework/ because matchup.py references it
-and the dependency direction must be training → tools, not reverse.
+It has no learned components: selection uses UCT with uniform expansion,
+and leaf evaluation uses random rollouts.
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@ on a fixed 2v2 matchup. Useful for post-hoc behavior diagnosis of
 the collapse (ckpt after arena win_rate=0.025).
 
 Usage:
-    .venv/bin/python -m tools.gen_r007_replay
+    .venv/bin/python -m tools.replay.gen_r007_replay
 """
 
 from __future__ import annotations

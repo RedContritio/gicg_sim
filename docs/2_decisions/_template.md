@@ -25,7 +25,8 @@ superseded_by: null
 
 ## 理由
 
-(为什么选 X 而非 A/B/C。引证据,引相关 ADR,引 memory / postmortem。)
+(为什么选 X 而非 A/B/C。引用仓库内的测试、运行报告、相关 ADR 或
+postmortem；接手所需证据不能只留在私有上下文。)
 
 ## 影响 / 实现
 
@@ -38,6 +39,6 @@ superseded_by: null
 ## 参考
 
 - 相关 ADR: adr-XXXX
-- 相关 spec: `../1_specs/...`
+- 相关 spec: `../../openspec/specs/...`
 - 相关 plan: `../3_plans/...`
 - 相关 postmortem: `../5_history/postmortems/...`

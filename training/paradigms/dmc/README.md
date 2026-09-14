@@ -1,7 +1,13 @@
 # DMC · Deep Monte Carlo for GICG
 
+> **历史设计快照（2026-05-12）**：本文保留 DMC 初始方案和当时的
+> Phase 状态，目录图与待办不代表当前实现。当前代码位于本目录及
+> `training/core/`；实时目标和运行状态见 `docs/0_status/README.md`。
+
 > Paradigm transferred from DouZero (ICML 2021, repro at `~/Projects/Research/douzero_icml2021/`)
-> 与 `training/az/` 和 `training/cfr/` 同级, 共用 `training/framework/`(零互 import,符合 ADR-0006 layout)
+> 当时规划为与 `training/az/` 和 `training/cfr/` 同级并共用
+> `training/framework/`；这些路径后来迁入 `training/paradigms/` 和
+> `training/core/`。
 
 ## 选择 DMC 的理由
 

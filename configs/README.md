@@ -1,14 +1,15 @@
 # configs/
 
-TOML 运行配置组织约定(P5-H 后子目录化,2026-05-16)。
+TOML 运行配置按训练范式与用途分组。现行训练入口是
+`python -m tools.runs.train configs/<paradigm>/<label>.toml`。
 
 ## 子目录约定
 
 | 子目录 | 含义 | 启用 |
 |---|---|---|
-| `active/` | 当前活跃实验 — 正在迭代 / 仍可能 rerun | 长期保留 |
-| `smoke/` | smoke 测试 — pipeline 端到端验证、resume 机制测试、容器化烟雾 | 长期保留 |
-| `shipped/` | 经过 verdict 的生产 baseline — testing / 对照参考 | 长期保留 |
+| `az/`、`bc/`、`cfr/`、`dmc/`、`ppo/` | 各范式的 default、smoke、smoke_full 与实验配置 | 启用 |
+| `rule_validation/` | 规则变体与规则验证配置 | 启用 |
+| `web/` | 网页服务选择的模型与规则 profile | 启用 |
 | `_archived/<paradigm>_<month>/` | 已结案配置 — 按 paradigm + 月份归档 | 仅 git history reference,不 rerun |
 
 `_archived/` 子目录里的 cfg **不再 rerun**,只作 git history 索引。若需复活,走 OpenSpec change un-archive 流程。
@@ -37,22 +38,21 @@ DMC 历史(dmc_mp_smoke 等)在 P3.5 阶段已直接删除(见 docs/5_history/dm
 
 | 场景 | 目标 |
 |---|---|
-| 新 RL run 启动迭代 | `active/<label>.toml` |
-| 短 smoke / pipeline 验证 / resume 测试 | `smoke/<label>.toml` |
-| 经过 verdict + 长期 reference baseline | `shipped/<label>.toml` |
+| 新 RL run 启动迭代 | `<paradigm>/<label>.toml` |
+| 短 smoke / pipeline 验证 / resume 测试 | `<paradigm>/smoke.toml` 或 `<paradigm>/smoke_full.toml` |
+| 规则验证或网页 profile | `rule_validation/` 或 `web/` |
 | 实验结束 + 已写 verdict (postmortem / curriculum.md) | mv to `_archived/<paradigm>_<month>/` |
 
 ## 引用约定
 
 代码 / docs 中引用 cfg 路径:
 
-- Hardcoded 测试路径 — 包含子目录,如 `configs/smoke/dmc_stage3_smoke_v2.toml`
+- Hardcoded 测试路径 — 包含范式子目录,如 `configs/dmc/smoke_full.toml`
 - 通配测试 — 用 `Path('configs').rglob('*.toml')` 递归 glob
 - Tools entry 命令 — `python -m tools.runs.train configs/<paradigm>/<label>.toml`(子目录显式;T-23 删 `tools/run.py` 后唯一入口)
 
-`docs/5_history/runs_pre_redesign_2026_05_17.md`(post `core-network-generic-promotion`
-2026-05-17 archive)内历史 run 记录的 cfg path 是历史 reference,不 mv path(保留
-archive 视角)。Live run cfg 通过 `python -m tools.runs.show <run_id>` 查看。
+`docs/5_history/runs_pre_redesign_2026_05_17.md` 内的旧 cfg 路径是历史记录，
+不机械改成现行目录。Live run 的完整解析配置通过 `python -m tools.runs.show <NNN>` 查看。
 
 ## P5-H 之前的扁平结构
 

@@ -1,11 +1,13 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 paradigm: ppo
 ---
 
 # PPO paradigm dossier
+
+> 2026-05-16 snapshot；当前训练状态见 [`../../0_status/README.md`](../../0_status/README.md)。
 
 > **Status**: **CLOSED**(by ADR-0008 paradigm pivot + ADR-0009 curriculum terminus)
 >
@@ -27,7 +29,7 @@ PPO 是 2026-04 期 GICG RL 主线尝试,从 Stage 0 baseline 到 Stage 3
    F1-D2 stricter 0.40 不可达;4 factor combo NOT additive(predict 0.45 actual 0.281)。
 4. **Pivot AZ**(ADR-0008,2026-04-25):BC→PPO 路径走完,paradigm 改 AlphaZero。
 
-PPO 代码栈保留在 [`training/ppo/`](../../../training/ppo/)(BC pretrain + PPO fine-tune)
+PPO 代码栈现保留在 [`training/paradigms/ppo/`](../../../training/paradigms/ppo/)
 和 [`docs/5_history/eras/ppo_pre_az/`](../../5_history/eras/ppo_pre_az/)(老 PPO era doc)。
 
 ## Verdict tree
@@ -113,5 +115,5 @@ shared trunk + value head 标准设计),不单写 `architecture.md`;若需细节
 
 - [`training/paradigms/ppo/`](../../../training/paradigms/ppo/) — PPO adapter
   (P4-T1 ship + P5-D legacy mv;FU-W4-PPO 后 `legacy/` retired via `2e5bc6f`)
-- [`training/paradigms/bc/legacy/bc_train.py`](../../../training/paradigms/bc/legacy/bc_train.py)
-  — BC pretrain 入口(原 AZ 栈+PPO 栈双份在 P5-E 后 dedupe)
+- 历史 BC pretrain 入口已退役；当前 BC adapter 位于
+  [`training/paradigms/bc/`](../../../training/paradigms/bc/)

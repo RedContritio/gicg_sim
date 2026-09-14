@@ -13,7 +13,7 @@ from tools._meta.send_matchup_schema import resolve_ref
 
 def help_from_schema(schema: dict) -> str:
     lines = [
-        'Usage: python -m tools.send_matchup [OPTIONS]',
+        'Usage: python -m tools._meta.send_matchup [OPTIONS]',
         '',
         'Construct a request for tools.eval.eval_service and POST it over TCP.',
         'CLI flags mirror JSON fields (hyphens → underscores, dots for nesting).',

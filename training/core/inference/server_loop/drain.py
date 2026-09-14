@@ -1,15 +1,8 @@
-"""Pipe / weight-queue drains + dispatch into paradigm-supplied handlers。
+"""Drain inference queues and dispatch requests to paradigm handlers.
 
-W2-2 (post-2026-05-28):pre-W2 此模块直接实现了 ``_handle_game_start`` +
-``_handle_eval_batch`` 两 handler,实现写死 AZ obs schema(15-tensor 解码 +
-``out['policy']`` / ``out['value']`` + ``agent.encode_static_tensors_with_tokens``
-6-tuple 约定)— audit finding 高优 #2,违反 "core algorithm-agnostic" 契约。
-
-post-W2-2:本模块仅持 generic dispatch(``_process_batch`` 把 kind=game_start
-/ game_end / eval 路由到对应 handler)+ 真 generic 的 game_end(纯
-``cache.pop`` + ``pipe.send`` ack);paradigm-specific game_start + eval batch
-handler 来自 ``InferenceHandlers`` dataclass,由 ``_server_loop`` 调
-``actor_process.resolve_builder`` 从 module path 注入。
+Game-start and evaluation handlers are supplied by the selected paradigm.
+Game-end handling is generic and only removes the cached game state before
+acknowledging the request.
 """
 
 from __future__ import annotations
@@ -23,11 +16,10 @@ from typing import Callable
 
 @dataclass(frozen=True)
 class InferenceHandlers:
-    """Paradigm-supplied inference handlers,注入到 ``_process_batch``。
+    """Paradigm-supplied handlers injected into ``_process_batch``.
 
-    AZ paradigm 通过 ``inference_handlers_module_path``(传给
-    ``InferenceServer.__init__``)指向 ``training.paradigms.az._inference_handlers``,
-    module 顶层暴露 ``handle_game_start`` + ``handle_eval_batch`` callable。
+    The configured module must expose ``handle_game_start`` and
+    ``handle_eval_batch`` callables.
     """
 
     handle_game_start: Callable
@@ -41,7 +33,7 @@ def _drain_pipes(
 ) -> None:
     """Pull every immediately-available message off the given pipes
     into ``batch``, up to ``max_batch`` total entries. ``pipe.poll()``
-    is non-blocking。"""
+    is non-blocking."""
     for pipe in pipes:
         if len(batch) >= max_batch:
             return
@@ -60,8 +52,7 @@ def _drain_weight_queue(
     agent,
     state,
 ) -> bool:
-    """Apply any pending weight updates. Returns True if a ``stop``
-    command was seen。"""
+    """Apply pending weight updates and report whether ``stop`` was seen."""
     stop = False
     while True:
         try:
@@ -85,7 +76,7 @@ def _process_batch(
     state,
     handlers: InferenceHandlers,
 ) -> None:
-    """Dispatch a batch by request kind。"""
+    """Dispatch a batch by request kind."""
     state.batches_since_emit += 1
     state.reqs_since_emit += len(batch)
 

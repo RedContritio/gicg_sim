@@ -1,17 +1,8 @@
-"""CFR player loader — registers ``'cfr'`` factory with
-``training.core.matchup.loaders`` registry。 Imported by core's lazy
-loader on first ``load_player({'type': 'cfr', ...})`` (W2-1).
+"""Register the lazy CFR checkpoint player loader.
 
-Pre-W2-1 this code lived inline at ``core/matchup/loaders.py`` as
-``_loader_cfr``;the inline placement made core statically depend on
-``training.paradigms.cfr.agent.CFRAgent`` + ``CFRNetConfig`` (audit
-finding 高优 #1 — violated ADR-0006 单向依赖)。 Moved here so that
-path becomes lazy + paradigm-local。
-
-n_simulations == 0 → argmax over strategy head。
-n_simulations > 0 → MCTS(net prior + value) via the same
-``_AgentMCTSPlayer`` wrapper used for AZ。 The MCTS impl 本身仍住
-``paradigms.az.mcts`` —— 这是 W2-1 范围外的 deeper layout issue。
+``n_simulations == 0`` uses greedy strategy-head selection. A positive
+budget wraps the agent with the shared MCTS player, whose search
+implementation currently lives in ``training.paradigms.az.mcts``.
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@
   - env.get_action_labels() 中选到的那个动作的人类可读名字
 
 用法:
-    .venv/bin/python -m tools.diag_cfr_argmax <ckpt_path> [seed]
+    .venv/bin/python -m tools.debug.diag_cfr_argmax <ckpt_path> [seed]
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from training.paradigms.cfr.strategy_net import CFRNetConfig
 
 def main() -> int:
     if len(sys.argv) < 2:
-        print('usage: python -m tools.diag_cfr_argmax <ckpt_path> [seed]')
+        print('usage: python -m tools.debug.diag_cfr_argmax <ckpt_path> [seed]')
         return 2
     ckpt_path = Path(sys.argv[1])
     seed = int(sys.argv[2]) if len(sys.argv) > 2 else 0

@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-17
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: training-architecture
@@ -12,14 +12,12 @@ capability: training-architecture
 > 议、opponent mix。各 paradigm(AZ / DMC / CFR / PPO / BC)的具体超参
 > 与算法实现由各自 paradigm dossier 治理,不属本 spec 范围。
 >
-> **当前阶段**(2026-05-16 unified-training-pipeline P6 archive):骨架
-> (P0-T9 12 SHALL)保留,P3-P5 实施落地 NetworkProvider / EpisodeRunner /
-> 5 个 paradigm spec / config-schema / tools-layout 引用(SHALL 13-17)。
-> 协议方法签名、SHM 协议、weights versioning 详情在 5 个 subtopic 内承接。
+> 2026-05 的 unified-training-pipeline 已落地；当前接口和行为以
+> `training/core/`、`training/paradigms/` 及各 subtopic 为准。
 
 ## 1. Purpose
 
-当前 `training/` 三层布局(`framework/` + `az/` + `cfr/` + `dmc/` + `ppo/`)
+迁移前的 `training/` 三层布局(`framework/` + 各算法目录)
 是 2026-04 PPO + AZ + CFR 并存时期演化产物。新加入 DMC + BC + 后续
 paradigm 后,需要把 paradigm-agnostic infra 与 paradigm-specific 算法显
 式分离,避免:
@@ -44,13 +42,13 @@ paradigm 后,需要把 paradigm-agnostic infra 与 paradigm-specific 算法显
 **In scope**:
 - `training/core/` 与 `training/paradigms/<name>/` 二分目录布局(P2 物理
   迁移落地;骨架阶段先以 SHALL 形式锚定)
-- 五大 paradigm-agnostic protocol(Paradigm / Collector / Buffer /
+- 六个 paradigm-agnostic protocol(Paradigm / Collector / Buffer /
   LossComputer / EpisodePolicy / NetworkProvider)的接口契约
 - Pipeline driver loop 与 serial / async 模式切换边界
 - Encoder / heads 共享规则(paradigm-agnostic encoder + paradigm-specific
   heads)
-- 周期 eval 流程与 actor 基建(EpisodeRunner / EpisodePolicy / EnvFactory
-  / OpponentRegistry)100% 复用契约
+- 周期 eval 流程与普通 actor 基建(EpisodeRunner / EpisodePolicy /
+  EnvFactory / OpponentRegistry)复用契约；AZ 双边 self-play 使用专用适配器
 - OpponentRegistry + baseline 接口的 paradigm-agnostic 注册表
 - Cfg 多层继承字段(`device` / `seed`)与本 spec 的交互边界
 
@@ -63,7 +61,7 @@ paradigm 后,需要把 paradigm-agnostic infra 与 paradigm-specific 算法显
 - Eval scenario 设计(F1-Dn / mcts_pure / historical 池构造)—
   [`./opponent-mix.md`](./opponent-mix.md) 仅治理注册表接口,内容由 runs
   registry / scenario spec 承接
-- Runs registry / artifact 命名 — `runs-registry` capability spec(待落地)
+- Run lifecycle / artifact 命名 — [`tools-layout`](../tools-layout/spec.md)
 
 ## 3. Core SHALL invariants
 
@@ -80,7 +78,7 @@ tools-layout 引用 / e2e smoke 契约 / backbone unification / `make_env_factor
 本 capability 覆盖 5 个 paradigm,各自状态(unified-training-pipeline
 P3-P5 ship 后)+ 对应 capability spec:
 
-- **AZ**(AlphaZero):`training/paradigms/az/`(legacy 子目录保留)。
+- **AZ**(AlphaZero):`training/paradigms/az/`。
   Tier `maintenance`。Spec → [`../paradigm-az/spec.md`](../paradigm-az/spec.md)。
 - **DMC**(Deep Monte Carlo):`training/paradigms/dmc/`(first migration
   through unified pipeline P3-T8)。Tier `active`。Spec →
@@ -102,12 +100,11 @@ P3-P5 ship 后)+ 对应 capability spec:
 - [Core SHALL invariants](./invariants.md) — 25 条本 capability 硬约束 + 详细实施引用
 - [Protocols](./protocols.md) — Paradigm / Collector / Buffer /
   LossComputer / EpisodePolicy / NetworkProvider 接口契约
-- [Pipeline driver](./pipeline.md) — Driver 主循环 + serial vs async
-  模式 + PipelineState + Schedule
+- [Pipeline driver](./pipeline.md) — Driver 主循环 + collector-owned
+  serial/async topology + PipelineState + StepPlan
 - [Network sharing](./network-sharing.md) — encoder / heads 共享规则 +
   paradigm-specific head 边界 + ActorCritic 组装
-- [Eval protocol](./eval.md) — Periodic eval + EpisodeRunner 复用
-  actor 基建 + weights snapshot
+- [Eval protocol](./eval.md) — Periodic eval + EpisodeRunner 复用边界
 - [Opponent mix](./opponent-mix.md) — OpponentRegistry + mix sampling
   + baseline 接口 + historical ckpt
 - [Paradigm onboarding](./paradigm-onboarding.md) — 如何接入第 6
@@ -128,7 +125,7 @@ P3-P5 ship 后)+ 对应 capability spec:
 **Sibling capability specs**:
 - [`../config-schema/spec.md`](../config-schema/spec.md) — `device` +
   `seed` 继承字段 registry + R1-R7 placement schema + loader strictness
-- [`../tools-layout/spec.md`](../tools-layout/spec.md) — `tools/run.py`
+- [`../tools-layout/spec.md`](../tools-layout/spec.md) — `tools.runs.train`
   单入口 + 功能分类子目录 + 老 tools 合并 / archive 规则
 - [`../paradigm-az/spec.md`](../paradigm-az/spec.md) — AZ 算法层 SHALL
 - [`../paradigm-dmc/spec.md`](../paradigm-dmc/spec.md) — DMC 算法层 SHALL
@@ -136,7 +133,7 @@ P3-P5 ship 后)+ 对应 capability spec:
 - [`../paradigm-ppo/spec.md`](../paradigm-ppo/spec.md) — PPO 算法层 SHALL
 - [`../paradigm-bc/spec.md`](../paradigm-bc/spec.md) — BC 算法层 SHALL
 - `openspec/specs/rl-obs/`(待落地)— 训练侧 obs / action 张量编码契约
-- `openspec/specs/runs-registry/`(待落地)— `tools.runs.*` CLI + `artifacts/runs/<id>.toml`
+- Run lifecycle and metadata are specified by [`../tools-layout/spec.md`](../tools-layout/spec.md)
   数据契约(post `core-network-generic-promotion` 2026-05-17;pre-redesign archive
   在 `docs/5_history/runs_pre_redesign_2026_05_17.md`)
 
@@ -144,7 +141,7 @@ P3-P5 ship 后)+ 对应 capability spec:
 - `training/core/` — paradigm-agnostic infra(protocols / pipeline /
   network / buffer / actor / inference / eval / opponent / config)
 - `training/paradigms/<name>/` — 5 paradigm(`az` / `dmc` / `cfr` /
-  `ppo` / `bc`),各含 paradigm.py + adapter + legacy/ 子目录 saved
+  `ppo` / `bc`),各含 paradigm implementation + adapters
 - `training/framework/` 已删除(P5-F),全部融入 `training/core/`
 
 **Decision artifacts**:
@@ -153,15 +150,7 @@ P3-P5 ship 后)+ 对应 capability spec:
   `docs/2_decisions/adr-0006-training_layout.md`)
 - DMC Phase 3.5 review(41 项 issues,部分由本架构吸收)→
   `docs/5_history/reviews/dmc_review.md`
-- Eval service 全局单例约定 → `memory project_eval_service_global` +
-  `memory feedback_eval_service_precheck`
-
-**Memory cross-references**:
-- Training layout history → `memory project_training_layout`
-- AZ stack closure(2026-04-28)→ `memory project_rl_closure_2026_04_28`
-- Eval service 全局单例约定 → `memory project_eval_service_global`
-- 训练前启动 eval_service → `memory feedback_eval_service_precheck`
-- 训练完必跑 gauntlet → `memory feedback_post_run_gauntlet`
+- Eval service 当前协议 → [`../eval-protocol/spec.md`](../eval-protocol/spec.md)
 
 ## 7. Status
 

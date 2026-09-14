@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { StateView } from '../types/state'
 
 // Minimal shape the component needs — accepts both LegalAction (live)
 // and a mapped AgentLegalAction-with-prob (replay) without depending
@@ -14,36 +15,41 @@ export interface DisplayAction {
 }
 
 interface Props {
+  view?: StateView
+  humanPlayer?: number
   actions: DisplayAction[]
   onPick?: (index: number) => void
   disabled?: boolean
   topIndex?: number
 }
 
-export function LegalActionList({ actions, onPick, disabled, topIndex }: Props) {
+export function LegalActionList({ actions, onPick, disabled, topIndex, view, humanPlayer }: Props) {
   const [selected, setSelected] = useState<Record<string, number>>({})
   const groups = new Map<string, DisplayAction[]>()
   for (const action of actions) {
     const key = action.identity ? JSON.stringify(action.identity) : String(action.index)
     groups.set(key, [...(groups.get(key) ?? []), action])
   }
-  const paymentLabel = (a: DisplayAction) => a.payment?.map((n, i) => n ? `${['火','冰','水','雷','岩','风','草','万能'][i]}×${n}` : '').filter(Boolean).join(' ') || '无需骰子'
+  const paymentLabel = (a: DisplayAction) => a.kind_name === 'Tune' ? `弃置此牌 · 转换${['火','冰','水','雷','岩','风','草','万能'][a.identity?.[2] ?? -1] ?? ''}骰` : a.payment?.map((n, i) => n ? `${['火','冰','水','雷','岩','风','草','万能'][i]}×${n}` : '').filter(Boolean).join(' ') || '无需骰子'
   if (actions.length === 0) {
-    return <div className="text-xs text-slate-500">no legal actions</div>
+    return <div className="text-xs text-slate-500">没有可用行动；请选择其他卡牌或角色</div>
   }
   return (
-    <div className="flex flex-col gap-1 max-h-64 overflow-auto">
+    <div className="action-grid">
       {[...groups].map(([key, choices]) => {
         const a = choices.find(c => c.index === selected[key]) ?? choices[0]
+        const targetPlayer = a.identity?.[3] ?? -1
+        const targetChar = a.identity?.[4] ?? -1
+        const target = targetPlayer >= 0 && targetChar >= 0 ? view?.players[targetPlayer]?.chars[targetChar]?.name : null
         const isTop = topIndex === a.index
         // Show slot suffix for Card (hand idx) so duplicate-name
         // picks are distinguishable in the list.
         const slotSuffix =
           a.kind_name === 'Card' && typeof a.slot === 'number' && a.slot >= 0
-            ? ` (hand#${a.slot})`
+            ? ` · 手牌 ${a.slot + 1}`
             : ''
         return (
-          <div key={key} className="flex gap-2 items-center">
+          <div key={key} className="action-choice">
           <button
             disabled={disabled}
             onClick={() => onPick?.(a.index)}
@@ -54,8 +60,8 @@ export function LegalActionList({ actions, onPick, disabled, topIndex }: Props) 
             } ${isTop ? 'border-amber-400/60' : ''}`}
           >
             <span className="truncate">
-              <span className="text-slate-400">{a.kind_name}:</span>{' '}
-              {a.name}{slotSuffix}
+              <span className="text-slate-400">{{ Skill: '技能', Card: '出牌', Switch: '出战', EndTurn: '结束回合', Tune: '调和' }[a.kind_name] ?? a.kind_name} ·</span>{' '}
+              {a.name}{slotSuffix}{target && <span className="ml-1 text-emerald-200">→ {humanPlayer === undefined ? `P${targetPlayer}` : targetPlayer === humanPlayer ? '己方' : '敌方'} {target}</span>}
               {a.payment && <span className="ml-2 text-amber-200">{paymentLabel(a)}</span>}
             </span>
             {typeof a.prob === 'number' && (

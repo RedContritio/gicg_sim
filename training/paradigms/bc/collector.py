@@ -4,8 +4,8 @@ BC3.1 / BC3.3:no env episode loop;dataset 静态 NPZ。``collect()`` 一次性
 读 dataset → push 全量 transitions 到 buffer → 后续 collect call 是 no-op
 (driver 看到 n_units=0 visually 但 buffer 已 ready)。
 
-Implementation 包裹 ``training.paradigms.bc.legacy.bc_dataset.BCDataset``(P5-E dedupe 后
-BC 实现统一落到 bc/legacy/。这里通过 import 复用,避免拷贝 ~200 LOC 解码逻辑)。
+Dataset decoding is implemented by the sibling
+``training.paradigms.bc.dataset.BCDataset`` module.
 
 requires_network_in_collect = False — driver SHALL NOT 建 NetworkProvider
 在 BC collect path(BC1.3 / BC3.3)。

@@ -1,8 +1,9 @@
 """training.core.network — paradigm-agnostic network primitives.
 
-Generic primitives shared by all 5 paradigms (AZ / BC / CFR / DMC / PPO).
-Composition via ``make_actor_critic`` factory (paradigm picks head subset
-+ optional typed_damage).
+Generic primitives used by the AZ, BC, DMC, and PPO network wrappers.
+Composition goes through ``make_actor_critic`` (the paradigm selects a head
+subset and optional typed-damage input). CFR keeps its paradigm-local
+strategy and advantage networks.
 
 Owns:
 - ``actor_critic`` — generic ``ActorCritic`` thin composition + ``make_actor_critic`` factory
@@ -13,9 +14,9 @@ Owns:
 - ``struct_readout`` — C1v7 struct readout block (绕过 cross-attn 零空间)
 - ``hook_emb`` — char-skill / char-slot helpers
 
-Phase 1 (core-network-generic-promotion) note: ``core/network/legacy/`` 同时
-存在,5 paradigm 仍使用其老 ActorCritic / AgentBase / typed_damage 副本;
-Phase 2 逐 paradigm 切到本 module,Phase 2 末尾删 legacy/。
+The earlier migration's ``core/network/legacy/`` tree has been removed. The
+current boundary is documented by
+``openspec/specs/training-architecture/network-sharing.md``.
 """
 
 from training.core.network.actor_critic import (

@@ -15,20 +15,16 @@
 
 > 这是**顶层决策日志**。各决策的实现细节请参阅对应的专题文档：
 >
-> - 算法细节 → [`mcts_design.md`](mcts_design.md)
-> - 网络架构 → [`network_design.md`](network_design.md)
-> - 骰子机制规格 → [`dice_spec.md`](specs/dice_spec.md)
-> - 训练循环 → [`training_loop.md`](training_loop.md)
-> - 确定化采样器 → [`determinization.md`](specs/determinization.md)
-> - 任务待办 / 代码布局 → [`implementation.md`](implementation.md)
-> - 迁移的证据 → [`evidence/`](../../history/az/evidence/)
+> - 算法、网络、骰子、训练与确定化设计 → [归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
+> - 任务待办 / 代码布局 → [归档任务](../../openspec/changes/archive/0005-az-decisions-d1-d14/tasks.md)
+> - 迁移的证据 → [`docs/5_history/evidence/`](../5_history/evidence/)
 
 ## 背景
 
 **截至 2026-04-14**，项目运行基于 per-size-pool ELO 门控课程（phase0-5）的 PPO 自对弈。我们连续快速落地了三项改进——B3 运行奖励归一化、C per-size pool ELO，以及最小奖励（14 → 3 个系数）。在组合栈下的首次训练运行（`202604141523_p0p1_minrew`）干净通过了 phase0a 至 phase1a，但 **phase1b 在约第 150 轮迭代附近陷入持续回归**，Δ 在第 170 轮跌至 -289，停止训练时仍维持在约 -238。各项单独指标（`val_ret_corr`、`v_loss`、`clip_frac`）均健康，但策略无法恢复。
 
 一次可行性探测使方向无法辩护：**一个 200 次 rollout 的纯随机 rollout UCT 玩家在三个场景下以 117-3 击败了经过训练的 phase1a 策略**（1v1 L1、1v1 L1+L2、2v2 L1+L2——每种 40 局，交替先手）。完整结果见
-[`evidence/mcts_vs_policy.md`](../../history/az/evidence/mcts_vs_policy.md)。
+[`evidence/mcts_vs_policy.md`](../5_history/evidence/mcts_vs_policy.md)。
 
 本文档记录了 2026-04-14 做出的从 PPO 迁移到 AlphaZero 风格 MCTS + 神经网络协同训练的决策，并使用信息集 MCTS（IS-MCTS）处理不完美信息。
 
@@ -37,14 +33,14 @@
 ## 证据摘要
 
 - **快照原语基准测试**
-  ([`evidence/bench_snapshot.md`](../../history/az/evidence/bench_snapshot.md))：
+  ([`evidence/bench_snapshot.md`](../5_history/evidence/bench_snapshot.md))：
   `snapshot` / `restore` 约 8 µs，且**对游戏规模为 O(1)**。
   单进程 Python MCTS 吞吐量为 100–300 局/小时；
   4 进程 CPU 并行可达 1–2.8 万局/天，远超
   PPO rollout 的约 1600 局/天。
 
 - **MCTS 对比策略的实战测试**
-  ([`evidence/mcts_vs_policy.md`](../../history/az/evidence/mcts_vs_policy.md))：
+  ([`evidence/mcts_vs_policy.md`](../5_history/evidence/mcts_vs_policy.md))：
   三个场景共 120 局，**MCTS 117 胜，策略 3 胜**。
   2v2 L1+L2 完全封杀——正是 phase1b 失败的场景。
   纯搜索、无任何学习组件，便能主导 1500 轮 PPO 训练。
@@ -65,7 +61,7 @@
 **决策**：A。基准测试显示 100–300 局/小时/进程，
 4 核并行超过 PPO 吞吐量。仅在 profiling 确认 ctypes 边界是实际瓶颈时才迁移到 Go。
 
-**详情**：[`mcts_design.md`](mcts_design.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -81,8 +77,7 @@
 **参考文献**：Cowling, Powley, Whitehouse (2012)。"Information
 Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 
-**详情**：[`mcts_design.md`](mcts_design.md)，
-[`determinization.md`](specs/determinization.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -96,7 +91,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 
 **MVP 约束**：网络架构必须为未来添加 `deckbuild_policy_head` 留有空间，而无需重构主干。
 
-**详情**：[`network_design.md`](network_design.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -110,7 +105,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 **已废弃**：`training/opponent_pool.py`、per-size ELO 重构、
 哨兵锚点逻辑、所有阶段配置中的 `opponent = "pool"` 引用。
 
-**详情**：[`training_loop.md`](training_loop.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -122,7 +117,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 **已废弃**：`_compute_reward_from_events`、`RewardCoefs`、
 新卡追踪、每步奖励管道。`GicgEnv.step` 签名变为 `(obs, done, info)`。
 
-**详情**：[`training_loop.md`](training_loop.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -140,7 +135,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 3. 临时使用启发式 rollout 策略进行叶节点评估
 4. 注入 5-20 条手工编写的连携示例作为监督数据
 
-**详情**：[`training_loop.md`](training_loop.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -168,7 +163,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 
 **MVP 约束**：代码必须为 `MAX_ACTIONS` 增长（64 → 128 → 256）、动作的骰子组合特征向量以及 16 个新计数器槽留有空间——所有这些均无需架构变更。
 
-**详情**：[`dice_spec.md`](specs/dice_spec.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -181,7 +176,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 
 观察维度（`ObsMaxCardTypes`、`N_HOOKS` 等）在**运行时从引擎查询**，而非硬编码。网络嵌入表按物理上限定大小（`MAX_CARDS=2048`、`MAX_HOOKS=8192`、`MAX_CHARS=512`），以适应增长而无需架构变更。
 
-**详情**：[`network_design.md`](network_design.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -198,7 +193,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 
 **`max_copies`** 是一个新概念：每张卡有可配置的副本上限（默认 2），在 DSL 中逐卡声明。`SharedFixedPool` 使用此限制来约束初始构牌和确定化采样器的合法性检查。
 
-**详情**：[`determinization.md`](specs/determinization.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -216,7 +211,7 @@ Set Monte Carlo Tree Search." IEEE Trans. on CIAIG.
 overlap 触发 #152 hook 双注册。详见 `training/az/config.py::ScenarioConfig`。
 C1v7 (5-char pool, team_size=1) argmax vs mcts_200 = 0.45，首次公平泛化验证。
 
-**详情**：[`training_loop.md`](training_loop.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -240,7 +235,7 @@ C1v7 (5-char pool, team_size=1) argmax vs mcts_200 = 0.45，首次公平泛化�
 - `MAX_ACTIONS` 初始为 128，在高度灵活情况下最多 256
 - **不做转置**——到达同一"最终资源状态"的不同路径保持为独立的树节点，因为它们的中间状态是价值头的训练信号
 
-**详情**：[`mcts_design.md`](mcts_design.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -278,8 +273,7 @@ prior)接手;A1 单独 scope,不复用 ExpandUnionK 代码。
 
 **与 D6 的关系**：模式 B 是 D6 bootstrap 停滞升级方案的第 2 步。
 
-**详情**：[`mcts_design.md`](mcts_design.md)，
-[`training_loop.md`](training_loop.md)
+**详情**：[归档设计](../../openspec/changes/archive/0005-az-decisions-d1-d14/design.md)
 
 ---
 
@@ -317,7 +311,7 @@ prior)接手;A1 单独 scope,不复用 ExpandUnionK 代码。
 
 ## 计划概览
 
-完整任务待办（含依赖和时长估算）见 [`implementation.md`](implementation.md)。
+完整任务待办（含依赖和时长估算）见 [归档任务](../../openspec/changes/archive/0005-az-decisions-d1-d14/tasks.md)。
 
 | 阶段 | 目的 | 时长 |
 |---|---|---|

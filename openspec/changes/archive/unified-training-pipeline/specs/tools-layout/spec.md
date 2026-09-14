@@ -111,7 +111,7 @@ change_id: unified-training-pipeline
 ## 4. Cross-references
 
 - D5 决策来源 → [`../../design/tools-layout.md`](../../design/tools-layout.md) §2
-- 主 training architecture → [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+- 主 training architecture → [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
   SHALL #12(Single entry tool)
 - Cfg dispatch 接口 → [`../config-schema/spec.md`](../config-schema/spec.md)
   SHALL CS1.3

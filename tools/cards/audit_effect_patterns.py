@@ -15,8 +15,8 @@ normalize 规则(strict-token 转换器白名单的前置工作):
 
 用法(从 repo root)::
 
-    .venv/bin/python -m tools.audit_effect_patterns
-    .venv/bin/python -m tools.audit_effect_patterns --output /tmp/eff.md --top 200
+    .venv/bin/python -m tools.cards.audit_effect_patterns
+    .venv/bin/python -m tools.cards.audit_effect_patterns --output /tmp/eff.md --top 200
 """
 
 from __future__ import annotations
@@ -97,8 +97,11 @@ def normalize_sentence(s: str, chars: set[str], cards: set[str]) -> str:
 
 
 def collect_effect_texts() -> list[tuple[str, str]]:
-    """yield (source_id, effect_text) for each effect in cleansed yaml(action 顶层 +
-    character.skills/.summons/.talent + monster.skills/.summons)。"""
+    """Return ``(source_id, effect_text)`` for every cleansed effect.
+
+    Sources include top-level actions plus character/monster skills,
+    summons, and talents.
+    """
     out: list[tuple[str, str]] = []
     for sub in ('action', 'character', 'monster'):
         d = CLEANED / sub

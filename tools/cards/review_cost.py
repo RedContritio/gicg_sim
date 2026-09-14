@@ -1,5 +1,8 @@
 """扫描所有 raw 卡,对每张应用 cost_from_slots 严格验证;生成 outlier multi-source 对照报告。
 
+当前实现从历史外部 checkout ``~/Documents/gicg_sim/data/raw`` 读取
+raw 数据，并与仓库内 ``data/cleaned`` 对照。
+
 输出 markdown 表格,user review 后写 cost_overrides.yaml。
 长期保留(每次 cost mapping/judgement/list 数据更新后都需重跑 review)。
 
@@ -133,7 +136,7 @@ def evaluate_slot(
 
 
 def lookup_sonnet_cost(parent_class: str, fname: str) -> str:
-    """从 data/cleaned/<type>/<id>_<name>.yaml 读 sonnet 标定 cost(若存在)。"""
+    """Read the historical reference cost from ``data/cleaned`` when present."""
     p = CLEANED_BASE / parent_class / fname
     if not p.exists():
         return ''

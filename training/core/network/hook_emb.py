@@ -1,10 +1,10 @@
-"""Hook embedding cache + char-skill gather helpers.
+"""Hook embedding cache and character-skill gather helpers.
 
-Adapted from training/framework/network/actor_critic.py. The cached
-hook_emb feeds the cross-attention block; char_skill_pool gathers
+The cached hook embeddings feed the cross-attention block;
+``char_skill_pool`` gathers
 hook_emb at char-skill ref positions (P0+P1 skill identification).
 
-Paradigm-agnostic — AZ / DMC / PPO all consume the same cache."""
+The helpers are shared by AZ, DMC, and PPO."""
 
 from __future__ import annotations
 

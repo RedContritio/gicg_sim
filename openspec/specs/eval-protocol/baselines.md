@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: eval-protocol
@@ -9,11 +9,11 @@ subtopic: baselines
 # Baselines — random / F1-Dn / mcts_pure / historical ckpt 接口
 
 > 本 subtopic 锚定 gauntlet baseline player 接口契约 —
-> `training/framework/matchup/loaders.py::LOADERS` registry 注册的 5
-> 种 player type(az / cfr / random / mcts_pure / greedy),plus
-> historical ckpt 接入约定。
+> `training/core/matchup/loaders.py::LOADERS` registry 提供 universal
+> player（random / mcts_pure / greedy）和按需加载的 paradigm player，
+> 并承接 historical ckpt。
 >
-> 源 truth:`training/framework/matchup/loaders.py` + `players.py`
+> 源 truth:`training/core/matchup/loaders.py` + `players.py`
 > (MCTSPlayer)+ `greedy_player.py` + `greedy_scorers.py` +
 > `greedy_dice.py`。
 
@@ -23,17 +23,18 @@ subtopic: baselines
 
 - `LOADERS` registry pattern + `load_player(spec) -> PlayerBuilder`
 - `_PlayerProtocol` 接口:`select_action(env) -> int`
-- 5 种 shipped player type:az / cfr / random / mcts_pure / greedy
+- universal player type random / mcts_pure / greedy，以及按需加载的
+  paradigm player（az / bc / cfr / dmc / ppo；部分组合会明确拒绝）
 - Greedy 三轴变体:Features(F1..F5)× Depth(D1..D3)× dice_greedy bool
 - Historical ckpt 接入 pattern(via `az` / `cfr` type + ckpt path)
 - `PlayerBuilder` callable signature `seed -> _PlayerProtocol`
 
 不覆盖:
 
-- 具体 F1..F5 feature 公式 — 见 `training/framework/matchup/greedy_player.py`
+- 具体 F1..F5 feature 公式 — 见 `training/core/matchup/greedy_player.py`
   module docstring + `greedy_scorers.py`(spec 引用 docstring 而非 inline
   复制公式)
-- AZ MCTS PUCT 超参 — AZ paradigm dossier(`training/az/mcts.py::MCTSConfig`)
+- AZ MCTS PUCT 超参 — AZ paradigm dossier(`training/paradigms/az/mcts/config.py::MCTSConfig`)
 - CFR strategy net 训练 — CFR paradigm dossier
 - 未来 Go gauntlet baselines(`gicg_baselines/` capability) — 单独
   spec
@@ -47,13 +48,13 @@ PlayerBuilder = Callable[[int], _PlayerProtocol]
 # Each loader: spec dict -> PlayerBuilder (capture ckpt-load + cfg)
 # Builder: seed (int) -> _PlayerProtocol instance with RNG seeded
 
-LOADERS: Dict[str, Callable[[dict], PlayerBuilder]] = {
-    'az':         _loader_az,
-    'random':     _loader_random,
-    'mcts_pure':  _loader_mcts_pure,
-    'cfr':        _loader_cfr,
-    'greedy':     _loader_greedy,
-}
+register_loader('random', _loader_random)
+register_loader('mcts_pure', _loader_mcts_pure)
+register_loader('greedy', _loader_greedy)
+
+# az / bc / cfr / dmc / ppo loaders live in
+# training/paradigms/<name>/_player_loader.py and self-register on
+# the first lookup through the lazy LOADERS mapping.
 ```
 
 ### 2.2 SHALL invariants
@@ -154,7 +155,7 @@ class _RandomPlayer:
 
 ### 5.1 Implementation
 
-`MCTSPlayer` in `training/framework/matchup/players.py` — UCT with
+`MCTSPlayer` in `training/core/matchup/players.py` — UCT with
 uniform priors and random rollouts。
 
 ### 5.2 SHALL invariants
@@ -214,10 +215,10 @@ uniform priors and random rollouts。
 
 ### 6.3 Stable baseline ladder
 
-Gauntlet 用 F1-D2 作为 production baseline,因 `memory feedback_ppo_multiseed_required`
-+ AZ stage 0-3 验证。Greedy 强度 monotone 假设:F1 < F2 < ... + D1
+Gauntlet 用 F1-D2 作为 production baseline；历史 AZ stage 0-3 结果见
+`docs/5_history/`。Greedy 强度 monotone 假设:F1 < F2 < ... + D1
 < D2 < D3。Anomaly("F1 > F5" / "D3 < D1")出现时 SHALL 当 bug
-诊断,非 silent 接受。详 `memory project_greedy_baseline`。
+诊断,非 silent 接受。
 
 ## 7. Cross-references
 
@@ -228,13 +229,13 @@ Gauntlet 用 F1-D2 作为 production baseline,因 `memory feedback_ppo_multiseed
   `restore` / `set_player_*` IS-MCTS injection
 - [`network-architecture`](../network-architecture/spec.md) —
   `_AZGreedyPlayer` / `_AgentMCTSPlayer` consumes `agent.eval_state`
-- `memory project_greedy_baseline` — F1-D2 production baseline 决策
-- `memory feedback_ppo_multiseed_required` — strength 判据约束
+- [`docs/5_history/ablations/stage3_ppo_closure.md`](../../../docs/5_history/ablations/stage3_ppo_closure.md)
+  — historical strength evidence
 
 ## 8. Status
 
 - **Created**:2026-05-15(P1-T6)
-- **Source**:`training/framework/matchup/loaders.py` +
+- **Source**:`training/core/matchup/loaders.py` +
   `players.py` + `greedy_player.py` + `greedy_scorers.py` +
   `greedy_dice.py`
 - **Known gap**:

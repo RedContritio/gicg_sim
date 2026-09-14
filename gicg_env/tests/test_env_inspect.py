@@ -1,6 +1,6 @@
 """Tests for GicgEnv state inspection / hidden-state injection / replay.
 
-Split out of ``test_env.py`` to stay under the 500-line cap on test files.
+Split out of ``test_env.py`` to keep each test module focused.
 Covers:
   - TestSetHiddenState: set_player_hand/deck/dice — the IS-MCTS
     determinization injection API
@@ -27,8 +27,8 @@ def make_env(team_0, team_1, **kw):
 
 class TestSetHiddenState:
     """Tests for set_player_hand / set_player_deck — the IS-MCTS
-    determinization injection API. See docs/az/decisions.md D9 and
-    docs/az/determinization.md."""
+    determinization injection API. See
+    ``docs/2_decisions/adr-0005-az_decisions_d1_d14.md``."""
 
     def test_set_player_hand_replaces_content(self):
         with make_env(['赤蝶'], ['墨客']) as env:

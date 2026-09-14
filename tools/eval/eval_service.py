@@ -5,11 +5,10 @@ Global singleton — listens on a fixed TCP localhost address (default
 Each request carries its own player specs, team configuration, and
 result output path, so one service instance serves all runs.
 
-The server binds ``localhost`` only (never ``0.0.0.0``) — eval_service
-is process-local IPC dressed in TCP for Windows portability, not a
-network service. Cross-host topologies (e.g. dispatch from container
-to host) wire the loopback port through the container runtime
-(``-p 9100:9100``) rather than binding externally.
+The supported default binds ``localhost``: eval_service is process-local IPC
+dressed in TCP for Windows portability. ``--host`` is available for explicit
+topology setup, but exposing this unauthenticated protocol as a network service
+is outside its contract.
 
 Start once, leave running across training sessions::
 
@@ -53,9 +52,8 @@ from tools.eval.eval_service_server import EvalServer
 # ---------------------------------------------------------------------------
 # Constants
 
-# TCP localhost (AF_INET) — Windows-portable (AF_UNIX unavailable on
-# Windows). Container deployments map the loopback port through
-# ``-p 9100:9100`` (CLI flag overrides default if needed).
+# TCP via AF_INET — Windows-portable. The supported default is localhost;
+# ``--host`` explicitly overrides it for caller-managed topologies.
 #
 # Post 2026-05-24:env var (GICG_EVAL_HOST / GICG_EVAL_PORT) 全砍 — cfg-driven
 # only,production train 走 cfg.eval.host / cfg.eval.port (TrainingConfig 字段);
@@ -131,7 +129,7 @@ def build_server(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Global evaluation service for AZ training.',
+        description='Global evaluation service for AZ / CFR training.',
     )
     parser.add_argument(
         '--host',

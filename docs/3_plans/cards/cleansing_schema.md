@@ -1,10 +1,14 @@
 ---
 plan: cleansing_schema
-status: ACTIVE
-last_updated: 2026-04-28 PM
+status: HISTORICAL
+last_updated: 2026-09-14
 ---
 
 # Card Cleansing Pipeline
+
+> **历史方案**：本文记录 2026-04 的 raw/full/cleaned 流程。当前官方
+> 内容抓取、差异和审核边界见
+> [`native_content_curriculum.md`](native_content_curriculum.md)。
 
 ```
 raw/<id>_<name>.json              (mihoyo wiki 抓取产物)

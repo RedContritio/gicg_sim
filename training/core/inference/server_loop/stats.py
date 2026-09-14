@@ -1,4 +1,4 @@
-"""Server-loop stats: periodic emit of batch timing + size percentiles."""
+"""Emit inference throughput counters and batch-size percentiles."""
 
 from __future__ import annotations
 

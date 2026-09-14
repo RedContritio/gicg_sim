@@ -34,12 +34,15 @@ type StateView struct {
 // the sampled hand/deck (docs/az/determinization.md). Zero-length =
 // no cards discarded yet.
 type PlayerView struct {
-	ActiveChar int        `json:"active_char"` // index into Chars; -1 when not yet selected
-	AliveCount int        `json:"alive_count"`
-	Chars      []CharView `json:"chars"`
-	Hand       []CardView `json:"hand"`
-	DeckCount  int        `json:"deck_count"`
-	Discard    []CardView `json:"discard"`
+	ActiveChar int          `json:"active_char"` // index into Chars; -1 when not yet selected
+	AliveCount int          `json:"alive_count"`
+	Chars      []CharView   `json:"chars"`
+	Hand       []CardView   `json:"hand"`
+	DeckCount  int          `json:"deck_count"`
+	Discard    []CardView   `json:"discard"`
+	Supports   []StatusView `json:"supports"`
+	Summons    []StatusView `json:"summons"`
+	Statuses   []StatusView `json:"statuses"`
 }
 
 type CharView struct {
@@ -115,6 +118,7 @@ func buildPlayerView(g *engine.Game, rt *interp.Runtime, roleMap RoleMap,
 			Name: g.CardNames[d.Ref],
 		})
 	}
+	pv.Supports, pv.Summons, pv.Statuses = buildPlayerZones(g, pi)
 	return pv
 }
 

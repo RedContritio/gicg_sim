@@ -109,7 +109,7 @@ def test_bc_loss_hard_target_uniform_log_n():
 
 
 def test_bc_loss_soft_target_kl_numerical():
-    """Soft target = uniform over 2 tied legals → log 2(matches bc/legacy/bc_loss
+    """Soft target = uniform over 2 tied legals → log 2(matches the retained BC loss
     soft_target_ce_loss when target == uniform legal)。"""
     logits = torch.zeros(1, 2)
 

@@ -51,10 +51,10 @@ SHALL 满足以下契约 — paradigm 接入 merge gate。
 
 **A1.6.1** Each paradigm `<X>` SHALL provide a second-tier smoke test
 `training/tests/test_<X>_smoke_full.py` marked with
-`@pytest.mark.smoke_full`,covering the full `tools.run` driver path
+`@pytest.mark.smoke_full`,covering the full `tools.runs.train` driver path
 (NOT only Protocol-level forward + backward as default smoke does)。
 
-**A1.6.2** smoke_full test SHALL subprocess-invoke `tools.run
+**A1.6.2** smoke_full test SHALL subprocess-invoke `tools.runs.train
 <configs/<X>/smoke_full.toml>` to drive train loop to ≥ 100 step
 (paradigm step_schedule terminus tuned via toml override to reach 100+
 step within 8 min wall),then verify:
@@ -64,7 +64,7 @@ step within 8 min wall),then verify:
 - `latest.pt` symlink (copy) exists
 - `metrics.jsonl` exists with at least one row
 
-**A1.6.3** smoke_full test SHALL additionally invoke `tools.run --resume
+**A1.6.3** smoke_full test SHALL additionally invoke `tools.runs.train --resume
 <ckpt>` against the first ckpt produced in A1.6.2,verify:
 
 - Subprocess exits 0(load + train continuation path functional)
@@ -94,7 +94,7 @@ No new toml top-level sections;structural fidelity to base smoke.toml
 preserved per `cfg-toml-restructure-paradigm-scoped` N6 hybrid form。
 
 **A1.6.7** smoke_full tests MAY use `pytest.skip(reason=...)` if the
-paradigm's `tools.run <smoke.toml>` path is blocked by a pre-existing
+paradigm's `tools.runs.train <smoke.toml>` path is blocked by a pre-existing
 production bug outside this change scope(per SF-105)。The skip
 message SHALL identify the bug + the follow-up change id required to
 unblock。Skip is NOT a spec violation — it surfaces a contract gap
@@ -106,7 +106,7 @@ between paradigm production driver and the smoke_full tier。
   友好,5 paradigm 全 collected),由 §2 5 条契约 + §3 paradigm-specific
   invariant 治理
 - `@pytest.mark.smoke_full` — opt-in 全 train(5-15min/paradigm,real
-  100-step train + auto-save ckpt + resume verify via `tools.run` driver
+  100-step train + auto-save ckpt + resume verify via `tools.runs.train` driver
   e2e),通过 pyproject `addopts -m "not smoke_full"` 默认 exclude;由 §4
   7 子约束 A1.6.1-A1.6.7 治理
 
@@ -129,15 +129,16 @@ between paradigm production driver and the smoke_full tier。
 
 A1.6 7 子约束的决策依据(per archive `paradigm-smoke-full-tier/DECISIONS.md`):
 
-- **SF-101** — subprocess `tools.run`,not in-process driver call
+- **SF-101** — subprocess the production training entry, currently `tools.runs.train`, not an in-process driver call
   (避免 sys.path / global state 污染,与 production 调用 1:1)
 - **SF-102** — functional resume verify,not bit-identical weight diff
   (rng state drift acceptable,bit-identical 会 flaky)
 - **SF-103** — smoke_full toml 用 `meta.extends` 继承 smoke.toml
   (per `cfg-toml-restructure-paradigm-scoped` hybrid structure)
 - **SF-104** — 8 min target / 15 min hard cap per paradigm
-- **SF-105** — 4/5 paradigm tests use `pytest.skip` due to pre-existing
-  production bugs(DMC 唯一 end-to-end pass;4 follow-up changes queued)
+- **SF-105** — the original change allowed `pytest.skip` for named external
+  blockers; those blockers were later fixed and all five smoke_full tests are
+  now collected when the marker is explicitly selected
 - **SF-106** — smoke_full ckpt artifacts_root SHALL be `--override
   checkpoint.artifacts_root=<tmp_path>` 隔离(pytest tmp_path 自动 cleanup +
   多次 test 不互相 stomp + production artifacts 不被 test 数据污染)

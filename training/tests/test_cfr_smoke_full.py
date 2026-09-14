@@ -1,8 +1,8 @@
 """CFR paradigm smoke_full — full driver e2e + ckpt save/load (A1.6).
 
-OpenSpec ref: ``openspec/changes/paradigm-smoke-full-tier/specs/
-training-architecture/spec.md`` invariant A1.6 + DECISIONS SF-105
-+ ``openspec/changes/cfr-driver-buffer-multihead-fix/`` (stub buffer).
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``
++ DECISIONS SF-105
++ ``openspec/changes/archive/cfr-driver-buffer-multihead-fix/`` (stub buffer).
 
 CFR has a 3-headed buffer (advantage[player0/player1] + strategy +
 value) — ``_CFRBufferBundle.sample()`` raises because the generic

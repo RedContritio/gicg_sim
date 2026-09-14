@@ -2,12 +2,14 @@
 """按 content_id 升序均匀 stride 选 sqrt(N) 张样本。
 
 每个 type 独立取样:character / action / monster。stride = ceil(N / k),
-k = ceil(sqrt(N))。打印每类的样本路径,供 spawn sonnet 处理。
+k = ceil(sqrt(N))。打印每类的样本路径,供 cleansing 子任务处理。
+
+默认读取历史外部 checkout ``~/Documents/gicg_sim/data/raw``。
 
 用法::
 
-    .venv/bin/python -m tools.select_sample_cards
-    .venv/bin/python -m tools.select_sample_cards --raw-dir ~/Documents/gicg_sim/data/raw
+    .venv/bin/python -m tools.cards.select_sample_cards
+    .venv/bin/python -m tools.cards.select_sample_cards --raw-dir ~/Documents/gicg_sim/data/raw
 """
 
 from __future__ import annotations

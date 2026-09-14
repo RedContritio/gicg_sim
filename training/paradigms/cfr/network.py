@@ -1,10 +1,9 @@
-"""CFRNetwork — nn.Module wrapper exposing 2 heads (avg_policy + advantage).
+"""CFRNetwork — strategy/value module plus two advantage modules.
 
-Spec ref: paradigm-cfr/spec.md C4. CFR uses a shared encoder trunk fed
-into two heads:
+Spec ref: paradigm-cfr/spec.md C2. The current adapter composes:
 
-  - ``avg_policy_head``: action logits (eval / production inference path)
-  - ``advantage_head``: per-action regret scalar (training-only)
+  - one ``CFRStrategyNet`` returning action logits and a value estimate
+  - two ``AdvantageNet`` instances, one per traverser player
 
 The legacy CFR implementation realizes the two heads as **two separate
 modules** sharing trunk *architecture* (not weights — see docstring on
@@ -12,8 +11,8 @@ modules** sharing trunk *architecture* (not weights — see docstring on
 that 1:1 — it composes a ``CFRStrategyNet`` (avg_policy + value) and a
 pair of ``AdvantageNet`` (one per traverser_player, per C1.2).
 
-P5 consolidation may unify the trunks; for now the wrapper is a thin
-forwarding layer so r008 reproducibility (C6.2) holds exactly.
+This preserves the historical module topology for inspection, but current
+checkpoint shapes do not promise numerical reproduction of r008.
 """
 
 from __future__ import annotations

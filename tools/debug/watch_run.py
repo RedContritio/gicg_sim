@@ -8,8 +8,8 @@ or on completed runs (parses everything and exits on the final
 
 Usage from repo root::
 
-    .venv/bin/python -m tools.watch_run artifacts/<ts>_<label>/metrics.jsonl
-    .venv/bin/python -m tools.watch_run artifacts/<ts>_<label>/metrics.jsonl --interval 5
+    .venv/bin/python -m tools.debug.watch_run artifacts/<ts>_<label>/metrics.jsonl
+    .venv/bin/python -m tools.debug.watch_run artifacts/<ts>_<label>/metrics.jsonl --interval 5
 """
 
 from __future__ import annotations

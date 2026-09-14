@@ -1,5 +1,4 @@
-"""Parity + correctness tests for GicgEngine.random_rollout (Go-side
-uniform random rollout, replaces training/mcts.py::_random_rollout_value).
+"""Correctness tests for the Go-side GicgEngine.random_rollout.
 
 Guarantees:
 - Given same starting state + same seed → same winner (deterministic)

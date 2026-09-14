@@ -161,7 +161,7 @@ class NetworkProvider(Protocol):
 
 ## 7. Cross-references
 
-- 主 spec → [`../../../specs/training-architecture/protocols.md`](../../../specs/training-architecture/protocols.md)
+- 主 spec → [`../../../../specs/training-architecture/protocols.md`](../../../../specs/training-architecture/protocols.md)
 - Driver loop 调用 protocol → [`./pipeline-driver.md`](./pipeline-driver.md)
 - EpisodeRunner 调 EpisodePolicy + NetworkProvider →
   [`./episode-runner.md`](./episode-runner.md)

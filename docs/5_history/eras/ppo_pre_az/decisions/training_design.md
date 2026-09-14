@@ -5,8 +5,7 @@
 > 晋级、reward shaping、card pool、产物、ssh 续跑），这些决策随
 > PPO 栈本身一起被废弃。
 >
-> 替代决策参见 [`docs/current/az/decisions.md`](../../../current/az/decisions.md)，
-> 迁移概述参见 [`docs/current/az/README.md`](../../../current/az/README.md)。
+> 替代决策与迁移概述现归档于 [`docs/paradigms/az/`](../../../../paradigms/az/README.md)。
 >
 > 仅保留供历史参考。
 

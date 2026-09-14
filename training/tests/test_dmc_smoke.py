@@ -1,14 +1,12 @@
 """DMC paradigm e2e smoke — symmetric template (Phase 4 of
 core-network-generic-promotion).
 
-OpenSpec ref: ``openspec/changes/core-network-generic-promotion/specs/
-training-architecture/spec.md`` invariant A1 (smoke contract).
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``.
 
 DMC paradigm-specific invariant (spec A1.4):
 - Q-value finite (no NaN/inf from the Q head)
-- ε=1 ε-greedy actor SHALL explore every step (verifies the explore
-  branch isn't accidentally argmax-leaking — caught a real bug
-  historically per memory ``project_c1_failure_diagnosis``)
+- ε=1 ε-greedy actor SHALL explore every step (guards the random branch
+  against accidentally falling through to argmax)
 """
 
 from __future__ import annotations

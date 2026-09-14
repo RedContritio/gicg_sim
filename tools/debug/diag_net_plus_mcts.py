@@ -16,7 +16,7 @@ pure ``MCTS J`` for J > K, the network + search is net-stronger.
 
 Usage::
 
-    .venv/bin/python -m tools.diag_net_plus_mcts artifacts/<run>/
+    .venv/bin/python -m tools.debug.diag_net_plus_mcts artifacts/<run>/
 """
 
 from __future__ import annotations

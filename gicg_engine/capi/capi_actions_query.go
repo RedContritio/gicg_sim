@@ -119,6 +119,8 @@ func GameGetActionIdentities(id C.int, out *C.int) {
 //   - ActionSwitch: hook_idx = -1; char_idx = target char slot (NOT shuffled).
 //   - ActionEndTurn: hook_idx = -1; char_idx = -1.
 //   - ActionTune: hook_idx = discarded card hook; char_idx = source die color.
+//   - ActionReroll: hook_idx stores the selected count; char_idx stores the
+//     color, or 8 for confirmation.
 //
 // Caller must pre-size `out` to 3 * GameGetLegalActionCount().
 //
@@ -196,9 +198,8 @@ func GameGetLegalActions(id C.int, outKinds *C.int, outIndices *C.int) {
 //
 // DiceColorCount is 8 (fire, ice, water, electro, geo, anemo, dendro,
 // omni). For end-turn / tune actions (no dice cost), all 8 slots are
-// zero. This is a Phase V.b.1 export so the Python side (and
-// eventually the policy head's dice_combo_proj MLP) can access the
-// per-action dice spend without round-tripping through the obs.
+// zero. This lets callers inspect per-action dice spend without
+// reconstructing it from the observation.
 //
 //export GameGetLegalActionPayments
 func GameGetLegalActionPayments(id C.int, out *C.int) {

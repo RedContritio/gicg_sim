@@ -1,4 +1,4 @@
-"""training.core — paradigm-agnostic training scaffold (P3-A).
+"""Paradigm-agnostic training interfaces and shared components.
 
 OpenSpec ref: openspec/specs/training-architecture/spec.md + ship-time
 change ``unified-training-pipeline`` (Phase 3 first half).
@@ -9,9 +9,6 @@ NetworkProvider / Buffer / OpponentRegistry abstractions. Concrete
 paradigm adapters live in ``training/paradigms/<name>/`` and plug into
 this scaffold through the protocol layer.
 
-Note (P3-A): legacy ``training/{framework,dmc,az,cfr,ppo}`` packages
-are NOT removed yet — P3-B writes ``paradigms/dmc/`` adapter on top of
-``training/core/``,P5 physically migrates the rest.
 """
 
 from training.core.protocols import (

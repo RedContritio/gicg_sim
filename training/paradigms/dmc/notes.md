@@ -1,5 +1,8 @@
 # DMC for GICG · Notes
 
+> **历史运行记录（2026-05）**：表格和路径保留当时状态，不代表当前
+> 训练进度。实时状态见 `docs/0_status/README.md`。
+
 > 运行观察 + decision changelog。详细 step 见 [PLAN.md](PLAN.md)。
 
 ## 整体进度

@@ -1,13 +1,11 @@
 """StaticDedupBufferBase — game-static refcount + dedup table.
 
-Copied + adapted from training/framework/buffer/base.py. Shared by
-AZ replay + CFR reservoir to avoid re-storing 50KB of hook IR ops
+Shared by AZ replay + CFR reservoir to avoid re-storing hook IR ops
 per step (per-game static fields shared across all transitions of
 that game, refcounted).
 
-IR-4 cutover: per-hook representation changed from (token_type,
-token_value) pairs to (opcode, dst, op1, op2, op3) IR ops. The
-`hook_ir` field has shape (n_active_hooks, max_ops, 5) int64.
+The ``hook_ir`` field stores ``(opcode, dst, op1, op2, op3)`` IR rows
+with shape ``(n_active_hooks, max_ops, 5)`` and dtype int64.
 """
 
 from __future__ import annotations

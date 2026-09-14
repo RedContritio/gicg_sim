@@ -118,7 +118,7 @@ P0-T9 5 subtopic 在本 change archive 时各自补充内容:
 
 ## 10. Cross-references
 
-- 主 spec(P0-T9 骨架)→ [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+- 主 spec(P0-T9 骨架)→ [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
 - 6 protocol 详 → [`../../design/core-protocols.md`](../../design/core-protocols.md)
 - EpisodeRunner 详 → [`../../design/episode-runner.md`](../../design/episode-runner.md)
 - NetworkProvider 详 → [`../../design/network-provider.md`](../../design/network-provider.md)

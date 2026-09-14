@@ -7,8 +7,10 @@ feature function, and pick the argmax. Variants span a feature axis
 
 Why this exists: "random" isn't a stable baseline in complex TCG —
 random play occasionally stumbles into strong moves. Greedy tiers
-give a monotone opponent ladder (F1 < F2 < ... and D1 < D2 < D3)
-that makes training-progress signal more robust. Also lets us
+give a configurable opponent ladder across feature sets and search
+depths. The variants are intended to become stronger with added features
+or depth, although the heuristics do not guarantee a strict ordering.
+They also let us
 falsify "random is weak" hypotheses: if F1-D1 crushes random, random
 is a weaker baseline than it looks and raw vs-random scores need
 context.
@@ -49,9 +51,9 @@ the ``EV_*`` module constants below.
   D1 best response with the same feature function (from its
   perspective); I pick the my action whose resulting state scores
   highest after opponent response
-- **D3 self-3-ply**: for each my action, opponent D2 responds,
-  I pick argmax on post-opponent state — in effect I'm looking
-  2 plies ahead of my own move
+- **Dn minimax**: recursively alternate max on my turns and min on the
+  opponent's turns for ``n`` plies. The public configuration accepts
+  depths 1 through 4.
 """
 
 from __future__ import annotations
@@ -175,17 +177,16 @@ class GreedyPlayer:
         self.rng = random.Random(seed)
         # dice_greedy: collapse engine payment fan-out via hand-
         # crafted dice-value heuristic (5-30× speedup on decision-
-        # heavy configs). Off by default for back-compat with s006
-        # gauntlet results.
+        # heavy configs). Off by default to preserve the exhaustive
+        # payment expansion used by earlier evaluations.
         self.dice_greedy = dice_greedy
         # minimax_node_budget — cap total snapshot/step descents across one
         # select_action call (None = unbounded, default). Set explicitly for
         # cross-language fair bench parity with Go ``gicg_actor/dmc/
         # greedy_player.go`` (Go side accepts same knob via DMCConfig.
         # OpponentMix.MinimaxNodeBudget). D4 + dice_greedy O(N^4) without cap
-        # can burn 5-15s wall on v_legacy 26-card pool; matching Go's 4000
-        # budget (where set) keeps both sides at ~D2.7 effective depth so
-        # ratio measures pipeline overhead, not algorithm asymmetry.
+        # can be expensive without a cap. Using the same explicit budget
+        # on Python and Go keeps cross-language benchmarks comparable.
         self.minimax_node_budget = minimax_node_budget
 
     def select_action(self, env: GicgEnv) -> int:
@@ -244,7 +245,6 @@ class GreedyPlayer:
         finally:
             env.log_resume()
         best = max(s for _, s in scored)
-        # Tiebreak: pick random among argmax to avoid deterministic
-        # Switch-spam traps (same pathology CFR hit at r008 iter 100).
+        # Pick randomly among exact ties to avoid a fixed action-order bias.
         tied = [a for a, s in scored if s == best]
         return self.rng.choice(tied), {'scored': scored, 'tied': tied, 'best_score': best}

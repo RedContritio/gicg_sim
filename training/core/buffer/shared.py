@@ -1,10 +1,4 @@
-"""SHMRingBuffer — multi-process shared-memory ring (skeleton).
-
-Async-mode buffer where actor processes write transitions directly
-into shared memory + learner samples. Full implementation deferred to
-P3-B per design (DMC adapter needs it); P3-A ships the contract +
-in-process fallback so the protocol is exercised.
-"""
+"""In-process ring buffer with the shared-memory buffer API surface."""
 
 from __future__ import annotations
 
@@ -18,18 +12,15 @@ from training.core.protocols import Batch, CollectorOutput
 
 
 class SHMRingBuffer(BufferBase):
-    """In-process ring buffer with the SHM API surface. P3-B replaces
-    backing storage with multiprocessing.shared_memory + faster-fifo
-    while keeping push/sample/clear/state_dict signatures.
+    """In-process fallback for the multi-process producer API.
 
-    Distinction from ReplayBuffer: SHMRingBuffer is intended for
-    multi-process producer → single-process consumer (the learner)."""
+    Despite its name, this class currently stores entries in a process-local
+    deque. The actor IPC package provides the actual shared-memory channels.
+    """
 
     def __init__(self, capacity: int) -> None:
         super().__init__(capacity)
         self._buf: deque = deque(maxlen=capacity)
-        # TODO(P3-B): allocate shared_memory blocks + ipc/ring.py
-        # backed circular pointer here.
 
     def __len__(self) -> int:
         return len(self._buf)

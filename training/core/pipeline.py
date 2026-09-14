@@ -1,6 +1,6 @@
 """Pipeline driver — paradigm-agnostic main loop.
 
-Spec: design/pipeline-driver.md.
+Spec: ``openspec/specs/training-architecture/pipeline.md``.
 
 ``run_pipeline(cfg, paradigm)`` orchestrates collect → train → eval →
 ckpt by calling the 6 Protocol methods. Paradigm-specific cadence
@@ -28,11 +28,7 @@ from training.core.protocols import Paradigm, PipelineState, StepPlan
 
 
 def _maybe_sync_weights(plan: StepPlan, collector: Any, network: Any) -> None:
-    """Async weight-republish epilogue (``pipeline-async-weight-sync``)。
-
-    Paradigm 经 ``plan.sync_weights`` 声明:train 后把新权重推给 async actor
-    (经 ``collector.sync_weights``),让下一轮 collect 用新版本而非 version-0。
-    serial collector 不实现 ``sync_weights`` → hasattr-guard no-op。"""
+    """Republish trained weights when an async collector requests it."""
     if plan.sync_weights and hasattr(collector, 'sync_weights'):
         collector.sync_weights(network)
 
@@ -55,8 +51,7 @@ def run_pipeline(
     Args:
         cfg: TrainingConfig (validated).
         paradigm: Paradigm impl.
-        env_factory: callable game_idx → env (P3-A: caller builds, P3-B
-            wires from cfg automatically).
+        env_factory: callable from game index to a fresh environment.
         opp_pool: OpponentPool instance.
         eval_server: EvalServer for periodic eval (None to disable).
         resume_from: optional ckpt path to resume.
@@ -64,18 +59,12 @@ def run_pipeline(
             (collector's own provider may differ in async mode).
         max_steps: cap state.step for tests (None = unlimited).
         artifacts_timestamp_utc: optional `%Y%m%d%H%M` prefix for the
-            artifacts dir; defaults to ``datetime.now()`` inside
-            CheckpointManager. Pass through from the legacy
-            ``tools.run --run-id`` path retired in T-23 (post-redesign
-            ``tools.runs.train`` uses ``prebuilt_artifacts_dir``
-            instead — Phase A allocates + mkdir's the per-run dir
-            atomically before dispatch).
+            fallback artifacts directory. ``tools.runs.train`` uses a
+            prebuilt directory instead.
         prebuilt_artifacts_dir: optional existing dir created by the
             caller — Phase A of ``tools.runs.train`` already mkdir's the
-            atomic per-run dir (``artifacts/<ts>_<NNN>_<label>/``) and
-            hands it down so the driver does not re-derive a different
-            name from ``cfg.checkpoint.artifacts_root`` + run_label
-            (which lacks NNN). Mutually exclusive with both
+            atomic per-run dir (``artifacts/<ts>_<NNN>_<label>/``).
+            Mutually exclusive with both
             ``resume_from`` and ``artifacts_timestamp_utc``.
     Returns:
         final PipelineState (also persisted by CheckpointManager).
@@ -98,9 +87,7 @@ def run_pipeline(
     )
     ckpt_mgr.save_cfg_snapshot()
     logger = MetricsLogger(artifacts_dir)
-    # Wire optional collector → logger stats hook(currently DMCMultiProcessCollector
-    # uses this to drain InfServer stats — see attach_metrics_logger docstring)。
-    # 其它 collector 不实现该 method,hasattr-guarded 防 break。
+    # Give collectors with server-side metrics a logger sink.
     if hasattr(collector, 'attach_metrics_logger'):
         collector.attach_metrics_logger(logger)
     nan_guard = NaNGuard(artifacts_dir)
@@ -121,15 +108,8 @@ def run_pipeline(
             plan = paradigm.step_schedule(state, cfg)
 
             if plan.collect:
-                # Gate by `plan.collect` only — `plan.n_episodes` is a
-                # collector-internal contract (paradigm-aware metadata),
-                # NOT a driver-side gate. Dataset-driven paradigm (BC)
-                # legitimately emit `n_episodes=0` since they have no
-                # episode concept; their DatasetCollector.collect ignores
-                # n_units and one-shot pushes the full static dataset.
-                # Episode-driven paradigm (AZ/DMC/PPO/CFR) always emit
-                # `n_episodes > 0` when collect=True → bit-identical
-                # behavior. See specs/training-architecture/pipeline.md §3 #7.
+                # `plan.collect` is the gate. Dataset collectors may use
+                # `n_episodes=0`; episode collectors interpret it as units.
                 provider = train_provider or _default_provider(network, cfg)
                 with trace.span('pipeline.collect'):
                     out = collector.collect(plan.n_episodes, provider)
@@ -166,15 +146,10 @@ def run_pipeline(
                     state.after_train(loss_result.breakdown)
                     logger.add_scalar('train/loss', float(loss_result.loss.item()), state.train_steps)
 
-            # Async paradigm weight republish per pipeline-async-weight-sync:
-            # train 后把新权重推给 async actor(下一轮 collect 用新版本而非
-            # version-0)。serial collector 无 sync_weights → hasattr-guard no-op。
+            # Republish weights before the next async collection round.
             _maybe_sync_weights(plan, collector, network)
 
-            # On-policy paradigm(PPO)epilogue per protocols.md § 4 / paradigm-
-            # ppo § P4.1:per-iter buffer.clear after train(before eval/ckpt
-            # so next iter's collect 写入空 buffer)。Off-policy/dataset-driven
-            # paradigm 默认 False,此分支 no-op。
+            # On-policy paradigms clear consumed data before the next iteration.
             if plan.clear_buffer_after_train:
                 buffer.clear()
 
@@ -190,16 +165,8 @@ def run_pipeline(
             save_due = ckpt_mgr.should_save(state)
             if save_due:
                 state.after_ckpt()
-                # historical opp ring sync — ckpt 时 顺手把 当前 network 推一个
-                # frozen snapshot 进 opp_pool。 复用 `save_every` cadence,无需 引入
-                # 新 cfg 字段。 必须 clone(`.detach().cpu().clone()`)— `state_dict()`
-                # 返 live tensor reference,不 clone 则 ring 内副本 跟随 network 更新
-                # 失去 historical 语义。 mem 代价:ring_size × network ~50-100 MB(ring
-                # cap=8 → 400-800 MB master),已 在 cfg `[paradigm.X.opponent_mix]
-                # ring_size` 中 plan。 没有 `add_snapshot` 的 opp_pool(legacy /
-                # paradigm 未支持 historical)hasattr-guard。 此前 add_snapshot 在
-                # 整 training/ 主代码无 caller,Python actor 路径 historical=30%
-                # episode 全 silent fallback random — 2026-05-23 audit 发现并 修。
+                # Snapshot tensors must be cloned: state_dict returns live
+                # references that would otherwise change with the network.
                 if opp_pool is not None and hasattr(opp_pool, 'add_snapshot'):
                     snapshot_sd = {k: v.detach().cpu().clone() for k, v in network.state_dict().items()}
                     opp_pool.add_snapshot(snapshot_sd)

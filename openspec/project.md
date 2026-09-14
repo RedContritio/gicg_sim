@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-13
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 ---
@@ -36,7 +36,7 @@ schema_version: 0
 | Python binding | Python 3.11 / ctypes | `libgicg.dylib` c-shared |
 | RL training | Python + PyTorch | `gicg_env`、`gymnasium`-compatible 接口 |
 | 容器化 | Docker Compose | Docker Desktop VM(9 CPU / 18 GB) |
-| 评测 | `tools/eval/eval_service` Unix socket daemon | DSL cache 复用 |
+| 评测 | `tools/eval/eval_service` localhost TCP daemon | DSL cache 复用 |
 
 构建产物路径:`gicg_env/libgicg.dylib`(macOS)/ Linux 对应 `.so`,由 `go build
 -buildmode=c-shared` 出。
@@ -57,7 +57,7 @@ gicg_env/            ← Python ctypes wrapper + GicgEnv RL env
     │
     ▼
 training/            ← framework / az / cfr / dmc / ppo (5 stacks)
-tools/               ← run (paradigm dispatch) / send_matchup / eval_service / cards/...
+tools/               ← runs (paradigm dispatch) / _meta/send_matchup / eval_service / cards/...
 ```
 
 **Top-level trees**:
@@ -70,10 +70,10 @@ tools/               ← run (paradigm dispatch) / send_matchup / eval_service /
   (5 paradigm adapters: az / ppo / cfr / dmc / bc);paradigm 互不 import,均只 import core
   (ADR-0006 + `openspec/specs/training-architecture/`)
 - `tools/` — ad-hoc / eval / cleansing 脚本
-- `docs/` — 0_status → 1_specs → 2_decisions → 3_plans → 4_runs → 5_history
+- `docs/` — 当前状态、决策、计划、运行说明与历史证据；现行能力规约统一在 `openspec/specs/`
 - `openspec/` — 本 spec 系统:`specs/`(shipped contracts)+ `changes/`
   (in-flight proposals)+ `changes/archive/`(historical changes)
-- `artifacts/` — runs 输出:`YYYYMMDDHHMM_<type><NNN>_<slug>/`,gitignored
+- `artifacts/` — runs 输出:`YYYYMMDDHHMM_<NNNNNN>_<slug>/`,gitignored
 
 **Dependency direction**(单向,无环):
 `training/` → `gicg_env/` → `gicg_engine`(via dylib);
@@ -133,9 +133,10 @@ tools/               ← run (paradigm dispatch) / send_matchup / eval_service /
 
 ### I8. Artifacts Naming
 
-- `artifacts/` 每个子目录:`YYYYMMDDHHMM_<type><NNN>_<slug>/`。
-- `<type>`:`r`(production run)/ `s`(smoke / bench)。
-- 注册:每次跑前 `python -m tools.runs.register --run-id <id> --cfg <path>`(写 `artifacts/runs/<id>.toml` metadata,gitignored);完成时 `tools.runs.complete`;查看 `tools.runs.list`;跨机 sync `tools.runs.sync push|pull <host>`。Pre-redesign r001-r012 见 `docs/5_history/runs_pre_redesign_2026_05_17.md`。
+- `artifacts/` 每个新式 run 子目录:`YYYYMMDDHHMM_<NNNNNN>_<slug>/`；时间戳为 UTC，编号为六位十进制序号。
+- `python -m tools.runs.train <cfg>` 原子完成编号分配、目录创建、配置快照、训练和 metadata 收尾。
+- 每个目录自带 `metadata.toml`、`cfg_leaf.toml`、`cfg_resolved.toml`、`ckpts/`、`metrics.jsonl` 与可选 `tb/`；不存在并行的 live registry 文件。
+- 查看用 `tools.runs.list/show`，外部死亡用 `tools.runs.mark`，metadata 丢失用 `tools.runs.recover`，跨机元数据同步用 `tools.runs.sync`。Pre-redesign r001-r012 与 s001-s068 见 `docs/5_history/runs_pre_redesign_2026_05_17.md`。
 
 ### I9. 反向工程禁区
 
@@ -143,23 +144,22 @@ tools/               ← run (paradigm dispatch) / send_matchup / eval_service /
   constraint)。
 - 反向引用走 `sharedFiles` 声明。
 
-## 5. Paradigm Landscape(2026-05-15 snapshot)
+## 5. Paradigm Landscape(2026-05-15 historical snapshot)
 
-5 个 paradigm 已尝试。各自 closure 状态见 ADR;此处只给 current-state list,
-**详细 verdict / 复现数据** 推迟到 paradigm 各自的 spec(`openspec/specs/
-training-architecture/` P0-T9)。
+以下表格保留 2026-05-15 当时的路线判断，不代表 2026-09-14 的活动实验状态。
+当前目标、运行与下一决策只看 [`docs/0_status/README.md`](../docs/0_status/README.md)；
+历史 verdict 与复现数据见 [`docs/paradigms/`](../docs/paradigms/) 和 `docs/5_history/`。
 
 | Paradigm | 代码位置 | 当前状态 | 关键 ADR |
 |---|---|---|---|
 | PPO | `training/paradigms/ppo/` | **Closed** 2026-04-26 (Stage 3 F1-D2 plateau 物理不可达) | 0008 / 0009 |
 | AZ pure self-play | `training/paradigms/az/` | **Closed** 2026-04-28(s069 cancelled,mirror Nash 锁死) | 0009 / 0010 |
-| AZ + BC warm-start | `training/paradigms/bc/legacy/bc_train.py` + AZ adapter | r010 × 3 seed mean = +0.06 vs baseline,仍 < stricter_pass | 0008 / 0009 |
+| AZ + BC warm-start | 当时的 BC 预训练产物 + AZ adapter | r010 × 3 seed mean = +0.06 vs baseline,仍 < stricter_pass | 0008 / 0009 |
 | CFR(Deep CFR) | `training/paradigms/cfr/` | **Closed** r008 collapse(iter 199 < iter 20) | 0008 |
-| BC alone | `training/paradigms/bc/legacy/bc_train.py` | **Production maintenance**(r009 ≈ 0.75 vs F1-D2);RL 研究意义有限 | 0008 |
-| DMC(Deep Monte-Carlo) | `training/paradigms/dmc/` | **Active**,Phase 3.5 infra just done | — |
+| BC alone | 当时的 BC 预训练入口与产物 | **Production maintenance**(r009 ≈ 0.75 vs F1-D2);RL 研究意义有限 | 0008 |
+| DMC(Deep Monte-Carlo) | `training/paradigms/dmc/` | **当时 Active**，Phase 3.5 infra 刚完成 | — |
 
-详细 closure 全图见 `~/.claude/projects/.../memory/project_rl_routes_closure_2026_05_12.md`
-(私有 memory)。**新 RL 任务前必读 closure 集合,避免重复已废路线**。
+新 RL 任务先读实时状态与历史 dossier，避免把旧路线结论误当成当前运行状态。
 
 ## 6. Conventions Reference
 
@@ -168,18 +168,17 @@ training-architecture/` P0-T9)。
 | 关注点 | 文档 | 备注 |
 |---|---|---|
 | Dev workflow / 工具调用 / pre-commit hook | [`/CLAUDE.md`](../CLAUDE.md) | 项目特定;LLM 每 session 注入 |
-| 跨项目协作风格 / 提交纪律 / 测试纪律 | `~/.claude/CLAUDE.md` | 用户全局,所有 repo 通用 |
+| 跨项目协作风格 / 提交纪律 / 测试纪律 | 当前客户端注入的用户级指引 | 不属于仓库内容；不得作为项目事实引用 |
 | OpenSpec 文件约定 / 行数限制 / 命名 | `openspec/specs/openspec-policy/`(P0-T3) | 本 migration P0-T3 落盘 |
 | DSL 完整 API / counter 语义 / damage pipeline | [`openspec/specs/engine-dsl/`](specs/engine-dsl/spec.md) | DSL author 必读 |
 | Engine 内部 / capi / search | `openspec/specs/engine-capi/` `openspec/specs/search-ismcts/` `openspec/specs/search-parallel/` | 实现细节 |
 | Env 接口 / obs schema | `openspec/specs/env-config/` | RL 集成必读 |
 | 决策日志 ADR | `docs/2_decisions/adr-NNNN-*.md` | 历史决策可追溯 |
 | 当前 phase / 下一步 | `docs/0_status/README.md` | LIVE,事件发生同 commit 更新 |
-| Run registry (live) | `tools.runs.{register,list,show,complete,sync}` CLI | metadata `artifacts/runs/<id>.toml` gitignored;每次跑前 register,完成时 complete |
+| Run lifecycle (live) | `tools.runs.{train,list,show,mark,recover,sync}` CLI | 每个 `artifacts/<ts>_<NNNNNN>_<label>/metadata.toml` 自包含；`train` 原子创建并收尾 |
 | Run registry (pre-redesign archive) | `docs/5_history/runs_pre_redesign_2026_05_17.md` | r001-r012 + s001-s068 frozen snapshot |
 
-历史 changes / ADR-to-OpenSpec 迁移:见 `openspec/changes/archive/`(P1 阶段
-mass-import,目前空)。
+历史 changes / ADR-to-OpenSpec 迁移:见 `openspec/changes/archive/`。
 
 ## 7. OpenSpec 使用边界
 
@@ -196,7 +195,8 @@ mass-import,目前空)。
 - ADR(历史决策叙述)→ `docs/2_decisions/`(P1 选择性迁移到 archive)
 - Run 注册表 / 实验数据 → `docs/4_runs/`、`artifacts/`
 - Dev workflow / 提交 / hook → `CLAUDE.md`
-- LLM 私有 memory(closure 全图、个人偏好)→ `~/.claude/.../memory/`
+- LLM 私有上下文可以辅助工作，但不是项目事实来源。任何影响接手、实现、
+  运行或验收的事实必须写入本仓库的 spec、状态页、历史报告或代码注释。
 
 **Slash commands**(本 repo 跟版):
 - `/opsx:propose` — 新提议(`.claude/commands/opsx/propose.md`)

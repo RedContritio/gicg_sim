@@ -1,7 +1,7 @@
 """BC paradigm smoke_full — full driver e2e + ckpt save/load (A1.6).
 
-OpenSpec ref: ``openspec/changes/paradigm-smoke-full-tier/specs/
-training-architecture/spec.md`` invariant A1.6 + DECISIONS SF-105
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``
++ DECISIONS SF-105
 + ``openspec/changes/bc-smoke-dataset-fixture`` (fixture closure)
 + ``openspec/changes/bc-pipeline-collect-gate-fix`` (collect gate
 fix closure — let BC's ``n_episodes=0`` plan still trigger the

@@ -1,4 +1,4 @@
-"""Tests for GicgEnv.reward_shaping (T-C dense reward wiring).
+"""Tests for GicgEnv.reward_shaping.
 
 Covers:
 - RewardShaping.from_arg: dict / instance / None / unknown-key raise
@@ -210,8 +210,7 @@ class TestRewardAttribution:
 
 class TestResetZerosAccumulator:
     def test_reset_clears_reward_events(self):
-        """engine.ResetDynamicState already zeros RewardAccum (see
-        gicg_engine/game_clone.go line 181). This test pins the
+        """engine.ResetDynamicState zeros RewardAccum. This test pins the
         behavior: after some damage and a reset, the next step sees
         zero delta in a purely-terminal-shaped env."""
         rng = np.random.default_rng(9)

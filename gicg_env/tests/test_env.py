@@ -55,8 +55,8 @@ class TestEnvBasic:
     def test_action_identities_tune_exposes_card_ref(self):
         """Tune actions must carry the card_ref being tuned as
         subject_ref and the source dice color as aux — required for
-        MCTS per-card identity keying (see docs/az/decisions.md
-        B4)."""
+        MCTS per-card identity keying (see
+        ``docs/2_decisions/adr-0005-az_decisions_d1_d14.md``)."""
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
             # Seed a non-native dice pool so tune becomes legal.
@@ -190,11 +190,11 @@ class TestSelfPlay:
                     break
                 action = rng.randint(0, len(kinds))
                 obs, _reward, done, info = env.step(action)
-                # need_target is handled automatically: next step() routes
-                # to the target resolver via the pending_target flag.
+                # A pending target is handled automatically: the next
+                # step() consults engine state and routes to step_target().
 
     def test_terminal_z_helper_raises_on_non_terminal(self):
-        """The _terminal_z helper panics on winner=-1 (game not yet
+        """The _terminal_z helper raises on winner=-1 (game not yet
         terminated). Guards against silent 0-fallback corrupting
         training z targets."""
         from gicg_env.env import _terminal_z
@@ -279,7 +279,7 @@ class TestCloneSnapshot:
 
 
 class TestActingPlayerAndPending:
-    """Phase I: acting_player / has_pending queries the engine so that
+    """acting_player / has_pending query the engine so that
     Python has no snapshot-sensitive local state."""
 
     def test_acting_player_matches_turn_under_normal_play(self):

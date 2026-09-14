@@ -1,4 +1,4 @@
-"""Contract tests for training/dmc/config.py — preset sanity + EvalConfig defaults."""
+"""Contract tests for training/paradigms/dmc/config.py defaults."""
 
 from __future__ import annotations
 

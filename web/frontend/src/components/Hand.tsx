@@ -1,44 +1,28 @@
 import type { CardView } from '../types/state'
+import { CardArt } from './CardArt'
 
 interface Props {
   hand: CardView[] | null
   deckCount: number
-  // When set, cards become clickable and call onPlay(handIdx) on click.
+  handCount?: number
+  hidden?: boolean
   onPlay?: (idx: number) => void
   dimmed?: boolean
 }
 
-export function Hand({ hand, deckCount, onPlay, dimmed }: Props) {
-  const cards = hand ?? []
+export function Hand({ hand, deckCount, handCount, hidden, onPlay, dimmed }: Props) {
+  const count = handCount ?? hand?.length
   return (
-    <div
-      className={`flex items-center gap-2 ${
-        dimmed ? 'opacity-60' : ''
-      }`}
-    >
-      <div className="flex gap-1.5">
-        {cards.length === 0 && (
-          <div className="text-xs text-slate-500 italic">(empty hand)</div>
-        )}
-        {cards.map((card, i) => (
-          <button
-            key={`${card.ref}-${i}`}
-            disabled={!onPlay}
-            onClick={() => onPlay?.(i)}
-            className={`w-16 h-24 rounded-md border border-slate-600 bg-gradient-to-b from-slate-700 to-slate-900 flex items-center justify-center text-xs font-medium text-slate-100 px-1 text-center leading-tight ${
-              onPlay
-                ? 'cursor-pointer hover:border-sky-400 hover:shadow-sky-400/40 hover:shadow-md'
-                : 'cursor-default'
-            }`}
-            title={card.name}
-          >
-            {card.name}
-          </button>
-        ))}
-      </div>
-      <div className="text-xs text-slate-400 whitespace-nowrap">
-        Deck: {deckCount}
-      </div>
+    <div className={`hand-area ${hidden ? 'hidden-hand' : ''} ${dimmed ? 'waiting-hand' : ''}`}>
+      <span className="deck-info">牌库 <b>{deckCount}</b> · 手牌 <b>{count ?? '—'}</b></span>
+      {hidden ? <div className="card-backs" aria-label={`对方手牌 ${count ?? '未知'} 张`}>
+        {Array.from({ length: Math.min(count ?? 0, 10) }, (_, i) => <span className="card-back" key={i}>✧</span>)}
+      </div> : <div className="hand-cards">
+        {(hand ?? []).map((card, i) => <button key={`${card.ref}-${i}`} className="hand-card" disabled={!onPlay} onClick={() => onPlay?.(i)} title={`${card.name} · 点击查看可用行动与支付`}>
+          <CardArt key={card.name} name={card.name} /><span>{card.name}</span>
+        </button>)}
+        {hand?.length === 0 && <span className="empty-hand">暂无手牌</span>}
+      </div>}
     </div>
   )
 }

@@ -1,11 +1,14 @@
 ---
-last_updated: 2026-05-07
-status: ACTIVE — ADR-0019 Accepted de-facto since 2026-05-07 (23 commits ship, 含 RL pipeline obs adapt + Modifier log); P1-T1 已 archive 到 `openspec/changes/archive/0019-dsl-v6-semantic-engine/`
+last_updated: 2026-09-14
+status: HISTORICAL — 2026-05-07 ADR-0019 implementation record
 ---
 
 # DSL v6 (ADR-0019) 完整 strict 实施落地
 
-> 跨 session 入口。本文档跟踪 ADR-0019 strict 路线落地状态。
+> **历史实施记录**：本文保留 2026-05-07 的 ADR-0019 路线、提交和
+> 当时待办。当前 DSL 契约以
+> [`openspec/specs/engine-dsl/`](../../openspec/specs/engine-dsl/) 和
+> [`engine-runtime`](../../openspec/specs/engine-runtime/) 为准。
 
 ## 关键路线史(避免再绕弯)
 

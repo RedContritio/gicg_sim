@@ -89,8 +89,8 @@ AZ 是 GICG 在 RL closure 后保留的 maintenance-tier paradigm,2026-04 C1v7
 
 ## 4. Cross-references
 
-- 主 training architecture → [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
-- IS-MCTS engine spec → [`../../../../specs/search-ismcts/spec.md`](../../../../specs/search-ismcts/spec.md)
+- 主 training architecture → [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
+- IS-MCTS engine spec → [`../../../../../specs/search-ismcts/spec.md`](../../../../../specs/search-ismcts/spec.md)
 - AZ paradigm dossier → `docs/paradigms/az/`
 - AZ closure history → memory `project_rl_closure_2026_04_28` + `project_rl_routes_closure_2026_05_12`
 - AZ network detail → `docs/paradigms/az/architecture/c1v7.md`(待 ship)

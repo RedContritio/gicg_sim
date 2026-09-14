@@ -48,13 +48,14 @@ func GameGetCardNames(id C.int) *C.char {
 
 // Returns newline-joined labels for the *current* legal actions, in the same
 // order as GameGetLegalActions. Format per line: "<kind>\t<name>\t<slot>"
-// where kind is Skill/Card/Switch/EndTurn, name is the resolved DSL name
+// where kind is Skill/Card/Switch/EndTurn/Tune/Reroll, name is the resolved DSL name
 // (or numeric fallback if unknown), and slot is:
 //
 //   - ActionCard:   hand index (0..len(Hand)-1) — disambiguates same-named
 //     duplicates when multiple copies share a card ref.
+//   - ActionTune:   hand index of the discarded card.
 //   - ActionSwitch: target char slot (0..len(Chars)-1).
-//   - ActionSkill / ActionEndTurn / other: -1.
+//   - ActionSkill / ActionEndTurn / ActionReroll / other: -1.
 //
 // Caller must free with GameFreeString.
 //
@@ -141,7 +142,7 @@ func GameGetActiveCounterSlotLabels(id C.int) *C.char {
 }
 
 // Returns newline-joined labels as a null-terminated C string. Caller must
-// free the returned pointer with C.free. Used by the checkpoint visualizer
+// free the returned pointer with GameFreeString. Used by the checkpoint visualizer
 // to annotate attention plots with semantic hook names.
 //
 //export GameGetActiveHookLabels

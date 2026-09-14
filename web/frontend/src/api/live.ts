@@ -28,6 +28,7 @@ export interface LiveProfile {
 }
 
 export interface LiveNewMessage {
+  profile_rules?: boolean
   type: 'new'
   team_0: string[]
   team_1: string[]

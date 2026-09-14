@@ -1,11 +1,13 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 paradigm: cfr
 ---
 
 # CFR paradigm dossier
+
+> 2026-05-16 snapshot；当前训练状态见 [`../../0_status/README.md`](../../0_status/README.md)。
 
 > **Status**: **CLOSED**
 >
@@ -95,4 +97,5 @@ GICG 2v2(r008 prototype)
   `legacy/` 子目录承载 Deep CFR traversal Mixin / reservoir / CFRAgent
   advantage/strategy/value fit 实现);16 pytest 完整,代码保留可重现
   (detour 关闭后 user 决策代码不删,作 reference)
-- 入口:`python -m tools.run configs/cfr/<config.toml>`(`meta.paradigm = "cfr"`)
+- 历史入口已删除；如需复现实验，先审核旧配置与当前接口兼容性，再使用
+  `python -m tools.runs.train configs/cfr/<config.toml>`。

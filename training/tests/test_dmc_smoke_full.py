@@ -1,7 +1,7 @@
 """DMC paradigm smoke_full — full driver e2e + ckpt save/load (A1.6).
 
-OpenSpec ref: ``openspec/changes/paradigm-smoke-full-tier/specs/
-training-architecture/spec.md`` invariant A1.6 + tools/runs/ clean-slate
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``
++ tools/runs/ clean-slate
 redesign spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-
 design.md`` §Per-run dir / §Resume 语义.
 

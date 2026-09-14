@@ -8,10 +8,9 @@ Sample contract:
   BCDataset.build_batch via collector.build_batch shim to reconstruct
   the full obs dict (legal_mask / chosen_action / tied_mask / terminal_z
   + obs tensors). This is what BCLoss.compute expects.
-- If no ``batch_builder`` (legacy / generic test path): sample returns
+- If no ``batch_builder`` (generic path): sample returns
   ``Batch(data={'transitions': [Transition, ...]})`` — caller-side
-  reconstruction. Kept for backward compat with existing unit tests
-  (test_core_buffer_replay.test_dataset_sample only checks .size).
+  reconstruction.
 """
 
 from __future__ import annotations
@@ -38,8 +37,7 @@ class DatasetBuffer(BufferBase):
         self._entries: list = []
         # If set, sample() returns data={'fields': batch_builder(indices)}
         # (BC driver path so BCLoss.compute can read batch.data['fields']).
-        # Otherwise sample() returns data={'transitions': [...]} for
-        # backward-compat with existing generic Buffer tests.
+        # Otherwise sample() returns data={'transitions': [...]}.
         self._batch_builder = batch_builder
 
     def __len__(self) -> int:
@@ -71,7 +69,7 @@ class DatasetBuffer(BufferBase):
             fields = self._batch_builder(dataset_indices)
             return Batch(data={'fields': fields}, weights=None, size=batch_size)
 
-        # Backward-compat path: caller-side reconstruction.
+        # Generic path: caller-side reconstruction.
         data = [self._entries[int(i)] for i in idx]
         return Batch(data={'transitions': data}, weights=None, size=batch_size)
 

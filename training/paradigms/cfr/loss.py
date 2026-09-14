@@ -1,4 +1,4 @@
-"""CFRLoss — advantage MSE + strategy MSE.
+"""CFRLoss — protocol adapter for one precomputed CFR head at a time.
 
 Spec ref: paradigm-cfr/spec.md C2. Two-head loss:
 
@@ -8,9 +8,9 @@ Spec ref: paradigm-cfr/spec.md C2. Two-head loss:
   - Strategy head: MSE between predicted action probability and target
     cumulative-strategy distribution (also masked by legal actions).
 
-C2.3 — reduction = mean over batch, no policy/strategy reweighting at
-the loss level (avoids the loss/quality decoupling observed in r008
-per memory `project_r008_postmortem`).
+C2.5 — reduction = mean over batch after averaging legal actions per row.
+The historical trainer's joint policy/value fit lives in ``fit_steps.py`` and
+is not reproduced by this protocol loss.
 
 Driver contract: ``loss_fn.compute(network, batch)`` returns a
 ``LossResult``. ``batch.data`` must carry either:

@@ -11,8 +11,8 @@ import (
 	engine "gicg_mono/gicg_engine"
 )
 
-// C-001: methodMap ∩ tokenMap (builtin) = ∅ — OpCall.Op2 dual semantics
-// (counter id vs n_args) dispatch ranges must not collide.
+// C-001: methodMap ∩ tokenMap (builtin) = ∅. OpCall dispatches on Op1,
+// whose token determines whether Op2 is a counter id or argument count.
 func TestInvariant_OpCallDispatchDisjoint(t *testing.T) {
 	mIDs := map[int16]string{}
 	for name := range counterMethods {

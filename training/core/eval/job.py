@@ -46,10 +46,11 @@ class EvalReport:
 
 @dataclass(frozen=True)
 class OpponentSpec:
-    """Spec used by OpponentRegistry.resolve(spec) → Player.
+    """Serializable description that callers can map to a registry entry.
 
     ``kind`` + ``params`` together identify a unique opponent. Used by
-    both actor (mix sample) and eval (named baseline)."""
+    actor and evaluation configuration; ``OpponentRegistry`` itself resolves
+    names through ``get(name, seed, params)``."""
 
     kind: str
     params: dict = field(default_factory=dict)

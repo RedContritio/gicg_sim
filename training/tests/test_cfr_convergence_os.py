@@ -1,6 +1,6 @@
 """Algorithm-level convergence test: CFR on a toy game with known Nash.
 
-The CFR implementation in training/paradigms/cfr/legacy/ spans reservoir + traversal +
+The CFR implementation in ``training/paradigms/cfr/`` spans reservoir + traversal +
 networks + trainer. Each unit test verifies one piece in isolation,
 but nothing checks that the assembled algorithm actually converges
 toward Nash equilibrium — a critical gap for CFR, since a buggy

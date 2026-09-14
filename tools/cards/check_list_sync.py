@@ -5,8 +5,10 @@ list 数据是批量拉取(per channel),entry_page 是单卡拉(per content_id);
 
 用法(从 repo root)::
 
-    .venv/bin/python -m tools.cards.check_list_sync
+    .venv/bin/python -m tools.cards.check_list_sync --raw-dir data/raw
     .venv/bin/python -m tools.cards.check_list_sync --raw-dir <dir>
+
+不传 ``--raw-dir`` 时使用历史外部原始数据目录。
 """
 
 from __future__ import annotations

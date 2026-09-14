@@ -1,10 +1,11 @@
 """Local + Remote NetworkProvider implementations.
 
-Spec: design/network-provider.md §1.
+Spec: ``openspec/specs/training-architecture/protocols.md``.
 
-LocalNetworkProvider holds an in-process network copy + polls weights
-SHM for updates. RemoteNetworkProvider talks to an inference server
-via an IPC client (Unix socket / SHM queue).
+LocalNetworkProvider holds an in-process network copy and can load an explicit
+state dict. Its attached ``WeightsSHM`` polling branch is currently a no-op.
+RemoteNetworkProvider delegates requests to a caller-supplied IPC
+client; the client's concrete transport is outside this class.
 """
 
 from __future__ import annotations
@@ -89,7 +90,7 @@ class LocalNetworkProvider:
         self._device = torch.device(device)
         self.version_tag = version_tag
         self.version = 0
-        self._shm = None  # P3-B: WeightsSHM handle
+        self._shm = None
         self._mode = inference_acceleration
 
         # Lazy state for trace path (None until first forward triggers).
@@ -152,8 +153,8 @@ class LocalNetworkProvider:
         """Two modes:
         - Direct: pass ``state_dict`` to load right now (used by tests
           + serial mode).
-        - SHM: pass ``version_tag``; provider pulls from WeightsSHM if
-          attached (P3-B wiring).
+        - SHM: currently returns the existing version without reading; callers
+          that require polling must use a paradigm provider or watcher.
 
         - ``trace`` mode: invalidates the traced module (if any) so the
           next forward re-traces with the updated weights.
@@ -172,9 +173,8 @@ class LocalNetworkProvider:
             # graph continues to reference same tensors via the wrapped
             # network.
             return self.version
-        # SHM-driven path (no-op in P3-A scaffold; full impl P3-B).
+        # The generic provider does not implement SHM polling yet.
         if self._shm is not None:
-            # TODO(P3-B): self._shm.read(version_tag or self.version_tag)
             pass
         return self.version
 
@@ -202,11 +202,10 @@ class RemoteNetworkProvider:
         return self.client.request(obs, mask, self.version_tag)
 
     def update_weights(self, version_tag: Optional[str] = None, state_dict: Optional[dict] = None) -> int:
-        # Server owns weights; client only updates its view of the latest
-        # known version (reported via response headers in P3-B impl).
+        # The server owns weights; this generic client does not query a
+        # remote version.
         if state_dict is not None:
             raise NotImplementedError('RemoteNetworkProvider.update_weights: weights managed by server')
-        # P3-B: query server for latest version
         return self.version
 
     def current_version(self) -> int:

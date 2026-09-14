@@ -1,11 +1,14 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 paradigm: dmc
 ---
 
 # DMC paradigm dossier
+
+> 2026-05-16 snapshot；下述 ACTIVE/PENDING 均为当时状态。当前训练状态见
+> [`../../0_status/README.md`](../../0_status/README.md)。
 
 > **Status**: **ACTIVE**
 >

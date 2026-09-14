@@ -1,4 +1,4 @@
-"""Sync local → remote source — cfg-driven dispatch。
+"""Sync local source to a PowerShell-capable remote host.
 
 CLI:
 

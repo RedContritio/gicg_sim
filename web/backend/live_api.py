@@ -59,28 +59,9 @@ def _default_decks(team_0, team_1, card_pool, pool, deck_padding):
 
 
 async def _send_state(ws: WebSocket, sess: LiveSession) -> None:
-    view = sess.env.export_view()
-    for pi, player in enumerate(view['players']):
-        if pi != sess.human_player:
-            player['hand'] = [{'ref': -1, 'name': '暗牌'} for _ in player['hand'] or []]
-    from gicg_env._constants import OBS_META_SIZE, OBS_COUNTER_SLOTS
+    from web.backend.live_view import live_view
 
-    raw = sess.env._engine.get_dynamic_obs()
-    counters = zip(sess.env.get_active_counter_slot_labels(), raw[OBS_META_SIZE : OBS_META_SIZE + OBS_COUNTER_SLOTS])
-    for player in view['players']:
-        player['statuses'] = []
-    for label, value in counters:
-        parts = label.split(':')
-        if (
-            len(parts) == 2
-            and parts[0] in ('P0', 'P1')
-            and value > 0
-            and parts[1] != '存活数'
-            and any('\u4e00' <= c <= '\u9fff' for c in parts[1])
-        ):
-            view['players'][int(parts[0][1])]['statuses'].append({'name': parts[1], 'value': int(value), 'max': 0})
-    view['acting_player'] = sess.env.acting_player
-    view['players'][sess.human_player]['dice'] = sess.env.dice_counts(sess.human_player).tolist()
+    view = live_view(sess.env, sess.human_player)
     payload = {
         'type': 'state',
         'view': view,
@@ -143,10 +124,13 @@ async def _handle_new(
 
     # Construct new player + env FIRST so a failure doesn't kill the
     # previous session. Only release prev after both succeed.
-    if opponent_spec.get('type') == 'semantic_rl':
-        from web.backend.semantic_live import build_session
+    if opponent_spec.get('type') == 'semantic_rl' or (
+        opponent_spec.get('type') == 'random' and msg.get('profile_rules')
+    ):
+        from web.backend.semantic_live import build_practice_session, build_session
 
-        sess = build_session(msg, seed, human_player)
+        builder = build_session if opponent_spec.get('type') == 'semantic_rl' else build_practice_session
+        sess = builder(msg, seed, human_player)
         try:
             auto_advance_agent(sess)
         except BaseException:

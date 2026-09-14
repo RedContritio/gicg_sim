@@ -1,12 +1,8 @@
-"""Paradigm-agnostic perf trace — zero overhead when disabled.
+"""Paradigm-agnostic, opt-in performance tracing.
 
-Activation (cfg-driven,post 2026-05-23):cfg ``[debug] perf_trace = true``
-+ optional ``perf_trace_flush_n / _flush_s / _dir`` overrides。 每 process
-(pipeline / actor / inference server) 在 spawn target 起步时调一次
-:func:`enable_from_cfg` (或 :func:`enable_explicit` for tests / non-cfg
-contexts) → 设 module-level ``_ENABLED``,后续 :func:`configure` 才真分配
-handle。 Hot path 当 disabled 仍是 single attribute load + branch (返
-shared ``_NOOP`` 单例,无 alloc / 无 perf_counter)。
+Set ``debug.perf_trace = true`` in the config and call
+:func:`enable_from_cfg` and :func:`configure` once in each process.
+The disabled path returns a shared no-op context manager without allocating.
 
 API:
 
@@ -18,10 +14,9 @@ API:
     trace.close()                              # flush + close handle
 
 Output: ``<log_dir>/<role>_<id>.jsonl`` (default
-``artifacts/_perf_logs``,可由 cfg ``debug.perf_trace_dir`` 覆盖,主供测试
-隔离用)。 每行 aggregate ``_FLUSH_WINDOW`` events 为单 JSON row,含
-mean/p50/p95/max/sum/n per stage。 低速 stage 由 ``_FLUSH_INTERVAL_S``
-wall timer 兜底 flush。
+``artifacts/_perf_logs``). Each row aggregates a window of events with
+mean, p50, p95, max, sum, and count per stage. A wall-clock interval flushes
+low-volume stages.
 """
 
 from __future__ import annotations
@@ -44,10 +39,7 @@ def enable_explicit(
     flush_interval_s: float = 1.0,
     log_dir: Optional[str] = None,
 ) -> None:
-    """Programmatic enable (tests / subprocess args / non-cfg paths)。
-
-    Must be called *before* :func:`configure`。 Subsequent calls reset
-    parameters but only the first :func:`configure` opens the handle。"""
+    """Enable tracing programmatically before :func:`configure`."""
     global _ENABLED, _FLUSH_WINDOW, _FLUSH_INTERVAL_S, _LOG_DIR
     _ENABLED = True
     _FLUSH_WINDOW = int(flush_window)
@@ -57,9 +49,7 @@ def enable_explicit(
 
 
 def enable_from_cfg(cfg: Any) -> None:
-    """cfg-driven enable — read ``cfg.debug.perf_trace`` + 配套字段。 cfg.debug
-    缺失或 perf_trace=False 时 no-op (留 disabled state)。 spawn target 入口
-    标准调用点(``run_paradigm_train`` / ``actor_main`` / ``_server_loop``)。"""
+    """Enable tracing from ``cfg.debug`` when ``perf_trace`` is true."""
     dbg = getattr(cfg, 'debug', None)
     if dbg is None or not getattr(dbg, 'perf_trace', False):
         return

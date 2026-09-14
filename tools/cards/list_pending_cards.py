@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""列出 raw - cleaned 差集,按 batch 切分供 sonnet subagent 处理。
+"""列出 raw - cleaned 差集,按 batch 切分供 cleansing 子任务处理。
+
+默认 raw 目录是历史外部 checkout ``~/Documents/gicg_sim/data/raw``；
+可用 ``--raw-dir`` 指向仓库内或其他快照。
 
 每张 raw 检查 ``data/cleaned/<type>/<stem>.yaml`` 是否存在;不存在 = pending。
 按 ``--batch-size`` 切分输出,每个 batch 印一行 ``;``-join 的路径(便于
-subagent prompt 拼接)。
+子任务 prompt 拼接)。
 
 用法(repo root)::
 
-    .venv/bin/python -m tools.list_pending_cards
-    .venv/bin/python -m tools.list_pending_cards --batch-size 4 --types character
-    .venv/bin/python -m tools.list_pending_cards --batch 17        # 只印第 17 个 batch
+    .venv/bin/python -m tools.cards.list_pending_cards
+    .venv/bin/python -m tools.cards.list_pending_cards --batch-size 4 --types character
+    .venv/bin/python -m tools.cards.list_pending_cards --batch 17  # 只印第 17 个 batch
 """
 
 from __future__ import annotations

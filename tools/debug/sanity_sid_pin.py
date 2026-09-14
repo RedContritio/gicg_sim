@@ -6,7 +6,7 @@ position carries that sid, with min/max matching the expected structural
 counter semantics (e.g., HP max=declared max, phantom max=0).
 
 Run:
-    .venv/bin/python -m tools.sanity_sid_pin
+    .venv/bin/python -m tools.debug.sanity_sid_pin
 """
 
 from __future__ import annotations

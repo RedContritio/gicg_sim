@@ -1,7 +1,6 @@
 // Package ir compiles hook-body AST chunks (gicg_engine/interp.Chunk)
-// into a 3-address-code IR (Op slice). It replaces the legacy
-// token-stream obs that hashed identifiers into a numeric field, which
-// blew up fp32 backward in training (see Stage 3 NaN report).
+// into a three-address-code instruction stream used by interpretation and
+// observation encoding.
 //
 // IR design: every operand is a typed int16 slot. Memory reads/writes
 // go through OpLoadAddr / OpStoreAddr keyed by (AddrKind, addr_id,
@@ -9,7 +8,7 @@
 // (TokCtxValue, TokMHp, …) so the encoder embedding table is shared.
 //
 // OpCall has two interpretations of Op2:
-//   - regular builtins / char-attr — Op2 = n_args, Op3 = reg_base
+//   - regular builtins / dynamic methods — Op2 = n_args, Op3 = reg_base
 //     (args sit in regs reg_base, reg_base+1, …, reg_base+n_args-1)
 //   - counter side-effect methods (TokMAdd..TokMFillAll) — Op2 =
 //     counter_id (typed AddrCounter), Op3 = reg_base for non-receiver
@@ -22,9 +21,6 @@
 // :fill_all) route via OpCall — the compiler refuses to encode
 // "how to lower :add into load-binop-store"; that policy lives in
 // the IR-3 interpreter.
-//
-// Scope: this is IR-1 only. We do NOT touch the engine.Hook struct,
-// observation schema, capi, or Python — those are IR-2/3/4.
 package ir
 
 import "fmt"
@@ -91,11 +87,10 @@ const (
 	OpCJump     int16 = 8
 	OpJump      int16 = 9
 	OpReturn    int16 = 10
-	// IR-1.6 additions
-	OpKwArg   int16 = 11 // Op1=key_token, Op2=value_reg — immediate prefix to next OpCall
-	OpDeferFn int16 = 12 // Op1=lambda_idx into CompiledHook.Lambdas
-	OpLoadNil int16 = 13 // Dst=reg — distinct from OpLoadImm 0 (engine may distinguish nil from 0)
-	OpLambda  int16 = 14 // observation-only delimiter: Dst=lambda index, Op1=body length
+	OpKwArg     int16 = 11 // Op1=key_token, Op2=value_reg — immediate prefix to next OpCall
+	OpDeferFn   int16 = 12 // Op1=lambda_idx into CompiledHook.Lambdas
+	OpLoadNil   int16 = 13 // Dst=reg — distinct from OpLoadImm 0 (engine may distinguish nil from 0)
+	OpLambda    int16 = 14 // observation-only delimiter: Dst=lambda index, Op1=body length
 )
 
 // AddrKind — memory address class for OpLoadAddr / OpStoreAddr.
@@ -131,8 +126,7 @@ const NullReg int16 = -1
 
 // MaxRegs — hard cap on register count per hook (IR observation slot budget).
 // Exported so the IR-3 interpreter + Python encoder validate against the same
-// constant. Bumped to 64 in IR-1.6 after audit revealed real-DSL hooks (玄冰
-// on_reaction_damage) cap-out at 33 regs in SSA-style allocation.
+// constant. The capacity is 64 registers per hook.
 const MaxRegs = 64
 
 // binOpKindByString — Lua operator string → BinOp kind. Pure data table;
@@ -163,8 +157,8 @@ var unaryOpKindByString = map[string]int16{
 // lowers to OpLoadAddr / OpStoreAddr; the rest lower to a single OpCall
 // (see Op2 dual interpretation above).
 //
-// Arity validation removed in IR-1.6: real-DSL audit confirmed counter
-// scope (PerPlayer / PerChar / ActiveStatus / Self) varies arg count per
+// Arity is validated by the runtime because counter
+// scope (PerPlayer / PerChar / ActiveStatus / Self) varies argument count per
 // method (PerChar adds an explicit char index), and ~50% of usage is
 // "Unknown scope" (chained `get_counter(...):add(...)` where receiver
 // isn't a top-level binding so the compiler can't know scope at all).

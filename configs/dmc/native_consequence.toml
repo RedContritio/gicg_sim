@@ -1,0 +1,59 @@
+# Latest native first batch. Preparation config; no prior weights/experience.
+[meta]
+paradigm = "dmc"
+seed = 41
+run_label = "native_consequence"
+host = "remote"
+device = "cuda"
+
+[scenario]
+pool = "native_latest"
+data_dir = "data"
+obs_mask = ["enemy_dice"]
+team_0 = ["凯亚", "迪卢克", "芭芭拉"]
+team_1 = ["砂糖", "菲谢尔", "芭芭拉"]
+char_pool = ["凯亚", "迪卢克", "芭芭拉", "砂糖", "菲谢尔"]
+team_size = 3
+disjoint_teams = false
+max_rounds = 10
+random_deck_size = 30
+card_pool = ["一掷乾坤", "交给我吧！", "光辉的季节", "兽肉薄荷卷", "冷血之剑", "北地烟熏鸡", "噬星魔鸦", "换班时间", "星天之兆", "最好的伙伴！", "本大爷还没有输！", "派蒙", "流火焦灼", "混元熵增论", "烤蘑菇披萨", "甜甜花酿鸡", "白垩之术", "莲花酥", "蒙德土豆饼", "运筹帷幄", "送你一程", "鸣神大社", "鹤归之时"]
+
+# Evaluation scenario counts must be multiples of 55:
+# 10 distinct three-character rosters; all unordered pairings including mirrors.
+
+[remote]
+ssh = "dev@192.168.31.56"
+root = "D:/gicg_consequence_20260914"
+os = "windows"
+hostname = "DESKTOP-GHJCC7Q"
+
+[pipeline]
+mode = "serial"
+num_actors = 1
+
+[shape]
+n_counter_slots = 1832
+n_hooks = 900
+max_ops_per_hook = 128
+max_actions = 2048
+d_model = 32
+n_cross_layers = 1
+dropout = 0.0
+
+[paradigm.dmc]
+version = "1.0.0"
+paradigm = "dmc"
+total_frames = 3000
+max_game_steps = 512
+gamma = 1.0
+lr = 0.0003
+buffer_cap = 10000
+eval_interval_episodes = 0
+eval_n_scenarios = 55
+eval_baselines = ["F1-D2"]
+
+[checkpoint]
+save_every = 50
+keep_last_n = 2
+artifacts_root = "artifacts"

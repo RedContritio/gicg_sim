@@ -1,5 +1,8 @@
 """扫已 cleanse action yaml,列出 cost 不确定的卡 + costBgIcon URL。
 
+缺少已保存 URL 时，当前实现会回查历史外部 raw 目录
+``~/Documents/gicg_sim/data/raw/action``。
+
 不确定 = sub_class 是 事件牌/支援牌 且 cost N>0 且 cost 类型可能 same vs any。
 武器/圣遗物/天赋/元素共鸣/0 cost 视为已确定,不列。
 

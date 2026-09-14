@@ -1,8 +1,7 @@
 """AZ paradigm e2e smoke — symmetric template (Phase 4 of
 core-network-generic-promotion).
 
-OpenSpec ref: ``openspec/changes/core-network-generic-promotion/specs/
-training-architecture/spec.md`` invariant A1 (smoke contract).
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``.
 
 This file is ONE of 5 paradigm smoke files; the contract / lifecycle
 is owned by ``training.tests.smoke_template.run_symmetric_smoke``.

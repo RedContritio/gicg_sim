@@ -16,7 +16,7 @@ Output per team setup:
 
 Run from repo root::
 
-    .venv/bin/python -m tools.profile_action_variants
+    .venv/bin/python -m tools.profile.profile_action_variants
 
 Two default setups are probed: full 2v2 and Stage-0-style 1v1-no-cards.
 Add --teams / --card-pool to probe custom configs.

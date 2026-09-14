@@ -33,11 +33,8 @@ from gicg_env._constants import (
 def get_lib_path() -> str:
     """Public path to the loaded ``libgicg`` c-shared library.
 
-    Public API surface for external cgo bindings (e.g. AZ's MCTS go
-    bindings load their own MCTSSearch symbol from the same library).
-    Pre W2-5 callers reached into ``_find_lib()`` (underscore = private);
-    this wrapper preserves call ergonomics + breaks the leaky
-    abstraction (audit finding 低优 — file path leak)。
+    External cgo bindings (for example, AZ's Go MCTS implementation)
+    load their own symbols from the same library.
     """
     return _find_lib()
 
@@ -116,8 +113,8 @@ from gicg_env.engine_pool_queries import _PoolQueriesMixin
 class GicgEngine(_LifecycleMixin, _ApiMixin, _ActionsMixin, _QueriesMixin, _PoolQueriesMixin):
     """Wrapper around the C API for the GICG card game engine.
 
-    Method implementations live in sibling mixin modules to keep any
-    one file under the 300-line cap:
+    Method implementations live in sibling mixin modules to keep each
+    file within the repository line limit:
 
       _engine_api.py        — _setup_api (ctypes argtypes / restypes)
       _engine_lifecycle.py  — __init__, new_game, snapshot / restore /

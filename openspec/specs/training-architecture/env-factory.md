@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-17
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: training-architecture
@@ -17,7 +17,7 @@ subtopic: env-factory
 
 Added by `env-factory-unification` (archived 2026-05-17),解决三套
 env factory 并存(`core/env_factory.py` 2-arg orphan + `core/env_factory_legacy.py`
-1-arg production + `tools/run.py` `_build_env_factory` inline)的 single
+1-arg production + 当时训练入口中的 `_build_env_factory` inline)的 single
 source-of-truth 问题。canonical signature 收敛到 `training/core/env_factory.py`
 唯一文件。
 
@@ -39,9 +39,8 @@ def make_env_factory(
         cfg: Must expose `cfg.scenario` (ScenarioConfig from
             `training.core.scenario`). Other cfg fields are NOT read.
         obs_config_json: ObsConfig.to_engine_json() dict, or None.
-            None = engine 默认(all-on shuffle + include_char_skill_refs).
-            AZ caller pass `cfg.obs.to_engine_json()`;
-            DMC / CFR / BC caller pass None(无 ObsConfig 字段)。
+            None selects the engine default. The unified run dispatcher
+            currently passes None for every registered paradigm.
         master_seed: int base seed; per-game seed = master_seed + game_idx.
 
     Returns:
@@ -55,9 +54,8 @@ def make_env_factory(
   seed extraction(legacy 2-arg form 默认从 `cfg.meta.seed` 取,但
   AZ 用 `cfg.seed` 不是 `cfg.meta.seed`,dual schema 让 default 不可
   能正确;explicit 解决)
-- **obs_config_json `None` semantics**:engine 接受 `None`
-  (`gicg_env/_engine_lifecycle.py:168` `if obs_config is not None`)
-  默认全开 shuffle + include_char_skill_refs
+- **obs_config_json `None` semantics**:engine 接受 `None`，选择默认观测
+  配置；factory 不从 paradigm cfg 隐式生成 ObsConfig
 - **cfg 只读 `cfg.scenario`** — 不再耦合 `cfg.obs` / `cfg.seed` /
   `cfg.meta.seed`,paradigm-agnostic 边界更清
 
@@ -71,39 +69,37 @@ summary 速查:
 | 20 | PA-EF1 | 3 arg 全 required,无 default magic |
 | 21 | PA-EF2 | cfg 只读 `cfg.scenario`,paradigm-agnostic 边界 |
 | 22 | PA-EF3 | `obs_config_json=None` 合法,= engine 默认 obs |
-| 23 | PA-EF4 | AZ pass `cfg.obs.to_engine_json()` |
+| 23 | PA-EF4 | custom ObsConfig 由 caller 转为 engine JSON 后显式传入 |
 | 24 | PA-EF5 | per-game seed = master_seed + game_idx;GicgEnv 参数从 scenario 转发 |
 | 25 | PA-EF6 | 唯一 `make_env_factory` symbol;无并行 `_legacy`/`_v2` 版本 |
 
 ## 4. Usage examples
 
-### 4.1 AZ paradigm(持有 ObsConfig)
+### 4.1 Unified run dispatcher
 
 ```python
-# training/paradigms/az/train_loop/async_loop.py
-from training.core.env_factory import make_env_factory
-
-env_factory = make_env_factory(
-    config,
-    config.obs.to_engine_json(),
-    master_seed=config.seed,
-)
-```
-
-AZ 持有 `cfg.obs: ObsConfig`(legacy schema `cfg.seed` 顶层),显式调
-`.to_engine_json()` 转 dict。
-
-### 4.2 DMC / CFR / BC paradigm(无 ObsConfig)
-
-```python
-# tools/run.py — paradigm-agnostic 入口
+# tools/runs/_train/dispatch.py
 from training.core.env_factory import make_env_factory
 
 env_factory = make_env_factory(cfg, None, master_seed=cfg.meta.seed)
 ```
 
-`obs_config_json=None` 触发 engine 默认 obs(all-on shuffle +
-include_char_skill_refs)— 适用于不持有 ObsConfig 字段的 paradigm。
+当前统一入口对 AZ / DMC / CFR / PPO / BC 均使用 engine 默认观测配置。
+
+### 4.2 Caller-supplied observation config
+
+```python
+# A specialized caller may opt into a non-default observation layout.
+from training.core.env_factory import make_env_factory
+
+env_factory = make_env_factory(
+    cfg,
+    obs_config.to_engine_json(),
+    master_seed=cfg.meta.seed,
+)
+```
+
+该选择属于 caller；factory 只转发 JSON，不读取 `cfg.obs`。
 
 ### 4.3 Per-game seed 协议
 
@@ -113,15 +109,17 @@ env = env_factory(game_idx=42)  # seed = master_seed + 42
 ```
 
 closure 返回 reset()-ed GicgEnv,seed 严格 `master_seed + game_idx` —
-跨 paradigm 一致的 reproducibility 协议。
+跨 paradigm 一致的 reproducibility 协议。closure 还接受可选 keyword
+`layout_seed`：它只覆盖构造时的观测排列种子，随后仍以 per-game seed
+调用 `reset`。
 
 ## 5. Retirement of `env_factory_legacy.py`
 
 `training/core/env_factory_legacy.py`(2-arg `make_env_factory(cfg)`)曾是
 AZ async hot path production,本 change 删除:
 
-- AZ async_loop.py 切换到 canonical 3-arg signature
-- `tools/run.py` 内 `_build_env_factory` inline helper 删除,改用
+- 当时的 AZ async 路径切换到 canonical 3-arg signature
+- 旧训练入口内的 `_build_env_factory` inline helper 删除,改用
   canonical import
 - `test_scenario_sampling.py` 切换 import
 - `git rm training/core/env_factory_legacy.py`
@@ -144,6 +142,9 @@ AZ async hot path production,本 change 删除:
 ## 7. Status
 
 - **Created**:2026-05-17(`env-factory-unification` archive merge)
+- **Reconciled with source**:2026-09-14 — 当前统一 dispatcher 对全部
+  paradigm 传 `None`；删除已不存在的 AZ `async_loop.py` 当前入口说明，
+  并记录 `layout_seed` keyword。
 - **Version**:0(初始,搬运 `env-factory-unification` spec delta A1
   + 6 SHALL invariants)
 - **Expected revision triggers**:

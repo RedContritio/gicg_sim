@@ -103,7 +103,7 @@ DMC pretrain),独立 first-class status 是必要的。
 ## 4. Cross-references
 
 - 主 training architecture →
-  [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+  [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
 - BC paradigm dossier → `docs/paradigms/bc/`
 - BC warm-start history → memory `project_bc_warmstart_progress` +
   `project_bc_alone_evaluation`

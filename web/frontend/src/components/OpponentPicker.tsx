@@ -6,7 +6,7 @@ interface Props {
   onChange: (v: OpponentSpec) => void
 }
 
-const TYPES: OpponentSpec['type'][] = ['semantic_rl', 'mcts_pure', 'random', 'az', 'cfr']
+const TYPES: OpponentSpec['type'][] = ['semantic_rl', 'random', 'mcts_pure', 'az', 'cfr']
 
 export function OpponentPicker({ value, onChange }: Props) {
   const setType = (t: OpponentSpec['type']) => {
@@ -30,7 +30,7 @@ export function OpponentPicker({ value, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-xs text-slate-400">Opponent</div>
+      <div className="text-xs text-slate-400">对手</div>
       <div className="flex flex-wrap gap-2 items-end">
         <select
           value={value.type}
@@ -39,7 +39,7 @@ export function OpponentPicker({ value, onChange }: Props) {
         >
           {TYPES.map((t) => (
             <option key={t} value={t}>
-              {t === 'semantic_rl' ? '当前配置的语义 RL 模型' : t}
+              {t === 'semantic_rl' ? '当前 RL 模型' : t === 'random' ? '随机对手 · 练习体验' : t}
             </option>
           ))}
         </select>

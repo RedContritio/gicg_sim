@@ -27,10 +27,10 @@ parent: ./spec.md
 
 第一性原理论证 (本 subtopic invariant 直接 backing):**保持原架构 (process model + IPC wire) + 语言内化 only**。 Go native compute (no GIL / no pickle) 在等价 IPC 下应 ≥ Python pipeline by construction。 偏离架构 (collapse process count / 加 bridge layer) = forfeit OS-level 并行红利 + 引入新 overhead = 不可能 ≥ baseline。
 
-memory backing:
-- [[python-arch-mimicry-for-go-port]] — cross-lang port 设计准则
-- [[i29-r7-acceptance-ship]] — R7 ship + bench progression (3.66x→0.68x→1.54x)
-- [[audit-reviews-reveal-perf-artifacts]] — fairness claims 必经 4-dim audit
+Repository evidence:
+- `openspec/changes/archive/i29-go-actor-pool/` — pre-redesign cgo path
+- `openspec/changes/archive/i29-r7-n-subprocess/` — R7 topology and acceptance
+- `tools/_bench/p2_results/` — preserved benchmark reports
 
 ## 2. Scope
 
@@ -131,7 +131,7 @@ memory backing:
 - `cmd/gicg_actor/main.go` — Go subprocess entry (parseConfig + READY signal + paradigm.Run dispatch)
 - `gicg_actor/pool.go:Config` — BaseActorID + NActors=1 (AB10)
 - `gicg_actor/pool.go:Run` — paradigm.Run wrapper
-- `training/core/actor/inference_server.py:_socket_listener` — socket accept thread (AB7)
+- `training/core/actor/inference_server_socket_listener.py:start_listener_in_thread` — socket accept thread (AB7)
 - `training/core/actor/transition_shm_channel.py` — MPSC SHM ring wrapper (AB8)
 - `training/core/actor/actor_process.py:actor_main` — `inference_client` / `provider_kwargs` 互斥 dispatch (AB13) + `episode_runner_factory` / `_path` dispatch (AB14)
 - `training/paradigms/ppo/mp_factories.py:build_provider` — `provider_kwargs` escape hatch 实现 (AB13)
@@ -142,7 +142,7 @@ memory backing:
 - `training/core/actor/tests/test_go_subprocess_spawn.py` — spawn/READY/terminate cycle
 - `training/core/actor/tests/test_go_subprocess_perf_smoke.py` — smoke_full perf gate (Mac N=4 fps/actor ≥ ratio threshold)
 - `training/core/actor/tests/test_actor_main_runner_factory.py` — AB14 dispatch 契约 (factory over default / path resolve / 与 AB13 正交不 raise)
-- `tools/_bench/run_mac_collector_pair.py` — Mac fair bench harness (per [[i29-bench-harness]])
+- `tools/_bench/run_mac_collector_pair.py` — Mac fair bench harness
 
 **Cfg references**:
 - `configs/dmc/bench_v_legacy_mac_python_mp.toml` + `bench_v_legacy_mac_go.toml` — fair bench cfg pair (双侧 `minimax_node_budget=4000` algorithm 对齐)
@@ -165,6 +165,6 @@ Revision triggers:
 - Sibling: [`./protocols.md`](./protocols.md) Collector / NetworkProvider — actor backend 实现 collector protocol
 - Sibling: [`./pipeline.md`](./pipeline.md) — driver loop 调 collector.collect
 - Sibling: [`./network-sharing.md`](./network-sharing.md) — InferenceServer 端 batched forward + decoder_path
-- Memory: [[i29-r7-acceptance-ship]] / [[python-arch-mimicry-for-go-port]] / [[i29-bench-harness]] / [[bench-variance-5seed-required]]
+- Benchmark evidence: `tools/_bench/p2_results/`
 - Archive: `openspec/changes/archive/i29-go-actor-pool/` (pre-redesign cgo path STATE_DUMP + lesson)
-- Archive: `openspec/changes/archive/i29-r7-n-subprocess/` (R7 ship change,待 archive)
+- Archive: `openspec/changes/archive/i29-r7-n-subprocess/` (R7 ship change)

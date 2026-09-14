@@ -78,7 +78,7 @@ def load_with_extends(path: Path, depth: int = 0) -> dict:
     """Recursively resolve ``meta.extends`` chain. Deep merge child over
     parent; placement R6 sync checked per merge step."""
     if depth > MAX_EXTENDS_DEPTH:
-        raise ValueError(f'config: extends chain深度 > {MAX_EXTENDS_DEPTH} 防环 (loop suspected)')
+        raise ValueError(f'config: extends chain depth exceeds {MAX_EXTENDS_DEPTH} (cycle suspected)')
     cfg = _read_toml(path)
     extends = cfg.get('meta', {}).get('extends')
     if not extends:
@@ -181,14 +181,14 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     )
 
     sc_d = cfg['scenario']
-    # strict — 不容忍 [scenario] 内未知字段(同 [eval]/[debug] CS4 风格)。
-    # F4: deck_0/deck_1 拼写错若被静默吞掉会回落隐式 deck 路径,必须 fail-loud。
+    # Reject unknown scenario fields so a misspelled explicit-deck key
+    # cannot silently fall back to implicit deck construction.
     allowed_sc = {f.name for f in ScenarioCfg.__dataclass_fields__.values()}
     unknown_sc = set(sc_d.keys()) - allowed_sc
     if unknown_sc:
         raise ValueError(f'config: unknown field in [scenario]: {sorted(unknown_sc)} (allowed: {sorted(allowed_sc)})')
-    # F4 互斥:ScenarioCfg 是无验证 frozen dataclass(ScenarioConfig.__post_init__
-    # 只覆盖 ScenarioConfig 实例化路径),loader 必须自己强制。
+    # ScenarioCfg has no ``__post_init__`` validation, so enforce the
+    # character-pool/explicit-deck exclusion before constructing it.
     check_char_pool_deck_exclusive(sc_d.get('char_pool'), sc_d.get('deck_0'), sc_d.get('deck_1'))
     scenario = ScenarioCfg(
         team_0=sc_d['team_0'],
@@ -211,7 +211,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     eval_cfg = None
     if 'eval' in cfg:
         eval_d = cfg['eval']
-        # strict — 不容忍 [eval] 内未知字段(同 [debug]/CS4 风格)
+        # Evaluation configuration is a closed field set.
         allowed_eval = {f.name for f in EvalCfg.__dataclass_fields__.values()}
         unknown_eval = set(eval_d.keys()) - allowed_eval
         if unknown_eval:
@@ -237,7 +237,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     )
 
     dbg_d = cfg.get('debug', {})
-    # strict — 不容忍 [debug] 内未知字段(同其他段 CS4 风格;dev API 拼写错 fail-loud)
+    # Debug configuration is a closed field set.
     allowed_dbg = {f.name for f in DebugCfg.__dataclass_fields__.values()}
     unknown = set(dbg_d.keys()) - allowed_dbg
     if unknown:
@@ -245,7 +245,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
     debug = DebugCfg(**dbg_d) if dbg_d else DebugCfg()
 
     rt_d = cfg.get('runtime', {})
-    # strict — 同 [debug] 风格;runtime 字段拼写错 fail-loud。
+    # Runtime configuration is a closed field set.
     allowed_rt = {f.name for f in RuntimeCfg.__dataclass_fields__.values()}
     unknown_rt = set(rt_d.keys()) - allowed_rt
     if unknown_rt:
@@ -265,7 +265,7 @@ def _build_dataclass(cfg: dict, paradigm_flat: dict) -> TrainingConfig:
 
 
 def load_cfg(path: str | Path, overrides: Optional[list] = None) -> TrainingConfig:
-    """End-to-end loader: extends → override → resolve → validate →"""
+    """Load, merge, override, inherit, validate, and build a config."""
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f'config: cfg file {p} not found')
@@ -274,15 +274,12 @@ def load_cfg(path: str | Path, overrides: Optional[list] = None) -> TrainingConf
         raw = _apply_overrides(raw, list(overrides))
     resolved = resolve_inheritance(raw)
     validate_schema(resolved)
-    # FU-W1B: dispatch `[paradigm]` section through paradigm-specific
-    # validator. Catches unknown paradigm-section fields at load time
-    # rather than at first adapter use (much later in the run lifecycle).
+    # Validate paradigm fields during config loading, before an adapter is
+    # constructed.
     paradigm = resolved['meta']['paradigm']
     validator = _load_paradigm_validator(paradigm)
-    # cfg-toml-restructure-paradigm-scoped N6 / CC-306:
-    # Extract hybrid `[paradigm.<name>]` + `[paradigm.<name>.X]` sub-sections
-    # + merge top-level `[shape]` into agent sub-dict. Returns flat dict
-    # equivalent to legacy `[paradigm]` shape, feedable to from_dict().
+    # Flatten ``[paradigm.<name>]`` and its subsections, then merge the
+    # shared top-level ``[shape]`` into the agent configuration.
     from training.core.cfg.loader import load_paradigm_cfg
 
     paradigm_flat = load_paradigm_cfg(resolved, paradigm)

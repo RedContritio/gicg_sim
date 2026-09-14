@@ -1,11 +1,13 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 paradigm: az
 ---
 
 # AZ paradigm dossier
+
+> 2026-05-16 snapshot；当前训练状态见 [`../../0_status/README.md`](../../0_status/README.md)。
 
 > **Status**: **CLOSED**(主线 by ADR-0009)/ **PARTIAL REOPEN**(by ADR-0010,2026-04-28)
 >
@@ -135,10 +137,9 @@ AZ Stage 3 (card_pool)
   mcts_go_bindings.py + determinize.py + arena.py + inference_pool.py +
   inference_worker.py + train_step.py + train_az.py + train_loop/ +
   pool_spec.py。原 `legacy/` 子目录已 git rm,详
-  [`openspec/changes/az-paradigm-rewrite/`](../../../openspec/changes/az-paradigm-rewrite/)
+  [`openspec/changes/archive/az-paradigm-rewrite/`](../../../openspec/changes/archive/az-paradigm-rewrite/)
   (Phase 6 后 archive)。
-- [`training/paradigms/bc/legacy/bc_train.py`](../../../training/paradigms/bc/legacy/bc_train.py)
-  — BC pretrain 入口(P5-E 后从 AZ/PPO 双份 dedupe;BC first-class adapter 在
+- 历史 `training/paradigms/bc/legacy/bc_train.py` 已退役；BC first-class adapter 在
   [`training/paradigms/bc/`](../../../training/paradigms/bc/))
 - [`gicg_mcts/`](../../../gicg_mcts/) — Go MCTS L3(tree + PUCT + backup)
 

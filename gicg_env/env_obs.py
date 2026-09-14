@@ -2,12 +2,10 @@
 
 Owns the _get_obs() implementation and re-exports the obs-layout
 constants that describe the static/dynamic obs buffers written by the
-Go side. Constants now live in ``gicg_env._constants`` (single source
-of truth post W1-T1); imported here so legacy callers' ``from
+Go side. Constants live in ``gicg_env._constants`` as the single source
+of truth; they are imported here so existing callers' ``from
 gicg_env.env_obs import OBS_COUNTER_SLOTS`` (and ``gicg_env.env``
-re-export chain) keep resolving. Pre W1-T1: env_obs.py hard-coded a
-parallel copy and back-referenced ``training.core.obs_constants``,
-forming a cycle."""
+re-export chain) keep resolving."""
 
 from __future__ import annotations
 
@@ -102,8 +100,8 @@ class _ObsMixin:
         # Card block: divide counts by a fixed ceiling so the scale is
         # invariant across steps (counter-normalization would over-scale
         # buckets with small active card diversity).
-        # Round-4 S-2: 用 import 的 OBS_HAND_BUCKETS / OBS_ENEMY_SIZES,
-        # 不再 hardcode 4/2;Python 内部跨文件 drift 由单一 source 兜底。
+        # Use the shared layout constants to keep this slice aligned with
+        # the engine schema.
         hand_start = c_end
         hand_end = hand_start + OBS_HAND_BUCKETS * OBS_MAX_CARD_TYPES
         out[hand_start:hand_end] = raw[hand_start:hand_end].astype(np.float32) / 10.0

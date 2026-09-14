@@ -2,10 +2,10 @@
 
 Spec: design/episode-runner.md.
 
-Runner is fully paradigm-agnostic — its only knobs come from
-``EpisodeSpec`` + the injected ``EpisodePolicy``. Same class drives
-actor self-play and eval matches; the only difference is the spec's
-``deterministic`` flag + which OpponentRegistry entry to use.
+Runner is paradigm-agnostic: its decisions come from ``EpisodeSpec`` and the
+injected ``EpisodePolicy``. It drives ordinary single-sided actor and eval
+episodes. AZ's two-sided self-play collector uses its dedicated lifecycle
+adapter around ``play_self_game``.
 """
 
 from __future__ import annotations
@@ -26,8 +26,9 @@ class EpisodeRunner:
     """Drives one full episode through a paradigm-agnostic loop.
 
     Args:
-        env_factory: callable ``(scenario_seed, teams) → env`` or similar.
-            Must produce env supporting reset / step / get_obs / done / current_player.
+        env_factory: callable ``(scenario_seed) → env``. The environment
+            must expose step, termination/player state, and either get_obs
+            or _get_obs.
         opponent_registry: ``OpponentRegistry`` with ``get(opp_id) → Player``.
     """
 
@@ -62,7 +63,7 @@ class EpisodeRunner:
         # The env is assumed reset by env_factory; if not, callers call
         # env.reset(seed=spec.scenario_seed) inside their env_factory.
         steps = 0
-        max_steps = 600  # safety bound; per memory project_episode_step_bound
+        max_steps = 600  # Defensive cap for malformed/non-terminating episodes.
         winner = -1
         while steps < max_steps:
             if getattr(env, 'done', False):
@@ -74,10 +75,8 @@ class EpisodeRunner:
                     obs = self._get_obs(env)
                 with trace.span('episode_runner.get_legal_mask'):
                     mask = self._get_legal_mask(env)
-                # Optional duck-typed hook: paradigm-specific providers
-                # that need the env reference for obs encoding (e.g.
-                # DMC's obs_dict adapter) can observe it here before
-                # policy.act forwards through them.
+                # Some providers need the environment to build their
+                # paradigm-specific observation before ``policy.act``.
                 if hasattr(provider, 'observe_env'):
                     with trace.span('episode_runner.observe_env'):
                         provider.observe_env(env)

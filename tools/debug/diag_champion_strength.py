@@ -11,7 +11,7 @@ one-shot diag).
 
 Usage::
 
-    .venv/bin/python -m tools.diag_champion_strength artifacts/<run>/
+    .venv/bin/python -m tools.debug.diag_champion_strength artifacts/<run>/
 """
 
 from __future__ import annotations

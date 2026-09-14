@@ -1,8 +1,8 @@
 """DMCParadigm — implements training.core.protocols.Paradigm for DMC.
 
-Bridges the unified pipeline driver to legacy DMC components. Six
-make_* factories + step_schedule cadence. Serial mode in P3-B (real mp
-deferred to P4 — see collector.DMCMultiProcessCollector docstring).
+Bridges the unified pipeline driver to current DMC components. The collector
+dispatch supports serial Python, async Python multiprocessing, and async Go
+subprocess actors.
 
 Spec ref: paradigm-dmc/spec.md D1-D7 + training-architecture SHALL #2
 (Paradigm protocol).

@@ -4,7 +4,7 @@ Goal: decide whether Python-driven MCTS on the existing ctypes bridge is
 feasible. MCTS with 400 rollouts × 30 decision points × 100 games
 ≈ 1.2M rollouts, each needing ~1 snapshot + 40 steps + 1 restore.
 
-    .venv/bin/python -m tools.bench_snapshot --n-games 50
+    .venv/bin/python -m tools.bench.bench_snapshot --n-games 50
 """
 
 from __future__ import annotations

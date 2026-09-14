@@ -1,5 +1,10 @@
 # gicg_mono — eval daemon + train one-shot.
 #
+# LEGACY / CURRENTLY INCOMPATIBLE: this compose definition still uses the
+# removed Unix-socket environment and ``--socket`` option. The current eval
+# service binds localhost TCP (default port 9100). Do not use this file until
+# its service wiring is migrated and tested.
+#
 # Resource limits are at the Docker Desktop VM level (Settings →
 # Resources → 9 CPU / 18 GB), not per-service. Eval and train share
 # the VM pool: train preempts when busy, eval keeps DSL parse cache

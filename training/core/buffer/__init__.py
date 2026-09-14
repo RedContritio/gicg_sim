@@ -1,9 +1,4 @@
-"""training.core.buffer — paradigm-agnostic buffer primitives.
-
-Adapted from training/framework/buffer/ + training/dmc/replay.py +
-training/cfr/reservoir.py. Each subclass implements the ``Buffer``
-Protocol (training/core/protocols.py).
-"""
+"""Paradigm-agnostic buffer primitives implementing the core ``Buffer`` protocol."""
 
 from training.core.buffer.base import BufferBase
 from training.core.buffer.dataset import DatasetBuffer

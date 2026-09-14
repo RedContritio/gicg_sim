@@ -1,13 +1,15 @@
-"""raw JSON → full YAML CLI(strict consumer:完全消化 raw,未访问 paths 报警)。
+"""raw JSON → normalized JSON/YAML CLI (strict consumer with path coverage).
 
 用法(从 repo root)::
 
-    .venv/bin/python -m tools.cards.cli <raw.json> -o /tmp/test.yaml --coverage
+    .venv/bin/python -m tools.cards.cli <raw.json> -o /tmp/test.json --coverage
+    .venv/bin/python -m tools.cards.cli <raw.json> -o /tmp/test.yaml --format yaml
     .venv/bin/python -m tools.cards.cli --raw-dir <dir> --out-dir /tmp/auto_full --coverage
     .venv/bin/python -m tools.cards.cli --raw-dir <dir> --out-dir <dir> --strict
 
 字段实现见:
-- ``tools.cards.parse``      — HTML strip / terms / module 解码
+- ``tools.cards.parse``      — module 解码、属性和技能条目解析
+- ``tools.cards.html_utils`` / ``tools.cards.terms`` — HTML 与术语解析
 - ``tools.cards.extractors`` — cost icon / duration / battle_action / etc
 - ``tools.cards.transform``  — character / action / monster transformers
 - ``tools.cards.tracker``    — PathTracker 完全消化检查

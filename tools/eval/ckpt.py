@@ -9,7 +9,7 @@ random 7/32 验证)。
 Usage::
 
     # 多 ckpt 同 scenarios deterministic 对比(T-06 ckpts/ subdir layout)
-    .venv/bin/python -m tools.eval.ckpt configs/dmc_stage3_pilot.toml \\
+    .venv/bin/python -m tools.eval.ckpt configs/dmc/stage3_pilot.toml \\
         --ckpts artifacts/A/ckpts/latest.pt artifacts/B/ckpts/latest.pt \\
         --baselines random F1-D2 F1-D4 --n-scenarios 128 \\
         --output-dir /tmp/cmp/
@@ -20,7 +20,7 @@ Usage::
         --baselines F1-D2 --n-scenarios 16
 
     # 出 replay yaml(diff 两 ckpt 策略)
-    .venv/bin/python -m tools.eval.ckpt configs/dmc_stage3_pilot.toml \\
+    .venv/bin/python -m tools.eval.ckpt configs/dmc/stage3_pilot.toml \\
         --ckpts artifacts/A/ckpts/latest.pt artifacts/B/ckpts/latest.pt --baselines F1-D2 \\
         --record-replays --output-dir /tmp/cmp/
 """

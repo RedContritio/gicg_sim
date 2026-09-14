@@ -1,8 +1,7 @@
 """BC paradigm e2e smoke — symmetric template (Phase 4 of
 core-network-generic-promotion).
 
-OpenSpec ref: ``openspec/changes/core-network-generic-promotion/specs/
-training-architecture/spec.md`` invariant A1 (smoke contract).
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``.
 
 BC paradigm-specific invariant (spec A1.4):
 - cross-entropy loss SHALL NOT increase after one optimizer step

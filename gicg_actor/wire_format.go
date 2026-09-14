@@ -1,7 +1,7 @@
 // wire_format.go — raw bytes + length prefix IPC 协议 encode/decode。
 //
 // 跟 Python InfServer socket listener 对接(P1.3 ship)。 协议设计依据
-// openspec/changes/i29-go-actor-pool/design.md D5(IPC research 验证 <1μs RTT)。
+// openspec/changes/archive/i29-go-actor-pool/design.md D5(IPC research 验证 <1μs RTT)。
 //
 // 设计原则:
 //   - 全 little-endian(Win x86 + Linux x64 + Mac arm64 都默认 LE,跨平台一致)

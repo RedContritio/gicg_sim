@@ -5,11 +5,8 @@
 #   - [checkpoint] save_every short cadence
 #   - [paradigm.bc] n_epochs bumped to ≥ 100 step (epoch_steps = dataset/bs)
 #
-# STATUS (per SF-105): test_bc_smoke_full.py currently pytest.skip due to
-# BC requiring an NPZ dataset (`paradigm.dataset_path`) which is not
-# available in test fixtures. Follow-up change: `bc-smoke-dataset-fixture`
-# (auto-gen tiny NPZ via tools/dataset/gen_bc.py at test time). Toml
-# pre-tuned for when fixture lands; `dataset_path` to be set via override.
+# The smoke_full test creates an isolated NPZ fixture and supplies its path
+# through an override; production runs still provide their own dataset.
 
 [meta]
 extends = "smoke.toml"

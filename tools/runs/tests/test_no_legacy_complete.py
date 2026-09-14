@@ -7,8 +7,8 @@ post-train complete CLI) the redesign explicitly removed.
 
 Scope: production code only (``tools/`` + ``training/``). Excluded:
 
-- ``.claude/`` — worktree-spawned copies of this very file would
-  trigger a false positive (per memory feedback_guard_test_rglob_exclude_claude).
+- ``.claude/`` — worktree-spawned copies of this file would trigger a
+  false positive.
 - ``__pycache__/`` — bytecode caches.
 - ``docs/``, ``openspec/``, ``CLAUDE.md`` — historical / spec docs are
   out of scope for this guard (T-24 handles ``CLAUDE.md``; openspec

@@ -6,7 +6,7 @@
 # loop)。 本 cfg 的 paradigm.dmc.opponent_mix.minimax_node_budget=4000 / total_frames /
 # scenario 等字段被 perf_smoke test 内部 fixture 透传读取,而非 cfg loader。 cfg 仅作
 # scenario/algo alignment scaffold,production cfg 走 `configs/dmc/stage3_b_v_legacy*`。
-# 详 [[i29-bench-harness]] memory。
+# Historical measurements are stored under `tools/_bench/`.
 
 #
 # 与 bench_v_legacy_mac_go.toml 配对:同 commit + 同 Mac + 同 scenario / card_pool /
@@ -25,7 +25,7 @@
 seed = 42
 paradigm = "dmc"
 run_label = "bench_v_legacy_mac_python_mp"
-device = "cpu"  # Mac M-series CPU(MPS 至 d_model=128 实测比 CPU 慢 3-4x per memory)
+device = "cpu"  # This benchmark pair was calibrated on a Mac CPU.
 
 [pipeline]
 mode = "async"

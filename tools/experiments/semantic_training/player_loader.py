@@ -12,6 +12,7 @@ from training.core.artifact_io import load_checkpoint
 from training.core.matchup.loaders import PlayerBuilder, register_loader
 from training.core.network import AgentConfig
 from tools.experiments.semantic_training.agent import SemanticAgent
+from tools.experiments.semantic_training.consequence_policy import FORMAT as CONSEQUENCE_FORMAT
 
 
 FORMAT = 'semantic-q/2.0.0'
@@ -20,8 +21,8 @@ FORMAT = 'semantic-q/2.0.0'
 def load_semantic_payload(ckpt_path: str) -> Mapping:
     """Read and validate the persisted semantic-Q envelope and provenance."""
     payload = load_checkpoint(ckpt_path, map_location='cpu', weights_only=False)
-    if not isinstance(payload, Mapping) or payload.get('format') != FORMAT:
-        raise ValueError(f'unsupported semantic checkpoint; expected {FORMAT}')
+    if not isinstance(payload, Mapping) or payload.get('format') not in (FORMAT, CONSEQUENCE_FORMAT):
+        raise ValueError(f'unsupported semantic checkpoint; expected {FORMAT} or {CONSEQUENCE_FORMAT}')
     shape = payload.get('shape')
     state = payload.get('net')
     if not isinstance(shape, Mapping) or not isinstance(state, Mapping):
@@ -29,17 +30,27 @@ def load_semantic_payload(ckpt_path: str) -> Mapping:
     return payload
 
 
-def load_semantic_agent(ckpt_path: str, *, seed: int = 0) -> SemanticAgent:
+def load_semantic_agent(ckpt_path: str, *, seed: int = 0, device: str = 'cpu') -> SemanticAgent:
     """Create one independent inference agent from a compatible checkpoint."""
     payload = load_semantic_payload(ckpt_path)
-    return _agent_from_payload(payload, seed)
+    return _agent_from_payload(payload, seed, device)
 
 
-def _agent_from_payload(payload: Mapping, seed: int) -> SemanticAgent:
+def _agent_from_payload(payload: Mapping, seed: int, device: str = 'cpu') -> SemanticAgent:
     shape = payload['shape']
     state = payload['net']
     try:
-        agent = SemanticAgent(AgentConfig(**shape))
+        agent = SemanticAgent(AgentConfig(**shape), device)
+        if payload['format'] == CONSEQUENCE_FORMAT:
+            from tools.experiments.semantic_training.consequence_policy import ConsequencePolicyNet
+            from tools.experiments.semantic_training.rule_auxiliary import RuleHead
+
+            use_consequences = payload.get('use_consequences')
+            if type(use_consequences) is not bool:
+                raise ValueError('consequence policy requires explicit boolean use_consequences')
+            agent.net = ConsequencePolicyNet(
+                agent.net, RuleHead(agent.cfg.d_model), agent.cfg.d_model, use_consequences=use_consequences
+            ).to(device)
         agent.net.load_state_dict(state, strict=True)
     except (TypeError, RuntimeError) as exc:
         raise ValueError('semantic checkpoint shape or net state is incompatible') from exc

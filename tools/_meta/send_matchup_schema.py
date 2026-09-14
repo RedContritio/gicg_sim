@@ -1,4 +1,4 @@
-"""Schema-fetch + schema-walk helpers for ``tools.send_matchup``.
+"""Schema-fetch + schema-walk helpers for ``tools._meta.send_matchup``.
 
 Split out of send_matchup.py to stay under the 300-line pre-commit cap.
 Contents:

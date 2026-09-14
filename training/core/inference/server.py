@@ -4,8 +4,8 @@ The server runs in its own process. It holds ONE Agent (AZ for now)
 and services batched evaluation requests from worker processes over
 ``multiprocessing.Pipe`` connections.
 
-See the original ``training.inference_server`` docstring for the full
-wire protocol; this module is the main-process handle only.
+``InferenceClient`` defines the worker-side request sequence; this module
+owns only the main-process handle and child-process lifecycle.
 """
 
 from __future__ import annotations
@@ -51,16 +51,14 @@ class InferenceServer:
             raise ValueError(f'n_workers must be positive, got {n_workers}')
         if not network_factory_path:
             raise ValueError(
-                'InferenceServer: network_factory_path is required (W2-1 — pre-W2 the '
-                'server-loop hard-imported training.paradigms.az.network.Agent; callers '
-                'must now supply the dotted module.attr path explicitly, e.g. AZ passes '
+                'InferenceServer: network_factory_path is required; supply the dotted '
+                'module.attr path for the paradigm network, e.g. AZ passes '
                 "'training.paradigms.az.network.Agent')"
             )
         if not inference_handlers_module_path:
             raise ValueError(
-                'InferenceServer: inference_handlers_module_path is required (W2-2 — pre-W2 '
-                "drain.py implemented AZ-shaped handlers inline; callers must now point at "
-                'a paradigm module exposing handle_game_start + handle_eval_batch callables, '
+                'InferenceServer: inference_handlers_module_path is required; point at '
+                'a paradigm module exposing handle_game_start and handle_eval_batch, '
                 "e.g. AZ passes 'training.paradigms.az._inference_handlers')"
             )
         self.agent_config = agent_config

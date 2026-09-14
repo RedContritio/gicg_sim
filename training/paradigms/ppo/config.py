@@ -30,8 +30,7 @@ from training.core.cfg import (
 # Backward-compat alias (cfg-schema-unification CC-202 pattern, extended to
 # PPO in ppo-cfg-shape-alignment #7): existing imports
 # `from training.paradigms.ppo.config import PPOAgentShapeCfg` resolve to the
-# shared ObsShape dataclass. Field set unchanged (7 fields, already aligned
-# post #4 ppo-structural-backbone-migration).
+# shared ObsShape dataclass.
 PPOAgentShapeCfg = ObsShape
 
 # Closed enum of supported cfg schema versions (CC-204 pattern).

@@ -100,7 +100,7 @@ D2 决策(本 change 内):PPO **迁移**而非 archive,通过新管线 reproduci
 ## 4. Cross-references
 
 - 主 training architecture →
-  [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+  [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
 - PPO paradigm dossier → `docs/paradigms/ppo/`
 - Stage 3 closure → `archive/0008-rl-paradigm-pivot` + memory
   `project_stage3_full_diagnosis`

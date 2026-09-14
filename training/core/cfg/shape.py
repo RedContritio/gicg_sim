@@ -17,8 +17,7 @@ from dataclasses import dataclass
 class ObsShape:
     """Observation shape — paradigm-agnostic, env-derived.
 
-    All 5 paradigm cfgs compose this as ``shape: ObsShape`` field
-    (per ParadigmConfigBase).
+    All five paradigm configs compose this as an ``agent: ObsShape`` field.
     """
 
     n_counter_slots: int

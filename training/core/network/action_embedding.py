@@ -1,4 +1,4 @@
-"""Action semantics shared by policy/Q heads: rule, card target and payment."""
+"""Encode rule, switch, target, tune, reroll, and payment action features."""
 
 import torch
 

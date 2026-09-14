@@ -140,6 +140,16 @@ def build_session(msg: dict, seed: int, human_player: int) -> LiveSession:
         raise
 
 
+def build_practice_session(msg: dict, seed: int, human_player: int) -> LiveSession:
+    """Explicit random practice opponent using the same configured game rules."""
+    _, cfg = load_service_definition()
+    team_0, team_1 = _validate_teams(msg, cfg)
+    player = build_opponent_player({'type': 'random'}, seed)
+    game_cfg = replace(cfg, scenario=replace(cfg.scenario, team_0=team_0, team_1=team_1))
+    env = make_env_factory(game_cfg, None, seed)(0)
+    return LiveSession(env, player, human_player)
+
+
 def profile() -> dict:
     definition, cfg = load_service_definition()
     scenario = cfg.scenario

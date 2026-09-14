@@ -40,9 +40,9 @@ GICG 骰子系统需被规约化,否则会出现:
 - 费用求解 / 支付枚举:`gicg_engine/cost_payment.go`
 - 行动级支付索引:`gicg_engine/interp/ruleset.go`(`BuildDiceIndex`)
 - 确定化注入:`gicg_engine/capi/capi_actions.go`(`GameSetPlayerDice`)
-- Python 适配:`training/az/determinize.py`(骰子颜色采样)、
-  `training/az/network/actor_critic.py::dice_combo_proj`、
-  `training/az/mcts/`(`action_payments` 通过叶节点 eval)
+- Python 适配:`training/paradigms/az/determinize.py`(骰子颜色采样)、
+  `training/core/network/actor_critic.py` 的 payment 编码、
+  `training/paradigms/az/mcts/`(`action_payments` 通过叶节点 eval)
 - 测试:`gicg_engine/tests/dice_test.go`
 
 ## 2. Scope

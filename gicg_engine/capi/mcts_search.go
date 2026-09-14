@@ -66,7 +66,7 @@ type MCTSDetJSON struct {
 	Dice     []int32 `json:"dice"`
 }
 
-// Runs a full MCTS search. Callback contract (Phase C async):
+// Runs a full MCTS search. Callback contract:
 //
 //	sendCB(worker, game, dyn, refs, pay, n_legal) — non-blocking
 //	  push onto the eval pipe.

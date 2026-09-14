@@ -192,11 +192,15 @@ OpenSpec change 提案修订,而非在代码中静默偏离。
   为 link)
 - `docs/5_history/audits/env_audit.md` — 历史 env 审计
 
-**Memory cross-references**:
+**Repository references**:
 
-- 训练完必跑 gauntlet → `memory feedback_post_run_gauntlet`
-- Pool versioning ADR-0011 详 → `memory project_pool_versioning`
-- Typed obs ckpt 全失效 → `memory project_typed_obs_ckpt_break`
+- Evaluation is caller-controlled; current service and matchup behavior is in
+  [`eval-protocol`](../eval-protocol/spec.md).
+- Pool versioning is recorded in
+  [`0011-pool-versioning`](../../changes/archive/0011-pool-versioning/).
+- Typed-observation checkpoint compatibility is recorded in
+  [`0019-dsl-v6-semantic-engine`](../../changes/archive/0019-dsl-v6-semantic-engine/)
+  and enforced by the current checkpoint schema.
 
 ## 6. Status
 

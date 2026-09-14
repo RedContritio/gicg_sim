@@ -13,8 +13,8 @@ with ``('ok', request_id, logits_bytes)`` or ``('err', ..., repr(exc))``.
 Response queues MUST be registered before ``start()`` because
 ``mp.Queue`` cannot traverse another queue — it crosses spawn as an arg.
 
-Loopback fallback: ``forward_one`` does an in-proc forward (P3-A tests +
-``InferenceClient`` with ``server=`` arg).
+Loopback fallback: ``forward_one`` performs an in-process forward for tests
+and ``InferenceClient(server=...)`` callers.
 """
 
 from __future__ import annotations
@@ -75,24 +75,20 @@ def _server_loop(
     (torch.compile once at startup; weight updates do NOT invalidate).
     Trace/compile fall back to raw forward on failure.
 
-    ``request_decoder_path``: empty = legacy decode (unpickle torch obs
+    ``request_decoder_path``: empty uses the generic decode path (unpickle Torch obs
     + tensor.to(device)). When set, dotted ``module.attr`` resolves to
     ``decoder(obs_bytes, mask_bytes, device, client_cache, network) ->
     (obs, mask)``. Per-client cache the decoder owns; server wipes on
     weight update. ``network`` exposed so decoder can reuse sub-modules.
 
     Response encoding: when ``request_decoder_path`` is set the server
-    returns numpy bytes (torch tensor → ``detach().cpu().numpy()``) so
-    the actor process unpickles without importing torch (I25 cutover —
-    drops ~400 MB CUDA mmap RSS per actor). Legacy path keeps the
-    pickled-torch-tensor response so existing tests + non-DMC callers
-    are unchanged.
+    returns NumPy bytes (Torch tensor → ``detach().cpu().numpy()``) so
+    the actor can unpickle without importing Torch. The generic path keeps
+    the pickled-Torch-tensor response.
     """
     harden_child_env()
     install_quiet_sigterm(stop_event)
-    # cfg-driven perf trace enable (post 2026-05-23) — parent (InferenceServer
-    # __init__ / start) 透传 perf_trace_enabled + 配套字段。 disabled (default)
-    # 时 enable_explicit 不调,configure 走 no-op 分支,hot span() = _NOOP。
+    # The parent passes explicit tracing settings across the spawn boundary.
     if perf_trace_enabled:
         trace.enable_explicit(
             flush_window=perf_trace_flush_n,
@@ -100,11 +96,8 @@ def _server_loop(
             log_dir=perf_trace_dir,
         )
     trace.configure(role='inf_server', id=0)
-    # PyTorch CUDA allocator 默认 caching 不释放,长跑后 InfServer RSS 飙
-    # 到 25-35 GB(per 2026-05-20 production run 078 实测,~10 GB/h 涨)。
-    # expandable_segments:True 让 allocator 用 vmem reservation 而非物理,
-    # 不用时操作系统能 reclaim。Win + CUDA 12.x+ 支持。
-    # max_split_size_mb 限单个 allocation 上限 → 减少碎片,小模型更友好。
+    # Prefer expandable CUDA allocator segments and bounded split sizes to
+    # reduce long-running fragmentation.
     import os as _os
 
     _os.environ.setdefault(
@@ -138,12 +131,8 @@ def _server_loop(
     # request when mode='trace'; both failures fall back to raw forward.
     accel = _AccelState(network, inference_acceleration)
 
-    # Optional socket listener:Go-native actor pool 走 socket 路径 — listener thread
-    # 在本 InfServer process 内启动。 I29 T-RR.4 — Route A:listener 的 per-conn
-    # ``forward_cb`` 不再自行 decode+forward(旧 socket-direct-forward 路径,绕过批处理),
-    # 而是把请求 ``put`` 进 ``request_q``,与 mp.Queue 客户端共用 main loop 的批处理 +
-    # ``response_qs`` 回程。 socket client 的 ``client_id`` 由 Go actor id (0..N-1) 给定,
-    # 对应预注册的 ``response_qs[client_id]``(``InferenceServer`` ``socket_clients`` 参数)。
+    # An optional socket listener adapts Go requests into the same request
+    # queue and batched-forward loop used by multiprocessing clients.
     socket_listener_thr = None
     socket_listener_stop = None
     if socket_port > 0:
@@ -157,10 +146,8 @@ def _server_loop(
             ready_event.set()
             stop_event.set()
             raise RuntimeError(
-                '_server_loop: socket_port > 0 (Route A) requires socket_payload_encoder_path set '
-                '(W2-1 — pre-2026-05-28 the encoder was hard-coded to '
-                'training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload; '
-                'paradigm caller must now pass the dotted module.attr path explicitly)'
+                '_server_loop: socket_port > 0 requires socket_payload_encoder_path '
+                'to name the paradigm request encoder'
             )
         from training.core.actor.actor_process import resolve_builder as _resolve_builder
         from training.core.actor.inference_server_socket_listener import (
@@ -179,26 +166,17 @@ def _server_loop(
         socket_request_to_pickled_payload = _resolve_builder(socket_payload_encoder_path)
 
         def forward_cb(req: '_SocketInferRequest') -> '_SocketInferResponse':
-            """Route A — socket request 走 ``request_q`` 批处理。
-
-            per-conn handler thread 调用本闭包:adapt socket InferRequest →
-            pickled payload → ``request_q.put`` → 阻塞读对应 ``response_qs[client_id]``。
-            main loop 与 mp.Queue 客户端一视同仁 batch + forward。
-            """
+            """Route one socket request through the shared batch queue."""
             cid = req.client_id
-            # client_id 越界 fail-loud:Go actor id 应 ∈ [0, socket_clients) —— 越界 =
-            # socket_clients 配置 ≠ 实际 Go actor 数(I29 T-RR.4 review #3),裸
-            # IndexError 不指向根因。
+            # A Go actor id must address a pre-registered response queue.
             if cid < 0 or cid >= len(response_qs):
                 raise ValueError(
                     f'socket forward: client_id {cid} 越界 [0,{len(response_qs)}) — socket_clients 与 Go actor 数不一致'
                 )
             obs_bytes = socket_request_to_pickled_payload(req, max_actions=socket_max_actions)
             request_q.put(('infer', cid, req.req_id, obs_bytes, b''))
-            # 带 timeout 轮询读响应 —— main loop 在 stop 后 break,残留 'infer' 请求不再
-            # 被处理,无 timeout 会让本 handler thread 永久阻塞(review #2)。 req_id 不符
-            # = 上一条超时请求遗留的 stale 响应:丢弃续等正确的,绝不能把 stale logits
-            # 当本请求结果返回(review #1;per-conn 单 in-flight 下正常必匹配)。
+            # Poll with a timeout so shutdown cannot strand this handler.
+            # Discard stale responses until the matching request id arrives.
             while not stop_event.is_set():
                 try:
                     kind, rid, payload = response_qs[cid].get(timeout=0.5)
@@ -219,7 +197,7 @@ def _server_loop(
                 if kind == 'err':
                     return _SocketInferResponse(status=INFER_STATUS_ERR, err_msg=str(payload))
                 raise ValueError(f'socket forward: 未知 response kind {kind!r}')
-            # stop_event set —— 关停中,返 err 让 handler 干净退出,不永久阻塞。
+            # Return a protocol error when shutdown interrupts the request.
             return _SocketInferResponse(status=INFER_STATUS_ERR, err_msg='inference server stopping')
 
         socket_listener_ready = _threading.Event()
@@ -234,9 +212,7 @@ def _server_loop(
     ready_event.set()
     timeout_s = batch_timeout_ms / 1000.0
 
-    # Stats counters — 周期 aggregate 后 push 到 stats_q,master MetricsLogger
-    # 起 drainer thread 入 metrics.jsonl as kind="inf_server"。无 stats_q
-    # (test / 非 mp 路径)skip 所有 stats overhead。
+    # Aggregate interval counters only when a stats queue is configured.
     stats_enabled = stats_q is not None and stats_interval_s > 0
     stats_n_batches = 0
     stats_n_requests = 0
@@ -401,10 +377,8 @@ def _server_loop(
                     with torch.inference_mode():
                         out = net(obs, mask) if mask is not None else net(obs)
                     if stats_enabled and device_str.startswith('cuda'):
-                        # 强制 sync 使 forward 时间不被 .to('cpu') 吞 — 否则
-                        # .cpu() 触发 cudaStreamSynchronize 把 GPU compute
-                        # 算到 dispatch 段。 H1 stream context 内 device-wide sync
-                        # 等价 (cover infer stream + 默认 stream)。
+                        # Synchronize before the forward timer ends so host
+                        # transfer is accounted for in dispatch.
                         torch.cuda.synchronize()
                 tt2 = time.perf_counter() if stats_enabled else 0.0
                 with trace.span('inf_server.dispatch'):
@@ -421,8 +395,7 @@ def _server_loop(
         if stats_enabled:
             _maybe_emit_stats()
 
-    # Cleanup socket listener if active(loop 退出前)。 listener thread daemon=True
-    # 是 fallback,正常 shutdown 走显式 stop + join < 2s。
+    # Stop the optional socket listener before leaving the child process.
     if socket_listener_stop is not None:
         socket_listener_stop.set()
         if socket_listener_thr is not None and socket_listener_thr.is_alive():
@@ -436,9 +409,9 @@ class InferenceServer:
     (see ``_server_loop``). ``use_jit_trace=True`` is a deprecated alias
     that converts to ``'trace'`` with a ``DeprecationWarning``.
 
-    Inference transport: TCP socket only (I29 R7.1 删 SHM inference path —
-    socket_listener thread accept N Go-actor TCP client + 进 request_q,与
-    Python mp.Queue 客户端共用 batch forward,与 Python mp wire 等价无 bridge layer)。
+    Python clients use multiprocessing queues. When ``socket_port`` is
+    positive, Go actors can also connect through TCP; socket requests enter
+    the same batching queue.
     """
 
     def __init__(
@@ -491,10 +464,7 @@ class InferenceServer:
         self.socket_port = int(socket_port)
         self.socket_max_actions = int(socket_max_actions)
         self.socket_clients = int(socket_clients)
-        # cfg-driven perf trace —— spawn target (_server_loop) 内 enable_explicit
-        # 而非读 cfg 对象(InfServer 没拿到 TrainingConfig 句柄;参数化保 spawn pickle
-        # 边界干净 + parent 不 import perf.trace 模块就能传开关)。 default 全 disabled
-        # 与历史 env-var-unset 行为等价。
+        # Keep tracing settings explicit and spawn-picklable.
         self.perf_trace_enabled = bool(perf_trace_enabled)
         self.perf_trace_flush_n = int(perf_trace_flush_n)
         self.perf_trace_flush_s = float(perf_trace_flush_s)
@@ -505,9 +475,7 @@ class InferenceServer:
         self._stop_event = ctx.Event()
         self._response_qs: list = []
         self._proc = None
-        # Route A — socket client(Go actor id 0..N-1)的 response queue 预注册。
-        # socket forward_cb 用 req.client_id 直接索引 response_qs;与 mp.Queue 客户端
-        # 共用同一 list,故 socket client 必须在 [0, socket_clients) 占据头部槽位。
+        # Pre-register response queues indexed by Go actor id.
         for _ in range(self.socket_clients):
             self.register_client(ctx.Queue())
 

@@ -1,4 +1,4 @@
-"""Tests for training/paradigms/cfr/legacy/network."""
+"""Tests for the current CFR network modules."""
 
 from __future__ import annotations
 

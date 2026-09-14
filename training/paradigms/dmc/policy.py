@@ -6,12 +6,11 @@ otherwise (D3.1). At episode end, finalize the recorded transitions
 with MC return G ∈ {-1, 0, +1} from acting-player perspective (D1.2,
 γ=1).
 
-NOTE: P3-B serial-mode adapter does NOT route episode play through
-`core.actor.EpisodeRunner` because GICG's obs capture is owned by
-DmcAgent's private static cache; the collector calls
-`training.dmc._episode.play_one_episode` directly. This policy class
-exists for protocol conformance + tests + future P4 mp wiring (when
-`EpisodeRunner` will gain typed obs hook).
+The serial collector records through
+``training.paradigms.dmc._episode.play_one_episode``. The Python
+multiprocess collector uses this policy through the shared
+``core.actor.EpisodeRunner`` and reconstructs DMC transitions at the collector
+boundary.
 """
 
 from __future__ import annotations

@@ -1,16 +1,15 @@
 """BCParadigm — implements training.core.protocols.Paradigm for BC.
 
-Bridges the unified pipeline driver to BC static-dataset training. First-
-class per D1 decision (paradigm-bc/spec.md BC6.1) — abstracted from
-``training/paradigms/bc/legacy/bc_*.py``(physical dedupe shipped in
-P5-E,az + ppo BC legacy 已统一落到 bc/legacy/)。
+Bridges the unified pipeline driver to BC static-dataset training. The
+current implementation lives directly under ``training/paradigms/bc/``;
+the former embedded/legacy paths are historical only.
 
 Key deltas from RL paradigms(AZ / DMC / PPO):
  - ``requires_network_in_collect = False``(BC3.3) — driver SHALL NOT
    build NetworkProvider on BC collect path
  - No EpisodeRunner — DatasetCollector 一次性 push 全 dataset(BC3.1)
- - 1 head only(policy);value head 可在 ckpt 但 not trained when
-   ``value_coef = 0.0``(BC4.1)
+ - ActorCritic contains policy/value/delta heads;with the default
+   ``value_coef = 0.0`` the BC loss trains policy only(BC4.1)
  - step_schedule:每 outer iter = 1 epoch over dataset(
    epoch_steps = dataset_size // batch_size);state.iter < n_epochs
 

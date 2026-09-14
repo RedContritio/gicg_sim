@@ -16,7 +16,7 @@
 // SHM ring) imports gicg_mono/gicg_actor/shm and is unaware of the platform split.
 // (历史 inference_shm_client.go 走过同 API,I29 R7.1 删。)
 //
-// Design: openspec/changes/i29-go-actor-pool/shminf_design.md §F.
+// Design: openspec/changes/archive/i29-go-actor-pool/shminf_design.md §F.
 
 //go:build windows
 

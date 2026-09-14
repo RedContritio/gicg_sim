@@ -119,8 +119,7 @@ def actor_main(
     harden_child_env(affinity=affinity)
     if stop_event is not None:
         install_quiet_sigterm(stop_event)
-    # cfg-driven perf trace (post 2026-05-23 env var 砍): read cfg.debug.perf_trace
-    # + flush thresholds; False (default) → enable + configure 均 no-op.
+    # Read performance tracing and flush thresholds from cfg.debug.
     _perf_trace.enable_from_cfg(cfg)
     _perf_trace.configure(role='actor', id=actor_id)
 
@@ -155,14 +154,13 @@ def actor_main(
     seed = derive_seed(cfg.meta.seed, 'actor', actor_id)
     env_factory = build_env_factory(cfg, seed)
     opp_registry = build_opp_registry(cfg)
-    # AB14: lifecycle-runner factory (orthogonal to AB13). None → EpisodeRunner.
+    # The lifecycle-runner factory is independent of provider handoff.
     if episode_runner_factory is not None:
         runner = episode_runner_factory(env_factory, opp_registry)
     else:
         runner = EpisodeRunner(env_factory, opp_registry)
     policy = build_policy(cfg, actor_id)
-    # AB13: inference_client + provider_kwargs are mutually exclusive (see
-    # docstring Axis 1). Both non-None → raise so dispatch bugs fail early.
+    # ``inference_client`` and ``provider_kwargs`` are mutually exclusive.
     if inference_client is not None and provider_kwargs is not None:
         raise ValueError(
             f'actor_main[actor_id={actor_id}]: inference_client + provider_kwargs '
@@ -264,10 +262,8 @@ class ActorProcess:
     def terminate(self, timeout_s: float = 2.0) -> None:
         """Cooperative stop → SIGTERM → SIGKILL escalation.
 
-        Actor may be blocked inside a cgo call (Go runtime owns the OS thread
-        + intercepts SIGTERM). SIGKILL cannot be caught, so it's the only
-        guaranteed shutdown path. Grace timeouts short — actors not responding
-        within 2s of stop_event are almost certainly stuck.
+        An actor may be blocked in native code and fail to handle SIGTERM.
+        SIGKILL is the final bounded shutdown path.
         """
         if self._proc is None:
             return

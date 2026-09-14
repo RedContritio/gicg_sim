@@ -177,6 +177,6 @@ P3-P5 ckpt format SHOULD 保持兼容(load 旧 ckpt 必能 resume)。具体协�
 - 决策起点 → [`../proposal.md`](../proposal.md) "Why"
 - 物理 mv plan → [`../tasks/phase5-physical-mv-tools.md`](../tasks/phase5-physical-mv-tools.md)
 - Tools 重组细节 → [`./tools-layout.md`](./tools-layout.md)
-- 历史 ADR-0006 → [`../../archive/0006-training-layout/`](../../archive/0006-training-layout/)
+- 历史 ADR-0006 → [`../../0006-training-layout/`](../../0006-training-layout/)
 - BC history → `docs/paradigms/bc/README.md`
 - PPO history → `docs/paradigms/ppo/README.md`

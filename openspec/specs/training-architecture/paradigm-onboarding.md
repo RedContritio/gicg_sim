@@ -173,9 +173,10 @@ def make_env_factory(
 1. 3 arg 全 required,无 default magic — 避免 dual cfg schema(`cfg.seed`
    vs `cfg.meta.seed`)silent fallback bug
 2. `cfg` SHALL 只读 `cfg.scenario`(ScenarioConfig),paradigm-agnostic
-3. `obs_config_json=None` 合法 = engine 默认 all-on shuffle;DMC / CFR /
-   BC paradigm(无 ObsConfig 字段)pass None
-4. AZ paradigm(持有 `cfg.obs: ObsConfig`)pass `cfg.obs.to_engine_json()`
+3. `obs_config_json=None` 合法 = engine 默认观测配置；当前统一 run
+   dispatcher 对所有已注册 paradigm 均传入 `None`
+4. 需要自定义观测配置的 caller 显式传入 `ObsConfig.to_engine_json()`；
+   factory 不从 paradigm cfg 隐式读取
 5. 返回 closure `env_factory(game_idx)`:per-game seed = master_seed +
    game_idx,reset 后返回。可选 keyword `layout_seed` SHALL 仅覆盖构造时观测排列种子；
    不传时保留旧行为。cheap reset SHALL 保持排列。
@@ -211,9 +212,8 @@ SHALL 使用新 static_obs。checkpoint SHALL 保存实际 episode_seq 与 RNG�
 6. **`tools/eval/_paradigm.py`** — `PARADIGMS` dict 加 entry(若想被
    `tools/eval/ckpt.py` / `daemon.py` 复用)。**Pitfall**:DMC dead-ref
    `ModuleNotFoundError`(commit `c4eeb60` 已修),guard 勿回退。
-7. **`tools.runs.register --run-id <id> --cfg <path>`** — paradigm 首个
-   production run 通过 CLI 注册(`artifacts/runs/<id>.toml`);参
-   `feedback_artifacts_naming` + project_pool_versioning。
+7. **`tools.runs.train <cfg>`** — 用 production 入口启动首个 run；该入口
+   原子分配六位 NNN，并在 run 目录写配置快照与 `metadata.toml`。
 
 ## 5. Test scaffold
 
@@ -282,7 +282,7 @@ postmortem。新 paradigm 起步前 SHALL 至少快速过一遍这 5 条。
   iter clear(paradigm-ppo spec P4.1)
 - **应用**:新 paradigm if on-policy → SHALL 显式 `buffer.clear()` per
   iter,SHALL NOT 复用 off-policy ReplayBuffer
-- **Source**:archive `0007-ppo-bc-warmstart` / `0008-rl-paradigm-pivot` + memory `project_stage3_full_diagnosis`
+- **Source**:archives `0007-ppo-bc-warmstart` / `0008-rl-paradigm-pivot`
 
 ### 6.3 DMC — async stale weights 容忍度需 spec 化
 
@@ -292,7 +292,7 @@ postmortem。新 paradigm 起步前 SHALL 至少快速过一遍这 5 条。
 - **应用**:新 paradigm if async → SHALL 显式 spec 出 stale tolerance(以
   SHALL 形式);SHALL NOT silent "差不多就行" — stale 是 distributed RL
   load-bearing 决策
-- **Source**:`paradigm-dmc/spec.md` D6.2 + memory `feedback_stale_weights_ok`
+- **Source**:`paradigm-dmc/spec.md` D6.2
 
 ### 6.4 BC — first-class 独立,SHALL NOT 嵌入 RL paradigm
 
@@ -300,7 +300,7 @@ postmortem。新 paradigm 起步前 SHALL 至少快速过一遍这 5 条。
   双修维护痛苦;P4-T2 抽出 `training/paradigms/bc/` first-class(BC6.1)
 - **应用**:新 paradigm 辅助流程(pretrain / warm-start / distill)SHALL
   first-class,通过 `init_from_ckpt` 被 RL paradigm 引用(BC6.2);SHALL NOT 嵌入
-- **Source**:archive `0009-rl-paradigm-pivot-terminus` + memory `project_bc_warmstart_progress`
+- **Source**:archive `0009-rl-paradigm-pivot-terminus`
 
 ### 6.5 CFR — 不 fit 标准 RL mold 时,做"intentional shim"也要符合 protocol
 
@@ -311,7 +311,8 @@ postmortem。新 paradigm 起步前 SHALL 至少快速过一遍这 5 条。
 - **应用**:新 paradigm 与现有 mold 差异大 → SHALL 仍 wrap 进 6 protocol
   (filter 在内部);protocol 真无法满足 → SHALL 走 OpenSpec change 修订
   protocol(SHALL 2),而非 silent 偏离
-- **Source**:archive `0006-training-layout` + memory `project_r008_postmortem` / `project_rl_routes_closure_2026_05_12`
+- **Source**:archive `0006-training-layout` +
+  `docs/5_history/reviews/dmc_review.md`
 
 ## 7. Anti-patterns
 
@@ -390,10 +391,10 @@ SHALL 锚定 → [`./invariants.md` (#18 smoke 契约)](./invariants.md)。
   [`../paradigm-ppo/spec.md`](../paradigm-ppo/spec.md)
 - File layout 约定 → [`../openspec-policy/file-layout.md`](../openspec-policy/file-layout.md)
 - Config schema(`meta.paradigm` dispatch)→ [`../config-schema/spec.md`](../config-schema/spec.md)
-- Tools layout(`tools/run.py` 单入口)→ [`../tools-layout/spec.md`](../tools-layout/spec.md)
+- Tools layout(`tools.runs.train` 单入口)→ [`../tools-layout/spec.md`](../tools-layout/spec.md)
 - Originating change → [`../../changes/archive/unified-training-pipeline/`](../../changes/archive/unified-training-pipeline/)
-- Architecture follow-up registry → memory `project_architecture_unification_remaining_2026_05_16`
-  item #11
+- Historical architecture follow-up registry →
+  [`docs/3_plans/arch_unification_remaining_2026_05_16.md`](../../../docs/3_plans/arch_unification_remaining_2026_05_16.md)
 
 ## 10. Status
 

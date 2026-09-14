@@ -5,11 +5,8 @@
 #   - [checkpoint] save_every short cadence (≥ 2 ckpt within run)
 #   - [paradigm.az] total_games bumped to ≥ 30 (~3 step / game ~ 100 step)
 #
-# STATUS (per SF-105): test_az_smoke_full.py currently pytest.skip due to
-# pre-existing bug in training/paradigms/az/collector.py:72
-# (`_card_pool_spec = resolve_pool_refs(...)` returns dict instead of
-# CardPoolSpec). Follow-up change: `az-pool-spec-type-fix`. This toml is
-# scaffolded for when the bug is fixed — `extends` + cadence are pre-tuned.
+# The former CardPoolSpec blocker was fixed by `az-pool-spec-type-fix`;
+# `test_az_smoke_full.py` now exercises this configuration.
 
 [meta]
 extends = "smoke.toml"

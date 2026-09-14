@@ -1,6 +1,6 @@
 """Inference server child-process loop split into three modules:
 
-loop:  the event loop + _ServerState dataclass
+loop:  the event loop + _ServerState container
 stats: batch-stats emit helpers
 drain: pipe / weight-queue drains + batch dispatch + per-kind handlers
 """

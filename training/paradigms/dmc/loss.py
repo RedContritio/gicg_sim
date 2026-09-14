@@ -67,8 +67,8 @@ class DMCLogitAsQLoss:
 
         Args:
             network: must expose ``forward_batch(collated_dict)`` →
-                ``(logits, value, delta)``. For DMC that's a
-                ``DmcAgent`` (held by the collector / scheduler).
+                ``(logits, value, delta)``. The pipeline supplies a
+                ``DMCNetwork`` wrapper.
             batch: Batch with ``data['collated']`` (dict) +
                 ``data['action_idx']`` (LongTensor) +
                 ``data['returns']`` (FloatTensor).

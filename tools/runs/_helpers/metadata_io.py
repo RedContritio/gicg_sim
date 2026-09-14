@@ -52,12 +52,9 @@ def write_metadata_atomic(artifacts_dir: Path, metadata: schema.RunMetadata) -> 
         with acquire_metadata_lock(d):
             write_metadata_atomic(d, m)  # ❌ deadlock
 
-    正确用法:``write_metadata_atomic(d, m)`` 直接调,或在
-    read-and-compare-and-write 场景由 caller 自己 lock + load + compare +
-    ``write_metadata_atomic`` + dirty release 的 pattern(注意
-    ``write_metadata_atomic`` 内会再 acquire — Linux flock cross-fd
-    same-process 会 deadlock 至 retry 耗尽 raise;macOS BSD-flock per-fd
-    不 deadlock 但仍非预期路径)。
+    Call this helper directly when no metadata lock is held. A
+    read-and-compare-and-write caller must hold the lock and perform its own
+    sibling-temp-file write and ``os.replace`` without calling this helper.
     """
     target = artifacts_dir / 'metadata.toml'
     temp = artifacts_dir / 'metadata.toml.tmp'

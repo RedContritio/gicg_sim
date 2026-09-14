@@ -7,8 +7,8 @@ paradigm-specific builders (network / batch / invariant). Adding a new
 paradigm = registering one ``SmokeBuilder`` subclass, NOT writing a
 new end-to-end test from scratch.
 
-OpenSpec ref: ``openspec/changes/core-network-generic-promotion/specs/
-training-architecture/spec.md`` invariant A1 — every paradigm SHALL
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md`` —
+every paradigm SHALL
 provide a smoke that:
 
 1. From-zero start (no ckpt dependency).

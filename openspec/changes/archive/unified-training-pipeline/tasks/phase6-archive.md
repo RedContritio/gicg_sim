@@ -114,7 +114,7 @@ P6-T1-T7 全 done → archive 完成。
 
 ## 10. Cross-references
 
-- Archive workflow 主 spec → [`../../../specs/openspec-policy/archive-workflow.md`](../../../specs/openspec-policy/archive-workflow.md)
+- Archive workflow 主 spec → [`../../../../specs/openspec-policy/archive-workflow.md`](../../../../specs/openspec-policy/archive-workflow.md)
 - 主 design retrospective trigger → [`../design.md`](../design.md) Status section
 - 主 proposal archive trigger → [`../proposal.md`](../proposal.md) Status section
 - P5.5 G2 follow-up change(待启动)→ TBD

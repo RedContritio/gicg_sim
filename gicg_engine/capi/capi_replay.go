@@ -62,7 +62,7 @@ func GameExportViewJSON(id C.int) *C.char {
 // the handle's team roster and card pool already match the record (use
 // RecordExtractInfoJSON from Python to build a compatible env first).
 // Returns a JSON blob: {"view": StateView, "step": N, "total_steps": M,
-// "rounds": R, "winner": -1/0/1}. On error returns {"error": "..."}.
+// "rounds": R, "winner": -1/0/1/2}. On error returns {"error": "..."}.
 // Caller must free with GameFreeString.
 //
 //export GameReplayToJSON
@@ -109,7 +109,7 @@ func GameReplayToJSON(id C.int, yamlPath *C.char, step C.int) *C.char {
 // count, number of rounds, winner. Handle-free: does not require a
 // running game. Used by the web replay API to build an env on demand.
 // Returns JSON: {"teams": [[...p0...], [...p1...]], "total_steps": N,
-// "rounds": M, "winner": -1/0/1}. On error: {"error": "..."}.
+// "rounds": M, "winner": -1/0/1/2}. On error: {"error": "..."}.
 // Caller must free with GameFreeString.
 //
 //export RecordExtractInfoJSON

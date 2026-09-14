@@ -8,7 +8,7 @@ leaf evaluation (AlphaGo-style).
 
 Usage::
 
-    .venv/bin/python -m tools.diag_is_mcts_with_rollout
+    .venv/bin/python -m tools.debug.diag_is_mcts_with_rollout
 """
 
 from __future__ import annotations

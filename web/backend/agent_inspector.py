@@ -1,16 +1,10 @@
-"""Checkpoint inference stub.
+"""Compatibility stub for the legacy replay checkpoint inspector.
 
-The PPO-era inspector (which ran `Agent.net(obs)` and captured cross-
-attention through a monkey-patched forward hook) is gone. The AZ
-replacement — which surfaces MCTS visit distributions, root value,
-per-legal-action prior, and search-tree snapshots — is built as part
-of task #150 (post-C1 web work), after the AZ training stack produces
-its first usable checkpoint.
-
-Until then, any live-play or replay flow that asks for ckpt
-inspection raises a clear error instead of silently degrading. The
-rest of the web backend (replay viewer, non-ckpt live play) is
-unaffected — this file only gates the "with checkpoint" code path.
+Replay routes still accept an optional ``ckpt`` query parameter, but the old
+cross-attention inspector no longer matches current semantic checkpoints.
+Current live-play model loading and policy output are implemented in
+``web.backend.semantic_live``. Until replay inspection is rebuilt on that
+format, this module fails explicitly and the replay API returns ``agent=null``.
 """
 
 from __future__ import annotations
@@ -20,9 +14,7 @@ from dataclasses import dataclass
 
 @dataclass
 class InspectionResult:
-    """Kept as a stable type so web API routes can reference it in
-    type hints. The fields match what the AZ inspector will produce;
-    they stay empty until task #150 lands."""
+    """Legacy replay API result shape retained for response compatibility."""
 
     value: float = 0.0
     entropy: float = 0.0
@@ -38,16 +30,12 @@ class InspectionResult:
 
 
 class AgentInspector:
-    """Stub placeholder. Instantiating it raises — callers must guard
-    their ckpt-inspection code path until the AZ inspector lands."""
+    """Unavailable legacy replay inspector."""
 
     def __init__(self, *args, **kwargs):
         raise NotImplementedError(
-            'AgentInspector is disabled during the AZ migration. '
-            'The PPO inspector has been removed; the AZ replacement '
-            'ships with task #150 after the first AZ checkpoint from '
-            'C1 is available. Use the replay viewer without --ckpt '
-            'or disable live-play ckpt inspection until then.'
+            'Replay checkpoint inspection is unavailable for current semantic '
+            'checkpoints; use the live profile for current model inference.'
         )
 
     def inspect(self, *args, **kwargs) -> InspectionResult:

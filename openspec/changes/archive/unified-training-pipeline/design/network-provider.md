@@ -145,4 +145,4 @@ actor_version`。Spike > 100 step 算 warning(暗示 SHM I/O 瓶颈)。
 - Async 进程拓扑 → [`./async-pipeline.md`](./async-pipeline.md)
 - Cfg placement schema R1-R7 → [`./config-layered.md`](./config-layered.md)
 - EpisodeRunner 调 Provider → [`./episode-runner.md`](./episode-runner.md)
-- 主 spec → [`../../../specs/training-architecture/protocols.md`](../../../specs/training-architecture/protocols.md)
+- 主 spec → [`../../../../specs/training-architecture/protocols.md`](../../../../specs/training-architecture/protocols.md)

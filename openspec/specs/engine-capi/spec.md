@@ -156,7 +156,7 @@ change 提案修订,而非在代码中静默偏离。
     `gymnasium.Env` — 观测 + 动作布局需要 GICG 专属元数据(counter sid /
     hook token / action ref / 每槽 hook 嵌入),与 gymnasium 接口不兼容
     是**有意设计**,SHALL NOT 强行包装。批量消费者参见
-    `training/az/selfplay.py:VectorizedRollout`。
+    `training/paradigms/az/selfplay.py:VectorizedRollout`。
 
 ### 3.4 Mirror match per-binding loading
 
@@ -213,7 +213,7 @@ change 提案修订,而非在代码中静默偏离。
     `executeCard`,并 SHALL be 在**每次 `Step` 入口处清空** — 奖励塑形
     SHALL only fire 在实际 ActionCard 步骤(而非下一步)。
     该字段用于 `gicg_env/env.py` 计算新颖卡牌奖励加成
-    (`training/az/config.py::RewardShaping.novel_cards`)。
+    (`training/paradigms/az/config.py::RewardShaping.novel_cards`)。
 
 ## 4. Cross-references
 

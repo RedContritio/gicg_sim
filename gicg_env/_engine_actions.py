@@ -48,9 +48,8 @@ class _ActionsMixin:
                   (0 = P0 wins, 1 = P1 wins, 2 = draw)
           n_steps: number of step/step_target calls made
 
-        Equivalent to training/mcts.py::_random_rollout_value but runs
-        entirely in Go, saving ~30 ctypes round-trips per rollout. At
-        team_size=2 (80 steps × 2 calls) this is the dominant MCTS cost.
+        Runs entirely in Go to avoid repeated ctypes round-trips during
+        MCTS leaf evaluation.
 
         Seed → deterministic rollout given same starting state.
 

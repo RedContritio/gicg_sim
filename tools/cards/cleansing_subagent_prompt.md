@@ -1,4 +1,4 @@
-# Sonnet subagent 卡牌 cleansing 任务模板
+# 卡牌 cleansing 子任务模板
 
 ## 输入
 
@@ -51,7 +51,7 @@
     - 数据噪声/wiki 错误 → `<field>_note: "<说明>"`
     - 通用注释 → `_note: "..."` 或 `_notes: ["...", "..."]`
     YAML 注释 `# ...` 在我们的 apply / strip pipeline 中走 yaml.safe_load + safe_dump 会被无声丢失,**任何信息丢失都会重现 cost icon 错配那种 debug 噩梦**。
-12. **保留所有 raw 信息**:icon / icon_url / version / header_img_url / desc / raw_life / raw_energy 全保。
+13. **保留所有 raw 信息**:icon / icon_url / version / header_img_url / desc / raw_life / raw_energy 全保。
 
 ## attr 分号拆分
 

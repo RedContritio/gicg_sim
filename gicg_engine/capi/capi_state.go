@@ -12,7 +12,7 @@ import (
 )
 
 // State-accessor C exports: counters, phase, winner, turn, active char,
-// hand/deck/dice totals, discard, static obs size + bytes.
+// hand/deck/discard refs and counts, and dice state/history.
 
 //export GameGetCounters
 func GameGetCounters(id C.int, outValues *C.int, count C.int) {
@@ -270,9 +270,8 @@ func GameGetDiceTunedOut(id C.int, player C.int, out *C.int) {
 
 // GameGetDiceTunedIn writes the accumulated per-color tune-target
 // counts into `out` (length 8). Incremented in executeTune on the
-// target_color side (always the active char's element color). Not
-// used in current posterior sampling (hard-floor modeling deferred);
-// exposed for diagnostics + future refinement.
+// target_color side (always the active char's element color). Exposed
+// for diagnostics and belief-model consumers.
 //
 //export GameGetDiceTunedIn
 func GameGetDiceTunedIn(id C.int, player C.int, out *C.int) {

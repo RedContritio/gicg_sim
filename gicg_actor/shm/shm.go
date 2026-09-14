@@ -5,7 +5,7 @@
 // Attach, Push, Pop, RespRead, RespWrite, …) so callers (transition SHM ring etc.)
 // are platform-agnostic. (历史 inference_shm_client.go 走过同 API,I29 R7.1 删。)
 //
-// Design: openspec/changes/i29-go-actor-pool/shminf_design.md §F
+// Design: openspec/changes/archive/i29-go-actor-pool/shminf_design.md §F
 //
 // Naming convention (POSIX):
 //   - Python's multiprocessing.shared_memory names its blocks "psm_<random>"

@@ -1,6 +1,6 @@
 ---
-last_updated: 2026-05-15
-status: LIVE
+last_updated: 2026-09-14
+status: HISTORICAL
 schema_version: 0
 capability: eval-protocol
 subtopic: arena
@@ -8,11 +8,16 @@ subtopic: arena
 
 # Arena — `arena_match` 1v1 head-to-head 协议
 
+> **历史快照**：本文记录 2026-05-15 的 arena 接口。对应
+> `training/az/arena.py` 已移除，当前评估入口见
+> `training/core/eval/`、`training/core/matchup/` 和本目录其余 LIVE
+> spec。以下 SHALL 仅描述当时接口，不能作为当前调用路径。
+
 > 本 subtopic 锚定 arena evaluator 协议 — `arena_match` 入口 +
 > `ArenaResult` schema + AZ self-play 内 ckpt 替换决定的 consumer
 > pattern + 与 gauntlet 的边界区分原则。
 >
-> 源 truth:`training/az/arena.py`。
+> 历史源:`training/az/arena.py`（已移除）。
 
 ## 1. Scope
 
@@ -224,7 +229,7 @@ env_factory, n_games=N)`,read `result.challenger_win_rate`,决定是
 ## 8. Status
 
 - **Created**:2026-05-15(P1-T6)
-- **Source**:`training/az/arena.py`
+- **Historical source**:`training/az/arena.py`（已移除）
 - **Known gap**:`env_factory(game_idx)` 接口未在本 spec 治理具体
   cfg(team / pool / seed 派生),由 caller / AZ driver 内部 contract
   决定。

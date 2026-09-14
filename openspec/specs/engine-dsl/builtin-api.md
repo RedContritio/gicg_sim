@@ -30,7 +30,7 @@ DSL SHALL only use the following Lua constructs(详
 
 ### 1.2 Forbidden constructs
 
-DSL SHALL NOT use any of(详 `memory feedback_lua_dsl_constraints`):
+DSL SHALL NOT use any of the following constructs:
 
 - 循环:`for`, `while`, `repeat`
 - 迭代器:`pairs`, `ipairs`
@@ -64,8 +64,7 @@ DSL SHALL NOT use any of(详 `memory feedback_lua_dsl_constraints`):
 Builtin APIs SHALL be registered via `RegisterBuiltins` in
 `gicg_engine/interp/builtins.go`。
 
-**Critical**:tokenize 认 ≠ eval 认。新 builtin SHALL 在两侧同时注册
-(详 `memory feedback_builtin_registration_audit`):
+**Critical**:tokenize 认 ≠ eval 认。新 builtin SHALL 在两侧同时注册:
 
 1. **Tokenize 侧**:lexer SHALL recognize 函数名为 identifier(自动,
    通常无需改 lexer)。但若 builtin 与 keyword 冲突,SHALL 显式 ignore
@@ -75,8 +74,7 @@ Builtin APIs SHALL be registered via `RegisterBuiltins` in
 
 ### 2.2 Counter parameter 类型断言
 
-Builtin 接受 counter ref 作为参数时,SHALL 用类型断言验证(详
-`memory feedback_builtin_registration_audit`):
+Builtin 接受 counter ref 作为参数时,SHALL 用类型断言验证:
 
 ```go
 counter, ok := args[0].(*CounterProxy)
@@ -175,7 +173,7 @@ counter ref(详 §3.4)。
 |----------|-----------|
 | `deal_damage(target, element, value [, opts])` | Enters damage pipeline (`HookDamageBoost` → `HookReactionDamage` → `HookDamageReduce` → HP write → `HookAfterDamage`,详 [`./damage.md`](./damage.md))。`opts = {penetrate, source}` SHALL override inherited event frame fields。 |
 | `heal(target, value)` | Symmetric with damage,uses `HookBeforeHeal` / `HookAfterHeal`,不进 damage pipeline。 |
-| `invoke_skill(skill_id [, {paid=true}])` | Re-enters `HookSkillUse` with the current frame's `Source` inherited(例 `刻印` invoked by `复刻` keeps `SrcCard`)。`paid=true` SHALL skip cost deduction(silent invoke 路径;详 `memory feedback_dsl_sentinels_silent_invoke`)。 |
+| `invoke_skill(skill_id [, {paid=true}])` | Re-enters `HookSkillUse` with the current frame's `Source` inherited(例 `刻印` invoked by `复刻` keeps `SrcCard`)。`paid=true` SHALL skip cost deduction;the source-inheritance pattern is detailed in [`counter.md`](./counter.md) §1.2。 |
 | `defer_fn(fn)` | Append callback to current event layer's deferred queue。SHALL execute after current hook returns but before the layer is popped。 |
 | `set_active_char(player, char)` / `force_switch_next(player)` / `get_active_char(player)` / `get_next_char(player, char)` | Active-char bookkeeping;SHALL emit `HookSwitch` only when active char changes。 |
 | `context_player()` | Returns the frame's current context player(`Player.Own` / `Player.Enemy` resolution anchor)。 |
@@ -260,8 +258,7 @@ DSL SHALL NOT access `.id` / `.Ref` 等内部 int field。Ref 比较通过
 pointer identity(`==`)。Counter metadata 存 ref 用 `ref_kind` 元数据
 区分类型,SHALL NOT 暴露 `.id` 字段。
 
-详 `memory feedback_ctx_skill_index_type`(DSL only sees ref, never
-int ID)。
+DSL callbacks only see reference handles, never raw integer IDs.
 
 ## 4. Builtin 加入流程
 
@@ -282,14 +279,14 @@ int ID)。
 
 ## 5. Cross-reference
 
-- Lua syntax 限制详 `memory feedback_lua_dsl_constraints`
-- Builtin 双侧注册要求详 `memory feedback_builtin_registration_audit`
-- DSL only sees ref 详 `memory feedback_ctx_skill_index_type`
+- Lua syntax 限制详本文件 §1。
+- Builtin 双侧注册要求详本文件 §2。
+- DSL reference identity 详 [`./skill-pattern.md`](./skill-pattern.md) §1.3。
 - ADR-0019 strict 8 时机 hook(damage pipeline)详
   [`./damage.md`](./damage.md) §1.1
 - Lexer / parser / eval / loader 实现位置:
   `gicg_engine/interp/{lexer,parser,eval,builtins,loader,registry}.go`
-- DSL exemplar(以牙还牙)详 `memory reference_dsl_example`
+- DSL exemplar: `data/pools/v_legacy/cards/L3/以牙还牙.lua`
 
 ## 费用总量减免（2026-09-11）
 

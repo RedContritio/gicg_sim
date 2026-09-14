@@ -1,4 +1,4 @@
-"""Pull remote → local via tar+scp(no rsync)— cfg-driven dispatch。
+"""Pull from a Windows remote via tar and SCP.
 
 CLI:
 
@@ -13,8 +13,8 @@ CLI:
 - ``--dir <remote>``:tar 整 dir。
 - ``--files <glob>``:ssh PS ``Get-ChildItem`` 解析 glob → tar list。
 
-If ``[meta].host == 'local'``(or hostname loopback)pull is a no-op
-since source = destination — emits a warning + returns 0。
+The remote implementation uses PowerShell. If ``[meta].host == 'local'``
+(or hostname loopback), pull is a no-op because source and destination match.
 """
 
 from __future__ import annotations

@@ -107,5 +107,5 @@ PPO closure 详细: [`../../5_history/ablations/stage3_ppo_closure.md`](../../5_
 
 - Plan: [`plan.md`](plan.md) Stage 3 章
 - Memory: `project_stage3_full_diagnosis` (PPO), `project_az_stage3_baseline` (AZ s064-s066)
-- AZ next step: [`../az/r009_az_warmstart.md`](../az/r009_az_warmstart.md) (BC warm-start AZ 路径)
+- AZ next step: [`../az_plans/r009_az_warmstart.md`](../az_plans/r009_az_warmstart.md) (BC warm-start AZ 路径)
 - Paradigm pivot: [`../../2_decisions/adr-0008-rl_paradigm_pivot.md`](../../2_decisions/adr-0008-rl_paradigm_pivot.md)

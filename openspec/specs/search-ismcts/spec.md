@@ -9,7 +9,7 @@ capability: search-ismcts
 
 > 本 capability spec 治理 GICG 的 shipped 搜索算法 — 信息集 MCTS
 > (IS-UCT,Cowling 2012)+ 确定化采样器(CardPoolSpec)。算法在 Python
-> (`training/az/mcts/`) 与 Go(`gicg_mcts/`)两侧实现完全一致,本 spec
+> (`training/paradigms/az/mcts/`) 与 Go(`gicg_mcts/`)两侧实现完全一致,本 spec
 > 不区分 backend(差异仅是 cgo callback 路径,不动算法语义)。
 >
 > 本 spec 从 `docs/1_specs/search/is_mcts.md`(305 行)+

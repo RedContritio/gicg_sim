@@ -4,11 +4,11 @@ frequency-based 方法(audit_effect_patterns.py)按句子 normalize 后 freq 统
 top-N 漏长尾(boss / 神级卡的复杂机制只出现 1-2 次但是真 ★★★ requirements)。
 
 本 audit 按 **mechanism bucket** 分类(trigger / effect / condition / target / meta),
-每个 bucket 用关键词集触发,扫**全部** 1348 effect blocks。同一 effect 可属多个 bucket。
+每个 bucket 用关键词集触发,扫描当前数据中的全部 effect blocks。同一 effect 可属多个 bucket。
 
 输出每 bucket: 命中卡数 / 命中 effect block 数 / top + tail 例子(头 3 个 + 尾 5 个)。
 
-Bucket 关键词集拆到 audit_effect_buckets.py(132 buckets)。
+Bucket 关键词集定义在 audit_effect_buckets.py。
 
 用法(从 repo root)::
 
@@ -38,7 +38,7 @@ CLEANED = Path('data/cleaned')
 
 
 def collect_effects() -> list[tuple[str, str, str]]:
-    """yield (source_id, effect_kind, effect_text). source_id 含 sub_class + cid + name 用于 audit。"""
+    """Return ``(source_id, effect_kind, effect_text)`` entries for auditing."""
     out: list[tuple[str, str, str]] = []
     for sub in ('action', 'character', 'monster'):
         d = CLEANED / sub

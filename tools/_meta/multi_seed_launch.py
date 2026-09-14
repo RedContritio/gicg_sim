@@ -1,4 +1,10 @@
-"""Multi-seed launcher — paradigm-agnostic.
+"""Deprecated pre-redesign multi-seed launcher.
+
+Do not use this module for current runs. It still pre-registers legacy r/s
+labels, uses the incompatible Docker socket compose path, and expects
+``gauntlet_results.jsonl`` to appear automatically. Launch each seed through
+``tools.runs.train`` and evaluate it explicitly until a replacement workflow is
+implemented. The remainder of this docstring describes the historical tool.
 
 Wraps the unified ``tools.runs.train`` entry (2026-05-18 clean-slate
 redesign; pre-redesign launcher was ``tools.run``, deleted in T-23):
@@ -30,8 +36,9 @@ dispatch / pipeline mode all handled by the standard loader).
 
 After all seeds finish, aggregates ``gauntlet_results.jsonl`` from each
 ``artifacts/*_<seed_label>/`` dir into mean ± std per baseline and
-prints the dual judge (curriculum ≥ 0.65 vs random / stricter ≥ 0.40
-vs F1-D2, per memory ``project_az_stage0_3_baselines``).
+prints the legacy dual judge (curriculum ≥ 0.65 vs random / stricter
+≥ 0.40 vs F1-D2). These thresholds are historical and are not the current
+rule-learning acceptance criteria.
 
 Usage::
 

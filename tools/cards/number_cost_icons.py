@@ -1,4 +1,4 @@
-"""按 mapping 中分组数排序,给每张 cost icon 编号 (01..38)。
+"""按 mapping 中分组数排序,给每张 cost icon 编号 (01..NN)。
 
 输出:
 - data/cost_icons/<NN>.png — 重命名后的图(原图删除)
@@ -28,10 +28,10 @@ def main() -> int:
     judgement_lines: list[str] = [
         '# 看 data/cost_icons/<NN>.png 后,在每个 NN 后填判定。',
         '# 选项:',
-        '#   any:N      任意 N(等价无色 N)',
-        '#   same:N     同色 N',
-        '#   <元素>:N    specific 元素(风/火/雷/冰/水/草/岩),通常 N=1',
-        '#   any:0       零 cost',
+        '#   无色 N      任意 N',
+        '#   同色 N      同色 N',
+        '#   <元素> N    指定元素(风/火/雷/冰/水/草/岩),通常 N=1',
+        '#   无色 0      零 cost',
         '#   mixed       此图同时被 same/any 用,需 case-by-case',
         '',
         'judgements:',

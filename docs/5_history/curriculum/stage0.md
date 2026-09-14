@@ -80,4 +80,4 @@ runs: s008 (PPO), s055-s057 (AZ multi-seed n=3)
 
 - Plan: [`plan.md`](plan.md) Stage 0 章
 - Memory: `feedback_stage0_f1d2_judge` (PPO judge), `project_az_stage0_baseline` (AZ s055)
-- AZ sub-roadmap: [`../az/r009_az_warmstart.md`](../az/r009_az_warmstart.md)
+- AZ sub-roadmap: [`../az_plans/r009_az_warmstart.md`](../az_plans/r009_az_warmstart.md)

@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-15
+last_updated: 2026-09-14
 status: LIVE
 schema_version: 0
 capability: eval-protocol
@@ -9,7 +9,7 @@ subtopic: service
 # Eval Service — socket daemon + paradigm-agnostic poll daemon
 
 > 本 subtopic 锚定 GICG eval service 协议 — `tools/eval/eval_service.py`
-> socket daemon(production,AZ / CFR 用)+ `tools/eval/daemon.py`
+> localhost TCP daemon(production,AZ / CFR 用)+ `tools/eval/daemon.py`
 > paradigm-agnostic poll daemon(DMC Phase 3.5 起新方向)。两者并
 > 存于 P1-P2 阶段,本 spec 同时治理,接口分歧由 transitional note 标
 > 出。
@@ -22,7 +22,7 @@ subtopic: service
 
 本 subtopic 覆盖:
 
-- Legacy socket daemon(`tools/eval/eval_service.py`):socket bind / JSON
+- Localhost TCP daemon(`tools/eval/eval_service.py`):socket bind / JSON
   request / DSL cache warm / dispatch / heartbeat / shutdown
 - JSON Schema 2020-12 验证(`eval_service_schema.json`):4 kinds
   (gauntlet / status / stop / schema)、player_spec oneOf、
@@ -40,40 +40,38 @@ subtopic: service
 - Baseline player 实施 — [`./baselines.md`](./baselines.md)
 - AZ arena ckpt 替换决定 — [`./arena.md`](./arena.md)
 
-## 2. Legacy socket daemon — `tools/eval/eval_service.py`
+## 2. Localhost TCP daemon — `tools/eval/eval_service.py`
 
 ### 2.1 Process layout
 
 ```
 Long-running daemon process (one global singleton):
-  - Bind Unix socket: ${GICG_EVAL_SOCKET:-/tmp/gicg_eval.sock}
+  - Bind localhost TCP: localhost:9100 by default
   - Warm DSL cache: preload_dsl(--data-dir)  [default: data]
   - ThreadPoolExecutor(--workers default 2)
   - Accept loop: timeout 1s, recv 64 KB JSON, dispatch
   - Status heartbeat every 60s → log_metric('heartbeat', ...)
 ```
 
-Training runs / `tools/send_matchup` 客户端 connect-send-recv-close
+Training runs / `tools._meta.send_matchup` 客户端 connect-send-recv-close
 per request(no persistent connection)。
 
 ### 2.2 SHALL invariants
 
-1. Service SHALL be **global singleton** — 单 socket path 同时只一
-   个 service instance。多 run 共享同一 service(节省 DSL cache 与
-   ckpt load 成本)。详 `memory project_eval_service_global`。
+1. Service SHALL be **global singleton** — 单 host/port 同时只一
+   个 service instance。多 run 可共享同一 service以复用 DSL cache。
 
-2. Socket path SHALL be configurable via `GICG_EVAL_SOCKET` env var
-   (容器部署用 named volume `/var/run/gicg/eval.sock`)+ `--socket`
-   CLI flag。
+2. Address SHALL come from `--host` / `--port` CLI flags（defaults
+   `localhost:9100`）。localhost 是受支持的默认部署；显式 `--host`
+   override 由 caller 管理。旧 `GICG_EVAL_SOCKET` / Unix socket 接口不再存在。
 
 3. Service SHALL `preload_dsl(data_dir)` at startup **before** accepting
    connections — gauntlet job SHALL be immune to mid-run DSL edits。
 
-4. Stale socket file SHALL be `unlink`ed at startup(`start()` 内实
-   施)— 防 previous crash 残留 file 阻塞 bind。
+4. Server SHALL set `SO_REUSEADDR` before bind so a quick restart does
+   not fail on the previous TCP connection's `TIME_WAIT` state。
 
-5. SIGINT / SIGTERM SHALL be caught + clean shutdown(`server.stop()`
-   + `socket.unlink()`)。
+5. SIGINT / SIGTERM SHALL be caught + clean shutdown(`server.stop()`)。
 
 6. Accept loop SHALL `settimeout(1.0)` 周期 check `_stop_event`,SHALL
    NOT block forever on `accept`。
@@ -99,7 +97,7 @@ per request(no persistent connection)。
    — 当前唯一:az/cfr ckpt 文件存在性。Future runtime checks SHALL
    加入 `validate_request` 而非散在 dispatch。
 
-3. Schema is **single source of truth** — `tools/send_matchup` CLI
+3. Schema is **single source of truth** — `tools._meta.send_matchup` CLI
    arg parser SHALL 从 schema 生成 help text(避免文档与实施漂移)。
 
 4. New request kind SHALL be added by extending top-level `oneOf`;
@@ -158,7 +156,7 @@ per request(no persistent connection)。
 2. `run_gauntlet_job(req, state)` SHALL:
    - increment `state.active` at start, decrement at end (finally
      block 保证)
-   - Invoke `run_matchup(...)` from `training.framework.matchup.matchup`
+   - Invoke `run_matchup(...)` from `training.core.matchup.matchup`
    - Append JSONL entry `{id, game_marker, **result.to_dict()}` to
      `req['result_path']`(parent mkdir(parents=True, exist_ok=True))
    - Log metric `job_done` or `job_fail` to service metrics JSONL
@@ -232,12 +230,12 @@ metrics.jsonl 用 tb 看 dual axis)。
 5. Ckpt frame extraction SHALL go through paradigm adapter
    (`ckpt_frame`),SHALL NOT 硬编码 dmc-specific blob field name。
 
-## 7. Transitional state — legacy vs new
+## 7. Transitional state — request vs poll daemon
 
 ### 7.1 现状
 
-- **Legacy socket daemon**(`tools/eval/eval_service.py`):AZ / CFR 训
-  练栈用,production 稳定,gauntlet job 通过 socket dispatch
+- **Localhost TCP daemon**(`tools/eval/eval_service.py`):standalone
+  gauntlet job 通过 socket dispatch；普通 `tools.runs.train` 当前不自动依赖它
 - **New poll daemon**(`tools/eval/daemon.py`):DMC Phase 3.5+ 用,
   rsync-based,paradigm-agnostic adapter,跨机训练(Windows train +
   Mac eval)场景
@@ -269,6 +267,5 @@ metrics.jsonl 用 tb 看 dual axis)。
 - **Source**:`tools/eval/eval_service.py` + `tools/eval/eval_service_server.py`
   + `tools/eval/eval_service_job.py` + `tools/eval/daemon.py` +
   `tools/eval/_paradigm.py`
-- **Known transitional state**:legacy socket daemon vs new poll
-  daemon 并存。`eval_service_schema.json` pool/deck_padding silent
-  fail follow-up(`memory project_v_phase2_eval_schema_gaps`)未完成。
+- **Known transitional state**:localhost TCP request daemon vs poll
+  daemon 并存，接口不互通。

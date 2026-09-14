@@ -3,7 +3,7 @@
 > **⚠️ Deprecated as of 2026-04-14.** This directory describes the
 > **PPO-era** network architecture, which is being replaced by the
 > AlphaZero + IS-MCTS framework documented in
-> [`docs/current/az/network_design.md`](../../../current/az/network_design.md).
+> [`docs/paradigms/az/architecture.md`](../../../../paradigms/az/architecture.md).
 >
 > The AZ network reuses ~70% of the trunk (counter/hook/card encoders,
 > cross-attention, pooling) but replaces the policy sampling path and

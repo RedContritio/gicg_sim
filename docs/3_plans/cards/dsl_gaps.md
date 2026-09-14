@@ -1,14 +1,19 @@
 ---
 plan: dsl_gaps
-status: ACTIVE
-last_updated: 2026-04-30
+status: HISTORICAL
+last_updated: 2026-09-14
 based_on: 全 706 raw cleansed yaml(518 action + 138 char + 61 monster) + grep gicg_engine/interp 全 builtin
 supersedes: 2026-04-28 PM 版(基于 sqrt(N)=52 张样本,4 个 ★★★ 已被 ADR-0012 closed 但未更新)
 ---
 
 # DSL 覆盖力缺失分析(re-audit 2026-04-30)
 
-对照 `docs/1_specs/engine/dsl/api.md` + `CLAUDE.md` API 块的当前 DSL,
+> **历史快照**：本文保留 2026-04-30 的全量审计结论。当前 DSL 契约
+> 以 `openspec/specs/engine-dsl/` 和 `openspec/specs/engine-runtime/`
+> 为准；文中的 ACTIVE/CLOSED 是当时状态。
+
+对照当时的 DSL API 文档（现已迁入 `openspec/specs/engine-dsl/`）和
+`CLAUDE.md` API 块,
 basis 已从 sqrt(N) 升级为全 706 张 cleansed + 全 builtin grep 实证。
 
 按优先级 ★ 排序。

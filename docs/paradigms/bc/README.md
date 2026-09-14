@@ -1,11 +1,13 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 paradigm: bc
 ---
 
 # BC paradigm dossier
+
+> 2026-05-16 snapshot；当前训练状态见 [`../../0_status/README.md`](../../0_status/README.md)。
 
 > **Status**: **PRODUCTION FALLBACK**(ADR-0009 钦定)
 >
@@ -119,10 +121,10 @@ PPO/AZ dossier 重叠,见 [`../ppo/ablations.md`](../ppo/ablations.md) +
 
 **Code**:
 
-- [`training/paradigms/bc/legacy/bc_train.py`](../../../training/paradigms/bc/legacy/bc_train.py) — BC pretrain
-  入口(unified-training-pipeline P5-E 后从 AZ 栈+PPO 栈双份 dedupe 而来)
+- 历史 `training/paradigms/bc/legacy/bc_train.py` 已退役；当前 BC 通过统一
+  `tools.runs.train` lifecycle 运行
 - [`training/paradigms/bc/`](../../../training/paradigms/bc/) — BC first-class adapter
   (P4-T2 ship,paradigm.py + collector.py + policy.py + loss.py + network.py)
-- [`tools/gen_bc_dataset_az.py`](../../../tools/gen_bc_dataset_az.py) — BC dataset 生成
-- [`configs/r009_bc_pretrain_stage3.toml`](../../../configs/r009_bc_pretrain_stage3.toml) — r009 BC pretrain cfg
-- [`configs/r009_bc_eval_ep[0-6].toml`](../../../configs/) — r009 BC epoch eval cfg
+- [`tools/dataset/gen_bc.py`](../../../tools/dataset/gen_bc.py) — BC dataset 生成
+- [`configs/_archived/bc_apr/r009_bc_pretrain_stage3.toml`](../../../configs/_archived/bc_apr/r009_bc_pretrain_stage3.toml) — r009 BC pretrain 历史 cfg
+- [`configs/_archived/bc_apr/`](../../../configs/_archived/bc_apr/) — r009 BC epoch eval 历史 cfg

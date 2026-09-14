@@ -1,2 +1,1 @@
-"""Matchup layer: arena_match, run_matchup, and the MCTSPlayer UCT
-baseline promoted out of tools/."""
+"""Matchup runners, player loaders, and evaluation opponents."""

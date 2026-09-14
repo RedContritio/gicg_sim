@@ -1,4 +1,4 @@
-"""``tools.runs.sync`` — rsync wrapper for cross-host artifacts metadata.
+"""``tools.runs.sync`` — rsync wrapper for run metadata and config snapshots.
 
 Clean-slate rewrite per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
@@ -23,7 +23,6 @@ CLI::
     .venv/bin/python -m tools.runs.sync pull <user@host:path/>
     .venv/bin/python -m tools.runs.sync init-authoritative
 
-T-20 scope: integration tests (real rsync + ssh).
 """
 
 from __future__ import annotations

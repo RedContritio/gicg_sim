@@ -190,6 +190,6 @@ class DMCParadigmConfig:
 - Spec delta → [`../specs/config-schema/spec.md`](../specs/config-schema/spec.md)
 - Provider factory 调 InferenceCfg → [`./network-provider.md`](./network-provider.md)
 - Async pipeline 读 pipeline.async 字段 → [`./async-pipeline.md`](./async-pipeline.md)
-- 主 spec(继承字段引用)→ [`../../../specs/training-architecture/spec.md`](../../../specs/training-architecture/spec.md) SHALL #8
+- 主 spec(继承字段引用)→ [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md) SHALL #8
 - Thresholds 表(inheritance 字段 registry)→
-  [`../../../specs/openspec-policy/thresholds.md`](../../../specs/openspec-policy/thresholds.md) §6
+  [`../../../../specs/openspec-policy/thresholds.md`](../../../../specs/openspec-policy/thresholds.md) §6

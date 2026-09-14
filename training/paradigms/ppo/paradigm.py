@@ -19,8 +19,8 @@ expected to support new PPO production runs (P6.3).
 
 PPO-specific cadence (vs DMC):
 - On-policy: buffer SHALL be cleared every iter (P4.1)
-- Each outer iter: 1 collect (rollout of n_games games) + n_epochs ×
-  ⌈n_trans / minibatch_size⌉ minibatch trains
+- Each outer iter: 1 collect (rollout of n_games games) + ``n_epochs`` sampled
+  minibatch updates (the generic driver does not expand this into a full sweep)
 - No warm-up phase — collect-train interleave from iter 0
 """
 
@@ -117,7 +117,7 @@ class PPOParadigm:
 
     def step_schedule(self, state: PipelineState, cfg: Any) -> StepPlan:
         """PPO cadence: per outer iter, collect full rollout + train
-        n_epochs × minibatches. No warm-up (on-policy: data freshness
+        ``n_epochs`` sampled minibatches. No warm-up (on-policy: data freshness
         is the contract).
 
         Per P4.1 on-policy invariant:每 steady iter set
@@ -137,14 +137,13 @@ class PPOParadigm:
                 eval=False,
                 advance_step=0,
             )
-        # Steady: 1 rollout (n_games_per_iter games) + n_epochs minibatch
-        # trains. n_train_batches here is the TOTAL minibatch count for
-        # one PPO iter (driver loops train_steps over this number).
+        # Steady: 1 rollout (n_games_per_iter games) + n_epochs sampled
+        # minibatch updates. The generic driver loops exactly this many times.
         return StepPlan(
             collect=True,
             n_episodes=pcfg.rollout.n_games_per_iter,
             train=True,
-            n_train_batches=pcfg.n_epochs,  # actual #updates = n_epochs × ⌈N/mb⌉, driver handles inner mb loop
+            n_train_batches=pcfg.n_epochs,
             batch_size=pcfg.minibatch_size,
             eval=True,
             advance_step=1,

@@ -2,8 +2,9 @@
 
 Spec: design/episode-runner.md §4.
 
-Uses EpisodeRunner with EpisodeSpec(deterministic=True). Reports to
-result_queue / direct return (in-proc)."""
+Uses EpisodeRunner with EpisodeSpec(deterministic=True) and returns results
+directly. A caller may host the worker in another process, but this module
+does not create queues or processes."""
 
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ from training.core.protocols import EpisodeSpec, NetworkProvider
 
 
 class EvalWorker:
-    """Synchronous eval worker. Async-mode wraps this in a process."""
+    """Synchronous evaluation worker over an injected provider."""
 
     def __init__(
         self,

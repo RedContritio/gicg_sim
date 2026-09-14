@@ -1,12 +1,12 @@
-"""Cross-language SHMRing — ctypes wrapper around gicg_actor/shm C lib.
+"""Cross-language SHM ring backed by the ``gicg_actor/shm`` C library.
 
 API: CrossLangShmRing(name, capacity, slot_payload_max, *, create=False).
-参考: gicg_actor/shm/shm_ring.h; 设计: shminf_design.md §D.
+See ``gicg_actor/shm/shm_ring.h`` and
+``openspec/changes/archive/i29-go-actor-pool/shminf_design.md`` §D.
 
-Platforms: Mac/Linux (shm_unix.c) + Windows (shm_win.c, Phase 4 2026-05-24;
-auto-build needs `gcc` on PATH, e.g. MSYS2). Only difference Python-side:
-POSIX prepends "/" to the SharedMemory name; Win passes name verbatim (matches
-CPython behaviour — see Lib/multiprocessing/shared_memory.py).
+Platforms: macOS/Linux use ``shm_unix.c`` and Windows uses ``shm_win.c``.
+On-demand Windows builds require GCC. POSIX native calls prepend ``/`` to
+the SharedMemory name; Windows passes the name verbatim.
 """
 
 from __future__ import annotations
@@ -229,12 +229,8 @@ class CrossLangShmRing:
         return bytes(self._out_buf.raw[: self._out_len.value])
 
     def peek_count(self) -> int:
-        """Read the ring's current item count from SHM header (atomic-relaxed read).
-        Diagnostic only — does not modify ring state。 用于 backpressure metric 看 master
-        端 ring depth (vs Go side push 后 count++,master pop 后 count-- — 跨进程视图差异是
-        deadlock 关键信号)。"""
-        # Header layout (per _HEADER_INIT_FMT '<iiiii'):head(4B) tail(4B) **count(4B)** cap slot_size
-        # count int 在 offset 8。 SHM mmap 通过 self._shm.buf,直读 int32。
+        """Read the diagnostic item count with relaxed atomic semantics."""
+        # ``count`` is the int32 at header offset 8.
         try:
             count_bytes = bytes(self._shm.buf[8:12])
             return _struct.unpack('<i', count_bytes)[0]
@@ -242,27 +238,20 @@ class CrossLangShmRing:
             return -1
 
     def peek_count_and_full_at_head(self) -> tuple[int, int]:
-        """Diagnostic — race-aware ring inspection。 返 (count, n_full_in_first_count_slots)。
+        """Return ``(count, full slots among the first count slots)``.
 
-        H3 (2026-05-28 audit):shm_ring_push 的 CAS-on-count 修复 (bc6b1b8) 在 count++
-        早于 status=FULL 写入之间留有瞬时窗口,master peek_count 可能见 > 0 但 slot 仍
-        EMPTY → 误判 "ring 有 data master 没 pop"。 实际是 over-reserve race。 本 method
-        把 count + 从 head 起的 count 个 slot status 一起读,让 caller 区分:
+        The producer reserves count before marking a slot full, so readers may
+        briefly observe a positive count with no committed slot. Interpret:
 
           (count, n_full):
-            count > 0 且 n_full == count    → ring healthy,master pop 应能拿到
-            count > 0 且 n_full == 0        → over-reserve race transient (busy producer)
-            count > 0 且 0 < n_full < count → 部分 slot 已 commit (partial-window race)
-            count == 0                      → actor stall (上游卡住没 push)
-            (-1, -1)                        → SHM read error
+            count > 0 and n_full == count    → all reserved slots committed
+            count > 0 and n_full == 0        → transient reservation window
+            count > 0 and n_full < count     → partially committed window
+            count == 0                       → empty ring
+            (-1, -1)                         → SHM read error
 
-        Race tolerant:不持锁,读取期间值可能漂;只作 diagnostic 趋势观察。 wrap-around
-        通过 idx = (head + i) % capacity 处理 (ring 满时 head + count 可能越过 capacity)。
-        scan 上限 min(count, capacity) 防 count 异常超 capacity 越界 (transient race
-        upper bound)。
-
-        cost:~capacity 次 byte read + modulo,O(N) 但 capacity 通常 32-256,~μs 级。
-        每 collect call 调一次,vs 5ms poll cycle 忽略。
+        This lock-free diagnostic is race-tolerant and caps scanning at the
+        configured capacity.
         """
         buf = self._shm.buf
         try:
@@ -272,7 +261,7 @@ class CrossLangShmRing:
             return (-1, -1)
         if count <= 0:
             return (count, 0)
-        # 限制扫描上限 = min(count, capacity) 避免 race transient count > capacity 越界。
+        # Cap the scan if a concurrent update exposes a transient count.
         scan_n = count if count <= self.capacity else self.capacity
         slot_stride = _SHM_SLOT_HEADER_SIZE + self.slot_payload_max
         n_full = 0

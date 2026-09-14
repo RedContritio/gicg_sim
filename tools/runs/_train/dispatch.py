@@ -137,10 +137,9 @@ def run_paradigm_train(state: SetupState) -> None:
 
     paradigm = resolve_paradigm(cfg.meta.paradigm)
 
-    # obs_config_json=None — unified pipeline cfgs (DMC / PPO / CFR / BC)
-    # don't carry ObsConfig; engine applies all-on shuffle defaults.
-    # AZ legacy path under async_loop.py threads cfg.obs.to_engine_json()
-    # explicitly; the unified registry path doesn't take that branch.
+    # The unified registry path uses the engine's default observation
+    # configuration for every paradigm, including AZ. Callers that require a
+    # custom ObsConfig may still pass its engine JSON to make_env_factory.
     env_factory = make_env_factory(cfg, None, master_seed=cfg.meta.seed)
 
     # Paradigm-supplied opponent pool. Built here in the main process

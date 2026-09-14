@@ -50,9 +50,11 @@ def parent_class_of(raw: dict) -> str:
 
 
 def iter_skill_slots(raw: dict, parent_class: str):
-    """yield dict per cost slot evaluation:{kind, sub_idx, life, life_bg, energy, energy_bg, skill_type, ...}。
+    """Yield one dict per cost-slot evaluation.
 
-    每张卡可能有多个 slot 评估点(角色 standard skill 多个 + variant + talent + action 自身)。
+    Each entry includes kind, life/life_bg, energy/energy_bg, skill type,
+    and related fields. A card may contribute standard skills, variants,
+    a talent, or its top-level action cost.
     """
     if parent_class in ('character', 'monster'):
         seen = 0

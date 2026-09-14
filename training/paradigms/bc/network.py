@@ -1,8 +1,9 @@
 """BCNetwork — thin nn.Module wrapper around ActorCritic for driver compat.
 
-BC4.1 requires only a (policy,) head; value + delta heads MAY exist (so the
-same ckpt can warm-start RL paradigms — BC4.2) but SHALL NOT be trained when
-``value_coef = 0.0``.
+The current network contains policy, value, and delta heads. With the default
+``value_coef = 0.0``, the BC loss supplies gradients only through the policy
+path; cross-paradigm checkpoint compatibility still depends on the actual
+state-dict and observation schema.
 
 Spec ref: paradigm-bc/spec.md BC4. The encoder is paradigm-agnostic — we
 reuse generic ``training.core.network.ActorCritic`` (via make_actor_critic).
@@ -21,8 +22,8 @@ from training.core.network import ActorCritic, make_actor_critic
 from training.paradigms.bc.config import AgentShapeCfg
 
 
-# BC keeps all 3 heads (policy + value + delta) so ckpt warm-starts AZ/PPO/DMC
-# per BC4.2 ckpt-share spec; typed_damage on for AZ ADR-0019 schema compat.
+# BC keeps all 3 heads (policy + value + delta) on the generic typed-observation
+# backbone. Matching head names alone does not establish checkpoint compatibility.
 BC_HEAD_KINDS = frozenset({'policy', 'value', 'delta'})
 
 
@@ -56,8 +57,8 @@ class BCNetwork(nn.Module):
         """Run ActorCritic forward on a BC dataset dict (12+ fields from
         BCDataset.build_batch). Returns (logits, value).
 
-        Mirrors training.paradigms.bc.legacy.bc_loss.forward_batch verbatim —
-        split here so BCLoss does not need to import bc/legacy/。
+        The implementation is local to the current BC package; retired legacy
+        paths are not imported.
         """
         from training.core.structural import (
             compute_structural_obspos,

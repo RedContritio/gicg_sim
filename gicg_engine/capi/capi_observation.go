@@ -31,9 +31,8 @@ func GameGetDynamicObsSize() C.int {
 	return C.int(engine.DynamicObsSize())
 }
 
-// GameGetReactionCount — Round-6 S-1: Python verify ReactionCount ≤
-// REACTION_VOCAB-3 at game init (push reaction-count check 从 forward
-// raise 到 game init,DSL declare 越界即时报错)。
+// GameGetReactionCount lets Python validate encoder vocabulary capacity
+// when a game is created.
 //
 //export GameGetReactionCount
 func GameGetReactionCount(id C.int) C.int {
@@ -47,10 +46,8 @@ func GameGetReactionCount(id C.int) C.int {
 
 // GameGetTypedObsConstants exports the 8 Go-side obs layout constants
 // Python uses to compute typed-segment offsets, so Python can verify
-// its hard-coded mirrors match at startup (review B2 + Round-2 M2 —
-// hand block constants also affect typed segment slicing offset; if
-// those drift Go↔Python the typed segments read from wrong positions
-// without _verify catching it).
+// its mirrored constants at startup. Hand-block constants also affect
+// typed-segment offsets, so they are included in the same check.
 //
 // Output array layout (8 * sizeof(int)):
 //
@@ -59,9 +56,9 @@ func GameGetReactionCount(id C.int) C.int {
 //	[2] OBS_PREPARE_SKILL_SLOTS
 //	[3] OBS_MODIFIER_LOG_K_MOD
 //	[4] OBS_MODIFIER_LOG_FIELD_COUNT
-//	[5] OBS_MAX_CARD_TYPES        — hand bucket width (Round-2 M2)
-//	[6] OBS_HAND_BUCKETS          — number of hand buckets (Round-2 M2)
-//	[7] OBS_ENEMY_SIZES_HARDCODED — hand-block trailing scalar count (Round-2 M2)
+//	[5] OBS_MAX_CARD_TYPES — hand bucket width
+//	[6] OBS_HAND_BUCKETS   — number of hand buckets
+//	[7] OBS_ENEMY_SIZES    — hand-block trailing scalar count
 //
 //export GameGetTypedObsConstants
 func GameGetTypedObsConstants(out *C.int) {

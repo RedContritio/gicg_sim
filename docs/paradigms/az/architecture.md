@@ -1,6 +1,6 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 parent: ./README.md
 ---
@@ -78,9 +78,10 @@ Network ↔ MCTS 协议(determinize / cancel / parallel rollout)落
 
 ## Code
 
-- [`training/paradigms/az/legacy/network/`](../../../training/paradigms/az/legacy/network/) — ActorCritic 实现
-  (待 az-paradigm-rewrite Phase 2 inline 进 adapter `network.py`)
-- [`training/paradigms/az/legacy/mcts/`](../../../training/paradigms/az/legacy/mcts/) — MCTS Python 侧(action_id /
+- 历史 `training/paradigms/az/legacy/network/` 已退役；当前共享网络位于
+  [`training/core/network/`](../../../training/core/network/)
+- 历史 `training/paradigms/az/legacy/mcts/` 已退役；当前 Python MCTS 位于
+  [`training/paradigms/az/mcts/`](../../../training/paradigms/az/mcts/)（action_id /
   node / parallel / rollout / search)
-- [`training/paradigms/az/legacy/selfplay.py`](../../../training/paradigms/az/legacy/selfplay.py) — self-play loop
+- [`training/paradigms/az/selfplay.py`](../../../training/paradigms/az/selfplay.py) — self-play loop 的现行位置
 - [`gicg_mcts/`](../../../gicg_mcts/) — Go MCTS L3

@@ -3,13 +3,13 @@
 Implements core.protocols.EpisodePolicy for the AZ paradigm. Spec
 A1.1-A1.3: every action is decided by IS-MCTS rollout (no random
 sampling at the actor side except for Dirichlet noise inside the
-search). The policy delegates to ``training.paradigms.az.legacy.mcts.mcts_search``,
+search). The policy delegates to ``training.paradigms.az.mcts.mcts_search``,
 forwarding the provider's ``forward`` to the search as a leaf
 ``evaluator.eval_state``.
 
 Note: P4 serial-mode AZ does NOT route episode play through
-``training.core.actor.EpisodeRunner`` because GICG's static-obs cache
-+ MCTS root rebuilding lives inside ``training.paradigms.az.legacy.selfplay``. The
+``training.core.actor.EpisodeRunner`` because GICG's static-observation cache
+ and MCTS root rebuilding live inside ``training.paradigms.az.selfplay``. The
 collector calls ``play_self_game`` directly. This policy class exists
 for protocol conformance + tests + future async-mode wiring.
 """
@@ -72,8 +72,8 @@ class AZEpisodePolicy:
         if env is None:
             raise ValueError(
                 'AZEpisodePolicy.act: obs must carry env (key "env") for MCTS search; '
-                'protocol-level act path is only wired for tests + async-mode P4.5+. '
-                'Serial-mode AZ collects via training.paradigms.az.legacy.selfplay.play_self_game directly.'
+                'protocol-level act path is used by async collection. '
+                'Serial-mode AZ collects via training.paradigms.az.selfplay.play_self_game directly.'
             )
         if self.mcts_cfg is None:
             raise ValueError('AZEpisodePolicy.act: mcts_cfg missing — call from factory that wires it')
@@ -104,7 +104,7 @@ class AZEpisodePolicy:
 
         Args:
             transitions: list of dicts (the per-step entries from
-                ``training.paradigms.az.legacy.selfplay._build_step_dict``).
+                ``training.paradigms.az.selfplay``).
             winner: env winner id (0 / 1 / -1 / 2).
             acting_player: acting player id at the step (per-step in
                 transitions; this default applies to all steps if not

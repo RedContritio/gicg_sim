@@ -9,9 +9,8 @@ Opt-in only: ``pytest -m smoke_remote`` — default ``pytest`` deselect。
 
 每测试 timeout 防 hang。失败时 print stderr/stdout 给 debug。
 
-per memory `feedback_tool_production_smoke_required` (2026-05-20):工具类
-spec 验收必须含 production e2e smoke,unit test mock 不验真行为。I28 reviewer
-✅ approved 后 smoke 才发现 kill.py 100% 不可用 — 那个失败模式在这里被锁。
+This opt-in suite verifies real production transport behavior that mocked
+unit tests cannot cover. It previously caught a broken remote kill path.
 """
 
 from __future__ import annotations

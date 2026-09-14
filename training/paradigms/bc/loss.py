@@ -1,11 +1,10 @@
-"""BCLoss — CE (hard target) / KL (soft teacher target) — implements
-LossComputer protocol.
+"""BCLoss — hard-label or tied-action soft-target cross-entropy.
 
 Spec ref: paradigm-bc/spec.md BC2:
  - BC2.1 loss_kind = "ce" (cross-entropy on hard expert action)
-   或 "kl" (KL on teacher soft distribution)
+   or the historical name "kl" (soft cross-entropy over tied actions)
  - BC2.2 hard target = ``chosen_action``;soft target = uniform over
-   ``tied_mask``(matches bc/legacy/bc_loss.soft_target_ce_loss + ppo s016d)
+   ``tied_mask``(preserves the historical soft-target formula)
  - BC2.3 No value loss when ``value_coef = 0.0``;no entropy bonus
 
 Reads ``batch.data['fields']`` (BCDataset.build_batch output dict) so the
@@ -24,8 +23,7 @@ from training.core.protocols import Batch, LossResult
 
 def _soft_target_ce(logits: torch.Tensor, tied_mask: torch.Tensor, legal_mask: torch.Tensor) -> torch.Tensor:
     """Soft-target CE: target = uniform over ``tied_mask``, mask logits
-    by ``legal_mask``. Matches bc/legacy/bc_loss.soft_target_ce_loss verbatim
-    so r009 reproduction is bit-identical."""
+    by ``legal_mask``. The dataset does not contain arbitrary teacher logits."""
     neg_inf = torch.finfo(logits.dtype).min
     masked_logits = torch.where(legal_mask, logits, torch.full_like(logits, neg_inf))
     log_probs = torch.log_softmax(masked_logits, dim=-1)

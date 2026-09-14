@@ -219,8 +219,8 @@ global_state = cat([counter_pool, hook_pool, char_skill_pool,
    - `interp.MaxChars = 6` 匹配 `ObsMaxChars`
    - bucket 内按 sid 排序,HP 落 bucket 首位(obs[0] = HP P0 c0)
 4. Network 侧 `compute_structural_obspos` 在
-   `training/framework/structural.py` 计算 gather 索引;sanity 校验由
-   `tools/sanity_sid_pin.py` 提供。
+   `training/core/structural.py` 计算 gather 索引;sanity 校验由
+   `tools/debug/sanity_sid_pin.py` 提供。
 
 ### 7.2 设计契约
 
@@ -255,5 +255,5 @@ attachment)可由 hook tokens 推理(reaction-trigger / on_apply 等),
 - **Loss**:[`./loss.md`](./loss.md) — L2 跳过 bias/LN(防 LN scale
   塌缩)/ entropy / delta aux 与 struct_readout 的耦合
 - **Engine code**:`gicg_engine/interp/structural.go`(sid pinning) +
-  `training/framework/structural.py::compute_structural_obspos` +
-  `tools/sanity_sid_pin.py`
+  `training/core/structural.py::compute_structural_obspos` +
+  `tools/debug/sanity_sid_pin.py`

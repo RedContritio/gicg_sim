@@ -1,4 +1,7 @@
-"""对拍 parser 输出 (data/full/, JSON, 中文 schema) vs sonnet 产出 (data/cleaned/, yaml, 英文 schema)。
+"""Compare parser output with the historical reference cleansing set.
+
+Parser output is ``data/full`` JSON with Chinese keys; the reference is
+``data/cleaned`` YAML with English keys.
 
 比对核心字段:cost / element / weapon / sub_class / tags / each skill cost / talent cost。
 schema key 差异通过 EN_TO_ZH_KEYS 反向映射(parser 中文 ↔ sonnet 英文)。

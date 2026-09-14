@@ -41,10 +41,8 @@ class _StateMixin:
     @property
     def engine_handle(self):
         """Public access to the underlying c-shared engine handle for
-        external cgo bindings(e.g. AZ MCTS go bindings call MCTSSearch
-        directly on the engine handle)。 Pre W2-5 callers reached into
-        ``env._engine._handle`` (audit finding 高优 — MCTS bindings 自
-        ctypes 绕过 env);this property is the supported access path。"""
+        external cgo bindings (for example, AZ MCTS calls MCTSSearch
+        directly on the handle)."""
         return self._engine._handle
 
     @property

@@ -4,7 +4,7 @@ Post-dedupe contract(FU-W2A-followup B2):
 > ``tools.dataset.gen_bc`` 产 dataset SHALL 只有一个 schema —— AZ-shape
 > (game_static_obs + game_id + dyn_obs + action_refs + action_payments +
 > legal_mask + tied_mask + chosen_action + terminal_z),由 active
-> ``training.paradigms.bc.legacy.bc_dataset.BCDataset`` 直接加载。
+> ``training.paradigms.bc.dataset.BCDataset`` 直接加载。
 > dispatcher SHALL NOT 再有 paradigm / variant 分支(B1 已 retire PPO 变体)。
 
 This file guards three post-dedupe invariants:
@@ -20,7 +20,7 @@ This file guards three post-dedupe invariants:
 ~3-5 s,所以本测试只跑 2 局 / target_decisions=20 的最小 smoke。
 
 Source of truth for the canonical AZ schema is
-``training/paradigms/bc/legacy/bc_dataset.py`` —— 任何字段加减都先改 BCDataset
+``training/paradigms/bc/dataset.py`` —— 任何字段加减都先改 BCDataset
 再改这里。
 """
 

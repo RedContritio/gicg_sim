@@ -1,4 +1,4 @@
-"""Tests for training/paradigms/cfr/legacy/collector.py."""
+"""Tests for current CFR collector helpers and reservoirs."""
 
 from __future__ import annotations
 

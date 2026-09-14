@@ -7,12 +7,6 @@ import "C"
 
 // Snapshot / restore / free + log suspend / resume exports.
 //
-// These five were present in capi.go before the 24-file split refactor
-// (3c194e8) but were dropped from the refactor's output by mistake,
-// leaving the Python-side ctypes bindings pointing at nonexistent
-// symbols. Restored here — the Python test harness (every GicgEnv
-// construction runs _setup_api) needs them.
-//
 // Snapshot/restore is the state handle for MCTS rollouts and for
 // GreedyPlayer depth>=2 speculative stepping; suspend/resume mutes the
 // event log during MCTS forward sim so inner rollouts don't pollute

@@ -54,8 +54,7 @@ class AZParadigm:
     # --- 7 Protocol make_* + step_schedule -------------------------- #
 
     def make_network(self, cfg: Any) -> Any:
-        """Build AZNetwork (nn.Module wrapper around AZ Agent +
-        ActorCritic; heads = ('policy', 'value') per spec A4.1)."""
+        """Build AZNetwork around the policy, value, and delta ActorCritic heads."""
         pcfg = self._resolve_pcfg(cfg)
         agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
         self._network = AZNetwork(agent_cfg, device=cfg.meta.device, lr=pcfg.lr)
@@ -68,8 +67,8 @@ class AZParadigm:
     def _load_init_ckpt(network: AZNetwork, ckpt_path: str) -> None:
         """Load BC warm-start ckpt into the network's ActorCritic.
 
-        Accepts either ``{'cfg': dict, 'net': state_dict}`` (Agent.save
-        format) or a plain state_dict (legacy ckpt blob)."""
+        Accepts a CheckpointManager payload with a ``net`` entry or a plain
+        state dict."""
         blob = load_checkpoint(ckpt_path, map_location='cpu', weights_only=True)
         state = blob['net'] if isinstance(blob, dict) and 'net' in blob else blob
         network.load_net_only(state)

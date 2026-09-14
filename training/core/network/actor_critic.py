@@ -1,12 +1,6 @@
-"""Generic ActorCritic — thin composition shared by all 5 paradigms.
+"""Generic ActorCritic composition used by AZ, BC, DMC, and PPO.
 
-Replaces:
-- ``core/network/legacy/actor_critic.ActorCritic`` (god class, 207 lines,
-  hardcoded heads + typed_damage_encoder always-on)
-- prior ``CoreActorCritic`` at this path (P5 雏形, 182 lines, no
-  typed_damage)
-
-Single ActorCritic class with composition via:
+Composition is configured through:
 - ``heads: nn.ModuleDict`` — paradigm picks subset {policy / value / q /
   avg_policy / delta}
 - ``typed_damage: TypedDamageEncoder | None`` — optional 7th pool
@@ -15,8 +9,8 @@ Forward returns dict {head_name: tensor, '_state_vec', '_action_emb',
 '_combined'}; '_*' intermediate features useful for paradigms applying
 custom masks externally (e.g. PPO masked_softmax, AZ MCTS prior).
 
-Spec: ``openspec/changes/core-network-generic-promotion/specs/network-architecture/spec.md``
-invariants A1 (composition), A3 (typed_damage first-class), A4 (5 paradigms).
+Current contract: ``openspec/specs/training-architecture/network-sharing.md``.
+CFR retains its own ``CFRStrategyNet`` and ``AdvantageNet`` composition.
 """
 
 from __future__ import annotations
@@ -61,13 +55,9 @@ HEAD_REGISTRY: dict[str, type[nn.Module]] = {
     'delta': DeltaHead,
 }
 
-# Canonical ordering for head iteration in `make_actor_critic` — invariant
-# A12.1(network-architecture/spec.md). DICT 保 Python ≥ 3.7 insertion
-# order,跨 subprocess stable;sort by this map → `nn.ModuleDict heads`
-# 插入顺序 deterministic → `model.parameters()` 顺序 deterministic →
-# `optimizer.state_dict()` positional state mapping 跨 ckpt save / resume
-# 不错位。直接 `for kind in head_kinds:` 不可(set / frozenset iteration
-# 取决于 `hash()` + `PYTHONHASHSEED=random` → 跨 subprocess 不一致)。
+# Canonical head order keeps ModuleDict, parameters, and positional
+# optimizer state stable across processes. Iterating the input set directly
+# would depend on the process hash seed.
 _REGISTRY_ORDER: dict[str, int] = {k: i for i, k in enumerate(HEAD_REGISTRY)}
 
 POINTER_HEADS = frozenset({'policy', 'q', 'avg_policy'})
@@ -103,8 +93,8 @@ class ActorCritic(nn.Module):
         self.max_ops_per_hook = max_ops_per_hook
         self.fields_per_op = fields_per_op
 
-        # IR-4: HookEncoder consumes (B, N, max_ops, 5) IR tensor instead of
-        # token pairs. opcode_vocab=16 (we have 14 ops), operand_vocab=2048
+        # HookEncoder consumes a (B, N, max_ops, 5) IR tensor.
+        # opcode_vocab=16 and operand_vocab=2048
         # (covers ctx_field/enum/method/builtin/kwarg/bridge/counter ranges).
         self.hook_encoder = HookEncoder(
             opcode_vocab=16,
@@ -249,10 +239,10 @@ def make_actor_critic(
         head_kinds: subset of {'policy', 'value', 'q', 'avg_policy', 'delta'}
                     — paradigm picks heads it needs (e.g. AZ uses
                     {'policy', 'value', 'delta'}; DMC {'q'}; PPO
-                    {'policy', 'value'}; CFR {'avg_policy', 'value'}).
+                    {'policy', 'value'}). CFR does not use this factory.
         use_typed_damage: if True, include TypedDamageEncoder (ADR-0019
-                          §B.3a). 7-pool layout. If False, 6-pool (CFR
-                          historical / future light paradigms).
+                          §B.3a). 7-pool layout. If False, 6-pool for
+                          callers that omit typed observation segments.
 
     Returns:
         ActorCritic instance — paradigm wraps via AgentBase subclass.
@@ -266,10 +256,8 @@ def make_actor_critic(
 
     combined_dim = cfg.d_model * (7 if use_typed_damage else 6)
     heads = nn.ModuleDict()
-    # A12.1: iterate in `HEAD_REGISTRY` insertion order — NOT in `head_kinds`
-    # iteration order. `head_kinds` is `set[str]` / `frozenset[str]` whose
-    # iteration order varies across subprocess (PYTHONHASHSEED=random),
-    # causing ckpt save / resume optimizer state positional misalignment.
+    # Iterate in registry order so checkpointed optimizer state maps to the
+    # same parameter order across processes.
     for kind in sorted(head_kinds, key=_REGISTRY_ORDER.__getitem__):
         head_cls = HEAD_REGISTRY[kind]
         if kind in POINTER_HEADS:

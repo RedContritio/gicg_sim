@@ -5,7 +5,7 @@ Owns:
 - N :class:`ActorProcess` workers
 - K :class:`InferenceServer` workers (when ``placement='remote'``)
 - :class:`WeightsSHM` (multi-slot weight publishing)
-- Eval worker processes (TODO — wired via ``start_eval_workers``)
+- Eval worker processes registered through ``start_eval_workers``
 
 Driver pattern::
 
@@ -16,8 +16,6 @@ Driver pattern::
     rt.publish_weights(state_dict, version=42)
     rt.close()
 
-P3-A skeleton "record intent only" is now gone — every ``start_*`` call
-actually spawns processes.
 """
 
 from __future__ import annotations

@@ -1,174 +1,97 @@
 ---
-last_updated: 2026-05-17
+last_updated: 2026-09-14
 status: LIVE
-schema_version: 0
+schema_version: 1
 capability: paradigm-bc
 ---
 
 # Paradigm BC — Behavior Cloning 算法层不变量
 
-> BC(Behavior Cloning)paradigm 的算法层 SHALL invariants。架构层继承
-> [`../training-architecture/spec.md`](../training-architecture/spec.md),
-> 本 spec 只列 BC-specific 约束。
->
-> D1 决策(unified-training-pipeline 内):BC **first-class** paradigm —
-> 从 `training/az/bc_*.py` + `training/ppo/bc_*.py` 抽出独立
-> `paradigms/bc/`,不再 embedded。
+本规格描述 `training/paradigms/bc/` 的现行静态数据训练接口。旧 r009
+结果与 2026 年 5 月迁移结论属于历史；是否存在当前可用 baseline 以
+[`docs/0_status/README.md`](../../../docs/0_status/README.md) 和 checkpoint
+兼容性检查为准。
 
-## 1. Purpose
+## 1. Scope
 
-BC 是 GICG 当前 production fallback paradigm(r009 epoch_3 vs F1-D2 =
-0.75,见 archive `0009-rl-paradigm-pivot-terminus`;ckpt 本身在
-`core-network-generic-promotion` archive 2026-05-17 撤销 — 详 BC6.3,
-paradigm 第一类 status 保留)。本 spec 治理 BC 算法层不变量:
+BC 是统一训练 driver 中的一等 paradigm，但训练数据来自 NPZ dataset，
+不通过环境采集 episode。本规格涵盖 dataset、loss、buffer、network 和
+schedule；dataset 生成由 `tools/dataset/` 负责。
 
-- 静态 dataset 训练(YAML / Parquet 离线)
-- Cross-entropy(hard target)或 KL(soft target)loss
-- (Policy,)单 head 网络,无 value head
-- 不需要 env episode loop(SHALL NOT 调 env)
+## 2. Core SHALL invariants
 
-BC 也作为 RL paradigm 的 warm-start prior 被引用(AZ init_from_ckpt /
-DMC pretrain),独立 first-class status 是必要的。
+### BC1. Static dataset path
 
-## 2. Scope
+1. **BC1.1** `paradigm.dataset_path` SHALL point to an existing NPZ file
+   accepted by `training.core.artifact_io.load_dataset`. An empty or missing
+   path SHALL fail before training.
+2. **BC1.2** `DatasetCollector` SHALL load the dataset once, emit all dataset
+   row indices on its first `collect` call, and return an exhausted no-op on
+   subsequent calls.
+3. **BC1.3** BC SHALL set `requires_network_in_collect=False` and SHALL NOT
+   create an environment or invoke network inference during collection.
 
-**In scope**:
-- BC paradigm 实现的 6 protocol(Paradigm / Collector / Buffer /
-  LossComputer / EpisodePolicy / NetworkProvider BC-specific 实现要求)
-- Dataset loader(YAML expert replay → Transition stream)
-- Hard target CE vs soft target KL 切换 cfg
-- BC paradigm `requires_network_in_collect = False` 例外
-- BC ckpt 作 RL warm-start 接口
+### BC2. Loss
 
-**Out of scope**:
-- 通用 EpisodeRunner / NetworkProvider → `training-architecture`
-- BC dataset 生成 pipeline(replay → tfrecord/yaml)→ `tools/dataset/`
-  (待 `tools-layout` spec)
-- Teacher policy 选择(MCTS / dice_greedy)→ run-level decision,不属本 spec
-- BC RL fine-tune(KL retention)→ future paradigm `paradigm-bc-ft`,本
-  change 不引入
+4. **BC2.1** `loss_kind='ce'` SHALL train hard expert `chosen_action` labels
+   with legal-action masking.
+5. **BC2.2** The historical config value `loss_kind='kl'` SHALL use the
+   current soft-target cross-entropy implementation: a uniform distribution
+   over `tied_mask`. The dataset does not carry arbitrary teacher logits, so
+   the mode SHALL NOT be documented as general teacher-logit KL divergence.
+6. **BC2.3** `value_coef=0.0` SHALL disable value loss. A positive value
+   coefficient SHALL add MSE against `terminal_z`. Entropy is not part of the
+   BC loss.
 
-## 3. Core SHALL invariants
+### BC3. Buffer and cadence
 
-### BC1. 算法核心
+7. **BC3.1** The learner buffer SHALL be `training.core.buffer.dataset.DatasetBuffer`.
+   Its capacity SHALL be `max(paradigm.buffer_cap, dataset_size)`.
+8. **BC3.2** Buffer samples SHALL be row indices transformed by
+   `BCDataset.build_batch`; the batch SHALL contain the static and dynamic
+   observation fields consumed by `BCNetwork.forward_batch`.
+9. **BC3.3** Outer step zero SHALL perform the one-shot collect and one epoch
+   of minibatch updates. Later steps SHALL train from the resident dataset
+   until `paradigm.n_epochs` is reached.
 
-1. **BC1.1** BC paradigm SHALL train on **static dataset**(YAML expert
-   replay or Parquet),SHALL NOT 调 env episode loop。
-2. **BC1.2** Dataset SHALL be loaded via `DatasetCollector`,one-shot push
-   (no incremental rollout)。
-3. **BC1.3** BC SHALL NOT depend on `NetworkProvider`(no network forward
-   during collect)。
+### BC4. Network and evaluation policy
 
-### BC2. Loss(CE / KL 切换)
+10. **BC4.1** `BCNetwork` SHALL use the generic typed-observation backbone
+    with `BC_HEAD_KINDS={'policy', 'value', 'delta'}`. With the default
+    `value_coef=0`, only the policy loss supplies training gradients.
+11. **BC4.2** The training forward entry SHALL be
+    `BCNetwork.forward_batch(batch_dict)`; plain `forward` is intentionally
+    unsupported.
+12. **BC4.3** `make_episode_policy` SHALL return the argmax policy used by
+    evaluation paths. The training path SHALL NOT use `EpisodeRunner`.
+13. **BC4.4** Warm starts SHALL use the common checkpoint load and fingerprint
+    rules. The current BC package does not expose an
+    `export_for_warm_start` function, so no specification may direct callers
+    to that removed/nonexistent entry.
 
-4. **BC2.1** BC loss SHALL be cfg-driven:`paradigm.loss_kind = "ce"`
-   (cross-entropy on hard expert action)或 `"kl"`(KL on teacher soft
-   distribution),default `"ce"`。
-5. **BC2.2** Hard target = expert action index;soft target = teacher
-   policy logits(saved in dataset alongside)。
-6. **BC2.3** No value loss,no entropy bonus(value head 不参与训练)。
+### BC5. Layout
 
-### BC3. Buffer / Collector
+14. **BC5.1** Production code SHALL live directly under
+    `training/paradigms/bc/`; a `legacy/` subpackage is not part of the current
+    layout.
+15. **BC5.2** Current code and docs SHALL refer to `dataset.py`, `loss.py`,
+    `network.py`, `collector.py`, and `paradigm.py` at that package root.
 
-7. **BC3.1** BC Collector SHALL be `DatasetCollector`,一次性把 dataset
-   transitions push 到 buffer;`collect()` 是 no-op after first call。
-8. **BC3.2** BC buffer SHALL be `DatasetBuffer`(全量 in-memory or memmap),
-   capacity = dataset size。
-9. **BC3.3** `requires_network_in_collect = False`(SHALL be honored by
-   driver — skip provider construction during collect path)。
+## 3. Implementation references
 
-### BC4. Network heads
+- Config and schedule: `training/paradigms/bc/config.py`,
+  `training/paradigms/bc/paradigm.py`
+- Dataset and collector: `training/paradigms/bc/dataset.py`,
+  `training/paradigms/bc/collector.py`
+- Network and loss: `training/paradigms/bc/network.py`,
+  `training/paradigms/bc/loss.py`
+- Dataset generator: `tools/dataset/gen_bc.py`
+- Originating migration history:
+  [`openspec/changes/archive/unified-training-pipeline/`](../../changes/archive/unified-training-pipeline/)
 
-10. **BC4.1** BC network SHALL have 1 head:`policy_head(logits)`;value
-    head SHALL NOT be trained(但 MAY 存在作为后续 RL warm-start init
-    target,frozen during BC training)。
-11. **BC4.2** Encoder SHALL be paradigm-agnostic(shared with AZ/DMC/PPO
-    via `core/network/ActorCritic` backbone),所以 BC ckpt 可直接 load 进
-    RL paradigm(共享 encoder + 同维 policy head)。`BCNetwork` SHALL 通过
-    `make_actor_critic(cfg, head_kinds={'policy', 'value', 'delta'},
-    use_typed_damage=True)` 装配(value/delta head 保留以支持
-    AZ/PPO/DMC `init_from_ckpt` 共享 encoder),`AgentBase` 通过 DI 注入
-    `hook_encoder=self.net.encoders['hook']`(详 `network-architecture/
-    spec.md` invariants 12-13)。Imports SHALL use generic root:
-    `from training.core.network import ActorCritic, make_actor_critic`。
+## 4. Historical context
 
-### BC5. EpisodePolicy
-
-12. **BC5.1** BC paradigm `EpisodePolicy` SHALL be `BCPolicy(argmax logits)`;
-    eval 时复用,deterministic 默认 True。
-13. **BC5.2** BC paradigm SHALL NOT 调 EpisodeRunner 在训练 path;仅 eval
-    路径用(periodic eval 仍走 `training/core/eval/` 共享设施)。
-
-### BC6. First-class tier
-
-14. **BC6.1** BC tier SHALL be `first-class` paradigm,**SHALL NOT** be
-    embedded in AZ / PPO / DMC paradigm(违反 D1 决策)。
-15. **BC6.2** BC SHALL provide `export_for_warm_start(ckpt_path) ->
-    state_dict` 接口,供其他 paradigm 通过 cfg `init_from_ckpt` 引用。
-16. **BC6.3** BC = current production fallback paradigm。**r009 epoch_3
-    ckpt 撤销(SUPERSEDED)**:
-    > ~~r009 BC pretrain ckpt as production fallback~~ — SUPERSEDED by
-    > `core-network-generic-promotion` (archive 2026-05-17)。理由同
-    > `paradigm-az` A6.2:r009 ckpt 自 2026-05-08 ADR-0019 typed obs ckpt
-    > break 后 strict-load 名存实亡,User 决策正式撤销:接受全部 ckpt
-    > 失效,需要 production fallback 时重 train BC ckpt on new schema
-    > (paradigm 自身 first-class status 保留)。ADR-0009 同步
-    > SUPERSEDED-BY:`core-network-generic-promotion`。
-
-### BC7. Filesystem layout(扁平化)
-
-> Added by `core-network-generic-promotion` (archived 2026-05-17) —
-> `paradigms/bc/legacy/` 整目录退役,与 AZ / DMC 已扁平 paradigm 形态对
-> 齐。
-
-17. **BC7.1** `paradigms/bc/` SHALL be 扁平结构(与 AZ / DMC 已扁平
-    paradigm 形态对齐):
-
-    ```
-    paradigms/bc/
-    ├── __init__.py
-    ├── config.py          (paradigm cfg)
-    ├── network.py         (BCNetwork wrapper,via make_actor_critic + DI)
-    ├── paradigm.py        (BCParadigm entry)
-    ├── policy.py
-    ├── loss.py            (BCLoss class)
-    ├── train.py           ← 自 bc/legacy/bc_train.py mv(扁平化)
-    ├── dataset.py         ← 自 bc/legacy/bc_dataset.py mv(扁平化)
-    └── README.md          (含 bc/legacy/README.md 内容)
-    ```
-
-    `bc/legacy/bc_loss.py`(legacy 训练 CLI 内部 loss 函数)SHALL inline
-    到 `bc/train.py`(唯一 caller),SHALL NOT 与 `bc/loss.py`(paradigm
-    BCLoss class)合并。
-
-18. **BC7.2** `bc/legacy/` 整目录 SHALL 不存在(扁平化到 `bc/` 主目录,
-    per BC7.1)。
-
-19. **BC7.3** BC PPO variant(`bc_train_ppo.py` / `bc_losses_ppo.py` /
-    `_ppo_net.py`)SHALL NOT exist — 已在 W4-PPO retire commit `2e5bc6f`
-    + W1A followup `1cb1bec` / `2d0584b` 一并删除。新 BC code SHALL NOT
-    引用这些路径。
-
-## 4. Cross-references
-
-- 主 training architecture →
-  [`../training-architecture/spec.md`](../training-architecture/spec.md)
-- BC paradigm dossier → `docs/paradigms/bc/`
-- BC warm-start history → memory `project_bc_warmstart_progress` +
-  `project_bc_alone_evaluation`
-- RL paradigm pivot terminus → `archive/0009-rl-paradigm-pivot-terminus`
-- Originating change(archived)→
-  [`../../changes/archive/unified-training-pipeline/`](../../changes/archive/unified-training-pipeline/)
-
-## 5. Status
-
-- **Created**:2026-05-16(unified-training-pipeline P6 archive)
-- **Revised**:2026-05-17(`core-network-generic-promotion` archive)—
-  MODIFY BC4.2(generic ActorCritic via `make_actor_critic` + AgentBase DI);
-  +BC6.3 r009 BC pretrain ckpt SUPERSEDED(ADR-0009 同步);+BC7 扁平化
-  layout(`bc/legacy/` 退役 + BC PPO variant 一并删除)。
-- **Version**:0(初始)
-- **Implementation**:Phase 4 落地;P4 ship 时 SHALL satisfied;
-  `core-network-generic-promotion` Phase 2C(2026-05-17)BC 扁平化 +
-  generic backbone 接入完成
-- **Tier**:first-class — production fallback;接受 dataset 更新 + retrain
+The initial specification described YAML/Parquet input, arbitrary soft teacher
+logits, an `export_for_warm_start` API, and r009 as a production fallback.
+Those statements no longer match the implementation or the current checkpoint
+schema. Historical experiment results remain unchanged in their archived files.

@@ -8,17 +8,16 @@ subtopic: loss
 
 # Loss — Policy / Value / L2 / Entropy / Delta / Total
 
-> 本 subtopic 锚定 GICG 主网络的训练 loss 契约 — 5 个分量 + 加总。
-> 入口为 AZ paradigm-local `AZLoss`(详 `training/paradigms/az/loss.py`,
-> 接受 `logits, value, legal_mask, pi_target, z_target, model, l2_coef,
-> entropy_coef`)。所有 NaN/Inf 由 train loop guard 检测,任一分量非有
-> 限 SHALL raise。
+> 本 subtopic 锚定 AZ 网络的训练 loss 契约 — 5 个分量 + 加总。
+> 统一管线入口为 `training/paradigms/az/loss.py::AZLoss.compute`；基础
+> policy/value/L2/entropy 数学实现在 sibling `_az_losses.py::az_losses`。
 >
 > Note (`core-network-generic-promotion` archive 2026-05-17):历史曾把
 > AZ loss 放在 `training/core/network/legacy/loss.py::az_losses` 作
 > paradigm-agnostic helper,但实际只有 AZ 调用。本 capability 重设计后,
-> loss 函数 SHALL 位于 paradigm 内部(`paradigms/az/loss.py::AZLoss`)。
-> 历史名 `az_losses` 不在新 code path 引用。
+> loss 函数 SHALL 位于 paradigm 内部。当前 `AZLoss` 仍调用同包内的
+> `_az_losses.az_losses` helper；已删除的是 `core/network/legacy/loss.py`
+> 路径。
 >
 > 上下文:value/policy/delta head 输出来自 [`./heads.md`](./heads.md);
 > head 消费 [`./encoders.md`](./encoders.md) Pool 层的 `global_state`。
@@ -99,8 +98,8 @@ for name, p in model.named_parameters():
 l2 *= l2_coef
 ```
 
-**修复 A 后**:只惩罚 weight matrix 和 embedding table,不惩罚 bias /
-LayerNorm weight。当前 11.9 k params 跳过 L2,1.81 M params 受 L2。
+该规则只惩罚 weight matrix 和 embedding table,不惩罚 bias /
+LayerNorm weight；参数数量取决于当前 config shape。
 
 ## 5. Entropy regularization
 
@@ -166,9 +165,9 @@ if config.delta_aux_coef > 0 and "counter_target" in batch:
    SHALL be read from cfg,SHALL NOT be hardcoded in loss function。
    `value_loss` 与 `policy_loss` 不带系数(系数恒 1.0)。
 
-3. Train loop SHALL guard:任一 term(value / policy / l2 / entropy /
-   delta)非有限(NaN / Inf)SHALL raise immediately,SHALL NOT
-   silently mask or zero out。
+3. Train loop SHALL guard the combined loss and gradient norm for non-finite
+   values. Individual breakdown terms are logged but are not independently
+   checked by `NaNGuard`.
 
 ### 7.2 实现
 
@@ -180,19 +179,21 @@ total = value_loss + policy_loss + l2 - entropy_coef * entropy + delta_aux_coef 
 
 ### 8.1 SHALL invariants
 
-1. After `total.backward()`,gradient clip SHALL apply via
-   `clip_grad_norm_(max=1.0)`。AdamW step follows。
-2. Before / during loss compute,SHALL raise on any non-finite term。
-   Stage:loss function return + per-component sub-check。
-3. Replay buffer `counter_target` SHALL itself never carry NaN(MCTS
-   side enforces);若 buffer 端污染 raise 在 forward。
+1. After `total.backward()`,the generic driver SHALL call
+   `clip_grad_norm_` with `paradigm.max_grad_norm` when present, otherwise
+   `1.0`, then run `NaNGuard` before the optimizer step.
+2. `NaNGuard` SHALL raise and write diagnostic evidence when the combined loss
+   or gradient norm is non-finite.
+3. This guard does not prove that every input field or logged component was
+   independently validated; callers that require stricter checks SHALL add
+   them at the producing boundary.
 
 ## 9. Cross-reference
 
 - **Heads**:[`./heads.md`](./heads.md) — `logits` / `value` /
   `delta_pred` 由 head 输出
-- **Encoders**:[`./encoders.md`](./encoders.md) §8 — 总参数 1.82 M /
-  L2 skip 11.9 k(biases + LN)
+- **Encoders**:[`./encoders.md`](./encoders.md) — backbone components whose
+  matrix/embedding parameters participate in L2
 - **Training pipeline**:[`./training-pipeline.md`](./training-pipeline.md) —
   `train_step` 在何处调用 paradigm `AZLoss`、grad clip、weight push
 - **Paradigm divergence**:各 paradigm 可调 `entropy_coef` /

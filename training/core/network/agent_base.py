@@ -1,4 +1,4 @@
-"""AgentBase — shared per-game cache + obs parse scaffolding (DI redesign).
+"""Shared per-game observation cache and agent lifecycle scaffolding.
 
 Subclasses bind their own ``self.net`` (e.g. ActorCritic / CFRStrategyNet)
 and override ``forward_batch`` / ``eval_state`` per algorithm. AgentBase
@@ -9,14 +9,10 @@ provides:
 - Evaluator protocol (``game_start`` / ``game_end``)
 - Default save/load
 
-**DI redesign (per core-network-generic-promotion)**: hook_encoder is
-injected at construction (``__init__(cfg, hook_encoder, device)``) instead
-of being looked up via ``self.net.hook_encoder`` attribute (the legacy
-hard contract).  Subclass typically passes ``self.net.hook_encoder``
-after constructing its own net.
+The hook encoder is injected at construction. A subclass typically passes
+``self.net.hook_encoder`` after constructing its own network.
 
-Spec: ``openspec/changes/core-network-generic-promotion/specs/network-architecture/spec.md``
-invariant A2.
+Current contract: ``openspec/specs/training-architecture/network-sharing.md``.
 """
 
 from __future__ import annotations
@@ -35,15 +31,10 @@ from training.core.network.agent_observation import _AgentObservationMixin
 class AgentConfig:
     """Shape parameters needed to instantiate per-algorithm network.
 
-    Field set is structurally identical to ``training.core.cfg.ObsShape``;
-    use ``AgentConfig.from_obs_shape(obs_shape)`` at paradigm boundaries
-    instead of hand-copying all 7 fields one by one (W1-T3 consolidation
-    — pre-W1-T3 4 paradigm.py sites + 2 legacy run-config sites each
-    repeated the same boilerplate construction). The two dataclasses
-    remain distinct because callers downstream (cfg-toml loaders + ckpt
-    loaders) need the original ObsShape vs the AgentConfig wire type
-    differentiated for backward-compat (ObsShape is frozen, AgentConfig
-    is mutable for legacy reasons).
+    Its eight fields mirror ``training.core.cfg.ObsShape``. Use
+    ``AgentConfig.from_obs_shape(obs_shape)`` at paradigm boundaries. The
+    two dataclasses remain distinct because ``ObsShape`` is frozen while
+    this compatibility wire type is mutable.
     """
 
     n_counter_slots: int
@@ -58,11 +49,7 @@ class AgentConfig:
 
     @classmethod
     def from_obs_shape(cls, obs_shape: Any) -> 'AgentConfig':
-        """Construct from an ``ObsShape`` (or any duck-typed equivalent
-        exposing the 7 shape fields). Replaces the field-by-field
-        ``AgentConfig(n_counter_slots=pcfg.agent.n_counter_slots, ...)``
-        boilerplate that previously lived inline in each paradigm's
-        ``make_network`` path (W1-T3 audit finding 中优 #8)."""
+        """Construct from an object exposing the eight shape fields."""
         return cls(
             n_counter_slots=obs_shape.n_counter_slots,
             n_hooks=obs_shape.n_hooks,
@@ -126,7 +113,7 @@ class AgentBase(_AgentObservationMixin):
 
     # --- Protocol-compatible lifecycle helpers ---------------------- #
 
-    # --- Persistence (self-describing schema per core-network-generic-promotion) ----- #
+    # --- Persistence ------------------------------------------------ #
 
     CKPT_SCHEMA_VERSION = 3  # v3 adds canonical definition-relation parameters
 
@@ -172,10 +159,7 @@ class AgentBase(_AgentObservationMixin):
                 'created_at': str,                # iso8601 UTC
             }
 
-        Per core-network-generic-promotion spec config-schema/spec.md invariant N4.
-        Old schema ({'net', 'cfg'} 2-key, no paradigm/git_commit/etc) is REJECTED
-        on load (CkptSchemaError) — user accepted ckpt 全删 (Phase 0), no
-        backward-compat needed.
+        Checkpoints without ``schema_version`` are rejected by ``load``.
         """
         from datetime import datetime, timezone
 
@@ -204,15 +188,14 @@ class AgentBase(_AgentObservationMixin):
         return changed
 
     def load(self, path: str) -> None:
-        """Load ckpt — requires the current self-describing schema."""
+        """Load a checkpoint whose schema version is at least the current one."""
         if not hasattr(self, 'net'):
             raise RuntimeError(f'{self.__class__.__name__}.load: subclass must set self.net (nn.Module) before loading')
         blob = load_checkpoint(path, weights_only=True, map_location=self.device)
         if not isinstance(blob, dict) or 'schema_version' not in blob:
             raise CkptSchemaError(
-                f'{self.__class__.__name__}.load: {path} uses pre-redesign ckpt schema (no schema_version key); '
-                f'core-network-generic-promotion Phase 0 removed all pre-redesign ckpts. '
-                f'Retrain on new schema or load via git checkout pre-core-network-redesign-2026-05-17 + old code.'
+                f'{self.__class__.__name__}.load: {path} has no schema_version; '
+                f'retrain or convert the checkpoint before loading it.'
             )
         if blob['schema_version'] < self.CKPT_SCHEMA_VERSION:
             raise CkptSchemaError(
@@ -234,6 +217,6 @@ class AgentBase(_AgentObservationMixin):
 
 
 class CkptSchemaError(RuntimeError):
-    """Raised on ckpt schema mismatch (pre-redesign 2-key or future version too new)."""
+    """Raised when checkpoint schema metadata is missing or too old."""
 
     pass

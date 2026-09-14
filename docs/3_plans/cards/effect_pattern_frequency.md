@@ -1,5 +1,8 @@
 # effect_text pattern frequency (top 200 normalized)
 
+> **2026-04 数据快照**：本文保留当时 cleansed 语料的统计结果，不代表
+> 最新官方内容或当前 DSL 支持状态。
+
 - 输入 effect blocks: 1348
 - 句子总数(split by 。\n;): 3245
 - 去重后 normalized pattern: 1469

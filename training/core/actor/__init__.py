@@ -1,4 +1,4 @@
-"""training.core.actor — actor + inference + EpisodeRunner原子.
+"""Actor processes, inference providers, IPC, and episode execution.
 
 Owns:
 - EpisodeRunner (actor + eval shared driver)

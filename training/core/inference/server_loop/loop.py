@@ -49,35 +49,24 @@ def _server_loop(
     network_factory_path: str = '',
     inference_handlers_module_path: str = '',
 ) -> None:
-    """Child process entry。
+    """Run the inference child process.
 
-    W2-1 (post 2026-05-28):``network_factory_path`` (dotted "module.attr")
-    parametrizes the agent class — pre-W2-1 this loop hard-imported
-    ``training.paradigms.az.network.Agent`` (audit finding 高优 #1
-    violated ADR-0006 单向依赖)。
-
-    W2-2:``inference_handlers_module_path`` (dotted module) points to a
-    module exposing ``handle_game_start`` + ``handle_eval_batch`` callables
-    (paradigm-specific obs decode + network output access)。 Pre-W2-2 these
-    two handlers lived in ``core/inference/server_loop/drain.py`` with hard-
-    coded AZ obs schema(audit finding 高优 #2)。 Caller (the AZ paradigm
-    via ``InferenceServer`` ctor) must supply the path explicitly。
+    ``network_factory_path`` selects the agent class. The module named by
+    ``inference_handlers_module_path`` must expose paradigm-specific
+    ``handle_game_start`` and ``handle_eval_batch`` callables.
     """
     try:
         import torch  # noqa: F401 — pay the import cost in child
 
         if not network_factory_path:
             raise RuntimeError(
-                '_server_loop: network_factory_path is required (W2-1 — pre-2026-05-28 '
-                'loop hard-imported training.paradigms.az.network.Agent; callers must now '
-                'pass the dotted module.attr path explicitly to InferenceServer.__init__)'
+                '_server_loop: network_factory_path is required; pass the dotted '
+                'module.attr path to InferenceServer.__init__'
             )
         if not inference_handlers_module_path:
             raise RuntimeError(
-                '_server_loop: inference_handlers_module_path is required (W2-2 — pre-2026-05-28 '
-                'core/inference/server_loop/drain.py implemented AZ-shaped handlers inline; '
-                'callers must now point at a paradigm module exposing handle_game_start + '
-                "handle_eval_batch, e.g. AZ passes 'training.paradigms.az._inference_handlers')"
+                '_server_loop: inference_handlers_module_path is required; point at a '
+                'paradigm module exposing handle_game_start and handle_eval_batch'
             )
         import importlib
 

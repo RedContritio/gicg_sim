@@ -39,7 +39,7 @@ Examples::
 
     # CFR challenger vs pure-MCTS sweep (fixed 2v2, no side swap)
     for N in 50 100 200; do
-      python -m tools.send_matchup \\
+      python -m tools._meta.send_matchup \\
         --kind gauntlet \\
         --mode fixed \\
         --team-0 赤蝶 墨客 \\
@@ -56,7 +56,7 @@ Examples::
     done
 
     # Query service health
-    python -m tools.send_matchup --kind status
+    python -m tools._meta.send_matchup --kind status
 
 Module split (kept under 300-line cap):
 

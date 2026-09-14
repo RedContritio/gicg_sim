@@ -7,7 +7,7 @@ export default function App() {
     <BrowserRouter>
       <div className="flex flex-col h-screen">
         <header className="flex items-center gap-4 px-4 py-2 border-b border-slate-700 bg-slate-950/80">
-          <h1 className="text-sm font-semibold text-slate-100">GICG Inspector</h1>
+          <h1 className="text-sm font-semibold text-slate-100">七圣召唤 · 对战</h1>
           <nav className="flex gap-2">
             <NavLink
               to="/replay"
@@ -19,7 +19,7 @@ export default function App() {
                 }`
               }
             >
-              Replay
+              回放分析
             </NavLink>
             <NavLink
               to="/live"
@@ -31,7 +31,7 @@ export default function App() {
                 }`
               }
             >
-              Live
+              模型对战
             </NavLink>
           </nav>
         </header>

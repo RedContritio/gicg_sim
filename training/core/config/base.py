@@ -21,7 +21,7 @@ PARADIGM_VALUES = ('az', 'dmc', 'cfr', 'ppo', 'bc')
 
 @dataclass(frozen=True)
 class MetaCfg:
-    """[meta] section. seed + paradigm 必填,device 默认 'cpu'."""
+    """``[meta]`` section; seed, paradigm, and run label are required."""
 
     seed: int
     paradigm: str
@@ -65,12 +65,12 @@ class LearnerCfg:
 
 @dataclass(frozen=True)
 class PipelineCfg:
-    """[pipeline] section. mode = 'serial' | 'async'.
+    """``[pipeline]`` section.
 
-    actor_backend = 'python' (默认 Python mp.Process pool,DMCMultiProcessCollector)
-    | 'go' (I29 redesign Go subprocess pool,DMCGoSubprocessCollector via
-    cmd/gicg_actor standalone OS subprocess + SHMRing transition,master 0 cgo lib
-    loaded)。 仅 DMC paradigm 完整支持,AZ/PPO/CFR/BC port 留 Phase 2 follow-up。
+    ``mode`` is ``serial`` or ``async``. ``actor_backend`` is ``python``
+    for the multiprocessing collector or ``go`` for the standalone
+    ``cmd/gicg_actor`` subprocess collector. The Go backend is implemented
+    for DMC.
     """
 
     mode: str = 'serial'
@@ -83,15 +83,12 @@ class PipelineCfg:
 
 @dataclass(frozen=True)
 class EvalCfg:
-    """[eval] section. Optional when pipeline.mode='serial' smoke.
+    """``[eval]`` section; optional for a serial pipeline.
 
-    host/port: eval_service bind + gauntlet client connect address
-    (TCP localhost, post 2026-05-24 env var 砍 — 替代 GICG_EVAL_HOST /
-    GICG_EVAL_PORT)。 production cfg 不写则走 'localhost' / 9100 default。
-
-    cpu_affinity: comma-separated CPU id list to pin eval_service worker
-    process (e.g. [16, 17, 18])。 None = unpinned (Mac 上 silent skip,
-    cpu_affinity is hint not contract)。 替代 GICG_EVAL_CPU_AFFINITY。"""
+    ``host`` and ``port`` identify the TCP evaluation service.
+    ``cpu_affinity`` is an optional list of CPU identifiers used when
+    starting that service; unsupported platforms ignore the hint.
+    """
 
     n_workers: int = 1
     schedule: str = 'every_1000_steps'
@@ -141,17 +138,11 @@ class CheckpointCfg:
 
 @dataclass(frozen=True)
 class DebugCfg:
-    """[debug] section — perf / mem instrumentation toggles。
+    """``[debug]`` performance and memory instrumentation controls.
 
-    全 default False:production cfg 不写 [debug] 时所有 instrumentation 关闭,
-    与未启 env var 时旧行为等价。 dev cfg 写 ``[debug] perf_trace=true`` 启 Python
-    pipeline + actor + InfServer span trace;``mem_probe=true`` 启 master tracemalloc
-    heap 分项 probe。 I29 redesign P3 (2026-05-25): 旧 ``go_perf_trace`` field 删
-    (cgo path 退役,master 不 load libgicg_actor;Go-side perf trace 由 cmd/gicg_actor
-    standalone subprocess 自管,经 stderr / log dump 不进 master metrics.jsonl)。
-
-    配套参数默认沿用旧 env var 默认值(perf_trace_flush_n=200 / _s=1.0 / dir 由
-    `trace.py` 走 'artifacts/_perf_logs' fallback;mem_probe_interval_s=30, top_n=15)。
+    Instrumentation is disabled by default. ``perf_trace`` enables Python
+    pipeline spans, while ``mem_probe`` enables periodic ``tracemalloc``
+    summaries in the main process. The Go subprocess manages its own logs.
     """
 
     perf_trace: bool = False
@@ -161,24 +152,17 @@ class DebugCfg:
     perf_trace_dir: Optional[str] = None  # None = trace.py default 'artifacts/_perf_logs'
     mem_probe_interval_s: int = 30
     mem_probe_top_n: int = 15
-    # CFR smoke-only stub buffer dispatch — production cfg 不写则 False。
-    # 替代 GICG_CFR_SMOKE_STUB_BUFFER env var (post 2026-05-24)。 仅 smoke_full
-    # cfg + tools/runs/tests cfr smoke cfg 写 true,production CFR 走真 buffer。
+    # Test-only CFR buffer adapter. Production configurations leave this false.
     cfr_smoke_stub_buffer: bool = False
 
 
 @dataclass(frozen=True)
 class RuntimeCfg:
-    """[runtime] section — process / worker runtime knobs (post 2026-05-24
-    env var 砍后新建)。
+    """``[runtime]`` process and worker controls.
 
-    actor_log_dir: 子 actor 进程 per-actor 文件日志根 dir。 替代 ACTOR_LOG_DIR
-    env var。 mp child stdout/stderr 不可靠 (pytest 抓 / ssh strip / sandbox 抑),
-    每 actor tee 到 ``<dir>/actor_<id>.log`` line-buffered 写出供事后 debug。
-
-    I29 redesign P3 (2026-05-25): 旧 ``actor_lib_path`` field 删 (cgo path 退役,
-    master 不再 ctypes load libgicg_actor;Go-actor 走 cmd/gicg_actor standalone
-    OS subprocess 由 spawn_pipeline 起,binary 路径 build-on-demand 不需 cfg knob)。"""
+    ``actor_log_dir`` receives line-buffered per-actor logs from Python
+    worker processes.
+    """
 
     actor_log_dir: str = 'artifacts/_actor_logs'
 

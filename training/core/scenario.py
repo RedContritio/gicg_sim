@@ -1,8 +1,4 @@
-"""Scenario + obs config — shared by AZ / CFR / DMC.
-
-Migrated from training.az.config per review B.4 (ADR-0006 layout 合规:
-az ⟷ cfr 零互 import + framework 不依赖 algorithm-specific module)。
-"""
+"""Scenario and observation configuration shared by training paradigms."""
 
 from __future__ import annotations
 
@@ -70,22 +66,19 @@ class ScenarioConfig:
     team_size: int = 1
     disjoint_teams: bool = False
 
-    # Curriculum env knobs (forwarded to GicgEnv). 0 / None preserve
-    # legacy behavior: unbounded rounds, random dice roll each round,
-    # fully observable. See docs/3_plans/curriculum/plan.md Stage 0/1/2.
+    # Environment controls forwarded to GicgEnv. Zero or None selects the
+    # engine defaults: unbounded rounds, random dice, and full observation.
     max_rounds: int = 0
     fix_dice: Optional[list[int]] = None
     obs_mask: Optional[list[str]] = None
-    # ADR-0011: deck padding spec, e.g. {"card": "碌碌无为", "target_size": 15}.
-    # None = deck length equals eligible-card count (no padding). Existing
-    # cfgs that previously relied on the engine-level "碌碌无为" hardcode
-    # set this explicitly to preserve their pre-ADR-0011 deck shape.
+    # Deck padding spec, e.g. {"card": "碌碌无为", "target_size": 15}.
+    # None leaves deck length equal to the eligible-card count.
     deck_padding: Optional[dict] = None
-    # ADR-0011: pool ID(s) under data/pools/. None = engine default
+    # Pool ID(s) under data/pools/. None = engine default
     # (["v_legacy"]). Accepts a single str or a list[str] for sibling
     # pool union; see GicgEnv `pool` for semantics.
     pool: Optional[object] = None
-    # F4: explicit per-player deck declaration (card-name multiset).
+    # Explicit per-player deck declaration (card-name multiset).
     # None = implicit eligible-set path — the engine errors when that
     # set exceeds deck_padding.target_size (silent truncation removed).
     deck_0: Optional[list[str]] = None

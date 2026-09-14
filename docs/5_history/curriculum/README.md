@@ -30,7 +30,7 @@ last_updated: 2026-04-26
 
 Stage 3 PPO closure 后,下一动是 AZ 路线 (α/β/γ 选项)。详见
 [`../../0_status/README.md`](../../0_status/README.md) 和
-[`../az/r009_az_warmstart.md`](../az/r009_az_warmstart.md)。
+[`../az_plans/r009_az_warmstart.md`](../az_plans/r009_az_warmstart.md)。
 
 ## 编辑
 

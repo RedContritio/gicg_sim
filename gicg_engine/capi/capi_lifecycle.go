@@ -9,8 +9,8 @@
 // `proc.join`.
 //
 // This init registers a Go-side handler that catches SIGTERM/SIGINT
-// and calls os.Exit(0). os.Exit unwinds Go's deferred functions and
-// terminates the process cleanly — independent of the Python thread
+// and calls os.Exit(0). os.Exit terminates immediately without running
+// deferred functions, independently of the Python thread
 // state because the signal handler runs on its own goroutine + OS
 // thread.
 //

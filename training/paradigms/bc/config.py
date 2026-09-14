@@ -6,12 +6,14 @@ dataclass for typed access. Spec ref: paradigm-bc/spec.md BC1-BC6 +
 config-schema/spec.md § 7 (cfg-schema-unification N1-N3)。
 
 BC-specific fields focus on static dataset training:
- - dataset_path → YAML / NPZ expert replay path
- - loss_kind → "ce" (hard target) vs "kl" (soft teacher target);default "ce"
+ - dataset_path → NPZ expert replay path
+ - loss_kind → "ce" (hard target) vs "kl" (uniform tied-action soft target);
+   default "ce"
  - n_epochs → outer iter count;each iter = 1 dataset epoch
  - value_coef → MSE value loss weight(BC4.1: 0.0 disables value head training)
 
-No env episode loop — buffer_cap = dataset_size,batch_size 沿 bc/legacy/bc_train.py。
+No env episode loop. The adapter sizes its DatasetBuffer to
+``max(buffer_cap, dataset_size)``.
 
 cfg-schema-unification:
 - inherits ParadigmConfigBase (version + paradigm metadata, N2)
@@ -35,8 +37,8 @@ _BC_SUPPORTED_VERSIONS = frozenset({'1.0.0'})
 
 @dataclass(frozen=True)
 class BCParadigmConfig(ParadigmConfigBase):
-    """Top-level BC paradigm cfg. Defaults reflect bc/legacy/bc_train.py legacy
-    smoke preset; production runs override via cfg.paradigm dict.
+    """Top-level BC paradigm cfg. Production runs override defaults via
+    ``cfg.paradigm``.
 
     NB: ``buffer_cap`` defaults to a large soft-cap; the DatasetCollector
     sizes itself from the actual dataset on load.

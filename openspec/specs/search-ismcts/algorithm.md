@@ -82,7 +82,7 @@ rollout(IS-MCTS + 随机网络 value vs random 仅 20%;换 random rollout
 达 90%)。shipped 算法采用 **AlphaGo 模式混合**:
 
 ```python
-# pseudocode of training/az/mcts/
+# pseudocode of training/paradigms/az/mcts/
 leaf_v = network_value if node is not terminal else _p0_value(winner)
 if rollout_value is not None and config.value_mix_lambda < 1.0:
     lam = config.value_mix_lambda

@@ -11,39 +11,34 @@ package factory
 type GameConfig struct {
 	DataDir string `json:"data_dir"`
 	// Pools selects which data/pools/<id>/ trees to load cards/chars
-	// from. nil / empty defaults to ["v_legacy"] — the placeholder
-	// pool ADR-0011 created from the pre-existing data/cards and
-	// data/characters trees. Multiple pools union (sibling roots);
+	// from. nil / empty defaults to ["v_legacy"]. Multiple pools union
+	// sibling roots;
 	// the rare cross-pool name conflict is resolved last-wins in
 	// list order.
 	Pools   []string   `json:"pools"`
 	Players [2]PConfig `json:"players"`
 	Seed    int64      `json:"seed"`
 	// CardPool restricts which cards are loaded for this game by their
-	// declared name (filename minus ".lua"). nil means "load every card
-	// under data/cards"; an explicit empty slice means "load nothing"
+	// declared name. nil means "load every card in the selected pools";
+	// an explicit empty slice means "load nothing"
 	// (no cards declared in the ruleset). When DeckPadding is set, the
 	// padding card name is auto-included regardless of CardPool.
 	CardPool []string `json:"card_pool"`
 	// DeckPadding optionally pads short decks to a fixed length using a
 	// named card. nil = no padding (deck length equals eligible-card
-	// count). Lifts the previous engine-level "碌碌无为" hardcode out to
-	// caller config — see ADR-0011.
+	// count).
 	DeckPadding *DeckPaddingJSON `json:"deck_padding,omitempty"`
 	// Obs controls per-game obs assembly + shuffle application. When
 	// the caller omits the field (pre-obs-config Python callers), Obs is
 	// the zero value (all false) — handled by NewGame via
 	// NewDefaultObsConfig fallback so legacy behavior is preserved.
 	Obs *ObsConfigJSON `json:"obs,omitempty"`
-	// MaxRounds caps episode length. 0 (omitempty) keeps legacy
-	// unbounded behavior; > 0 force-terminates with Winner=2 after the
-	// round-end phase of that round. Used by curriculum Stage 0 to set
-	// a deterministic 3-round ceiling.
+	// MaxRounds adds an episode-length cap. 0 disables this additional
+	// cap; > 0 force-terminates with Winner=2 after that round's end phase.
 	MaxRounds int `json:"max_rounds,omitempty"`
 	// FixDice, when of length DiceColorCount (8), replaces the random
 	// per-round dice roll with these exact per-color counts. Length 0
-	// / nil = random roll (default). Curriculum Stage 0 uses this to
-	// eliminate dice stochasticity.
+	// / nil = random roll (default).
 	FixDice []int `json:"fix_dice,omitempty"`
 }
 
@@ -71,7 +66,7 @@ type ObsConfigJSON struct {
 type PConfig struct {
 	Chars []CharDef `json:"chars"`
 	// Deck pins this player's deck to an explicit card-name list
-	// (F4 — mirrors training cfg [scenario].deck_0/deck_1; multiset,
+	// matching training cfg [scenario].deck_0/deck_1. It is a multiset;
 	// duplicates allowed). nil = implicit path: deck is the full set of
 	// declared cards eligible for this player, padded per DeckPadding.
 	// Every name must already be declared in the ruleset (card_pool /

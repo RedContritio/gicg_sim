@@ -2,11 +2,7 @@
 
 ``compute_structural_obspos`` maps per-sample counter_sids + active mask
 to the obs position where each canonical structural sid (0..K-1) appears.
-``compute_structural_values`` gathers the counter values at those
-positions — previously inlined at every call site as
-``counter_values.gather(1, structural_obspos)``.
-
-Public (underscore-prefix dropped per the new naming rules).
+``compute_structural_values`` gathers the counter values at those positions.
 """
 
 from __future__ import annotations
@@ -46,6 +42,5 @@ def compute_structural_values(
     counter_values: torch.Tensor,
     structural_obspos: torch.Tensor,
 ) -> torch.Tensor:
-    """Gather the per-sample counter values at the canonical structural
-    obspos positions. Formerly inlined at five call sites."""
+    """Gather per-sample counter values at canonical structural positions."""
     return counter_values.gather(1, structural_obspos)

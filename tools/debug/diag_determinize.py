@@ -8,7 +8,7 @@
 场景:异质 card_pool + 异质双方团队,放大 D1 的可见性。
 
 Usage:
-    .venv/bin/python -m tools.diag_determinize
+    .venv/bin/python -m tools.debug.diag_determinize
 """
 
 from __future__ import annotations

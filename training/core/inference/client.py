@@ -2,14 +2,14 @@
 
 Lives inside a worker process, holds one ``multiprocessing.Pipe``
 client-end to the server, and implements the same "evaluator"
-protocol ``training.az.network.agent.Agent`` exposes:
+protocol ``training.paradigms.az.network.Agent`` exposes:
 
     evaluator.game_start(static_obs_np) -> game_static dict
     evaluator.eval_state(dyn_obs_np, refs_np, payments_np) -> (prior, value)
     evaluator.game_end() -> None
 
 This lets ``play_self_game`` / MCTS use the same call pattern for
-both the on-process Agent (arena / gauntlet) and the remoted
+both the in-process Agent (arena / gauntlet) and the remote
 inference client (parallel self-play workers).
 """
 

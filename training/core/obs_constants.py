@@ -1,12 +1,9 @@
 """Re-export of engine-pinned constants from gicg_env.
 
-Single source of truth lives in ``gicg_env._constants`` and is re-
-exported via ``gicg_env`` public surface(W1-T1 single-source + B2
-public export consolidation)。 This module exists to preserve the
-existing import surface ``from training.core.obs_constants import
-OBS_*`` used by ~25 callers across training/ + tools/, and to host
-paradigm-agnostic helpers (``pick_device``) that are conceptually
-adjacent but not engine-pinned。
+Single source of truth lives in ``gicg_env._constants`` and is re-exported
+through the ``gicg_env`` public surface. This module provides the stable
+``training.core.obs_constants`` import path and hosts adjacent helpers such as
+``pick_device``.
 """
 
 from __future__ import annotations
@@ -86,9 +83,8 @@ __all__ = [
 def pick_device() -> torch.device:
     """Project default device picker. Prefers MPS / CUDA / CPU.
 
-    Note (memory feedback_default_mps): MPS slower than CPU for
-    d_model=128 + small batch — callers should override based on
-    measured throughput rather than blindly trust this default."""
+    Small-model MPS throughput has varied by workload; callers should
+    override this convenience default when a local benchmark supports it."""
     if torch.backends.mps.is_available():
         return torch.device('mps')
     if torch.cuda.is_available():

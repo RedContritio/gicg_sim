@@ -3,20 +3,14 @@
 Public surface:
 - ``GicgEngine`` + ``GicgEnv`` — lazily loaded via PEP 562 module
   ``__getattr__`` so importing constants alone does NOT trigger
-  ``ctypes.CDLL(libgicg.dylib)``。 Load-bearing for the I29 DMC
-  master-process invariant:the master orchestrator imports buffer /
-  obs schema constants but MUST NOT load libgicg (cgo state belongs
-  in the spawned subprocess only — see
-  ``training/paradigms/dmc/tests/test_go_subprocess_5ep_e2e.py`` lsof
-  guard)。
+  ``ctypes.CDLL(libgicg.dylib)``. This preserves the DMC master-process
+  invariant: the orchestrator may import observation constants, but cgo
+  state is loaded only in spawned subprocesses (see
+  ``training/paradigms/dmc/tests/test_go_subprocess_5ep_e2e.py``).
 - Engine-pinned constants (action / phase / step / dice / obs / reward
-  events) — eagerly re-exported from ``gicg_env._constants`` since
-  the constants module 0 import overhead + no libgicg dependency。
-  B2 (post-2026-05-29) consolidation:pre-B2 external callers reached
-  into the underscore-prefixed `_constants` module directly
-  (``from gicg_env._constants import REWARD_EVENTS_FIELDS`` 等),
-  违反 audit 低优 finding — underscore = 私有约定但跨模块用。
-  本 module 提供 public path,callers 一律 ``from gicg_env import X``。
+  events) — eagerly re-exported from ``gicg_env._constants``, which has
+  no libgicg dependency. External callers should import these names from
+  ``gicg_env`` rather than the private ``_constants`` module.
 """
 
 from typing import TYPE_CHECKING

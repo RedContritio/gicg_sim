@@ -8,30 +8,24 @@ Consumes the three typed segments appended to dynamic obs:
 Produces a single (B, d_model) pooled vector that's concatenated into
 the policy/value combined feature alongside counter/hook/card/meta/struct.
 
-Design notes (post-review 2026-05-08):
+Design constraints:
   * **Separate player and char embeddings** — player_idx ∈ {-1, 0, 1}
-    and char_idx ∈ {-1, 0..5} have distinct semantics; sharing a single
-    char_emb table for both was deemed a learn-by-context risk in
-    review (mirror match disentanglement). Two tables now.
+    and char_idx ∈ {-1, 0..5} use separate embedding tables.
   * **prepare_skill concat over players, not mean** — mean would erase
     "P0 prepares X / P1 prepares Y" vs the swap, breaking under mirror
-    match. We now concat both players' (char + slot) embeddings into
+    match. The encoder concatenates both players' (char + slot) embeddings into
     (B, 2*d_model) → Linear → d_model. Player order is fixed by obs
     perspective (P0 = canonical-acting), so positional concat is safe.
-  * **modifier_log fused per-event before pooling** — old design pooled
-    over both event and stage axes, losing event↔modifier alignment
-    (event[3]'s ModBoost vs event[5]'s ModBoost were undistinguishable).
-    Now stage-pool first → (B, K, d_model), add to event_emb element-wise,
+  * **modifier_log fused per-event before pooling** — stage-pool first
+    produces (B, K, d_model), which is fused with the matching event,
     pool over events → (B, d_model). Per-event modifier sequence stays
     attached to its event.
-  * **No assert on shape** — `assert` is stripped under `python -O`,
-    a silent shape mismatch in production was the original failure mode.
-    Replaced with explicit ValueError raises.
+  * **Explicit shape errors** — invalid shapes raise ``ValueError`` even
+    when Python runs with optimization enabled.
 
-Padding: events with all-zero typed fields contribute zero-element
-embeddings + zero scalars; mean pool dilutes them but doesn't crash.
-The network learns the "no signal" mode rather than depending on an
-explicit valid-mask (which the engine would have to emit separately).
+Padding uses ``-2`` for categorical fields and zero for scalars. These
+rows use dedicated learned categorical embeddings and remain in the mean
+pool; there is no separate validity mask.
 
 # TODO(future ablation): if RL training shows typed_pool fails to
 # disentangle player vs char (e.g. attention probe shows uniform
@@ -55,7 +49,7 @@ from training.core.obs_constants import (
 )
 
 
-# Embedding vocab sizes — Round-3 review M3+M4: uniform +2 offset for
+# Embedding vocab sizes use a uniform +2 offset for
 # every categorical field, allowing both "padding sentinel" (-2 from
 # engine) and "real -1" (no-actor / no-prepare / sentinel reserved by
 # DSL) as distinct vocab slots:
@@ -86,18 +80,15 @@ class TypedDamageEncoder(nn.Module):
         super().__init__()
         self.d_model = d_model
 
-        # Categorical embeddings — distinct tables for player and char so
-        # the network never has to learn to disentangle them via context
-        # (review issue B5).
+        # Player and character identifiers have distinct semantics and
+        # therefore use distinct tables.
         self.element_emb = nn.Embedding(ELEMENT_VOCAB, d_model)
         self.reaction_emb = nn.Embedding(REACTION_VOCAB, d_model)
         self.modifier_kind_emb = nn.Embedding(MODIFIER_KIND_VOCAB, d_model)
         self.player_emb = nn.Embedding(PLAYER_VOCAB, d_model)
         self.char_emb = nn.Embedding(CHAR_VOCAB, d_model)
         self.skill_slot_emb = nn.Embedding(SKILL_SLOT_VOCAB, d_model)
-        # Round-2 review P1: dropout after embedding lookup抑制 sparse-signal
-        # 过拟合(每 step 只少数 event 是真信号,embedding lookup 不 dropout
-        # 时容易让 padding-default embed 学到主导信号)。
+        # Apply dropout after sparse categorical lookups.
         self.embed_dropout = nn.Dropout(dropout)
 
         # Per-event projection: actor_player + actor_char + target_player
@@ -122,10 +113,8 @@ class TypedDamageEncoder(nn.Module):
             nn.Linear(d_model, d_model),
         )
 
-        # Round-2 review S3: per-event modifier 融合用 cat+linear 替元素 add。
-        # add 在同尺度下让 modifier 信号被 event 主信号淹没;cat→linear 让
-        # 网络自己学 event/modifier 的相对权重。与 prepare_proj/out_proj 用
-        # 的 cat+linear 一致。
+        # Concatenation lets the projection learn the relative weight of
+        # event and modifier features.
         self.event_mod_fuse = nn.Sequential(
             nn.Linear(2 * d_model, d_model),
             nn.ReLU(),
@@ -133,8 +122,7 @@ class TypedDamageEncoder(nn.Module):
             nn.Linear(d_model, d_model),
         )
 
-        # Prepare-skill concat-over-players projection (review A2): keep
-        # both players' (char + slot) embeddings positional rather than
+        # Keep both players' (char + slot) embeddings positional rather than
         # mean-pooling them — mirror match would otherwise erase
         # "who's preparing what".
         self.prepare_proj = nn.Sequential(
@@ -144,9 +132,7 @@ class TypedDamageEncoder(nn.Module):
             nn.Linear(d_model, d_model),
         )
 
-        # Final fusion: damage_pool + prepare_pool → d_model (modifier
-        # signal already fused per-event into damage_pool, see forward
-        # docstring review B4).
+        # Modifier information is already fused per event in damage_pool.
         self.out_proj = nn.Sequential(
             nn.Linear(2 * d_model, d_model),
             nn.ReLU(),
@@ -154,45 +140,42 @@ class TypedDamageEncoder(nn.Module):
             nn.Linear(d_model, d_model),
         )
 
-        # Round-2 review S1: ActorCritic-level concat 后整体 LayerNorm,
-        # 不单边 norm typed pool。typed_damage encoder 自身不再 out_norm,
-        # 让 ActorCritic 在 7-pool cat 后 norm 整体保对称。
+        # ActorCritic normalizes this pool alongside the other pools.
 
     def _safe_player(self, idx: torch.Tensor) -> torch.Tensor:
         """Map -2 (padding) → 0, -1 (real no-actor) → 1, 0/1 (perspective-
-        relative self/enemy) → 2/3. Round-3 M3+M4 + Round-5 M1: distinct
-        slots for padding vs real -1; player_id is perspective-relative
-        (Round-5 M1) so 0 = self, 1 = enemy.
+        relative self/enemy) → 2/3. Padding and real -1 use distinct
+        slots; player_id is perspective-relative, so 0 = self and 1 = enemy.
 
-        Round-5 S1: raise on out-of-range — engine emit > 1 means
-        absolute player_id leaked through (M1 regression) or corrupt
-        obs.
+        Raise on out-of-range: an engine value above 1 means
+        an absolute player identifier leaked through or the observation is
+        corrupt.
         """
         return self._safe_categorical(idx, 'player', PLAYER_VOCAB, real_max=1)
 
     def _safe_char(self, idx: torch.Tensor) -> torch.Tensor:
         """Map -2 (padding) → 0, -1 (real no-char) → 1, 0..MC-1 → 2..MC+1.
-        Round-5 S1: raise on out-of-range."""
+        Raises on out-of-range."""
         return self._safe_categorical(idx, 'char', CHAR_VOCAB, real_max=OBS_MAX_CHARS - 1)
 
     def _safe_element(self, idx: torch.Tensor) -> torch.Tensor:
         """Map -2 (padding) → 0, -1 unused → 1, 0..9 (ElemNone..Piercing)
-        → 2..11. Round-3 review M3 + Round-5 S1: raise on out-of-range."""
-        # Element enum 0..ElemPiercing (=9), 真值 max=9
+        → 2..11. Raises on out-of-range."""
+        # Element enum 0..ElemPiercing (=9).
         return self._safe_categorical(idx, 'element', ELEMENT_VOCAB, real_max=9)
 
     def _safe_reaction(self, idx: torch.Tensor) -> torch.Tensor:
         """Map -2 (padding) → 0, -1 unused → 1, 0..N (ReactionKind real)
-        → 2..N+1. Round-5 S1: raise on out-of-range.
+        → 2..N+1. Raises on out-of-range.
 
-        ReactionKind real max 取 REACTION_VOCAB - 3 (留 2 sentinel slot
-        + 1 spare),允许 declare_reaction 注册到 vocab 上限。
+        The maximum is ``REACTION_VOCAB - 3`` to reserve two sentinel
+        slots and one spare entry.
         """
         return self._safe_categorical(idx, 'reaction_kind', REACTION_VOCAB, real_max=REACTION_VOCAB - 3)
 
     def _safe_modifier_kind(self, idx: torch.Tensor) -> torch.Tensor:
         """Map -2 (padding) → 0, -1 unused → 1, 0..3 (ModBoost..ModAfterDamage) → 2..5.
-        Round-5 S1: raise on out-of-range."""
+        Raises on out-of-range."""
         # ModBoost..ModAfterDamage = 0..3
         return self._safe_categorical(idx, 'modifier_kind', MODIFIER_KIND_VOCAB, real_max=3)
 
@@ -203,8 +186,7 @@ class TypedDamageEncoder(nn.Module):
         vocab_size: int,
         real_max: int,
     ) -> torch.Tensor:
-        """Round-5 S1: shared raise-on-out-of-range helper for all 5
-        categorical fields (player/char/element/reaction/mod_kind).
+        """Validate and offset a categorical field for embedding lookup.
 
         Valid ranges:
           - -2 (padding sentinel)
@@ -212,7 +194,7 @@ class TypedDamageEncoder(nn.Module):
           - 0..real_max (real values)
 
         +2 offset maps to vocab idx 0..real_max+2; clamp range checked.
-        Out-of-range raises ValueError per CLAUDE.md "意外输入必须抛异常".
+        Out-of-range input raises ``ValueError``.
         """
         idx_long = idx.long()
         too_low = idx_long < -2
@@ -229,11 +211,10 @@ class TypedDamageEncoder(nn.Module):
         """Map -2 (padding, never emitted by encodePrepareSkill but
         encoder is uniform), -1 (no prepare real), 0..MSPC-1 → 2..MSPC+1.
 
-        Round-2 review S5: raise on out-of-range instead of silent clamp —
-        slot index outside [-2, OBS_MAX_SKILLS_PER_CHAR) means the engine
+        A slot outside [-2, OBS_MAX_SKILLS_PER_CHAR) means the engine
         emitted a slot beyond the network's vocabulary, indicating either
         an engine bug or an OBS_MAX_SKILLS_PER_CHAR drift between Go and
-        Python. CLAUDE.md "意外输入必须抛异常" applies.
+        Python.
         """
         idx_long = idx.long()
         too_low = idx_long < -2
@@ -267,7 +248,7 @@ class TypedDamageEncoder(nn.Module):
         Returns:
             (B, d_model)
         """
-        # Shape contract checks (use raise, not assert — see module docstring).
+        # Use explicit exceptions so checks remain active under ``python -O``.
         if recent_damage.shape[1] != OBS_RECENT_DAMAGE_EVENTS:
             raise ValueError(
                 f'recent_damage shape[1]={recent_damage.shape[1]}, '
@@ -297,8 +278,7 @@ class TypedDamageEncoder(nn.Module):
             raise ValueError(f'prepare_skill shape[1:]={tuple(prepare_skill.shape[1:])}, expected (2, 2)')
 
         # ---- Recent damage events (B, K, 11) ----
-        # Round-2 review P1: embed_dropout 在每个 lookup 后,抑制 padding
-        # embed slot(idx 0)的 sparse 训练信号过拟合。
+        # Apply dropout independently to each categorical lookup.
         ap_emb = self.embed_dropout(self.player_emb(self._safe_player(recent_damage[..., 0])))
         ac_emb = self.embed_dropout(self.char_emb(self._safe_char(recent_damage[..., 1])))
         tp_emb = self.embed_dropout(self.player_emb(self._safe_player(recent_damage[..., 2])))
@@ -331,8 +311,7 @@ class TypedDamageEncoder(nn.Module):
         # Stage-axis pool first → (B, K, d_model). Each event keeps its own
         # modifier summary; alignment to event_emb is preserved.
         per_event_mod = mod_emb.mean(dim=2)
-        # Round-2 review S3: cat+Linear 替 element-wise add。让网络自己学
-        # event 主信号 vs modifier 信号的相对权重,避免同尺度淹没。
+        # Learned fusion preserves separate event and modifier inputs.
         event_with_mod_input = torch.cat([event_emb, per_event_mod], dim=-1)  # (B, K, 2*d_model)
         event_with_mod = self.event_mod_fuse(event_with_mod_input)  # (B, K, d_model)
         damage_pool = event_with_mod.mean(dim=1)  # (B, d_model)

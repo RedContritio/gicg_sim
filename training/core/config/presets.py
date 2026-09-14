@@ -1,23 +1,13 @@
-"""Cfg preset registry — names → preset cfg path.
+"""Optional name-to-path registry for configuration presets.
 
-Was used by the legacy ``tools/run.py --preset <name>`` (deleted in
-T-23 of the 2026-05-18 ``tools/runs/`` clean-slate redesign). The
-post-redesign entry ``tools.runs.train`` does NOT carry the ``--preset``
-flag (cfg path is mandatory positional; `extends` chain handles
-inheritance). This registry stays as the canonical preset name →
-path resolver for any out-of-band callers, but no production CLI
-reads from it post-T-23.
-
-Presets are normal TOML files under ``configs/presets/`` (path
-resolved via this registry). Spec ref: config-schema/spec.md §2
-'Cfg presets out of scope for the spec; path-anchored here'.
+The main ``tools.runs.train`` command takes a configuration path and uses
+``meta.extends`` for inheritance. This registry remains available to
+out-of-band callers and is empty until they register entries.
 """
 
 from __future__ import annotations
 
-# Map preset name → relative path under repo root. P3-A registers an
-# empty set; P3-B+ paradigms add their own (e.g. 'dmc-smoke',
-# 'dmc-prod-async'). User cfgs typically use ``extends`` to chain in.
+# Map a caller-defined name to a repository-relative configuration path.
 PRESETS: dict = {}
 
 

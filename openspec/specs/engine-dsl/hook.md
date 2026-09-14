@@ -49,8 +49,8 @@ Engine SHALL dispatch hooks in this order:
 
 ## 3. HookType 枚举
 
-Hook types 定义在 `gicg_engine/types.go`(L100+)。当前枚举(ADR-0019 §B.5
-strict 8 时机 damage pipeline,详 `memory project_adr_0019_strict`):
+Hook types 定义在 `gicg_engine/types.go`。Strict damage ordering 详
+[`./damage.md`](./damage.md) §1.1:
 
 ### 3.1 Counter 写入
 
@@ -174,8 +174,7 @@ actor filter needed。
 Hook owner 信息在 Python RL obs 中曾经丢失(commit `3c2ee89` 前),
 导致 attention 网络无法定位 char-skill hooks 的 owner slot。修复:engine
 在 obs 中加 `char_skill_refs` 区域,由 `Game.Obs.IncludeCharSkillRefs`
-toggle 控制(详 `gicg_engine/observation.go` L140 +
-`memory project_obs_hook_owner_gap`)。
+toggle 控制(实现见 `gicg_engine/observation.go`)。
 
 Engine SHALL expose `char_skill_refs` slot,SHALL guarantee每个 char-skill
 hook 在 obs 中可被定位到其 owner char。
@@ -201,12 +200,12 @@ callback SHALL NOT 调用上述 builtin。
   `gicg_engine/hook.go`(hook 数组 + dispatch 实现)
 - **Builtin registration**:`gicg_engine/interp/builtins.go`(`on_*` 系列
   builtin 在 tokenize + eval 两侧注册,详
-  [`./builtin-api.md`](./builtin-api.md) "Builtin registration" 段 +
-  `memory feedback_builtin_registration_audit`)
-- **ADR-0019**:strict 8 时机 damage pipeline 设计依据,详
-  `memory project_adr_0019_strict`
-- **Mirror match bug history**:`#152` 已修复(DSL filter + B-plan
-  talent),详 `memory feedback_mirror_match_hook_bug`
+  [`./builtin-api.md`](./builtin-api.md) §2)
+- **ADR-0019**:strict 8 时机 damage pipeline 设计依据见
+  [`./damage.md`](./damage.md) §1.1 和
+  [`0019-dsl-v6-semantic-engine`](../../changes/archive/0019-dsl-v6-semantic-engine/)
+- **Mirror match**:角色绑定与 actor filter 见本文件 §5 和
+  [`./skill-pattern.md`](./skill-pattern.md) §3。
 
 ## 反应解析完成事件（2026-09-14）
 

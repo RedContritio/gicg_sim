@@ -1,30 +1,18 @@
-"""Player wrappers + loader registry for ``run_matchup``.
-
-Factored out of the original ``training.matchup`` so matchup.py stays
-below the line-limit. The dispatch registry lives here; matchup.py
-imports ``load_player``.
-
-W2-1 (post-2026-05-28): registry pattern. ``LOADERS`` is no longer a
-statically-populated dict {'az': ..., 'cfr': ...} that pulls paradigm
-modules into core at import time (audit finding 高优 #1 — violated
-ADR-0006 单向依赖 core→paradigm)。 Instead:
+"""Player wrappers and lazy loader registry for ``run_matchup``.
 
 - core provides ``register_loader(name, factory)`` API + ``LOADERS``
-  view of a private registry dict
-- 3 universal loaders ('random' / 'greedy' / 'mcts_pure') register
-  themselves at module load (no paradigm import)
+  as a read-only view of a private registry;
+- universal loaders (``random``, ``greedy``, and ``mcts_pure``) register
+  at module import without importing a training paradigm;
 - paradigm-specific loaders live in
   ``training/paradigms/<name>/_player_loader.py`` and call
-  ``register_loader`` at their module load
+  ``register_loader`` when imported;
 - ``load_player(spec)`` lazy-imports the paradigm's loader module on
-  miss, triggering self-registration. ``LOADERS`` membership / iteration
-  also triggers lazy import for known paradigm names so legacy
-  ``'cfr' in LOADERS`` test patterns continue to work.
+  demand. Membership checks and iteration also trigger lazy imports for
+  known paradigm names.
 
-``_AgentMCTSPlayer`` STAYS in this module (it is a generic agent-prior
-MCTS wrapper) even though it imports ``training.paradigms.az.mcts``
-internally — that deeper "MCTS impl lives in az" leak is out of W2-1
-scope (would need a paradigm-shared search module to fix cleanly).
+``_AgentMCTSPlayer`` is a shared wrapper, but its search implementation
+currently comes from ``training.paradigms.az.mcts`` at call time.
 """
 
 from __future__ import annotations
@@ -86,9 +74,8 @@ class _AgentMCTSPlayer:
     """Agent wrapped inside MCTS (network prior + value). Used by
     paradigm loaders with ``n_simulations > 0``。
 
-    NB: MCTS impl currently lives in ``paradigms.az.mcts`` (deeper
-    layout issue out of W2-1 scope); this wrapper is paradigm-agnostic
-    from the *caller* side but pulls in az.mcts at call time."""
+    The wrapper is paradigm-agnostic to callers, while the MCTS
+    implementation is imported from ``paradigms.az.mcts`` at call time."""
 
     def __init__(self, agent, n_rollouts: int, seed: int = 0, max_rollout_depth: int = 400):
         from training.paradigms.az.mcts import MCTSConfig
@@ -145,13 +132,8 @@ _REGISTRY: Dict[str, LoaderFactory] = {}
 
 # Paradigm names whose loader lives under
 # ``training.paradigms.<name>._player_loader`` and self-registers at
-# module load. Used by the lazy-load trigger in ``_LazyLoaderRegistry``
-# so legacy patterns like ``'cfr' in LOADERS`` (before any explicit
-# ``load_player({'type': 'cfr', ...})`` call) keep resolving。
-# B4 (2026-05-29):extended from W2-1 baseline (az/cfr) to full 5-paradigm
-# coverage,close audit finding `core/eval/baselines.py:103-105` "extend
-# LOADERS to add support" 流毒。 BC loader currently raises NotImplemented
-# (no BCAgent class yet — wrapper TBD)。
+# module load. The BC name is registered as well, but its loader raises
+# ``NotImplementedError`` because no BC gauntlet adapter exists.
 _PARADIGM_LOADER_NAMES = ('az', 'bc', 'cfr', 'dmc', 'ppo')
 
 
@@ -190,9 +172,8 @@ def _lazy_load_all() -> None:
 
 class _LazyLoaderRegistry(Mapping):
     """Read-only mapping over ``_REGISTRY`` with lazy paradigm import
-    on miss. Replaces the pre-W2-1 static ``LOADERS`` dict so
-    ``'cfr' in LOADERS`` and ``LOADERS['az']`` keep working without
-    requiring callers to explicitly trigger paradigm import first."""
+    on miss. Callers can query entries without importing paradigm modules
+    explicitly."""
 
     def __getitem__(self, name: str) -> LoaderFactory:
         _try_lazy_load(name)
@@ -230,7 +211,7 @@ def _loader_random(spec: dict) -> PlayerBuilder:
 
 def _loader_greedy(spec: dict) -> PlayerBuilder:
     """Feature-based greedy evaluation opponent. See
-    framework/matchup/greedy_player.py for variant details."""
+    training/core/matchup/greedy_player.py for variant details."""
     from training.core.matchup.greedy_player import GreedyPlayer
 
     features = str(spec.get('features', 'F1'))

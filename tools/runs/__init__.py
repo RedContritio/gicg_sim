@@ -14,5 +14,5 @@ Subcommands (post-redesign):
 - ``tools.runs.recover``    rebuild metadata.toml from on-disk artifacts
 - ``tools.runs.list``       table view of all runs
 - ``tools.runs.show``       detail dump of single run
-- ``tools.runs.sync``       rsync wrapper, pull/push only metadata
+- ``tools.runs.sync``       rsync wrapper for metadata and config snapshots
 """

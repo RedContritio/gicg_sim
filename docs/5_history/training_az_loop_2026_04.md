@@ -5,7 +5,7 @@
 >
 > 本文讲**算法流程**（selfplay → buffer → train → arena）。进程/IPC
 > 架构（worker pool、inference server、虚损失 batching）见
-> [`parallel_inference.md`](parallel_inference.md)。
+> [`openspec/specs/search-parallel/`](../../openspec/specs/search-parallel/)。
 
 ## 总体架构
 

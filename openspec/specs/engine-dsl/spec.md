@@ -96,7 +96,7 @@ change 提案修订,而非在 DSL 文件中静默偏离。
 
 12. **Builtin 注册要求**:Builtin APIs SHALL be registered via
     `RegisterBuiltins` in `gicg_engine/interp/`;tokenize 认 ≠ eval 认,
-    新 builtin SHALL 在两侧同时注册(详 `memory feedback_builtin_registration_audit`)。
+    新 builtin SHALL 在两侧同时注册(详 [`./builtin-api.md`](./builtin-api.md) §2)。
     详 [`./builtin-api.md`](./builtin-api.md)。
 
 13. **Declare-or-get positional**:Files SHALL declare game data via
@@ -107,12 +107,12 @@ change 提案修订,而非在 DSL 文件中静默偏离。
 14. **Ref 类型契约**:DSL callbacks SHALL NOT use `.id` integer fields —
     always use ref handles(`*SkillRef` / `*CardRef` /
     `LazySkillRef` 等)。Counter metadata 中存 ref 用 `ref_kind` 元数据,
-    SHALL NOT 暴露 `.id` 字段(详 `memory feedback_ctx_skill_index_type`)。
+    SHALL NOT 暴露 `.id` 字段(详 [`./skill-pattern.md`](./skill-pattern.md) §1.3)。
 
 15. **Hook owner obs gap**:Hooks bound to char-skills 在 RL obs 中 SHALL be
     discoverable — engine SHALL expose `char_skill_refs` slot
-    (`IncludeCharSkillRefs` toggle)。修复历史详
-    `memory project_obs_hook_owner_gap`(commit `3c2ee89`)。
+    (`IncludeCharSkillRefs` toggle)。实现与契约详
+    [`./hook.md`](./hook.md) §6。
 
 ## 4. Subtopics
 
@@ -146,9 +146,9 @@ change 提案修订,而非在 DSL 文件中静默偏离。
   **intentionally** not visible)。Eager preload via
   `gicg_env.engine.preload_dsl('data')`。
 
-**Repo layout / data 树**(`data/characters/` / `data/cards/` /
-`data/system/`)详 `docs/1_specs/engine/dsl/conventions.md` "Project Layout"
-段(P0 期间保留)。
+**Repo layout / data 树**(`data/pools/<pool>/characters/` /
+`data/pools/<pool>/cards/` / `data/system/`)详
+[`file-structure.md`](./file-structure.md)。
 
 **Data model**:
 - Counter + Hook 数据模型概述见 `CLAUDE.md "Core Model"` 段。
@@ -157,13 +157,13 @@ change 提案修订,而非在 DSL 文件中静默偏离。
 - HookType 枚举定义在 `gicg_engine/types.go`(L100+,strict ADR-0019 §B.5
   下 8 时机 damage pipeline)。
 
-**Memory cross-references**:
-- DSL exemplar 详 `memory reference_dsl_example`(以牙还牙)
-- Lua DSL 表达力硬约束详 `memory feedback_lua_dsl_constraints`
-- Builtin 双侧注册要求详 `memory feedback_builtin_registration_audit`
-- DSL 只见 ref 不见 int ID 详 `memory feedback_ctx_skill_index_type`
-- Hook owner obs gap 修复详 `memory project_obs_hook_owner_gap`
-- ADR-0019 strict 8 时机 damage pipeline 详 `memory project_adr_0019_strict`
+**Repository cross-references**:
+- DSL exemplar: `data/pools/v_legacy/cards/L3/以牙还牙.lua`
+- Lua subset and builtin registration: [`builtin-api.md`](./builtin-api.md)
+- DSL reference identity: [`skill-pattern.md`](./skill-pattern.md) §1.3
+- Hook-owner observation fields: [`hook.md`](./hook.md) §6
+- Strict damage ordering: [`damage.md`](./damage.md) §1.1 and
+  [`0019-dsl-v6-semantic-engine`](../../changes/archive/0019-dsl-v6-semantic-engine/)
 
 **Sibling capability specs**(后续 task 落地,本 spec 不创建):
 - `openspec/specs/engine-runtime/` — Runtime 加载 / 沙箱 / cache 等行为

@@ -1,11 +1,7 @@
 """NaN guard — fail-fast on non-finite loss / grad with evidence dump.
 
-Adapted + generalized from training/dmc/_train_helpers.py
-``_dump_nan_evidence`` + ``train_steps`` NaN check.
-
 Paradigm-agnostic: takes loss + grad_norm + batch dict + state-snapshot
-dict and dumps to ``<artifacts_dir>/nan_dump_<step>/``. Caller raises
-RuntimeError if check returns False.
+dict and dumps to ``<artifacts_dir>/nan_dump_<step>/`` before raising.
 """
 
 from __future__ import annotations
@@ -62,7 +58,6 @@ class NaNGuard:
         base = self.artifacts_dir if self.artifacts_dir is not None else Path('.')
         dump_dir = base / f'nan_dump_{train_step}'
         dump_dir.mkdir(parents=True, exist_ok=True)
-        # Batch pickle
         if batch is not None:
             try:
                 with open(dump_dir / 'batch.pkl', 'wb') as f:
@@ -70,7 +65,6 @@ class NaNGuard:
                     pickle.dump(payload, f)
             except Exception as e:
                 (dump_dir / 'batch_dump_error.txt').write_text(f'{type(e).__name__}: {e}')
-        # Pre-step ckpt
         if network is not None:
             try:
                 save_checkpoint(
@@ -83,7 +77,6 @@ class NaNGuard:
                 )
             except Exception as e:
                 (dump_dir / 'ckpt_dump_error.txt').write_text(f'{type(e).__name__}: {e}')
-        # Diag
         diag = {
             'train_step': train_step,
             'loss': _as_float(loss),

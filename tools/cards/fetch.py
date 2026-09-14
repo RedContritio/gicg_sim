@@ -11,9 +11,8 @@ action / monster 三类,默认输出到 ``data/raw/<type>/``。已存在的
     .venv/bin/python -m tools.cards.fetch --type action --workers 8
     .venv/bin/python -m tools.cards.fetch --type all --rate-limit 5 --max-retries 5
 
-新增于 ADR-0011 落地后:为正式版卡池录入提供 raw 数据来源,与
-``data/pools/<id>/`` 的版本化 DSL 是上下游关系(此工具拉 JSON,
-后续 raw → DSL 转换由独立工具负责)。
+该工具只拉取 raw JSON；后续规范化由 ``tools.cards.cli`` 负责，
+规则 DSL 的编写和验证是独立流程。
 """
 
 from __future__ import annotations

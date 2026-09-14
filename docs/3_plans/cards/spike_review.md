@@ -1,11 +1,14 @@
 ---
 plan: spike_review
-status: ACTIVE
-last_updated: 2026-04-28 PM
+status: HISTORICAL
+last_updated: 2026-09-14
 based_on: ADR-0012 spike (prepare-skill + specialty)
 ---
 
 # ADR-0012 Spike Review
+
+> **历史审查记录**：本文保留 ADR-0012 spike 当时的结论与待办；当前
+> DSL/API 契约以 OpenSpec LIVE spec 为准。
 
 ## 验证结果
 

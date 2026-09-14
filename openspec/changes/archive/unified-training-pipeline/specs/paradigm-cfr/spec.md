@@ -97,7 +97,7 @@ CFR 是 GICG r008 prototype 时代主路径,2026-04-23 之后因 r008 postmortem
 ## 4. Cross-references
 
 - 主 training architecture →
-  [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+  [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
 - CFR paradigm dossier → `docs/paradigms/cfr/`
 - r008 postmortem → memory `project_r008_postmortem`
 - CFR closure history → memory `project_rl_routes_closure_2026_05_12`

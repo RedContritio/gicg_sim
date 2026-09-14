@@ -1,4 +1,4 @@
-"""Tests for training/paradigms/cfr/legacy/traversal."""
+"""Tests for training/paradigms/cfr/traversal."""
 
 from __future__ import annotations
 

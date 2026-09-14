@@ -2,7 +2,6 @@
 
 Spec: design/pipeline-driver.md §5.
 
-Adapted from training/dmc/_resume_helpers.py + _train_helpers.save_ckpt.
 Owns ckpt directory layout + RNG capture/restore + optimizer migration.
 """
 
@@ -24,10 +23,8 @@ from training.core.checkpoint_runtime import capture_runtime, restore_runtime
 
 def load_net_state_dict(ckpt_path: Any, *, map_location: Any = 'cpu') -> dict:
     """Load a CheckpointManager-format ckpt and return the net state_dict
-    ready for ``module.load_state_dict()``. Handles the production wrapper
-    'net.' prefix strip uniformly (W1-T4 — pre-W1-T4 ``_dmc_adapter`` did
-    the strip but ``_dmc_evaluator`` silently skipped it, latent bug under
-    InfServer-wrapper save paths).
+    ready for ``module.load_state_dict()``. Strips the production wrapper's
+    ``net.`` prefix when every key has it.
 
     The CheckpointManager payload format ({'net', 'optimizer', 'state',
     'cfg_run_label'}) is distinct from ``AgentBase.save`` (schema-v2
@@ -58,7 +55,9 @@ class CheckpointManager:
                 ckpt_<step>.pt
                 latest.pt           (symlink-like copy of last ckpt_<step>.pt)
             metrics.jsonl
-            cfg_snapshot.json
+            cfg_leaf.toml
+            cfg_resolved.toml
+            metadata.toml
     """
 
     def __init__(self, cfg: Any, network: torch.nn.Module, optimizer: Any, buffer: Any) -> None:
@@ -89,24 +88,16 @@ class CheckpointManager:
         ``timestamp_utc`` (`%Y%m%d%H%M`): if provided, used verbatim as
         the dir-name prefix; defaults to ``datetime.now().strftime``
         (local tz — only used in the no-metadata fallback path).
-        Pass an injected value (typically derived from
-        ``RunMetadata.timestamp`` via the legacy ``tools.run --run-id``
-        path retired in T-23; post-redesign ``tools.runs.train`` Phase
-        A sets ``prebuilt_artifacts_dir`` directly so this kwarg
-        becomes unused on that path) to make the dir-name timestamp
-        identical to the register-time UTC timestamp — single-sourced,
-        sync-safe across machines.
+        This fallback is used only by callers that do not supply a prebuilt
+        atomic-lifecycle directory. ``tools.runs.train`` supplies
+        ``prebuilt`` directly, so it does not use this timestamp path.
 
         ``prebuilt``: if provided, the dir is treated as already created
         by the caller (e.g. ``tools.runs.train`` Phase A's allocator
         mkdir under ``artifacts/<ts>_<NNN>_<label>/``). The manager just
-        adopts it as ``self.artifacts_dir`` — no mkdir, no name
-        derivation, no ``cfg.checkpoint.artifacts_root`` lookup. Mutually
-        exclusive with ``resume_from`` and ``timestamp_utc`` (passing
-        both is a caller bug — raise). Per spec §Architecture CRIT-X-1
-        (`docs/superpowers/specs/2026-05-18-tools-runs-redesign-design
-        .md` 行 28-32): the atomic lifecycle owns NNN allocation and dir
-        creation; this manager merely writes into the dir handed to it.
+        adopts it as ``self.artifacts_dir`` without creating or renaming it.
+        It is mutually exclusive with ``resume_from`` and ``timestamp_utc``;
+        the atomic run lifecycle owns allocation and directory creation.
         """
         if prebuilt is not None:
             if resume_from is not None:

@@ -1,4 +1,4 @@
-"""R1-R7 placement schema validator + paradigm dispatch.
+"""Placement and top-level configuration validation.
 
 Spec: config-schema/spec.md §3 CS3 (R1-R7) + CS4 (loader strictness).
 
@@ -19,10 +19,9 @@ from training.core.config.base import (
 
 
 # Allowed top-level segments of the TOML cfg.
-# 'shape' added by cfg-toml-restructure-paradigm-scoped N6.6 — top-level
-# shared ObsShape section, merged into paradigm.agent by load_paradigm_cfg.
-# 'remote' added by I30-P2 — cfg-driven dispatch [remote] section validated
-# separately by tools.runs._host.load_remote_from_cfg(out-of-band).
+# ``shape`` is the shared ObsShape section merged into paradigm.agent by
+# ``load_paradigm_cfg``. ``remote`` is validated by
+# ``tools.runs._host.load_remote_from_cfg``.
 ALLOWED_TOP_LEVEL = {
     'meta',
     'pipeline',
@@ -169,9 +168,11 @@ def _check_top_level_keys(cfg: dict) -> None:
 
 
 def validate_schema(cfg: dict) -> None:
-    """Run all R1-R7 + CS1-CS4 checks. Raises ValueError on first
-    failure with field path. Caller SHOULD pass cfg post-
-    ``resolve_inheritance``."""
+    """Validate top-level, required, and placement fields.
+
+    The caller should first run ``resolve_inheritance`` (R5). Extends
+    placement synchronization (R6) is checked while loading parents.
+    """
     _check_top_level_keys(cfg)
     _check_meta(cfg)
     _check_pipeline(cfg)
@@ -181,10 +182,10 @@ def validate_schema(cfg: dict) -> None:
 
 
 def check_extends_placement_sync(parent_inf: Any, child_inf: Any, path: str) -> None:
-    """R6: extends 继承 placement override 必须同步子段.
+    """Require an extends placement override to update its remote block.
 
-    parent_inf / child_inf are the resolved inference dicts. Called by
-    loader after deep merge to catch the case where child sets
+    ``parent_inf`` and ``child_inf`` are the unmerged inference mappings.
+    The loader calls this before merging to catch a child that sets
     placement='remote' but did not provide [remote] block."""
     if not isinstance(child_inf, dict) or 'placement' not in child_inf:
         return  # child didn't override placement

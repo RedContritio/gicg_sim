@@ -119,11 +119,9 @@ func GameReset(id C.int, seed C.long) {
 	h.RT.ResetDynamic(int64(seed))
 }
 
-// GameResetSeeds — review D.5 (2026-05-14): 3-axis seed reset. diceSeed
+// GameResetSeeds performs a three-axis seed reset. diceSeed
 // controls dice rolls + DSL random_non_active + obs InitShuffle. deckSeed0
-// / deckSeed1 control per-player deck Fisher-Yates shuffle (interp/deck.go
-// BuildDeck) independently. Used by DMC daemon eval to ablate
-// "team 同 deck 不同" without re-rolling dice.
+// / deckSeed1 control per-player deck Fisher-Yates shuffle independently.
 //
 //export GameResetSeeds
 func GameResetSeeds(id C.int, diceSeed C.long, deckSeed0 C.long, deckSeed1 C.long) {
@@ -162,17 +160,15 @@ func GameStepTarget(id C.int, targetIdx C.int) (ret C.int) {
 // state until terminal or maxSteps. Returns Game.Winner (-1 live,
 // 0/1 player win, 2 draw) and writes n_steps via nStepsOut.
 //
-// Equivalent to training/mcts.py::_random_rollout_value but runs
-// entirely in Go, avoiding ~30 ctypes round-trips per rollout
-// (2 calls × ~15 steps for team_size=1, ~80 steps for team_size=2).
+// It runs entirely in Go to avoid repeated ctypes round-trips.
 //
 // Handles pending state (card target, forced switch) the same way
 // Python env.step does: dispatch on HasPending(), call StepTarget
 // or Step as appropriate. GetLegalActions() returns the right list
 // in either case.
 //
-// The rng is seeded from (seed) so the same seed + same starting
-// state → same winner (parity test with Python version).
+// The RNG is seeded from seed, so the same seed and starting state
+// produce the same trajectory.
 //
 // Caller retains responsibility for snapshot/restore — this function
 // mutates the game state to terminal (or maxSteps).

@@ -40,9 +40,8 @@ __all__ = [
 # Spec §HIGH-6-B 行 441 / 行 493 — IPv6 bracket form must be accepted.
 # Host part is an alternation: ``hostname-or-ipv4`` OR ``[ipv6]``.
 # IPv6 inner: ``[0-9a-fA-F:]+`` — hex digits + colons, length ≥ 1 (empty
-# ``[]`` rejected). Zone-id (``%eth0``) is allowed inside the bracket
-# (the ``%`` char is intentionally excluded from the inner class so we
-# stay strict here; widen later iff a real workflow needs it).
+# ``[]`` rejected). Zone IDs such as ``%eth0`` are not accepted because
+# ``%`` is intentionally excluded; widen this only if the workflow needs it.
 REMOTE_RE_PATTERN = r'^[A-Za-z0-9._-]+@(?:[A-Za-z0-9.-]+|\[[0-9a-fA-F:]+\]):.*/$'
 
 

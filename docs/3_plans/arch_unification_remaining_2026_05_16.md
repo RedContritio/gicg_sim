@@ -1,5 +1,9 @@
 # 架构统一主线剩余 11 项 — agent-driven 并行推进 plan
 
+> **历史计划（2026-05-16）**：对应架构迁移已经进入归档，本文的
+> “剩余”、active change 和执行方式不代表当前待办。当前训练结构见
+> `openspec/specs/training-architecture/`。
+
 > 2026-05-16 开。承 `project_architecture_unification_remaining_2026_05_16` memory + `openspec/changes/az-paradigm-rewrite/`(active change handoff)。
 >
 > **执行模式**:subagent-driven-development + dispatching-parallel-agents 混合。独立 domain 并行;同域 sequential。每个 implementer 走 TDD + 自审,后接 spec compliance review + code quality review 双闸。

@@ -8,9 +8,9 @@
 的集成 link(单测各覆盖一段,此处验全链在真 driver loop 跑通)。fake paradigm +
 spy collector,**无 mp spawn → sandbox-safe**,本 session 可跑。
 
-real-spawn actor-side version(SHM/server republish 真到达 actor)是独立 follow-up
-(smoke_full,CFR/PPO async mp e2e),sandbox 可能 block bind()/nice()
-(memory `project_pre_existing_sandbox_failures`)。
+real-spawn actor-side version(SHM/server republish 真到达 actor)由独立
+smoke_full/CFR/PPO async mp e2e 覆盖；受限 sandbox 可能禁止
+``bind()`` / ``nice()``。
 """
 
 from __future__ import annotations

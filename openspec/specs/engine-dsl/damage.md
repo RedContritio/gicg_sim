@@ -30,7 +30,7 @@ parent: ./spec.md
 ### 1.1 ADR-0019 §B.5 strict 8 时机内部分解
 
 `on_damage_boost` 在 engine 内部细分为 3 个 strict 时机
-(详 `memory project_adr_0019_strict`):
+(历史设计见 [`0019-dsl-v6-semantic-engine`](../../changes/archive/0019-dsl-v6-semantic-engine/)):
 
 ```
 HookDamageType   → ①a 元素修改(物理→火附魔等)
@@ -79,8 +79,7 @@ loading owner(via `ctx.actor_player` / `ctx.actor_char`),否则双注册
 
 Engine SHALL dispatch reaction hooks when attack element + existing element
 attachment 产生反应。Reaction 表实现在 `data/system/reaction.lua` +
-`data/system/reactions/`(详 `docs/1_specs/engine/dsl/conventions.md`
-"Project Layout" 段)。
+`data/system/reactions/`（详 [`file-structure.md`](./file-structure.md)）。
 
 ### 3.2 Reaction value / element 修改
 
@@ -193,13 +192,12 @@ on_damage_reduce(function(ctx)
 end)
 ```
 
-更完整 exemplar 详 `memory reference_dsl_example`(以牙还牙):summon
-lifecycle + damage 反伤 + counter cleanup 的端到端示例。
+更完整 exemplar 见 `data/pools/v_legacy/cards/L3/以牙还牙.lua`:
+summon lifecycle + damage 反伤 + counter cleanup 的端到端示例。
 
 ## 8. E2E 验证场景
 
-Engine + DSL 必须维持的端到端 invariant(详
-`memory project_e2e_test_scenario` 赤蝶泼墨蒸发):
+Engine + DSL 必须维持以下端到端 invariant:
 
 - 多 buff 叠加顺序(`on_damage_boost` 排序确定)
 - Reaction 触发 secondary damage(蒸发 / 融化等)
@@ -215,6 +213,7 @@ SHALL 跑该场景 e2e 测试通过后才允许合入。
 - Counter API(`get` / `set` / `add` / `sub` / `cmin` / `cmax`)详
   [`./counter.md`](./counter.md) §2 + [`./builtin-api.md`](./builtin-api.md)
 - Skill / card identity(`*SkillRef` / `*CardRef`)详
-  [`./skill-pattern.md`](./skill-pattern.md) + `memory feedback_ctx_skill_index_type`
-- ADR-0019 strict 8 时机:`memory project_adr_0019_strict`
+  [`./skill-pattern.md`](./skill-pattern.md) §1.3
+- ADR-0019 strict 8 时机详
+  [`0019-dsl-v6-semantic-engine`](../../changes/archive/0019-dsl-v6-semantic-engine/)
 - 反应表实现:`data/system/reaction.lua` + `data/system/reactions/`

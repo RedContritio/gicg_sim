@@ -1,12 +1,14 @@
 ---
 last_updated: 2026-05-16
-status: LIVE
+status: HISTORICAL
 schema_version: 0
 ---
 
-# `docs/paradigms/` — Paradigm dossier index
+# `docs/paradigms/` — Paradigm dossier historical index
 
-> 5 paradigm 的科研复盘档案。每 paradigm 一个子目录,记录该 paradigm
+> 本目录冻结 2026-05-16 前后的 paradigm 判断，不表示 2026-09-14 的
+> 活动训练状态；当前任务与运行统一看 [`../0_status/README.md`](../0_status/README.md)。
+> 每 paradigm 一个子目录,记录该 paradigm
 > 在 GICG 上的尝试轨迹、关键 run、ablation、postmortem、verdict。
 >
 > Layout 标准:
@@ -25,7 +27,7 @@ schema_version: 0
 | [`az/`](./az/) | **CLOSED (partial reopen)** | Stage 3 plateau 0.10-0.27 across stacks;s068 D4 asymmetric +0.167 partial reopen via ADR-0010;s069 cancelled |
 | [`cfr/`](./cfr/) | **CLOSED** | r008 Deep CFR prototype iter 199 collapse(40% vs random, 0/10 vs 一切);user-evaluated closure 扩展含 NFSP / Deep CFR redo |
 | [`bc/`](./bc/) | **PRODUCTION FALLBACK** | r009 BC ckpt epoch_3 vs F1-D2 = 0.75(tied-noise reduction 让 BC argmax 超 teacher);ADR-0009 钦定 fallback |
-| [`dmc/`](./dmc/) | **ACTIVE** | Phase 3.4 smoke verified 2026-05-14;Phase 3.5 infra ship 2026-05-15;Stage 3 Windows GPU train pending |
+| [`dmc/`](./dmc/) | **ACTIVE at snapshot** | Phase 3.4 smoke verified 2026-05-14;Phase 3.5 infra ship 2026-05-15;当时 Stage 3 Windows GPU train pending |
 
 ## How to use this index
 

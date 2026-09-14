@@ -45,7 +45,7 @@ data/pools/<pool_id>/
 - `<name>_<skill>.lua` — 单技能基础效果(`declare_skill` + 伤害
   pipeline);SHALL NOT 包含角色 buff 状态(归 buff 文件)
 - `<name>_<buff>.lua` — 单个 buff 拥有其所有相关 effects(附魔 / 加伤 /
-  衰减 / 治疗条件 etc.;详 `memory feedback_buff_owns_effects`)
+  衰减 / 治疗条件等；本文件 §7 的自包含约定适用)
 
 例:
 
@@ -139,8 +139,7 @@ Scope.Self, 0, {min=0, max=1})` 引用同一 counter;`declare_skill(赤蝶,
 ## 8. char-skill 静态扫描约束
 
 `characters/<name>/<name>_*.lua` SHALL NOT call `get_card("X")` —
-topo loader 静态扫描要求 char skill 文件不能反向引用 card(architectural
-constraint;详 `memory feedback_char_skill_no_get_card`)。
+topo loader 静态扫描要求 char skill 文件不能反向引用 card。
 
 反向引用 SHALL 通过 `sharedFiles` 模式从 card 文件引用 char(`requires_char`
 marker)实现。
@@ -173,7 +172,6 @@ broken —— 时 SHALL 在构造期报错,错误信息 SHALL 列出每个 broke
 - Runtime 加载算法详 `openspec/specs/engine-runtime/spec.md`
 - CAPI 初始化 pipeline 详 `openspec/specs/engine-capi/spec.md`
 - Pool 版本治理详 `openspec/changes/archive/0011-pool-versioning/proposal.md`
-- Memory cross-refs:
-  - `memory feedback_buff_owns_effects` — buff 拥有所有效果
-  - `memory feedback_char_skill_no_get_card` — char skill 静态扫描约束
-  - `memory project_pool_versioning` — ADR-0011 落地
+- Buff ownership and char-skill dependency constraints are specified in this
+  file (§7–§9); pool versioning history is in
+  [`0011-pool-versioning`](../../changes/archive/0011-pool-versioning/).

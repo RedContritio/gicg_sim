@@ -4,7 +4,8 @@ Spec ref: paradigm-cfr/spec.md C1-C6 + config-schema/spec.md § 7
 (cfg-schema-unification N1-N3)。
 
 Frozen-research tier:
-- C3.3 default capacities: advantage=200_000 / strategy=1_000_000
+- C3.2 default capacities: advantage=100_000 per player / strategy=200_000 /
+  value=100_000
 - C5.1 traversal collector (n_units = n_traversals per iter)
 - C6 frozen-research — new run requires unfreeze change
 

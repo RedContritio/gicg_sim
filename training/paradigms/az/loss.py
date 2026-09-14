@@ -1,4 +1,4 @@
-"""AZLoss — KL(policy) + MSE(value) wrapped as LossComputer protocol.
+"""AZLoss — masked policy cross-entropy + value MSE.
 
 Spec ref: paradigm-az/spec.md A2.1-A2.3. Reuses the legacy
 ``training.paradigms.az._az_losses.az_losses`` (moved out of legacy in

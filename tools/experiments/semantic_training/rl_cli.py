@@ -25,6 +25,7 @@ def main():
     p.add_argument('--variants')
     p.add_argument('--rule-beta', type=float, default=0.0)
     p.add_argument('--rule-stride', type=int, default=4)
+    p.add_argument('--learning-rate', type=float, default=1e-5)
     a = p.parse_args()
     run(
         a.config,
@@ -46,4 +47,5 @@ def main():
         a.variants,
         a.rule_beta,
         a.rule_stride,
+        a.learning_rate,
     )

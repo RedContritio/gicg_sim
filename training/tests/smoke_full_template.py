@@ -1,7 +1,7 @@
 """smoke_full template — full-tier paradigm smoke helpers (D-601 / A1.6).
 
-OpenSpec ref: ``openspec/changes/paradigm-smoke-full-tier/specs/
-training-architecture/spec.md`` invariant A1.6 + tools/runs/ clean-slate
+OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``
++ tools/runs/ clean-slate
 redesign spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-
 design.md`` §迁移策略 / §Per-run dir.
 

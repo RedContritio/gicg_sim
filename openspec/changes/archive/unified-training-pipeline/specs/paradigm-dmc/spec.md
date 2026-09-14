@@ -92,7 +92,7 @@ DMC 是 GICG 当前 active-tier paradigm,Phase 3.5 review(2026-05)刚完成
 
 ## 4. Cross-references
 
-- 主 training architecture → [`../../../../specs/training-architecture/spec.md`](../../../../specs/training-architecture/spec.md)
+- 主 training architecture → [`../../../../../specs/training-architecture/spec.md`](../../../../../specs/training-architecture/spec.md)
 - Async pipeline → [`../../design/async-pipeline.md`](../../design/async-pipeline.md)
 - DMC review 41 critique → `docs/5_history/reviews/dmc_review.md`
 - DMC paradigm dossier → `docs/paradigms/dmc/`

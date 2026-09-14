@@ -47,9 +47,7 @@ def harden_child_env(affinity: Optional[list[int]] = None) -> None:
         import torch  # local import — avoid forcing torch on workers that don't need it
 
         torch.set_num_threads(1)
-        # interop_threads pinned for the same oversubscription reason —
-        # DouZero Phase 2 measurement showed it materially affects
-        # per-actor throughput on multi-actor CPU runs.
+        # Pin inter-op threads for the same oversubscription reason.
         torch.set_num_interop_threads(1)
     except Exception:
         pass
@@ -88,12 +86,12 @@ def install_quiet_sigterm(stop_event) -> None:
 def setup_actor_file_logging(actor_id: int, cfg) -> None:
     """Tee this worker's stdout/stderr to ``<actor_log_dir>/actor_<id>.log``.
 
-    mp child stdout/stderr is unreliable (pytest captures it, ssh strips it,
-    sandboxes suppress it), so debugging mp crashes / silent hangs needs a
-    file. Log dir from ``cfg.runtime.actor_log_dir`` (RuntimeCfg 缺失 →
-    'artifacts/_actor_logs' default). On setup failure, falls back to the
-    original stdout so the actor still runs — the setup exception goes to the
-    original stderr so the parent process can see SOMETHING."""
+    Child stdout/stderr may be captured or unavailable, so each worker writes
+    a line-buffered file. The directory comes from
+    ``cfg.runtime.actor_log_dir`` and defaults to
+    ``artifacts/_actor_logs``. Setup failures leave the original streams in
+    place and report the error there.
+    """
     runtime = getattr(cfg, 'runtime', None)
     log_dir_str = getattr(runtime, 'actor_log_dir', None) or 'artifacts/_actor_logs'
     log_dir = Path(log_dir_str)

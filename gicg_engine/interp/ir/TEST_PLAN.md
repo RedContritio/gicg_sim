@@ -228,8 +228,8 @@ Shared shape: `Bindings: { c → ctr(N) }`. Scope is binding metadata, not visib
 | C-005 | `charAttrMethods` set equals exactly `{hp, energy, alive, owner_player, owner_char, name, element, weapon}`. | String-set equality. |
 | C-006 | Every kwarg key (TokKwSource, TokKwElement, TokKwTarget, TokKwValue, TokKwMin, TokKwMax, TokKwTag, TokKwDices, TokKwAny, TokKwMatch, TokKwBattleAction, TokKwRequiresChar, …) resolves via `LookupKwArg` to a non-zero token. | Parametrize. |
 | C-007 | `TokBridgeChars` / `TokBridgeCharBySlot` resolve to non-zero AND are disjoint from C-001 sets. | Assert non-zero + disjoint. |
-| C-008 | Reg-cap error message contains the integer "32" (= MaxRegs) and the word "register". Prevents silent constant drift. | Synthesize a hook allocating >32 regs; match error substring. |
-| C-009 | Opcodes are exactly the 14 distinct integers `{0..13}`. Adding a new opcode must not collide. | Build set from constants; assert size 14 and equals {0..13}. |
+| C-008 | Reg-cap error message contains the integer "64" (= MaxRegs) and the word "register". Prevents silent constant drift. | Synthesize a hook allocating >64 regs; match error substring. |
+| C-009 | Opcodes are exactly the 15 distinct integers `{0..14}`. Adding a new opcode must not collide. | Build set from constants; assert size 15 and equals {0..14}. |
 | C-010 | AddrKind values are exactly: AddrCtxField=1, AddrCounter=2, AddrCharAttr=3, AddrLocalVar=4, AddrEnum=5. | Exact integer asserts. |
 | C-011 | BinOpKind {1..12} distinct; UnaryOpKind {1..2} distinct; AddrKind range disjoint from both. | Set asserts. |
 | C-012 | Every successful compile has `MainOps[last] == OpReturn` (compiler appends a terminal OpReturn). | Sweep over a fixture set of compiling Lua bodies; assert tail op. |
@@ -298,7 +298,7 @@ The compiler rejects the following DSL patterns with the listed error substrings
 | F-18 | `deal_damage(..., { a={b=1} })` | `nested.*table` | TableCtor values must be simple expressions, not nested tables. |
 | F-19 | `foo()` (foo undefined builtin) | `unknown builtin` | Call func must be a known builtin ident. |
 | F-20 | `x` (bare ident as ExprStmt) | `expression statement` | ExprStmt must be a call. |
-| F-21 | Hook with > MaxRegs distinct regs | `register` and `32` | Reg cap is constant; rewrite hook to reuse regs or split. |
+| F-21 | Hook with > MaxRegs distinct regs | `register` and `64` | Reg cap is constant; rewrite hook to reuse regs or split. |
 | F-22 | `_char_by_slot[p]` (1-D partial) | `unsupported IndexAccess` | The bridge is 2-D only. |
 
 ---

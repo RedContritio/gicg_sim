@@ -9,9 +9,8 @@ agent's private static cache (game_start / game_end lifecycle).
 The ``Agent`` class is canonically defined in this adapter module
 (az-paradigm-rewrite Phase 2-δ inlined from the former
 ``training.paradigms.az.legacy.network.agent``; Phase 5 git-rm'd the
-legacy subdir on 2026-05-16). Parity vs the pre-rewrite legacy Agent
-was verified by the r009 ckpt key-equivalence smoke test (now retired
-post-Phase 5).
+legacy subdir on 2026-05-16). Old r009 checkpoint names do not imply
+compatibility with the current observation and state-dict schema.
 
 Phase 1 — `paradigms/az/network.py` references ``core/network/heads``
 (PolicyHead / ValueHead) as the canonical basic-head classes via
@@ -65,8 +64,8 @@ class Agent(AgentBase):
     god class ActorCritic to generic thin composition via
     ``make_actor_critic(cfg, head_kinds=AZ_HEAD_KINDS, use_typed_damage=True)``.
     Backbone is identical (encoders + 7-pool + struct_readout) — only the
-    class topology differs (composition vs hardcoded). DI: hook_encoder is
-    injected via super().__init__ instead of looked up via self.net.hook_encoder.
+    class topology differs (composition vs hardcoded). DI: ``hook_encoder`` is
+    injected into ``AgentBase`` from the constructed network.
     """
 
     def __init__(
@@ -94,9 +93,7 @@ class Agent(AgentBase):
         )
 
     def _pad_action_refs(self, refs_np: np.ndarray) -> np.ndarray:
-        """Legacy shim (int32 output) for any remaining caller that
-        expects the ActionKind int32 dtype. Framework
-        ``pad_action_refs`` returns int64; cast here."""
+        """Return padded action refs with the int32 dtype expected by callers."""
         return pad_action_refs(refs_np, self.cfg.max_actions).astype(np.int32)
 
     def _pad_action_payments(self, payments_np: np.ndarray) -> np.ndarray:
@@ -233,15 +230,14 @@ class Agent(AgentBase):
 class AZNetwork(nn.Module):
     """nn.Module wrapper exposing AZ Agent surface + standard module API.
 
-    Construction owns its own Agent (which builds an ActorCritic with
-    `policy_head` + `value_head` — see ActorCritic spec A4.1). Driver
+    Construction owns its own Agent, which builds an ActorCritic with
+    policy, value, and auxiliary delta heads. Driver
     passes the underlying ``net`` parameters to its optimizer via
     ``parameters()`` so ``optimizer.step()`` updates the same tensors
     ``forward_batch`` reads.
 
-    Phase 1 — heads are still served by the wrapped Agent.net; the
-    BASIC_HEAD_CLASSES module-level dict documents which core/network
-    head classes Phase 2 will swap in.
+    ``BASIC_HEAD_CLASSES`` exposes the two primary decision heads for
+    compatibility; ``AZ_HEAD_KINDS`` also includes the trained delta head.
     """
 
     HEAD_CLASSES = BASIC_HEAD_CLASSES  # class-level handle for introspection
@@ -259,12 +255,10 @@ class AZNetwork(nn.Module):
 
     @property
     def heads(self) -> tuple:
-        """Spec A4.1 — AZ network SHALL have heads = ('policy', 'value').
-        ActorCritic.forward returns (logits, value, delta_pred); the
-        head names are surfaced here for protocol introspection / tests.
+        """Return the primary policy/value head names used by callers.
 
-        Phase 1 keeps the legacy ActorCritic 3-tuple output unchanged;
-        Phase 2 will rebuild via CoreActorCritic + BASIC_HEAD_CLASSES.
+        The underlying ActorCritic also carries the auxiliary ``delta`` head;
+        ``forward_batch`` returns all three outputs.
         """
         return tuple(BASIC_HEAD_CLASSES.keys())
 
@@ -277,12 +271,7 @@ class AZNetwork(nn.Module):
         return self._agent.eval_state(dyn_obs_np, refs_np, payments_np)
 
     def game_start(self, static_obs: Any) -> dict:
-        """Evaluator protocol: delegate to inner agent + forward its
-        per-game static dict (consumed by selfplay → ReplayBuffer.
-        add_trajectory). The wrapper previously dropped the return,
-        causing `'NoneType' object has no attribute 'keys'` in buffer
-        at first push — bundled fix per `az-pool-spec-type-fix` design
-        (same trigger path: smoke_full unblocking)."""
+        """Initialize the inner agent and return its per-game static fields."""
         return self._agent.game_start(static_obs)
 
     def game_end(self) -> None:
