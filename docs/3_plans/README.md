@@ -1,23 +1,39 @@
 # 3_plans/ — 计划与 roadmap
 
-> "**打算做什么**" 的 LIVE 文档。
+> "**打算做什么**" 的 LIVE 文档。区别:`2_decisions/` 写"已经决定的"。
 >
-> 区别:
-> - `2_decisions/` 写"已经决定的" — plans 写"准备做的"
-> - 计划失败/废弃后,文档**不删**,移到 `5_history/` 并加 `ARCHIVED` 标头
+> LIVE plan 跑完一次 closure 后,**整 plan 移到** `5_history/`(顶部加 ARCHIVED note)
+> 并留指针到产出(artifact / commit / postmortem)。主 plan 改动走新 commit 描述差异。
+> 命名:`<topic>.md` 单文件;`<topic>/plan.md` + 子文件为多文件 plan。
+>
+> 本目录中自标 HISTORICAL 的文件不再更新，但留在原地：`dsl_gaps.md`、`cleansing_schema.md`、
+> `effect_pattern_frequency.md`、`arch_unification_remaining_2026_05_16.md` 等被
+> `openspec/`、`docs/2_decisions/` 与 `gicg_engine/` 源码注释引用，移动会破坏链接或源码指纹。
 
-## 子目录 / 文件
+## 文件索引
 
-| 路径 | 内容 |
-|---|---|
-| [`rule_learning_roadmap.md`](rule_learning_roadmap.md) | 当前周/月级主路线：规则响应→稳定D2收益→原生新内容→PvE；目标、验收关口、备选方案与预算 |
-| [`dynamic_execution_to_training.md`](dynamic_execution_to_training.md) | 动态执行到训练的实施细节；当前排期与关口以主路线图为准 |
-| [`commit_readiness_20260912.md`](commit_readiness_20260912.md) | 2026-09-12 提交整理记录（历史工作区快照） |
-| [`versioning.md`](versioning.md) | 项目版本 vA.B.C 规则与历史映射 |
-| [`backlog.md`](backlog.md) | 跨项目待办 + 监控节奏约定 |
-| [`cards/`](cards/) | 卡设计与难度分级资料(curriculum 输入) |
-| [`cards/in_game_rule_verification.md`](cards/in_game_rule_verification.md) | 规则边界统一核验表：复现场景、当前处理、用户实测结果 |
-| [`v_phase2_deferred.md`](v_phase2_deferred.md) | 2026-05 `v_phase2` deferred 历史 backlog；当前原生内容入口见 `cards/native_content_curriculum.md` |
+| 文件 | 内容 | 状态 |
+|---|---|---|
+| [`rule_learning_roadmap.md`](rule_learning_roadmap.md) | 周/月级主路线:规则响应→稳定 D2 收益→原生新内容→PvE;目标、验收关口、备选方案与预算 | LIVE 主路线 |
+| [`dynamic_execution_to_training.md`](dynamic_execution_to_training.md) | 主路线的动态执行实施细节与关口;当前排期以主路线图为准 | ACTIVE |
+| [`pve_assistant_and_research.md`](pve_assistant_and_research.md) | 项目两个核心目的:最新正式服的 PvE 决策辅助 + 论文路线 | LIVE |
+| [`pure_rl_long_term.md`](pure_rl_long_term.md) | 长期方向:全池基准完成后研究从零开始的纯 RL | LIVE |
+| [`backlog.md`](backlog.md) | 跨项目待办;优先级在表格内标注,不按时间排序 | LIVE |
+| [`versioning.md`](versioning.md) | 项目版本 vA.B.C 规则与历史映射 | LIVE |
+| [`cards/native_content_curriculum.md`](cards/native_content_curriculum.md) | 从教学池迁移到审核完整的原生内容与 3v3;每批 1–2 角色 + 配套牌 | LIVE |
+| [`cards/full_pool_curriculum.md`](cards/full_pool_curriculum.md) | 当前教学池 L1–L6 课程的目标、环境定义与验收协议 | LIVE |
+| [`cards/in_game_rule_verification.md`](cards/in_game_rule_verification.md) | 规则边界统一核验表:复现场景、当前处理、用户实测结果 | LIVE |
+| [`cards/card_value_evaluation.md`](cards/card_value_evaluation.md) | 逐卡价值:胜率贡献与出牌时机的量化方案 | LIVE 方案 |
+| [`cards/card_difficulty_grades.md`](cards/card_difficulty_grades.md) | 卡牌难度分级 L1–L6(curriculum 输入) | LIVE 参考 |
+| [`inference_consistency_repairs.md`](inference_consistency_repairs.md) | 2026-09-14 推理一致性三项修复与集成验收 | 已完成 |
+| [`commit_readiness_20260912.md`](commit_readiness_20260912.md) | 2026-09-12 提交整理快照 | 历史 |
+| [`arch_unification_remaining_2026_05_16.md`](arch_unification_remaining_2026_05_16.md) | 2026-05-16 架构统一剩余项计划 | 历史 |
+| [`v_phase2_deferred.md`](v_phase2_deferred.md) | 2026-05 `v_phase2` deferred backlog | 历史 |
+| [`cards/cleansing_schema.md`](cards/cleansing_schema.md) | 卡牌清洗 schema 决策 | 历史 |
+| [`cards/dsl_capabilities_audit.md`](cards/dsl_capabilities_audit.md) | 全 706 张牌的 DSL 能力审计 | 历史 |
+| [`cards/dsl_gaps.md`](cards/dsl_gaps.md) | 全 706 张牌的 DSL 缺口清单 | 历史 |
+| [`cards/spike_review.md`](cards/spike_review.md) | ADR-0012 spike 复盘 | 历史 |
+| [`cards/effect_pattern_frequency.md`](cards/effect_pattern_frequency.md) | 2026-04 cleansed 语料的 pattern 频次统计 | 历史快照 |
 
 ## 已归档的 plans
 
@@ -33,21 +49,4 @@
 | `v_phase2_cards_e2e_impl.md` | [`../5_history/v_phase2_cards_e2e_impl.md`](../5_history/v_phase2_cards_e2e_impl.md) | IMPLEMENTED 2026-05-15 |
 | `dmc_phase35_infra.md` + `dmc_phase35_infra_impl/` | [`../5_history/dmc_phase35_infra.md`](../5_history/dmc_phase35_infra.md) + [`../5_history/dmc_phase35_infra_impl/`](../5_history/dmc_phase35_infra_impl/) | IMPLEMENTED 2026-05-15 |
 | `archived_tools_audit.md` | [`../5_history/audits/archived_tools_audit.md`](../5_history/audits/archived_tools_audit.md) | EXECUTED 2026-05-16(FU-W2.5d batch removal — Dead+Doc-only 11 files removed via `ade04ea`) |
-| `cards/{consequence_policy_rl, paired_joint_rl, paired_consequence_training, rule_auxiliary_training, native_first_batch_audit}.md` | [`../5_history/cards/`](../5_history/cards/) | EXECUTED / AUDITED(2026-09-15 归档；LIVE 路线见 `cards/native_content_curriculum.md`) |
-
-## 命名
-
-- `<topic>.md` — 单文件 plan
-- `<topic>/plan.md` + `<topic>/<sub>.md` — 多文件 plan(主规范 + 子计划)
-
-## 编辑规则
-
-- LIVE plan 跑完一次 closure 写入,**整 plan 沉淀到** `5_history/`(顶部加 ARCHIVED note)
-- 主 plan 改了用新 commit + commit message 描述差异
-- 完成的计划归档时,留指针到产出(artifact / commit / postmortem)
-
-- [从零开始的纯强化学习长期方向](pure_rl_long_term.md)：用户2026-09-13确认，当前全池基准完成后研究。
-
-- [原生角色与卡牌分批接入](cards/native_content_curriculum.md)：从教学池迁移到审核完整的原生内容和3v3，每批1–2角色与配套牌。
-
-- [PvE决策辅助与论文路线](pve_assistant_and_research.md)：最新用户目标，只支持最新正式服，逐动作建议、估值校准与新内容适应研究。
+| `cards/{consequence_policy_rl, paired_joint_rl, paired_consequence_training, rule_auxiliary_training, native_first_batch_audit}.md` | [`../5_history/cards/`](../5_history/cards/) | EXECUTED / AUDITED(2026-09-15 归档;LIVE 路线见 `cards/native_content_curriculum.md`) |

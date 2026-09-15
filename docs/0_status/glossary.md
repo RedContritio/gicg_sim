@@ -64,15 +64,6 @@ status: LIVE
 | **C18 定理** | pool 后 state_vec 是置换不变统计量 → loss 对 cross-attn 内部分布零梯度 |
 | **lambda (value_mix)** | MCTS leaf eval 中 net_value 与 rollout_value 混合系数 |
 
-## Lever (Stage 3 ablation)
-
-| 词 | 含义 | 测得效应 |
-|---|---|---|
-| **BC warm-start** | F1-D2 teacher 蒸馏给 PPO 网络 init | +0.24 dominant |
-| **partial obs** | 隐藏对手 dice/hand | +0.13 (1-card 下) |
-| **F1-D3 teacher** | 用 D3 而非 D2 做 teacher | +0.10 (masked-only) |
-| **PPO oscillation** | 训练曲线在 wr [0.18, 0.42] 抖动 | ±0.10-0.15 noise |
-
 ## 命令
 
 | 词 | 含义 |
