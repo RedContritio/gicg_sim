@@ -1,6 +1,6 @@
 # 配对监督联合 RL：预测改善，决策未改善
 
-2026-09-14。56 的 `artifacts/native_paired_rl_20260914/completion.json` 为 complete，执行器正常退出，总耗时 5408.58 秒（90.14 分钟）。[固定协议](../3_plans/cards/paired_joint_rl.md)。本轮单训练种子，不能证明跨种子稳定性。
+2026-09-14。56 的 `artifacts/native_paired_rl_20260914/completion.json` 为 complete，执行器正常退出，总耗时 5408.58 秒（90.14 分钟）。[固定协议](cards/paired_joint_rl.md)。本轮单训练种子，不能证明跨种子稳定性。
 
 ## 对战证据
 

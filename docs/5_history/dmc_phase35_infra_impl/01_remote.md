@@ -20,14 +20,14 @@ mkdir -p tools/remote && : > tools/remote/__init__.py
 
 ```python
 """tools/remote infra — paradigm-agnostic ssh/scp helpers for the
-Windows GPU box(dev@192.168.31.56 / D:\\gicg_dev)."""
+Windows GPU box(dev@192.0.2.10 / D:\\gicg_dev)."""
 
 from __future__ import annotations
 
 import subprocess
 from pathlib import Path
 
-REMOTE = 'dev@192.168.31.56'
+REMOTE = 'dev@192.0.2.10'
 REMOTE_ROOT_WIN = r'D:\gicg_dev'
 REMOTE_ROOT_POSIX = '/d/gicg_dev'
 
@@ -62,7 +62,7 @@ def ps_quote(s: str) -> str:
 - [ ] **Step 3: Smoke**
 
 Run: `.venv/bin/python -c "from tools.remote import _common; print(_common.REMOTE)"`
-Expected: `dev@192.168.31.56`
+Expected: `dev@192.0.2.10`
 
 - [ ] **Step 4: Commit**
 

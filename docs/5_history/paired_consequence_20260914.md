@@ -1,6 +1,6 @@
 # 五角色配对结算：数值响应可学习，尚非强度结论
 
-2026-09-14。56实验`artifacts/native_paired_20260914`成功完成，267.41秒。冻结来源与上一轮辅助RL一致，未包含本机正在集成的schema改动。[协议](../3_plans/cards/paired_consequence_training.md)在运行时落盘。
+2026-09-14。56实验`artifacts/native_paired_20260914`成功完成，267.41秒。冻结来源与上一轮辅助RL一致，未包含本机正在集成的schema改动。[协议](cards/paired_consequence_training.md)在运行时落盘。
 
 ## 固定最终步结果
 

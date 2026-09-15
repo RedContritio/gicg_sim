@@ -14,7 +14,7 @@ status: HISTORICAL BACKLOG — 2026-05 v_phase2 snapshot
 > `-- TODO` 留为 deferred,只实现"造 X 元素伤害"基础部分。本文档列完整 23 项
 > + 分 4 batch,每项需 cleaned 数据严格对照 + 配套 spike test + 字段不偏移。
 >
-> **入口前置**:`docs/0_status/dsl_v6_progress.md` 已 ship 的 DSL hook 清单;
+> **入口前置**:`docs/5_history/dsl_v6_progress.md` 已 ship 的 DSL hook 清单;
 > `data/pools/v_phase2/characters/*/.lua` + `data/pools/v_phase2/cards/*/*.lua`
 > 头部 `deferred:` 注释列每张角色/卡的缺失机制。
 

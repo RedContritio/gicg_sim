@@ -181,7 +181,7 @@ timestamp = "2026-05-18T03:55:21+00:00"     # UTC iso, 首次 train start (resum
 cfg_file = "configs/dmc/smoke_full.toml"    # **last leaf path used**(可能不存在/已改;truth 仍是最高版 cfg_resolved_v<N>.toml)
 cfg_resolved_version = 1                     # 当前 truth 的 cfg_resolved 版本号,首版 = 1,resume 递增 (round-4 CRIT-6-A)
 git_commit = "2c20de8..."
-host = "Mac-mini.local"
+host = "macbox.local"
 status = "done"                              # enum {running, done, failed, killed, unknown};strict transitions(unknown 仅 recover 命令可写,详 §recover)
 artifacts_dir = "artifacts/202605180355_000069_dmc_smoke_full"
 wall_seconds = 84.3                          # last attempt elapsed(resume 覆盖);running 期间为 0

@@ -9,9 +9,9 @@
 
 ### 5.5 环境依赖
 
-- **Windows GPU box**(`ssh dev@192.168.31.56`,`D:\gicg_dev`,9950X3D + 5070 Ti,torch 2.12+cu130)是唯一的 GPU 训练机。[指令 06-05] 已被挪作他用。所有 GPU 训练路径依赖它可用。详见 [记忆 `reference_windows_gpu_box`]。
+- **Windows GPU box**(`ssh dev@192.0.2.10`,`D:\gicg_dev`,9950X3D + 5070 Ti,torch 2.12+cu130)是唯一的 GPU 训练机。[指令 06-05] 已被挪作他用。所有 GPU 训练路径依赖它可用。详见 [记忆 `reference_windows_gpu_box`]。
 - **sm_120 必须用 cu130 build**,不是随便装个 torch 就行。
-- 配 remote cfg 前**必须先 ssh 实测 hostname 真实值**(历史上配错过 `DEV-PC` vs 实际 `DESKTOP-GHJCC7Q`)。
+- 配 remote cfg 前**必须先 ssh 实测 hostname 真实值**(历史上照假定名填过,与实测值不符,导致 `is_local_host` 判假)。
 - [记忆 `project_pre_existing_sandbox_failures_2026_05_17`] Claude Code sandbox 会 deny `bind()` / `nice()` syscall,导致 21 个测试失败;**非沙盒环境全 PASS,不需要改代码**。别被这些误导。
 
 ### 5.6 其他已归档的坑

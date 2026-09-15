@@ -5,7 +5,7 @@ last_updated: 2026-09-14
 
 # 卡牌全量 cleansing 交接
 
-> **历史快照**：数量、目录和工具入口记录 2026-04-30 的 cleansing
+> **历史快照**（2026-09-15 自 `docs/0_status/` 移入）：数量、目录和工具入口记录 2026-04-30 的 cleansing
 > 流程，不是当前官方内容状态。最新内容获取与审核进度见
 > [原生内容路线](../3_plans/cards/native_content_curriculum.md)。
 

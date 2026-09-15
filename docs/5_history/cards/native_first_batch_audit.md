@@ -1,8 +1,11 @@
 # 第一批原生内容：规则输入与实施清单
 
+> **已归档**（2026-09-15，自 `docs/3_plans/cards/` 移入）：历史实施记录。当前原生内容计划见
+> [原生内容路线](../../3_plans/cards/native_content_curriculum.md)。
+
 2026-09-14。范围：凯亚、迪卢克、芭芭拉、砂糖、菲谢尔，以及18种通用牌、5张天赋。源资料完成不等于角色实现完成。
 
-**边界与歧义统一入口：[游戏内规则核验清单](in_game_rule_verification.md)。** 记录复现步骤、当前规则、用户决定及实测结果；之后发现的边界同步追加。用户已确认白垩之术两个后台各扣1、允许出战充能溢出，仍待游戏内复核。本文件下方历史“等待回复”不再代表当前状态。
+**边界与歧义统一入口：[游戏内规则核验清单](../../3_plans/cards/in_game_rule_verification.md)。** 记录复现步骤、当前规则、用户决定及实测结果；之后发现的边界同步追加。用户已确认白垩之术两个后台各扣1、允许出战充能溢出，仍待游戏内复核。本文件下方历史“等待回复”不再代表当前状态。
 
 ## 已完成
 
@@ -243,7 +246,7 @@ BC、语义RL、独立评估统一使用DecisionBudget：普通操作消耗max_g
 
 送你一程增加双方具体目标的实际记录回放对比；支付后准备效果移除较早buff导致位移，仍选原ID；所选召唤物被移除并同定义重新生成时，新实例不受该牌影响。专项及完整`go test ./gicg_engine/... ./gicg_mcts`通过。
 
-56只读核验：主机名DESKTOP-GHJCC7Q，5070Ti 16303MiB，观察时已占5051MiB、GPU35%。psutil确认D:/gicg_goal中recover_curriculum主工作PID5360（venv入口5700）及16个子进程仍存活；finalize_curriculum PID37824/23452、early_l6_followup PID52284/54600也存活。不能仅凭进程存在判断训练进展，下一步须读其status/metrics。未停止进程、未同步新源码，旧池任务不能算原生训练成果。CIM权限拒绝后改只读Get-Process/psutil；一次自动审批超时重试成功。后续同步必须先处理或隔离这些运行中作业。
+56只读核验：主机名DEV-PC，5070Ti 16303MiB，观察时已占5051MiB、GPU35%。psutil确认D:/gicg_goal中recover_curriculum主工作PID5360（venv入口5700）及16个子进程仍存活；finalize_curriculum PID37824/23452、early_l6_followup PID52284/54600也存活。不能仅凭进程存在判断训练进展，下一步须读其status/metrics。未停止进程、未同步新源码，旧池任务不能算原生训练成果。CIM权限拒绝后改只读Get-Process/psutil；一次自动审批超时重试成功。后续同步必须先处理或隔离这些运行中作业。
 
 ### 56原生整局预检完成（2026-09-14）
 

@@ -1,6 +1,6 @@
 # 冻结预测器残差RL：本轮更新幅度过小
 
-2026-09-14，56 `D:/gicg_consequence_20260914/artifacts/consequence_rl_20260914` 已 complete，3456.28秒（57.60分钟），等待器12906正常退出。[固定协议](../3_plans/cards/consequence_policy_rl.md)。
+2026-09-14，56 `D:/gicg_consequence_20260914/artifacts/consequence_rl_20260914` 已 complete，3456.28秒（57.60分钟），等待器12906正常退出。[固定协议](cards/consequence_policy_rl.md)。
 
 两臂各4×512局，16workers，冻结backbone/预测头，仅训练零初始化残差；候选使用预测值，对照对应输入为0。终局奖励，lr1e-5，温度0.5，master95800。
 

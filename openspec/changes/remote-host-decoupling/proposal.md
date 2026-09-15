@@ -64,7 +64,7 @@ token(`sk-` / `ghp_` / `github_pat_` / `AKIA` / `xox`)、无密码或 key 赋值
   `redcontritio@qq.com`、`RedContritio`(GitHub 身份,远端 URL 本身就是它)
   保留。
 - **远端目录名。** 已入库文档中的 `D:/gicg_*`(历史记录,如 `docs/5_history/`、
-  `docs/3_plans/cards/`)保留,用户判定为非敏感。cfg 层迁移后不再出现任何 `root`。
+  `docs/5_history/cards/`)保留,用户判定为非敏感。cfg 层迁移后不再出现任何 `root`。
 - **远端多根目录的清理。** 用户已手工删除 `D:/gicg_goal` / `D:/gicg_native` /
   `D:/gicg_consequence_20260914` / `D:/gicg_retention_20260915`,56 上只留
   `D:/gicg_dev`。本 change 只把"每设备唯一一个项目根"这一事实写进规约与注册表,

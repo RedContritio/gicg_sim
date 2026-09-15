@@ -246,7 +246,7 @@ v6 后续工作现已推进到 v7：引用/通用槽位已实现，暂停执行�
 ### 4. v_phase2 RL smoke + DSL v6 strict 仍 LIVE
 
 - v_phase2 池(7 char / 6 卡)+ RL smoke s070 跑通(2026-05-12,commit `a0c26e9`)
-- ADR-0019 DSL v6 strict 23 commits 链 2026-05-04~05-07 已落,Accepted de-facto;详 [`dsl_v6_progress.md`](../0_status/dsl_v6_progress.md)
+- ADR-0019 DSL v6 strict 23 commits 链 2026-05-04~05-07 已落,Accepted de-facto;详 [`dsl_v6_progress.md`](dsl_v6_progress.md)
 - v_phase2 deferred 机制 23 项仍 backlog(见 [`../3_plans/v_phase2_deferred.md`](../3_plans/v_phase2_deferred.md))
 
 ADR-0011 pool versioning 仍然有效:`data/pools/{test_basic,v_legacy,v_phase2,spike}/`,manifest fold + 内存 cache。

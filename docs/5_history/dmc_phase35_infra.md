@@ -23,7 +23,7 @@
 
 ```
 tools/remote/
-├── _common.py       # REMOTE='dev@192.168.31.56', REMOTE_ROOT=r'D:\gicg_dev',
+├── _common.py       # REMOTE='dev@192.0.2.10', REMOTE_ROOT=r'D:\gicg_dev',
 │                    # ssh_run(ps_script, timeout) / scp_to(local, remote) /
 │                    # scp_from(remote, local). 处理 utf8/env/cp936 stderr。
 ├── sync.py          # Mac → Windows. 模式:--single <file> / --tar-all / --git-changed

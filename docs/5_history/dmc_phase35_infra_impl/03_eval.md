@@ -381,7 +381,7 @@ Run:
 ```bash
 .venv/bin/python -m tools.eval.daemon configs/dmc_stage3_smoke.toml \
     --run-label dmc_stage3_smoke \
-    --remote dev@192.168.31.56:D:/gicg_dev/artifacts \
+    --remote dev@192.0.2.10:D:/gicg_dev/artifacts \
     --poll-seconds 5 --max-iterations 1
 ```
 Expected: 1 iter rsync + 1 eval(若 Windows 上无 latest.pt 则打印 `no latest.pt yet` 后 exit);关键 import 不挂 + paradigm dispatch 走通。

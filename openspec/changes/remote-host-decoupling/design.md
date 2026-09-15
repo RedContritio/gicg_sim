@@ -34,9 +34,9 @@ NNN 计数器**:根一多,NNN 就跨根重复,`show <NNN>` / `mark <NNN>` 的 sh
 
 - `docs/5_history/handoff_20260914_part1.md:75`「56新源码目录 `D:/gicg_goal`…
   旧 `D:/gicg_dev` 保留历史兼容」
-- `docs/3_plans/cards/native_first_batch_audit.md:250`「…不能覆盖其目录。原生配置
+- `docs/5_history/cards/native_first_batch_audit.md:253`「…不能覆盖其目录。原生配置
   改独立 `D:/gicg_native`」
-- `docs/3_plans/cards/consequence_policy_rl.md:18`「新独立快照
+- `docs/5_history/cards/consequence_policy_rl.md:21`「新独立快照
   `D:/gicg_consequence_20260914`…新模型不能复用旧权重并重标来源」
 - 最新的 `D:/gicg_retention_20260915` 连 `docs/HANDOFF.md:25` 自己都标着
   "**未经用户确认**"

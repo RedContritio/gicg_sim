@@ -100,8 +100,8 @@ target_subtopic: (capability index)
 `<repo_root>` 为域,且不参与同步),故多根并存会让 NNN 跨根重复、
 `tools.runs.show` 的 shorthand 不再唯一。历史漂移的机制是"每次源码状态大改就另开
 目录以免覆盖正在跑的 run"(见 `docs/5_history/handoff_20260914_part1.md:75`、
-`docs/3_plans/cards/native_first_batch_audit.md:250`、
-`docs/3_plans/cards/consequence_policy_rl.md:18`),实测出现过 5 个根。用户已手工
+`docs/5_history/cards/native_first_batch_audit.md:253`、
+`docs/5_history/cards/consequence_policy_rl.md:21`),实测出现过 5 个根。用户已手工
 收敛到 `D:/gicg_dev`;本不变量防止回归。仓库内此前**没有任何一处**记录过这条约定,
 故此为本 change 首次成文。
 

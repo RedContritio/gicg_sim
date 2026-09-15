@@ -5,7 +5,7 @@ status: HISTORICAL — 2026-05-07 ADR-0019 implementation record
 
 # DSL v6 (ADR-0019) 完整 strict 实施落地
 
-> **历史实施记录**：本文保留 2026-05-07 的 ADR-0019 路线、提交和
+> **历史实施记录**（2026-09-15 自 `docs/0_status/` 移入）：本文保留 2026-05-07 的 ADR-0019 路线、提交和
 > 当时待办。当前 DSL 契约以
 > [`openspec/specs/engine-dsl/`](../../openspec/specs/engine-dsl/) 和
 > [`engine-runtime`](../../openspec/specs/engine-runtime/) 为准。

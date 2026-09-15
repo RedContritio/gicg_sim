@@ -33,6 +33,7 @@
 | `v_phase2_cards_e2e_impl.md` | [`../5_history/v_phase2_cards_e2e_impl.md`](../5_history/v_phase2_cards_e2e_impl.md) | IMPLEMENTED 2026-05-15 |
 | `dmc_phase35_infra.md` + `dmc_phase35_infra_impl/` | [`../5_history/dmc_phase35_infra.md`](../5_history/dmc_phase35_infra.md) + [`../5_history/dmc_phase35_infra_impl/`](../5_history/dmc_phase35_infra_impl/) | IMPLEMENTED 2026-05-15 |
 | `archived_tools_audit.md` | [`../5_history/audits/archived_tools_audit.md`](../5_history/audits/archived_tools_audit.md) | EXECUTED 2026-05-16(FU-W2.5d batch removal — Dead+Doc-only 11 files removed via `ade04ea`) |
+| `cards/{consequence_policy_rl, paired_joint_rl, paired_consequence_training, rule_auxiliary_training, native_first_batch_audit}.md` | [`../5_history/cards/`](../5_history/cards/) | EXECUTED / AUDITED(2026-09-15 归档；LIVE 路线见 `cards/native_content_curriculum.md`) |
 
 ## 命名
 

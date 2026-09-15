@@ -85,17 +85,15 @@ HEAD` 时点)。实施时若目标文件已被本 change 前序任务改动(如 
 会产出 `dev@dev@host` 这类畸形目标;依据 design.md §T4);
 `DESKTOP-GHJCC7Q` → `DEV-PC`;`Mac-mini.local` → `macbox.local`。
 
-- [ ] **T3.1** `docs/` **10 个文件 14 处**:`0_status/README.md:66`、
-      `0_status/remote-training-reset-2026-09-11.json:2`、
-      `3_plans/backlog.md:81,87`、**`3_plans/cards/native_first_batch_audit.md:246`**、
-      `5_history/dmc_phase35_infra.md:26`、
-      `5_history/dmc_phase35_infra_impl/01_remote.md:23,30,65`、
-      `5_history/dmc_phase35_infra_impl/03_eval.md:384`、
-      `5_history/handoff_20260914_part3.md:12,14`、
-      `5_history/small_rl_v14.md:13`、
-      `superpowers/specs/2026-05-18-tools-runs-redesign-design.md:184`。
-      `0_status/README.md` 是 LIVE 文档,指引改为指向 `hosts.example.toml`。
-      — LOC ~20 — 依赖:T2.1
+- [x] **T3.1** `docs/` — **已在 docs 重构中顺带完成(2026-09-15,先于本 change
+      落地,故不依赖 T2.1)**:实际命中 **9 个文件 13 处**(非原列的 10 文件 14 处 ——
+      `0_status/README.md` 已重写为纯当前状态,不再含该标识)。`git grep` 已归零。
+      一处**非机械替换**:`5_history/handoff_20260914_part3.md:14` 的教训原文是
+      「配错过 `DEV-PC` vs 实际 `DESKTOP-GHJCC7Q`」,就地替换会让两侧同名、教训消失,
+      故改写为「照假定名填过,与实测值不符,导致 `is_local_host` 判假」。
+      (同批还把 `0_status/cards_cleansing_handoff.md`、`0_status/dsl_v6_progress.md`
+      与 5 张实验卡迁入 `docs/5_history/`,故下文各任务里的 `docs/` 行号以内容匹配为准。)
+      — LOC ~13 — 依赖:无
 - [ ] **T3.2** `openspec/changes/archive/` **3 个文件 4 处**:
       `core-network-generic-promotion/design/architecture.md:159,162`、
       `i29-go-actor-pool/STATE_DUMP_2026_05_24.md:57`、
@@ -126,9 +124,11 @@ HEAD` 时点)。实施时若目标文件已被本 change 前序任务改动(如 
       在此单独替换。— LOC ~1 — 依赖:T2.1
 - [ ] **T3.7** `git grep` 复核:三项标识在 HEAD 内零残留(区分大小写;同时
       确认 `/Users/redcontritio`、`RedContritio`、`D:/gicg_*` 按 Out of scope
-      保留)。出口判据:`git grep -cI` 各目录计数由
-      `configs/` 15 / `tools/` 20 / `docs/` 10 / `openspec/` 3 / `training/` 2
-      全部归零(合计 50 文件 / 78 处 → 0)。— 依赖:T3.1–T3.6b
+      保留)。出口判据:排除 `openspec/changes/remote-host-decoupling/` 自身
+      (该目录**必须**保留替换表与实测值,不计入)后归零。T3.1 完成后的余量实测:
+      `configs/` 15 文件、`tools/` 20 文件、`training/` 2 文件、
+      `openspec/changes/archive/` 3 文件 4 处;`docs/` 已归零。
+      — 依赖:T3.2–T3.6b
 
 ## Phase 4 — 验证
 
@@ -143,10 +143,11 @@ HEAD` 时点)。实施时若目标文件已被本 change 前序任务改动(如 
       `data/**/*.{lua,toml}`、`gicg_engine/**/*.go`、`gicg_env/**/*.py`、
       `training/{core,paradigms}/**/*.py` 之一,须回退那处改动,而非改文档迎合。
       — 依赖:T4.2
-- [ ] **T4.4** 确认**无需**改文档指纹记录。指纹值仅出现在 3 个文件 4 处
-      (`docs/0_status/README.md` ×2、`docs/HANDOFF.md` ×1、
-      `docs/HANDOFF_PAUSED.md` ×1),因 T4.3 主张不变。若 T4.3 发现指纹已变,
-      说明设计前提被破坏,应回退而非改文档迎合。— LOC 0 — 依赖:T4.3
+- [ ] **T4.4** 确认**无需**改文档指纹记录(依据 T4.3 的指纹中性主张)。
+      T3.1 后的实测:完整字面量只在 `docs/0_status/README.md` 出现 1 处,
+      `docs/HANDOFF_PAUSED.md` 用缩写 `ff423c96…`,历史报告各含当时的旧值。
+      若 T4.3 发现指纹已变,说明设计前提被破坏,应回退而非改文档迎合。
+      — LOC 0 — 依赖:T4.3
 - [ ] **T4.5** **远端 e2e 门槛(设备开机后)**:`tools.runs.train
       configs/dmc/native_starter.toml` 端到端派发到 56 并跑通,含首次全量同步
       把注册表带过去。这是本 change 的真验收——前三项检查只证明代码自洽,
