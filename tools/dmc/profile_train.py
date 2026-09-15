@@ -33,87 +33,9 @@ import io
 import pstats
 import time
 from pathlib import Path
-from typing import Any
-
-import torch
 
 from training.core.actor._mp_helpers import harden_child_env
-
-
-def _build_full_components(cfg: Any) -> tuple[Any, Any, Any, Any, Any, Any, Any, Any]:
-    """Mirror tools.runs._train.dispatch.run_paradigm_train +
-    training.core.pipeline.run_pipeline construction shape — full
-    training loop (collector + buffer + optimizer + loss + network).
-
-    Returns (state, paradigm, collector, provider, buffer, optimizer,
-    loss_fn, network).
-    """
-    from training.core.actor.network_provider import LocalNetworkProvider
-    from training.core.env_factory import make_env_factory
-    from training.core.protocols import PipelineState
-    from training.paradigms import resolve as resolve_paradigm
-
-    paradigm = resolve_paradigm(cfg.meta.paradigm)
-    env_factory = make_env_factory(cfg, None, master_seed=cfg.meta.seed)
-
-    network = paradigm.make_network(cfg)
-    opp_pool = paradigm.make_opponent_pool(cfg, network) if hasattr(paradigm, 'make_opponent_pool') else None
-    collector = paradigm.make_collector(cfg, env_factory, network, opp_pool)
-    provider = LocalNetworkProvider(network, device=cfg.meta.device)
-
-    optimizer = paradigm.make_optimizer(cfg, network)
-    buffer = paradigm.make_buffer(cfg)
-    loss_fn = paradigm.make_loss(cfg)
-
-    state = PipelineState.fresh(cfg.meta.seed)
-    return state, paradigm, collector, provider, buffer, optimizer, loss_fn, network
-
-
-def _run_one_iter(
-    state: Any,
-    cfg: Any,
-    paradigm: Any,
-    collector: Any,
-    provider: Any,
-    buffer: Any,
-    optimizer: Any,
-    loss_fn: Any,
-    network: Any,
-    counters: dict,
-) -> None:
-    """Mirror training.core.pipeline.run_pipeline main loop body
-    (lines 99-141 of pipeline.py) MINUS ckpt / eval / log / nan_guard
-    branches. Only collect + train_step + state.after_* are exercised.
-    """
-    plan = paradigm.step_schedule(state, cfg)
-
-    if plan.collect:
-        out = collector.collect(plan.n_episodes, provider)
-        buffer.push(out)
-        state.after_collect(out)
-        counters['n_collect_calls'] += 1
-        counters['n_transitions'] += int(out.n_units or out.n_transitions)
-
-    if plan.train and plan.n_train_batches > 0:
-        for _ in range(plan.n_train_batches):
-            if len(buffer) < plan.batch_size:
-                break
-            batch = buffer.sample(plan.batch_size)
-            optimizer.zero_grad()
-            loss_result = loss_fn.compute(network, batch)
-            loss_result.loss.backward()
-            torch.nn.utils.clip_grad_norm_(
-                network.parameters(),
-                cfg.paradigm.get('max_grad_norm', 1.0),
-            )
-            optimizer.step()
-            state.after_train(loss_result.breakdown)
-            counters['n_train_steps'] += 1
-
-    if plan.clear_buffer_after_train:
-        buffer.clear()
-
-    state.advance(plan)
+from tools.dmc._profile_components import build_full_components, run_one_iter
 
 
 def _parse_args() -> argparse.Namespace:
@@ -195,7 +117,7 @@ def main() -> None:
         optimizer,
         loss_fn,
         network,
-    ) = _build_full_components(cfg)
+    ) = build_full_components(cfg)
 
     counters = {'n_collect_calls': 0, 'n_transitions': 0, 'n_train_steps': 0}
     profiler = cProfile.Profile()
@@ -213,7 +135,7 @@ def main() -> None:
         # Phase 1: warmup — populate buffer + warm up imports/JIT/cache.
         # No profiler, counters reset at warmup_end snapshot boundary.
         while time.monotonic() < warmup_end:
-            _run_one_iter(
+            run_one_iter(
                 state,
                 cfg,
                 paradigm,
@@ -233,7 +155,7 @@ def main() -> None:
         t_measure_start = time.monotonic()
         try:
             while time.monotonic() < measure_end:
-                _run_one_iter(
+                run_one_iter(
                     state,
                     cfg,
                     paradigm,
@@ -254,7 +176,7 @@ def main() -> None:
 
         # Phase 3: tail — run out the clock (no profiler, no count).
         while time.monotonic() < final_end:
-            _run_one_iter(
+            run_one_iter(
                 state,
                 cfg,
                 paradigm,

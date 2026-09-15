@@ -1,6 +1,6 @@
 """Tests for IPv6 remote-URL acceptance in ``tools.runs.sync`` (T-19).
 
-Spec §HIGH-6-B 行 441 / 行 493 — regex must accept the bracket form
+Spec §HIGH-6-B — regex must accept the bracket form
 ``user@[<ipv6>]:path/`` alongside the hostname / IPv4 form. The
 T-18 ``test_remote_url_rejects_ipv6_form`` test was flipped to
 ``test_remote_url_accepts_ipv6_form`` in ``test_sync_pattern.py``;
@@ -84,14 +84,15 @@ def test_malformed_ipv6_rejected(tmp_path, remote):
 
 
 # ---------------------------------------------------------------------------
-# regex source consistency (sync._REMOTE_RE consumes the helper pattern)
+# regex source consistency (sync_conflicts._REMOTE_RE consumes the helper pattern)
 # ---------------------------------------------------------------------------
 
 
 def test_remote_regex_pattern_source_imported_from_helper():
+    from tools.runs._helpers import sync_conflicts
     from tools.runs._helpers.sync_extras import REMOTE_RE_PATTERN
 
-    assert sync._REMOTE_RE.pattern == REMOTE_RE_PATTERN
+    assert sync_conflicts._REMOTE_RE.pattern == REMOTE_RE_PATTERN
 
 
 def test_remote_regex_pattern_contains_ipv6_alternative():

@@ -1,10 +1,11 @@
 """``tools.runs.sync`` — rsync wrapper for run metadata and config snapshots.
 
 Clean-slate rewrite per
-``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
-§Cross-host sync 行 326-331 / §Conflict HIGH-2-E 行 333-339 / §Case-collide
-CRIT-5-A 行 341-346 (T-19) / §Authoritative HIGH-2-D 行 348-356 (T-19) /
-§Include-exclude 行 357-371 / §IPv6 HIGH-6-B 行 441 / 行 493 (T-19).
+``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` (主卷)
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md`` (续卷):
+§Cross-host sync / §Conflict HIGH-2-E / §Case-collide
+CRIT-5-A (T-19) / §Authoritative HIGH-2-D (T-19) /
+§Include-exclude / §IPv6 HIGH-6-B (T-19).
 
 Transferred: ``artifacts/*/{metadata.toml,cfg_resolved*.toml,cfg_leaf*.toml}``.
 Never transferred (excluded): ``artifacts/{.authoritative_host,.run_id_lock}``,
@@ -28,21 +29,29 @@ CLI::
 from __future__ import annotations
 
 import argparse
-import re
 import shlex
 import socket
 import subprocess
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
+from tools.runs._helpers import sync_conflicts as _sc
+from tools.runs._helpers import sync_scan as _ss
 from tools.runs._helpers.sync_extras import (
-    REMOTE_RE_PATTERN,
     CaseCollideError,
     detect_case_collisions,
     init_authoritative,
 )
-from tools.runs._helpers import sync_scan as _ss
+
+# Conflict detection + rsync argv construction live in
+# ``_helpers/sync_conflicts.py``; re-exported through this module because the
+# sync test-suite reaches them as ``sync.<name>``.
+RSYNC_FLAGS = _sc.RSYNC_FLAGS
+SyncConflict = _sc.SyncConflict
+ConflictRow = _sc.ConflictRow
+build_rsync_cmd = _sc.build_rsync_cmd
+detect_conflicts = _sc.detect_conflicts
+_validate_remote = _sc.validate_remote
 
 _fetch_remote_find_text = _ss.fetch_remote_find_text
 _parse_remote_dir_names = _ss.parse_remote_dir_names
@@ -65,107 +74,6 @@ __all__ = [
     'sync',
     'main',
 ]
-
-# Hardcoded; user override forbidden (stray ``--exclude=*`` removal could
-# leak GB-scale ckpt across a slow link). rsync = first-match-wins.
-RSYNC_FLAGS: tuple[str, ...] = (
-    '-av',
-    '--include=artifacts/',
-    '--include=artifacts/*/',
-    '--include=artifacts/*/metadata.toml',
-    '--include=artifacts/*/cfg_resolved*.toml',
-    '--include=artifacts/*/cfg_leaf*.toml',
-    '--exclude=artifacts/.authoritative_host',
-    '--exclude=artifacts/.run_id_lock',
-    '--exclude=artifacts/*/.metadata_lock',
-    '--exclude=*',
-)
-
-# Strict ``user@host:path/`` form; host = alphanum hostname / IPv4, or
-# IPv6 bracket form (spec §HIGH-6-B). Pattern source lives in sync_extras.
-_REMOTE_RE = re.compile(REMOTE_RE_PATTERN)
-
-
-class SyncConflict(RuntimeError):
-    """Raised when one or more NNN dirs have equal ``metadata.timestamp``
-    on local + remote (HIGH-2-E tie). User must manually resolve."""
-
-
-@dataclass(frozen=True)
-class ConflictRow:
-    """One per-NNN comparison result."""
-
-    nnn: str
-    local_ts: str | None  # None if only remote has the NNN
-    remote_ts: str | None  # None if only local has the NNN
-    resolution: str  # 'local_newer' / 'remote_newer' / 'equal' / 'only_local' / 'only_remote'
-
-
-def _validate_remote(remote: str) -> None:
-    """Strict ``user@host:path/`` form. macOS local paths with ``:`` and
-    bare ``host:path/`` (no user) are rejected. IPv6 bracket form
-    (``user@[::1]:/path/``) is accepted (spec §HIGH-6-B)."""
-    if not _REMOTE_RE.match(remote):
-        raise ValueError(
-            f'remote {remote!r} must be of form user@host:path/ '
-            '(user@host + colon + path + trailing slash; IPv6 bracket form OK)'
-        )
-
-
-def detect_conflicts(local: dict[str, str], remote: dict[str, str]) -> list[ConflictRow]:
-    """Pair every NNN seen on either side; compare ``metadata.timestamp``.
-    Result sorted by NNN asc. ``resolution`` ∈ {local_newer, remote_newer,
-    equal (HIGH-2-E tie → upstream raises), only_local, only_remote}."""
-    rows: list[ConflictRow] = []
-    for nnn in sorted(set(local) | set(remote)):
-        l_ts = local.get(nnn)
-        r_ts = remote.get(nnn)
-        if l_ts is None:
-            rows.append(ConflictRow(nnn=nnn, local_ts=None, remote_ts=r_ts, resolution='only_remote'))
-        elif r_ts is None:
-            rows.append(ConflictRow(nnn=nnn, local_ts=l_ts, remote_ts=None, resolution='only_local'))
-        elif l_ts == r_ts:
-            rows.append(ConflictRow(nnn=nnn, local_ts=l_ts, remote_ts=r_ts, resolution='equal'))
-        elif l_ts > r_ts:
-            rows.append(ConflictRow(nnn=nnn, local_ts=l_ts, remote_ts=r_ts, resolution='local_newer'))
-        else:
-            rows.append(ConflictRow(nnn=nnn, local_ts=l_ts, remote_ts=r_ts, resolution='remote_newer'))
-    return rows
-
-
-def _excludes_for_conflicts(rows: list[ConflictRow], *, direction: str) -> list[str]:
-    """Build ``--exclude=artifacts/*_<NNN>_*/`` for losing-side NNN.
-
-    push → exclude ``remote_newer`` rows (don't overwrite remote-fresher).
-    pull → exclude ``local_newer`` rows (symmetric). ``equal`` raises
-    upstream; ``only_*`` and the winning side need no exclude. ``direction``
-    is pre-validated by callers (no defensive recheck per CLAUDE.md §2).
-    """
-    bad = 'remote_newer' if direction == 'push' else 'local_newer'
-    return [f'--exclude=artifacts/*_{row.nnn}_*/' for row in rows if row.resolution == bad]
-
-
-def build_rsync_cmd(
-    direction: str,
-    remote: str,
-    *,
-    root: Path,
-    conflict_rows: list[ConflictRow] | None = None,
-) -> list[str]:
-    """rsync argv. Conflict ``--exclude`` flags precede include flags
-    (first-match-wins). push = local → remote; pull = remote → local."""
-    if direction not in ('push', 'pull'):
-        raise ValueError(f'direction must be push|pull, got {direction!r}')
-    _validate_remote(remote)
-    local_arg = f'{root}/'  # trailing slash → merge into remote
-    extra_excludes = _excludes_for_conflicts(conflict_rows or [], direction=direction)
-    # Conflict-exclude FIRST so it matches before any include rule below.
-    cmd: list[str] = ['rsync', *extra_excludes, *RSYNC_FLAGS]
-    if direction == 'push':
-        cmd += [local_arg, remote]
-    else:
-        cmd += [remote, local_arg]
-    return cmd
 
 
 def _verify_repo_root(root: Path) -> None:
