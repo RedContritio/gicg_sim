@@ -45,11 +45,16 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 def _run_one(cfg: str, num_actors: int, seed: int, total_frames: int) -> Optional[Path]:
     """Run one cfg via tools.runs.train,返 artifacts dir。"""
     cmd = [
-        '.venv/bin/python', '-m', 'tools.runs.train',
+        '.venv/bin/python',
+        '-m',
+        'tools.runs.train',
         f'configs/dmc/{cfg}.toml',
-        '--override', f'pipeline.num_actors={num_actors}',
-        '--override', f'meta.seed={seed}',
-        '--override', f'paradigm.dmc.total_frames={total_frames}',
+        '--override',
+        f'pipeline.num_actors={num_actors}',
+        '--override',
+        f'meta.seed={seed}',
+        '--override',
+        f'paradigm.dmc.total_frames={total_frames}',
     ]
     print(f'[bench] starting {cfg} N={num_actors} seed={seed} frames={total_frames}', flush=True)
     t0 = time.monotonic()
@@ -181,8 +186,8 @@ Frames per run: {results['total_frames']}
 
 | Metric | Python mp | Go-actor | Ratio (Go/Py) |
 |--------|-----------|----------|---------------|
-| fps mean ± std | {py['fps_mean']:.2f} ± {py['fps_std']:.2f} | {go['fps_mean']:.2f} ± {go['fps_std']:.2f} | {go['fps_mean']/py['fps_mean']:.2f}x |
-| master_rss_mb max | {py['mem_rss_mb_max_mean']:.0f} | {go['mem_rss_mb_max_mean']:.0f} | {go['mem_rss_mb_max_mean']/py['mem_rss_mb_max_mean']:.2f}x |
+| fps mean ± std | {py['fps_mean']:.2f} ± {py['fps_std']:.2f} | {go['fps_mean']:.2f} ± {go['fps_std']:.2f} | {go['fps_mean'] / py['fps_mean']:.2f}x |
+| master_rss_mb max | {py['mem_rss_mb_max_mean']:.0f} | {go['mem_rss_mb_max_mean']:.0f} | {go['mem_rss_mb_max_mean'] / py['mem_rss_mb_max_mean']:.2f}x |
 | N runs | {py['n_runs']} | {go['n_runs']} | - |
 
 ## Per-run detail
@@ -190,10 +195,10 @@ Frames per run: {results['total_frames']}
 ### Python mp
 """
     for r in py['individual_runs']:
-        md += f"- seed=?: fps={r.get('fps')} mem_max={r.get('mem_rss_mb_max')}MB wall={r.get('wall_s_ss')}s dir={r.get('art_dir')}\n"
+        md += f'- seed=?: fps={r.get("fps")} mem_max={r.get("mem_rss_mb_max")}MB wall={r.get("wall_s_ss")}s dir={r.get("art_dir")}\n'
     md += '\n### Go-actor\n'
     for r in go['individual_runs']:
-        md += f"- seed=?: fps={r.get('fps')} mem_max={r.get('mem_rss_mb_max')}MB wall={r.get('wall_s_ss')}s dir={r.get('art_dir')}\n"
+        md += f'- seed=?: fps={r.get("fps")} mem_max={r.get("mem_rss_mb_max")}MB wall={r.get("wall_s_ss")}s dir={r.get("art_dir")}\n'
 
     # Sub-span comparison (Go side perf trace)
     if go['individual_runs']:
@@ -203,13 +208,13 @@ Frames per run: {results['total_frames']}
             for name, st in run.get('go_perf_stages', {}).items():
                 agg_stages[name]['n'] += st['n']
                 agg_stages[name]['sum_ms'] += st['sum_ms']
-        md += f"| Stage | n calls | mean_ms |\n|-------|--------:|--------:|\n"
+        md += f'| Stage | n calls | mean_ms |\n|-------|--------:|--------:|\n'
         for name in sorted(agg_stages):
             st = agg_stages[name]
             if st['n'] == 0:
                 continue
             mean_ms = st['sum_ms'] / st['n']
-            md += f"| `{name}` | {st['n']} | {mean_ms:.3f} |\n"
+            md += f'| `{name}` | {st["n"]} | {mean_ms:.3f} |\n'
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(md, encoding='utf-8')
@@ -229,11 +234,13 @@ def main() -> int:
         print('[bench] building c-shared libs...')
         subprocess.run(
             ['go', 'build', '-buildmode=c-shared', '-o', 'gicg_env/libgicg_actor.dylib', './gicg_actor/capi/'],
-            cwd=str(_REPO_ROOT), check=True,
+            cwd=str(_REPO_ROOT),
+            check=True,
         )
         subprocess.run(
             ['go', 'build', '-buildmode=c-shared', '-o', 'gicg_env/libgicg.dylib', './gicg_engine/capi/'],
-            cwd=str(_REPO_ROOT), check=True,
+            cwd=str(_REPO_ROOT),
+            check=True,
         )
 
     runs_py = []
@@ -249,7 +256,9 @@ def main() -> int:
             runs_go.append({**_parse_metrics(art), 'seed': seed})
 
     results = {
-        'commit': subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=str(_REPO_ROOT), text=True).strip(),
+        'commit': subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'], cwd=str(_REPO_ROOT), text=True
+        ).strip(),
         'date': time.strftime('%Y-%m-%d %H:%M'),
         'seeds': args.seeds,
         'total_frames': args.total_frames,

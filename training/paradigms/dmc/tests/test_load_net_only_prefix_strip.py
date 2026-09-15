@@ -57,7 +57,9 @@ def test_load_net_only_accepts_dmc_network_sd_with_net_prefix():
     src_net = DMCNetwork(cfg, device='cpu', epsilon=0.0)
     prefixed_sd = src_net.state_dict()
     # 全 net. 前缀
-    assert all(k.startswith('net.') for k in prefixed_sd.keys()), 'DMCNetwork.state_dict 不再 全 net. 前缀,test 假设失效'
+    assert all(k.startswith('net.') for k in prefixed_sd.keys()), (
+        'DMCNetwork.state_dict 不再 全 net. 前缀,test 假设失效'
+    )
 
     dst, _ = _build_agent()
     dst.load_net_only(prefixed_sd)

@@ -72,9 +72,7 @@ def _ssh_pytest(
     if run_seconds is not None:
         env_lines.append(f'$env:BENCH_RUN_SECONDS={run_seconds}')
     ps_cmd = (
-        f'cd {_WIN_ROOT}; '
-        + '; '.join(env_lines)
-        + '; '
+        f'cd {_WIN_ROOT}; ' + '; '.join(env_lines) + '; '
         f'.\\.venv\\Scripts\\python.exe -m pytest {test_node} -s -v --no-header --tb=short -m smoke_full'
     )
 
@@ -174,9 +172,7 @@ def _markdown_table(results: dict, out_path: Path) -> str:
     lines += ['', '## Ratio (Go / Python mp)', '']
     lines += ['| Cell | fps/actor ratio | Interpretation |', '|------|----------------|----------------|']
     for cell_key, backends in sorted(results.items(), key=_sort_cell_key):
-        lines.append(
-            format_ratio_row(_cell_label(cell_key), backends.get('go', {}), backends.get('python_mp', {}))
-        )
+        lines.append(format_ratio_row(_cell_label(cell_key), backends.get('go', {}), backends.get('python_mp', {})))
 
     lines += ['', '## Per-seed detail', '']
     for cell_key, backends in sorted(results.items(), key=_sort_cell_key):
@@ -194,7 +190,9 @@ def _markdown_table(results: dict, out_path: Path) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='I29 Win box fair collector throughput bench (ssh-dispatched pytest sweep)')
+    ap = argparse.ArgumentParser(
+        description='I29 Win box fair collector throughput bench (ssh-dispatched pytest sweep)'
+    )
     ap.add_argument('--n-actors', type=int, nargs='+', default=[4, 8, 16])
     ap.add_argument('--seeds', type=int, default=3, help='number of seeds (1..seeds, default 3 for cost)')
     ap.add_argument(

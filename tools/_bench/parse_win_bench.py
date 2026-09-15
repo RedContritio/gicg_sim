@@ -78,14 +78,14 @@ def _load_metrics(path: Path) -> dict:
 
 def _md_table(py: dict, go: dict) -> str:
     md = '# I29 T-C2 Win N=16 fair bench results\n\n'
-    md += f"Date: $(date)\n\nPython mp dir: `{py.get('art_dir', '?')}`\nGo-actor dir: `{go.get('art_dir', '?')}`\n\n"
+    md += f'Date: $(date)\n\nPython mp dir: `{py.get("art_dir", "?")}`\nGo-actor dir: `{go.get("art_dir", "?")}`\n\n'
     md += '## Headline\n\n'
     md += '| Metric | Python mp | Go-actor | Ratio (Go/Py) |\n'
     md += '|--------|----------:|---------:|--------------:|\n'
 
     def _ratio(a, b):
         if a and b:
-            return f'{a/b:.2f}x'
+            return f'{a / b:.2f}x'
         return '-'
 
     def _safe(x):
@@ -93,12 +93,12 @@ def _md_table(py: dict, go: dict) -> str:
 
     py_fps = py.get('fps_steady', 0)
     go_fps = go.get('fps_steady', 0)
-    md += f"| fps (steady) | {py_fps} | {go_fps} | {_ratio(go_fps, py_fps)} |\n"
-    md += f"| eps/s | {_safe(py.get('eps_per_s'))} | {_safe(go.get('eps_per_s'))} | {_ratio(go.get('eps_per_s'), py.get('eps_per_s'))} |\n"
-    md += f"| master_rss_mb max | {_safe(py.get('mem_rss_mb_max'))} | {_safe(go.get('mem_rss_mb_max'))} | {_ratio(go.get('mem_rss_mb_max'), py.get('mem_rss_mb_max'))} |\n"
-    md += f"| batching_efficiency mean | {_safe(py.get('batching_efficiency_mean'))} | {_safe(go.get('batching_efficiency_mean'))} | - |\n"
-    md += f"| batch_size_avg mean | {_safe(py.get('batch_size_avg_mean'))} | {_safe(go.get('batch_size_avg_mean'))} | - |\n"
-    md += f"| forward_ms_avg mean | {_safe(py.get('forward_ms_avg_mean'))} | {_safe(go.get('forward_ms_avg_mean'))} | - |\n"
+    md += f'| fps (steady) | {py_fps} | {go_fps} | {_ratio(go_fps, py_fps)} |\n'
+    md += f'| eps/s | {_safe(py.get("eps_per_s"))} | {_safe(go.get("eps_per_s"))} | {_ratio(go.get("eps_per_s"), py.get("eps_per_s"))} |\n'
+    md += f'| master_rss_mb max | {_safe(py.get("mem_rss_mb_max"))} | {_safe(go.get("mem_rss_mb_max"))} | {_ratio(go.get("mem_rss_mb_max"), py.get("mem_rss_mb_max"))} |\n'
+    md += f'| batching_efficiency mean | {_safe(py.get("batching_efficiency_mean"))} | {_safe(go.get("batching_efficiency_mean"))} | - |\n'
+    md += f'| batch_size_avg mean | {_safe(py.get("batch_size_avg_mean"))} | {_safe(go.get("batch_size_avg_mean"))} | - |\n'
+    md += f'| forward_ms_avg mean | {_safe(py.get("forward_ms_avg_mean"))} | {_safe(go.get("forward_ms_avg_mean"))} | - |\n'
 
     if go.get('go_perf'):
         md += '\n## Go-actor sub-span timing (Go-actor only)\n\n'
@@ -107,13 +107,13 @@ def _md_table(py: dict, go: dict) -> str:
             st = go['go_perf'][name]
             if st['n'] == 0:
                 continue
-            md += f"| `{name}` | {st['n']} | {st['mean_ms']:.3f} | {st['max_ms']:.3f} |\n"
+            md += f'| `{name}` | {st["n"]} | {st["mean_ms"]:.3f} | {st["max_ms"]:.3f} |\n'
         md += '\n注:观察 transition_writer.mutex_wait 是否 ≈ 0 (T-B1 fix 验证)。\n'
         md += '观察 inference_client.recv 大小 - send 时间差 ≈ InfServer batching window + GPU forward。\n'
 
     if go.get('qs_max') is not None:
-        md += f"\n## Go-actor backpressure\n\n- _trans_queue.qsize max = {go['qs_max']} / mean = {go['qs_mean']}\n"
-        md += f"- alive_count unique = {go['alive_unique']}\n"
+        md += f'\n## Go-actor backpressure\n\n- _trans_queue.qsize max = {go["qs_max"]} / mean = {go["qs_mean"]}\n'
+        md += f'- alive_count unique = {go["alive_unique"]}\n'
 
     return md
 

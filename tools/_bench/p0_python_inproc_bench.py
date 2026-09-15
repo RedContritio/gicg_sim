@@ -36,8 +36,10 @@ def main() -> int:
         elapsed = time.monotonic() - t0
         ns_per_op = 1e9 * elapsed / args.n_ops
         ops_per_s = args.n_ops / elapsed
-        print(f'[py-inproc bench] payload={args.payload_size}B n_ops={args.n_ops} '
-              f'elapsed={elapsed:.2f}s ns/op={ns_per_op:.1f} ops/s={ops_per_s:,.0f}')
+        print(
+            f'[py-inproc bench] payload={args.payload_size}B n_ops={args.n_ops} '
+            f'elapsed={elapsed:.2f}s ns/op={ns_per_op:.1f} ops/s={ops_per_s:,.0f}'
+        )
     finally:
         ch.close()
     return 0

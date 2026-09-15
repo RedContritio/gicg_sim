@@ -52,8 +52,10 @@ def main() -> int:
 
     us_per_op = 1e6 * elapsed / args.n_ops
     ops_per_s = args.n_ops / elapsed
-    print(f'[mp.Queue bench] payload={args.payload_size}B n_ops={args.n_ops} '
-          f'elapsed={elapsed:.2f}s µs/round-trip={us_per_op:.1f} ops/s={ops_per_s:,.0f}')
+    print(
+        f'[mp.Queue bench] payload={args.payload_size}B n_ops={args.n_ops} '
+        f'elapsed={elapsed:.2f}s µs/round-trip={us_per_op:.1f} ops/s={ops_per_s:,.0f}'
+    )
 
     req_q.put(None)
     p.join(timeout=5.0)
