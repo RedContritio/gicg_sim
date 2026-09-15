@@ -16,7 +16,8 @@ import numpy as np
 import pytest
 
 import training.core.perf.trace as _trace_mod
-from training.core.actor.transition_sink_wire import Transition, encode_dmc_payload
+from training.core.actor.dmc_transition_payload_wire import encode_dmc_payload
+from training.core.actor.transition_sink_wire import Transition
 from training.paradigms.dmc._go_assembler import DmcTransitionAssembler
 
 

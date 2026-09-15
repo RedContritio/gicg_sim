@@ -35,11 +35,11 @@ from training.core.actor.go_subprocess_pipeline import (
     make_unique_shm_name,
     spawn_pipeline,
 )
+from training.core.actor.dmc_transition_payload_wire import decode_dmc_payload
 from training.core.actor.transition_sink_wire import (
     EPISODE_BATCH_HEADER_SIZE,
     KIND_EPISODE_BATCH,
     WIRE_VERSION,
-    decode_dmc_payload,
     decode_episode_batch,
 )
 
@@ -114,9 +114,7 @@ def _build_paradigm_config() -> dict[str, Any]:
     }
 
 
-def _wait_for_episode_batch(
-    handle: PipelineHandle, deadline_s: float
-) -> tuple[int, int, bytes]:
+def _wait_for_episode_batch(handle: PipelineHandle, deadline_s: float) -> tuple[int, int, bytes]:
     """Poll SHM ring until 1 wire frame arrives or deadline。 返 (cid, rid, raw_payload)。
 
     raw_payload 是 episode batch wire frame (outer length prefix + EpisodeBatchHeader + N
@@ -183,7 +181,7 @@ def test_dmc_go_subprocess_1ep_smoke():
         shm_ring_name=shm_name,
         inf_max_actions=2048,
         request_decoder_path='training.paradigms.dmc.mp_factories.decode_dmc_request',
-            socket_payload_encoder_path='training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload',
+        socket_payload_encoder_path='training.paradigms.dmc._socket_decoder.socket_request_to_pickled_payload',
         binary_path=str(_BIN),
         tuning=PipelineTuningCfg(
             # SHM sizing — 真 DMC episode batch ~1.4 MB peak (v_legacy 全 pool max_actions=2048
@@ -211,8 +209,7 @@ def test_dmc_go_subprocess_1ep_smoke():
         assert batch.client_id == cid
         assert batch.episode_id == rid
         assert len(batch.transitions) >= 2, (
-            f'episode batch should have ≥ 2 trans (≥1 me-step + 1 terminal marker), '
-            f'got {len(batch.transitions)}'
+            f'episode batch should have ≥ 2 trans (≥1 me-step + 1 terminal marker), got {len(batch.transitions)}'
         )
         # 末条必须是 terminal marker (done=True);中间条 done=False。
         assert batch.transitions[-1].done, 'last transition must be terminal marker (done=True)'

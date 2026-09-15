@@ -17,7 +17,8 @@ from training.paradigms.dmc.tests.test_go_assembler import _build_dyn_obs
 import numpy as np
 import pytest
 
-from training.core.actor.transition_sink_wire import EpisodeBatch, Transition, encode_dmc_payload
+from training.core.actor.dmc_transition_payload_wire import encode_dmc_payload
+from training.core.actor.transition_sink_wire import EpisodeBatch, Transition
 from training.paradigms.dmc._go_assembler import DmcTransitionAssembler
 
 # ─── Fixture ──────────────────────────────────────────────────────────────────

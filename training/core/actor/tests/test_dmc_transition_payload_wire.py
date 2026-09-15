@@ -18,7 +18,7 @@ import struct
 import numpy as np
 import pytest
 
-from training.core.actor.transition_sink_wire import (
+from training.core.actor.dmc_transition_payload_wire import (
     DMC_PAYLOAD_VER,
     _DMC_PAYLOAD_HEADER_SIZE,
     decode_dmc_payload,

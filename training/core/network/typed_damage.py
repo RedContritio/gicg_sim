@@ -39,6 +39,7 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
+from training.core.network._typed_damage_index import _TypedDamageIndexMixin
 from training.core.obs_constants import (
     OBS_MAX_CHARS,
     OBS_MAX_SKILLS_PER_CHAR,
@@ -73,7 +74,7 @@ CHAR_VOCAB = OBS_MAX_CHARS + 3  # 9 (handles -2/-1/0..MC-1/spare)
 SKILL_SLOT_VOCAB = OBS_MAX_SKILLS_PER_CHAR + 3  # 13 (-2/-1/0..MSPC-1/spare)
 
 
-class TypedDamageEncoder(nn.Module):
+class TypedDamageEncoder(_TypedDamageIndexMixin, nn.Module):
     """Encode (recent_damage, prepare_skill, modifier_log) → (B, d_model)."""
 
     def __init__(self, d_model: int, dropout: float = 0.1):
@@ -178,56 +179,6 @@ class TypedDamageEncoder(nn.Module):
         Raises on out-of-range."""
         # ModBoost..ModAfterDamage = 0..3
         return self._safe_categorical(idx, 'modifier_kind', MODIFIER_KIND_VOCAB, real_max=3)
-
-    def _safe_categorical(
-        self,
-        idx: torch.Tensor,
-        field_name: str,
-        vocab_size: int,
-        real_max: int,
-    ) -> torch.Tensor:
-        """Validate and offset a categorical field for embedding lookup.
-
-        Valid ranges:
-          - -2 (padding sentinel)
-          - -1 (real "no-X")
-          - 0..real_max (real values)
-
-        +2 offset maps to vocab idx 0..real_max+2; clamp range checked.
-        Out-of-range input raises ``ValueError``.
-        """
-        idx_long = idx.long()
-        too_low = idx_long < -2
-        too_high = idx_long > real_max
-        if (too_low | too_high).any():
-            bad = idx_long[too_low | too_high]
-            raise ValueError(
-                f'{field_name} out of range [-2, {real_max}]: got values {bad.tolist()}. '
-                f'Engine emitted value beyond vocab (size={vocab_size}) — bug, not noise.'
-            )
-        return idx_long + 2
-
-    def _safe_skill_slot(self, idx: torch.Tensor) -> torch.Tensor:
-        """Map -2 (padding, never emitted by encodePrepareSkill but
-        encoder is uniform), -1 (no prepare real), 0..MSPC-1 → 2..MSPC+1.
-
-        A slot outside [-2, OBS_MAX_SKILLS_PER_CHAR) means the engine
-        emitted a slot beyond the network's vocabulary, indicating either
-        an engine bug or an OBS_MAX_SKILLS_PER_CHAR drift between Go and
-        Python.
-        """
-        idx_long = idx.long()
-        too_low = idx_long < -2
-        too_high = idx_long >= OBS_MAX_SKILLS_PER_CHAR
-        if (too_low | too_high).any():
-            bad = idx_long[too_low | too_high]
-            raise ValueError(
-                f'skill_slot out of range [-2, {OBS_MAX_SKILLS_PER_CHAR}): '
-                f'got values {bad.tolist()}. Engine emitted slot beyond '
-                f'OBS_MAX_SKILLS_PER_CHAR={OBS_MAX_SKILLS_PER_CHAR} or a '
-                'corrupt obs index — bug, not noise.'
-            )
-        return idx_long + 2
 
     def forward(
         self,

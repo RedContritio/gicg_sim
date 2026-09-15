@@ -9,7 +9,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from training.core.actor.transition_sink_wire import Transition, encode_dmc_payload
+from training.core.actor.dmc_transition_payload_wire import encode_dmc_payload
+from training.core.actor.transition_sink_wire import Transition
 from training.paradigms.dmc._go_assembler import DmcTransitionAssembler
 
 

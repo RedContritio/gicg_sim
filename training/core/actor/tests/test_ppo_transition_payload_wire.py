@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from training.core.actor.transition_sink_wire import (
+from training.core.actor.ppo_transition_payload_wire import (
     decode_ppo_payload,
     encode_ppo_payload,
 )
@@ -131,6 +131,6 @@ def test_ppo_payload_header_size_matches_go():
     PpoTransitionHeader:PayloadVer(1) + ChosenAction(4) + StepInEp(4) + RewardX1M(4) +
     LogProbX1M(4) + ValueX1M(4) + 5×u32 N* (20) + StaticHash(16) = 57 byte。
     """
-    from training.core.actor.transition_sink_wire import _PPO_PAYLOAD_HEADER_SIZE
+    from training.core.actor.ppo_transition_payload_wire import _PPO_PAYLOAD_HEADER_SIZE
 
     assert _PPO_PAYLOAD_HEADER_SIZE == 57

@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from training.core.logging import (
-    MetricsLogger,
+from training.core.logging import MetricsLogger
+from training.core.logging_samplers import (
     _nvidia_smi_available,
     _sample_cpu,
     _sample_disk,

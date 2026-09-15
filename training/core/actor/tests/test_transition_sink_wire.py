@@ -11,11 +11,13 @@ import struct
 import numpy as np
 import pytest
 
+from training.core.actor.dmc_transition_payload_wire import (
+    decode_dmc_payload,
+    encode_dmc_payload,
+)
 from training.core.actor.transition_sink_wire import (
     Transition,
-    decode_dmc_payload,
     decode_transition,
-    encode_dmc_payload,
     encode_transition,
 )
 

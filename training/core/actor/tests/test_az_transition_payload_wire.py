@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from training.core.actor.transition_sink_wire import (
+from training.core.actor.az_transition_payload_wire import (
     decode_az_payload,
     encode_az_payload,
 )
@@ -135,6 +135,6 @@ def test_az_payload_header_size_matches_go():
     AzTransitionHeader: PayloadVer(1) + ChosenAction(4) + StepInEp(4) + RewardX1M(4) +
     RootValueX1M(4) + 6×u32 N* (24) + StaticHash(16) = 57 byte (2026-05-28 加 PayloadVer)。
     """
-    from training.core.actor.transition_sink_wire import _AZ_PAYLOAD_HEADER_SIZE
+    from training.core.actor.az_transition_payload_wire import _AZ_PAYLOAD_HEADER_SIZE
 
     assert _AZ_PAYLOAD_HEADER_SIZE == 57
