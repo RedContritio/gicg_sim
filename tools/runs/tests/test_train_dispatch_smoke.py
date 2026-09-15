@@ -1,11 +1,12 @@
 """T-11 — 5-paradigm dispatch smoke for ``tools.runs.train``.
 
-Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
+Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` (主卷)
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md`` (续卷):
 
-- 行 28-32 §Architecture CRIT-X-1 方案 A (paradigm dispatch 完整迁移
+- §Architecture CRIT-X-1 方案 A (paradigm dispatch 完整迁移
            from ``tools/run.py``; ``tools.runs.train`` 内含 cfg load +
            5 paradigm registry + ``run_pipeline``,no thin shim)
-- 行 382-385 §测试矩阵 Workflow tests — ``train <cfg>`` → assert
+- §测试矩阵 Workflow tests — ``train <cfg>`` → assert
              artifacts dir 创建 + ``metadata.status='done'`` +
              ``ckpts/`` 有内容
 
@@ -219,7 +220,7 @@ def test_paradigm_dispatch_subprocess_runs_done(paradigm: str, tmp_path: Path) -
     assert metadata['exit_code'] == 0
     assert metadata['wall_seconds'] >= 0.0
 
-    # Phase B cfg snapshots present (spec §Per-run dir 行 78-82).
+    # Phase B cfg snapshots present (spec §Per-run 完全 self-contained).
     assert (run_dir / 'cfg_leaf.toml').exists()
     assert (run_dir / 'cfg_resolved.toml').exists()
 

@@ -6,18 +6,18 @@ pre-commit budget once T-19 lands.
 Three features:
 
 - :func:`init_authoritative` — write ``artifacts/.authoritative_host`` =
-  ``socket.gethostname()`` (spec §HIGH-2-D 行 348-356). Overwrite is OK
-  per user decision (行 355). Marker file does not cross-host sync (the
+  ``socket.gethostname()`` (spec §HIGH-2-D). Overwrite is OK
+  per user decision (§HIGH-2-D). Marker file does not cross-host sync (the
   ``--exclude=artifacts/.authoritative_host`` rsync flag in ``sync.py``
   enforces that).
 - :class:`CaseCollideError` + :func:`detect_case_collisions` — defend
   the macOS APFS (case-insensitive) ↔ Linux ext4 (case-sensitive) sync
-  boundary (spec §CRIT-5-A 行 341-346). Two artifacts dirs that differ
+  boundary (spec §CRIT-5-A). Two artifacts dirs that differ
   only by case would silently collide on APFS.
 - :data:`REMOTE_RE_PATTERN` — the regex source string used by
   ``sync._REMOTE_RE``. Exposed here so the IPv6 alternative lives next
   to the case-collide / authoritative wording (single doc surface for
-  T-19 spec §HIGH-6-B 行 441 + 行 493). Accepts:
+  T-19 spec §HIGH-6-B). Accepts:
   - ``user@hostname:path/`` (alphanum + dot + dash)
   - ``user@1.2.3.4:path/`` (IPv4 — same alphanum + dot + dash regex)
   - ``user@[::1]:path/`` / ``user@[fe80::1]:path/`` (IPv6 bracket form)
@@ -37,7 +37,7 @@ __all__ = [
     'init_authoritative',
 ]
 
-# Spec §HIGH-6-B 行 441 / 行 493 — IPv6 bracket form must be accepted.
+# Spec §HIGH-6-B — IPv6 bracket form must be accepted.
 # Host part is an alternation: ``hostname-or-ipv4`` OR ``[ipv6]``.
 # IPv6 inner: ``[0-9a-fA-F:]+`` — hex digits + colons, length ≥ 1 (empty
 # ``[]`` rejected). Zone IDs such as ``%eth0`` are not accepted because
@@ -91,7 +91,7 @@ def init_authoritative(repo_root: Path, *, hostname: str | None = None) -> Path:
     ``hostname`` is injectable for tests; defaults to
     :func:`socket.gethostname` at call time (NOT import time — tests
     monkeypatch the live binding). Overwrite of an existing marker is
-    intentional (spec 行 355: user decision, ``overwrite OK``).
+    intentional (spec §HIGH-2-D: user decision, ``overwrite OK``).
 
     Returns the absolute marker path so callers / tests can assert on
     location without re-deriving it.

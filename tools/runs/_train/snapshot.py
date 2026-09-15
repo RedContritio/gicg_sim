@@ -14,7 +14,7 @@ The hand-rolled TOML emitter used by step 4b lives in
 :mod:`tools.runs._train.cfg_toml` (split out per the 300-line file
 budget).
 
-Failure handling (spec 行 51, 53, 301):
+Failure handling (spec §单命令 atomic lifecycle):
 
 - Any IO / serialization error → ``rmtree(state.artifacts_dir)`` then
   re-raise as ``SystemExit(2)``. The mkdir in Phase A step 3 created the
@@ -23,18 +23,18 @@ Failure handling (spec 行 51, 53, 301):
   would otherwise have to skip.
 - If the rmtree itself fails, an informational warning goes to stderr
   but the original IO exception still drives the SystemExit (cleanup
-  diagnostics never mask the root cause; CLAUDE.md §2 + spec 行 301
+  diagnostics never mask the root cause; CLAUDE.md §2 + spec §train 失败时
   finally-block discipline).
 
 Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``):
 
-- 行 50-53  Architecture step 4-5 + orphan-dir rmtree
-- 行 76-96  Per-run dir layout (cfg_leaf / cfg_resolved / metadata)
-- 行 82     Even when cfg has no extends, cfg_leaf and cfg_resolved
+- §Architecture step 4-5 + orphan-dir rmtree
+- §Per-run 完全 self-contained (cfg_leaf / cfg_resolved / metadata)
+- §Per-run 完全 self-contained Even when cfg has no extends, cfg_leaf and cfg_resolved
             both get written (structural symmetry)
-- 行 174-189 Schema metadata.toml 11 fields
-- 行 279-292 Per-run metadata_lock + atomic rename
-- 行 301     finally try/except discipline (cleanup never masks root)
+- §metadata.toml 字段 (11 fields)
+- §metadata 写 Per-run metadata_lock + atomic rename
+- §train 失败时 finally try/except discipline (cleanup never masks root)
 """
 
 from __future__ import annotations
@@ -60,7 +60,7 @@ def phase_b_write_cfg_metadata(state: SetupState, cfg_path: Path) -> None:
     any failure midway triggers ``rmtree(state.artifacts_dir)`` so a
     half-populated dir never survives.
 
-    Filename versioning (spec 行 156 pair-versioning):
+    Filename versioning (spec §Resume 语义 pair-versioning):
     - v1 (fresh path, ``state.cfg_resolved_version == 1``) → unsuffixed
       ``cfg_leaf.toml`` + ``cfg_resolved.toml``.
     - vN >= 2 (resume path) → ``cfg_leaf_v<N>.toml`` +
@@ -70,7 +70,7 @@ def phase_b_write_cfg_metadata(state: SetupState, cfg_path: Path) -> None:
 
     Resume-path discipline (T-12 fix-up):
     - **Resume path is no-op here.** The vN file writes + metadata bump
-      moved into Phase A's allocator-lock critical section (spec 行 155
+      moved into Phase A's allocator-lock critical section (spec §Resume 语义
       requires glob + paired vN write + metadata bump as one atomic
       unit — splitting the write to Phase B post-lock opened a race
       where two parallel resumes both globbed N=2 and overwrote each
@@ -135,7 +135,7 @@ def phase_b_write_cfg_metadata(state: SetupState, cfg_path: Path) -> None:
 def _versioned_filenames(cfg_resolved_version: int) -> tuple[str, str]:
     """Return ``(leaf_name, resolved_name)`` for the given version.
 
-    Spec 行 156 pair-versioning: v1 is unsuffixed (``cfg_leaf.toml`` /
+    Spec §Resume 语义 pair-versioning: v1 is unsuffixed (``cfg_leaf.toml`` /
     ``cfg_resolved.toml``); vN >= 2 is suffixed
     (``cfg_leaf_v<N>.toml`` / ``cfg_resolved_v<N>.toml``). Pure helper
     so test_train_resume.py can pin the naming convention without
@@ -151,15 +151,15 @@ def _versioned_filenames(cfg_resolved_version: int) -> tuple[str, str]:
 def _build_initial_metadata(state: SetupState, cfg_path: Path) -> schema.RunMetadata:
     """Construct the initial ``running``-state RunMetadata for a fresh run.
 
-    Spec §Schema (行 174-189) — 11 fields. ``wall_seconds=0.0`` and
+    Spec §metadata.toml 字段 — 11 fields. ``wall_seconds=0.0`` and
     ``exit_code=0`` are placeholders during 'running'; Phase C (T-10)
     overwrites both at close. ``cfg_file`` is the **leaf** cfg path
-    that the user originally passed (spec 行 179: "last leaf path
+    that the user originally passed (spec §metadata.toml 字段: "last leaf path
     used"); the snapshotted bytes live in ``cfg_leaf.toml`` under the
     per-run dir for reproducibility (the snapshot is the truth — spec
     caveats the recorded path "可能不存在/已改").
 
-    ``cfg_resolved_version=1`` since this is fresh train (spec 行 180:
+    ``cfg_resolved_version=1`` since this is fresh train (spec §metadata.toml 字段:
     "首版 = 1, resume 递增"; T-12 handles resume increment).
 
     ``git_commit`` via ``git rev-parse HEAD`` subprocess; falls back to

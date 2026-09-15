@@ -1,8 +1,7 @@
 """tools.runs._helpers.allocator — R4 NNN allocator under flock (T-03).
 
 Internal module — callers must import from :mod:`tools.runs.helpers`
-(the public re-export shell). Implements the spec §Atomic allocator
-行 260-277 flow: scan ``artifacts/`` for the highest existing 6-digit
+(the public re-export shell). Implements the spec §Atomic allocator flow: scan ``artifacts/`` for the highest existing 6-digit
 NNN, return ``max + 1`` under exclusive lock, let the caller mkdir the
 new artifacts subdir inside the critical section.
 """
@@ -50,7 +49,7 @@ def _glob_max_nnn(artifacts_dir: Path) -> int:
 def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
     """Yield a fresh NNN under the allocator lock; caller mkdirs inside ``with``.
 
-    Per spec §Atomic allocator 行 260-277:
+    Per spec §Atomic allocator:
 
     - ``open('artifacts/.run_id_lock', 'a+')`` + ``fcntl.flock(LOCK_EX |
       LOCK_NB)``; kernel auto-releases on fd close so a crashed process
@@ -77,16 +76,16 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
       happens to collide on the new name): exit the ``with`` block and
       re-enter ``allocate_nnn(repo_root)``. Lock release → re-glob
       observes the offending dir → the next loop's ``NNN`` will skip
-      past the collision. spec 行 269-275 显式列此 retry pattern.
+      past the collision. spec §Atomic allocator 显式列此 retry pattern.
     - ``allocate_nnn`` 不内置 mkdir / 不内置 EEXIST retry — 选择 Option C
       (``@contextmanager`` yielding ``int``) 而非 callback-style
       ``allocate_nnn(repo_root, on_alloc=lambda nnn: ...)`` 是为保持
-      helper 表 行 542 ``(repo_root) -> int`` 的 simplification. retry
+      §Public API helper 表 ``(repo_root) -> int`` 的 simplification. retry
       由 caller (T-08 ``train.py``) 显式控制。
 
-    Signature note: spec helper table 行 542 advertises
+    Signature note: spec helper table §Public API helper 表 HIGH-5-A advertises
     ``(repo_root: Path) -> int``. We implement as a context manager
-    yielding ``int`` rather than a bare function because spec line 271
+    yielding ``int`` rather than a bare function because spec §Atomic allocator
     requires the new-dir ``mkdir`` to happen *inside* the lock. A bare
     ``-> int`` function would have to release the lock before returning,
     re-introducing a race window (two callers both observe the same
@@ -108,7 +107,7 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
         RuntimeError: After 10 retries failing to acquire the
             allocator lock (``'unable to acquire run-id lock after 10
             retries; check artifacts/.run_id_lock'``). The trailing
-            hint is operator-actionable — spec 行 306 prescribes it
+            hint is operator-actionable — spec §用户友好 error message prescribes it
             verbatim so users know where to inspect.
     """
     artifacts_dir = repo_root / 'artifacts'
@@ -116,7 +115,7 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
     lock_path = artifacts_dir / '.run_id_lock'
 
     # `a+` opens for read+append, creating if missing — matches spec
-    # line 266 exactly. The file content is irrelevant; we only need
+    # §Atomic allocator exactly. The file content is irrelevant; we only need
     # the fd for flock.
     with open(lock_path, 'a+') as fd:
         _retry_acquire_flock(

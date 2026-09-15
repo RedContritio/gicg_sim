@@ -2,8 +2,7 @@
 
 Clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§CLI list 细则 HIGH-1-B 行 112-118 + §错误处理 Malformed metadata
-HIGH-4-A 行 315-321.
+§CLI list 细则 HIGH-1-B + §Malformed metadata 处理 HIGH-4-A.
 
 Behavior:
 
@@ -11,12 +10,12 @@ Behavior:
   ``^\\d{12}_(\\d{6})_<label>`` read ``<dir>/metadata.toml``.
 - ``--status`` / ``--paradigm`` filter (post-load).
 - ``paradigm`` derived live from the **highest-version**
-  ``cfg_resolved*.toml`` ``meta.paradigm`` (spec line 116 + line 157).
-- Default sort: ``timestamp desc`` (newest first; spec line 114).
+  ``cfg_resolved*.toml`` ``meta.paradigm`` (spec §CLI list 细则 HIGH-1-B + §Resume 语义).
+- Default sort: ``timestamp desc`` (newest first; spec §CLI list 细则 HIGH-1-B).
 - Malformed metadata: stderr warn ``'skipping <NNN>: malformed
-  metadata'`` + skip (spec line 318 "不让一坏全坏").
+  metadata'`` + skip (spec §Malformed metadata 处理 HIGH-4-A "不让一坏全坏").
 - Output: ``NNN | status | paradigm | started | wall | run_label |
-  notes`` (spec line 117).
+  notes`` (spec §CLI list 细则 HIGH-1-B).
 
 CLI::
 
@@ -34,7 +33,7 @@ from pathlib import Path
 from tools.runs import schema
 from tools.runs._helpers.paths import RUN_DIR_RE, extract_meta_field
 
-# Resume-versioned cfg files (spec §Resume 行 153-157): v1 has no suffix,
+# Resume-versioned cfg files (spec §Resume 语义): v1 has no suffix,
 # v>=2 carries ``_v<N>`` suffix; latest version is current truth.
 _CFG_RESOLVED_V_RE = re.compile(r'^cfg_resolved_v(\d+)\.toml$')
 
@@ -59,8 +58,8 @@ class _Row:
 def _cfg_resolved_version(name: str) -> int:
     """Return version number for a cfg_resolved filename, or 0 if not one.
 
-    ``cfg_resolved.toml`` → 1 (v1, no suffix; spec line 153).
-    ``cfg_resolved_v<N>.toml`` → N (N >= 2; spec line 155).
+    ``cfg_resolved.toml`` → 1 (v1, no suffix; spec §Resume 语义).
+    ``cfg_resolved_v<N>.toml`` → N (N >= 2; spec §Resume 语义).
     """
     if name == 'cfg_resolved.toml':
         return 1
@@ -73,7 +72,7 @@ def _cfg_resolved_version(name: str) -> int:
 def _derive_paradigm(run_dir: Path) -> str:
     """Read ``cfg.meta.paradigm`` from the highest-version cfg_resolved.
 
-    Spec line 116 + line 157: 实时读最高版 cfg_resolved 的 meta.paradigm.
+    Spec §CLI list 细则 HIGH-1-B + §Resume 语义: 实时读最高版 cfg_resolved 的 meta.paradigm.
     Returns ``'?'`` on missing file, parse error, or absent field —
     paradigm is display-only, metadata.toml validate is the gating check.
     """
@@ -102,7 +101,7 @@ def _scan_one(run_dir: Path) -> _Row | None:
 
     Malformed metadata (parse fail / schema fail / read error) → stderr
     warn ``'skipping <NNN>: malformed metadata (<reason>)'`` + return
-    ``None`` (spec line 318: 不让一坏全坏). Missing metadata.toml is
+    ``None`` (spec §Malformed metadata 处理 HIGH-4-A: 不让一坏全坏). Missing metadata.toml is
     silent-skip (recover-eligible state, not corruption).
     """
     metadata_path = run_dir / 'metadata.toml'
@@ -194,7 +193,7 @@ def _format_wall(seconds: float) -> str:
 def render_table(rows: list[_Row]) -> str:
     """Render rows as a fixed-width table (stdlib only).
 
-    Columns (spec line 117):
+    Columns (spec §CLI list 细则 HIGH-1-B):
     ``NNN | status | paradigm | started | wall | run_label | notes``.
     ``notes`` truncated to first line + 60-char limit with ``…`` suffix.
     """

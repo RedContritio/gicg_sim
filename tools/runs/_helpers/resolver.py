@@ -1,15 +1,15 @@
 """tools.runs._helpers.resolver — R7 NNN shorthand → artifacts dir (T-05).
 
 Internal module — callers must import from :mod:`tools.runs.helpers`.
-Implements spec §CLI show 细则 HIGH-1-C 行 120-125 + §CLI mark 细则
-HIGH-6-A 行 127-135 + §Public API helper 表 R7 行 545:
+Implements spec §CLI show 细则 HIGH-1-C + §CLI mark 细则
+HIGH-6-A + §Public API helper 表 R7:
 
 - shorthand ``69`` / ``069`` / ``000069`` all zero-pad to 6 digits, then
   exact match against ``artifacts/<ts>_<NNN>_<label>/``.
-- 0 match → ``LookupError('NNN not found')`` (spec 行 310 prescribed wording).
+- 0 match → ``LookupError('NNN not found')`` (spec §用户友好 error message prescribed wording).
 - ≥2 match → ``LookupError('multiple dirs match <NNN>: <list>; please pass
-  full dir path')`` (spec 行 311 prescribed wording; guards against
-  cross-host sync silent collision per spec 行 123 + 131).
+  full dir path')`` (spec §用户友好 error message prescribed wording; guards against
+  cross-host sync silent collision per spec §HIGH-1-C).
 """
 
 from __future__ import annotations
@@ -23,16 +23,16 @@ _DIGITS_RE = re.compile(r'^[0-9]{1,6}$')
 def resolve_nnn_to_dir(repo_root: Path, nnn: str) -> Path:
     """Resolve a NNN shorthand (str) to its unique ``artifacts/`` dir.
 
-    Per spec §CLI show 细则 HIGH-1-C + §CLI mark 细则 HIGH-6-A:
+    Per spec §HIGH-1-C + §CLI mark 细则 HIGH-6-A:
 
     - ``nnn`` must be 1-6 ASCII digit characters; ``zfill(6)`` then strict
       regex match ``^\\d{12}_<padded>_`` against each ``artifacts/`` child.
     - Exactly 1 match → return that ``Path``.
-    - 0 match → raise ``LookupError('NNN not found')`` (spec line 310
+    - 0 match → raise ``LookupError('NNN not found')`` (spec §用户友好 error message
       verbatim wording, then a path hint so the user knows where the
       scanner looked).
     - ≥2 match → raise ``LookupError('multiple dirs match <NNN>: <list>;
-      please pass full dir path')`` (spec line 311 verbatim wording;
+      please pass full dir path')`` (spec §用户友好 error message verbatim wording;
       candidates listed in sorted order for deterministic output).
 
     Why ``LookupError`` (not a custom exception class): stdlib semantic

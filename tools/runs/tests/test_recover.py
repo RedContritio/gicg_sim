@@ -1,7 +1,7 @@
 """Tests for ``tools.runs.recover`` (T-17 clean-slate redesign).
 
-Covers spec §CLI recover 细则 HIGH-4-C 行 137-143 + §Status 状态机 unknown
-仅 recover 写入 行 142, 183 + §Per-run 完全 self-contained 行 76-96.
+Covers spec §CLI recover 细则 HIGH-4-C + §Status 状态机 unknown
+仅 recover 写入 (§HIGH-4-C + §metadata.toml 字段) + §Per-run 完全 self-contained.
 
 Spec contracts under test:
 
@@ -14,7 +14,7 @@ Spec contracts under test:
 - Refuse non-existent / non-directory paths (ValueError).
 - Refuse dirs that don't match ``<ts>_<NNN>_<label>`` regex (ValueError).
 - ``status='unknown'`` flows through ``list`` and is markable to
-  ``{done, failed, killed}`` (spec 行 229 — unknown is a non-terminal
+  ``{done, failed, killed}`` (spec §Status 状态机 — unknown is a non-terminal
   source state).
 - ``notes`` field carries the audit-trail sentinel
   ``'recovered via tools.runs.recover'``.
@@ -131,7 +131,7 @@ class TestBasicRecover:
         assert (run_dir / 'metadata.toml').is_file()
 
     def test_status_is_unknown(self, tmp_path: Path) -> None:
-        """Spec 行 142, 183 — recover is the **only** writer of 'unknown'."""
+        """Spec §HIGH-4-C — recover is the **only** writer of 'unknown'."""
         run_dir = _build_partial_dir(tmp_path, nnn='000069')
         meta = recover_cmd.recover_metadata(tmp_path, run_dir)
         assert meta.status == 'unknown'
@@ -213,7 +213,7 @@ class TestCfgResolvedVersioning:
         assert meta.cfg_resolved_version == 1
 
     def test_v1_v2_v3_yields_3(self, tmp_path: Path) -> None:
-        """Spec 行 157 — highest version is current truth."""
+        """Spec §Resume 语义 — highest version is current truth."""
         run_dir = _build_partial_dir(tmp_path, nnn='000001', cfg_versions=(1, 2, 3))
         meta = recover_cmd.recover_metadata(tmp_path, run_dir)
         assert meta.cfg_resolved_version == 3
@@ -243,7 +243,7 @@ class TestCfgResolvedVersioning:
 
 class TestErrorPaths:
     def test_existing_metadata_raises(self, tmp_path: Path) -> None:
-        """Spec 行 139 — recover refuses to clobber existing metadata."""
+        """Spec §HIGH-4-C — recover refuses to clobber existing metadata."""
         run_dir = _build_partial_dir(tmp_path, nnn='000001', write_metadata=True)
         assert (run_dir / 'metadata.toml').exists()
         with pytest.raises(FileExistsError, match='already exists'):
@@ -323,7 +323,7 @@ class TestPostRecoverLifecycle:
 
     def test_mark_unknown_to_killed_succeeds(self, tmp_path: Path) -> None:
         """``unknown → killed`` is the canonical post-recover transition
-        (spec 行 229 + 142-143)."""
+        (spec §Status 状态机)."""
         run_dir = _build_partial_dir(tmp_path, nnn='000069')
         recover_cmd.recover_metadata(tmp_path, run_dir)
 

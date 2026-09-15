@@ -2,10 +2,10 @@
 
 Covers spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
 
-- §Architecture step 6-7 行 54-56 (run + close)
-- §Atomic 行 64-66 (read-and-compare-and-write within metadata_lock)
-- §Exit codes 行 247-257 (0 / 1 / 3 mapping)
-- §错误处理 行 297-303 (train failure → status=failed; finally
+- §Architecture step 6-7 (run + close)
+- §单命令 atomic lifecycle (read-and-compare-and-write within metadata_lock)
+- §Exit codes (0 / 1 / 3 mapping)
+- §train 失败时 (train failure → status=failed; finally
   discipline never masks root cause)
 
 Phase A/B are exercised end-to-end via the real ``phase_a_setup`` /
@@ -219,7 +219,7 @@ def test_phase_c_train_systemexit_string_code_falls_back_to_1(tmp_path: Path, mo
 
 
 def test_phase_c_baseexception_swallowed_not_propagated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Spec 行 54 — step 6 catches ALL exceptions so step 7 still runs.
+    """Spec §单命令 atomic lifecycle — step 6 catches ALL exceptions so step 7 still runs.
 
     Specifically: BaseException subclasses (other than KeyboardInterrupt
     semantics) get recorded as failures; the close metadata write still
@@ -240,7 +240,7 @@ def test_phase_c_baseexception_swallowed_not_propagated(tmp_path: Path, monkeypa
     assert meta.status == 'failed'
 
 
-# --- External mark detection (spec 行 55, 66) --------------------------------
+# --- External mark detection (spec §单命令 atomic lifecycle) --------------------------------
 
 
 def test_phase_c_externally_marked_killed_not_overwritten(
@@ -248,7 +248,7 @@ def test_phase_c_externally_marked_killed_not_overwritten(
 ) -> None:
     """If an external ``mark`` flipped status to ``killed`` mid-train,
     Phase C must preserve the kill and exit 0 with a stderr warning
-    (spec 行 55, 66 — train output discarded)."""
+    (spec §单命令 atomic lifecycle — train output discarded)."""
     state = _setup_running_run(tmp_path)
 
     def _mark_externally(_state: Any) -> None:
@@ -274,7 +274,7 @@ def test_phase_c_externally_marked_killed_not_overwritten(
 
     monkeypatch.setattr(run_mod, '_run_train_placeholder', _mark_externally)
     rc = run_mod.phase_c_run_train_and_close(state)
-    assert rc == 0  # spec 行 66 explicit "exit 0"
+    assert rc == 0  # spec §单命令 atomic lifecycle explicit "exit 0"
     err = capsys.readouterr().err
     assert 'metadata externally marked' in err
     assert "'killed'" in err
@@ -288,7 +288,7 @@ def test_phase_c_externally_marked_killed_not_overwritten(
 def test_phase_c_externally_marked_done_not_overwritten(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """External flip to ``done`` mid-train → still preserve, exit 0.
 
-    Spec line 55 says "若已非 'running' 则保留" — applies to any non-
+    Spec §单命令 atomic lifecycle says "若已非 'running' 则保留" — applies to any non-
     running status (done, failed, killed, unknown), not just kill.
     """
     state = _setup_running_run(tmp_path)
@@ -322,7 +322,7 @@ def test_phase_c_external_mark_wins_even_when_train_failed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
     """If train raised AND someone externally marked killed during the
-    same window, the external mark still wins (spec 行 55 unconditional
+    same window, the external mark still wins (spec §单命令 atomic lifecycle unconditional
     — train output discarded regardless of how train ended)."""
     state = _setup_running_run(tmp_path)
 
@@ -357,7 +357,7 @@ def test_phase_c_external_mark_wins_even_when_train_failed(
     assert meta.notes == 'killed externally'
 
 
-# --- Step 7 final write failure (spec 行 254) --------------------------------
+# --- Step 7 final write failure (spec §Exit codes) --------------------------------
 
 
 def test_phase_c_final_write_failure_returns_3(
@@ -365,7 +365,7 @@ def test_phase_c_final_write_failure_returns_3(
 ) -> None:
     """If the final ``os.replace`` (or temp write) fails, Phase C must
     return 3 and leave metadata as ``running`` so the user can recover
-    via ``tools.runs.mark`` (spec 行 254)."""
+    via ``tools.runs.mark`` (spec §Exit codes)."""
     state = _setup_running_run(tmp_path)
 
     # Capture pre-state — metadata is 'running' from Phase B.

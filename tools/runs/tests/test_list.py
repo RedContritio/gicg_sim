@@ -1,7 +1,6 @@
 """``tools.runs.list`` tests — clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§CLI list 细则 HIGH-1-B 行 112-118 + §错误处理 Malformed metadata
-HIGH-4-A 行 315-321.
+§CLI list 细则 HIGH-1-B + §Malformed metadata 处理 HIGH-4-A.
 
 Fixtures lay down ``artifacts/<ts>_<NNN>_<label>/{metadata.toml,
 cfg_resolved.toml[, cfg_resolved_v2.toml]}`` directly (no register
@@ -43,7 +42,7 @@ def _write_metadata(
       paradigm='?' fallback path).
     - ``cfg_resolved_v2_paradigm`` writes a ``cfg_resolved_v2.toml`` to
       simulate the resume path; list_runs must read the v2 paradigm
-      (highest version = truth per spec line 157).
+      (highest version = truth per spec §Resume 语义).
 
     Returns the created run dir path.
     """
@@ -257,7 +256,7 @@ class TestMalformedHandling:
     def test_missing_metadata_silent_skip(self, tmp_path, capsys):
         """Run dir without metadata.toml → silent skip (not 'malformed').
 
-        Per spec line 318 distinction: missing is recover-eligible (T-15
+        Per spec §Malformed metadata 处理 HIGH-4-A distinction: missing is recover-eligible (T-15
         recover command's job), not a corruption warning.
         """
         _write_metadata(tmp_path, nnn='000001', label='ok', timestamp='2026-05-18T03:00:00+00:00')
@@ -299,7 +298,7 @@ class TestParadigmDerivation:
     def test_resume_uses_highest_version(self, tmp_path):
         """cfg_resolved.toml says 'az', cfg_resolved_v2.toml says 'dmc'
         (post-resume) → list shows 'dmc' (highest version = truth per
-        spec line 157)."""
+        spec §Resume 语义)."""
         _write_metadata(
             tmp_path,
             nnn='000001',

@@ -1,14 +1,15 @@
 """Tests for tools.runs.train Phase A (T-08) — lifecycle steps 0-3.
 
-Covers spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
+Covers spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` (主卷)
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md`` (续卷):
 
-- §Architecture step 0-3 行 33-47
-- CRIT-1-B 行 36-37 run_label regex
-- HIGH-2-A 行 40-41 artifacts mkdir
-- CRIT-1-A 行 42-47 临界区 mkdir-O_EXCL
-- HIGH-1-A 行 68 dir-name <label> = resolved cfg.meta.run_label
-- HIGH-X-3 行 70 UTC ts single-sourced (dir name ↔ state.timestamp_utc)
-- HIGH-2-B 行 51 cleanup rmtree on orphan
+- §Architecture step 0-3
+- CRIT-1-B run_label regex
+- HIGH-2-A artifacts mkdir
+- CRIT-1-A 临界区 mkdir-O_EXCL
+- HIGH-1-A dir-name <label> = resolved cfg.meta.run_label
+- HIGH-X-3 UTC ts single-sourced (dir name ↔ state.timestamp_utc)
+- HIGH-2-B cleanup rmtree on orphan
 
 Phase B/C (T-09/T-10) lifecycle steps 4-7 are out of scope — those
 tests live in test_train_phase_b.py / test_train_phase_c.py once those
@@ -140,13 +141,13 @@ def test_setup_rejection_stderr_includes_spec_regex(tmp_path: Path, capsys: pyte
     err = capsys.readouterr().err
     assert 'run_label' in err
     # Verify the spec regex literal appears in the error message (so
-    # operators see the exact wording from spec 行 36 / 行 313).
+    # operators see the exact wording from spec §单命令 atomic lifecycle).
     assert '^[a-zA-Z0-9_-]{1,64}$' in err
 
 
 def test_setup_rejects_override_meta_run_label_traversal(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
     """Override that injects bad run_label must be caught by the
-    POST-resolve validate (spec 行 68 — dir name uses post-override
+    POST-resolve validate (spec §单命令 atomic lifecycle — dir name uses post-override
     value)."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'safe_label')
     with pytest.raises(SystemExit) as ei:
@@ -224,7 +225,7 @@ def test_setup_applies_override(tmp_path: Path) -> None:
 
 
 def test_setup_override_changes_dir_label(tmp_path: Path) -> None:
-    """spec 行 68 — dir name uses POST-override label, not leaf cfg field."""
+    """spec §单命令 atomic lifecycle — dir name uses POST-override label, not leaf cfg field."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'original_label')
     state = train_mod._phase_a_setup(_make_args(cfg, override=['meta.run_label=overridden']))
     assert state.label == 'overridden'
@@ -377,7 +378,7 @@ def test_setup_eexist_loop_bounded(tmp_path: Path, monkeypatch: pytest.MonkeyPat
 
 
 def test_setup_ts_in_dir_name_matches_state_timestamp(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """spec 行 70 — dir name ts and state.timestamp_utc derive from a
+    """spec §单命令 atomic lifecycle — dir name ts and state.timestamp_utc derive from a
     single source. Monkeypatch datetime.now to a fixed UTC value, then
     verify both representations are consistent."""
     fixed = datetime(2026, 5, 18, 3, 55, 17, 123456, tzinfo=timezone.utc)
@@ -427,7 +428,7 @@ def test_setup_uses_utc_not_local(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
 
 def test_setup_orphan_dir_rmtree_on_assembly_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Simulate SetupState construction failing AFTER per-run mkdir
-    succeeded — orphan dir must be rmtree'd (spec 行 51, 53)."""
+    succeeded — orphan dir must be rmtree'd (spec §单命令 atomic lifecycle)."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'lbl')
 
     real_setup_state = setup_mod.SetupState

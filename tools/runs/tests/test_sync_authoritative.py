@@ -1,6 +1,6 @@
 """Tests for ``tools.runs.sync init-authoritative`` (T-19).
 
-Covers spec §HIGH-2-D 行 348-356 — write
+Covers spec §HIGH-2-D — write
 ``<repo_root>/artifacts/.authoritative_host`` = current
 ``socket.gethostname()``. Marker is consumed by
 ``tools.runs._train.setup._verify_authoritative_host`` (T-13); the round-
@@ -47,7 +47,7 @@ def test_init_authoritative_creates_artifacts_dir_when_missing(tmp_path):
 
 
 def test_init_authoritative_overwrites_existing_marker(tmp_path):
-    """Spec 行 355 — overwrite is intentional (user decision)."""
+    """Spec §HIGH-2-D — overwrite is intentional (user decision)."""
     sync_extras.init_authoritative(tmp_path, hostname='old-host')
     sync_extras.init_authoritative(tmp_path, hostname='new-host')
     marker = tmp_path / 'artifacts' / '.authoritative_host'

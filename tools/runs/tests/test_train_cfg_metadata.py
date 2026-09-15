@@ -1,13 +1,14 @@
 """Tests for tools.runs.train Phase B (T-09) — lifecycle steps 4-5.
 
-Covers spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
+Covers spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` (主卷)
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md`` (续卷):
 
-- §Architecture step 4-5 行 50-53
-- §Per-run dir 行 76-96 (cfg_leaf / cfg_resolved / metadata layout)
-- §Per-run dir 行 82 (cfg_leaf == cfg_resolved 内容相同 when no extends, both written)
-- HIGH-2-B 行 51, 53 orphan-dir rmtree on Phase B failure
-- 行 174-189 Schema metadata.toml 11 fields
-- 行 279-292 metadata atomic rename
+- §Architecture step 4-5
+- §Per-run 完全 self-contained (cfg_leaf / cfg_resolved / metadata layout)
+- §Per-run 完全 self-contained (cfg_leaf == cfg_resolved 内容相同 when no extends, both written)
+- HIGH-2-B orphan-dir rmtree on Phase B failure
+- §metadata.toml 字段 (11 fields)
+- §metadata 写 metadata atomic rename
 
 Phase A (T-08) is exercised end-to-end via the real ``phase_a_setup``
 fixture builder so Phase B test setup mirrors production lifecycle —
@@ -116,7 +117,7 @@ def test_cfg_resolved_parses_back_to_resolved_dict(tmp_path: Path) -> None:
 
 
 def test_cfg_leaf_equals_cfg_resolved_when_no_extends(tmp_path: Path) -> None:
-    """spec 行 82 — cfg without extends still gets both files (structural
+    """spec §Per-run 完全 self-contained — cfg without extends still gets both files (structural
     symmetry); content must round-trip to the same parsed dict."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'no_extends')
     _state, art = _run_phase_a_then_b(cfg)
@@ -233,7 +234,7 @@ def test_metadata_run_id_six_digit_zero_padded(tmp_path: Path) -> None:
 
 
 def test_metadata_timestamp_matches_state_timestamp_utc(tmp_path: Path) -> None:
-    """Spec 行 70 / 行 178 — metadata.timestamp 与 dir-name ts 同源
+    """Spec §单命令 atomic lifecycle — metadata.timestamp 与 dir-name ts 同源
     (state.timestamp_utc)."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'ts_check')
     state, art = _run_phase_a_then_b(cfg)
@@ -247,7 +248,7 @@ def test_metadata_cfg_resolved_version_is_one(tmp_path: Path) -> None:
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'v1_check')
     _state, art = _run_phase_a_then_b(cfg)
     meta = schema.load_file(art / 'metadata.toml')
-    # spec 行 180 — 首版 = 1, resume 递增 (T-12 territory).
+    # spec §metadata.toml 字段 — 首版 = 1, resume 递增 (T-12 territory).
     assert meta.cfg_resolved_version == 1
 
 
@@ -316,14 +317,14 @@ def test_metadata_cfg_file_is_repo_relative_posix(tmp_path: Path) -> None:
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'cfg_path_check')
     _state, art = _run_phase_a_then_b(cfg)
     meta = schema.load_file(art / 'metadata.toml')
-    # cfg_file records the user-passed leaf cfg path (spec 行 179).
+    # cfg_file records the user-passed leaf cfg path (spec §metadata.toml 字段).
     assert meta.cfg_file == 'cfg.toml'
     assert '\\' not in meta.cfg_file
 
 
 def test_metadata_running_state_placeholders(tmp_path: Path) -> None:
     """wall_seconds=0.0 / exit_code=0 / notes='' are running-state
-    placeholders (spec 行 185 + Phase C T-10 overwrite responsibility)."""
+    placeholders (spec §metadata.toml 字段 + Phase C T-10 overwrite responsibility)."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'placeholders')
     _state, art = _run_phase_a_then_b(cfg)
     meta = schema.load_file(art / 'metadata.toml')
@@ -332,7 +333,7 @@ def test_metadata_running_state_placeholders(tmp_path: Path) -> None:
     assert meta.notes == ''
 
 
-# --- Failure cleanup (HIGH-2-B 行 51, 53) -------------------------------------
+# --- Failure cleanup (HIGH-2-B) -------------------------------------
 
 
 def test_cfg_resolved_write_failure_rmtree_orphan(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -396,7 +397,7 @@ def test_cfg_leaf_write_failure_rmtree_orphan(tmp_path: Path, monkeypatch: pytes
 def test_cleanup_failure_logs_but_does_not_mask_original(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """spec 行 301 — finally try/except cleanup error never replaces
+    """spec §train 失败时 — finally try/except cleanup error never replaces
     the in-flight train exception; cleanup goes to stderr as a
     diagnostic only."""
     cfg = _write_cfg(tmp_path / 'cfg.toml', 'cleanup_fail')

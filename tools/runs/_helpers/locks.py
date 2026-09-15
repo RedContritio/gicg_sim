@@ -7,8 +7,8 @@ flock primitive and the spec-mandated 10-retry pattern used by both
 the R4 allocator and the R5 per-run metadata lock.
 
 Spec references:
-- §Atomic allocator 行 260-277 (flock dispatch + retry budget)
-- §metadata 写 行 279-282 + CRIT-2-B / CRIT-3-A (per-run lock scope)
+- §Atomic allocator (flock dispatch + retry budget)
+- §metadata 写 + CRIT-2-B / CRIT-3-A (per-run lock scope)
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ if sys.platform == 'win32':
 else:
     import fcntl
 
-# Lock retry budget per spec §Atomic allocator 行 276 ("retry up to 10 次,
+# Lock retry budget per spec §Atomic allocator ("retry up to 10 次,
 # 每次 sleep random(0,50)ms;超时 raise 'unable to acquire ... lock'").
 # Module-level so tests can monkeypatch the sleep / random hooks without
 # freezing CI.
@@ -43,7 +43,7 @@ def _acquire_flock(fd) -> None:  # noqa: ANN001 — file object, not exposed
     Single platform dispatch point for every flock-using helper in this
     package (R4 allocator + R5 per-run metadata lock). Linux/macOS use
     ``fcntl.flock(LOCK_EX | LOCK_NB)``; Windows uses
-    ``msvcrt.locking(LK_NBLCK, 1)`` per spec §Atomic allocator 行 263.
+    ``msvcrt.locking(LK_NBLCK, 1)`` per spec §Atomic allocator.
     Both APIs raise ``BlockingIOError`` / ``OSError`` when another
     process holds the lock; the caller's retry loop interprets that
     failure mode.
@@ -82,7 +82,7 @@ def _retry_acquire_flock(fd, *, timeout_msg: str) -> None:  # noqa: ANN001 — f
     """Acquire flock on ``fd`` with the spec-mandated 10-retry budget.
 
     Shared between R4 allocator and R5 per-run metadata lock — both must
-    use the same retry pattern per spec 行 276 ("retry up to 10 次,每次
+    use the same retry pattern per spec §Atomic allocator ("retry up to 10 次,每次
     sleep random(0,50)ms"). Sleep fires between attempts (not after
     the final one) so 10 attempts means 9 sleeps.
 
@@ -99,7 +99,7 @@ def _retry_acquire_flock(fd, *, timeout_msg: str) -> None:  # noqa: ANN001 — f
             return
         except (BlockingIOError, OSError) as e:
             # BlockingIOError is an OSError subclass and _is_contended already
-            # returns True for it (行 70-71), so a single _is_contended check
+            # returns True for it, so a single _is_contended check
             # subsumes the previous nested isinstance dead branch.
             if not _is_contended(e):
                 raise
@@ -112,7 +112,7 @@ def _retry_acquire_flock(fd, *, timeout_msg: str) -> None:  # noqa: ANN001 — f
 @contextmanager
 def acquire_metadata_lock(artifacts_dir: Path) -> Generator[None, None, None]:
     """Yield while holding the per-run advisory lock at
-    ``<artifacts_dir>/.metadata_lock`` (spec §metadata 写 行 279-282 +
+    ``<artifacts_dir>/.metadata_lock`` (spec §metadata 写 +
     CRIT-2-B / CRIT-3-A).
 
     Per-run scope means two writers targeting the *same* run (e.g.

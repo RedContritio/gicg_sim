@@ -6,15 +6,16 @@ the T-08 quality review I-1 ``_train/`` sub-package precedent (see
 also ``_helpers/`` package pattern from T-04), to keep each file under
 the 300-line pre-commit hook budget once Phase B/C/D land in T-09-T-13.
 
-Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``):
+Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` 主卷
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md`` 续卷):
 
-- 行 33-47  Architecture step 0-3
-- 行 36-37  CRIT-1-B run_label regex
-- 行 40-41  HIGH-2-A artifacts mkdir
-- 行 42-47  CRIT-1-A 临界区 mkdir-O_EXCL
-- 行 51, 53 HIGH-2-B failure cleanup rmtree
-- 行 68     HIGH-1-A ``<label>`` from resolved cfg
-- 行 70     HIGH-X-3 UTC ts single-source (metadata.timestamp ↔ dir ts)
+- §Architecture step 0-3
+- §单命令 atomic lifecycle CRIT-1-B run_label regex
+- §单命令 atomic lifecycle HIGH-2-A artifacts mkdir
+- §单命令 atomic lifecycle CRIT-1-A 临界区 mkdir-O_EXCL
+- §单命令 atomic lifecycle HIGH-2-B failure cleanup rmtree
+- §单命令 atomic lifecycle HIGH-1-A ``<label>`` from resolved cfg
+- §单命令 atomic lifecycle HIGH-X-3 UTC ts single-source (metadata.timestamp ↔ dir ts)
 """
 
 from __future__ import annotations
@@ -33,7 +34,7 @@ from tools.runs.helpers import allocate_nnn
 from training.core.config.loader import _apply_overrides, load_with_extends
 
 
-# Spec 行 36 / 行 313 — pinned wording. Same regex elsewhere in the spec
+# Spec §单命令 atomic lifecycle — pinned wording. Same regex elsewhere in the spec
 # is the source of truth; any drift here must update both call sites.
 _RUN_LABEL_RE = re.compile(r'^[a-zA-Z0-9_-]{1,64}$')
 
@@ -44,7 +45,7 @@ class SetupState:
 
     8 fields (6 fresh-path + 2 resume-context). ``timestamp_utc`` is
     the single source that **both** the dir-name ``<ts>`` segment and
-    the future ``metadata.timestamp`` field derive from (spec 行 70 —
+    the future ``metadata.timestamp`` field derive from (spec §单命令 atomic lifecycle —
     "single source"; avoids midnight-UTC drift between two separate
     ``datetime.now()`` calls).
 
@@ -54,7 +55,7 @@ class SetupState:
       ``cfg_leaf_v<N>.toml`` Phase B writes (and records in metadata
       ``cfg_resolved_version``). Fresh path = 1 (writes the unsuffixed
       ``cfg_resolved.toml`` / ``cfg_leaf.toml``); resume path = N+1
-      computed under the allocator lock (spec 行 153-158 CRIT-6-A).
+      computed under the allocator lock (spec §Resume 语义 CRIT-6-A).
     - ``resume_ckpt_path``: ``Path`` for Phase C to pass through to
       ``run_pipeline(resume_from=...)``; ``None`` on fresh path.
 
@@ -76,7 +77,7 @@ class SetupState:
 
 
 def _validate_run_label(label: Any, *, source: str) -> str:
-    """Enforce spec 行 36 regex; raise SystemExit(2) with spec wording.
+    """Enforce spec §单命令 atomic lifecycle regex; raise SystemExit(2) with spec wording.
 
     ``source`` distinguishes the failure context in stderr (e.g.
     ``'resolved cfg.meta.run_label'`` vs ``'leaf cfg.meta.run_label'``)
@@ -135,16 +136,16 @@ def _verify_repo_root(cwd: Path) -> None:
 
 
 def _verify_authoritative_host(repo_root: Path) -> None:
-    """Enforce spec §HIGH-2-D 行 348-355 authoritative-host marker.
+    """Enforce spec §HIGH-2-D authoritative-host marker.
 
     ``artifacts/.authoritative_host`` records the hostname allowed to
-    allocate new NNN. Absent → allow (行 353); content == ``gethostname()``
-    → allow (行 354); mismatch → ``SystemExit(2)`` with 行 352 pinned
+    allocate new NNN. Absent → allow (§HIGH-2-D); content == ``gethostname()``
+    → allow (§HIGH-2-D); mismatch → ``SystemExit(2)`` with §HIGH-2-D pinned
     wording. ``.strip()`` tolerates ``echo > marker`` trailing newlines.
 
-    Marker does NOT cross-host sync (行 355 + 行 367 rsync exclude).
+    Marker does NOT cross-host sync (§HIGH-2-D rsync exclude).
     Called from both :func:`phase_a_setup` (post-cfg-validate /
-    pre-leaf-bytes per 行 351) and :func:`._train.resume.phase_a_resume`
+    pre-leaf-bytes per §HIGH-2-D) and :func:`._train.resume.phase_a_resume`
     (post-metadata-read / pre-allocator-lock, T-12 handoff symmetry).
     The ``tools.runs.sync init-authoritative`` writer is T-19 scope.
     """
@@ -169,7 +170,7 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
 
     Validation strategy: regex-check the leaf cfg's ``meta.run_label``
     first (cheap, fails fast on obvious garbage), then re-check the
-    **resolved** value after ``--override`` apply. Spec 行 68 specifies
+    **resolved** value after ``--override`` apply. Spec §单命令 atomic lifecycle specifies
     the dir name comes from the resolved value, so an override like
     ``--override meta.run_label=../etc`` must be rejected even when the
     leaf cfg passes — the second check covers that. The first check
@@ -185,11 +186,11 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
         print(f'tools.runs.train: cfg {cfg_path} is not a regular file', file=sys.stderr)
         raise SystemExit(2)
 
-    # Spec §HIGH-2-D 行 351 "step 0 后,step 1 前" — reject pull-only
+    # Spec §HIGH-2-D "step 0 后,step 1 前" — reject pull-only
     # replicas before any I/O (read_bytes / mkdir / NNN allocate).
     _verify_authoritative_host(Path.cwd())
 
-    # Step 1: capture leaf bytes FIRST (spec 行 38 "read_bytes 立即,防 cfg edit race").
+    # Step 1: capture leaf bytes FIRST (spec §单命令 atomic lifecycle "read_bytes 立即,防 cfg edit race").
     # Order matters: we read bytes before any other I/O on cfg_path so the
     # subsequent TOML parse / extends resolve observes the same content
     # snapshot regardless of concurrent editor saves.
@@ -219,7 +220,7 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
             print(f'tools.runs.train: --override apply failed: {e}', file=sys.stderr)
             raise SystemExit(2) from e
 
-    # Step 0 (post-resolve, authoritative): re-validate. Spec 行 68 —
+    # Step 0 (post-resolve, authoritative): re-validate. Spec §单命令 atomic lifecycle —
     # dir name <label> is the POST-override value, so this is the check
     # whose pass/fail decides whether mkdir proceeds.
     resolved_meta = cfg_resolved.get('meta')
@@ -231,7 +232,7 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     # creates artifacts/ via flock open path) — but caller-side mkdir
     # of the per-run dir would still fail if artifacts/ disappeared
     # between allocator yield and caller mkdir. Explicit step 2.5
-    # belt-and-braces matches spec 行 40-41.
+    # belt-and-braces matches spec §单命令 atomic lifecycle.
     repo_root = Path.cwd()
     artifacts_root = repo_root / 'artifacts'
     artifacts_root.mkdir(parents=True, exist_ok=True)
@@ -239,14 +240,14 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     # Step 3: allocate NNN under flock + mkdir per-run dir O_EXCL.
     # UTC ts truncated to minute (dir name precision); single-sourced
     # so T-09 metadata.timestamp ↔ dir-name ts align by construction
-    # (spec 行 70 — no parallel ``datetime.now()`` calls).
+    # (spec §单命令 atomic lifecycle — no parallel ``datetime.now()`` calls).
     timestamp_utc = datetime.now(timezone.utc).replace(second=0, microsecond=0)
     ts_str = timestamp_utc.strftime('%Y%m%d%H%M')
 
     artifacts_dir: Path | None = None
     nnn_final: int | None = None
-    # EEXIST retry outer loop per spec 行 269-275 / allocator.py docstring
-    # 行 75-80. Bound the loop so a catastrophic FS bug can't infinite-
+    # EEXIST retry outer loop per spec §Atomic allocator / allocator.py docstring
+    # Bound the loop so a catastrophic FS bug can't infinite-
     # spin (allocator's flock budget is 10; matching that here keeps
     # operator mental model simple).
     max_eexist_retries = 10
@@ -272,7 +273,7 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
 
     # State assembly is dataclass __init__ — if it raises (it shouldn't,
     # all fields are pre-validated) we still own the orphan dir and
-    # must rmtree before propagating. Spec 行 51, 53.
+    # must rmtree before propagating. Spec §单命令 atomic lifecycle.
     try:
         return SetupState(
             artifacts_dir=artifacts_dir,

@@ -3,8 +3,8 @@ in T-23 of the 2026-05-18 ``tools/runs/`` clean-slate redesign — its
 paradigm-dispatch + cfg-load + run_pipeline body was migrated
 verbatim into ``tools.runs._train.dispatch.run_paradigm_train`` by
 T-11, and the public entry shell is now ``tools.runs.train`` (spec
-§Architecture CRIT-X-1 行 28-32 method A "完整迁移,no thin shim";
-§File structure Delete 行 573-577 L-1).
+§Architecture CRIT-X-1 method A "完整迁移,no thin shim";
+§File structure Delete L-1).
 
 Re-adding either ``tools/run.py`` or any ``python -m tools.run``
 invocation under production code would silently resurrect the

@@ -1,6 +1,6 @@
 """Tests for tools.runs.helpers.allocate_nnn — R4 flock-based allocator (T-03).
 
-Covers spec §Atomic allocator 行 260-277:
+Covers spec §Atomic allocator:
 - single-thread: empty → 1; existing max → max+1; non-NNN dirs skipped;
   sequential allocate is monotonically increasing.
 - concurrent: two threads parallel must produce two *different* NNNs
@@ -244,7 +244,7 @@ def test_allocate_blocked_by_held_lock_raises_after_retries(
         assert 'e' in err_box, 'expected RuntimeError, allocator returned cleanly'
         err = err_box['e']
         assert isinstance(err, RuntimeError)
-        # Full match (not substring) — pin spec 行 306 prescribed wording
+        # Full match (not substring) — pin spec §用户友好 error message prescribed wording
         # exactly, so any drift (missing hint suffix, rewording) fails the
         # test loudly.
         assert str(err) == 'unable to acquire run-id lock after 10 retries; check artifacts/.run_id_lock'
@@ -260,7 +260,7 @@ def test_allocate_retry_budget_is_exactly_ten(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Verify spec 行 276 ("retry up to 10 次") via call count on sleep.
+    """Verify spec §Atomic allocator ("retry up to 10 次") via call count on sleep.
 
     Sleep fires between attempts (not after the final one), so on a
     10-attempt budget that always fails we expect 9 sleeps.
@@ -332,7 +332,7 @@ def test_windows_dispatch_routes_to_msvcrt(tmp_path: Path, monkeypatch: pytest.M
     """Simulate the Windows branch: monkey ``sys.platform`` + inject a
     fake ``msvcrt`` module into ``helpers``, then drive a single
     allocation. The fake's ``locking`` must be called with
-    ``LK_NBLCK, 1`` per spec line 263. We don't actually run on
+    ``LK_NBLCK, 1`` per spec §Atomic allocator. We don't actually run on
     Windows in CI, so this is a dispatch-routing assertion only.
     """
     fake_msvcrt = mock.MagicMock()

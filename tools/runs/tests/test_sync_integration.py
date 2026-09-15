@@ -6,8 +6,8 @@ integration"``. Run with::
 
     .venv/bin/python -m pytest tools/runs/tests/test_sync_integration.py -v -m integration
 
-Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§测试矩阵 §Sync tests 行 407-410.
+Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md``
+§测试矩阵 Sync tests.
 
 Two tiers:
 

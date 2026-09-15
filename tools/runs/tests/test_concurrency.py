@@ -1,11 +1,12 @@
 """T-26 — Concurrency test for ``tools.runs.train`` (subprocess level).
 
-Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
+Spec ref: ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` (主卷)
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md`` (续卷):
 
-- 行 260-277 §Atomic allocator — flock + 10-retry budget + canonical
+- §Atomic allocator — flock + 10-retry budget + canonical
   ``'unable to acquire run-id lock after 10 retries; check
   artifacts/.run_id_lock'`` raise wording.
-- 行 402-405 §测试矩阵 §Concurrency tests — 2 parallel ``train`` →
+- §测试矩阵 Concurrency tests — 2 parallel ``train`` →
   assert 2 不同 NNN 分配 + 2 个 artifacts dir;run-id lock 模拟竞争 →
   assert retry + 最终成功 (here: retry then exhaustion raise — the
   "成功" branch is already covered in
@@ -82,8 +83,8 @@ def test_parallel_subprocesses_get_distinct_nnns(tmp_path: Path) -> None:
     """Two ``tools.runs.train`` subprocesses launched in parallel must
     each receive a distinct NNN and produce a separate per-run dir.
 
-    The mkdir-inside-allocator-lock invariant (spec 行 269-275 +
-    ``_helpers/allocator.py`` 行 75-80) guarantees the second process'
+    The mkdir-inside-allocator-lock invariant (spec §Atomic allocator +
+    ``_helpers/allocator.py`` docstring) guarantees the second process'
     re-glob inside its critical section observes process 1's freshly
     mkdir'd dir, so the second NNN strictly = first NNN + 1.
 
@@ -158,7 +159,7 @@ def test_parallel_subprocesses_get_distinct_nnns(tmp_path: Path) -> None:
 @pytest.mark.skipif(sys.platform == 'win32', reason='POSIX fcntl.flock path; Windows uses msvcrt')
 def test_allocator_retry_exhaustion_when_lock_held(tmp_path: Path) -> None:
     """Externally held ``.run_id_lock`` → subprocess exhausts 10-retry
-    budget → SystemExit(2) with the spec 行 306 canonical wording.
+    budget → SystemExit(2) with the spec §用户友好 error message canonical wording.
 
     The fixture process pre-acquires the kernel-tracked flock on
     ``artifacts/.run_id_lock`` and holds it for the entire subprocess
@@ -168,7 +169,7 @@ def test_allocator_retry_exhaustion_when_lock_held(tmp_path: Path) -> None:
     ``main`` catches as generic ``Exception`` → exits 2 with stderr
     ``'tools.runs.train: setup failed: <RuntimeError msg>'``.
 
-    Spec-pinned: the RuntimeError text must match 行 306 wording
+    Spec-pinned: the RuntimeError text must match §用户友好 error message wording
     verbatim (``'unable to acquire run-id lock after 10 retries; check
     artifacts/.run_id_lock'``). Any drift in the canonical wording
     breaks this test loudly — same pin as
@@ -210,14 +211,14 @@ def test_allocator_retry_exhaustion_when_lock_held(tmp_path: Path) -> None:
         fcntl.flock(holder_fd.fileno(), fcntl.LOCK_UN)
         holder_fd.close()
 
-    # Exit code 2 — setup error per spec §Exit codes 行 253.
+    # Exit code 2 — setup error per spec §Exit codes.
     assert completed.returncode == 2, (
         f'expected exit 2 (setup failure), got {completed.returncode}\n'
         f'STDOUT:\n{completed.stdout}\n\nSTDERR:\n{completed.stderr}'
     )
 
     # Stderr contains both the top-level ``setup failed: `` prefix from
-    # ``train.main``'s ``except Exception`` handler AND the spec 行 306
+    # ``train.main``'s ``except Exception`` handler AND the spec §用户友好 error message
     # canonical RuntimeError wording from the allocator.
     expected_msg = 'unable to acquire run-id lock after 10 retries; check artifacts/.run_id_lock'
     assert expected_msg in completed.stderr, f'expected stderr to contain {expected_msg!r}\nSTDERR:\n{completed.stderr}'

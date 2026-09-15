@@ -1,7 +1,8 @@
 # tools/runs/ Clean-Slate Redesign — Implementation Plan
 
 **Status:** Draft (writing-plans, 2026-05-18)
-**Spec:** `docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`
+**Spec:** `docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md` (主卷)
++ `docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md` (续卷)
 
 ---
 

@@ -26,7 +26,7 @@ def test_ckpt_label_parses_ckpt_step_files():
 
 
 def test_ckpt_label_parses_gauntlet_files():
-    """gauntlet_g<g>.pt 也在 ckpts/ 下(spec 行 606-613)。"""
+    """gauntlet_g<g>.pt 也在 ckpts/ 下(spec §ckpts/ 内 naming convention)。"""
     p = Path('/a/b/202605181019_000007_az_smoke/ckpts/gauntlet_g4.pt')
     assert _ckpt_label(p) == '202605181019_000007_az_smoke'
 

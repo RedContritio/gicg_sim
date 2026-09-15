@@ -1,7 +1,7 @@
 """tools.runs._train.resume — Phase A resume entry (T-12).
 
 Internal module — callers must use :mod:`tools.runs.train` (the public
-entry shell). Implements the spec §Resume 语义 行 145-164 alternative
+entry shell). Implements the spec §Resume 语义 alternative
 Phase A path:
 
 - infer ``artifacts_dir`` from ``--resume <ckpt>.parent.parent``
@@ -9,23 +9,23 @@ Phase A path:
   ``<artifacts_dir>/ckpts/`` is a direct child (CRIT-X-1 sanity guards)
 - re-resolve cfg + apply ``--override`` (allow drift)
 - allocate ``cfg_resolved_version = N+1`` under the allocator flock so
-  two parallel resumes can't collide on N (HIGH-3-A 行 155)
+  two parallel resumes can't collide on N (HIGH-3-A)
 - transition metadata.status to ``running`` via the resume schema
-  exception (CRIT-2-A 行 235-246); ``'running' already`` warns + no-op
-- preserve metadata.timestamp / metadata.exit_code; H-3 行 185
+  exception (CRIT-2-A); ``'running' already`` warns + no-op
+- preserve metadata.timestamp / metadata.exit_code; H-3
   ``wall_seconds`` overwrite happens at Phase C close, not here
 
 The version field is bumped HERE (Phase A resume) and propagated to
 Phase B via the new :class:`SetupState.cfg_resolved_version` field;
 Phase B then suffixes filenames as ``cfg_resolved_v<N>.toml`` /
-``cfg_leaf_v<N>.toml`` (spec 行 156 pair-versioning).
+``cfg_leaf_v<N>.toml`` (spec §Resume 语义 pair-versioning).
 
-Spec cross-refs: 行 145-164 §Resume (full); 行 149 HIGH-2-C leaf cfg req;
-行 153-156 cfg_resolved_v<N> + paired cfg_leaf_v<N>; 行 155 HIGH-3-A
-flock'd N glob/write; 行 157-159 CRIT-6-A cfg_resolved_version truth;
-行 161-162 status transition + preserved timestamp/exit_code;
-行 185 H-3 wall_seconds (last attempt); 行 235-246 CRIT-2-A exceptions;
-行 348-355 HIGH-2-D authoritative-host marker (T-13).
+Spec cross-refs: §Resume 语义 (full); §Resume 语义 HIGH-2-C leaf cfg req;
+§Resume 语义 cfg_resolved_v<N> + paired cfg_leaf_v<N>; §Resume 语义 HIGH-3-A
+flock'd N glob/write; §Resume 语义 CRIT-6-A cfg_resolved_version truth;
+§Resume 语义 status transition + preserved timestamp/exit_code;
+§metadata.toml 字段 H-3 wall_seconds (last attempt); §Resume 例外规则 CRIT-2-A exceptions;
+§HIGH-2-D authoritative-host marker (T-13).
 """
 
 from __future__ import annotations
@@ -61,32 +61,32 @@ _CFG_RESOLVED_V_RE = re.compile(r'^cfg_resolved_v(\d+)\.toml$')
 def phase_a_resume(args: argparse.Namespace) -> SetupState:
     """Resume Phase A entry — replaces fresh allocate+mkdir with reuse+revalidate.
 
-    Lifecycle (spec 行 145-164):
+    Lifecycle (spec §Resume 语义):
 
     1. Infer ``artifacts_dir = ckpt.parent.parent`` (ckpts/ is a direct
        child of the per-run dir).
-    2. Validate ``<cfg>`` exists + is a file (HIGH-2-C 行 149 — no
+    2. Validate ``<cfg>`` exists + is a file (HIGH-2-C — no
        "pure ckpt" resume).
     3. Validate ``<artifacts_dir>/metadata.toml`` exists +
        ``<artifacts_dir>/ckpts/`` is a child dir.
     4. Re-resolve cfg via ``load_with_extends`` + apply ``--override``
-       (allow drift; spec 行 152).
+       (allow drift; spec §Resume 语义).
     5. Re-validate ``run_label`` regex post-resolve (defense in depth
        — leaf cfg might have changed since the original train run).
     6. Allocate ``cfg_resolved_version = max(existing) + 1`` under the
        global allocator flock. **Under the same lock**, write the
        paired ``cfg_leaf_v<N>.toml`` + ``cfg_resolved_v<N>.toml`` AND
-       bump metadata — spec 行 155 binds glob + write + bump as one
+       bump metadata — spec §Resume 语义 binds glob + write + bump as one
        critical section (splitting the vN write out post-lock opens
        the v1 race window where two threads both glob N=2 and overwrite
        each other; see ``_bump_metadata_for_resume`` docstring).
-    7. ``'running' already`` → warn no-op + continue (spec 行 243);
+    7. ``'running' already`` → warn no-op + continue (spec §CRIT-2-A);
        otherwise apply resume status transition via
        :func:`schema.validate_transition` ``resume=True``.
     8. Metadata write (status='running', cfg_resolved_version=N,
        cfg_file=new leaf path). ``timestamp`` / ``exit_code`` preserved
-       (spec 行 162). ``wall_seconds`` reset to 0.0 — overwritten at
-       Phase C close (H-3 行 185).
+       (spec §Resume 语义). ``wall_seconds`` reset to 0.0 — overwritten at
+       Phase C close (H-3).
 
     Returns the :class:`SetupState` for Phase B. Phase B reads
     ``state.cfg_resolved_version`` to suffix filenames.
@@ -96,7 +96,7 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
     ckpt_path = Path(args.resume)
     cfg_path = Path(args.cfg)
 
-    # Step 2 (HIGH-2-C 行 149): leaf cfg must be present + readable.
+    # Step 2 (HIGH-2-C): leaf cfg must be present + readable.
     # Pinned wording so test_train_resume.py's stderr assertion stays
     # stable across cosmetic edits.
     if not cfg_path.exists() or not cfg_path.is_file():
@@ -131,10 +131,10 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
         )
         raise SystemExit(2)
 
-    # Spec §HIGH-2-D 行 348-355 — post-metadata-read / pre-allocator-lock per T-12 handoff symmetry.
+    # Spec §HIGH-2-D — post-metadata-read / pre-allocator-lock per T-12 handoff symmetry.
     _verify_authoritative_host(Path.cwd())
 
-    # Step 4: re-resolve cfg + apply --override (spec 行 152: cfg
+    # Step 4: re-resolve cfg + apply --override (spec §Resume 语义: cfg
     # drift across resume is allowed by design).
     leaf_bytes = cfg_path.read_bytes()
     leaf_label = _extract_leaf_label(leaf_bytes, cfg_path)
@@ -159,7 +159,7 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
     _validate_run_label(resolved_label, source='resolved cfg.meta.run_label')
 
     # Step 6: N allocation + paired vN write + metadata bump all under
-    # the global allocator flock (spec 行 155 HIGH-3-A). Cross-dir
+    # the global allocator flock (spec §Resume 语义 HIGH-3-A). Cross-dir
     # resumes serialize too — over-locks but spec-literal.
     repo_root = Path.cwd()
     artifacts_root = repo_root / 'artifacts'
@@ -183,7 +183,7 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
         )
 
     # Re-read updated metadata so ``timestamp_utc`` single-sources the
-    # original (spec 行 162: timestamp NOT reset on resume).
+    # original (spec §Resume 语义: timestamp NOT reset on resume).
     fresh_metadata = schema.load_file(metadata_path)
     timestamp_utc = datetime.fromisoformat(fresh_metadata.timestamp)
     nnn = int(fresh_metadata.run_id)
@@ -204,13 +204,13 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
 def _next_cfg_resolved_version(artifacts_dir: Path) -> int:
     """Return the next cfg_resolved version under the per-run dir.
 
-    Algorithm (spec 行 154):
+    Algorithm (spec §Resume 语义):
     - If only ``cfg_resolved.toml`` exists (no vN files) → return 2.
     - Else N = max(existing vN) + 1 across all ``cfg_resolved_v<N>.toml``.
     - If neither the base file nor any vN exists → return 2 anyway
       (defensive: a partially-recovered dir where the base file got
       deleted; bumping straight to v2 keeps the audit trail forward-
-      only, matching spec line 157 "highest version is truth").
+      only, matching spec §Resume 语义 "highest version is truth").
 
     Called ONLY under the allocator flock — caller must hold it.
     """
@@ -241,7 +241,7 @@ def _bump_metadata_for_resume(
 
     Called under the allocator flock so the full critical section
     (glob → write pair → metadata bump) cannot interleave with a
-    parallel resume (spec 行 155). The per-run metadata lock acquired
+    parallel resume (spec §Resume 语义). The per-run metadata lock acquired
     inside ``write_metadata_atomic`` guards a different file, so no
     self-deadlock. Steps: (1) write ``cfg_leaf_v<N>.toml``;
     (2) write ``cfg_resolved_v<N>.toml`` via ``dict_to_toml`` +
@@ -251,12 +251,12 @@ def _bump_metadata_for_resume(
 
     Failure: partial state survives (registered dir, not orphan).
     Operator re-runs; the failed vN files become audit trail and the
-    next attempt allocates vN+1. Spec 行 51 cleanup applies only to
+    next attempt allocates vN+1. Spec §单命令 atomic lifecycle cleanup applies only to
     the fresh path.
     """
     current = schema.load_file(metadata_path)
 
-    # Spec 行 243: 'running' already → warn + no-op metadata transition.
+    # Spec §CRIT-2-A: 'running' already → warn + no-op metadata transition.
     # Still bump cfg_resolved_version + cfg_file (those reflect the
     # resume attempt, not the state machine), but skip the schema-level
     # transition validation that would otherwise be a no-op.
@@ -283,15 +283,15 @@ def _bump_metadata_for_resume(
 
     updated = schema.RunMetadata(
         run_id=current.run_id,
-        timestamp=current.timestamp,  # spec 行 162 preserved
+        timestamp=current.timestamp,  # spec §Resume 语义 preserved
         cfg_file=cfg_file_rel,
         cfg_resolved_version=cfg_resolved_version,
         git_commit=current.git_commit,  # first-train constant
         host=current.host,
         status='running',
         artifacts_dir=current.artifacts_dir,
-        wall_seconds=0.0,  # spec 行 185: overwritten at close
-        exit_code=current.exit_code,  # spec 行 162 preserved
+        wall_seconds=0.0,  # spec §metadata.toml 字段: overwritten at close
+        exit_code=current.exit_code,  # spec §Resume 语义 preserved
         notes=current.notes,
     )
     write_metadata_atomic(artifacts_dir, updated)

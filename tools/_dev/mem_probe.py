@@ -5,7 +5,7 @@
 paradigm dispatch 入口调 :func:`maybe_enable_from_cfg`,任何 paradigm 都通用。
 
 **Scope 边界 — 不重复 metrics.jsonl** :master_rss / children_rss / cuda_alloc/
-reserved / host_used 等 RSS 类字段已由 ``training/core/logging.py:_sample_mem``
+reserved / host_used 等 RSS 类字段已由 ``training/core/logging_samplers.py:_sample_mem``
 采集进 ``metrics.jsonl`` 的 ``kind=mem`` record(psutil.Process().memory_info()
 同源)。 production RSS trend 走 metrics。 此 probe 只补 metrics 没有的 **Python
 heap 内部 alloc 分项归责**:`tracemalloc.statistics('filename')` 给每个 .py

@@ -1,8 +1,7 @@
 """Tests for ``tools.runs.mark`` (T-16 clean-slate redesign).
 
-Covers spec §CLI mark 细则 HIGH-1-D 行 127-135 + HIGH-6-A 行 129-131 +
-§Status 状态机 strict transitions 行 207-234 + §Atomic metadata 写
-行 279-292.
+Covers spec §CLI mark 细则 HIGH-1-D + HIGH-6-A +
+§Status 状态机 strict transitions + §metadata 写.
 
 Spec contracts under test:
 
@@ -119,7 +118,7 @@ class TestNNNLookup:
             mark_cmd.mark_run(tmp_path, 'abc', 'done', None)
 
 
-# --- Transition validation (spec strict §Status 状态机 行 226-231) ----------
+# --- Transition validation (spec strict §Status 状态机) ----------
 
 
 class TestTransitions:
@@ -139,7 +138,7 @@ class TestTransitions:
         assert _read_meta(run_dir).status == 'killed'
 
     def test_unknown_to_done(self, tmp_path: Path) -> None:
-        """``unknown`` (recover-rebuilt) → terminal allowed (spec 行 229)."""
+        """``unknown`` (recover-rebuilt) → terminal allowed (spec §Status 状态机)."""
         run_dir = _write_run(tmp_path, nnn='000004', status='unknown')
         mark_cmd.mark_run(tmp_path, '4', 'done', None)
         assert _read_meta(run_dir).status == 'done'
@@ -155,7 +154,7 @@ class TestTransitions:
         assert _read_meta(run_dir).status == 'killed'
 
     def test_done_to_done_rejects(self, tmp_path: Path) -> None:
-        """Terminal-state mark is the canonical re-mark guard (spec 行 230)."""
+        """Terminal-state mark is the canonical re-mark guard (spec §Status 状态机)."""
         _write_run(tmp_path, nnn='000010', status='done')
         with pytest.raises(schema.InvalidTransition, match="'done' → 'done'"):
             mark_cmd.mark_run(tmp_path, '10', 'done', None)
@@ -215,7 +214,7 @@ class TestNotes:
         assert _read_meta(run_dir).notes == ''
 
     def test_notes_with_newline_escaped(self, tmp_path: Path) -> None:
-        """Raw ``\\n`` in notes must round-trip via TOML escape (spec 行 132-134)."""
+        """Raw ``\\n`` in notes must round-trip via TOML escape (spec §CLI mark 细则 HIGH-1-D/HIGH-6-A)."""
         run_dir = _write_run(tmp_path, nnn='000023', status='running')
         mark_cmd.mark_run(tmp_path, '23', 'done', 'line1\nline2')
         # On-disk TOML must show the escaped sequence, not a raw newline

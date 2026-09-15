@@ -20,7 +20,7 @@ from tools.runs import sync
 
 
 # ---------------------------------------------------------------------------
-# RSYNC_FLAGS — include + exclude ordering (spec 行 357-371)
+# RSYNC_FLAGS — include + exclude ordering (spec §Include / exclude pattern)
 # ---------------------------------------------------------------------------
 
 

@@ -2,8 +2,8 @@
 
 Clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§CLI mark 细则 HIGH-1-D 行 127-135 + HIGH-6-A 行 129-131 +
-§Status 状态机 strict transitions 行 207-234.
+§CLI mark 细则 HIGH-1-D + HIGH-6-A +
+§Status 状态机 strict transitions.
 
 Use case: when a ``running`` run dies externally (SIGKILL / power loss)
 or a ``recover``-rebuilt ``unknown`` run needs final disposition, the
@@ -24,7 +24,7 @@ Constraints (spec strict):
 - The read → validate_transition → write sequence happens **inside a
   single per-run** ``acquire_metadata_lock``, so a concurrent train
   Phase C close cannot slip between our read and write (mirroring
-  ``_train/run.py:_close_metadata_atomic`` pattern; spec 行 282).
+  ``_train/run.py:_close_metadata_atomic`` pattern; spec §metadata 写).
 
 Why the lock + inline write (not :func:`write_metadata_atomic`):
 ``write_metadata_atomic`` re-acquires the per-run flock internally, so
@@ -57,9 +57,9 @@ from tools.runs import schema
 from tools.runs._helpers.locks import acquire_metadata_lock
 from tools.runs._helpers.resolver import resolve_nnn_to_dir
 
-# Mark-permitted target statuses (spec §Status 状态机 行 228-229).
+# Mark-permitted target statuses (spec §Status 状态机).
 # Excludes ``running`` (auto-only, by train Phase B init) and ``unknown``
-# (recover-only — spec 行 220 "recover 命令入口").
+# (recover-only — spec §Status 状态机 "recover 命令入口").
 _MARK_TARGETS: tuple[str, ...] = ('done', 'failed', 'killed')
 
 
@@ -70,7 +70,7 @@ def mark_run(repo_root: Path, nnn: str, new_status: str, notes: str | None) -> N
 
     1. Resolve NNN shorthand → unique ``artifacts/`` dir via R7
        :func:`resolve_nnn_to_dir` (LookupError on 0 or ≥2 matches).
-    2. Acquire per-run ``.metadata_lock`` (spec 行 282 + 135).
+    2. Acquire per-run ``.metadata_lock`` (spec §metadata 写).
     3. Read current ``metadata.toml``.
     4. Validate ``current.status → new_status`` via
        :func:`schema.validate_transition` (``resume=False`` → strict;
@@ -127,7 +127,7 @@ def mark_run(repo_root: Path, nnn: str, new_status: str, notes: str | None) -> N
         )
 
         # Inline temp + rename — schema.dumps validates + TOML-escapes
-        # the new notes (spec 行 132-134); failures leave the original
+        # the new notes (spec §CLI mark 细则 HIGH-1-D/HIGH-6-A); failures leave the original
         # metadata.toml untouched and the partial temp is best-effort
         # cleaned up.
         payload = schema.dumps(updated)

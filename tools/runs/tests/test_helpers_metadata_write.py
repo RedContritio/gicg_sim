@@ -1,7 +1,7 @@
 """Tests for tools.runs.helpers.acquire_metadata_lock + write_metadata_atomic
 — R5 + R6 (T-04).
 
-Covers spec §metadata 写 行 279-286 + CRIT-2-B + CRIT-3-A + HIGH-5-B:
+Covers spec §metadata 写 + CRIT-2-B + CRIT-3-A + HIGH-5-B:
 - per-run advisory flock: same artifacts_dir serializes, distinct
   artifacts_dirs do not contend.
 - 10-retry budget + path-bearing timeout message.

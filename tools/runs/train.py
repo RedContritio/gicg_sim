@@ -3,7 +3,7 @@
 Sole entry point for training under the 2026-05-18 ``tools/runs/``
 clean-slate redesign (spec
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§Architecture 行 24-74).
+§Architecture).
 
 Phase implementations live in :mod:`tools.runs._train` sub-package
 (``_helpers/`` precedent from T-04). This shell is argparse + main

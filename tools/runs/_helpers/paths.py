@@ -4,7 +4,7 @@ Internal module — callers must import from :mod:`tools.runs.helpers`
 (the public re-export shell). Split out of the monolithic helpers.py
 to keep each file under the 300-line pre-commit hook budget.
 
-Covers spec §Public API helper 表 行 533-547:
+Covers spec §Public API helper 表:
 - R1 normalize_repo_relative: repo-rooted POSIX forward-slash form
 - R2 cfg_checksum: content-only SHA-256 ``sha256:<64-hex>``
 - R3 extract_meta_field: leaf-only TOML ``[meta]`` field reader
@@ -27,7 +27,7 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib  # type: ignore
 
-# Per spec §Per-run 行 79: ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
+# Per spec §Per-run 完全 self-contained: ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
 # Group 1 = NNN (6 digits); group 2 = label (free-form, ≥ 1 char).
 # Public — re-exported via tools.runs.helpers; replaces inline copies
 # previously in list.py + sync_scan.py (M-4 dedup, T-18 review).
@@ -83,8 +83,7 @@ def extract_meta_field(cfg_path: Path, field: str) -> str | None:
     """Return ``cfg.meta.<field>`` from the leaf TOML at ``cfg_path``.
 
     Does NOT resolve ``meta.extends`` — reads ``cfg_path`` directly and
-    inspects only its own ``[meta]`` table (per spec §Public API helper
-    表 行 541 "无 extends resolve,纯本地 file 读 leaf toml"). If the leaf
+    inspects only its own ``[meta]`` table (per spec §Public API helper 表 "无 extends resolve,纯本地 file 读 leaf toml"). If the leaf
     omits ``[meta]`` or the named field, returns ``None``.
 
     Strict type contract: if the field is present but not a string, raises

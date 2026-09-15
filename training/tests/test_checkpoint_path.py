@@ -1,10 +1,10 @@
 """T-06 — CheckpointManager.save writes to <artifacts_dir>/ckpts/ subdir.
 
 Spec ref:
-- design/2026-05-18-tools-runs-redesign-design.md §Per-run dir 结构 行 76-96
+- design/2026-05-18-tools-runs-redesign-design.md §Per-run 完全 self-contained
   (`ckpts/` subdir holds all `.pt` files, separated from metadata + cfg layer)
-- design/2026-05-18-tools-runs-redesign-design.md §ckpts/ naming convention
-  行 606-613 (`ckpt_<step>.pt`, `latest.pt` both live in `ckpts/`)
+- design/2026-05-18-tools-runs-redesign-design-rollout.md §ckpts/ 内 naming convention
+  (`ckpt_<step>.pt`, `latest.pt` both live in `ckpts/`)
 
 Verifies the implementation contract — caller passes `artifacts_dir`, the
 manager creates and writes into the `ckpts/` subdir.

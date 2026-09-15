@@ -13,7 +13,7 @@ entry shell). Implements lifecycle steps 6 and 7:
           alone if externally marked), write ``wall_seconds`` +
           ``exit_code``
 
-Exit-code contract (spec §Exit codes 行 247-257):
+Exit-code contract (spec §Exit codes):
 
 - 0  train done + metadata closed cleanly
 - 1  train ran but failed mid-way (metadata=failed)
@@ -23,29 +23,29 @@ Exit-code contract (spec §Exit codes 行 247-257):
 Note: spec §Exit codes also defines 2 (cfg / setup error) but Phase C
 is reached only after Phase A + B succeed, so 2 cannot originate here.
 
-External-mark handling (spec 行 55, 66): if a concurrent ``tools.runs.
+External-mark handling (spec §单命令 atomic lifecycle): if a concurrent ``tools.runs.
 mark`` flipped status away from ``running`` while train was executing,
 Phase C **does not** overwrite — it preserves the mark and exits 0 with
 a stderr warning. Treating an external mark as Phase C failure would
 mean user-issued kill / done flags get clobbered the moment train
 returns.
 
-Lock interaction caveat (mirrors metadata_io.py warning 行 49-60):
+Lock interaction caveat (mirrors metadata_io.py warning):
 :func:`write_metadata_atomic` re-acquires the per-run flock internally,
 so wrapping it in our outer :func:`acquire_metadata_lock` would
 deadlock on Linux (cross-fd same-process flock blocks; the retry
 budget would then exhaust → ``RuntimeError``). Phase C performs the
 final write inline (validate → temp file → ``os.replace``) within its
 own outer lock to keep the read-and-compare-and-write fully atomic
-per spec 行 282 without re-entering the helper.
+per spec §metadata 写 without re-entering the helper.
 
 Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``):
 
-- 行 54-56   Architecture step 6-7 (run + close)
-- 行 64-66   §Atomic step 7 read-and-compare-before-write
-- 行 247-257 §Exit codes table
-- 行 282     metadata_lock read-and-compare-and-write atomicity
-- 行 297-303 §错误处理 train 失败时 (exception → failed, finally
+- §Architecture step 6-7 (run + close)
+- §单命令 atomic lifecycle step 7 read-and-compare-before-write
+- §Exit codes table
+- §metadata 写 metadata_lock read-and-compare-and-write atomicity
+- §错误处理 train 失败时 (exception → failed, finally
              discipline never masks root cause)
 """
 
@@ -84,7 +84,7 @@ def _run_train_placeholder(state: SetupState) -> None:
 def phase_c_run_train_and_close(state: SetupState) -> int:
     """Steps 6-7: run train + close metadata. Return process exit code.
 
-    Lifecycle (spec 行 54-56):
+    Lifecycle (spec §单命令 atomic lifecycle):
 
     1. ``time.monotonic()`` start (wall_seconds measurement)
     2. call :func:`_run_train_placeholder` (T-11: real paradigm dispatch)
@@ -96,27 +96,27 @@ def phase_c_run_train_and_close(state: SetupState) -> int:
     5. acquire per-run metadata_lock + read current metadata
     6. if ``current.status != 'running'``: someone else (``mark`` /
        ``recover``) already wrote a terminal state — log warn, return 0,
-       do NOT overwrite (spec 行 55, 66)
+       do NOT overwrite (spec §单命令 atomic lifecycle)
     7. else: update ``status`` / ``wall_seconds`` / ``exit_code``, write
        inline (within the outer lock) via temp + ``os.replace``
 
     Return value:
 
     - 0 if train succeeded + metadata closed cleanly
-    - 0 if metadata externally marked (spec 行 66 explicit "exit 0")
+    - 0 if metadata externally marked (spec §单命令 atomic lifecycle explicit "exit 0")
     - 1 if train failed and metadata closed as ``failed``
     - non-zero ``SystemExit.code`` if train raised :class:`SystemExit`
       with a non-None code (preserved as both exit_code field and
       process exit code; ``failed`` status)
     - 3 if step-7 close failed (metadata stays ``running``; user must
-      run ``tools.runs.mark`` to close — spec 行 254)
+      run ``tools.runs.mark`` to close — spec §Exit codes)
     """
     start_monotonic = time.monotonic()
     train_exception: BaseException | None = None
 
     try:
         _run_train_placeholder(state)
-    except BaseException as exc:  # noqa: BLE001 — step 6 must catch all per spec 行 54
+    except BaseException as exc:  # noqa: BLE001 — step 6 must catch all per spec §单命令 atomic lifecycle
         train_exception = exc
         # Print the traceback BEFORE classify/close so operators see what
         # actually went wrong. Without this, the silent fall-through to
@@ -142,10 +142,10 @@ def phase_c_run_train_and_close(state: SetupState) -> int:
 
     try:
         return _close_metadata_atomic(state.artifacts_dir, new_status, wall_seconds, exit_code)
-    except BaseException as close_exc:  # noqa: BLE001 — final-write boundary, spec 行 254
-        # Spec 行 254: final metadata write failed → exit 3; metadata
+    except BaseException as close_exc:  # noqa: BLE001 — final-write boundary, spec §Exit codes
+        # Spec §Exit codes: final metadata write failed → exit 3; metadata
         # stays 'running' so operator can decide via tools.runs.mark.
-        # Print path-bearing hint per spec §用户友好 error message 行 307.
+        # Print path-bearing hint per spec §用户友好 error message.
         print(f'tools.runs.train: final metadata write failed: {close_exc}', file=sys.stderr)
         print(
             f"tools.runs.train: metadata at {state.artifacts_dir}/metadata.toml stays 'running'; "
@@ -197,18 +197,18 @@ def _close_metadata_atomic(artifacts_dir: Path, new_status: str, wall_seconds: f
 
     All four steps (read, compare, write, rename) happen within a single
     :func:`acquire_metadata_lock` so a concurrent ``mark`` cannot slip
-    between our read and write (spec 行 282). Inline write (validate →
+    between our read and write (spec §metadata 写). Inline write (validate →
     temp file → ``os.replace``) mirrors :func:`write_metadata_atomic`
     semantics minus the inner lock acquisition, sidestepping the
-    re-entrant deadlock documented in metadata_io.py 行 49-60.
+    re-entrant deadlock documented in metadata_io.py.
 
     Returns the desired process exit code:
 
-    - ``0`` if externally marked (no overwrite) — spec 行 66
-    - mapped ``exit_code`` arg if we performed the close — spec 行 251-253
+    - ``0`` if externally marked (no overwrite) — spec §单命令 atomic lifecycle
+    - mapped ``exit_code`` arg if we performed the close — spec §Exit codes
 
     Raises whatever underlying IO / validation error breaks the write;
-    the caller maps that to exit 3 (spec 行 254).
+    the caller maps that to exit 3 (spec §Exit codes).
     """
     target = artifacts_dir / 'metadata.toml'
     temp = artifacts_dir / 'metadata.toml.tmp'

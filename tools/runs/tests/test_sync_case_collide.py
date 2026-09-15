@@ -1,6 +1,6 @@
 """Tests for case-collide detection in ``tools.runs.sync`` (T-19).
 
-Spec §CRIT-5-A 行 341-346 — macOS APFS (case-insensitive default) ↔ Linux
+Spec §CRIT-5-A — macOS APFS (case-insensitive default) ↔ Linux
 ext4 (case-sensitive default) cross-OS sync can silently overwrite when
 two run-dir names differ only by case (``..._DMC`` vs ``..._dmc``).
 

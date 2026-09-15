@@ -1,7 +1,7 @@
 """``tools.runs.show`` tests — clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§CLI show 细则 HIGH-1-C 行 120-125 + §Schema CRIT-6-A 行 157 +
-§错误处理 行 318.
+§CLI show 细则 HIGH-1-C + §Schema CRIT-6-A +
+§Malformed metadata 处理 HIGH-4-A.
 
 Fixtures lay down ``artifacts/<ts>_<NNN>_<label>/{metadata.toml,
 cfg_resolved.toml[, cfg_resolved_v<N>.toml]}`` directly — register /
@@ -327,7 +327,7 @@ class TestCfgResolvedVersions:
 
 
 class TestMalformedRaises:
-    """Per spec 行 318: ``show`` on a single NNN **raises**, unlike ``list``
+    """Per spec §HIGH-4-A: ``show`` on a single NNN **raises**, unlike ``list``
     which skips. Failing loud is correct for a single-target query — silent
     success on a corrupt file would hide real damage."""
 

@@ -198,8 +198,8 @@ class TestValidateTransitionNormal:
             # running → unknown: forbidden (recover only writes unknown for
             # rebuilt dirs that had no metadata at all)
             ('running', 'unknown'),
-            # running → running: spec §Status 状态机 行 226-231 does NOT list
-            # it as a normal arrow. Only the resume path (line 243 no-op warn)
+            # running → running: spec §Status 状态机 does NOT list
+            # it as a normal arrow. Only the resume path (§Resume 例外规则 CRIT-2-A no-op warn)
             # permits it (covered by ``test_resume_running_to_running_no_op_allowed``).
             ('running', 'running'),
         ],
@@ -222,7 +222,7 @@ class TestValidateTransitionResumeException:
         schema.validate_transition(old, 'running', resume=True)
 
     def test_resume_running_to_running_no_op_allowed(self):
-        """spec line 243: resume sees metadata already 'running' → no-op
+        """spec §Resume 例外规则 CRIT-2-A: resume sees metadata already 'running' → no-op
         warn; schema layer allows it."""
         schema.validate_transition('running', 'running', resume=True)
 

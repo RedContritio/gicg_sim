@@ -143,7 +143,7 @@ def parse_remote_find_output(text: str) -> dict[str, str]:
 def scan_local_dir_names(local_root: Path) -> list[str]:
     """Return every well-formed run-dir name under ``<local_root>/artifacts/``.
 
-    Used by case-collide detection (spec §CRIT-5-A 行 341-346); we need
+    Used by case-collide detection (spec §CRIT-5-A); we need
     the full ``<ts>_<NNN>_<label>`` name (not the parsed NNN) so case
     differences in the label portion are surfaced (``..._DMC`` vs
     ``..._dmc`` would silently collide on macOS APFS).

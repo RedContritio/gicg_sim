@@ -2,8 +2,8 @@
 
 Clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§CLI show 细则 HIGH-1-C 行 120-125 + §Schema CRIT-6-A 行 157 +
-§错误处理 行 318.
+§CLI show 细则 HIGH-1-C + §Schema CRIT-6-A +
+§Malformed metadata 处理 HIGH-4-A.
 
 Behavior:
 
@@ -11,10 +11,10 @@ Behavior:
   zero-pad to 6 digits + exact match via :func:`resolve_nnn_to_dir`.
 - Print every ``metadata.toml`` field (all 11) for human inspection.
 - Print **every** ``cfg_resolved*.toml`` (v1 + v2 + ... v<N>) as audit
-  trail; the highest-version one is marked ``(current)`` (spec 行 157
+  trail; the highest-version one is marked ``(current)`` (spec §Resume 语义
   "truth = 最高版").
 - Malformed metadata.toml: **raise** (NOT skip like list — show
-  targets a single NNN, failing loud is correct per spec 行 318).
+  targets a single NNN, failing loud is correct per spec §HIGH-4-A).
 - Dir-lookup failures (0 / ≥2 match) bubble up from resolver as
   :class:`LookupError`.
 
@@ -38,7 +38,7 @@ from pathlib import Path
 from tools.runs import schema
 from tools.runs._helpers.resolver import resolve_nnn_to_dir
 
-# Resume-versioned cfg files (spec §Resume 行 153-157): v1 has no suffix,
+# Resume-versioned cfg files (spec §Resume 语义): v1 has no suffix,
 # v>=2 carries ``_v<N>`` suffix; latest version is current truth.
 _CFG_RESOLVED_V_RE = re.compile(r'^cfg_resolved_v(\d+)\.toml$')
 
@@ -61,8 +61,8 @@ _FIELD_ORDER: tuple[str, ...] = (
 def _list_cfg_resolved_versions(artifacts_dir: Path) -> list[tuple[int, Path]]:
     """Return sorted ``[(version, path), ...]`` for all ``cfg_resolved*.toml``.
 
-    - ``cfg_resolved.toml`` → version 1 (spec 行 153 "首版固定无后缀").
-    - ``cfg_resolved_v<N>.toml`` → version N (N >= 2; spec 行 155).
+    - ``cfg_resolved.toml`` → version 1 (spec §Resume 语义 "首版固定无后缀").
+    - ``cfg_resolved_v<N>.toml`` → version N (N >= 2; spec §Resume 语义).
 
     Sort ascending by version so the caller can render v1 → v<N> in order.
     Returns ``[]`` when no cfg_resolved files exist (defensive — production
@@ -109,16 +109,16 @@ def show_run(repo_root: Path, nnn: str) -> str:
         ValueError: ``nnn`` is not a 1-6 digit string (caller bug; resolver
             shape contract).
         LookupError: 0 or ≥2 ``artifacts/`` dirs match the zero-padded NNN
-            (spec 行 122-123 — show 单 NNN 失败 = 直接 raise).
+            (spec §HIGH-1-C — show 单 NNN 失败 = 直接 raise).
         OSError / ValueError: malformed ``metadata.toml`` (parse fail / schema
-            violation / read error). Per spec 行 318, show **does not skip**
+            violation / read error). Per spec §HIGH-4-A, show **does not skip**
             — failing loud on a single-target query is correct.
     """
     artifacts_dir = resolve_nnn_to_dir(repo_root, nnn)
     metadata_path = artifacts_dir / 'metadata.toml'
     # load_file → tomllib.loads → from_dict → validate.
     # Any of these may raise OSError / ValueError; let them propagate
-    # per spec 行 318 (show != list, single-target raise).
+    # per spec §HIGH-4-A (show != list, single-target raise).
     meta = schema.load_file(metadata_path)
 
     cfg_versions = _list_cfg_resolved_versions(artifacts_dir)

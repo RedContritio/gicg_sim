@@ -7,7 +7,7 @@ dispatch body landed alongside Phase C's lifecycle + close logic.
 
 This module owns the cfg → paradigm → ``run_pipeline`` wiring
 previously inlined into ``tools/run.py`` (deleted by L-1 per spec
-§Architecture CRIT-X-1 行 28-32). It is invoked from
+§Architecture CRIT-X-1). It is invoked from
 :func:`tools.runs._train.run._run_train_placeholder` (T-11 retains the
 T-10 placeholder symbol name so Phase C tests' monkeypatches keep
 working — the call site is the place tests inject failures, so the
@@ -15,13 +15,13 @@ external surface stays stable).
 
 Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``):
 
-- 行 28-32 §Architecture CRIT-X-1 method A (full paradigm dispatch
+- §Architecture CRIT-X-1 method A (full paradigm dispatch
            migration, no thin shim retained over the old entry)
-- 行 76-96 §Per-run dir layout — prebuilt artifacts_dir is the per-run
+- §Per-run 完全 self-contained — prebuilt artifacts_dir is the per-run
            dir Phase A allocated under ``artifacts/<ts>_<NNN>_<label>/``
-- 行 50    §Architecture step 4 — cfg_resolved.toml is the post extends
+- §Architecture step 4 — cfg_resolved.toml is the post extends
            + override snapshot Phase B wrote; reading it back here does
-           NOT re-resolve extends (loader.py 行 120 pops the field
+           NOT re-resolve extends (loader.py pops the field
            after merging the chain)
 """
 
@@ -71,7 +71,7 @@ def run_paradigm_train(state: SetupState) -> None:
     wrote this post extends + post --override, with ``meta.extends``
     already stripped by :func:`load_with_extends`'s line-120 pop, so a
     second ``load_cfg`` does **not** re-resolve extends — see spec
-    §Architecture CRIT-X-1 行 28-32 method A "完整迁移").
+    §Architecture CRIT-X-1 method A "完整迁移").
 
     Resolves the paradigm class via the central registry, builds the
     paradigm-supplied opponent pool + env factory (mirroring the
@@ -83,7 +83,7 @@ def run_paradigm_train(state: SetupState) -> None:
 
     Raises whatever the underlying ``load_cfg`` / paradigm.make_* /
     ``run_pipeline`` chain raises. Phase C wraps the call in a broad
-    ``except BaseException`` (spec 行 54), so any error mapping to
+    ``except BaseException`` (spec §单命令 atomic lifecycle), so any error mapping to
     ``status=failed`` happens in the caller, not here.
     """
     # Lazy import — keeps test_train_close.py (which monkeypatches the
@@ -99,13 +99,13 @@ def run_paradigm_train(state: SetupState) -> None:
 
     # cfg_resolved.toml is the immutable post-extends + post --override
     # snapshot Phase B wrote. Loading via load_cfg routes it through the
-    # full validate + paradigm-dispatch pipeline (loader.py 行 269-283)
+    # full validate + paradigm-dispatch pipeline (loader.py)
     # so any schema violation in the resolved cfg surfaces here, not in
     # the middle of a paradigm-specific factory call. ``overrides=[]``
     # because Phase A already applied them.
     #
     # Resume path (T-12): the current truth is the highest-version
-    # ``cfg_resolved_v<N>.toml`` (spec 行 157 CRIT-6-A) — Phase B
+    # ``cfg_resolved_v<N>.toml`` (spec §Resume 语义 CRIT-6-A) — Phase B
     # writes it under the suffixed name when ``cfg_resolved_version > 1``.
     # Fresh path uses the unsuffixed ``cfg_resolved.toml``.
     cfg_resolved_path = state.artifacts_dir / _current_cfg_resolved_filename(state)

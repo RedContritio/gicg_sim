@@ -1,6 +1,6 @@
 """T-27 — Windows path normalization edge tests for tools.runs.helpers.
 
-Spec §测试矩阵 §Windows path tests 行 412-415:
+Spec §测试矩阵 Windows path tests:
     Windows-form path `configs\\dmc\\x.toml` → `normalize_repo_relative`
     返 forward-slash (`.as_posix()`).
 

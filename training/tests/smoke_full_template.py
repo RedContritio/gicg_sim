@@ -1,9 +1,10 @@
 """smoke_full template — full-tier paradigm smoke helpers (D-601 / A1.6).
 
 OpenSpec ref: ``openspec/specs/training-architecture/smoke-contract.md``
-+ tools/runs/ clean-slate
-redesign spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-
-design.md`` §迁移策略 / §Per-run dir.
++ tools/runs/ clean-slate redesign spec
+``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`` (主卷)
++ ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design-rollout.md``
+(续卷) §迁移策略 / §Per-run 完全 self-contained.
 
 This module owns the 3 subprocess helpers used by 5 paradigm
 ``test_<paradigm>_smoke_full.py`` files:

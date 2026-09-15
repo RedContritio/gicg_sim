@@ -7,7 +7,7 @@ to the same artifacts_dir either both observe one whole payload or
 get a clean ``RuntimeError`` after retry exhaustion.
 
 Spec references:
-- §metadata 写 行 283-286
+- §metadata 写
 - CRIT-2-B / CRIT-3-A (per-run lock scope; whole-payload writes)
 - HIGH-5-B (explicit ban on ``tempfile.NamedTemporaryFile`` default
   args — its default dir is ``/tmp`` which may be a different mount,
@@ -26,7 +26,7 @@ from tools.runs._helpers.locks import acquire_metadata_lock
 def write_metadata_atomic(artifacts_dir: Path, metadata: schema.RunMetadata) -> None:
     """Atomically write ``metadata`` to ``<artifacts_dir>/metadata.toml``.
 
-    Per spec §metadata 写 行 283-286 + CRIT-2-B / CRIT-3-A / HIGH-5-B:
+    Per spec §metadata 写 + CRIT-2-B / CRIT-3-A / HIGH-5-B:
 
     - Wraps the write in :func:`acquire_metadata_lock` (per-run flock).
     - Writes to a sibling temp file ``metadata.toml.tmp`` then
@@ -41,7 +41,7 @@ def write_metadata_atomic(artifacts_dir: Path, metadata: schema.RunMetadata) -> 
     :func:`schema.dumps` validates fields before serialization, so
     invalid metadata raises before any file IO happens.
 
-    Note: Spec line 544 表表述 ``metadata: dict`` 是 simplification;实际实现
+    Note: Spec §Public API helper 表 表表述 ``metadata: dict`` 是 simplification;实际实现
     接收 :class:`schema.RunMetadata` (strict typing,避免 caller 传 dict 时
     静默走 validate 失败)。Caller(T-08 train.py)必须先构 ``RunMetadata``
     再调本 helper。

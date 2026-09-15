@@ -5,8 +5,7 @@
 strict transition table (含 resume 例外 CRIT-2-A).
 
 metadata.toml lives at ``<artifacts_dir>/metadata.toml`` — there is no
-longer a separate ``artifacts/runs/<NNN>.toml`` index (spec §Per-run
-完全 self-contained). No backward compat with the pre-redesign schema.
+longer a separate ``artifacts/runs/<NNN>.toml`` index (spec §Per-run 完全 self-contained). No backward compat with the pre-redesign schema.
 """
 
 from __future__ import annotations
@@ -25,11 +24,11 @@ else:
 
 STATUSES: frozenset[str] = frozenset({'running', 'done', 'failed', 'killed', 'unknown'})
 
-# 终态 — mark 拒绝写入 (spec §Status 状态机 行 230)。
+# 终态 — mark 拒绝写入 (spec §Status 状态机)。
 # 唯一离开终态的路径是 resume 例外 (spec §Resume 例外规则 CRIT-2-A)。
 TERMINAL_STATUSES: frozenset[str] = frozenset({'done', 'failed', 'killed'})
 
-# 6 位 zero-pad NNNNNN (spec §Schema metadata.toml 行 177)
+# 6 位 zero-pad NNNNNN (spec §metadata.toml 字段)
 RUN_ID_RE = re.compile(r'^\d{6}$')
 
 
@@ -39,7 +38,7 @@ class InvalidTransition(ValueError):
 
 @dataclass
 class RunMetadata:
-    """Run metadata — exactly 11 fields per spec §Schema metadata.toml 字段.
+    """Run metadata — exactly 11 fields per spec §metadata.toml 字段.
 
     Field semantics:
     - ``run_id``: 6-digit zero-padded NNN (e.g. ``"000069"``).
@@ -108,15 +107,15 @@ def validate(meta: RunMetadata) -> None:
         raise ValueError(f'notes must be str (use empty string when absent), got {type(meta.notes).__name__}')
 
 
-# Status transition table (spec §Status 状态机 行 226-231 + §Resume 例外规则 行 235-246).
+# Status transition table (spec §Status 状态机 + §Resume 例外规则).
 #
 # Normal (resume=False): running → {done,failed,killed} (auto by train + manual
 # by mark); unknown → {done,failed,killed} (mark, recover 收尾). running →
 # running is NOT a normal transition — spec only authorizes it via the resume
-# path (line 243 'already running' no-op warn).
+# path (§Resume 例外规则 CRIT-2-A 'already running' no-op warn).
 #
 # Resume exception (CRIT-2-A): {done,failed,killed,unknown,running} → running.
-# running → running under resume is the spec line 243 'already running' no-op
+# running → running under resume is the spec §Resume 例外规则 CRIT-2-A 'already running' no-op
 # warn path; schema layer allows it, caller logs the warn.
 _NORMAL_TRANSITIONS: frozenset[tuple[str, str]] = frozenset(
     {
@@ -147,7 +146,7 @@ def validate_transition(old: str, new: str, *, resume: bool = False) -> None:
       ``unknown → {done,failed,killed}`` allowed.
     - With ``resume=True``: also allows
       ``{done,failed,killed,unknown,running} → running`` (CRIT-2-A; the
-      ``running → running`` arm covers spec line 243 'already running' no-op).
+      ``running → running`` arm covers spec §Resume 例外规则 CRIT-2-A 'already running' no-op).
     - Terminal states (done/failed/killed) are otherwise frozen.
     - ``unknown`` is the recover-rebuilt non-terminal state.
     """

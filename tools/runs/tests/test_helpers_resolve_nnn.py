@@ -1,7 +1,6 @@
 """Tests for tools.runs.helpers.resolve_nnn_to_dir — R7 (T-05).
 
-Covers spec §CLI show 细则 HIGH-1-C 行 120-125 + §CLI mark 细则 HIGH-6-A
-行 127-135 + spec 行 310-311 prescribed error wording:
+Covers spec §CLI show 细则 HIGH-1-C + §CLI mark 细则 HIGH-6-A + spec §用户友好 error message prescribed error wording:
 
 - shorthand ``69`` / ``069`` / ``000069`` all resolve identically.
 - 0 match → ``LookupError('NNN not found')``.

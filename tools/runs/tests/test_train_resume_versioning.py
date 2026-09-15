@@ -2,10 +2,10 @@
 
 Spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
 
-- CRIT-6-A 行 157-160 (cfg_resolved_v<N> truth + metadata field)
-- HIGH-3-A 行 155 (allocator-lock-guarded N allocation)
-- 行 156    pair-versioning (cfg_leaf_v<N>.toml ↔ cfg_resolved_v<N>.toml)
-- 行 152    override allowed during resume
+- CRIT-6-A (cfg_resolved_v<N> truth + metadata field)
+- HIGH-3-A (allocator-lock-guarded N allocation)
+- §Resume 语义 pair-versioning (cfg_leaf_v<N>.toml ↔ cfg_resolved_v<N>.toml)
+- §Resume 语义 override allowed during resume
 
 Companion file ``test_train_resume.py`` covers basic flow + validation +
 status + preserved fields + wall_seconds.
@@ -112,7 +112,7 @@ def test_resume_three_times_climbs_to_v4(tmp_path: Path) -> None:
 
 
 def test_parallel_resumes_get_distinct_versions(tmp_path: Path) -> None:
-    """spec 行 155 HIGH-3-A: two parallel resumes against the same dir
+    """spec §Resume 语义 HIGH-3-A: two parallel resumes against the same dir
     must get distinct ``cfg_resolved_version`` values (no collision).
 
     Two threads enter ``phase_a_resume`` simultaneously via a Barrier;
@@ -250,7 +250,7 @@ def test_parallel_resumes_race_window_injected_sleep(tmp_path: Path, monkeypatch
 
 
 def test_resume_applies_override(tmp_path: Path) -> None:
-    """spec 行 152: resume re-resolves cfg + applies --override (allow drift)."""
+    """spec §Resume 语义: resume re-resolves cfg + applies --override (allow drift)."""
     cfg = write_cfg(
         tmp_path / 'cfg.toml',
         'resume_test',

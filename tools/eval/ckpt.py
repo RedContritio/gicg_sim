@@ -49,7 +49,7 @@ def _ckpt_label(p_str: str) -> str:
         →   202605151019_000069_dmc_stage3_pilot
 
     若 parent dir 名非 ``ckpts``(说明 caller 传 flat path 或非标准 layout),
-    raise ValueError — clean-slate 不留 flat 兼容(spec 行 76-96 / 606-613)。
+    raise ValueError — clean-slate 不留 flat 兼容(spec §Per-run 完全 self-contained / §ckpts/ 内 naming convention)。
     """
     if p_str == RANDOM_SENTINEL:
         return 'random_baseline'

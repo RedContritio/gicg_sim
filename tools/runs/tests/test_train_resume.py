@@ -2,11 +2,11 @@
 
 Spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``:
 
-- §Resume 语义 行 145-164 (full lifecycle)
-- §Resume 例外规则 CRIT-2-A 行 235-246 (status transitions)
-- HIGH-2-C 行 149 (leaf cfg required)
-- H-3 行 185 (wall_seconds overwrite = last attempt)
-- 行 162 preserved metadata fields (timestamp, exit_code)
+- §Resume 语义 (full lifecycle)
+- §Resume 例外规则 CRIT-2-A (status transitions)
+- HIGH-2-C (leaf cfg required)
+- H-3 (wall_seconds overwrite = last attempt)
+- §Resume 语义 preserved metadata fields (timestamp, exit_code)
 
 Companion file ``test_train_resume_versioning.py`` covers:
 cfg_resolved_v<N> allocation, parallel resume serialization,
@@ -71,7 +71,7 @@ def test_resume_reuses_artifacts_dir(tmp_path: Path) -> None:
 
 
 def test_resume_writes_paired_v2_files(tmp_path: Path) -> None:
-    """Spec 行 156 pair-versioning: both cfg_leaf_v2.toml and
+    """Spec §Resume 语义 pair-versioning: both cfg_leaf_v2.toml and
     cfg_resolved_v2.toml appear; v1 (unsuffixed) files remain."""
     cfg, art = fresh_train(tmp_path)
     assert (art / 'cfg_leaf.toml').exists()
@@ -87,7 +87,7 @@ def test_resume_writes_paired_v2_files(tmp_path: Path) -> None:
 
 
 def test_resume_bumps_cfg_resolved_version_metadata_field(tmp_path: Path) -> None:
-    """Spec 行 158 CRIT-6-A: metadata.cfg_resolved_version reflects current truth."""
+    """Spec §Resume 语义 CRIT-6-A: metadata.cfg_resolved_version reflects current truth."""
     cfg, art = fresh_train(tmp_path)
     assert schema.load_file(art / 'metadata.toml').cfg_resolved_version == 1
     ckpt = make_dummy_ckpt(art)
@@ -100,7 +100,7 @@ def test_resume_bumps_cfg_resolved_version_metadata_field(tmp_path: Path) -> Non
 
 
 def test_resume_missing_cfg_exits_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    """Spec 行 149 HIGH-2-C: leaf cfg must exist + be readable."""
+    """Spec §Resume 语义 HIGH-2-C: leaf cfg must exist + be readable."""
     cfg, art = fresh_train(tmp_path)
     ckpt = make_dummy_ckpt(art)
     missing = tmp_path / 'gone.toml'
@@ -114,7 +114,7 @@ def test_resume_missing_cfg_exits_2(tmp_path: Path, capsys: pytest.CaptureFixtur
 
 
 def test_resume_metadata_missing_exits_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    """Spec 行 150: <artifacts_dir>/metadata.toml must exist."""
+    """Spec §Resume 语义: <artifacts_dir>/metadata.toml must exist."""
     cfg, art = fresh_train(tmp_path)
     ckpt = make_dummy_ckpt(art)
     (art / 'metadata.toml').unlink()
@@ -127,7 +127,7 @@ def test_resume_metadata_missing_exits_2(tmp_path: Path, capsys: pytest.CaptureF
 
 
 def test_resume_ckpt_parent_not_ckpts_subdir_exits_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    """Spec 行 150: ckpt parent must be the ``ckpts/`` subdir."""
+    """Spec §Resume 语义: ckpt parent must be the ``ckpts/`` subdir."""
     cfg, art = fresh_train(tmp_path)
     flat_ckpt = art / 'rogue_ckpt.pt'
     flat_ckpt.write_bytes(b'no subdir')
@@ -152,9 +152,9 @@ def test_resume_cfg_pointing_to_dir_exits_2(tmp_path: Path) -> None:
 
 
 def test_resume_load_with_extends_fail_exit_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    """Spec 行 152: resume re-resolves cfg; if load_with_extends raises
+    """Spec §Resume 语义: resume re-resolves cfg; if load_with_extends raises
     (malformed TOML / missing extends parent), exit 2 with stderr
-    diagnostic. Covers resume.py 行 142-144 raise path (I-1 — was
+    diagnostic. Covers resume.py raise path (I-1 — was
     untested before the v1 quality review).
 
     Strategy: fresh_train captures the artifacts dir + ckpt; then we
@@ -172,7 +172,7 @@ def test_resume_load_with_extends_fail_exit_2(tmp_path: Path, capsys: pytest.Cap
     ckpt = make_dummy_ckpt(art)
 
     # Valid TOML so _extract_leaf_label succeeds; broken meta.extends
-    # so load_with_extends raises FileNotFoundError (resume.py 行 142
+    # so load_with_extends raises FileNotFoundError (resume.py
     # catches both ValueError and FileNotFoundError).
     cfg.write_text(
         """
@@ -192,9 +192,9 @@ extends = "missing_parent.toml"
 
 
 def test_resume_override_apply_fail_exit_2(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    """Spec 行 152: --override is applied during resume; malformed
+    """Spec §Resume 语义: --override is applied during resume; malformed
     override (e.g. missing ``=``) → exit 2 with stderr diagnostic.
-    Covers resume.py 行 148-150 raise path (I-1 — was untested before
+    Covers resume.py raise path (I-1 — was untested before
     the v1 quality review).
     """
     cfg, art = fresh_train(tmp_path)
@@ -214,7 +214,7 @@ def test_resume_override_apply_fail_exit_2(tmp_path: Path, capsys: pytest.Captur
 
 @pytest.mark.parametrize('prior_status', ['done', 'failed', 'killed', 'unknown'])
 def test_resume_transitions_non_running_to_running(tmp_path: Path, prior_status: str) -> None:
-    """Spec 行 238 CRIT-2-A: {done,failed,killed,unknown} → running allowed
+    """Spec §CRIT-2-A: {done,failed,killed,unknown} → running allowed
     only on resume code path. Each prior status round-trips through
     resume Phase A to running.
     """
@@ -245,7 +245,7 @@ def test_resume_transitions_non_running_to_running(tmp_path: Path, prior_status:
 
 
 def test_resume_running_already_warns_and_proceeds(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    """Spec 行 243: status='running' already → warn + no-op + continue."""
+    """Spec §CRIT-2-A: status='running' already → warn + no-op + continue."""
     cfg, art = fresh_train(tmp_path)
     ckpt = make_dummy_ckpt(art)
     meta = schema.load_file(art / 'metadata.toml')
@@ -271,11 +271,11 @@ def test_resume_running_already_warns_and_proceeds(tmp_path: Path, capsys: pytes
     assert schema.load_file(art / 'metadata.toml').cfg_resolved_version == 2
 
 
-# --- Preserved metadata fields (spec 行 162) ---------------------------------
+# --- Preserved metadata fields (spec §Resume 语义) ---------------------------------
 
 
 def test_resume_preserves_timestamp(tmp_path: Path) -> None:
-    """spec 行 162: timestamp held at first train start; resume does NOT reset."""
+    """spec §Resume 语义: timestamp held at first train start; resume does NOT reset."""
     cfg, art = fresh_train(tmp_path)
     pre_ts = schema.load_file(art / 'metadata.toml').timestamp
     ckpt = make_dummy_ckpt(art)
@@ -286,7 +286,7 @@ def test_resume_preserves_timestamp(tmp_path: Path) -> None:
 
 
 def test_resume_preserves_exit_code_through_phase_a(tmp_path: Path) -> None:
-    """spec 行 162: exit_code preserved by Phase A bump; Phase C close
+    """spec §Resume 语义: exit_code preserved by Phase A bump; Phase C close
     overwrites with the new attempt's outcome. Here we verify Phase A
     in isolation (before Phase C runs) preserves the prior exit_code.
     """
@@ -319,7 +319,7 @@ def test_resume_preserves_exit_code_through_phase_a(tmp_path: Path) -> None:
 
 
 def test_resume_updates_cfg_file_to_new_leaf_path(tmp_path: Path) -> None:
-    """spec 行 159: cfg_file records "last leaf path used"."""
+    """spec §Resume 语义: cfg_file records "last leaf path used"."""
     cfg, art = fresh_train(tmp_path)
     pre_cfg = schema.load_file(art / 'metadata.toml').cfg_file
     assert pre_cfg == 'cfg.toml'
@@ -332,11 +332,11 @@ def test_resume_updates_cfg_file_to_new_leaf_path(tmp_path: Path) -> None:
     assert post_cfg == 'other.toml'
 
 
-# --- wall_seconds overwrite (H-3 行 185) -------------------------------------
+# --- wall_seconds overwrite (H-3) -------------------------------------
 
 
 def test_resume_wall_seconds_overwritten_at_close(tmp_path: Path) -> None:
-    """spec 行 185 H-3: wall_seconds == last-attempt elapsed (overwrite,
+    """spec §metadata.toml 字段 H-3: wall_seconds == last-attempt elapsed (overwrite,
     not accumulate). Inject a non-zero wall_seconds in prior metadata +
     check that Phase C close overwrites with the new attempt's duration.
     """

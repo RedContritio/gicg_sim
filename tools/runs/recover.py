@@ -2,14 +2,14 @@
 
 Clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§CLI recover 细则 HIGH-4-C 行 137-143 + §Status 状态机 unknown 行 142, 183.
+§CLI recover 细则 HIGH-4-C + §Status 状态机 unknown.
 
 Rescue path for the case where ``<artifacts_dir>/metadata.toml`` is missing
 (deletion accident, sync glitch, partial pre-redesign migration) but the
 per-run dir + its ``cfg_resolved*.toml`` snapshot are intact. The rebuilt
 metadata is written with ``status='unknown'`` — the only status enum value
 that ``recover`` may produce, signalling "metadata was synthesised; train
-outcome is undetermined" (spec 行 142). The user then transitions to a
+outcome is undetermined" (spec §HIGH-4-C). The user then transitions to a
 terminal state via :mod:`tools.runs.mark` once they confirm what actually
 happened (``done`` / ``failed`` / ``killed``).
 
@@ -22,7 +22,7 @@ Design points (per T-16 handoff):
   the atomic write directly to :func:`write_metadata_atomic` — its
   internal per-run flock + temp+rename suffices, no nested-acquire risk.
 - ``cfg_resolved_version`` is derived from the **highest-numbered**
-  ``cfg_resolved*.toml`` present (spec 行 153-157 truth definition).
+  ``cfg_resolved*.toml`` present (spec §Resume 语义 truth definition).
   ``cfg_resolved.toml`` (no suffix) is v1; ``cfg_resolved_v<N>.toml`` is vN.
 - ``cfg_file`` (last-leaf-path-used) is unknowable from the on-disk state
   — the leaf path lives outside ``artifacts/`` and may have been renamed
@@ -34,7 +34,7 @@ Design points (per T-16 handoff):
 - ``timestamp``: derived from the dir-name 12-digit ``YYYYMMDDHHMM``
   prefix, parsed as UTC and converted to iso8601 — preserves the spec
   invariant that ``metadata.timestamp`` and dir-name ts are same-source
-  (spec 行 70). ``wall_seconds`` / ``exit_code`` are unrecoverable, set to
+  (spec §单命令 atomic lifecycle). ``wall_seconds`` / ``exit_code`` are unrecoverable, set to
   ``0.0`` / ``0`` per their "absent" semantics.
 
 CLI::
@@ -61,13 +61,13 @@ from tools.runs._helpers.metadata_io import write_metadata_atomic
 from tools.runs._helpers.paths import normalize_repo_relative
 
 
-# Dir-name shape per spec §Per-run 行 79 ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
+# Dir-name shape per spec §Per-run 完全 self-contained ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
 # Same regex as ``list._RUN_DIR_RE`` — duplicated here (not imported) because
 # the modules sit at the same package layer and a cross-import would create
 # an accidental dependency from a rescue-path module to the display module.
 _DIR_NAME_RE = re.compile(r'^(\d{12})_(\d{6})_(.+)$')
 
-# Resume-versioned cfg files (spec §Resume 行 153-157). v1 has no suffix;
+# Resume-versioned cfg files (spec §Resume 语义). v1 has no suffix;
 # v>=2 carries ``_v<N>`` suffix. Same regex as ``list._CFG_RESOLVED_V_RE``
 # — duplicated for the same independence reason.
 _CFG_RESOLVED_V_RE = re.compile(r'^cfg_resolved_v(\d+)\.toml$')
@@ -80,8 +80,8 @@ _RECOVER_NOTES = 'recovered via tools.runs.recover'
 def _cfg_resolved_version(name: str) -> int:
     """Return version for a ``cfg_resolved*.toml`` filename, 0 if not one.
 
-    ``cfg_resolved.toml`` → 1 (v1, no suffix; spec 行 153).
-    ``cfg_resolved_v<N>.toml`` → N (N >= 2; spec 行 155).
+    ``cfg_resolved.toml`` → 1 (v1, no suffix; spec §Resume 语义).
+    ``cfg_resolved_v<N>.toml`` → N (N >= 2; spec §Resume 语义).
     Anything else → 0 (sentinel "not a cfg_resolved snapshot").
     """
     if name == 'cfg_resolved.toml':
@@ -111,7 +111,7 @@ def _highest_cfg_resolved_version(artifacts_dir: Path) -> int:
 def _ts_dir_to_iso(ts_compact: str) -> str:
     """Convert ``YYYYMMDDHHMM`` (12-digit dir prefix) to iso8601 UTC.
 
-    Spec §Per-run 行 70: dir-name ts is UTC minute-truncated; the iso8601
+    Spec §Per-run 完全 self-contained: dir-name ts is UTC minute-truncated; the iso8601
     we write back must be the same instant in the same timezone so a
     future ``register`` -> ``train`` -> ``register`` round-trip on the
     recovered run would reproduce the same dir name.
@@ -128,7 +128,7 @@ def _ts_dir_to_iso(ts_compact: str) -> str:
         tzinfo=timezone.utc,
     )
     # ``datetime.isoformat()`` produces ``2026-05-18T03:55:00+00:00``
-    # matching the format used by Phase A (``_train/setup.py`` 行 243-244).
+    # matching the format used by Phase A (``_train/setup.py``).
     return dt.isoformat()
 
 
@@ -136,7 +136,7 @@ def _parse_dir_name(name: str) -> tuple[str, str, str]:
     """Split ``<ts>_<NNN>_<label>`` into ``(nnn, label, ts_compact)``.
 
     Raises ``ValueError`` on shape mismatch — recover refuses to operate
-    on dirs that do not match the per-run-dir convention (spec 行 79); we
+    on dirs that do not match the per-run-dir convention (spec §Per-run 完全 self-contained); we
     cannot synthesise a valid ``run_id`` field without a parseable NNN.
     """
     m = _DIR_NAME_RE.match(name)
@@ -152,25 +152,25 @@ def _parse_dir_name(name: str) -> tuple[str, str, str]:
 def recover_metadata(repo_root: Path, artifacts_dir: Path) -> schema.RunMetadata:
     """Rebuild ``<artifacts_dir>/metadata.toml`` from on-disk cfg snapshots.
 
-    Per spec §CLI recover 细则 HIGH-4-C 行 137-143:
+    Per spec §HIGH-4-C:
 
     1. Validate ``artifacts_dir`` is an existing directory under
        ``repo_root/artifacts/``.
     2. **Refuse to overwrite** an existing ``metadata.toml`` — recover is
        the rebuild-from-loss path, not a re-sync command. User must
        explicitly ``rm metadata.toml`` if they really want to re-run
-       recovery (spec 行 139 "metadata.toml 缺失但 dir 在 的救援路径").
+       recovery (spec §HIGH-4-C "metadata.toml 缺失但 dir 在 的救援路径").
     3. Require at least one ``cfg_resolved*.toml`` snapshot present —
        without it we have no anchor for ``cfg_resolved_version`` and no
        way to derive paradigm via ``list._derive_paradigm``. Raise
        ``FileNotFoundError`` if absent.
     4. Parse the dir-name into ``(nnn, label, ts_compact)``; convert
        ``ts_compact`` to iso8601 UTC for the ``timestamp`` field
-       (preserving the spec 行 70 "single source" invariant for any
+       (preserving the spec §单命令 atomic lifecycle "single source" invariant for any
        subsequent operation that re-derives the dir name).
     5. Construct an 11-field :class:`schema.RunMetadata` with:
 
-       - ``status='unknown'`` (spec 行 142 — recover is the **only** writer
+       - ``status='unknown'`` (spec §HIGH-4-C — recover is the **only** writer
          of this enum value)
        - ``cfg_file`` / ``git_commit`` set to sentinel strings (the schema
          requires non-empty; we cannot fabricate plausible values)

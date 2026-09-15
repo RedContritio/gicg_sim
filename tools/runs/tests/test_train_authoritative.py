@@ -1,11 +1,11 @@
 """T-13 authoritative host enforcement tests.
 
 Spec ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
-§HIGH-2-D 行 348-356:
+§HIGH-2-D:
 
-- Marker file ``artifacts/.authoritative_host`` absent → allow (行 353)
-- Marker content == current ``socket.gethostname()`` → allow (行 354)
-- Marker content != hostname → ``SystemExit(2)`` + spec 行 352 wording
+- Marker file ``artifacts/.authoritative_host`` absent → allow (§HIGH-2-D)
+- Marker content == current ``socket.gethostname()`` → allow (§HIGH-2-D)
+- Marker content != hostname → ``SystemExit(2)`` + spec §HIGH-2-D wording
   (``'this host is pull-only; cannot allocate new NNN. To make this
   host authoritative, run tools.runs.sync init-authoritative'``)
 
@@ -62,13 +62,13 @@ def _write_marker(tmp_path: Path, content: str) -> Path:
 
 
 def test_verify_allows_when_marker_missing(tmp_path: Path) -> None:
-    """Spec 行 353 — marker absent => no-op (initial / unrestricted mode)."""
+    """Spec §HIGH-2-D — marker absent => no-op (initial / unrestricted mode)."""
     # No marker written. Helper should return cleanly.
     setup_mod._verify_authoritative_host(tmp_path)
 
 
 def test_verify_allows_when_marker_matches_hostname(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Spec 行 354 — marker == socket.gethostname() => allow."""
+    """Spec §HIGH-2-D — marker == socket.gethostname() => allow."""
     monkeypatch.setattr(socket, 'gethostname', lambda: 'fake-mac.local')
     _write_marker(tmp_path, 'fake-mac.local')
     setup_mod._verify_authoritative_host(tmp_path)
@@ -88,14 +88,14 @@ def test_verify_strips_trailing_whitespace(tmp_path: Path, monkeypatch: pytest.M
 def test_verify_raises_when_marker_mismatches(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """Spec 行 352 — mismatch => SystemExit(2) with pinned wording."""
+    """Spec §HIGH-2-D — mismatch => SystemExit(2) with pinned wording."""
     monkeypatch.setattr(socket, 'gethostname', lambda: 'fake-mac.local')
     _write_marker(tmp_path, 'other-host')
     with pytest.raises(SystemExit) as excinfo:
         setup_mod._verify_authoritative_host(tmp_path)
     assert excinfo.value.code == 2
     stderr = capsys.readouterr().err
-    # Pinned wording from spec 行 352.
+    # Pinned wording from spec §HIGH-2-D.
     assert 'this host is pull-only' in stderr
     assert 'tools.runs.sync init-authoritative' in stderr
     # Diagnostic detail (marker + hostname) so operator can debug.
@@ -136,7 +136,7 @@ def test_fresh_train_allowed_when_marker_matches(tmp_path: Path, monkeypatch: py
 def test_fresh_train_rejected_on_pull_only_host(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """Spec 行 352 — fresh path on a pull-only replica => SystemExit(2)
+    """Spec §HIGH-2-D — fresh path on a pull-only replica => SystemExit(2)
     and NO per-run dir mkdir happens (rejection is pre-allocator)."""
     monkeypatch.setattr(socket, 'gethostname', lambda: 'replica-host')
     _write_marker(tmp_path, 'authoritative-host')
