@@ -5,6 +5,7 @@ rule wins, so order is most-specific → most-general within each section.
 
 Code files:
   - Python test files (``**/tests/`` or ``test_*.py``):  500 lines, no byte cap
+  - Go test files (``*_test.go``):                       500 lines, no byte cap
   - Other Python / Go files:                              300 lines, no byte cap
 
 Repo-root docs:
@@ -56,6 +57,7 @@ RULES: List[Tuple[str, Tuple[int, Optional[int]]]] = [
     ('CLAUDE.md_exact', (200, 30 * 1024)),
     ('py_test', (500, None)),
     ('py_prod', (300, None)),
+    ('go_test', (500, None)),
     ('go', (300, None)),
     # OpenSpec artifacts — hard-fail thresholds from
     # openspec/specs/openspec-policy/thresholds.md REJECT column.
@@ -136,7 +138,8 @@ def _rule_for(path: Path) -> Optional[Tuple[int, Optional[int]]]:
         is_test = 'tests' in parts or name.startswith('test_') or name.endswith('_test.py')
         return rules_dict['py_test' if is_test else 'py_prod']
     if rel.suffix == '.go':
-        return rules_dict['go']
+        is_test = name.endswith('_test.go')
+        return rules_dict['go_test' if is_test else 'go']
     if parts and parts[0] == 'openspec' and rel.suffix == '.md':
         key = _openspec_rule(parts, name)
         if key is not None:

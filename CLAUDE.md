@@ -91,6 +91,7 @@ Four checks per commit:
 | ``CLAUDE.md``                                      | 200   | 30 KB |
 | ``docs/**/*.md``                                   | 500   | 50 KB |
 | Python test files (``**/tests/`` or ``test_*.py``) | 500   | —     |
+| Go test files (``*_test.go``)                      | 500   | —     |
 | Other Python / Go files                            | 300   | —     |
 
 Full-repo audit: ``.venv/bin/python -m tools._meta.check_line_limits``.
