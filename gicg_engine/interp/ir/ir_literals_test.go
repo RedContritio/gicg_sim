@@ -148,7 +148,7 @@ func TestLiteralsAndBinOps(t *testing.T) {
 		{
 			// OQ-3: ch.hp ≡ ch:hp() when ch is Char-bound.
 			name:     "T-102_char_attr_field_style",
-			src:     `local h = ch.hp`,
+			src:      `local h = ch.hp`,
 			bindings: map[string]TypedBinding{"ch": {Kind: BindingChar, ID: 11}},
 			wantOps: []Op{
 				{Opcode: OpLoadAddr, Dst: 0, Op1: AddrLocalVar, Op2: 11, Op3: nr},

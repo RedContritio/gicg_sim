@@ -82,9 +82,9 @@ type perfWindow struct {
 }
 
 type perfBucket struct {
-	n      uint32
-	sumNs  uint64
-	maxNs  uint64
+	n     uint32
+	sumNs uint64
+	maxNs uint64
 }
 
 type perfAggregator struct {
@@ -202,4 +202,3 @@ func PerfTraceFlush(out []byte) int {
 	}
 	return off
 }
-

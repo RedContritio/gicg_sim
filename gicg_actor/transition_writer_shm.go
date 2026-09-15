@@ -109,4 +109,3 @@ func (w *TransitionWriterShm) Close() error {
 	w.ring = nil
 	return err
 }
-

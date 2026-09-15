@@ -6,7 +6,8 @@
 // 的 baseline alloc+wall 数据,供后续 cross-check Python mp ctypes path 的 same ops。
 //
 // 跑法:
-//   go test -bench=BenchmarkGame -benchmem -benchtime=5s ./gicg_engine/tests/
+//
+//	go test -bench=BenchmarkGame -benchmem -benchtime=5s ./gicg_engine/tests/
 package tests
 
 import (
