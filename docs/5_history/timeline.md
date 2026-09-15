@@ -8,8 +8,9 @@ status: HISTORICAL — covers events through 2026-05-16
 > 时间序记录关键里程碑、决策点、failure / pivot。每条一行,date + 一句话 + ADR/postmortem 链接。
 >
 > **不是 git log。** 只记影响"为什么走到这"的事件,不记纯代码 commit。
-> 本页目前只覆盖到 2026-05-16；最新状态见 [README](README.md)，
-> 后续实验见 [`docs/5_history/`](../5_history/)。
+>
+> **历史快照**（2026-09-15 自 `docs/0_status/` 移入）：只覆盖到 2026-05-16。
+> 最新状态见 [实时入口](../0_status/README.md)。
 
 ## 2026-05
 

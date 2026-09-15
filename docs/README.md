@@ -19,7 +19,7 @@ docs/
 | 想知道 | 读哪 |
 |---|---|
 | **当前任务 / 上里程碑 / 下决策点** | [`0_status/README.md`](0_status/README.md) |
-| 时间序大事件 | [`0_status/timeline.md`](0_status/timeline.md) |
+| 时间序大事件(至 2026-05-16) | [`5_history/timeline.md`](5_history/timeline.md) |
 | 术语速查 (Stage / r/s / lever / scenario) | [`0_status/glossary.md`](0_status/glossary.md) |
 | 当前网络架构 | [`../openspec/specs/network-architecture/`](../openspec/specs/network-architecture/) |
 | 当前 DSL API | [`../openspec/specs/engine-dsl/`](../openspec/specs/engine-dsl/) |

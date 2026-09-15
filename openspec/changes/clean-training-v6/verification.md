@@ -12,7 +12,7 @@
 - 用户再次确认的回合顺序与当前实现相符：召唤物先结束方优先；普通印记跨方按产生顺序。
   相关致死顺序用例重新运行；无需修改规则或废弃本轮数据。
 - 远端第一批 1580 文件、9,662,919,290 字节；补充明确清单 159 文件、12,958,026 字节。
-  最终远端 artifacts 仅剩 .gitignore 与 .run_id_lock。详见 docs/0_status/remote-training-reset-2026-09-11.json。
+  最终远端 artifacts 仅剩 .gitignore 与 .run_id_lock。详见 docs/5_history/evidence/remote-training-reset-2026-09-11.json。
 - Ruff、新增/修改文件差异空白检查、OpenSpec 索引检查通过。
 
 早期工具扩展测试暴露旧的 4096 长度组装器夹具和无来源 BC 合成数据，已改为当前布局及正式保存入口。

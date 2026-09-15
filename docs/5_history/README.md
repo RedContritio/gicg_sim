@@ -9,7 +9,7 @@
 | [`postmortems/`](postmortems/) | run / 系统 / bug 的事后复盘 (按 date + run-id 命名) |
 | [`reviews/`](reviews/) | 第三方 / 内部审计、review action plan |
 | [`audits/`](audits/) | 单子系统 deep audit (env / determinize / generalization) |
-| [`evidence/`](evidence/) | 一次性 benchmark / 决定性证据 (bench_snapshot, mcts_vs_policy) |
+| [`evidence/`](evidence/) | 一次性 benchmark / 决定性证据 (bench_snapshot, mcts_vs_policy, 2026-09-11 训练重置清单三份 JSON) |
 | [`ablations/`](ablations/) | ablation 量化矩阵 (r001-r006, Stage 3 PPO closure) |
 | [`decisions_legacy/`](decisions_legacy/) | 早期 D5-D13 引擎决策链,作为档案保留 (未来 ADR 走 `2_decisions/`) |
 | [`eras/`](eras/) | 已废弃 epoch 的整体归档 (`ppo_pre_az/` = r001 之前的老 PPO) |
