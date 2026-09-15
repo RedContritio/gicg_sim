@@ -36,6 +36,7 @@ def run(
     learning_rate=0.0003,
     tie_objective='uniform',
     anchor_beta=0.0,
+    device='cuda',
 ):
     if learning_rate <= 0 or tie_objective not in ('uniform', 'set') or anchor_beta < 0:
         raise ValueError('invalid supervised update settings')
@@ -103,7 +104,7 @@ def run(
         torch.manual_seed(seed + 1)
         cfg = load_cfg(config)
         shape = AgentConfig.from_obs_shape(DMCParadigmConfig.from_dict(cfg.paradigm).agent)
-        agent = SemanticAgent(shape, device='cuda')
+        agent = SemanticAgent(shape, device=device)
         if initial:
             payload = load_checkpoint(initial, map_location='cpu', weights_only=False)
             agent.net.load_state_dict(payload['net'])
@@ -141,7 +142,7 @@ def run(
         (root / 'ckpts').mkdir(exist_ok=True)
         for step in range(1, steps + 1):
             selected = rng.choices(rows, k=16) + rng.choices(replay, k=16) if replay else rng.choices(rows, k=32)
-            batch = batch_observations([r['obs'] for r in selected], shape, 'cuda')
+            batch = batch_observations([r['obs'] for r in selected], shape, device)
             logits = agent.net(batch).masked_fill(~batch['legal_mask'], -1e9)
             from tools.experiments.semantic_training.imitation_loss import imitation_loss
 
@@ -172,7 +173,7 @@ def run(
                     'step': step,
                     'rng': rng.getstate(),
                     'torch_rng': torch.get_rng_state(),
-                    'cuda_rng': torch.cuda.get_rng_state_all(),
+                    'cuda_rng': torch.cuda.get_rng_state_all() if device == 'cuda' else [],
                     'shape': vars(shape),
                     'algorithm': status['algorithm'],
                     'learning_rate': learning_rate,
@@ -200,5 +201,8 @@ if __name__ == '__main__':
     p.add_argument('--episodes', type=int, default=128)
     p.add_argument('--steps', type=int, default=2000)
     p.add_argument('--workers', type=int, default=8)
+    p.add_argument('--seed', type=int, default=123000)
+    p.add_argument('--device', default='cuda')
+    p.add_argument('--variants', default=None, help='rule-variant catalog; episodes must be divisible by four')
     a = p.parse_args()
-    run(a.config, a.output, a.episodes, a.steps, a.workers)
+    run(a.config, a.output, a.episodes, a.steps, a.workers, seed=a.seed, variants=a.variants, device=a.device)
