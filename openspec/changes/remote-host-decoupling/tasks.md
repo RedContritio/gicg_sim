@@ -80,8 +80,10 @@ HEAD` 时点)。实施时若目标文件已被本 change 前序任务改动(如 
 
 ## Phase 3 — HEAD 脱敏
 
-替换表:`192.168.31.56` → `192.0.2.10`;`DESKTOP-GHJCC7Q` → `DEV-PC`;
-`Mac-mini.local` → `macbox.local`。
+替换表:`192.168.31.56` → `192.0.2.10`(**裸 host,不得带 `user@`** —— 该标识
+实测几乎全部嵌在 `dev@<IP>` / `user@<IP>` 里,替换是就地子串替换,带 `user@`
+会产出 `dev@dev@host` 这类畸形目标;依据 design.md §T4);
+`DESKTOP-GHJCC7Q` → `DEV-PC`;`Mac-mini.local` → `macbox.local`。
 
 - [ ] **T3.1** `docs/` **10 个文件 14 处**:`0_status/README.md:66`、
       `0_status/remote-training-reset-2026-09-11.json:2`、

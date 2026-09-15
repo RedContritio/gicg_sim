@@ -63,7 +63,7 @@ profile = "gpu-win"      # 唯一字段:引用注册表,本身不含任何值
 ```toml
 # configs/hosts/hosts.example.toml   (tracked — 新 clone 的形状说明)
 [my-box]
-ssh = "user@192.0.2.10"     # RFC 5737 文档保留段,不可路由
+ssh = "192.0.2.10"          # [user@]host,user 可省;192.0.2.10 为 RFC 5737 保留段
 os = "windows"              # windows | linux | darwin
 hostname = "DEV-PC"         # 远端 socket.gethostname(),用于 loopback 判定
 root = "D:/project"         # 该设备唯一的项目根
@@ -256,6 +256,14 @@ fail-loud。反之,若有人想**直接在 56 上手工执行** `tools.runs.trai
 替换成另一个私网段或 `HOST_IP` 之类的非地址串。理由:占位符必须一眼可辨为假,
 同时保持示例在形状上可复制。`DESKTOP-GHJCC7Q` → `DEV-PC`,沿用本仓库
 `_host.py` docstring 里已有的通用示例值。
+
+**占位符必须是裸 host,不能带 `user@`。** `remote.ssh` 是被原样当作 ssh/scp 的
+目的地址用的(`_host.py:118` 的 `['ssh', remote.ssh, …]`、`:158` 与 `:166` 的
+`f'{remote.ssh}:{remote.root}/…'`),其契约是 `[user@]host`,user 部分可省
+(校验只拒非空,`_host.py:83-84`)。而实测 43 个文件里的 `192.168.31.56` **几乎
+全部**嵌在 `dev@<IP>` / `user@<IP>` 之中,替换是就地做子串替换,故占位符带
+`user@` 会产出 `dev@dev@host` 这类畸形目标。`hosts.example.toml` 里同理只写裸
+host,`user@` 可省这件事由该行注释说明,不由值本身示范。
 
 ## 4. Risks
 
