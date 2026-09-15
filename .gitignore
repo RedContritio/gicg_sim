@@ -13,6 +13,8 @@ rl_mvp_v3.txt
 !.claude/skills/openspec-explore/
 !.claude/skills/openspec-propose/
 !.claude/skills/run/
+# 其他 agent 工具的本机状态目录，同 .claude/ 一样不入库
+.commandcode/
 .venv/
 __pycache__/
 *.pyc
