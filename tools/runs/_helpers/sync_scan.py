@@ -5,7 +5,7 @@ the 300-line pre-commit budget.
 
 Public functions:
 - ``scan_local_timestamps`` — glob ``<root>/artifacts/<run_dir>/metadata.toml``
-- ``scan_remote_timestamps`` — SSH + ``find … -exec cat`` then parse blocks
+- ``scan_remote_timestamps`` — cfg-driven remote scan then parse blocks
 - ``parse_remote_find_output`` — pure parser, exposed for unit tests
 - ``scan_local_dir_names`` — list run-dir names locally (case-collide input, T-19)
 - ``parse_remote_dir_names`` — list run-dir names from the same SSH output (T-19)
@@ -15,16 +15,11 @@ from __future__ import annotations
 
 import re
 import shlex
-import subprocess
-import sys
+import tomllib
 from pathlib import Path
 
+from tools.runs._host import RemoteCfg, ps_quote, ssh_run, ssh_run_bash
 from tools.runs._helpers.paths import RUN_DIR_RE
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib  # type: ignore
 
 
 def scan_local_timestamps(local_root: Path) -> dict[str, str]:
@@ -59,50 +54,54 @@ def scan_local_timestamps(local_root: Path) -> dict[str, str]:
     return out
 
 
-def _parse_user_host_path(remote: str) -> tuple[str, str]:
-    """Split ``user@host:path/`` into ``(user@host, path)``. Caller has
-    already validated the form."""
-    user_host, path = remote.split(':', 1)
-    return user_host, path
+def _remote_scan_script(remote: RemoteCfg) -> str:
+    if remote.os == 'windows':
+        root = ps_quote(remote.root_native)
+        return (
+            f"$artifacts = Join-Path {root} 'artifacts'; "
+            'if (Test-Path -LiteralPath $artifacts) { '
+            'Get-ChildItem -LiteralPath $artifacts -Directory | ForEach-Object { '
+            "$file = Join-Path $_.FullName 'metadata.toml'; "
+            'if (Test-Path -LiteralPath $file -PathType Leaf) { '
+            "Write-Output ('===FILE artifacts/' + $_.Name + '/metadata.toml'); "
+            "Get-Content -Raw -LiteralPath $file; Write-Output ''; Write-Output '===END' } } }"
+        )
+    root = shlex.quote(remote.root.rstrip('/'))
+    return (
+        f'cd {root} && if [ -d artifacts ]; then '
+        'find artifacts -maxdepth 2 -name metadata.toml -type f '
+        '-exec sh -c \'printf "===FILE %s\\n" "$1"; cat "$1"; printf "\\n===END\\n"\' _ {} \\;; fi'
+    )
 
 
-def fetch_remote_find_text(remote: str, *, runner=None) -> str:
-    """Run the SSH ``find … -exec`` once and return raw stdout text.
+def fetch_remote_find_text(remote: RemoteCfg, *, runner=None) -> str:
+    """Run the remote metadata scan once and return raw stdout text.
 
     Both :func:`parse_remote_find_output` (timestamps) and
     :func:`parse_remote_dir_names` (case-collide input) consume the same
     block stream — surface this single fetch so we don't pay the SSH RTT
-    twice (T-19 case-collide wiring). Returns ``''`` on any SSH failure
-    so downstream parsers degrade to empty results.
+    twice (T-19 case-collide wiring).
     """
     if runner is None:
-        runner = subprocess.run
-    user_host, remote_path = _parse_user_host_path(remote)
-    remote_cmd = (
-        f'cd {shlex.quote(remote_path.rstrip("/"))} && '
-        'find artifacts -maxdepth 2 -name metadata.toml -type f '
-        '-exec sh -c \'printf "===FILE %s\\n" "$1"; cat "$1"; printf "\\n===END\\n"\' _ {} \\;'
-    )
+        runner = ssh_run if remote.os == 'windows' else ssh_run_bash
+    script = _remote_scan_script(remote)
     try:
-        result = runner(
-            ['ssh', user_host, remote_cmd],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    except (FileNotFoundError, OSError):
-        return ''
+        result = runner(remote, script)
+    except (FileNotFoundError, OSError) as e:
+        raise RuntimeError(f'remote scan failed for {remote.ssh}: {e}') from e
     if result.returncode != 0:
-        return ''
+        detail = (result.stderr or '').strip()
+        suffix = f': {detail}' if detail else ''
+        raise RuntimeError(f'remote scan failed for {remote.ssh} (exit {result.returncode}){suffix}')
     return result.stdout
 
 
-def scan_remote_timestamps(remote: str, *, runner=None) -> dict[str, str]:
-    """SSH to remote host + emit one ``===FILE / body / ===END`` block per
+def scan_remote_timestamps(remote: RemoteCfg, *, runner=None) -> dict[str, str]:
+    """Scan remote host + emit one ``===FILE / body / ===END`` block per
     ``<remote_path>/artifacts/*/metadata.toml``, then parse into
     ``{nnn: timestamp}``.
 
-    Empty dict on SSH failure (treated as "no remote runs known"). ``runner``
+    SSH failures raise instead of being treated as an empty remote. ``runner``
     injectable for tests.
     """
     return parse_remote_find_output(fetch_remote_find_text(remote, runner=runner))

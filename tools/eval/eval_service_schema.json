@@ -45,8 +45,8 @@
         "features": {"type": "string", "enum": ["F1", "F2", "F3", "F4", "F5"],
                      "default": "F1",
                      "description": "Feature set for scoring a post-action state. F1 = asymmetric HP delta; F2 adds flat kill/death bonus; F3 adds heal asymmetry; F4 adds shield + reaction asymmetry; F5 adds energy-overflow + piecewise AP-waste + escalating kill slope. F3-F5 read the engine RewardEvents accumulator."},
-        "depth":    {"type": "integer", "enum": [1, 2, 3], "default": 1,
-                     "description": "Lookahead plies. D1 = NPC (no opponent model); D2 = adversarial 2-ply minimax; D3 = self-3-ply."},
+        "depth":    {"type": "integer", "enum": [1, 2, 3, 4], "default": 1,
+                     "description": "Lookahead plies. D1 = NPC (no opponent model); D2 = adversarial 2-ply minimax; D3 = self-3-ply; D4 = self-4-ply."},
         "dice_greedy": {"type": "boolean", "default": false,
                         "description": "Collapse engine payment fan-out via hand-crafted dice-value heuristic (active-color > backline-color > omni > abundant-junk > rare-junk; min total value wins). Reduces per-decision legal-action count from n to n_logical for a 5-30x wall-time speedup. Off by default for back-compat with existing gauntlet results."}
       },

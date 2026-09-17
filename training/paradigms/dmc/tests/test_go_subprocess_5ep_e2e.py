@@ -36,8 +36,10 @@ collector → buffer → train)。
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -46,6 +48,7 @@ import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _BIN = _REPO_ROOT / 'bin' / 'gicg_actor'
+_ISOLATED_CHILD_ENV = 'GICG_GO_SUBPROCESS_5EP_E2E_CHILD'
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -147,7 +150,7 @@ def _verify_no_cgo_in_master() -> None:
 
 
 @pytest.mark.parametrize('n_actors', [2, 4])
-def test_dmc_go_subprocess_5ep_e2e(n_actors: int):
+def test_dmc_go_subprocess_5ep_e2e(n_actors: int, request: pytest.FixtureRequest):
     """Full 5 ep e2e through DMCGoSubprocessCollector with production-shape cfg。
 
     Parametrize N=[2, 4]:
@@ -162,6 +165,38 @@ def test_dmc_go_subprocess_5ep_e2e(n_actors: int):
     READY (N × ~500ms sequential) + 5 ep collect (N=2 ~10-25s,N=4 更快 ≈ 5/4 round-trips
     × ~3-5s/ep ≈ 6-10s) → 总 ~15-35s + headroom for slow CI / Mac BG load。
     """
+    if os.environ.get(_ISOLATED_CHILD_ENV) != '1':
+        env = os.environ.copy()
+        env[_ISOLATED_CHILD_ENV] = '1'
+        with (
+            tempfile.TemporaryFile(mode='w+', encoding='utf-8') as stdout,
+            tempfile.TemporaryFile(
+                mode='w+',
+                encoding='utf-8',
+            ) as stderr,
+        ):
+            try:
+                r = subprocess.run(
+                    [sys.executable, '-m', 'pytest', '-q', request.node.nodeid],
+                    cwd=str(_REPO_ROOT),
+                    env=env,
+                    stdout=stdout,
+                    stderr=stderr,
+                    timeout=180.0,
+                )
+            except subprocess.TimeoutExpired:
+                stdout.seek(0)
+                stderr.seek(0)
+                pytest.fail(
+                    f'isolated 5ep e2e timed out for N={n_actors}\nstdout:\n{stdout.read()}\nstderr:\n{stderr.read()}'
+                )
+            stdout.seek(0)
+            stderr.seek(0)
+            r_stdout = stdout.read()
+            r_stderr = stderr.read()
+        assert r.returncode == 0, f'isolated 5ep e2e failed for N={n_actors}\nstdout:\n{r_stdout}\nstderr:\n{r_stderr}'
+        return
+
     from training.paradigms.dmc.go_subprocess_collector import DMCGoSubprocessCollector
 
     network = _build_dmc_inference_net()

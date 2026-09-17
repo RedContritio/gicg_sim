@@ -11,8 +11,8 @@ from tools.experiments.semantic_training import paired_replay, rl_update
 from tools.experiments.semantic_training.agent import SemanticAgent
 from tools.experiments.semantic_training.paired_lessons import HELDOUT_VALUES, TRAIN_VALUES, build_pair, tasks
 from tools.experiments.semantic_training.paired_training import objective
-from tools.experiments.semantic_training.player_loader import FORMAT, load_semantic_payload
-from tools.experiments.semantic_training.rule_auxiliary import attach
+from tools.experiments.semantic_training.player_loader import FORMAT, load_semantic_agent, load_semantic_payload
+from tools.experiments.semantic_training.rule_auxiliary import attach, attach_adapter
 from training.core.artifact_io import KEY, load_checkpoint, save_checkpoint
 from training.core.config.loader import load_cfg
 from training.core.network import AgentConfig
@@ -172,6 +172,9 @@ def test_diagnostic_export_is_strict_and_preserves_parent_provenance(tmp_path):
     shape = AgentConfig.from_obs_shape(DMCParadigmConfig.from_dict(cfg.paradigm).agent)
     agent = SemanticAgent(shape)
     attach(agent)
+    attach_adapter(agent)
+    with torch.no_grad():
+        agent.rule_adapter.state[-1].weight.fill_(0.25)
     source = tmp_path / 'paired.pt'
     destination = tmp_path / 'initial.pt'
     save_checkpoint(
@@ -181,6 +184,7 @@ def test_diagnostic_export_is_strict_and_preserves_parent_provenance(tmp_path):
             'shape': vars(shape),
             'net': agent.net.state_dict(),
             'rule_head': agent.rule_head.state_dict(),
+            'rule_adapter': agent.rule_adapter.state_dict(),
         },
         source,
     )
@@ -190,6 +194,9 @@ def test_diagnostic_export_is_strict_and_preserves_parent_provenance(tmp_path):
     assert exported['format'] == FORMAT
     assert exported['diagnostic_sha256'] == hashlib.sha256(source.read_bytes()).hexdigest()
     assert exported['diagnostic_sha256'] in load_checkpoint(destination, weights_only=False)[KEY]['parents']
+    restored = load_semantic_agent(str(destination))
+    for key, expected in agent.rule_adapter.state_dict().items():
+        torch.testing.assert_close(restored.rule_adapter.state_dict()[key], expected)
 
     malformed = load_checkpoint(source, weights_only=False)
     malformed['net'] = dict(malformed['net'])

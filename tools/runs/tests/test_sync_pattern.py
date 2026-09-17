@@ -72,7 +72,7 @@ def test_rsync_flags_exclude_strict_order():
 
 
 # ---------------------------------------------------------------------------
-# Remote URL regex (T-18 strict — IPv6 + bare host rejected)
+# Remote URL regex (T-18 strict — IPv6 + optional user accepted)
 # ---------------------------------------------------------------------------
 
 
@@ -87,23 +87,23 @@ def test_remote_url_user_at_host_relpath_ok(tmp_path):
 
 
 def test_remote_url_rejects_no_colon(tmp_path):
-    with pytest.raises(ValueError, match='user@host'):
+    with pytest.raises(ValueError, match=r'\[user@\]host'):
         sync.build_rsync_cmd('push', 'no-colon-remote', root=tmp_path)
 
 
 def test_remote_url_rejects_no_trailing_slash(tmp_path):
-    with pytest.raises(ValueError, match='user@host'):
+    with pytest.raises(ValueError, match=r'\[user@\]host'):
         sync.build_rsync_cmd('push', 'user@host:/path', root=tmp_path)
 
 
-def test_remote_url_rejects_no_user(tmp_path):
-    with pytest.raises(ValueError, match='user@host'):
-        sync.build_rsync_cmd('push', 'host:/path/', root=tmp_path)
+def test_remote_url_accepts_no_user(tmp_path):
+    cmd = sync.build_rsync_cmd('push', 'host:/path/', root=tmp_path)
+    assert cmd[0] == 'rsync'
 
 
 def test_remote_url_rejects_macos_local_path_with_colon(tmp_path):
     """macOS ``/Volumes/X:/foo/`` contains ``:`` but is local — reject."""
-    with pytest.raises(ValueError, match='user@host'):
+    with pytest.raises(ValueError, match=r'\[user@\]host'):
         sync.build_rsync_cmd('push', '/Volumes/X:/foo/', root=tmp_path)
 
 

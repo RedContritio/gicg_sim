@@ -1,45 +1,103 @@
-"""Quick status check for a Windows remote training host.
+"""Quick status check for a remote training host.
 
 CLI:
 
     .venv/bin/python -m tools.runs.status <cfg.toml> [--watch --interval N --run NAME]
 
-The command invokes ``tools/runs/status.ps1`` over SSH and formats its GPU,
-process, memory, and recent training metrics. Local configs print a pointer to
-``tools.runs.list`` and ``tools.runs.show`` instead.
+The command invokes ``tools/runs/status.ps1`` on Windows and an equivalent
+shell probe on POSIX over SSH, then formats GPU, process, memory, and recent
+training metrics. Local configs print a pointer to ``tools.runs.list`` and
+``tools.runs.show`` instead.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
 
-from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg
+from tools.runs._host import (
+    RemoteCfg,
+    is_local_host,
+    load_remote_from_cfg,
+    ps_quote,
+    ssh_run,
+    ssh_run_bash,
+)
+
+
+def _build_ps(remote: RemoteCfg, run_label: str = '') -> str:
+    """Build the Windows status probe."""
+    script_path = f'{remote.root_native}\\tools\\runs\\status.ps1'
+    arg = f' -RunName {ps_quote(run_label)}' if run_label else ''
+    return f'& {ps_quote(script_path)}{arg}'
+
+
+def _build_sh(remote: RemoteCfg, run_label: str = '') -> str:
+    """Build a POSIX status probe with the same section contract as status.ps1."""
+    lines = [
+        f'root={shlex.quote(remote.root)}',
+        'artifacts="$root/artifacts"',
+        "latest=''",
+        f'if [ -n {shlex.quote(run_label)} ]; then',
+        '  for d in "$artifacts"/*/; do',
+        '    [ -d "$d" ] || continue',
+        '    d=${d%/}',
+        f'    if [ "${{d##*/}}" = {shlex.quote(run_label)} ]; then latest="$d"; break; fi',
+        '  done',
+        'fi',
+        'if [ -z "$latest" ]; then',
+        '  for d in "$artifacts"/*/; do',
+        '    [ -d "$d" ] || continue',
+        '    d=${d%/}',
+        '    if [ -z "$latest" ] || [ "$d" -nt "$latest" ]; then latest="$d"; fi',
+        '  done',
+        'fi',
+        'if [ -n "$latest" ]; then echo "===RUN===${latest##*/}"; else echo "===RUN===(none)"; fi',
+        "echo '===GPU==='",
+        'nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu --format=csv,noheader 2>/dev/null || true',
+        "echo '===MEM==='",
+        'if command -v free >/dev/null 2>&1; then',
+        '  free -m | awk \'/^Mem:/ {printf "mem_used=%dMB total=%dMB pct=%.1f%%\\n", $3, $2, ($2 ? $3*100/$2 : 0)}\'',
+        'elif command -v sysctl >/dev/null 2>&1; then',
+        '  total=$(sysctl -n hw.memsize 2>/dev/null)',
+        '  page=$(sysctl -n hw.pagesize 2>/dev/null)',
+        '  if [ -n "$total" ] && [ -n "$page" ] && [ "$page" -gt 0 ] 2>/dev/null; then',
+        '    pages=$(vm_stat 2>/dev/null | awk \'/Pages free/ {gsub(/\\./,"",$3); f=$3} /Pages inactive/ {gsub(/\\./,"",$3); i=$3} /Pages speculative/ {gsub(/\\./,"",$3); s=$3} END {print f+i+s}\')',
+        '    if [ -n "$pages" ]; then',
+        '      used_bytes=$((total - pages*page))',
+        '      awk -v u="$used_bytes" -v t="$total" \'BEGIN {printf "mem_used=%dMB total=%dMB pct=%.1f%%\\n", u/1048576, t/1048576, u*100/t}\'',
+        '    else echo mem_unavailable; fi',
+        '  else echo mem_unavailable; fi',
+        'else echo mem_unavailable; fi',
+        "echo '===CPU==='",
+        'cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1)',
+        'cpu=$(ps -A -o %cpu= 2>/dev/null | awk -v c="$cores" \'{s+=$1} END {p=(c>0?s/c:0); if(p>100)p=100; printf "%.1f", p}\')',
+        'echo "cpu_pct=${cpu:-0}% cores=${cores:-1}"',
+        "echo '===PROC==='",
+        'ps -eo pid=,comm=,time=,rss= 2>/dev/null | awk \'{c=$2; sub(/^.*\\//,"",c); if (tolower(c) ~ /^python([0-9.]*)?$/) printf "python pid=%s cpu_s=%s ws_mb=%.1f\\n", $1, $3, $4/1024}\'',
+        "echo '===METRICS==='",
+        'if [ -n "$latest" ] && [ -f "$latest/metrics.jsonl" ]; then tail -n 30 "$latest/metrics.jsonl"; fi',
+        'exit 0',
+    ]
+    return '\n'.join(lines)
 
 
 def ssh_query(remote: RemoteCfg, run_label: str = '') -> str:
-    """Run the PS script over ssh, return stdout."""
-    sep = '\\' if remote.os == 'windows' else '/'
-    ps_script_path = f'{remote.root_native}{sep}tools{sep}runs{sep}status.ps1'
-    arg = f' -RunName {run_label}' if run_label else ''
-    cmd = [
-        'ssh',
-        remote.ssh,
-        f'powershell -ExecutionPolicy Bypass -File {ps_script_path}{arg}',
-    ]
+    """Run the OS-specific status probe over ssh, return stdout."""
+    if remote.os == 'windows':
+        script = _build_ps(remote, run_label)
+        runner = ssh_run
+    else:
+        script = _build_sh(remote, run_label)
+        runner = ssh_run_bash
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=30,
-            errors='replace',  # Windows stderr may emit cp936 zh-CN errors
-        )
+        result = runner(remote, script, timeout=30)
     except subprocess.TimeoutExpired:
         return '[ssh timeout]'
     if result.returncode != 0:

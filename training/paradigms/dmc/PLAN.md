@@ -407,24 +407,14 @@ Phase 3.4.5 PASS criteria:per-actor ≥ 1200 fps + total ≥ 28k fps(允许 V-Ca
 
 ## Phase 3.5 · Stage 3 Windows GPU full train(25-40 GPU-h)
 
-### 3.5.1 · Bundle code to 9950X3D Windows
+### 3.5.1 · Prepare 9950X3D Windows
 
-类比 DouZero Phase 2.0:
-```bash
-# Mac dev
-cd ~/Projects/gicg_mono
-tar czf phase3_5_bundle.tar.gz \
-    training/ gicg_env/ gicg_engine/ data/pools/test_basic data/pools/v_phase2 \
-    tools/dmc_train.py tools/gen_eval_scenarios.py configs/dmc_stage3.toml
-# scp to Windows box
-```
-
-Windows 上 unbundle + `go build libgicg.dll` + venv install。
+`tools.runs.train` 启动前自动同步当前 worktree,并在远端 probe venv / go / gcc。
 
 ### 3.5.2 · Train(预计 16-25h wall on X3D + 5070 Ti)
 
-```powershell
-python -m tools.dmc_train configs\dmc_stage3.toml
+```bash
+.venv/bin/python -m tools.runs.train configs/dmc/stage3.toml
 ```
 
 cfg `dmc_stage3.toml`:
@@ -565,10 +555,10 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 | **T-3.2a** | PLAN.md §3.2.3 路径校正(2026-05-18 已 done) | ~10 doc |
 | **T-3.2b** | `tools/eval/eval_service_server.py`: `AF_UNIX` → `AF_INET` + bind `(host, port)`,读 `GICG_EVAL_PORT`(default 9100)+ `GICG_EVAL_HOST`(default `localhost`)。不留 `AF_UNIX` fallback。 | ✅ ~30 — commit 6e8f40c |
 | **T-3.2c** | `tools/eval/eval_service.py` client 同步:`AF_INET` + 读同 env var。 | ✅ ~20 — commit 6e8f40c |
-| **T-3.2d** | `tools/eval/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 ssh 跑相同 test verify。 | ✅ ~30 — commits 0f89583 + 0b3c709 |
+| **T-3.2d** | `tools/eval/tests/test_socket_cross_platform.py`(新):Mac AF_INET localhost smoke + 文档说明 Windows 通过 `tools.runs.exec` 跑相同 test verify。 | ✅ ~30 — commits 0f89583 + 0b3c709 |
 | **T-3.2e** | 更新 `reference_windows_gpu_box` memory 加 `GICG_EVAL_PORT` env var 注释;PLAN.md 3.2 标 DONE。 | ✅ doc — 本提交 |
 
-**Verify gate**:Mac `pytest gicg_env/tests/ tools/eval/tests/ -q` + Windows ssh `pytest gicg_env/tests/ -q` 全 PASS。
+**Verify gate**:Mac `pytest gicg_env/tests/ tools/eval/tests/ -q` + Windows `tools.runs.exec <cfg> -- .venv/Scripts/python.exe -m pytest gicg_env/tests/ -q` 全 PASS。
 
 ---
 
@@ -592,7 +582,7 @@ DouZero 在 Doudizhu 上 work 依赖 single/pair/sequence 组合规则,MC 在结
 | **T-3.4.5b** | Wire `cpu_affinity_*`(死字段 → 真用):actor process boot 调 `psutil.Process().cpu_affinity(cfg.cpu_affinity_actors)`;learner / eval 同样 wire。default X3D:actors `[0..7, 16..23]` / learner `[8]` / eval `[9..15]`。Mac / Linux fallback:skip if no CCD assumption。 | ✅ ~40 — commit 9663e0a(actors + learner only;eval deferred — see F-3.4.5b-eval)|
 | **T-3.4.5c** | Wire `use_jit_trace`(死字段 → 真用):actor 启动后 `trace_once(net, example_obs)`,hot loop `traced_net(*obs_args)`(已有 `inference_mode`);`cfg.use_jit_trace=True` 才走 traced 路径。 | ✅ ~60 — commit 2a896f8(infrastructure wired;DMC NO-OP per field comment;see F-3.4.5c-test for server_loop test coverage)|
 | **T-3.4.5d** | `tools/dmc/profile_actor.py`(新):single-actor 5min smoke + cProfile output `actor.prof` + snakeviz HTML。Mac + Windows 都可跑(Windows 是 baseline 真测点)。 | ✅ ~60 — commits c26b0bb + e2c414e(Mac baseline 274 fps captured;Windows follow-up in T-3.4.5e)|
-| **T-3.4.5e** | Windows X3D profile run:ssh + 跑 `profile_actor.py` 5min,记 per-actor fps + cProfile top hotspots → `notes.md "## Phase 3.4.5 — CPU profile results"`(目前空)。target verify per-actor ≥ 1200 fps。 | run + doc(PENDING — Windows-blocked)|
+| **T-3.4.5e** | Windows X3D profile run:`tools.runs.exec` + 跑 `profile_actor.py` 5min,记 per-actor fps + cProfile top hotspots → `notes.md "## Phase 3.4.5 — CPU profile results"`(目前空)。target verify per-actor ≥ 1200 fps。 | run + doc(PENDING — Windows-blocked)|
 | **T-3.4.5f** | Multi-actor smoke total throughput(Windows):24 actor smoke 5min,记 total fps ≥ 28k → `notes.md` "Phase 3.4.5 verdict"。若 < target → cycle(profile → 优化 → retry)。 | run + doc(PENDING — Windows-blocked)|
 | **T-3.4.5g** | Phase 3.4.5 close 决策:PASS(per-actor ≥ 1200 + total ≥ 28k)→ close + 准备进 Stage 3 train;FAIL → 扩 ablation cycle。 | doc(PENDING — Windows-blocked)|
 
@@ -732,18 +722,11 @@ MP-1 → MP-2 → MP-3 → MP-4(Mac 验)→ Windows MP-4(GPU 验)→ MP-5(batchi
 #### Step 0 — Prereq verify(两者全 PASS 才进 Step 1)
 - [ ] Phase 3.2 ship 完成(T-3.2b/c/d 全 done,verify gate PASS)
 - [ ] Phase 3.4.5 ship 完成(T-3.4.5a..f 全 done,verify gate PASS)
-- [ ] Windows GPU box reachable:`ssh dev@192.168.31.56 'powershell -Command Get-Date'` 通
+- [ ] Windows GPU box reachable:`.venv/bin/python -m tools.runs.exec <cfg> -- hostname` 通
 
 #### Step 1 — Code bundle Mac → Windows
 ```bash
-# per reference_windows_gpu_box memory
-cd ~/Projects/gicg_mono
-tar -czf - --exclude=artifacts --exclude=.venv --exclude=ref --exclude=__pycache__ \
-  --exclude='.git' --exclude='*.pyc' --exclude='gicg_env/libgicg.dylib' \
-  --exclude='gicg_env/libgicg.h' . | \
-  ssh dev@192.168.31.56 'powershell -Command "cd D:\gicg_dev; tar -xzf -"'
-
-ssh dev@192.168.31.56 'powershell -Command "Get-ChildItem D:\gicg_dev -Recurse -Force | Where-Object {\$_.Name -like \"._*\" -or \$_.Name -eq \".DS_Store\"} | Remove-Item -Force"'
+# Step 3 的 tools.runs.train 会自动同步当前 worktree
 ```
 
 #### Step 2 — Windows build verify

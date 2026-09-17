@@ -45,6 +45,7 @@ from pathlib import Path
 import pytest
 
 from tools.runs import sync as sync_mod
+from tools.runs._host import RemoteCfg
 
 # ---------------------------------------------------------------------------
 # Shared fixture builder
@@ -126,6 +127,8 @@ def test_rsync_flags_filter_single_run_local_to_local(tmp_path):
         pytest.skip('rsync not on PATH')
     src_root = tmp_path / 'src'
     dst_root = tmp_path / 'dst'
+    (src_root / '.git').mkdir(parents=True)
+    (dst_root / '.git').mkdir(parents=True)
     (src_root / 'artifacts').mkdir(parents=True)
     (dst_root / 'artifacts').mkdir(parents=True)
     _build_full_run_tree(
@@ -160,6 +163,8 @@ def test_rsync_flags_filter_multiple_runs_local_to_local(tmp_path):
         pytest.skip('rsync not on PATH')
     src_root = tmp_path / 'src'
     dst_root = tmp_path / 'dst'
+    (src_root / '.git').mkdir(parents=True)
+    (dst_root / '.git').mkdir(parents=True)
     (src_root / 'artifacts').mkdir(parents=True)
     (dst_root / 'artifacts').mkdir(parents=True)
     _build_full_run_tree(src_root, nnn='000001', label='dmc', ts_prefix='202605180400', ts_field='2026-05-18T04:00:00Z')
@@ -190,6 +195,7 @@ def test_rsync_flags_empty_source_noop_local_to_local(tmp_path):
         pytest.skip('rsync not on PATH')
     src_root = tmp_path / 'src'
     dst_root = tmp_path / 'dst'
+    (src_root / '.git').mkdir(parents=True)
     (src_root / 'artifacts').mkdir(parents=True)
     (dst_root / 'artifacts').mkdir(parents=True)
 
@@ -282,6 +288,8 @@ def test_sync_ssh_localhost_push_filters_correctly(tmp_path):
 
     src_root = tmp_path / 'src'
     dst_root = tmp_path / 'dst'
+    (src_root / '.git').mkdir(parents=True)
+    (dst_root / '.git').mkdir(parents=True)
     (src_root / 'artifacts').mkdir(parents=True)
     (dst_root / 'artifacts').mkdir(parents=True)
     _build_full_run_tree(
@@ -297,7 +305,7 @@ def test_sync_ssh_localhost_push_filters_correctly(tmp_path):
     # account ssh BatchMode probed.
     user = getpass.getuser()
     # Use POSIX form for rsync path (Path stringification on POSIX is fine).
-    remote = f'{user}@localhost:{dst_root}/'
+    remote = RemoteCfg(ssh=f'{user}@localhost', root=str(dst_root), os='linux', hostname='localhost')
 
     rc = sync_mod.sync(direction='push', remote=remote, root=src_root)
     assert rc == 0, 'sync() must exit 0'
@@ -319,6 +327,8 @@ def test_sync_ssh_localhost_pull_filters_correctly(tmp_path):
 
     src_root = tmp_path / 'src'  # "remote" in pull semantics
     dst_root = tmp_path / 'dst'  # local
+    (src_root / '.git').mkdir(parents=True)
+    (dst_root / '.git').mkdir(parents=True)
     (src_root / 'artifacts').mkdir(parents=True)
     (dst_root / 'artifacts').mkdir(parents=True)
     _build_full_run_tree(
@@ -330,7 +340,7 @@ def test_sync_ssh_localhost_pull_filters_correctly(tmp_path):
     )
 
     user = getpass.getuser()
-    remote = f'{user}@localhost:{src_root}/'
+    remote = RemoteCfg(ssh=f'{user}@localhost', root=str(src_root), os='linux', hostname='localhost')
 
     rc = sync_mod.sync(direction='pull', remote=remote, root=dst_root)
     assert rc == 0, 'sync() must exit 0'

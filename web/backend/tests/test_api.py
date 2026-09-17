@@ -101,11 +101,23 @@ def test_replay_detail_rewinds_real_replay(tmp_path, monkeypatch):
     assert body['agent'] is None
     assert len(body['teams']) == 2
 
+    from web.backend import replay_api
+
+    class FailingInspector:
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError('intentional inspector failure')
+
+    monkeypatch.setattr(replay_api, 'AgentInspector', FailingInspector)
+    rckpt = client.get(f'/api/replay/{target}?step=0&ckpt=missing.pt')
+    assert rckpt.status_code == 200
+    assert rckpt.json()['agent'] == {'error': 'checkpoint inspection failed'}
+
     mid = body['total_steps'] // 2
     rm = client.get(f'/api/replay/{target}?step={mid}')
     assert rm.status_code == 200, rm.text
     body_mid = rm.json()
     assert body_mid['step'] == mid
+    assert body_mid['winner'] == body_mid['view']['winner']
     assert body_mid['view'] is not None
     for pv in body_mid['view']['players']:
         for cv in pv['chars']:
@@ -267,7 +279,8 @@ class TestLiveWebSocket:
     def test_ckpt_outside_artifacts_rejected(self):
         """B1: ckpt paths outside artifacts/ must be rejected without
         leaking filesystem details in the error message."""
-        import tempfile, os
+        import os
+        import tempfile
 
         # Create a real file outside artifacts/ — simulating an attacker
         # probing /tmp or user home.

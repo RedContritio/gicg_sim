@@ -1,17 +1,20 @@
-# DMC training status — Windows side. Called by Mac tools/runs/status.py.
+# Training status — Windows side. Called by Mac tools/runs/status.py.
 # Args:
-#   $args[0] = optional run dir name (default: latest *_dmc_* under artifacts)
+#   $args[0] = optional run dir name (default: latest run under artifacts)
 
 param([string]$RunName = '')
 
 $ErrorActionPreference = 'SilentlyContinue'
 
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$artifacts = Join-Path $repoRoot 'artifacts'
+
 $latest = $null
 if ($RunName) {
-  $latest = Get-ChildItem 'D:\gicg_dev\artifacts' -Directory | Where-Object Name -Eq $RunName | Select-Object -First 1
+  $latest = Get-ChildItem $artifacts -Directory | Where-Object Name -Eq $RunName | Select-Object -First 1
 }
 if (-not $latest) {
-  $latest = Get-ChildItem 'D:\gicg_dev\artifacts' -Directory | Where-Object Name -Match '_dmc_' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  $latest = Get-ChildItem $artifacts -Directory | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 }
 
 if ($latest) { Write-Output ("===RUN===" + $latest.Name) }

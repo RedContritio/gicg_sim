@@ -21,7 +21,4 @@ deck_1 = [
 deck_padding = { card = "碌碌无为", target_size = 16 }
 
 [remote]
-ssh = "dev@192.168.31.56"
-root = "D:/gicg_goal"
-os = "windows"
-hostname = "DESKTOP-GHJCC7Q"
+profile = "gpu-win"

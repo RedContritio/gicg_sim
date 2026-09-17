@@ -1,8 +1,10 @@
-"""Run a Python module on the remote host via ssh — cfg-driven dispatch。
+"""SSH transport and cfg-driven remote command dispatch.
 
 CLI:
 
     .venv/bin/python -m tools.runs._ssh <cfg.toml> [--stream] [--timeout S] -- <remote argv...>
+
+Public CLI: :mod:`tools.runs.exec`.
 
 cfg ``[meta].host == 'local'``(或 socket.gethostname() == [remote].hostname)
 → exec argv locally; ``remote`` → ssh wrap。``--`` 分割 wrapper 参数与远程
@@ -20,12 +22,9 @@ _remote_sync / status / build_engine)— 自动 probe 远端 python + ssh-wrap
 from __future__ import annotations
 
 import argparse
-import subprocess
+import shlex
 import sys
-import threading
-import time
 from pathlib import Path
-from typing import IO
 
 from tools.runs._host import (
     RemoteCfg,
@@ -33,8 +32,13 @@ from tools.runs._host import (
     is_local_host,
     load_remote_from_cfg,
     ps_quote,
+    run_argv,
+    run_argv_capture,
+    ssh_bash_argv,
     ssh_encoded_argv,
     ssh_run,
+    ssh_run_bash,
+    stream_argv,
 )
 
 
@@ -49,54 +53,20 @@ def _build_ps(cmd_tokens: list[str], cwd: str) -> tuple[str, str]:
     return ps, raw
 
 
-def _pump(stream: IO[str], sink: IO[str]) -> None:
-    """Forward each line from a child stream to a local sink. Decoded
-    upstream via text=True; encoding errors replaced."""
-    for line in iter(stream.readline, ''):
-        sink.write(line)
-        sink.flush()
-    stream.close()
+def _build_sh(cmd_tokens: list[str], cwd: str) -> tuple[str, str]:
+    """Return (bash_script, raw_cmd_for_logging)."""
+    raw = ' '.join(c for c in cmd_tokens if c != '--')
+    command = ' '.join(shlex.quote(c) for c in cmd_tokens if c != '--')
+    sh = (
+        f'cd {shlex.quote(cwd)} && '
+        'OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONIOENCODING=utf-8 PYTHONUNBUFFERED=1 '
+        f'{command}'
+    )
+    return sh, raw
 
 
 def _run_stream(argv: list[str], timeout: int) -> int:
-    """Popen ssh + line-buffer pump stdout/stderr to local. timeout is
-    wall-clock; on expiry SIGTERM the child."""
-    proc = subprocess.Popen(
-        argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors='replace', bufsize=1
-    )
-    t_out = threading.Thread(target=_pump, args=(proc.stdout, sys.stdout), daemon=True)
-    t_err = threading.Thread(target=_pump, args=(proc.stderr, sys.stderr), daemon=True)
-    t_out.start()
-    t_err.start()
-    deadline = time.monotonic() + timeout
-    try:
-        while True:
-            rc = proc.poll()
-            if rc is not None:
-                break
-            if time.monotonic() > deadline:
-                sys.stderr.write(f'[remote.run] timeout after {timeout}s — SIGTERM\n')
-                proc.terminate()
-                try:
-                    proc.wait(timeout=10)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait()
-                rc = proc.returncode if proc.returncode is not None else 124
-                break
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        sys.stderr.write('[remote.run] SIGINT — terminating remote ssh proc\n')
-        proc.terminate()
-        try:
-            proc.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            proc.wait()
-        rc = proc.returncode if proc.returncode is not None else 130
-    t_out.join(timeout=2)
-    t_err.join(timeout=2)
-    return rc
+    return stream_argv(argv, timeout=timeout, label='[remote.run]')
 
 
 def ssh_forward(
@@ -128,18 +98,28 @@ def ssh_forward(
     """
     py = discover_remote_python(remote)
     cfg_str = str(cfg_path).replace('\\', '/')
-    cd_root = f'cd {ps_quote(remote.root_native)}'
-    quoted_cfg = ps_quote(cfg_str)
-    quoted_extra = ' '.join(ps_quote(a) for a in extra_args)
-    inner = f'{py} -X utf8 -u -m {tool_module} {quoted_cfg}'
-    if quoted_extra:
-        inner = f'{inner} {quoted_extra}'
-    ps = f'{cd_root}; {inner}'
-    argv = ssh_encoded_argv(remote, ps)
+    if remote.os == 'windows':
+        cd_root = f'cd {ps_quote(remote.root_native)}'
+        quoted_cfg = ps_quote(cfg_str)
+        quoted_extra = ' '.join(ps_quote(a) for a in extra_args)
+        inner = f'{py} -X utf8 -u -m {tool_module} {quoted_cfg}'
+        if quoted_extra:
+            inner = f'{inner} {quoted_extra}'
+        script = f'{cd_root}; {inner}'
+        argv = ssh_encoded_argv(remote, script)
+    else:
+        cd_root = f'cd {shlex.quote(remote.root)}'
+        quoted_cfg = shlex.quote(cfg_str)
+        quoted_extra = ' '.join(shlex.quote(a) for a in extra_args)
+        inner = f'{shlex.quote(py)} -X utf8 -u -m {tool_module} {quoted_cfg}'
+        if quoted_extra:
+            inner = f'{inner} {quoted_extra}'
+        script = f'{cd_root} && {inner}'
+        argv = ssh_bash_argv(remote, script)
     print(f'[remote.forward] {remote.ssh} >> {tool_module} {cfg_str} {" ".join(extra_args)}')
     if stream:
         return _run_stream(argv, timeout=timeout)
-    r = subprocess.run(argv, capture_output=True, text=True, errors='replace', timeout=timeout)
+    r = run_argv_capture(argv, timeout=timeout)
     if r.stdout:
         sys.stdout.write(r.stdout)
     if r.stderr:
@@ -147,8 +127,8 @@ def ssh_forward(
     return r.returncode
 
 
-def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog='tools.runs._ssh')
+def _build_parser(prog: str = 'tools.runs._ssh') -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog=prog)
     p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
     p.add_argument(
         '--cwd',
@@ -161,8 +141,8 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def main() -> int:
-    args = _build_parser().parse_args()
+def main(argv: list[str] | None = None, *, prog: str = 'tools.runs._ssh') -> int:
+    args = _build_parser(prog).parse_args(argv)
     if not args.cmd:
         sys.stderr.write('error: no command given (use -- to separate)\n')
         return 2
@@ -176,22 +156,27 @@ def main() -> int:
         print(f'[run.local] >> {" ".join(cmd_tokens)}' + ('  (stream)' if args.stream else ''))
         try:
             if args.stream:
-                proc = subprocess.Popen(cmd_tokens)
-                return proc.wait(timeout=args.timeout)
-            r = subprocess.run(cmd_tokens, timeout=args.timeout)
+                return stream_argv(cmd_tokens, timeout=args.timeout, label='[run.local]')
+            r = run_argv(cmd_tokens, timeout=args.timeout)
             return r.returncode
         except FileNotFoundError as e:
             sys.stderr.write(f'error: {e}\n')
             return 127
-    # Remote exec via PS-encoded ssh。
+    # Remote exec via OS-specific ssh wrapper。
     assert remote is not None  # narrowed by is_local_host
     cwd = args.cwd if args.cwd is not None else remote.root_native
-    ps, raw = _build_ps(args.cmd, cwd)
-    argv = ssh_encoded_argv(remote, ps)
+    if remote.os == 'windows':
+        script, raw = _build_ps(args.cmd, cwd)
+        argv = ssh_encoded_argv(remote, script)
+        runner = ssh_run
+    else:
+        script, raw = _build_sh(args.cmd, cwd)
+        argv = ssh_bash_argv(remote, script)
+        runner = ssh_run_bash
     print(f'[remote.run] {remote.ssh} >> {raw}' + ('  (stream)' if args.stream else ''))
     if args.stream:
         return _run_stream(argv, timeout=args.timeout)
-    r = ssh_run(remote, ps, timeout=args.timeout)
+    r = runner(remote, script, timeout=args.timeout)
     if r.stdout:
         sys.stdout.write(r.stdout)
     if r.stderr:

@@ -1,6 +1,7 @@
 package record
 
 import (
+	"errors"
 	"fmt"
 
 	engine "gicg_mono/gicg_engine"
@@ -12,6 +13,10 @@ import (
 // After Load, the game is left in PhaseRoundStart — the next Step or
 // GetLegalActions call will advance into the round by firing round_start hooks.
 func Load(rt *interp.Runtime, rec *Record, atRound int) error {
+	return load(rt, rec, atRound, false)
+}
+
+func load(rt *interp.Runtime, rec *Record, atRound int, allowLegacyFallback bool) error {
 	if rec == nil {
 		return fmt.Errorf("nil record")
 	}
@@ -20,7 +25,7 @@ func Load(rt *interp.Runtime, rec *Record, atRound int) error {
 	}
 	tmp := rt.Clone()
 	candidate := tmp.Game
-	if err := loadInto(tmp, rec, atRound); err != nil {
+	if err := loadInto(tmp, rec, atRound, allowLegacyFallback); err != nil {
 		return err
 	}
 	rt.Game.RestoreFrom(candidate)
@@ -29,7 +34,7 @@ func Load(rt *interp.Runtime, rec *Record, atRound int) error {
 	return nil
 }
 
-func loadInto(rt *interp.Runtime, rec *Record, atRound int) error {
+func loadInto(rt *interp.Runtime, rec *Record, atRound int, allowLegacyFallback bool) error {
 	if rec.Config != nil {
 		if err := rec.Config.validate(); err != nil {
 			return err
@@ -46,15 +51,25 @@ func loadInto(rt *interp.Runtime, rec *Record, atRound int) error {
 	if state.Checkpoint != nil {
 		// Load's private candidate owns its random/configuration state.
 		if err := g.RestoreCheckpoint(state.Checkpoint); err != nil {
-			return err
+			if !allowLegacyFallback || !errors.Is(err, engine.ErrCheckpointIncompatible) {
+				return err
+			}
+			seed := int64(0)
+			if rec.Config != nil {
+				seed = rec.Config.BaseSeed
+			}
+			g.ResetDynamicState(seed)
+			g.MaxRounds = 0
+			g.FixDice = nil
+		} else {
+			if g.Phase != engine.PhaseRoundStart || g.Round != atRound-1 {
+				return fmt.Errorf("checkpoint does not match round %d", atRound)
+			}
+			if diffs := VerifyState(rt, state); len(diffs) != 0 {
+				return fmt.Errorf("checkpoint disagrees with record state: %v", diffs[0])
+			}
+			return nil
 		}
-		if g.Phase != engine.PhaseRoundStart || g.Round != atRound-1 {
-			return fmt.Errorf("checkpoint does not match round %d", atRound)
-		}
-		if diffs := VerifyState(rt, state); len(diffs) != 0 {
-			return fmt.Errorf("checkpoint disagrees with record state: %v", diffs[0])
-		}
-		return nil
 	}
 	if state.ActiveChars != nil {
 		for pi, ci := range *state.ActiveChars {

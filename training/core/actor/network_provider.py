@@ -2,10 +2,10 @@
 
 Spec: ``openspec/specs/training-architecture/protocols.md``.
 
-LocalNetworkProvider holds an in-process network copy and can load an explicit
-state dict. Its attached ``WeightsSHM`` polling branch is currently a no-op.
-RemoteNetworkProvider delegates requests to a caller-supplied IPC
-client; the client's concrete transport is outside this class.
+LocalNetworkProvider holds an in-process network copy and can load either an
+explicit state dict or the latest version from an attached ``WeightsSHM``.
+RemoteNetworkProvider delegates requests to a caller-supplied IPC client; the
+client's concrete transport is outside this class.
 """
 
 from __future__ import annotations
@@ -153,8 +153,8 @@ class LocalNetworkProvider:
         """Two modes:
         - Direct: pass ``state_dict`` to load right now (used by tests
           + serial mode).
-        - SHM: currently returns the existing version without reading; callers
-          that require polling must use a paradigm provider or watcher.
+        - SHM: read ``version_tag`` (or this provider's configured tag),
+          loading the state dict only when the published version is newer.
 
         - ``trace`` mode: invalidates the traced module (if any) so the
           next forward re-traces with the updated weights.
@@ -164,18 +164,20 @@ class LocalNetworkProvider:
           compiled graph continues to reference the same tensors.
         """
         if state_dict is not None:
-            self.network.load_state_dict(state_dict)
-            self.version += 1
-            if self._mode == 'trace':
-                self._traced_net = None
-                self._trace_attempted = False
-            # compile mode: parameter tensors mutated in place; compiled
-            # graph continues to reference same tensors via the wrapped
-            # network.
-            return self.version
-        # The generic provider does not implement SHM polling yet.
+            return self.replace_weights(state_dict)
         if self._shm is not None:
-            pass
+            tag = self.version_tag if version_tag is None else version_tag
+            state_dict, version = self._shm.read(tag)
+            if state_dict is not None and int(version) > self.version:
+                return self.replace_weights(state_dict, int(version))
+        return self.version
+
+    def replace_weights(self, state_dict: dict, version: Optional[int] = None) -> int:
+        self.network.load_state_dict(state_dict)
+        self.version = self.version + 1 if version is None else int(version)
+        if self._mode == 'trace':
+            self._traced_net = None
+            self._trace_attempted = False
         return self.version
 
     def current_version(self) -> int:

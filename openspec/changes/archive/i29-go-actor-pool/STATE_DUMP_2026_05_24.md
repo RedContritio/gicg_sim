@@ -54,7 +54,7 @@ main (pre-session base)
 <a name="bench"></a>
 ## 3. 完整 bench 数据
 
-### Win N=16 (5070 Ti + 9950X3D, hostname DESKTOP-GHJCC7Q, cfg stage3_b_v_legacy)
+### Win N=16 (5070 Ti + 9950X3D, hostname DEV-PC, cfg stage3_b_v_legacy)
 
 | Run | Backend | Branch | fps | eps/s | mem RSS | inf RTT |
 |---|---|---|---:|---:|---:|---:|

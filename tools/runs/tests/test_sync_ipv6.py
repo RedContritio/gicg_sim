@@ -11,9 +11,14 @@ malformed-IPv6 rejection cases.
 
 from __future__ import annotations
 
+import subprocess
+
 import pytest
 
 from tools.runs import sync
+from tools.runs._host import RemoteCfg
+from tools.runs._helpers.sync_scan import fetch_remote_find_text
+from tools.runs.tests._sync_fixtures import REMOTE
 
 
 # ---------------------------------------------------------------------------
@@ -51,11 +56,25 @@ def test_ipv6_accepted(tmp_path, remote):
         'user@host:/path/',
         'user@host.example.com:/path/',
         'user@1.2.3.4:/path/',
-        'user@192.168.31.56:/d/gicg_dev/',
+        'user@192.0.2.10:/d/gicg_dev/',
         'user@host:relpath/',
     ],
 )
 def test_hostname_and_ipv4_still_accepted(tmp_path, remote):
+    cmd = sync.build_rsync_cmd('push', remote, root=tmp_path)
+    assert cmd[0] == 'rsync'
+
+
+@pytest.mark.parametrize(
+    'remote',
+    [
+        'host:/path/',
+        'host.example.com:/path/',
+        '1.2.3.4:/d/gicg_dev/',
+        '[::1]:/path/',
+    ],
+)
+def test_bare_host_still_accepted(tmp_path, remote):
     cmd = sync.build_rsync_cmd('push', remote, root=tmp_path)
     assert cmd[0] == 'rsync'
 
@@ -72,14 +91,13 @@ def test_hostname_and_ipv4_still_accepted(tmp_path, remote):
         'user@[::1:/p/',  # unterminated bracket
         'user@::1]:/p/',  # missing opening bracket
         'user@[]:/p/',  # empty bracket
-        '[::1]:/p/',  # no user
         'user@[::1]:/p',  # missing trailing slash
         'user@[ghij::1]:/p/',  # non-hex inside bracket
         'user@[::1]/p/',  # missing colon between bracket and path
     ],
 )
 def test_malformed_ipv6_rejected(tmp_path, remote):
-    with pytest.raises(ValueError, match='user@host'):
+    with pytest.raises(ValueError, match=r'\[user@\]host'):
         sync.build_rsync_cmd('push', remote, root=tmp_path)
 
 
@@ -112,12 +130,59 @@ def test_sync_dry_run_with_ipv6_remote(tmp_path):
     from tools.runs.tests._sync_fixtures import empty_ssh_runner, ensure_git_dir
 
     ensure_git_dir(tmp_path)
+    remote = RemoteCfg(ssh='user@[::1]', root='/p', os='linux', hostname='remote-host')
     cmd = sync.sync(
         direction='pull',
-        remote='user@[::1]:/p/',
+        remote=remote,
         root=tmp_path,
         ssh_runner=empty_ssh_runner,
         dry_run=True,
     )
     assert isinstance(cmd, list)
     assert 'user@[::1]:/p/' in cmd
+
+
+@pytest.mark.parametrize(
+    ('remote', 'expected'),
+    [
+        (RemoteCfg(ssh='user@host', root='/path', os='linux', hostname='remote-host'), 'user@host:/path/'),
+        (RemoteCfg(ssh='user@1.2.3.4', root='/path', os='linux', hostname='remote-host'), 'user@1.2.3.4:/path/'),
+        (RemoteCfg(ssh='user@[::1]', root='/p', os='linux', hostname='remote-host'), 'user@[::1]:/p/'),
+        (
+            RemoteCfg(ssh='dev@[2001:db8::1]', root='relpath', os='linux', hostname='remote-host'),
+            'dev@[2001:db8::1]:relpath/',
+        ),
+        (
+            RemoteCfg(ssh='user@host', root='D:/gicg_dev', os='windows', hostname='remote-host'),
+            'user@host:D:/gicg_dev/',
+        ),
+    ],
+)
+def test_remote_endpoint_from_cfg(remote, expected):
+    assert sync._remote_endpoint(remote) == expected
+
+
+def test_build_rsync_cmd_accepts_remote_cfg(tmp_path):
+    cmd = sync.build_rsync_cmd('push', REMOTE, root=tmp_path)
+    assert 'u@h:/p/' in cmd
+
+
+def test_fetch_remote_find_text_raises_on_nonzero_exit():
+    def failing_runner(_remote, _script, **_kw):
+        return subprocess.CompletedProcess(args=[], returncode=255, stdout='', stderr='permission denied')
+
+    with pytest.raises(
+        RuntimeError,
+        match=r'remote scan failed for user@host \(exit 255\): permission denied',
+    ):
+        remote = RemoteCfg(ssh='user@host', root='/p', os='linux', hostname='remote-host')
+        fetch_remote_find_text(remote, runner=failing_runner)
+
+
+def test_fetch_remote_find_text_raises_when_ssh_is_missing():
+    def missing_runner(_remote, _script, **_kw):
+        raise FileNotFoundError('ssh not found')
+
+    with pytest.raises(RuntimeError, match='remote scan failed for user@host: ssh not found'):
+        remote = RemoteCfg(ssh='user@host', root='/p', os='linux', hostname='remote-host')
+        fetch_remote_find_text(remote, runner=missing_runner)

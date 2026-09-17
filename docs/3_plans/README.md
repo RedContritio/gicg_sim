@@ -22,6 +22,7 @@
 | [`versioning.md`](versioning.md) | 项目版本 vA.B.C 规则与历史映射 | LIVE |
 | [`cards/native_content_curriculum.md`](cards/native_content_curriculum.md) | 从教学池迁移到审核完整的原生内容与 3v3;每批 1–2 角色 + 配套牌 | LIVE |
 | [`cards/full_pool_curriculum.md`](cards/full_pool_curriculum.md) | 当前教学池 L1–L6 课程的目标、环境定义与验收协议 | LIVE |
+| [`cards/policy_retention.md`](cards/policy_retention.md) | 配对规则训练后的六臂策略保留对照:固定数据/预算/seed，区分规则学习和策略退化 | DONE 2026-09-16 |
 | [`cards/in_game_rule_verification.md`](cards/in_game_rule_verification.md) | 规则边界统一核验表:复现场景、当前处理、用户实测结果 | LIVE |
 | [`cards/card_value_evaluation.md`](cards/card_value_evaluation.md) | 逐卡价值:胜率贡献与出牌时机的量化方案 | LIVE 方案 |
 | [`cards/card_difficulty_grades.md`](cards/card_difficulty_grades.md) | 卡牌难度分级 L1–L6(curriculum 输入) | LIVE 参考 |

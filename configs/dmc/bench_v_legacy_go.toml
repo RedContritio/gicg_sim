@@ -23,10 +23,7 @@ run_label = "bench_v_legacy_go"
 host = "remote"
 
 [remote]
-ssh = "dev@192.168.31.56"
-root = "D:/gicg_dev"
-os = "windows"
-hostname = "DESKTOP-GHJCC7Q"
+profile = "gpu-win"
 
 [paradigm.dmc]
 # 50K frames @ Win N=16 historical baseline 25 fps = 33 min;Phase A + T-B1 fix 后

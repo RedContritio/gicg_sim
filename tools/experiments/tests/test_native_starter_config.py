@@ -10,12 +10,15 @@ from tools.experiments.semantic_training.teams import eval_cases, sample_config,
 from tools.runs._host import load_remote_from_cfg
 
 
-def test_native_evaluation_covers_every_roster_pair_and_mirror():
+def test_native_evaluation_covers_every_roster_pair_and_mirror(tmp_path):
     cfg = load_cfg('configs/dmc/native_starter.toml')
     assert cfg.scenario.pool == 'native_latest'
     assert not cfg.scenario.fix_dice
     assert cfg.scenario.deck_padding is None
-    assert load_remote_from_cfg(Path('configs/dmc/native_starter.toml')).ssh == 'dev@192.168.31.56'
+    registry = tmp_path / 'hosts.toml'
+    registry.write_text('[gpu-win]\nssh = "dev@host"\nroot = "D:/gicg_dev"\nos = "windows"\nhostname = "DEV-PC"\n')
+    remote = load_remote_from_cfg(Path('configs/dmc/native_starter.toml'), registry)
+    assert remote is not None and remote.ssh == 'dev@host'
     cases = eval_cases(cfg, 8101, 110)
     counts = Counter(matchup_key(c.team_0, c.team_1) for c in cases)
     assert len(counts) == 55 and set(counts.values()) == {2}

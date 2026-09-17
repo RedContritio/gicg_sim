@@ -72,7 +72,7 @@ from training.core.matchup.greedy_reroll import reroll_choice
 @dataclass
 class GreedyConfig:
     features: str  # 'F1' | 'F2' | 'F3' | 'F4' | 'F5'
-    depth: int  # 1 | 2 | 3
+    depth: int  # 1 | 2 | 3 | 4
 
 
 def _candidate_indices(env: GicgEnv, dice_greedy: bool) -> list[int]:

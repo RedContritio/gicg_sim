@@ -7,8 +7,8 @@ so it runs quickly on the Windows GPU box for migration certification:
     # Mac dev
     .venv/bin/python -m pytest tools/eval/tests/test_socket_cross_platform.py -q
 
-    # Windows ssh (cross-platform verification gate)
-    ssh dev@<windows-host> 'cd D:\\gicg_dev && .\\.venv\\Scripts\\python.exe -m pytest tools\\eval\\tests\\test_socket_cross_platform.py -q'
+    # Windows remote (cross-platform verification gate)
+    .venv/bin/python -m tools.runs.exec <cfg.toml> -- .venv/Scripts/python.exe -m pytest tools/eval/tests/test_socket_cross_platform.py -q
 
 If this test PASSes on both Mac and Windows, the AF_UNIX -> AF_INET
 migration is platform-certified at the socket layer. Full eval_service

@@ -40,12 +40,12 @@ class _PpoArgmaxPlayer:
     def __init__(self, agent: Any, seed: int = 0) -> None:
         self.agent = agent
         self.rng = random.Random(seed)
-        self._game_started = False
+        self._env = None
 
     def select_action(self, env: GicgEnv) -> int:
-        if not self._game_started:
+        if self._env is not env:
             self.agent.game_start(env.static_obs)
-            self._game_started = True
+            self._env = env
         # ``deterministic=True`` selects the maximum policy logit.
         action_idx, _meta = self.agent.act(env, self.rng, deterministic=True)
         return int(action_idx)

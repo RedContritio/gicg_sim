@@ -7,13 +7,18 @@ All-mock。 Schemas are not re-tested per-tool(covered in
 
 from __future__ import annotations
 
+import os
+import shlex
 import socket
+import subprocess
 import sys
 import textwrap
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
+from tools.runs._host import RemoteCfg
 
 
 def _write_cfg(path: Path, body: str) -> Path:
@@ -25,21 +30,49 @@ def _local_cfg(tmp_path) -> Path:
     return _write_cfg(tmp_path / 'local.toml', '[meta]\nhost = "local"\n')
 
 
-def _remote_cfg(tmp_path, hostname: str = 'OTHER-PC') -> Path:
+def _write_registry(
+    tmp_path,
+    hostname: str = 'OTHER-PC',
+    os_name: str = 'windows',
+    root: str = 'D:/X',
+) -> Path:
     return _write_cfg(
-        tmp_path / 'remote.toml',
+        tmp_path / 'hosts.toml',
         textwrap.dedent(
             f"""
-            [meta]
-            host = "remote"
-            [remote]
+            [test]
             ssh = "x@y"
-            root = "D:/X"
-            os = "windows"
+            root = "{root}"
+            os = "{os_name}"
             hostname = "{hostname}"
             """
         ),
     )
+
+
+def _remote_cfg(
+    tmp_path,
+    hostname: str = 'OTHER-PC',
+    os_name: str = 'windows',
+    root: str = 'D:/X',
+) -> Path:
+    _write_registry(tmp_path, hostname, os_name, root)
+    return _write_cfg(
+        tmp_path / 'remote.toml',
+        textwrap.dedent(
+            """
+            [meta]
+            host = "remote"
+            [remote]
+            profile = "test"
+            """
+        ),
+    )
+
+
+@pytest.fixture(autouse=True)
+def _host_registry(tmp_path, monkeypatch):
+    monkeypatch.setattr('tools.runs._host.HOST_REGISTRY', tmp_path / 'hosts.toml')
 
 
 # ---------------------------------------------------------------------------
@@ -220,6 +253,26 @@ def test_build_engine_posix_command_includes_all_targets(tmp_path):
     assert '&&' in sh
 
 
+def test_build_engine_posix_quotes_root_and_exports_cgo():
+    from tools.runs._host import RemoteCfg
+    from tools.runs.build_engine import _build_sh_posix
+
+    root = "/srv/repo's dir"
+    remote = RemoteCfg(ssh='dev@x', root=root, os='linux', hostname='boxlin')
+    sh = _build_sh_posix(remote)
+    assert sh.startswith(f'cd {shlex.quote(root)} && export CGO_ENABLED=1 && go build')
+
+
+def test_build_engine_darwin_uses_dylib():
+    from tools.runs._host import RemoteCfg
+    from tools.runs.build_engine import _build_sh_posix
+
+    remote = RemoteCfg(ssh='dev@x', root='/Users/dev/gicg_dev', os='darwin', hostname='mac')
+    sh = _build_sh_posix(remote)
+    assert 'gicg_env/libgicg.dylib' in sh
+    assert 'gicg_env/libgicg.so' not in sh
+
+
 def test_build_engine_windows_command_uses_force_rebuild_flag():
     """``go build -a`` forces rebuild of all packages — 绕过 Go cache stale on
     cgo ``//export`` changes(I29 P1.5 fix:加 export func 后 dll 表 mismatch
@@ -282,6 +335,64 @@ def test_status_loopback_runs_local(tmp_path):
     assert rc == 1
 
 
+def test_status_ssh_query_posix_uses_bash(tmp_path):
+    from tools.runs.status import ssh_query
+
+    remote = RemoteCfg(ssh='x@y', root='/srv/gicg', os='linux', hostname='boxlin')
+    fake = subprocess.CompletedProcess(args=[], returncode=0, stdout='===RUN===\n===GPU===\n', stderr='')
+    with patch('tools.runs.status.ssh_run_bash', return_value=fake) as bash:
+        assert ssh_query(remote, "run's") == fake.stdout
+    bash.assert_called_once()
+    script = bash.call_args.args[1]
+    assert 'root=/srv/gicg' in script
+    assert '===RUN===' in script
+    assert "run'\"'\"'s" in script
+
+
+def test_status_ssh_query_windows_uses_ssh_run(tmp_path):
+    from tools.runs.status import ssh_query
+
+    remote = RemoteCfg(ssh='x@y', root='D:/gicg', os='windows', hostname='DESKTOP')
+    fake = subprocess.CompletedProcess(args=[], returncode=0, stdout='===RUN===\n', stderr='')
+    with patch('tools.runs.status.ssh_run', return_value=fake) as ssh:
+        assert ssh_query(remote, 'run one') == fake.stdout
+    ssh.assert_called_once()
+    script = ssh.call_args.args[1]
+    assert "'D:\\gicg\\tools\\runs\\status.ps1'" in script
+    assert "-RunName 'run one'" in script
+
+
+def test_status_sh_default_discovers_latest_run_across_paradigms(tmp_path):
+    from tools.runs.status import _build_sh
+
+    artifacts = tmp_path / 'artifacts'
+    artifacts.mkdir()
+    for name, mtime in (
+        ('semantic_run', 100),
+        ('native_run', 200),
+        ('curriculum_run', 300),
+    ):
+        run_dir = artifacts / name
+        run_dir.mkdir()
+        os.utime(run_dir, (mtime, mtime))
+
+    remote = RemoteCfg(ssh='x@y', root=str(tmp_path), os='linux', hostname='boxlin')
+    result = subprocess.run(
+        ['bash', '-c', _build_sh(remote)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0
+    assert result.stdout.splitlines()[0] == '===RUN===curriculum_run'
+
+
+def test_status_ps_script_default_discovers_all_run_dirs():
+    script = (Path(__file__).resolve().parents[1] / 'status.ps1').read_text()
+    assert 'Get-ChildItem $artifacts -Directory | Sort-Object LastWriteTime -Descending' in script
+    assert '_dmc_' not in script
+    assert '-Match' not in script
+
+
 def test_status_missing_section_raises(tmp_path):
     from tools.runs.status import main as status_main
 
@@ -296,11 +407,11 @@ def test_status_missing_section_raises(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def test_ssh_local_runs_subprocess(tmp_path):
+def test_ssh_local_runs_argv(tmp_path):
     from tools.runs._ssh import main as ssh_main
 
     cfg = _local_cfg(tmp_path)
-    with patch('tools.runs._ssh.subprocess.run') as m:
+    with patch('tools.runs._ssh.run_argv') as m:
         m.return_value.returncode = 0
         with patch.object(sys, 'argv', ['_ssh.py', str(cfg), '--', 'echo', 'hi']):
             assert ssh_main() == 0
@@ -320,11 +431,22 @@ def test_ssh_remote_invokes_ssh_run(tmp_path):
     m.assert_called_once()
 
 
+def test_ssh_remote_posix_invokes_bash(tmp_path):
+    from tools.runs._ssh import main as ssh_main
+
+    cfg = _remote_cfg(tmp_path, os_name='linux', root='/srv/gicg')
+    fake = subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+    with patch('tools.runs._ssh.ssh_run_bash', return_value=fake) as bash:
+        with patch.object(sys, 'argv', ['_ssh.py', str(cfg), '--', 'echo', 'hi']):
+            assert ssh_main() == 0
+    bash.assert_called_once()
+
+
 def test_ssh_loopback_runs_local(tmp_path):
     from tools.runs._ssh import main as ssh_main
 
     cfg = _remote_cfg(tmp_path, hostname=socket.gethostname())
-    with patch('tools.runs._ssh.subprocess.run') as m:
+    with patch('tools.runs._ssh.run_argv') as m:
         m.return_value.returncode = 0
         with patch.object(sys, 'argv', ['_ssh.py', str(cfg), '--', 'echo', 'hi']):
             assert ssh_main() == 0
@@ -337,3 +459,24 @@ def test_ssh_no_cmd_returns_2(tmp_path):
     cfg = _local_cfg(tmp_path)
     with patch.object(sys, 'argv', ['_ssh.py', str(cfg)]):
         assert ssh_main() == 2
+
+
+def test_exec_public_cli_dispatches_local(tmp_path):
+    from tools.runs.exec import main as exec_main
+
+    cfg = _local_cfg(tmp_path)
+    with patch('tools.runs._ssh.run_argv') as m:
+        m.return_value.returncode = 0
+        assert exec_main([str(cfg), '--', 'echo', 'hi']) == 0
+    m.assert_called_once()
+
+
+def test_exec_public_cli_uses_public_prog_name():
+    from tools.runs import exec as exec_mod
+    from tools.runs._ssh import _build_parser
+
+    with patch.object(sys, 'argv', ['exec.py', '--help']):
+        with pytest.raises(SystemExit) as exc:
+            exec_mod.main()
+    assert exc.value.code == 0
+    assert _build_parser('tools.runs.exec').prog == 'tools.runs.exec'

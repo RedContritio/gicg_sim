@@ -14,6 +14,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from tools.runs._host import RemoteCfg
+
+
+REMOTE = RemoteCfg(ssh='u@h', root='/p', os='linux', hostname='remote-host')
+
 
 @dataclass
 class FakeResult:
@@ -25,14 +30,14 @@ class FakeResult:
 def mock_runner(captured: list[list[str]], result: FakeResult = FakeResult()):
     """Return a fake ``subprocess.run`` that captures argv into ``captured``."""
 
-    def runner(cmd, capture_output=False, text=False, check=False, **kw):
+    def runner(cmd, **_kw):
         captured.append(list(cmd))
         return result
 
     return runner
 
 
-def empty_ssh_runner(_cmd, **_kw):
+def empty_ssh_runner(_remote, _script, **_kw):
     """SSH find returning empty (no remote runs) — never raises."""
     return FakeResult(returncode=0, stdout='')
 
@@ -58,7 +63,7 @@ def ssh_runner_returning(remote_runs: dict[str, str]):
     expected by ``parse_remote_find_output``. Body holds only the
     ``timestamp`` field per I-2."""
 
-    def runner(_cmd, **_kw):
+    def runner(_remote, _script, **_kw):
         blocks: list[str] = []
         for nnn, ts in remote_runs.items():
             file_path = f'artifacts/202605180000_{nnn}_remote/metadata.toml'

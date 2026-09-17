@@ -3,10 +3,13 @@ package engine
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"gicg_mono/gicg_engine/internal/strictjson"
 	"reflect"
 )
+
+var ErrCheckpointIncompatible = errors.New("incompatible checkpoint version, random protocol or registry layout")
 
 // Checkpoints preserve gameplay state across processes with identical registry
 // layouts and DSL sources. Callers must also pin their engine build for archival
@@ -100,7 +103,7 @@ func (g *Game) RestoreCheckpoint(data []byte) error {
 		return fmt.Errorf("checkpoint: %w", err)
 	}
 	if c.Version != 2 || c.RandomProtocol != RandomProtocol || c.LayoutHash != g.checkpointLayout() || c.RulesDigest != g.RulesDigest {
-		return fmt.Errorf("incompatible checkpoint version, random protocol or registry layout")
+		return ErrCheckpointIncompatible
 	}
 	if err := g.validateCheckpoint(&c); err != nil {
 		return err

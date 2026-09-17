@@ -18,11 +18,11 @@ Three features:
   ``sync._REMOTE_RE``. Exposed here so the IPv6 alternative lives next
   to the case-collide / authoritative wording (single doc surface for
   T-19 spec §HIGH-6-B). Accepts:
-  - ``user@hostname:path/`` (alphanum + dot + dash)
-  - ``user@1.2.3.4:path/`` (IPv4 — same alphanum + dot + dash regex)
-  - ``user@[::1]:path/`` / ``user@[fe80::1]:path/`` (IPv6 bracket form)
-  Rejects: bare ``host:path/``, missing trailing ``/``, empty brackets,
-  unterminated brackets, macOS local paths with colon.
+  - ``hostname:path/`` / ``user@hostname:path/`` (alphanum + dot + dash)
+  - ``1.2.3.4:path/`` / ``user@1.2.3.4:path/`` (IPv4)
+  - ``[::1]:path/`` / ``user@[::1]:path/`` (IPv6 bracket form)
+  Rejects: missing trailing ``/``, empty brackets, unterminated brackets,
+  macOS local paths with colon.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ __all__ = [
 # IPv6 inner: ``[0-9a-fA-F:]+`` — hex digits + colons, length ≥ 1 (empty
 # ``[]`` rejected). Zone IDs such as ``%eth0`` are not accepted because
 # ``%`` is intentionally excluded; widen this only if the workflow needs it.
-REMOTE_RE_PATTERN = r'^[A-Za-z0-9._-]+@(?:[A-Za-z0-9.-]+|\[[0-9a-fA-F:]+\]):.*/$'
+REMOTE_RE_PATTERN = r'^(?:[A-Za-z0-9._-]+@)?(?:[A-Za-z0-9.-]+|\[[0-9a-fA-F:]+\]):.*/$'
 
 
 class CaseCollideError(RuntimeError):

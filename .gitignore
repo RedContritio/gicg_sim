@@ -38,3 +38,5 @@ docs/3_plans/cards/effect_mechanism_inventory.md
 
 # external reference implementations (do not commit)
 ref/
+
+configs/hosts/hosts.toml

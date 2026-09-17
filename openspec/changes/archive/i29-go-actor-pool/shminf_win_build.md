@@ -5,7 +5,7 @@ Branch: `feature/i29-go-actor-shminf` (Phase 4 commit pending user review)
 
 ## 前置
 
-- Win box: DESKTOP-GHJCC7Q (9950X3D + 5070 Ti), `D:\gicg_dev`
+- Win box: DEV-PC (9950X3D + 5070 Ti), `D:\gicg_dev`
 - 工具链(已装):Go 1.26.x, Strawberry Perl gcc (`C:\Strawberry\c\bin\gcc.exe`),
   Python 3.13/3.14 venv with torch 2.12+cu130
 - SHM 自身不需要额外依赖 — kernel32 是 system DLL，CreateFileMapping /

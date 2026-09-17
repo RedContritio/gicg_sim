@@ -26,6 +26,7 @@ import torch
 import torch.nn as nn
 
 from training.core.actor.network_provider import LocalNetworkProvider
+from training.paradigms.ppo.mp_factories import _PPOActorProvider
 
 
 class _SimpleNet(nn.Module):
@@ -153,6 +154,64 @@ def test_local_provider_update_weights_invalidates_traced_module(monkeypatch):
     prov.forward(x, None)
     assert call_count['n'] == 2
     assert prov._traced_net is not None
+
+
+def test_local_provider_shm_update_invalidates_traced_module(monkeypatch):
+    """SHM polling follows the same trace invalidation path as direct loads."""
+    net = _SimpleNet()
+    prov = LocalNetworkProvider(net, device='cpu', inference_acceleration='trace')
+
+    call_count = {'n': 0}
+    real_trace = torch.jit.trace
+
+    def _counting_trace(*args, **kwargs):
+        call_count['n'] += 1
+        return real_trace(*args, **kwargs)
+
+    monkeypatch.setattr(torch.jit, 'trace', _counting_trace)
+
+    x = torch.randn(1, 4)
+    prov.forward(x, None)
+    assert call_count['n'] == 1
+
+    class _SHM:
+        def read(self, tag):
+            return _SimpleNet().state_dict(), 9
+
+    prov._shm = _SHM()
+    assert prov.update_weights() == 9
+    assert prov._traced_net is None
+    assert prov._trace_attempted is False
+
+    prov.forward(x, None)
+    assert call_count['n'] == 2
+
+
+def test_ppo_provider_shm_update_invalidates_traced_module(monkeypatch):
+    net = _SimpleNet()
+    local = LocalNetworkProvider(net, device='cpu', inference_acceleration='trace')
+    call_count = {'n': 0}
+    real_trace = torch.jit.trace
+
+    def _counting_trace(*args, **kwargs):
+        call_count['n'] += 1
+        return real_trace(*args, **kwargs)
+
+    monkeypatch.setattr(torch.jit, 'trace', _counting_trace)
+
+    class _SHM:
+        def read(self, tag):
+            return _SimpleNet().state_dict(), 11
+
+    prov = _PPOActorProvider(local, _SHM())
+    x = torch.randn(1, 4)
+    prov.forward(x, None)
+    assert call_count['n'] == 1
+    assert prov.update_weights() == 11
+    assert local._traced_net is None
+    assert local._trace_attempted is False
+    prov.forward(x, None)
+    assert call_count['n'] == 2
 
 
 # ---------- inference_acceleration='compile' tests ---------- #

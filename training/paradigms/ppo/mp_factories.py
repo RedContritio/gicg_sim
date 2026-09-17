@@ -184,8 +184,7 @@ class _PPOActorProvider:
             return self._local.update_weights(state_dict=state_dict)
         sd, ver = self._shm.read(version_tag)
         if sd is not None and ver > self._local.current_version():
-            self._local.network.load_state_dict(sd)
-            self._local.version = int(ver)
+            self._local.replace_weights(sd, int(ver))
         return self._local.current_version()
 
     def current_version(self) -> int:

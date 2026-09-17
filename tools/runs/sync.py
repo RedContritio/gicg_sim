@@ -20,8 +20,8 @@ local+remote dir names; if two differ only in case, raise
 
 CLI::
 
-    .venv/bin/python -m tools.runs.sync push <user@host:path/>
-    .venv/bin/python -m tools.runs.sync pull <user@host:path/>
+    .venv/bin/python -m tools.runs.sync push <cfg.toml>
+    .venv/bin/python -m tools.runs.sync pull <cfg.toml>
     .venv/bin/python -m tools.runs.sync init-authoritative
 
 """
@@ -31,10 +31,10 @@ from __future__ import annotations
 import argparse
 import shlex
 import socket
-import subprocess
 import sys
 from pathlib import Path
 
+from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg, rsync_run
 from tools.runs._helpers import sync_conflicts as _sc
 from tools.runs._helpers import sync_scan as _ss
 from tools.runs._helpers.sync_extras import (
@@ -52,6 +52,7 @@ ConflictRow = _sc.ConflictRow
 build_rsync_cmd = _sc.build_rsync_cmd
 detect_conflicts = _sc.detect_conflicts
 _validate_remote = _sc.validate_remote
+_remote_endpoint = _sc.remote_endpoint
 
 _fetch_remote_find_text = _ss.fetch_remote_find_text
 _parse_remote_dir_names = _ss.parse_remote_dir_names
@@ -93,7 +94,7 @@ def _ensure_local_artifacts_dir(root: Path) -> None:
 def sync(
     *,
     direction: str,
-    remote: str,
+    remote: RemoteCfg,
     root: Path,
     runner=None,
     ssh_runner=None,
@@ -109,9 +110,8 @@ def sync(
     if direction not in ('push', 'pull'):
         raise ValueError(f'direction must be push|pull, got {direction!r}')
     _verify_repo_root(root)
-    _validate_remote(remote)
     if runner is None:
-        runner = subprocess.run
+        runner = rsync_run
 
     local_ts = _scan_local_timestamps(root)
     remote_text = _fetch_remote_find_text(remote, runner=ssh_runner)
@@ -156,7 +156,7 @@ def sync(
         return cmd
 
     try:
-        result = runner(cmd, capture_output=True, text=True, check=False)
+        result = runner(cmd)
     except FileNotFoundError as e:
         raise RuntimeError(f'rsync not found on PATH ({e}); install rsync first') from e
     if result.returncode != 0:
@@ -172,10 +172,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('direction', choices=['push', 'pull', 'init-authoritative'])
     ap.add_argument(
-        'remote',
+        'cfg',
         nargs='?',
         default=None,
-        help='e.g. dev@192.168.31.56:/d/gicg_dev/ (omit for init-authoritative)',
+        help='training cfg.toml; [meta].host + [remote].profile select the host (omit for init-authoritative)',
     )
     ap.add_argument('--root', default=None, help='override local repo root (testing only)')
     ap.add_argument('--dry-run', action='store_true', help='print rsync cmd without executing')
@@ -183,24 +183,29 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.root) if args.root else Path.cwd()
 
     if args.direction == 'init-authoritative':
-        if args.remote is not None:
-            print('tools.runs.sync: init-authoritative takes no remote argument', file=sys.stderr)
+        if args.cfg is not None:
+            print('tools.runs.sync: init-authoritative takes no cfg argument', file=sys.stderr)
             return 1
         marker = init_authoritative(root)
         print(f'authoritative host set: {socket.gethostname()} ({marker})', file=sys.stderr)
         return 0
 
-    if args.remote is None:
-        print(f'tools.runs.sync: {args.direction} requires a remote argument', file=sys.stderr)
+    if args.cfg is None:
+        print(f'tools.runs.sync: {args.direction} requires a cfg argument', file=sys.stderr)
         return 1
     try:
+        remote = load_remote_from_cfg(Path(args.cfg))
+        if is_local_host(remote):
+            print('tools.runs.sync: cfg host is local — nothing to sync', file=sys.stderr)
+            return 0
+        assert remote is not None
         result = sync(
             direction=args.direction,
-            remote=args.remote,
+            remote=remote,
             root=root,
             dry_run=args.dry_run,
         )
-    except (ValueError, RuntimeError, SyncConflict, CaseCollideError) as e:
+    except (OSError, ValueError, RuntimeError, SyncConflict, CaseCollideError) as e:
         print(f'tools.runs.sync: {e}', file=sys.stderr)
         return 1
     if args.dry_run:

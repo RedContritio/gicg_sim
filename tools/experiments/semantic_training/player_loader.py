@@ -62,6 +62,10 @@ def _agent_from_payload(payload: Mapping, seed: int, device: str = 'cpu') -> Sem
         from tools.experiments.semantic_training.value_baseline import attach
 
         attach(agent, payload['value_head']).eval()
+    if 'rule_adapter' in payload:
+        from tools.experiments.semantic_training.rule_auxiliary import attach_adapter
+
+        attach_adapter(agent).load_state_dict(payload['rule_adapter'], strict=True)
     return agent
 
 

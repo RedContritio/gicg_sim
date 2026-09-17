@@ -16,6 +16,7 @@ import pytest
 from tools.runs import sync
 from tools.runs.tests._sync_fixtures import (
     FakeResult,
+    REMOTE,
     empty_ssh_runner,
     ensure_git_dir,
     make_run_dir,
@@ -39,7 +40,7 @@ def test_sync_push_dry_run_returns_cmd(tmp_path):
     make_run_dir(tmp_path, '202605180100', '000001', 'az', '2026-05-18T01:00:00Z')
     cmd = sync.sync(
         direction='push',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=empty_ssh_runner,
         dry_run=True,
@@ -54,7 +55,7 @@ def test_sync_push_invokes_runner_when_not_dry(tmp_path):
     captured: list[list[str]] = []
     rc = sync.sync(
         direction='push',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         runner=mock_runner(captured),
         ssh_runner=empty_ssh_runner,
@@ -68,7 +69,7 @@ def test_sync_creates_local_artifacts_dir(tmp_path):
     captured: list[list[str]] = []
     sync.sync(
         direction='pull',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         runner=mock_runner(captured),
         ssh_runner=empty_ssh_runner,
@@ -81,7 +82,7 @@ def test_sync_push_local_newer_includes_normally(tmp_path):
     make_run_dir(tmp_path, '202605180200', '000001', 'az', '2026-05-18T02:00:00Z')
     cmd = sync.sync(
         direction='push',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=ssh_runner_returning({'000001': '2026-05-18T01:00:00Z'}),
         dry_run=True,
@@ -93,7 +94,7 @@ def test_sync_push_remote_newer_skips_and_warns(tmp_path, capsys):
     make_run_dir(tmp_path, '202605180100', '000001', 'az', '2026-05-18T01:00:00Z')
     cmd = sync.sync(
         direction='push',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=ssh_runner_returning({'000001': '2026-05-18T02:00:00Z'}),
         dry_run=True,
@@ -109,7 +110,7 @@ def test_sync_equal_timestamp_raises_conflict(tmp_path):
     with pytest.raises(sync.SyncConflict, match='000001'):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             ssh_runner=ssh_runner_returning({'000001': '2026-05-18T01:00:00Z'}),
             dry_run=True,
@@ -122,7 +123,7 @@ def test_sync_equal_timestamp_lists_multiple_conflicts(tmp_path):
     with pytest.raises(sync.SyncConflict) as exc_info:
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             ssh_runner=ssh_runner_returning({'000001': '2026-05-18T01:00:00Z', '000002': '2026-05-18T02:00:00Z'}),
             dry_run=True,
@@ -136,7 +137,7 @@ def test_sync_pull_local_newer_skips_and_warns(tmp_path, capsys):
     make_run_dir(tmp_path, '202605180200', '000001', 'az', '2026-05-18T02:00:00Z')
     cmd = sync.sync(
         direction='pull',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=ssh_runner_returning({'000001': '2026-05-18T01:00:00Z'}),
         dry_run=True,
@@ -150,7 +151,7 @@ def test_sync_only_local_no_warn(tmp_path, capsys):
     make_run_dir(tmp_path, '202605180100', '000001', 'az', '2026-05-18T01:00:00Z')
     sync.sync(
         direction='push',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=empty_ssh_runner,
         dry_run=True,
@@ -162,7 +163,7 @@ def test_sync_only_local_no_warn(tmp_path, capsys):
 def test_sync_only_remote_no_warn_on_pull(tmp_path, capsys):
     sync.sync(
         direction='pull',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=ssh_runner_returning({'000099': '2026-05-18T01:00:00Z'}),
         dry_run=True,
@@ -177,7 +178,7 @@ def test_sync_rsync_failure_propagates(tmp_path):
     with pytest.raises(RuntimeError, match='exit 23'):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             runner=runner,
             ssh_runner=empty_ssh_runner,
@@ -191,44 +192,42 @@ def test_sync_missing_rsync_binary(tmp_path):
     with pytest.raises(RuntimeError, match='rsync not found'):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             runner=runner,
             ssh_runner=empty_ssh_runner,
         )
 
 
-def test_sync_ssh_failure_treated_as_empty_remote(tmp_path):
-    """SSH down → empty remote set → no conflicts; rsync proceeds normally."""
+def test_sync_ssh_failure_aborts_before_rsync(tmp_path):
+    """SSH failure means remote state is unknown — never run rsync."""
 
-    def failing_ssh(_cmd, **_kw):
+    def failing_ssh(_remote, _script, **_kw):
         return FakeResult(returncode=255, stderr='ssh: connect failed')
 
     make_run_dir(tmp_path, '202605180100', '000001', 'az', '2026-05-18T01:00:00Z')
-    cmd = sync.sync(
-        direction='push',
-        remote='u@h:/p/',
-        root=tmp_path,
-        ssh_runner=failing_ssh,
-        dry_run=True,
-    )
-    assert isinstance(cmd, list)
-    # No conflict-derived exclude because remote scan was empty.
-    assert '--exclude=artifacts/*_000001_*/' not in cmd
+    with pytest.raises(RuntimeError, match='remote scan failed'):
+        sync.sync(
+            direction='push',
+            remote=REMOTE,
+            root=tmp_path,
+            ssh_runner=failing_ssh,
+            dry_run=True,
+        )
 
 
-def test_sync_ssh_filenotfound_treated_as_empty(tmp_path):
-    def ssh_missing(_cmd, **_kw):
+def test_sync_ssh_filenotfound_aborts(tmp_path):
+    def ssh_missing(_remote, _script, **_kw):
         raise FileNotFoundError('ssh not on PATH')
 
-    cmd = sync.sync(
-        direction='push',
-        remote='u@h:/p/',
-        root=tmp_path,
-        ssh_runner=ssh_missing,
-        dry_run=True,
-    )
-    assert isinstance(cmd, list)
+    with pytest.raises(RuntimeError, match='remote scan failed'):
+        sync.sync(
+            direction='push',
+            remote=REMOTE,
+            root=tmp_path,
+            ssh_runner=ssh_missing,
+            dry_run=True,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -240,7 +239,8 @@ def test_main_dry_run_prints_cmd(tmp_path, monkeypatch, capsys):
     # T-19: sync() now calls ``_fetch_remote_find_text`` (single SSH fetch
     # reused for ts + dir-name parse); stub that out so no real SSH fires.
     monkeypatch.setattr(sync, '_fetch_remote_find_text', lambda *_a, **_kw: '')
-    rc = sync.main(['push', 'u@h:/p/', '--root', str(tmp_path), '--dry-run'])
+    monkeypatch.setattr(sync, 'load_remote_from_cfg', lambda _path: REMOTE)
+    rc = sync.main(['push', str(tmp_path / 'cfg.toml'), '--root', str(tmp_path), '--dry-run'])
     assert rc == 0
     out = capsys.readouterr().out
     assert 'rsync' in out
@@ -248,35 +248,31 @@ def test_main_dry_run_prints_cmd(tmp_path, monkeypatch, capsys):
 
 
 def test_main_bad_remote_exits_1(tmp_path, capsys):
-    rc = sync.main(['push', 'not-a-remote', '--root', str(tmp_path)])
+    rc = sync.main(['push', str(tmp_path / 'missing.toml'), '--root', str(tmp_path)])
     assert rc == 1
     assert 'tools.runs.sync' in capsys.readouterr().err
 
 
 def test_main_invokes_rsync_via_monkeypatched_subprocess(tmp_path, monkeypatch, capsys):
     captured: list[list[str]] = []
-    monkeypatch.setattr(subprocess, 'run', mock_runner(captured, FakeResult(stdout='sent 5 bytes\n')))
+    monkeypatch.setattr(sync, 'rsync_run', mock_runner(captured, FakeResult(stdout='sent 5 bytes\n')))
+    monkeypatch.setattr(sync, 'load_remote_from_cfg', lambda _path: REMOTE)
     # T-19: stub the SSH fetch so ``subprocess.run`` only captures the rsync call.
     monkeypatch.setattr(sync, '_fetch_remote_find_text', lambda *_a, **_kw: '')
-    rc = sync.main(['pull', 'u@h:/p/', '--root', str(tmp_path)])
+    rc = sync.main(['pull', str(tmp_path / 'cfg.toml'), '--root', str(tmp_path)])
     assert rc == 0
     assert len(captured) == 1
     assert 'sent 5 bytes' in capsys.readouterr().out
 
 
 def test_main_subprocess_module_dispatch(tmp_path):
-    """Smoke: ``python -m tools.runs.sync push <remote> --dry-run`` runs and
-    exits 0 with no real rsync invocation."""
+    """Smoke: ``python -m tools.runs.sync`` reaches the module CLI."""
     result = subprocess.run(
         [
             sys.executable,
             '-m',
             'tools.runs.sync',
-            'push',
-            'u@h:/p/',
-            '--root',
-            str(tmp_path),
-            '--dry-run',
+            '--help',
         ],
         capture_output=True,
         text=True,
@@ -284,7 +280,7 @@ def test_main_subprocess_module_dispatch(tmp_path):
         cwd=Path(__file__).resolve().parents[3],
     )
     assert result.returncode == 0, result.stderr
-    assert 'rsync' in result.stdout
+    assert 'init-authoritative' in result.stdout
 
 
 # ---------------------------------------------------------------------------
@@ -299,7 +295,7 @@ def test_sync_rejects_non_repo_root(tmp_path):
     with pytest.raises(RuntimeError, match='no .git/'):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=non_repo,
             ssh_runner=empty_ssh_runner,
             dry_run=True,

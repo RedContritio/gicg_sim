@@ -5,7 +5,7 @@ Opt-in only: ``pytest -m smoke_remote`` — default ``pytest`` deselect。
 需要:
 - ``configs/dmc/stage3_b_v_legacy.toml`` 完整 [remote] 段(ssh / root /
   os / hostname,本仓库 commit c950cc2 起入仓);
-- 远端 Windows GPU box(DESKTOP-GHJCC7Q)在线,key-based ssh 不要 password。
+- 远端 Windows GPU box(DEV-PC)在线,key-based ssh 不要 password。
 
 每测试 timeout 防 hang。失败时 print stderr/stdout 给 debug。
 

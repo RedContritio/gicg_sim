@@ -27,7 +27,7 @@ D2 开发集选模由 RL 新增 `dev_depth` 参数支持，默认仍为 D1，恢
 启动命令（通过仓库 wrapper）：
 
 ```sh
-.venv/bin/python -m tools.runs._ssh --stream --timeout 14400 configs/dmc/semantic_duo_tactics.toml -- D:/gicg_dev/.venv/Scripts/python.exe -X utf8 -u -m tools.experiments.semantic_training.tactics configs/dmc/semantic_duo_tactics.toml artifacts/semantic_duo_tactics --workers 16
+.venv/bin/python -m tools.runs.exec --stream --timeout 14400 configs/dmc/semantic_duo_tactics.toml -- D:/gicg_dev/.venv/Scripts/python.exe -X utf8 -u -m tools.experiments.semantic_training.tactics configs/dmc/semantic_duo_tactics.toml artifacts/semantic_duo_tactics --workers 16
 ```
 
 新牌池结果不得与旧牌池 56.11% 直接比较；尚未产出本轮强度结论。

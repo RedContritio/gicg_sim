@@ -91,25 +91,25 @@ def test_main_init_authoritative_writes_marker(tmp_path, monkeypatch, capsys):
     assert 'cli-host' in err
 
 
-def test_main_init_authoritative_rejects_remote_arg(tmp_path, capsys):
+def test_main_init_authoritative_rejects_cfg_arg(tmp_path, capsys):
     rc = sync.main(['init-authoritative', 'u@h:/p/', '--root', str(tmp_path)])
     assert rc == 1
     err = capsys.readouterr().err
-    assert 'init-authoritative takes no remote' in err
+    assert 'init-authoritative takes no cfg argument' in err
 
 
-def test_main_push_requires_remote(tmp_path, capsys):
+def test_main_push_requires_cfg(tmp_path, capsys):
     rc = sync.main(['push', '--root', str(tmp_path)])
     assert rc == 1
     err = capsys.readouterr().err
-    assert 'requires a remote' in err
+    assert 'requires a cfg argument' in err
 
 
-def test_main_pull_requires_remote(tmp_path, capsys):
+def test_main_pull_requires_cfg(tmp_path, capsys):
     rc = sync.main(['pull', '--root', str(tmp_path)])
     assert rc == 1
     err = capsys.readouterr().err
-    assert 'requires a remote' in err
+    assert 'requires a cfg argument' in err
 
 
 # ---------------------------------------------------------------------------

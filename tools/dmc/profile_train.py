@@ -11,7 +11,7 @@ Usage (Mac dev — full 600s baseline):
 
 Usage (Windows X3D — same tool, longer runs):
 
-    ssh dev@<windows-host> 'cd D:\\gicg_dev && .\\.venv\\Scripts\\python.exe -m tools.dmc.profile_train --cfg configs\\dmc\\smoke.toml --duration-seconds 600'
+    .venv/bin/python -m tools.runs.exec configs/dmc/smoke.toml -- .venv/Scripts/python.exe -m tools.dmc.profile_train --cfg configs/dmc/smoke.toml --duration-seconds 600
 
 Outputs:
 - ``train.prof`` (cProfile binary, MEASURE WINDOW ONLY) — view with snakeviz

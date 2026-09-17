@@ -6,7 +6,7 @@ Usage (Mac dev):
 
 Usage (Windows X3D — the real target for ≥ 1200 fps):
 
-    ssh dev@<windows-host> 'cd D:\\gicg_dev && .\\.venv\\Scripts\\python.exe -m tools.dmc.profile_actor --cfg configs\\dmc\\smoke.toml --duration-seconds 300'
+    .venv/bin/python -m tools.runs.exec configs/dmc/smoke.toml -- .venv/Scripts/python.exe -m tools.dmc.profile_actor --cfg configs/dmc/smoke.toml --duration-seconds 300
 
 Outputs:
 - ``actor.prof`` (cProfile binary) — view with ``snakeviz actor.prof``

@@ -1,15 +1,15 @@
-"""Unit tests for ``tools.runs._host`` — cfg loader + RemoteCfg + dispatch helpers。
+"""Unit tests for ``tools.runs._host`` — RemoteCfg + dispatch helpers。
 
-All-mock。 Schema-validation tests cover required fields, host enum,
-os enum, root-shape constraint; loopback/local dispatch tests lock the
-``is_local_host`` contract。
+All-mock。 Loopback/local dispatch tests lock the ``is_local_host`` contract;
+registry parsing and validation live in ``test_host_registry.py``。
 """
 
 from __future__ import annotations
 
+import shlex
 import socket
 import subprocess
-import textwrap
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -21,166 +21,9 @@ from tools.runs._host import (
     discover_remote_binary,
     discover_remote_python,
     is_local_host,
-    load_remote_from_cfg,
+    scp_from,
+    ssh_run_bash,
 )
-
-
-def _write(tmp_path, body: str):
-    p = tmp_path / 'cfg.toml'
-    p.write_text(body)
-    return p
-
-
-# ---------------------------------------------------------------------------
-# load_remote_from_cfg — happy paths
-# ---------------------------------------------------------------------------
-
-
-def test_load_local_returns_none(tmp_path):
-    cfg = _write(tmp_path, '[meta]\nhost = "local"\n')
-    assert load_remote_from_cfg(cfg) is None
-
-
-def test_load_missing_meta_host_returns_none(tmp_path):
-    """``meta.host`` absent default → 'local' → None。"""
-    cfg = _write(tmp_path, '[meta]\nparadigm = "dmc"\n')
-    assert load_remote_from_cfg(cfg) is None
-
-
-def test_load_empty_file_returns_none(tmp_path):
-    cfg = _write(tmp_path, '')
-    assert load_remote_from_cfg(cfg) is None
-
-
-def test_load_remote_happy_path(tmp_path):
-    cfg = _write(
-        tmp_path,
-        textwrap.dedent(
-            """
-            [meta]
-            host = "remote"
-            [remote]
-            ssh = "dev@host"
-            root = "D:/gicg_dev"
-            os = "windows"
-            hostname = "DEV-PC"
-            """
-        ),
-    )
-    r = load_remote_from_cfg(cfg)
-    assert isinstance(r, RemoteCfg)
-    assert r.ssh == 'dev@host'
-    assert r.root == 'D:/gicg_dev'
-    assert r.os == 'windows'
-    assert r.hostname == 'DEV-PC'
-
-
-def test_load_remote_linux_happy(tmp_path):
-    cfg = _write(
-        tmp_path,
-        textwrap.dedent(
-            """
-            [meta]
-            host = "remote"
-            [remote]
-            ssh = "u@h"
-            root = "/srv/gicg"
-            os = "linux"
-            hostname = "lh"
-            """
-        ),
-    )
-    r = load_remote_from_cfg(cfg)
-    assert r is not None and r.os == 'linux'
-
-
-# ---------------------------------------------------------------------------
-# Sad paths — schema violations all raise ValueError
-# ---------------------------------------------------------------------------
-
-
-def test_load_remote_invalid_host_value(tmp_path):
-    cfg = _write(tmp_path, '[meta]\nhost = "wibble"\n')
-    with pytest.raises(ValueError, match='host must be'):
-        load_remote_from_cfg(cfg)
-
-
-def test_load_remote_missing_section(tmp_path):
-    cfg = _write(tmp_path, '[meta]\nhost = "remote"\n')
-    with pytest.raises(ValueError, match=r'\[remote\] section missing'):
-        load_remote_from_cfg(cfg)
-
-
-def test_load_remote_missing_ssh(tmp_path):
-    cfg = _write(
-        tmp_path,
-        textwrap.dedent(
-            """
-            [meta]
-            host = "remote"
-            [remote]
-            root = "D:/X"
-            os = "windows"
-            hostname = "H"
-            """
-        ),
-    )
-    with pytest.raises(ValueError, match=r"missing required fields \['ssh'\]"):
-        load_remote_from_cfg(cfg)
-
-
-def test_load_remote_missing_multiple(tmp_path):
-    cfg = _write(
-        tmp_path,
-        textwrap.dedent(
-            """
-            [meta]
-            host = "remote"
-            [remote]
-            ssh = "x@y"
-            """
-        ),
-    )
-    with pytest.raises(ValueError, match='missing required fields'):
-        load_remote_from_cfg(cfg)
-
-
-def test_load_remote_invalid_os(tmp_path):
-    cfg = _write(
-        tmp_path,
-        textwrap.dedent(
-            """
-            [meta]
-            host = "remote"
-            [remote]
-            ssh = "x@y"
-            root = "/r"
-            os = "bsd"
-            hostname = "h"
-            """
-        ),
-    )
-    with pytest.raises(ValueError, match='os must be'):
-        load_remote_from_cfg(cfg)
-
-
-def test_load_remote_root_backslash_rejected(tmp_path):
-    cfg = _write(
-        tmp_path,
-        textwrap.dedent(
-            """
-            [meta]
-            host = "remote"
-            [remote]
-            ssh = "x@y"
-            root = "D:\\\\X"
-            os = "windows"
-            hostname = "h"
-            """
-        ),
-    )
-    with pytest.raises(ValueError, match='forward slashes'):
-        load_remote_from_cfg(cfg)
 
 
 # ---------------------------------------------------------------------------
@@ -215,6 +58,43 @@ def test_root_native_windows_uses_backslash():
 def test_root_native_posix_keeps_forward_slash():
     r = RemoteCfg(ssh='x@y', root='/srv/gicg', os='linux', hostname='h')
     assert r.root_native == '/srv/gicg'
+
+
+# ---------------------------------------------------------------------------
+# ssh_run_bash
+# ---------------------------------------------------------------------------
+
+
+def test_ssh_run_bash_quotes_script_for_remote_shell():
+    r = RemoteCfg(ssh='u@h', root='/srv/gicg', os='linux', hostname='h')
+    with patch('tools.runs._host.subprocess.run', return_value=_cp()) as run:
+        ssh_run_bash(r, 'mkdir -p "/tmp/a b"')
+    assert run.call_args.args[0] == ['ssh', 'u@h', 'bash -c \'mkdir -p "/tmp/a b"\'']
+
+
+# ---------------------------------------------------------------------------
+# scp_from
+# ---------------------------------------------------------------------------
+
+
+def test_scp_from_omits_preserve_by_default():
+    r = RemoteCfg(ssh='u@h', root='/srv/gicg', os='linux', hostname='h')
+    with patch('tools.runs._host.subprocess.run', return_value=_cp()) as run:
+        scp_from(r, 'artifacts/run/ckpts/latest.pt', Path('/tmp/latest.pt'))
+    assert run.call_args.args[0] == ['scp', '-q', 'u@h:/srv/gicg/artifacts/run/ckpts/latest.pt', '/tmp/latest.pt']
+
+
+def test_scp_from_adds_preserve_when_requested():
+    r = RemoteCfg(ssh='u@h', root='/srv/gicg', os='linux', hostname='h')
+    with patch('tools.runs._host.subprocess.run', return_value=_cp()) as run:
+        scp_from(r, 'artifacts/run/ckpts/latest.pt', Path('/tmp/latest.pt'), preserve=True)
+    assert run.call_args.args[0] == [
+        'scp',
+        '-q',
+        '-p',
+        'u@h:/srv/gicg/artifacts/run/ckpts/latest.pt',
+        '/tmp/latest.pt',
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -316,6 +196,22 @@ def test_discover_remote_python_posix_picks_first_when_multiple_lines():
     assert found == '/srv/gicg/.venv/bin/python'
 
 
+def test_discover_remote_python_posix_shell_quotes_candidates():
+    root = '/srv/repo $(touch /tmp/nope) `id` "quoted"'
+    r = RemoteCfg(ssh='u@h', root=root, os='linux', hostname='h')
+    captured: list[str] = []
+
+    def fake_ssh_run_bash(remote, bash, **kwargs):  # noqa: ARG001
+        captured.append(bash)
+        return _cp(stdout='')
+
+    with patch('tools.runs._host.ssh_run_bash', side_effect=fake_ssh_run_bash):
+        with pytest.raises(FileNotFoundError):
+            discover_remote_python(r)
+    for candidate in _venv_python_candidates(r):
+        assert shlex.quote(candidate) in captured[0]
+
+
 # ---------------------------------------------------------------------------
 # discover_remote_binary — go / gcc / etc on remote PATH
 # ---------------------------------------------------------------------------
@@ -374,33 +270,3 @@ def test_discover_remote_binary_strips_trailing_newline():
     with patch('tools.runs._host.ssh_run', return_value=_cp(stdout='C:/x/gcc.exe\r\n')):
         found = discover_remote_binary(r, 'gcc')
     assert found == 'C:/x/gcc.exe'
-
-
-# ---------------------------------------------------------------------------
-# P4 schema strictness — empty ssh / hostname / mixed-separator root all raise
-# loudly. Each is a silent-bug surface the P4 audit caught (loopback false-
-# positive on empty hostname, scp drive-letter confusion on mixed slash).
-# ---------------------------------------------------------------------------
-
-
-def test_load_remote_empty_ssh_raises(tmp_path):
-    bad = tmp_path / 'empty_ssh.toml'
-    bad.write_text('[meta]\nhost = "remote"\n[remote]\nssh = ""\nroot = "D:/x"\nos = "windows"\nhostname = "h"\n')
-    with pytest.raises(ValueError, match=r'\[remote\]\.ssh must be non-empty'):
-        load_remote_from_cfg(bad)
-
-
-def test_load_remote_empty_hostname_raises(tmp_path):
-    bad = tmp_path / 'empty_hostname.toml'
-    bad.write_text('[meta]\nhost = "remote"\n[remote]\nssh = "x@y"\nroot = "D:/x"\nos = "windows"\nhostname = ""\n')
-    with pytest.raises(ValueError, match=r'\[remote\]\.hostname must be non-empty'):
-        load_remote_from_cfg(bad)
-
-
-def test_load_remote_mixed_slash_root_raises(tmp_path):
-    bad = tmp_path / 'mixed_slash.toml'
-    bad.write_text(
-        '[meta]\nhost = "remote"\n[remote]\nssh = "x@y"\nroot = "D:/foo\\\\bar"\nos = "windows"\nhostname = "h"\n'
-    )
-    with pytest.raises(ValueError, match=r'forward slashes only, got mixed'):
-        load_remote_from_cfg(bad)

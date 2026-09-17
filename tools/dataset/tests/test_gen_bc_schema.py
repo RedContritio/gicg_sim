@@ -174,14 +174,16 @@ def test_collect_produces_az_shape_only() -> None:
         # Post core-network-generic-promotion: BCDataset moved from
         # paradigms.bc.legacy.bc_dataset to paradigms.bc.dataset.
         from training.paradigms.bc.dataset import BCDataset
+        from training.paradigms.dmc.config import DMCParadigmConfig
 
         # AgentConfig defaults pulled from BCParadigmConfig.AgentShapeCfg
         # to match production load shape;cheap NPZ → in-memory parse。
+        shape = DMCParadigmConfig().agent
         ds = BCDataset(
             npz_path,
-            n_counter_slots=2 * 6 * 128 + 2 * 140 + 16,
-            n_hooks=900,
-            max_ops_per_hook=64,
+            n_counter_slots=shape.n_counter_slots,
+            n_hooks=shape.n_hooks,
+            max_ops_per_hook=shape.max_ops_per_hook,
         )
         assert len(ds) == n, f'BCDataset reports {len(ds)} decisions, gen_bc produced {n}'
         # build_batch on first index should not raise

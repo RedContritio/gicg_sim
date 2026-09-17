@@ -3,20 +3,19 @@ GPU training box and runs PeriodicEvaluator.
 
 架构 (review C.3 / C.4 / E.2 一举三得):
   Windows training: 只 save ckpt + 不再调 in-process eval(cfg.eval.enabled=False)
-  Mac eval daemon:  poll ckpts/latest.pt mtime → rsync 拉 → load → 跑 eval → 写 mac 本地 metrics + TB
+  Mac eval daemon:  poll ckpts/latest.pt mtime → scp 拉 → load → 跑 eval → 写 mac 本地 metrics + TB
 
-不回传 train 端;Mac 上同 artifacts/<run>/ 目录里既有 train 的 metrics.jsonl(也通过 rsync 同步)
-也有 daemon 写的 eval_metrics.jsonl + eval_tb/, user 在 Mac 上 tensorboard 看 train + eval 双轴。
+不回传 train 端;daemon 写 eval_metrics.jsonl + eval_tb/, user 在 Mac 上 tensorboard
+看 eval 曲线。
 
 Usage::
 
     .venv/bin/python -m tools.eval.daemon configs/dmc/stage3_pilot.toml \\
         --run-label dmc_stage3_pilot \\
-        --remote dev@192.168.31.56:D:/gicg_dev/artifacts \\
         --poll-seconds 30
 
 每 ``--poll-seconds`` 秒一轮:
-  1. rsync 拉 artifacts/<run-label>/  (含 ckpts/latest.pt, ckpts/ckpt_*.pt, metrics.jsonl, tb/)
+  1. 按 cfg 的 [meta].host 决定本地或远端;远端只拉 artifacts/<run-label>/ckpts/latest.pt
   2. 比 local ckpts/latest.pt mtime;无变化 → continue
   3. mtime 变 → 解析 ckpt frame# → 构造独立 inference DmcAgent → 跑 PeriodicEvaluator → log
 
@@ -28,46 +27,36 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg, scp_from
 
-def _do_rsync(remote: str, local_root: Path, run_label: str) -> int:
-    """rsync from remote artifacts/<run-label>/ to local <local_root>/<run-label>/.
 
-    Returns rsync exit code; 0 = success, non-zero = transient failure
-    (network, ckpt being written) we log + continue."""
-    src = f'{remote}/{run_label}/'
-    dst = local_root / run_label
-    dst.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        'rsync',
-        '-az',
-        '--partial',
-        '--inplace',
-        # ckpts/(latest.pt + ckpt_*.pt + gauntlet_g*.pt) + metrics.jsonl + tb events
-        # T-06 clean-slate:所有 .pt 进 ckpts/ 子目录,rsync include 必须含 ckpts/ 自身
-        # 才能让其下文件被 transfer(否则 --exclude=* 会先拒目录)
-        '--include=ckpts/',
-        '--include=ckpts/***',
-        '--include=metrics.jsonl',
-        '--include=summary.json',
-        '--include=tb/',
-        '--include=tb/*',
-        '--exclude=*',
-        src,
-        str(dst) + '/',
-    ]
-    # Win-side rsync may emit non-UTF-8 bytes (GBK / locale-mixed). text=True
-    # 默认 UTF-8 strict 会 UnicodeDecodeError 崩。 显式 errors='replace' 兜底。
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=300)
-    if result.returncode != 0:
-        print(f'[daemon] rsync exit={result.returncode}: {result.stderr.strip()[:300]}', file=sys.stderr)
-    return result.returncode
+def _pull_latest(remote: RemoteCfg | None, local_run_dir: Path, run_label: str) -> int:
+    """Fetch ``artifacts/<run-label>/ckpts/latest.pt`` with cfg-driven dispatch."""
+    if is_local_host(remote):
+        return 0
+    assert remote is not None
+    ckpt_dir = local_run_dir / 'ckpts'
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    latest = ckpt_dir / 'latest.pt'
+    remote_rel = f'artifacts/{run_label}/ckpts/latest.pt'
+    with tempfile.NamedTemporaryFile(prefix='.latest.', suffix='.pt', dir=ckpt_dir, delete=False) as fh:
+        temp_path = Path(fh.name)
+    try:
+        result = scp_from(remote, remote_rel, temp_path, timeout=300, preserve=True)
+        if result.returncode != 0:
+            print(f'[daemon] scp exit={result.returncode}: {result.stderr.strip()[:300]}', file=sys.stderr)
+            return result.returncode
+        os.replace(temp_path, latest)
+        return 0
+    finally:
+        temp_path.unlink(missing_ok=True)
 
 
 def _ckpt_frame(ckpt_path: Path, paradigm: str = 'dmc') -> Optional[int]:
@@ -134,9 +123,6 @@ def main():
     p.add_argument('--paradigm', default='dmc', help='paradigm key (default: dmc)')
     p.add_argument('config', type=str, help='TOML config(daemon 用 cfg.scenario + cfg.eval 配 evaluator)')
     p.add_argument('--run-label', required=True, type=str, help='Windows artifacts dir name(<ts>_<label>)')
-    p.add_argument(
-        '--remote', required=True, type=str, help='rsync source root, e.g. dev@192.168.31.56:D:/gicg_dev/artifacts'
-    )
     p.add_argument('--local-artifacts-root', type=str, default='artifacts')
     p.add_argument('--poll-seconds', type=int, default=30)
     p.add_argument('--max-iterations', type=int, default=0, help='0 = forever')
@@ -166,6 +152,7 @@ def main():
     cfg = load_config(args.config, data_dir=args.data_dir)
     # daemon 复用 cfg.scenario + cfg.eval 构 evaluator(scenarios 由 cfg.eval.scenarios_seed 决定 deterministic)
     evaluator = build_evaluator(cfg)
+    remote = load_remote_from_cfg(Path(args.config))
 
     local_root = Path(args.local_artifacts_root).resolve()
     local_run_dir = local_root / args.run_label
@@ -177,25 +164,21 @@ def main():
 
     last_eval_mtime: Optional[float] = None
     iteration = 0
-    print(f'[daemon] watching {args.remote}/{args.run_label}/ → {local_run_dir}, poll={args.poll_seconds}s')
+    source = remote.ssh if remote is not None and not is_local_host(remote) else 'local'
+    print(f'[daemon] watching {source}:artifacts/{args.run_label}/ → {local_run_dir}, poll={args.poll_seconds}s')
 
     try:
         while True:
             iteration += 1
             t0 = time.perf_counter()
 
-            rc = _do_rsync(args.remote, local_root, args.run_label)
+            rc = _pull_latest(remote, local_run_dir, args.run_label)
             latest_path = local_run_dir / 'ckpts' / 'latest.pt'
             if rc != 0:
-                # Win remote 没装 rsync 时(整套 tools.runs 走 ssh+tar 不依赖 rsync,
-                # 但 daemon 历史 POSIX-only)→ rsync 失败。 fallback: 检查 local ckpt 是否
-                # 已被外部 (e.g. tools.runs.pull) 同步过来,若 在则直接跑 eval 不阻塞。
                 if latest_path.exists():
-                    print(
-                        f'[daemon] iter {iteration}: rsync failed but local ckpts/latest.pt exists — proceed with eval'
-                    )
+                    print(f'[daemon] iter {iteration}: scp failed but local ckpts/latest.pt exists — proceed with eval')
                 else:
-                    print(f'[daemon] iter {iteration}: rsync failed + no local ckpt, sleep + retry')
+                    print(f'[daemon] iter {iteration}: scp failed + no local ckpt, sleep + retry')
                     time.sleep(args.poll_seconds)
                     if args.max_iterations and iteration >= args.max_iterations:
                         break

@@ -25,13 +25,12 @@ since source = destination — emits a warning + returns 0。
 from __future__ import annotations
 
 import argparse
+import shlex
 import subprocess
 import sys
 import tarfile
 import tempfile
 from pathlib import Path
-
-import shlex
 
 from tools.runs._host import (
     RemoteCfg,
@@ -67,24 +66,11 @@ def _committed_diff(base_sha: str | None) -> list[Path]:
         names = _git('ls-files', '-z').split('\0')
     else:
         names = _git('diff', f'{base_sha}..HEAD', '--name-only', '-z').split('\0')
-    out: list[Path] = []
-    for s in names:
-        if not s:
-            continue
-        p = Path(s)
-        if p.exists() and p.is_file():
-            out.append(p)
-    return out
+    return [Path(name) for name in names if name and Path(name).is_file()]
 
 
 def _deleted_since_commit(base_sha: str | None) -> list[Path]:
-    """Files deleted/renamed-away between ``base_sha`` and HEAD。 tar-based sync 只
-    upsert,git 删/改名的旧路径在远端永久残留 —— 本函数返回的路径需在 remote 显式 rm。
-
-    用 ``--diff-filter=D --name-only`` 抓 D 状态;**不开 -M**,使 rename 走 D+A
-    (旧路径在 D 集合内),开 -M 则 rename 走 R 漏掉旧名。 base=None(首次 sync)→
-    无 base 可 diff,返 []。
-    """
+    """Paths removed since ``base_sha``; renaming is detected as delete plus add."""
     if base_sha is None:
         return []
     raw = _git('diff', '--diff-filter=D', '--no-renames', '--name-only', '-z', f'{base_sha}..HEAD')
@@ -100,7 +86,7 @@ def _uncommitted_deletions() -> list[Path]:
 
 def _ssh_delete_paths(remote: RemoteCfg, paths: list[Path]) -> int:
     """Remove the listed (repo-relative) paths on remote。 Win → PowerShell
-    `Remove-Item -LiteralPath @(...) -Force -ErrorAction SilentlyContinue`;
+    `Remove-Item -LiteralPath @(...) -Force -ErrorAction Stop`;
     POSIX → `rm -f`。 容忍缺失(idempotent)。 空 list → no-op。"""
     if not paths:
         return 0
@@ -108,13 +94,18 @@ def _ssh_delete_paths(remote: RemoteCfg, paths: list[Path]) -> int:
         # Win 路径反斜杠;PowerShell array literal `@('a','b')`。
         ps_paths = ', '.join(ps_quote(str(p).replace('/', '\\')) for p in paths)
         ps = (
-            f'cd {ps_quote(remote.root_native)}; '
-            f'Remove-Item -LiteralPath @({ps_paths}) -Force -ErrorAction SilentlyContinue'
+            f'$paths = @({ps_paths}); '
+            f'Set-Location -LiteralPath {ps_quote(remote.root_native)} -ErrorAction Stop; '
+            'try { foreach ($path in $paths) { '
+            'if (Test-Path -LiteralPath $path) { '
+            'Remove-Item -LiteralPath $path -Force -ErrorAction Stop; '
+            'if (Test-Path -LiteralPath $path) { throw "failed to remove $path" } '
+            '} }; exit 0 } catch { Write-Error $_; exit 1 }'
         )
         r = ssh_run(remote, ps)
     else:
         files = ' '.join(shlex.quote(str(p)) for p in paths)
-        sh = f'cd {shlex.quote(remote.root)} && rm -f {files}'
+        sh = f'cd {shlex.quote(remote.root)} && rm -f -- {files}'
         r = ssh_run_bash(remote, sh)
     if r.returncode != 0:
         print(f'[sync] remote delete failed: {r.stderr}', file=sys.stderr)
@@ -124,11 +115,16 @@ def _ssh_delete_paths(remote: RemoteCfg, paths: list[Path]) -> int:
 def _read_remote_sha(remote: RemoteCfg) -> str | None:
     """Read ``<remote.root>/.last_synced_sha`` over ssh. Returns None if
     file missing or unreadable."""
-    ps = (
-        f'$p = Join-Path {ps_quote(remote.root_native)} {ps_quote(LAST_SHA_FILE)}; '
-        f'if (Test-Path $p) {{ Get-Content -Raw $p }} else {{ "" }}'
-    )
-    r = ssh_run(remote, ps)
+    if remote.os == 'windows':
+        ps = (
+            f'$p = Join-Path {ps_quote(remote.root_native)} {ps_quote(LAST_SHA_FILE)}; '
+            f'if (Test-Path $p) {{ Get-Content -Raw $p }} else {{ "" }}'
+        )
+        r = ssh_run(remote, ps)
+    else:
+        sha_file = shlex.quote(LAST_SHA_FILE)
+        sh = f'cd {shlex.quote(remote.root)} && if [ -f {sha_file} ]; then cat {sha_file}; fi'
+        r = ssh_run_bash(remote, sh)
     if r.returncode != 0:
         return None
     sha = (r.stdout or '').strip()
@@ -137,29 +133,44 @@ def _read_remote_sha(remote: RemoteCfg) -> str | None:
 
 def _write_remote_sha(remote: RemoteCfg, sha: str) -> int:
     """Write local HEAD into ``<remote.root>/.last_synced_sha``."""
-    ps = (
-        f'$p = Join-Path {ps_quote(remote.root_native)} {ps_quote(LAST_SHA_FILE)}; '
-        f'Set-Content -NoNewline -Path $p -Value {ps_quote(sha)}'
-    )
-    return ssh_run(remote, ps).returncode
+    if remote.os == 'windows':
+        ps = (
+            f'$p = Join-Path {ps_quote(remote.root_native)} {ps_quote(LAST_SHA_FILE)}; '
+            f'Set-Content -NoNewline -Path $p -Value {ps_quote(sha)}'
+        )
+        return ssh_run(remote, ps).returncode
+    sh = f'cd {shlex.quote(remote.root)} && printf "%s" {shlex.quote(sha)} > {shlex.quote(LAST_SHA_FILE)}'
+    return ssh_run_bash(remote, sh).returncode
 
 
 def _tar_and_send(remote: RemoteCfg, paths: list[Path], label: str) -> int:
     with tempfile.NamedTemporaryFile(suffix='.tar.gz', delete=False) as fh:
         tar_path = Path(fh.name)
-    with tarfile.open(tar_path, 'w:gz') as tar:
-        for p in paths:
-            tar.add(p, arcname=str(p))
-    print(f'[sync] {label}: {len(paths)} files, {tar_path.stat().st_size // 1024} KB')
-    r = scp_to(remote, tar_path, 'sync.tar.gz')
-    if r.returncode != 0:
-        print(f'[sync] scp failed: {r.stderr}', file=sys.stderr)
+    try:
+        with tarfile.open(tar_path, 'w:gz') as tar:
+            for p in paths:
+                tar.add(p, arcname=str(p))
+        print(f'[sync] {label}: {len(paths)} files, {tar_path.stat().st_size // 1024} KB')
+        r = scp_to(remote, tar_path, 'sync.tar.gz')
+        if r.returncode != 0:
+            print(f'[sync] scp failed: {r.stderr}', file=sys.stderr)
+            return r.returncode
+        if remote.os == 'windows':
+            ps = (
+                f'cd {ps_quote(remote.root_native)}; '
+                'tar -xzf sync.tar.gz; $rc=$LASTEXITCODE; '
+                'Remove-Item -LiteralPath sync.tar.gz -Force -ErrorAction SilentlyContinue; '
+                'if ($rc -ne 0) { exit $rc }; exit 0'
+            )
+            r = ssh_run(remote, ps)
+        else:
+            sh = f'cd {shlex.quote(remote.root)} && {{ tar -xzf sync.tar.gz; rc=$?; rm -f -- sync.tar.gz; exit $rc; }}'
+            r = ssh_run_bash(remote, sh)
+        if r.returncode != 0:
+            print(f'[sync] remote untar failed: {r.stderr}', file=sys.stderr)
         return r.returncode
-    r = ssh_run(remote, f'cd "{remote.root_native}"; tar -xzf sync.tar.gz; rm sync.tar.gz')
-    if r.returncode != 0:
-        print(f'[sync] remote untar failed: {r.stderr}', file=sys.stderr)
-    tar_path.unlink(missing_ok=True)
-    return r.returncode
+    finally:
+        tar_path.unlink(missing_ok=True)
 
 
 def _print_plan(label: str, paths: list[Path], base_sha: str | None, head: str, clean: bool) -> None:
@@ -180,7 +191,7 @@ def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) 
     # Dedup while preserving order.
     seen: set[Path] = set()
     paths: list[Path] = []
-    for p in (*committed, *uncommitted):
+    for p in (*committed, *uncommitted, Path('configs/hosts/hosts.toml')):
         if p not in seen:
             seen.add(p)
             paths.append(p)
@@ -230,12 +241,6 @@ def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) 
     return 0
 
 
-def _run_local(args) -> int:
-    """Local mode no-op — source == destination。"""
-    print('[sync] cfg [meta].host=local (or loopback) — nothing to push', file=sys.stderr)
-    return 0
-
-
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
@@ -250,7 +255,8 @@ def main():
 
     remote = load_remote_from_cfg(args.cfg)
     if is_local_host(remote):
-        return _run_local(args)
+        print('[sync] cfg [meta].host=local (or loopback) — nothing to push', file=sys.stderr)
+        return 0
     assert remote is not None
 
     if args.single:

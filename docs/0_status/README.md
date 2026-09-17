@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-15
+last_updated: 2026-09-17
 status: LIVE
 ---
 
@@ -7,7 +7,8 @@ status: LIVE
 
 本页只写**当前状态与下一步**；每次会话做了什么由 `git log` 与 `docs/5_history/` 承担，本页不复述。规约读 [项目目的](../../openspec/project.md) 与 [开发约定](../../CLAUDE.md)，具体接手读 [HANDOFF](../HANDOFF.md)，暂停期恢复读 [暂停交接](../HANDOFF_PAUSED.md)。
 
-**全部工作已暂停（2026-09-14 两次、2026-09-15 第三次），不自动续训。** 三次会话的完整记录（策略保留实验、指纹变化、行数清理、改动清单）见[暂停期三次会话记录](../5_history/pause_sessions_20260914_0915.md)。
+**训练仍暂停，不自动续训。** 2026-09-16 已完成策略保留六臂正式对照和文档收尾；
+结果见[策略保留报告](../5_history/policy_retention_20260916.md)。
 
 ## 全局位置
 
@@ -31,6 +32,7 @@ status: LIVE
 - **当前保留基线**：`artifacts/202609140533_000016_semantic_rl/ckpts/iteration_7.pt`（路径相对56根目录）。不同独立变体开发复核胜率约39–43%，尚未超过D2。
 - **受限反事实失败**：普通DAgger和保守DAgger均未改善胜率。凯亚3v3交换普攻/霜袭伤害2↔6、4↔8时，仍固定偏好霜袭；这是受限证据，不能等同全规则诊断。
 - **规则响应仍不足**：9字段引擎结算辅助头与RL共享规则/动作编码（14项测试通过，GPU保存/恢复冒烟通过）；本轮对照未证明胜率收益。
+- **策略保留已选臂**：`full` 和 `anchored` 同时通过规则留出与相对warmup不明确退化；两臂直接差值`anchored-full=+1.36pp [-6.82,+9.55]`，没有证据支持anchored更好。按更简单机制选择`full`进入下一轮等预算RL。`96600`已消耗，不能复用于晋级验收。
 - **四条已收尾的实验线**（数字与限制见各自报告，勿重复启动）：
 
   | 实验 | 56 产物 | 报告 |
@@ -42,19 +44,19 @@ status: LIVE
 
 ## 下一步
 
-1. **策略保留实验的正式对照需在 56 上跑**（用户当前占用设备，本会话未启动）：先跑 warmup —— **不要**跑 `consequence_bootstrap`，其 paired 阶段正是本次要研究的坏配置 —— 再用产出的 `ckpts/latest.pt` + `teacher/` 跑 `configs/dmc/policy_retention.toml`。跨机只同步 `tools/` 与 `configs/`，**不要**整树覆盖 56 的指纹目录。
-2. **残差线补齐**：补所选候选（中间轮）的规则探针，并检查预热到配对学习是否损害策略，区分初始化退化与RL学习不足，再定长预算分配。
-3. 评测纪律：96400 面板已被用于选模，**不能再当独立证据**；开发面板与确认面板分开，正式对比用新 seed。6 臂 smoke 的机制数字（`cos_ema` 为负、`frozen` 零漂移、门控触发过一次）只是方向性信号，面板胜率与凯亚探针都还没跑，不得当作效果结论。
+1. **进入 Week 2 的等预算 RL**：从`artifacts/202609160202_000021_retention_full/full_policy.pt`开始；先同步代码到56，再按单个任务串行执行。本轮不自动启动训练。
+2. `anchored`只有在新独立seed下与`full`直接复核后，才能作为显式KL与梯度门控方案支持未来RL；`96600`不能复用。
+3. 评测纪律：96400与96600面板均已被用于选模，**不能再当独立证据**；开发面板与确认面板分开，正式对比用新seed。差值报配对场景聚类95%CI，并做臂对臂比较。
 4. 有可靠收益再扩展训练与多种子验证。既有最终预留训练 seed 971000/981000/991000、最终变体 seed 971900/981900/991900 仍未被使用。目标需多种子场景聚类 95% 胜率下界 >50%，并有规则响应证据。
 5. 规则边界待用户游戏内实测；不阻止已授权的方法实验，但不能宣称全部官方规则已获实测认证。
 
 ## 工作区与恢复边界
 
-分支`dev`。三次暂停的改动均已按逻辑单元提交本地 `dev`，**尚未 push**；提交说明与历史见 [dev 提交验收记录](../5_history/dev_submission_20260914.md) 与 `git log`。远端 `git@github.com:RedContritio/gicg_sim.git` 仍是 `dev`=`1e12d97` / `main`=`22c7345` / tag `v0.3.0`。接手时先 `git status`，不假定工作区干净。
+分支`dev`，本地 ahead 14。工作区仍有 `remote-host-decoupling` 实现与策略保留文档等未提交改动，本地提交也**尚未 push**；提交说明与历史见 [dev 提交验收记录](../5_history/dev_submission_20260914.md) 与 `git log`。远端 `git@github.com:RedContritio/gicg_sim.git` 仍是 `dev`=`1e12d97` / `main`=`22c7345` / tag `v0.3.0`。接手时先 `git status`，不假定工作区干净。
 
 **每台设备只允许一个项目根**（change `remote-host-decoupling` 不变量 #25）：56 上只保留 `D:/gicg_dev`，解释器在其 `.venv` 下；实验之间靠 cfg 参数与 per-run 目录隔离，**不靠另开根目录** —— 每个根各持一套 `artifacts/` 索引与 NNN 计数器，多根会让 `show <NNN>` 不再唯一。
 
-**远端连接信息将不再写死在 cfg 与本页**：change `remote-host-decoupling`（已定稿、**未执行**）把 `[remote]` 的 `ssh`/`os`/`hostname`/`root` 四字段从 14 个 cfg 外置到 gitignored 的 `configs/hosts/hosts.toml`，cfg 侧只留 `profile`。**其 Phase 0 是任何远端运行的前置**：先 ssh 实测 56 的 `socket.gethostname()` 再填注册表，配错会让 56 侧 `is_local_host` 判假、ssh 到自己成环；Phase 3 脱敏 HEAD 内的远端 IP 与主机名；**T4.5 远端 e2e 通过前不得 archive**，需设备开机。远端操作一律走 `tools.runs._host` 封装，不手写 SSH/SCP。
+**远端连接信息不再写死在 cfg 与本页**：change `remote-host-decoupling` 已把 `[remote]` 的 `ssh`/`os`/`hostname`/`root` 四字段从 14 个 cfg 外置到 gitignored 的 `configs/hosts/hosts.toml`，cfg 侧只留 `profile`；注册表已建立，本机测试、pre-commit、源码指纹中性验证、文档记录核对和本机端到端链路验证均通过。真实 56 的远端首次同步与训练派发全链路验收已获授权，当前等待 56 可用；设备上线且确认无活动训练后串行执行，change 在该验收通过前不得 archive。固定 56 的 `socket.gethostname()` 与注册表一致，配错会让 56 侧 `is_local_host` 判假、ssh 到自己成环；远端操作一律走 `tools.runs._host` 封装，不手写 SSH/SCP。
 
 模型和大部分产物在56及本地被gitignore的`artifacts/`，并非Git备份的一部分。本轮56冻结实验的核心/观测指纹：`7b4ef71f7f13fed5d148fb2df3c21f7260c6375bec99a91daf9caf4dfe104ad1`；额外工具源码hash保存在pipeline报告。**2026-09-15 实测 `training.core.artifact_io.fingerprint()` = `ff423c96eaf01807ad11eb17543b726571039cc20ba7f80f37c74e5c7664db15`，与上文 `7b4ef71f…`、上一轮实测的 `d8a09342…` 及旧 `consequence_*` 的 `c2af135c…` 均不同；旧 warmup/paired 权重一律不可加载，`artifacts/pause_20260914/checkpoints/` 已清空，本轮必须从头重训初始化。`gicg_env/libgicg.dylib` 已按新源码重建；之后若再改 `fingerprint()` 覆盖内的源码，须重新走「改完 → 重建 dylib」。**
 

@@ -16,6 +16,7 @@ export function Replay() {
   const [detail, setDetail] = useState<ReplayDetail | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [reloadNonce, setReloadNonce] = useState(0)
   // Value history accumulates as the user scrubs — one entry per
   // fetched step, keyed by step index so the timeline doesn't
   // duplicate entries on re-scrubs.
@@ -29,23 +30,40 @@ export function Replay() {
 
   useEffect(() => {
     if (!selected) return
-    setLoading(true)
-    setErr(null)
+    let cancelled = false
     getReplay(selected, step, ckpt || undefined)
       .then((d) => {
+        if (cancelled) return
         setDetail(d)
         if (d.agent && !d.agent.error) {
           setValueByStep((prev) => ({ ...prev, [step]: d.agent!.value }))
         }
       })
-      .catch((e) => setErr(String(e)))
-      .finally(() => setLoading(false))
-  }, [selected, step, ckpt])
+      .catch((e) => {
+        if (!cancelled) setErr(String(e))
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [selected, step, ckpt, reloadNonce])
 
   const onSelect = (rel: string) => {
+    setLoading(true)
+    setErr(null)
+    setDetail(null)
     setSelected(rel)
     setStep(0)
     setValueByStep({})
+    setReloadNonce((n) => n + 1)
+  }
+
+  const changeStep = (next: number) => {
+    setLoading(true)
+    setErr(null)
+    setStep(next)
   }
 
   const valueSeries = detail
@@ -54,8 +72,8 @@ export function Replay() {
     : []
 
   return (
-    <div className="flex h-full">
-      <aside className="w-64 border-r border-slate-700 p-3 overflow-auto bg-slate-950/60">
+    <div className="flex h-full flex-col md:flex-row">
+      <aside className="max-h-48 w-full shrink-0 overflow-auto border-b border-slate-700 bg-slate-950/60 p-3 md:max-h-none md:w-64 md:border-b-0 md:border-r">
         <h2 className="text-sm font-semibold text-slate-200 mb-2">Replays</h2>
         {entries.length === 0 && (
           <div className="text-xs text-slate-500">no replays found</div>
@@ -84,9 +102,20 @@ export function Replay() {
         </ul>
       </aside>
 
-      <main className="flex-1 p-4 overflow-auto flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <CheckpointPicker value={ckpt} onChange={setCkpt} />
+      <main className="flex min-w-0 flex-1 flex-col gap-4 overflow-auto p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <CheckpointPicker
+            value={ckpt}
+            onChange={(next) => {
+              setLoading(true)
+              setErr(null)
+              setDetail((current) =>
+                current ? { ...current, agent: null } : current,
+              )
+              setCkpt(next)
+              setValueByStep({})
+            }}
+          />
           {loading && <span className="text-xs text-sky-300">loading…</span>}
           {err && <span className="text-xs text-rose-400">{err}</span>}
         </div>
@@ -99,7 +128,7 @@ export function Replay() {
               <button
                 className="px-2 py-1 rounded bg-slate-700 text-slate-100 text-xs disabled:opacity-40"
                 disabled={step <= 0}
-                onClick={() => setStep((s) => Math.max(0, s - 1))}
+                onClick={() => changeStep(Math.max(0, step - 1))}
               >
                 ←
               </button>
@@ -108,14 +137,14 @@ export function Replay() {
                 min={0}
                 max={detail.total_steps}
                 value={step}
-                onChange={(e) => setStep(Number(e.target.value))}
+                onChange={(e) => changeStep(Number(e.target.value))}
                 className="flex-1"
               />
               <button
                 className="px-2 py-1 rounded bg-slate-700 text-slate-100 text-xs disabled:opacity-40"
                 disabled={step >= detail.total_steps}
                 onClick={() =>
-                  setStep((s) => Math.min(detail.total_steps, s + 1))
+                  changeStep(Math.min(detail.total_steps, step + 1))
                 }
               >
                 →

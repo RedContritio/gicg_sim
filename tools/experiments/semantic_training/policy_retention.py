@@ -1,4 +1,4 @@
-"""Six-arm retention comparison: does rule supervision have to destroy the policy?
+"""Retention-arm comparison: does rule supervision have to destroy the policy?
 
 The harm isolated: ``paired_training.run`` optimised every parameter of the policy network
 and the rule head under a pure consequence-regression loss, and an imitation-warm-started
@@ -24,7 +24,7 @@ from tools.experiments.semantic_training.evaluate import evaluate
 from tools.experiments.semantic_training.paired_lessons import build_pair, tasks
 from tools.experiments.semantic_training.paired_replay import export_initial
 from tools.experiments.semantic_training.player_loader import FORMAT
-from tools.experiments.semantic_training.representation_drift import linear_cka, tensor_drift
+from tools.experiments.semantic_training.representation_drift import linear_cka, model_digest, tensor_drift
 from tools.experiments.semantic_training.retention_arms import arm_specs, run_arm
 from tools.experiments.semantic_training.rule_auxiliary import attach
 from tools.experiments.semantic_training.transfer_probe import run as probe
@@ -41,6 +41,11 @@ from training.core.network import AgentConfig
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def initialize_rule_head(agent, seed):
+    torch.manual_seed(seed)
+    return attach(agent)
 
 
 def pooled_states(net, cfg, device, observations):
@@ -83,25 +88,30 @@ def train_arm(warmup, spec, pairs, rows, output, *, device, steps, seed, diag_ev
 
     agent = SemanticAgent(AgentConfig(**warmup['shape']), device)
     agent.net.load_state_dict(warmup['net'], strict=True)
-    attach(agent)
+    initialize_rule_head(agent, seed)
     if 'rule_head' in warmup:
         agent.rule_head.load_state_dict(warmup['rule_head'], strict=True)
+    initial_digest = model_digest(agent)
     _, report = run_arm(
         agent, spec, pairs, rows, steps=steps, seed=seed, diag_every=diag_every, cos_momentum=cos_momentum
     )
+    report['initial_digest'] = initial_digest
     report['net_drift'] = tensor_drift(warmup['net'], agent.net.state_dict())
     report['cka'] = linear_cka(reference_states, pooled_states(agent.net, agent.cfg, device, observations).cpu())
     diagnostic = output / f'{spec.name}.pt'
+    payload = dict(
+        format='paired-consequence/1.0.0',
+        parent_format=FORMAT,
+        shape=warmup['shape'],
+        net=agent.net.state_dict(),
+        rule_head=agent.rule_head.state_dict(),
+        arm=spec.name,
+        settings={'temperature': 0.5},
+    )
+    if hasattr(agent, 'rule_adapter'):
+        payload['rule_adapter'] = agent.rule_adapter.state_dict()
     save_checkpoint(
-        dict(
-            format='paired-consequence/1.0.0',
-            parent_format=FORMAT,
-            shape=warmup['shape'],
-            net=agent.net.state_dict(),
-            rule_head=agent.rule_head.state_dict(),
-            arm=spec.name,
-            settings={'temperature': 0.5},
-        ),
+        payload,
         diagnostic,
     )
     policy = output / f'{spec.name}_policy.pt'
@@ -190,6 +200,8 @@ def run(args):
             diag_every=args.diag_every,
             cos_momentum=args.cos_momentum,
         )
+        initial = None
+        initial_digest = None
         for name in selected:
             arm_start = time.monotonic()
             directory = open_arm_dir(args.config, name)
@@ -199,6 +211,11 @@ def run(args):
             except BaseException as error:
                 close_arm_dir(directory, arm_start, False, f'retention arm {name}: {error!r}')
                 raise
+            if initial is None:
+                initial = report['initial']
+                initial_digest = report['initial_digest']
+            elif report['initial_digest'] != initial_digest:
+                raise ValueError(f'retention arm {name} does not start from the shared initial state')
             (directory / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
             status.setdefault('results', {})[name] = report
             save()
@@ -259,7 +276,7 @@ if __name__ == '__main__':
     parser.add_argument('warmup')
     parser.add_argument('output')
     parser.add_argument('--teacher', required=True, help='directory holding the warmup teacher episodes')
-    parser.add_argument('--arms', default=None, help='comma-separated subset; default all six')
+    parser.add_argument('--arms', default=None, help='comma-separated subset; default all configured arms')
     parser.add_argument('--catalog', default='configs/rule_validation/native_variants.toml')
     parser.add_argument('--pairs', default=None, help='reuse an existing pairs.pt instead of rebuilding')
     parser.add_argument('--steps', type=int, default=1500)

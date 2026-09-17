@@ -81,5 +81,19 @@ class SemanticAgent(DmcAgent):
         if self.rng.random() < self.epsilon:
             a = self.rng.randrange(len(q))
         else:
-            a = int((q * 1e5).round().argmax())
+            scaled = (q * 1e5).round()
+            best = scaled.max()
+            candidates = torch.nonzero(scaled >= best - 1, as_tuple=False).flatten()
+            if candidates.numel() == 1:
+                a = int(candidates[0])
+            else:
+                identities = env.get_action_identities()
+                payments = env.get_legal_action_payments()
+                a = min(
+                    (int(i) for i in candidates),
+                    key=lambda i: (
+                        tuple(int(v) for v in identities[i]),
+                        tuple(int(v) for v in payments[i]),
+                    ),
+                )
         return a, float(q[a])

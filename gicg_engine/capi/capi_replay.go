@@ -95,7 +95,7 @@ func GameReplayToJSON(id C.int, yamlPath *C.char, step C.int) *C.char {
 		"step":        int(step),
 		"total_steps": record.TotalSteps(rec),
 		"rounds":      len(rec.Rounds),
-		"winner":      rec.Winner,
+		"winner":      view.Winner,
 	}
 	blob, err := json.Marshal(wrapper)
 	if err != nil {

@@ -26,6 +26,7 @@ from tools.runs._helpers.sync_scan import (
     scan_local_dir_names,
 )
 from tools.runs.tests._sync_fixtures import (
+    REMOTE,
     make_run_dir,
     ssh_runner_returning,
 )
@@ -169,7 +170,7 @@ def test_sync_raises_when_local_and_remote_collide(tmp_path):
     locally; the remote side is synthesised by the SSH runner stub."""
     make_run_dir(tmp_path, '202605180100', '000001', 'DMC_smoke', '2026-05-18T01:00:00Z')
 
-    def ssh_runner(_cmd, **_kw):
+    def ssh_runner(_remote, _script, **_kw):
         from tools.runs.tests._sync_fixtures import FakeResult
 
         # Remote dir name shares ts+NNN with local but differs in label case.
@@ -183,7 +184,7 @@ def test_sync_raises_when_local_and_remote_collide(tmp_path):
     with pytest.raises(sync.CaseCollideError) as exc_info:
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             ssh_runner=ssh_runner,
             dry_run=True,
@@ -199,7 +200,7 @@ def test_sync_raises_when_local_collides_with_remote_label_case_only(tmp_path):
     would itself collapse."""
     make_run_dir(tmp_path, '202605180100', '000001', 'AZ_smoke', '2026-05-18T01:00:00Z')
 
-    def ssh_runner(_cmd, **_kw):
+    def ssh_runner(_remote, _script, **_kw):
         from tools.runs.tests._sync_fixtures import FakeResult
 
         blocks = (
@@ -210,7 +211,7 @@ def test_sync_raises_when_local_collides_with_remote_label_case_only(tmp_path):
     with pytest.raises(sync.CaseCollideError, match='AZ_smoke'):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             ssh_runner=ssh_runner,
             dry_run=True,
@@ -223,7 +224,7 @@ def test_sync_lists_multiple_collisions_in_one_error(tmp_path):
     make_run_dir(tmp_path, '202605180100', '000001', 'AZ', '2026-05-18T01:00:00Z')
     make_run_dir(tmp_path, '202605180300', '000003', 'DMC', '2026-05-18T03:00:00Z')
 
-    def ssh_runner(_cmd, **_kw):
+    def ssh_runner(_remote, _script, **_kw):
         from tools.runs.tests._sync_fixtures import FakeResult
 
         blocks = (
@@ -239,7 +240,7 @@ def test_sync_lists_multiple_collisions_in_one_error(tmp_path):
     with pytest.raises(sync.CaseCollideError) as exc_info:
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             ssh_runner=ssh_runner,
             dry_run=True,
@@ -255,7 +256,7 @@ def test_sync_no_collision_proceeds_normally(tmp_path):
     make_run_dir(tmp_path, '202605180100', '000001', 'az', '2026-05-18T01:00:00Z')
     cmd = sync.sync(
         direction='push',
-        remote='u@h:/p/',
+        remote=REMOTE,
         root=tmp_path,
         ssh_runner=ssh_runner_returning({'000002': '2026-05-18T02:00:00Z'}),
         dry_run=True,
@@ -268,7 +269,7 @@ def test_sync_case_collide_message_includes_advice(tmp_path):
     """Error message must guide user to manual rename."""
     make_run_dir(tmp_path, '202605180100', '000001', 'DMC', '2026-05-18T01:00:00Z')
 
-    def ssh_runner(_cmd, **_kw):
+    def ssh_runner(_remote, _script, **_kw):
         from tools.runs.tests._sync_fixtures import FakeResult
 
         return FakeResult(
@@ -281,7 +282,7 @@ def test_sync_case_collide_message_includes_advice(tmp_path):
     with pytest.raises(sync.CaseCollideError, match='[Rr]ename'):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             ssh_runner=ssh_runner,
             dry_run=True,
@@ -301,7 +302,7 @@ def test_sync_case_collide_raises_before_rsync_runs(tmp_path):
 
     make_run_dir(tmp_path, '202605180100', '000001', 'AZ', '2026-05-18T01:00:00Z')
 
-    def ssh_runner(_cmd, **_kw):
+    def ssh_runner(_remote, _script, **_kw):
         from tools.runs.tests._sync_fixtures import FakeResult
 
         return FakeResult(
@@ -314,7 +315,7 @@ def test_sync_case_collide_raises_before_rsync_runs(tmp_path):
     with pytest.raises(sync.CaseCollideError):
         sync.sync(
             direction='push',
-            remote='u@h:/p/',
+            remote=REMOTE,
             root=tmp_path,
             runner=runner,
             ssh_runner=ssh_runner,

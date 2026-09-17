@@ -34,7 +34,7 @@ ff423c96eaf01807ad11eb17543b726571039cc20ba7f80f37c74e5c7664db15
 `configs/hosts/hosts.toml`，cfg 侧只留 `profile = "gpu-win"`；新增不变量 #25「每设备唯一项目
 根」。**其 Phase 0（建注册表文件）是任何远端运行的前置** —— 需先 ssh 实测 56 的
 `socket.gethostname()` 再填，配错会让 56 侧 `is_local_host` 判假、ssh 到自己成环。Phase 3
-脱敏 HEAD 内的远端 IP 与主机名；**T4.5 远端 e2e 通过前不得 archive**，需设备开机。
+脱敏 HEAD 内的远端 IP 与主机名；**远端首次同步与训练派发全链路验收通过前不得 archive**，需设备开机。
 
 ### 56 的项目根已收敛为一个
 

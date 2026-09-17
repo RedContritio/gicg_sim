@@ -2,7 +2,7 @@
 
 Commit: `c07bbec`
 Date: 2026-05-26
-Box: dev@192.168.31.56 (DESKTOP-GHJCC7Q)
+Box: dev@192.0.2.10 (DEV-PC)
 References: [[PEAK_WIN_ACCEPTANCE]] (measurement evidence)
 
 ---

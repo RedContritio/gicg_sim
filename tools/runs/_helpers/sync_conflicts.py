@@ -15,6 +15,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from tools.runs._host import RemoteCfg
 from tools.runs._helpers.sync_extras import REMOTE_RE_PATTERN
 
 
@@ -33,7 +34,7 @@ RSYNC_FLAGS: tuple[str, ...] = (
     '--exclude=*',
 )
 
-# Strict ``user@host:path/`` form; host = alphanum hostname / IPv4, or
+# Strict ``[user@]host:path/`` form; host = hostname / IPv4, or
 # IPv6 bracket form (spec §HIGH-6-B). Pattern source lives in sync_extras.
 _REMOTE_RE = re.compile(REMOTE_RE_PATTERN)
 
@@ -54,14 +55,21 @@ class ConflictRow:
 
 
 def validate_remote(remote: str) -> None:
-    """Strict ``user@host:path/`` form. macOS local paths with ``:`` and
-    bare ``host:path/`` (no user) are rejected. IPv6 bracket form
-    (``user@[::1]:/path/``) is accepted (spec §HIGH-6-B)."""
+    """Strict ``[user@]host:path/`` form. macOS local paths with ``:`` are
+    rejected. IPv6 bracket form (``[::1]:/path/``) is accepted
+    (spec §HIGH-6-B)."""
     if not _REMOTE_RE.match(remote):
         raise ValueError(
-            f'remote {remote!r} must be of form user@host:path/ '
-            '(user@host + colon + path + trailing slash; IPv6 bracket form OK)'
+            f'remote {remote!r} must be of form [user@]host:path/ '
+            '(host + colon + path + trailing slash; IPv6 bracket form OK)'
         )
+
+
+def remote_endpoint(remote: RemoteCfg) -> str:
+    """Build the rsync endpoint for a validated host registry profile."""
+    endpoint = f'{remote.ssh}:{remote.root.rstrip("/")}/'
+    validate_remote(endpoint)
+    return endpoint
 
 
 def detect_conflicts(local: dict[str, str], remote: dict[str, str]) -> list[ConflictRow]:
@@ -99,7 +107,7 @@ def _excludes_for_conflicts(rows: list[ConflictRow], *, direction: str) -> list[
 
 def build_rsync_cmd(
     direction: str,
-    remote: str,
+    remote: RemoteCfg | str,
     *,
     root: Path,
     conflict_rows: list[ConflictRow] | None = None,
@@ -108,13 +116,14 @@ def build_rsync_cmd(
     (first-match-wins). push = local → remote; pull = remote → local."""
     if direction not in ('push', 'pull'):
         raise ValueError(f'direction must be push|pull, got {direction!r}')
-    validate_remote(remote)
+    remote_arg = remote_endpoint(remote) if isinstance(remote, RemoteCfg) else remote
+    validate_remote(remote_arg)
     local_arg = f'{root}/'  # trailing slash → merge into remote
     extra_excludes = _excludes_for_conflicts(conflict_rows or [], direction=direction)
     # Conflict-exclude FIRST so it matches before any include rule below.
     cmd: list[str] = ['rsync', *extra_excludes, *RSYNC_FLAGS]
     if direction == 'push':
-        cmd += [local_arg, remote]
+        cmd += [local_arg, remote_arg]
     else:
-        cmd += [remote, local_arg]
+        cmd += [remote_arg, local_arg]
     return cmd

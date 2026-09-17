@@ -1,11 +1,10 @@
-"""Tail a local file or a file on a Windows remote host.
+"""Tail a local file or a file on a remote host.
 
 CLI:
 
     .venv/bin/python -m tools.runs.tail <cfg.toml> <path> [--lines N --follow]
 
-The remote path uses PowerShell ``Get-Content -Tail N`` (plus ``-Wait``
-for ``--follow``). Local mode uses POSIX ``tail``.
+The remote path uses PowerShell on Windows and POSIX ``tail`` elsewhere.
 
 Drive-letter / absolute prefix on ``path`` → use as-is;else relative to
 ``[remote].root``(remote)or current dir(local)。
@@ -14,14 +13,23 @@ Drive-letter / absolute prefix on ``path`` → use as-is;else relative to
 from __future__ import annotations
 
 import argparse
-import subprocess
+import shlex
 import sys
-import threading
-import time
 from pathlib import Path
-from typing import IO
+from subprocess import TimeoutExpired
 
-from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg, ps_quote, ssh_encoded_argv, ssh_run
+from tools.runs._host import (
+    RemoteCfg,
+    is_local_host,
+    load_remote_from_cfg,
+    ps_quote,
+    run_argv,
+    ssh_bash_argv,
+    ssh_encoded_argv,
+    ssh_run,
+    ssh_run_bash,
+    stream_argv,
+)
 
 
 def _normalize_remote_path(remote: RemoteCfg, path: str) -> str:
@@ -39,6 +47,12 @@ def _build_ps(path: str, lines: int, follow: bool) -> str:
     return f'Get-Content -Path {ps_quote(path)} -Tail {lines}{wait} -Encoding UTF8'
 
 
+def _build_sh(path: str, lines: int, follow: bool) -> str:
+    """POSIX tail with only the requested number of lines."""
+    wait = ' -F' if follow else ''
+    return f'tail -n {lines}{wait} -- {shlex.quote(path)}'
+
+
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog='tools.runs.tail')
     p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
@@ -49,47 +63,8 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def _pump(stream: IO[str], sink: IO[str]) -> None:
-    for line in iter(stream.readline, ''):
-        sink.write(line)
-        sink.flush()
-    stream.close()
-
-
-def _shutdown(proc: subprocess.Popen) -> None:
-    proc.terminate()
-    try:
-        proc.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.wait()
-
-
 def _run_follow_argv(argv: list[str], timeout: int) -> int:
-    """Popen + pump stdout/stderr; SIGINT → 130; timeout → 124。"""
-    proc = subprocess.Popen(
-        argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors='replace', bufsize=1
-    )
-    t_out = threading.Thread(target=_pump, args=(proc.stdout, sys.stdout), daemon=True)
-    t_err = threading.Thread(target=_pump, args=(proc.stderr, sys.stderr), daemon=True)
-    t_out.start()
-    t_err.start()
-    deadline = time.monotonic() + timeout
-    rc: int
-    try:
-        while (rc := proc.poll()) is None:
-            if time.monotonic() > deadline:
-                sys.stderr.write(f'[tail] timeout after {timeout}s — SIGTERM\n')
-                _shutdown(proc)
-                rc = 124
-                break
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        _shutdown(proc)
-        rc = 130
-    t_out.join(timeout=2)
-    t_err.join(timeout=2)
-    return rc
+    return stream_argv(argv, timeout=timeout, label='[tail]')
 
 
 def _run_local(args: argparse.Namespace) -> int:
@@ -99,23 +74,29 @@ def _run_local(args: argparse.Namespace) -> int:
         return _run_follow_argv(argv, timeout=args.timeout if args.timeout is not None else 86400)
     argv = ['tail', '-n', str(args.lines), args.path]
     try:
-        r = subprocess.run(argv, timeout=args.timeout if args.timeout is not None else 30)
+        r = run_argv(argv, timeout=args.timeout if args.timeout is not None else 30)
         return r.returncode
-    except subprocess.TimeoutExpired:
+    except TimeoutExpired:
         return 124
 
 
 def _run_remote(remote: RemoteCfg, args: argparse.Namespace) -> int:
     path = _normalize_remote_path(remote, args.path)
-    ps = _build_ps(path, args.lines, args.follow)
+    if remote.os == 'windows':
+        script = _build_ps(path, args.lines, args.follow)
+        argv = ssh_encoded_argv(remote, script)
+    else:
+        script = _build_sh(path, args.lines, args.follow)
+        argv = ssh_bash_argv(remote, script)
     if args.follow:
-        return _run_follow_argv(
-            ssh_encoded_argv(remote, ps), timeout=args.timeout if args.timeout is not None else 86400
-        )
-    r = ssh_run(remote, ps, timeout=args.timeout if args.timeout is not None else 30)
+        return _run_follow_argv(argv, timeout=args.timeout if args.timeout is not None else 86400)
+    if remote.os == 'windows':
+        r = ssh_run(remote, script, timeout=args.timeout if args.timeout is not None else 30)
+    else:
+        r = ssh_run_bash(remote, script, timeout=args.timeout if args.timeout is not None else 30)
     if r.stdout:
         sys.stdout.write(r.stdout)
-    if r.returncode != 0 and r.stderr and 'Cannot find path' in r.stderr:
+    if r.returncode != 0 and r.stderr and ('Cannot find path' in r.stderr or 'No such file or directory' in r.stderr):
         sys.stderr.write(f'[tail] remote file not found: {path}\n')
         return 1
     if r.stderr:

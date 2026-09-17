@@ -1,43 +1,32 @@
-"""tools/runs ssh host infra — cfg-driven RemoteCfg + probe helpers.
+"""Cfg-driven SSH host resolution and remote transport.
 
-每训练 cfg.toml 自闭包含 host 决策:
-
-    [meta]
-    host = "local"            # or "remote"
-    [remote]                  # required when host == "remote"
-    ssh = "dev@192.168.31.56"
-    root = "D:/gicg_dev"      # 始终 forward slash;Windows scp drive-letter 兼容
-    os = "windows"            # windows | linux | darwin
-    hostname = "DEV-PC"       # remote box's socket.gethostname(),用于 loopback detect
-
-工具 main 第一 positional 接 cfg.toml,据 ``[meta].host`` 决定本地跑 / ssh forward
-到远端。RemoteCfg 既无 binary path 字段也无 env override — 远端 Python venv / go /
-gcc 全 probe(``discover_remote_*``),probe fail loud raise FileNotFoundError。
-
-字段缺失 / 值非法 → ``ValueError``(per CLAUDE.md "意外输入必须抛异常")。
+Training cfg selects a profile under ``[remote]``; host values live in the
+gitignored ``configs/hosts/hosts.toml`` registry. Remote binary locations are
+probed rather than configured.
 """
 
 from __future__ import annotations
 
 import base64
+import shlex
 import socket
 import subprocess
+import sys
+import threading
+import time
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import IO, Literal
 
 VENV_DIRS = ['.venv', 'venv', 'env', '.virtualenv']
 DEFAULT_SSH_TIMEOUT = 60
+HOST_REGISTRY = Path(__file__).resolve().parents[2] / 'configs' / 'hosts' / 'hosts.toml'
 
 
 @dataclass(frozen=True)
 class RemoteCfg:
-    """Validated remote host config extracted from cfg ``[remote]``.
-
-    Fields are exactly what's needed to ssh + know whether we're already
-    physically on the remote box(loopback detect via ``hostname``)。
-    """
+    """Validated remote endpoint selected by a cfg host profile."""
 
     ssh: str
     root: str  # forward-slash form, e.g. 'D:/gicg_dev'
@@ -51,10 +40,54 @@ class RemoteCfg:
         return self.root.replace('/', '\\') if self.os == 'windows' else self.root
 
 
-def load_remote_from_cfg(cfg_path: Path) -> RemoteCfg | None:
-    """Read cfg.toml; if ``meta.host == 'remote'`` extract+validate
-    ``[remote]`` section + return RemoteCfg。``meta.host == 'local'``(或缺失)
-    返回 None。任何 schema 违规直接 raise — no silent fallback。"""
+def _registry_entry(profile: str, raw: dict, path: Path) -> RemoteCfg:
+    required = ['ssh', 'root', 'os', 'hostname']
+    missing = [key for key in required if key not in raw]
+    if missing:
+        raise ValueError(f'host registry profile {profile!r} missing required fields {missing} in {path}')
+    if raw['os'] not in ('windows', 'linux', 'darwin'):
+        raise ValueError(
+            f'host registry profile {profile!r} os must be windows/linux/darwin, got {raw["os"]!r} in {path}'
+        )
+    if not str(raw['ssh']).strip():
+        raise ValueError(f'host registry profile {profile!r} ssh must be non-empty in {path}')
+    if not str(raw['hostname']).strip():
+        raise ValueError(f'host registry profile {profile!r} hostname must be non-empty in {path}')
+    root = str(raw['root'])
+    if not root.strip():
+        raise ValueError(f'host registry profile {profile!r} root must be non-empty in {path}')
+    if '/' in root and '\\' in root:
+        raise ValueError(
+            f'host registry profile {profile!r} root must use forward slashes only, got mixed: {root!r} in {path}'
+        )
+    if '/' not in root and '\\' in root:
+        raise ValueError(
+            f'host registry profile {profile!r} root must use forward slashes (got {root!r}); '
+            "Windows scp needs drive-letter + '/'."
+        )
+    return RemoteCfg(ssh=str(raw['ssh']), root=root, os=str(raw['os']), hostname=str(raw['hostname']))
+
+
+def load_host_registry(path: Path) -> dict[str, RemoteCfg]:
+    """Read and validate every profile in a host registry."""
+    path = Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(
+            f'host registry not found: {path}; create it with '
+            f'`cp configs/hosts/hosts.example.toml configs/hosts/hosts.toml`'
+        )
+    raw = tomllib.loads(path.read_text(encoding='utf-8'))
+    profiles: dict[str, RemoteCfg] = {}
+    for profile, entry in raw.items():
+        if not isinstance(entry, dict):
+            raise ValueError(f'host registry profile {profile!r} must be a TOML table in {path}')
+        profiles[profile] = _registry_entry(profile, entry, path)
+    return profiles
+
+
+def load_remote_from_cfg(cfg_path: Path, registry_path: Path | None = None) -> RemoteCfg | None:
+    """Read cfg.toml and resolve its remote profile. ``meta.host == 'local'``
+    (or missing) returns None; remote configs require a valid registry entry."""
     # encoding='utf-8' 显式 — Win 默认 GBK,cfg toml 含 非 ASCII (中文 char_name 等)
     # 或 UTF-8 BOM 时 read_text() 默认 codec UnicodeDecodeError fail-loud。
     cfg = tomllib.loads(Path(cfg_path).read_text(encoding='utf-8'))
@@ -66,32 +99,15 @@ def load_remote_from_cfg(cfg_path: Path) -> RemoteCfg | None:
         return None
     if 'remote' not in cfg:
         raise ValueError(f"cfg [meta].host='remote' but [remote] section missing in {cfg_path}")
-    r = cfg['remote']
-    required = ['ssh', 'root', 'os', 'hostname']
-    missing = [k for k in required if k not in r]
-    if missing:
-        raise ValueError(f'cfg [remote] missing required fields {missing} in {cfg_path}')
-    if r['os'] not in ('windows', 'linux', 'darwin'):
-        raise ValueError(f'cfg [remote].os must be windows/linux/darwin, got {r["os"]!r} in {cfg_path}')
-    # P4 strictness: empty ssh / hostname / mixed root separators are all
-    # silent-bug surfaces; reject loud。``ssh = ""`` would still ssh into
-    # the loopback default user; ``hostname = ""`` would make ``is_local_host``
-    # falsely true on a fresh box(``socket.gethostname()`` rarely ""),and
-    # mixed slash ``D:/foo\bar`` confuses scp's drive-letter parser on
-    # Windows but probably passes through unnoticed elsewhere — pin to
-    # forward-slash form for both shapes。
-    if not str(r['ssh']).strip():
-        raise ValueError(f'cfg [remote].ssh must be non-empty in {cfg_path}')
-    if not str(r['hostname']).strip():
-        raise ValueError(f'cfg [remote].hostname must be non-empty in {cfg_path}')
-    root_s = str(r['root'])
-    if '/' in root_s and '\\' in root_s:
-        raise ValueError(f'cfg [remote].root must use forward slashes only, got mixed: {root_s!r} in {cfg_path}')
-    if '/' not in root_s and '\\' in root_s:
-        raise ValueError(
-            f"cfg [remote].root must use forward slashes (got {root_s!r}); Windows scp needs drive-letter + '/'."
-        )
-    return RemoteCfg(ssh=str(r['ssh']), root=root_s, os=str(r['os']), hostname=str(r['hostname']))
+    profile = cfg['remote'].get('profile')
+    if not isinstance(profile, str) or not profile.strip():
+        raise ValueError(f'cfg [remote].profile must be non-empty in {cfg_path}')
+    registry = Path(registry_path) if registry_path is not None else HOST_REGISTRY
+    profiles = load_host_registry(registry)
+    if profile not in profiles:
+        available = ', '.join(sorted(profiles)) or '<none>'
+        raise ValueError(f'host profile {profile!r} not found in {registry}; available: {available}')
+    return profiles[profile]
 
 
 def is_local_host(remote: RemoteCfg | None) -> bool:
@@ -102,17 +118,8 @@ def is_local_host(remote: RemoteCfg | None) -> bool:
     return socket.gethostname().lower() == remote.hostname.lower()
 
 
-# ---------------------------------------------------------------------------
-# ssh primitives — now take a RemoteCfg explicitly instead of module globals.
-# ---------------------------------------------------------------------------
-
-
 def ssh_encoded_argv(remote: RemoteCfg, ps_script: str) -> list[str]:
-    """ssh argv that runs PS via ``-EncodedCommand``(base64 UTF-16-LE)。
-    Bypasses Win OpenSSH cmd.exe wrapper which otherwise eats PS ``|`` /
-    ``>`` / ``&`` as cmd metacharacters。``-OutputFormat Text`` + 注入
-    ``$ProgressPreference='SilentlyContinue'`` 消 CLIXML serialize 与 PS
-    startup ``Preparing modules`` progress noise。"""
+    """Run PowerShell through ssh without cmd.exe metacharacter parsing."""
     wrapped = "$ProgressPreference='SilentlyContinue'; " + ps_script
     encoded = base64.b64encode(wrapped.encode('utf-16-le')).decode('ascii')
     return [
@@ -129,55 +136,113 @@ def ssh_encoded_argv(remote: RemoteCfg, ps_script: str) -> list[str]:
     ]
 
 
-def ssh_run(remote: RemoteCfg, ps_script: str, timeout: int = DEFAULT_SSH_TIMEOUT) -> subprocess.CompletedProcess:
-    """Run a PowerShell snippet on remote via ssh. stderr decode='replace'(cp936)."""
+def ssh_bash_argv(remote: RemoteCfg, bash_script: str) -> list[str]:
+    """ssh argv that runs a bash snippet on a POSIX remote。"""
+    return ['ssh', remote.ssh, f'bash -c {shlex.quote(bash_script)}']
+
+
+def _pump(stream: IO[str], sink: IO[str]) -> None:
+    for line in iter(stream.readline, ''):
+        sink.write(line)
+        sink.flush()
+    stream.close()
+
+
+def _shutdown(proc: subprocess.Popen[str]) -> None:
+    proc.terminate()
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+
+
+def run_argv(argv: list[str], timeout: float | None = None) -> subprocess.CompletedProcess:
+    """Run argv with inherited stdio."""
+    return subprocess.run(argv, timeout=timeout)
+
+
+def run_argv_capture(argv: list[str], timeout: float | None = None) -> subprocess.CompletedProcess:
+    """Run argv with text stdout/stderr captured and decode errors replaced."""
     return subprocess.run(
-        ssh_encoded_argv(remote, ps_script),
+        argv,
         capture_output=True,
         text=True,
         errors='replace',
         timeout=timeout,
     )
+
+
+def stream_argv(argv: list[str], *, timeout: float | None, label: str) -> int:
+    """Run argv with realtime stdout/stderr forwarding."""
+    proc = subprocess.Popen(
+        argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors='replace', bufsize=1
+    )
+    t_out = threading.Thread(target=_pump, args=(proc.stdout, sys.stdout), daemon=True)
+    t_err = threading.Thread(target=_pump, args=(proc.stderr, sys.stderr), daemon=True)
+    t_out.start()
+    t_err.start()
+    deadline = time.monotonic() + timeout if timeout is not None else None
+    rc: int
+    try:
+        while (rc := proc.poll()) is None:
+            if deadline is not None and time.monotonic() > deadline:
+                sys.stderr.write(f'{label} timeout after {timeout}s — SIGTERM\n')
+                _shutdown(proc)
+                rc = 124
+                break
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        sys.stderr.write(f'{label} SIGINT — terminating child proc\n')
+        _shutdown(proc)
+        rc = 130
+    t_out.join(timeout=2)
+    t_err.join(timeout=2)
+    return rc
+
+
+def ssh_run(remote: RemoteCfg, ps_script: str, timeout: int = DEFAULT_SSH_TIMEOUT) -> subprocess.CompletedProcess:
+    """Run a PowerShell snippet on remote via ssh. stderr decode='replace'(cp936)."""
+    return run_argv_capture(ssh_encoded_argv(remote, ps_script), timeout=timeout)
 
 
 def ssh_run_bash(
     remote: RemoteCfg, bash_script: str, timeout: int = DEFAULT_SSH_TIMEOUT
 ) -> subprocess.CompletedProcess:
     """Run a bash one-liner on a POSIX remote(linux/darwin)。"""
-    return subprocess.run(
-        ['ssh', remote.ssh, 'bash', '-c', bash_script],
-        capture_output=True,
-        text=True,
-        errors='replace',
-        timeout=timeout,
-    )
+    return run_argv_capture(ssh_bash_argv(remote, bash_script), timeout=timeout)
 
 
 def scp_to(remote: RemoteCfg, local: Path, remote_rel: str, timeout: int = 120) -> subprocess.CompletedProcess:
     """Local → remote. ``remote_rel`` is relative to ``remote.root``。"""
     dst = f'{remote.ssh}:{remote.root}/{remote_rel}'
-    return subprocess.run(
-        ['scp', '-q', str(local), dst], capture_output=True, text=True, errors='replace', timeout=timeout
-    )
+    return run_argv_capture(['scp', '-q', str(local), dst], timeout=timeout)
 
 
-def scp_from(remote: RemoteCfg, remote_rel: str, local: Path, timeout: int = 120) -> subprocess.CompletedProcess:
+def scp_from(
+    remote: RemoteCfg,
+    remote_rel: str,
+    local: Path,
+    timeout: int = 120,
+    *,
+    preserve: bool = False,
+) -> subprocess.CompletedProcess:
     """Remote → local."""
     src = f'{remote.ssh}:{remote.root}/{remote_rel}'
-    return subprocess.run(
-        ['scp', '-q', src, str(local)], capture_output=True, text=True, errors='replace', timeout=timeout
-    )
+    flags = ['-q']
+    if preserve:
+        flags.append('-p')
+    return run_argv_capture(['scp', *flags, src, str(local)], timeout=timeout)
+
+
+def rsync_run(argv: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+    """Execute an rsync argv built by the sync layer."""
+    return run_argv_capture(argv, timeout=timeout)
 
 
 def ps_quote(s: str) -> str:
     """Single-quote for PowerShell。"""
     return "'" + s.replace("'", "''") + "'"
-
-
-# ---------------------------------------------------------------------------
-# Remote-side probe helpers — discover python venv interpreter / arbitrary
-# binaries(go / gcc)on the remote, raise loudly if missing。
-# ---------------------------------------------------------------------------
 
 
 def _venv_python_candidates(remote: RemoteCfg) -> list[str]:
@@ -198,7 +263,7 @@ def discover_remote_python(remote: RemoteCfg) -> str:
         r = ssh_run(remote, ps)
         found = (r.stdout or '').strip()
     else:
-        chain = ' || '.join(f'([ -x "{c}" ] && echo "{c}")' for c in candidates)
+        chain = ' || '.join(f'([ -x {shlex.quote(c)} ] && printf "%s\\n" {shlex.quote(c)})' for c in candidates)
         r = ssh_run_bash(remote, chain + ' || true')
         found = (r.stdout or '').strip().splitlines()[0] if r.stdout.strip() else ''
     if not found:
@@ -217,7 +282,7 @@ def discover_remote_binary(remote: RemoteCfg, name: str) -> str:
         r = ssh_run(remote, ps)
         found = (r.stdout or '').strip().splitlines()[0] if r.stdout.strip() else ''
     else:
-        r = ssh_run_bash(remote, f'command -v {name} || true')
+        r = ssh_run_bash(remote, f'command -v {shlex.quote(name)} || true')
         found = (r.stdout or '').strip()
     if not found:
         hint = (

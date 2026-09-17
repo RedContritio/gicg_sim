@@ -130,6 +130,25 @@ class TestSchemaEndpoint:
             server.stop()
             t.join(timeout=5)
 
+
+def test_greedy_depth_four_schema_accepts():
+    from tools.eval.eval_service import REQUEST_SCHEMA, _VALIDATOR
+
+    assert REQUEST_SCHEMA['$defs']['player_spec_greedy']['properties']['depth']['enum'] == [1, 2, 3, 4]
+    _VALIDATOR.validate(
+        {
+            'kind': 'gauntlet',
+            'mode': 'fixed',
+            'team_0': ['赤蝶'],
+            'team_1': ['墨客'],
+            'players': [
+                {'type': 'greedy', 'depth': 4},
+                {'type': 'random'},
+            ],
+            'result_path': '/tmp/depth4.jsonl',
+        }
+    )
+
     def test_enumerate_disjoint_missing_char_pool_rejected(self, test_env):
         """Conditional-required: mode=enumerate_disjoint needs
         char_pool + team_size. Guards the schema's ``allOf if/then``

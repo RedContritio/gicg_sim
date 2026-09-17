@@ -6,6 +6,7 @@ import torch
 from tools.experiments.semantic_training.representation_drift import (
     cosine_similarity,
     linear_cka,
+    model_digest,
     tensor_drift,
 )
 
@@ -60,6 +61,14 @@ def test_tensor_drift_is_zero_for_identical_state():
     assert drift['mean'] == 0.0 and drift['max'] == 0.0
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='requires CUDA')
+def test_tensor_drift_compares_cpu_reference_to_cuda_candidate():
+    reference = {'w': torch.zeros(2)}
+    candidate = {'w': torch.tensor([1.0, -3.0], device='cuda')}
+    drift = tensor_drift(reference, candidate)
+    assert drift['tensors']['w'] == {'mean': pytest.approx(2.0), 'max': pytest.approx(3.0)}
+
+
 def test_tensor_drift_rejects_structural_mismatch():
     with pytest.raises(ValueError, match='keys differ'):
         tensor_drift({'a': torch.zeros(2)}, {'b': torch.zeros(2)})
@@ -89,3 +98,17 @@ def test_cosine_similarity_rejects_malformed_collections():
         cosine_similarity([torch.ones(2)], [torch.ones(2), torch.ones(2)])
     with pytest.raises(ValueError, match='empty'):
         cosine_similarity([], [])
+
+
+def test_model_digest_handles_bfloat16_noncontiguous_tensors():
+    class _Module(torch.nn.Module):
+        def __init__(self, value):
+            super().__init__()
+            self.register_buffer('weight', value)
+
+    value = torch.arange(12, dtype=torch.float32).reshape(3, 4).t().to(torch.bfloat16)
+    assert not value.is_contiguous()
+    agent = type('Agent', (), {'net': _Module(value), 'rule_head': _Module(value)})()
+    digest = model_digest(agent)
+    assert digest['net'] == digest['rule_head']
+    assert len(digest['net']) == 64

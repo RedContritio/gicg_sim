@@ -3,7 +3,9 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	engine "gicg_mono/gicg_engine"
@@ -100,6 +102,73 @@ func TestRecordRejectsCheckpointProjectionMismatch(t *testing.T) {
 	}
 	if !bytes.Equal(before, checkpointBytes(t, env.G)) {
 		t.Fatal("rejected record changed game")
+	}
+}
+
+func TestReplayToFallsBackForIncompatibleCheckpoint(t *testing.T) {
+	source := NewGameWithDeck(t, []string{"赤蝶"}, []string{"墨客"})
+	r, err := record.Parse(record.Export(source.RT))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(r.Rounds) == 0 || r.Rounds[0].Start.Checkpoint == nil {
+		t.Fatal("fixture has no checkpoint")
+	}
+	var c map[string]any
+	if err := json.Unmarshal(r.Rounds[0].Start.Checkpoint, &c); err != nil {
+		t.Fatal(err)
+	}
+	c["LayoutHash"] = "different"
+	r.Rounds[0].Start.Checkpoint, err = json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	receiver := NewGameWithDeck(t, []string{"赤蝶"}, []string{"墨客"})
+	receiver.G.Winner = 1
+	receiver.G.Phase = engine.PhaseGameOver
+	receiver.G.Round = 9
+	receiver.G.Players[0].Supports = []engine.SupportInst{{Ref: 1, ActivatedAt: 1}}
+	receiver.G.RewardAccum[0].DamageDealt = 7
+	receiver.G.DicePaid[0][0] = 3
+	if err := record.Load(receiver.RT, r, 1); !errors.Is(err, engine.ErrCheckpointIncompatible) {
+		t.Fatalf("strict load error = %v, want ErrCheckpointIncompatible", err)
+	}
+	if err := record.ReplayTo(receiver.RT, r, 0); err != nil {
+		t.Fatalf("replay fallback failed: %v", err)
+	}
+	if receiver.G.Winner != -1 || receiver.G.Round != 1 || receiver.G.Phase == engine.PhaseGameOver {
+		t.Fatalf("fallback retained terminal state: winner=%d round=%d phase=%d", receiver.G.Winner, receiver.G.Round, receiver.G.Phase)
+	}
+	if len(receiver.G.Players[0].Supports) != 0 || receiver.G.RewardAccum[0].DamageDealt != 0 || receiver.G.DicePaid[0][0] != 0 {
+		t.Fatal("fallback retained stale dynamic state")
+	}
+}
+
+func TestReplayToRejectsActionsAfterGameOver(t *testing.T) {
+	source := NewGameWithDeck(t, []string{"赤蝶"}, []string{"墨客"})
+	rng := engine.NewRandom(123)
+	for source.G.Phase != engine.PhaseGameOver && source.G.Round < 12 {
+		actions := source.G.GetLegalActions()
+		if len(actions) == 0 {
+			t.Fatal("live game has no legal action")
+		}
+		source.G.Step(rng.Intn(len(actions)))
+	}
+	if source.G.Phase != engine.PhaseGameOver {
+		t.Fatal("fixture did not reach game over")
+	}
+	r, err := record.Parse(record.Export(source.RT))
+	if err != nil {
+		t.Fatal(err)
+	}
+	last := &r.Rounds[len(r.Rounds)-1]
+	last.Actions = append(last.Actions, record.Action{Player: 0, Kind: record.ActEndTurn, TargetPlayer: -1})
+
+	receiver := NewGameWithDeck(t, []string{"赤蝶"}, []string{"墨客"})
+	err = record.ReplayTo(receiver.RT, r, record.TotalSteps(r))
+	if err == nil || !strings.Contains(err.Error(), "game over before") {
+		t.Fatalf("ReplayTo error = %v, want game-over truncation error", err)
 	}
 }
 

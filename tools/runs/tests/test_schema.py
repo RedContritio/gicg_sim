@@ -28,7 +28,7 @@ def _minimal_meta(**overrides) -> schema.RunMetadata:
         cfg_file='configs/dmc/smoke_full.toml',
         cfg_resolved_version=1,
         git_commit='2c20de8a',
-        host='Mac-mini.local',
+        host='macbox.local',
         status='running',
         artifacts_dir='artifacts/202605180355_000069_dmc_smoke_full',
         wall_seconds=0.0,

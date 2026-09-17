@@ -20,13 +20,23 @@ The remote implementation uses PowerShell. If ``[meta].host == 'local'``
 from __future__ import annotations
 
 import argparse
+import re
+import shlex
 import sys
 import tarfile
 import tempfile
 import uuid
 from pathlib import Path
 
-from tools.runs._host import RemoteCfg, is_local_host, load_remote_from_cfg, ps_quote, scp_from, ssh_run
+from tools.runs._host import (
+    RemoteCfg,
+    is_local_host,
+    load_remote_from_cfg,
+    ps_quote,
+    scp_from,
+    ssh_run,
+    ssh_run_bash,
+)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -44,9 +54,19 @@ def _to_rel(remote: RemoteCfg, remote_path: str) -> str:
     """Path → ``remote.root``-relative(strip leading)。"""
     norm = remote_path.replace('\\', '/').rstrip('/')
     root = remote.root.rstrip('/')
-    if norm.lower().startswith(root.lower()):
+    if remote.os == 'windows':
+        comparable_norm = norm.lower()
+        comparable_root = root.lower()
+    else:
+        comparable_norm = norm
+        comparable_root = root
+    if comparable_norm == comparable_root:
+        return ''
+    prefix = comparable_root if comparable_root.endswith('/') else f'{comparable_root}/'
+    if comparable_norm.startswith(prefix):
         return norm[len(root) :].lstrip('/')
-    if ':' in norm:
+    is_absolute = norm.startswith('/') or re.match(r'^[A-Za-z]:/', norm) is not None
+    if is_absolute:
         raise ValueError(f'absolute path outside remote root {remote.root}: {norm}')
     return norm.lstrip('/')
 
@@ -75,15 +95,26 @@ def _pull_via_tar(
     so tar archive's internal paths drop the ``artifacts/`` prefix。
     tar file 本身始终写到 ``remote.root_native``,scp_from + cleanup 路径不变。
     """
+    if not rel_paths:
+        print('[pull] refusing empty tar path list', file=sys.stderr)
+        return 1
+    rel_paths = [p or '.' for p in rel_paths]
     cwd = tar_cwd if tar_cwd is not None else remote.root_native
     sep = '\\' if remote.os == 'windows' else '/'
     remote_tar = f'pull_{uuid.uuid4().hex[:8]}.tar.gz'
     tar_abs = f'{remote.root_native}{sep}{remote_tar}'
-    paths_arg = ' '.join(ps_quote(p) for p in rel_paths)
-    excl_args = ''.join(f' --exclude={ps_quote(e)}' for e in (excludes or []))
-    ps = f'cd {ps_quote(cwd)}; tar -czf {ps_quote(tar_abs)}{excl_args} {paths_arg}'
+    tar_excludes = [*(excludes or []), remote_tar, f'./{remote_tar}']
     print(f'[pull] remote tar: {len(rel_paths)} path(s) → {remote_tar}')
-    r = ssh_run(remote, ps, timeout=timeout)
+    if remote.os == 'windows':
+        paths_arg = ' '.join(ps_quote(p) for p in rel_paths)
+        excl_args = ''.join(f' --exclude={ps_quote(e)}' for e in tar_excludes)
+        ps = f'cd {ps_quote(cwd)}; tar -czf {ps_quote(tar_abs)}{excl_args} {paths_arg}'
+        r = ssh_run(remote, ps, timeout=timeout)
+    else:
+        paths_arg = ' '.join(shlex.quote(p) for p in rel_paths)
+        excl_args = ''.join(f' --exclude={shlex.quote(e)}' for e in tar_excludes)
+        sh = f'cd {shlex.quote(cwd)} && tar -czf {shlex.quote(tar_abs)}{excl_args} {paths_arg}'
+        r = ssh_run_bash(remote, sh, timeout=timeout)
     if r.returncode != 0:
         print(f'[pull] remote tar failed: {r.stderr.strip()}', file=sys.stderr)
         return r.returncode
@@ -102,11 +133,13 @@ def _pull_via_tar(
         return 0
     finally:
         tar_path.unlink(missing_ok=True)
-        ssh_run(
-            remote,
-            f'Remove-Item {ps_quote(f"{remote.root_native}{sep}{remote_tar}")} -Force -ErrorAction SilentlyContinue',
-            timeout=30,
-        )
+        if remote.os == 'windows':
+            cleanup = (
+                f'Remove-Item {ps_quote(f"{remote.root_native}{sep}{remote_tar}")} -Force -ErrorAction SilentlyContinue'
+            )
+            ssh_run(remote, cleanup, timeout=30)
+        else:
+            ssh_run_bash(remote, f'rm -f -- {shlex.quote(tar_abs)}', timeout=30)
 
 
 def _run_legacy(remote: RemoteCfg, args) -> int:
@@ -139,8 +172,12 @@ def _strip_artifacts_prefix(rel_paths: list[str]) -> tuple[list[str], bool]:
 
 def _run_dir(remote: RemoteCfg, args) -> int:
     rel = _to_rel(remote, args.dir_.rstrip('/'))
+    rel = rel or '.'
+    if rel == '.':
+        return _pull_via_tar(remote, ['.'], extract_root=Path('.'))
     stripped, ok = _strip_artifacts_prefix([rel])
     if ok:
+        stripped = stripped or ['.']
         sep = '\\' if remote.os == 'windows' else '/'
         return _pull_via_tar(
             remote,
@@ -152,10 +189,23 @@ def _run_dir(remote: RemoteCfg, args) -> int:
 
 
 def _resolve_glob(remote: RemoteCfg, glob: str) -> list[str]:
-    """ssh PS ``Get-ChildItem`` 解析 glob → ``remote.root``-relative paths。"""
+    """Resolve a remote glob to ``remote.root``-relative paths."""
     abs_glob = glob if ':' in glob else f'{remote.root}/{glob.lstrip("/")}'
-    ps = f'Get-ChildItem -Path {ps_quote(abs_glob)} -File | Select-Object -ExpandProperty FullName'
-    r = ssh_run(remote, ps)
+    if remote.os == 'windows':
+        ps = f'Get-ChildItem -Path {ps_quote(abs_glob)} -File | Select-Object -ExpandProperty FullName'
+        r = ssh_run(remote, ps)
+    else:
+        root = remote.root.rstrip('/') or '/'
+        if glob.startswith('/'):
+            pattern = glob
+            search_root = root
+        else:
+            pattern = f'{root}/{glob.lstrip("/")}'
+            search_root = root
+        r = ssh_run_bash(
+            remote,
+            f'find {shlex.quote(search_root)} -path {shlex.quote(pattern)} -type f -print',
+        )
     if r.returncode != 0:
         raise RuntimeError(f'remote glob ls failed: {r.stderr.strip()}')
     abs_paths = [ln.strip() for ln in r.stdout.splitlines() if ln.strip()]

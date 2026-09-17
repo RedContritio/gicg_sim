@@ -51,6 +51,9 @@ def test_trio_oracle_flips_and_reaches_numeric_and_definition_parameters(tmp_pat
     logp = logits_for(agent, rows).log_softmax(-1)
     loss = torch.stack([-logp[i, row['tied']].mean() for i, row in enumerate(rows)]).mean()
     loss.backward()
-    for p in (agent.net.hook_encoder.literal_projection[0].weight, agent.net.definition_relation[0].weight):
+    for p in (
+        agent.net.hook_encoder.literal_projection[0].weight,
+        agent.net.base.definition_relation.message[0].weight,
+    ):
         assert torch.isfinite(p.grad).all() and p.grad.abs().sum() > 0
     assert assess(agent, rows)['train/trio']['cases'] == 2

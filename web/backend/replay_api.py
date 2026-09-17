@@ -112,13 +112,13 @@ def make_router(store: ReplayStore) -> APIRouter:
                     # "service unavailable" signal instead of the
                     # internal error text; frontend shows a friendly
                     # placeholder when agent field is null.
-                    agent_payload = None
+                    agent_payload = {'error': 'agent inspection unavailable'}
                 except Exception:
                     # Any other failure (ckpt load, forward) is an
                     # internal problem — don't leak its details to
                     # the client. Log server-side is a future item;
                     # today just swallow and mark unavailable.
-                    agent_payload = None
+                    agent_payload = {'error': 'checkpoint inspection failed'}
             return {
                 'rel_path': entry.rel_path,
                 'stage': entry.stage,

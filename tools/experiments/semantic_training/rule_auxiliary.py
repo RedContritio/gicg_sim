@@ -15,9 +15,32 @@ class RuleHead(nn.Module):
         return self.layers(torch.cat((state[:, None].expand_as(actions), actions), -1))
 
 
+class RuleAdapter(nn.Module):
+    def __init__(self, width):
+        super().__init__()
+        self.state = self._residual(width, width)
+        self.actions = self._residual(width * 2, width)
+
+    @staticmethod
+    def _residual(input_width, output_width):
+        layers = nn.Sequential(nn.Linear(input_width, output_width), nn.ReLU(), nn.Linear(output_width, output_width))
+        nn.init.zeros_(layers[-1].weight)
+        nn.init.zeros_(layers[-1].bias)
+        return layers
+
+    def forward(self, state, actions):
+        context = torch.cat((state[:, None].expand_as(actions), actions), -1)
+        return state + self.state(state), actions + self.actions(context)
+
+
 def attach(agent):
     agent.rule_head = RuleHead(agent.cfg.d_model).to(agent.device)
     return agent.rule_head
+
+
+def attach_adapter(agent):
+    agent.rule_adapter = RuleAdapter(agent.cfg.d_model).to(agent.device)
+    return agent.rule_adapter
 
 
 def labels(env, selected, rng, limit=8):

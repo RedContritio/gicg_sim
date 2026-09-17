@@ -8,12 +8,13 @@ return-code passthrough.
 
 All-mock — ``discover_remote_python`` returns a fixed venv path,
 ``ssh_encoded_argv`` is patched to *capture* the inner PS payload so
-assertions read the actual quoted string, and ``subprocess.run`` is
+assertions read the actual quoted string, and ``run_argv_capture`` is
 patched to bypass real ssh execution.
 """
 
 from __future__ import annotations
 
+import shlex
 import subprocess
 from pathlib import Path
 from unittest.mock import patch
@@ -25,6 +26,7 @@ from tools.runs._ssh import ssh_forward
 
 
 REMOTE = RemoteCfg(ssh='dev@host', root='D:/gicg_dev', os='windows', hostname='DEV-PC')
+REMOTE_POSIX = RemoteCfg(ssh='dev@host', root='/srv/gicg dev', os='linux', hostname='boxlin')
 
 
 def _capture_payload():
@@ -58,7 +60,7 @@ def test_ssh_forward_happy_path_no_extra():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/gicg_dev/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         rc = ssh_forward(REMOTE, 'tools.runs.list', Path('cfg.toml'), [])
     assert rc == 0
@@ -77,7 +79,7 @@ def test_ssh_forward_extra_args_quoted():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(REMOTE, 'tools.runs.kill', Path('c.toml'), ['--all', '--dry-run'])
     payload = captured[0]
@@ -98,7 +100,7 @@ def test_ssh_forward_arg_with_space_quoted():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(REMOTE, 'tools.runs.kill', Path('c.toml'), ['--match', 'foo bar'])
     payload = captured[0]
@@ -112,7 +114,7 @@ def test_ssh_forward_arg_with_semicolon_safe():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(REMOTE, 'tools.runs.kill', Path('c.toml'), ['--match', 'a;rm -rf /'])
     payload = captured[0]
@@ -130,7 +132,7 @@ def test_ssh_forward_arg_with_pipe_and_amp_safe():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(REMOTE, 'tools.runs.tail', Path('c.toml'), ['--match', 'a|b&c>d'])
     payload = captured[0]
@@ -145,7 +147,7 @@ def test_ssh_forward_arg_with_embedded_single_quote():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(REMOTE, 'tools.runs.kill', Path('c.toml'), ["a'b"])
     payload = captured[0]
@@ -159,7 +161,7 @@ def test_ssh_forward_cfg_with_space_quoted():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(REMOTE, 'tools.runs.list', Path('a b/cfg.toml'), [])
     payload = captured[0]
@@ -173,7 +175,7 @@ def test_ssh_forward_cfg_path_backslash_normalized_to_forward():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         # Force backslashes by passing a string Path that contains them.
         ssh_forward(REMOTE, 'tools.runs.list', Path('configs\\dmc\\smoke.toml'), [])
@@ -189,26 +191,26 @@ def test_ssh_forward_cfg_path_backslash_normalized_to_forward():
 
 
 def test_ssh_forward_returns_remote_exit_code():
-    """Whatever ``subprocess.run`` returns flows back unchanged。"""
+    """Whatever ``run_argv_capture`` returns flows back unchanged。"""
     builder, _captured = _capture_payload()
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(42)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(42)),
     ):
         rc = ssh_forward(REMOTE, 'tools.runs.train', Path('cfg.toml'), [])
     assert rc == 42
 
 
 def test_ssh_forward_stream_branch_uses_run_stream():
-    """``stream=True`` → bypass ``subprocess.run``, route through
+    """``stream=True`` → bypass ``run_argv_capture``, route through
     ``_run_stream`` (Popen-based realtime pump)。"""
     builder, _captured = _capture_payload()
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
         patch('tools.runs._ssh._run_stream', return_value=7) as m_stream,
-        patch('tools.runs._ssh.subprocess.run') as m_run,
+        patch('tools.runs._ssh.run_argv_capture') as m_run,
     ):
         rc = ssh_forward(REMOTE, 'tools.runs.train', Path('cfg.toml'), ['--resume', '/x'], stream=True)
     assert rc == 7
@@ -223,7 +225,7 @@ def test_ssh_forward_propagates_resume_flag():
     with (
         patch('tools.runs._ssh.discover_remote_python', return_value='D:/.venv/Scripts/python.exe'),
         patch('tools.runs._ssh.ssh_encoded_argv', side_effect=builder),
-        patch('tools.runs._ssh.subprocess.run', return_value=_ok(0)),
+        patch('tools.runs._ssh.run_argv_capture', return_value=_ok(0)),
     ):
         ssh_forward(
             REMOTE,
@@ -250,3 +252,55 @@ def test_ssh_forward_probe_failure_propagates():
     with patch('tools.runs._ssh.discover_remote_python', side_effect=FileNotFoundError('no venv')):
         with pytest.raises(FileNotFoundError, match='no venv'):
             ssh_forward(REMOTE, 'tools.runs.list', Path('cfg.toml'), [])
+
+
+# ---------------------------------------------------------------------------
+# POSIX ssh branch.
+# ---------------------------------------------------------------------------
+
+
+def test_ssh_forward_posix_uses_bash_and_quotes_args():
+    captured: list[str] = []
+
+    def builder(remote, script):  # noqa: ARG001
+        captured.append(script)
+        return ['ssh', remote.ssh, 'stubbed']
+
+    fake = _ok(0)
+    with (
+        patch('tools.runs._ssh.discover_remote_python', return_value='/srv/gicg dev/.venv/bin/python'),
+        patch('tools.runs._ssh.ssh_bash_argv', side_effect=builder),
+        patch('tools.runs._ssh.run_argv_capture', return_value=fake) as run,
+    ):
+        rc = ssh_forward(
+            REMOTE_POSIX,
+            'tools.runs.kill',
+            Path('configs/a b.toml'),
+            ['--match', "a'b; rm -rf /"],
+        )
+    assert rc == 0
+    script = captured[0]
+    assert script.startswith("cd '/srv/gicg dev' && ")
+    assert shlex.quote('/srv/gicg dev/.venv/bin/python') in script
+    assert shlex.quote('configs/a b.toml') in script
+    assert shlex.quote("a'b; rm -rf /") in script
+    run.assert_called_once_with(['ssh', REMOTE_POSIX.ssh, 'stubbed'], timeout=86400)
+
+
+def test_ssh_forward_posix_stream_uses_built_argv():
+    captured: list[str] = []
+
+    def builder(remote, script):  # noqa: ARG001
+        captured.append(script)
+        return ['ssh', remote.ssh, 'stubbed']
+
+    with (
+        patch('tools.runs._ssh.discover_remote_python', return_value='/srv/gicg/.venv/bin/python'),
+        patch('tools.runs._ssh.ssh_bash_argv', side_effect=builder),
+        patch('tools.runs._ssh._run_stream', return_value=7) as stream,
+        patch('tools.runs._ssh.ssh_run_bash') as bash,
+    ):
+        rc = ssh_forward(REMOTE_POSIX, 'tools.runs.train', Path('cfg.toml'), [], stream=True)
+    assert rc == 7
+    stream.assert_called_once()
+    bash.assert_not_called()

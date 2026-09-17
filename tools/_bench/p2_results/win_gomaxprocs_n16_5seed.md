@@ -2,7 +2,7 @@
 
 Commit: `c07bbec`
 Date: 2026-05-26 10:15
-Box: dev@192.168.31.56 (DESKTOP-GHJCC7Q, 5070 Ti + 9950X3D)
+Box: dev@192.0.2.10 (DEV-PC, 5070 Ti + 9950X3D)
 Window: 15s per run
 
 ## Headline summary

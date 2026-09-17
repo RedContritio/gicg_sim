@@ -15,10 +15,7 @@ run_label = "bench_v_legacy_python_mp"
 host = "remote"
 
 [remote]
-ssh = "dev@192.168.31.56"
-root = "D:/gicg_dev"
-os = "windows"
-hostname = "DESKTOP-GHJCC7Q"
+profile = "gpu-win"
 
 [paradigm.dmc]
 # 50K frames @ Win N=16 historical ~25-37 fps = 22-33 min wall。

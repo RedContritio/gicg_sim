@@ -15,4 +15,5 @@ Subcommands (post-redesign):
 - ``tools.runs.list``       table view of all runs
 - ``tools.runs.show``       detail dump of single run
 - ``tools.runs.sync``       rsync wrapper for metadata and config snapshots
+- ``tools.runs.exec``       cfg-driven local / remote command dispatch
 """

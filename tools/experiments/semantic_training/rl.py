@@ -36,6 +36,7 @@ def run(
     workers=16,
     device='cuda',
     resume=None,
+    resume_algorithm_suffix='',
     seed=128000,
     dev_seed=129000,
     dev_scenarios=64,
@@ -48,6 +49,7 @@ def run(
     rule_beta=0.0,
     rule_stride=4,
     learning_rate=1e-5,
+    evaluate_dev=True,
 ):
     if not math.isfinite(learning_rate) or learning_rate <= 0:
         raise ValueError('learning rate must be finite and positive')
@@ -130,7 +132,7 @@ def run(
         settings.update(value_lr=0.0003, value_encoder_grad=False, advantage_gamma=1.0, advantage_lambda=1.0)
     if resume:
         previous = load_checkpoint(resume, map_location='cpu', weights_only=False)
-        if previous['algorithm'] != algorithm or previous['anchor_sha256'] != anchor_sha:
+        if previous['algorithm'] != algorithm + resume_algorithm_suffix or previous['anchor_sha256'] != anchor_sha:
             raise ValueError('resume algorithm or anchor mismatch')
         old_settings = {
             'dev_seed': 129000,
@@ -250,20 +252,22 @@ def run(
                 train_wall_s=time.monotonic() - tick,
                 **metrics,
             )
-            # Fixed development panel; never reuse the earlier acceptance seeds for selection.
-            panel = root / f'dev_{iteration}'
-            evaluate(
-                config,
-                str(frozen),
-                panel,
-                scenarios=dev_scenarios,
-                layouts=2,
-                workers=workers,
-                seed=dev_seed,
-                opponent_depth=dev_depth,
-            )
-            report = json.loads((panel / 'result.json').read_text())
-            item.update(dev_score=report['score'], per_layout=report['per_layout'], checkpoint=str(frozen))
+            if evaluate_dev:
+                # Fixed development panel; never reuse the earlier acceptance seeds for selection.
+                panel = root / f'dev_{iteration}'
+                evaluate(
+                    config,
+                    str(frozen),
+                    panel,
+                    scenarios=dev_scenarios,
+                    layouts=2,
+                    workers=workers,
+                    seed=dev_seed,
+                    opponent_depth=dev_depth,
+                )
+                report = json.loads((panel / 'result.json').read_text())
+                item.update(dev_score=report['score'], per_layout=report['per_layout'])
+            item['checkpoint'] = str(frozen)
             status['iterations'].append(item)
             save_status()
             print(item, flush=True)

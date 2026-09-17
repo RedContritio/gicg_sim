@@ -22,7 +22,7 @@ interface Props {
 export function CheckpointPicker({ value, onChange, includeAll = false }: Props) {
   const [entries, setEntries] = useState<CheckpointEntry[]>([])
   const [err, setErr] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(includeAll)
 
   const refresh = () => {
@@ -35,7 +35,20 @@ export function CheckpointPicker({ value, onChange, includeAll = false }: Props)
   }
 
   useEffect(() => {
-    refresh()
+    let cancelled = false
+    listCheckpoints()
+      .then((items) => {
+        if (!cancelled) setEntries(items)
+      })
+      .catch((e) => {
+        if (!cancelled) setErr(String(e))
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const filtered = showAll
@@ -51,12 +64,12 @@ export function CheckpointPicker({ value, onChange, includeAll = false }: Props)
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full min-w-0 flex-wrap items-center gap-2">
       <label className="text-xs text-slate-400">ckpt:</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-100 text-xs min-w-[24rem]"
+        className="w-full min-w-0 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-100 text-xs sm:w-auto sm:min-w-[24rem]"
       >
         <option value="">— select a checkpoint —</option>
         {Array.from(bySession.entries()).map(([sess, list]) => (

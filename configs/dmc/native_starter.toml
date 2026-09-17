@@ -23,10 +23,7 @@ card_pool = ["一掷乾坤", "交给我吧！", "光辉的季节", "兽肉薄荷
 # 10 distinct three-character rosters; all unordered pairings including mirrors.
 
 [remote]
-ssh = "dev@192.168.31.56"
-root = "D:/gicg_native"
-os = "windows"
-hostname = "DESKTOP-GHJCC7Q"
+profile = "gpu-win"
 
 [pipeline]
 mode = "serial"

@@ -5,7 +5,7 @@
 # 用法 (一次性):
 #   .venv/bin/python -m tools.eval.daemon configs/dmc/eval_stage3_b_v_legacy.toml \
 #       --run-label <ts>_<NNN>_dmc_stage3_b_v_legacy_go \
-#       --remote dev@192.168.31.56:D:/gicg_dev/artifacts \
+#       --remote dev@192.0.2.10:D:/gicg_dev/artifacts \
 #       --max-iterations 1
 
 [meta]

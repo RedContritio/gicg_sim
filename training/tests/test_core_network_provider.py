@@ -50,6 +50,44 @@ def test_local_provider_version_starts_zero():
     assert prov.current_version() == 0
 
 
+def test_local_provider_update_weights_polls_shm():
+    class _SHM:
+        def __init__(self, state_dict, version):
+            self.state_dict = state_dict
+            self.version = version
+            self.read_tags = []
+
+        def read(self, tag):
+            self.read_tags.append(tag)
+            return self.state_dict, self.version
+
+    net = _TinyNet()
+    prov = LocalNetworkProvider(net, device='cpu', version_tag='latest')
+    sd = _TinyNet().state_dict()
+    shm = _SHM(sd, 7)
+    prov._shm = shm
+
+    assert prov.update_weights() == 7
+    assert prov.current_version() == 7
+    assert shm.read_tags == ['latest']
+    assert torch.equal(prov.network.fc.weight, sd['fc.weight'])
+
+    shm.version = 6
+    assert prov.update_weights() == 7
+    assert shm.read_tags == ['latest', 'latest']
+
+
+def test_local_provider_update_weights_polls_requested_shm_tag():
+    class _SHM:
+        def read(self, tag):
+            assert tag == 'actor_3'
+            return _TinyNet().state_dict(), 4
+
+    prov = LocalNetworkProvider(_TinyNet(), device='cpu')
+    prov._shm = _SHM()
+    assert prov.update_weights(version_tag='actor_3') == 4
+
+
 def test_remote_provider_forward_via_loopback():
     net = _TinyNet()
     server = InferenceServer(net, device='cpu')

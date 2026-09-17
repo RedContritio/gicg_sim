@@ -156,10 +156,10 @@ text = "..."
 `tools.runs.sync` 用 rsync 同步 `artifacts/runs/`(不同步 ckpt / replays):
 
 ```bash
-tools.runs.sync pull dev@192.168.31.56:/d/gicg_dev/
+tools.runs.sync pull dev@192.0.2.10:/d/gicg_dev/
 # 内部: rsync -av --update dev@.../artifacts/runs/ artifacts/runs/
 
-tools.runs.sync push dev@192.168.31.56:/d/gicg_dev/
+tools.runs.sync push dev@192.0.2.10:/d/gicg_dev/
 # 内部: rsync -av --update artifacts/runs/ dev@.../artifacts/runs/
 ```
 

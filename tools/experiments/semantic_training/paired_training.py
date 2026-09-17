@@ -23,7 +23,13 @@ from training.core.network import AgentConfig
 def predict(agent, pairs):
     rows = [row for pair in pairs for row in pair['rows']]
     batch = batch_observations([row['obs'] for row in rows], agent.cfg, agent.device)
-    _, state, actions = agent.net(batch, return_actions=True)
+    adapter = getattr(agent, 'rule_adapter', None)
+    if adapter is None:
+        _, state, actions = agent.net(batch, return_actions=True)
+    else:
+        with torch.no_grad():
+            _, state, actions = agent.net(batch, return_actions=True)
+        state, actions = adapter(state, actions)
     raw = agent.rule_head(state, actions)
     pred = raw[torch.arange(len(rows), device=agent.device), [r['action'] for r in rows]]
     truth = pred.new_tensor([r['target'] for r in rows])

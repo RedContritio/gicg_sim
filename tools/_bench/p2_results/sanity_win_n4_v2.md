@@ -2,7 +2,7 @@
 
 Commit: `a6c2942`
 Date: 2026-05-26 08:15
-Box: dev@192.168.31.56 (DESKTOP-GHJCC7Q, 5070 Ti + 9950X3D)
+Box: dev@192.0.2.10 (DEV-PC, 5070 Ti + 9950X3D)
 Window: 15s per run
 
 ## Headline summary

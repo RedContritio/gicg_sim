@@ -2,7 +2,7 @@
 
 Commit: `c07bbec` (feature/i29-redesign)
 Date: 2026-05-26
-Box: dev@192.168.31.56 (DESKTOP-GHJCC7Q, 5070 Ti + 9950X3D 32-thread)
+Box: dev@192.0.2.10 (DEV-PC, 5070 Ti + 9950X3D 32-thread)
 Bench harness: `tools/_bench/run_win_collector_pair.py` (ssh-dispatched `pytest test_go_subprocess_perf_smoke_15s`)
 Wire: `DMCGoSubprocessCollector` R7.2 (N independent Go subprocess each `NActors=1` goroutine)
 Cfg: stage3-shape DMC (赤蝶 vs 墨客, v_legacy 26-card pool, opp_mix random=0.30/f1d2=0.50/f1d4=0.20)

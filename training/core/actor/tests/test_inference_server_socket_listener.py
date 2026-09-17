@@ -217,6 +217,101 @@ def test_listener_stop_after_idle_period():
     assert not thr.is_alive()
 
 
+def test_listener_stop_releases_idle_connection_handler():
+    """An idle peer must not keep its handler alive after listener shutdown."""
+    port = _free_port()
+    ready = threading.Event()
+    stop = threading.Event()
+    thr = start_listener_in_thread(
+        port,
+        _echo_logits_callback,
+        ready,
+        stop,
+        accept_poll_s=0.05,
+        read_poll_s=0.05,
+    )
+    assert ready.wait(timeout=2.0)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(('127.0.0.1', port))
+    try:
+        deadline = time.monotonic() + 1.0
+        while time.monotonic() < deadline:
+            if any(t.name == 'InfServerSocketHandler' and t.is_alive() for t in threading.enumerate()):
+                break
+            time.sleep(0.01)
+        else:
+            pytest.fail('connection handler did not start')
+
+        stop_listener(stop, thr, timeout_s=1.0)
+        alive = [t.name for t in threading.enumerate() if t.name == 'InfServerSocketHandler' and t.is_alive()]
+        assert not alive, f'idle handler still alive: {alive}'
+        assert client.recv(1) == b''
+    finally:
+        client.close()
+
+
+def test_listener_stop_returns_when_callback_is_blocked():
+    """A blocked callback must not make shutdown wait beyond its timeout."""
+    callback_started = threading.Event()
+    release_callback = threading.Event()
+
+    def blocking_callback(req: InferRequest) -> InferResponse:
+        callback_started.set()
+        release_callback.wait(timeout=2.0)
+        return _echo_logits_callback(req)
+
+    port = _free_port()
+    ready = threading.Event()
+    stop = threading.Event()
+    thr = start_listener_in_thread(
+        port,
+        blocking_callback,
+        ready,
+        stop,
+        accept_poll_s=0.05,
+        read_poll_s=0.05,
+    )
+    assert ready.wait(timeout=2.0)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(('127.0.0.1', port))
+    try:
+        req = InferRequest(
+            static_hash=b'\x00' * 16,
+            client_id=1,
+            req_id=2,
+            dyn_obs=np.zeros(0, dtype=np.float32),
+            refs=np.zeros(0, dtype=np.int64),
+            pay=np.zeros(0, dtype=np.float32),
+        )
+        client.sendall(encode_infer_request(req))
+        assert callback_started.wait(timeout=1.0)
+        started = time.monotonic()
+        stop_listener(stop, thr, timeout_s=0.1)
+        elapsed = time.monotonic() - started
+        assert elapsed < 0.5, f'stop took {elapsed:.2f}s with blocked callback'
+        assert not thr.is_alive()
+    finally:
+        release_callback.set()
+        client.close()
+        stop_listener(stop, thr, timeout_s=1.0)
+
+
+def test_listener_stop_is_safe_from_concurrent_callers():
+    port = _free_port()
+    ready = threading.Event()
+    stop = threading.Event()
+    thr = start_listener_in_thread(port, _echo_logits_callback, ready, stop)
+    assert ready.wait(timeout=2.0)
+
+    callers = [threading.Thread(target=stop_listener, args=(stop, thr)) for _ in range(4)]
+    for caller in callers:
+        caller.start()
+    for caller in callers:
+        caller.join(timeout=1.0)
+    assert all(not caller.is_alive() for caller in callers)
+    assert not thr.is_alive()
+
+
 def test_listener_bind_failure_does_not_set_ready():
     """Bind 失败 → ready_event **不** set(I29 T-RR.6 fail-loud)。
 

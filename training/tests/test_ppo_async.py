@@ -109,6 +109,11 @@ def test_ppo_async_provider_wraps_local_and_shm():
                 self.version += 1
             return self.version
 
+        def replace_weights(self, state_dict, version):
+            self.network.load_state_dict(state_dict)
+            self.version = version
+            return self.version
+
         def current_version(self):
             return self.version
 

@@ -340,7 +340,7 @@ See `PLAN.md "Phase 3.4.5 actionable plan"` for follow-ups.
 
 **Windows X3D follow-up (Task T-3.4.5e per PLAN.md, deferred per Windows box unavailability):**
 
-- Run same tool on Windows: `ssh dev@192.168.31.56 'cd D:\gicg_dev && .\.venv\Scripts\python.exe -m tools.dmc.profile_actor --cfg configs\dmc\smoke.toml --duration-seconds 300'`
+- Run same tool on Windows: `.venv/bin/python -m tools.runs.exec configs/dmc/smoke.toml -- .venv/Scripts/python.exe -m tools.dmc.profile_actor --cfg configs/dmc/smoke.toml --duration-seconds 300`
 - Target: per-actor fps ≥ 1200 + multi-actor total ≥ 28k (24 actor) per PLAN.md §3.4.5.7.
 - Compare hotspot list vs Mac baseline above — expect NN forward proportion to grow (faster opponent self-play + V-Cache hit) and opp self-play proportion to shrink.
 
@@ -423,13 +423,13 @@ Two profiles measure orthogonal regimes:
 
 ## Phase 3.5 Windows GPU box — connection + environment (2026-05-14)
 
-### SSH access
+### Remote access
 
 ```bash
-ssh dev@192.168.31.56          # LAN,无密码(key-based)
+.venv/bin/python -m tools.runs.exec configs/dmc/smoke.toml -- hostname
 ```
 
-Hostname:`DESKTOP-GHJCC7Q`(9950X3D + 5070 Ti box)
+Hostname:`DEV-PC`(9950X3D + 5070 Ti box)
 
 ### 路径约定
 
@@ -467,17 +467,8 @@ build 时间 ~30 秒。产物 `D:\gicg_dev\gicg_env\libgicg.dll`。
 ### 同步代码 Mac → Windows
 
 ```bash
-# 从 Mac 推 code-only tarball(~37 MB),排除 artifacts / .venv / ref
-cd ~/Projects/gicg_mono
-tar -czf - \
-  --exclude=artifacts --exclude=.venv --exclude=ref --exclude=__pycache__ \
-  --exclude='.git' --exclude='*.pyc' --exclude='gicg_env/libgicg.dylib' \
-  --exclude='gicg_env/libgicg.h' \
-  -C ~/Projects/gicg_mono . | \
-  ssh dev@192.168.31.56 'powershell -Command "cd D:\gicg_dev; tar -xzf -"'
-
-# 清 macOS metadata
-ssh dev@192.168.31.56 'powershell -Command "Get-ChildItem D:\gicg_dev -Recurse -Force | Where-Object {\$_.Name -like \"._*\" -or \$_.Name -eq \".DS_Store\"} | Remove-Item -Force"'
+# train 前自动同步当前工作树;纯 run metadata 同步用 tools.runs.sync push
+.venv/bin/python -m tools.runs.train configs/dmc/smoke.toml
 ```
 
 ### Python venv 安装
@@ -522,7 +513,7 @@ $env:PYTHONIOENCODING = "utf-8"
 ### 注意 / 已知坑
 
 - **PowerShell SSH 编码**:Windows cmd `dir` 中文输出乱码;改用 PowerShell 命令拿目录信息
-- **PowerShell 多行命令通过 stdin pipe**:用 `cat << 'EOF' | ssh dev@... 'powershell -Command -'` 模式,避免 quote escape 问题
+- **PowerShell 多行命令**:复杂逻辑写入 repo 脚本,再通过 `tools.runs.exec <cfg> -- ...` 调用,避免 shell quoting 差异
 - **`PYTHONIOENCODING=utf-8` + `python -X utf8`**:中文角色名/卡牌名涉及 UTF-8,Windows 默认 cp936,需显式 UTF-8 mode
 - **Blackwell sm_120 必须 cu130 build**:cu126 + 5070 Ti 跑 → "compute capability sm_120 not compatible"
 

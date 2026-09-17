@@ -1,7 +1,7 @@
 """Win box fair bench — ssh-dispatched pytest perf_smoke sweep。
 
-Mirror tools/_bench/run_mac_collector_pair.py 但走 ssh 到 Win box (dev@192.168.31.56,
-cfg-driven via cfg.toml [meta].host=remote)。
+Mirror tools/_bench/run_mac_collector_pair.py 但走 ssh 到 Win box (host profile
+default ``gpu-win``)。
 
 Each sweep cell = 1 pytest spawn (`test_go_subprocess_perf_smoke_15s` 或
 `test_python_mp_perf_smoke_15s`) on Win,with BENCH_N_ACTORS + BENCH_SEED env var。
@@ -33,12 +33,9 @@ from tools._bench._collector_pair_common import (
     git_commit_short,
     parse_fps_line,
 )
+from tools.runs._host import HOST_REGISTRY, RemoteCfg, load_host_registry, ps_quote, ssh_run
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-
-# Win box (cfg-driven via bench cfg [meta].host=remote)。
-_WIN_SSH = 'dev@192.168.31.56'
-_WIN_ROOT = 'D:/gicg_dev'
 
 _GO_TEST = 'training/core/actor/tests/test_go_subprocess_perf_smoke.py::test_go_subprocess_perf_smoke_15s'
 _PY_TEST = 'training/core/actor/tests/test_python_mp_perf_smoke.py::test_python_mp_perf_smoke_15s'
@@ -49,6 +46,7 @@ def _ssh_pytest(
     n_actors: int,
     seed: int,
     *,
+    remote: RemoteCfg,
     gomaxprocs: Optional[int] = None,
     run_seconds: Optional[float] = None,
     timeout: int = 300,
@@ -62,7 +60,7 @@ def _ssh_pytest(
         tag += f' T={run_seconds:.0f}s'
     print(f'  [bench] running {test_name} {tag}', flush=True)
 
-    # Build PowerShell cmd:cd D:/gicg_dev + venv python + env var inline + pytest invocation
+    # Build PowerShell cmd:cd project root + venv python + env var inline + pytest invocation
     env_lines = [
         f'$env:BENCH_N_ACTORS={n_actors}',
         f'$env:BENCH_SEED={seed}',
@@ -72,7 +70,7 @@ def _ssh_pytest(
     if run_seconds is not None:
         env_lines.append(f'$env:BENCH_RUN_SECONDS={run_seconds}')
     ps_cmd = (
-        f'cd {_WIN_ROOT}; ' + '; '.join(env_lines) + '; '
+        f'cd {ps_quote(remote.root_native)}; ' + '; '.join(env_lines) + '; '
         f'.\\.venv\\Scripts\\python.exe -m pytest {test_node} -s -v --no-header --tb=short -m smoke_full'
     )
 
@@ -83,27 +81,18 @@ def _ssh_pytest(
 
     t0 = time.monotonic()
     try:
-        # binary mode + decode with errors='replace' — Win PowerShell stderr 含 GBK
-        # 编码字符 (e.g. 中文 process kill 错误消息),UTF-8 strict decode fail。 replace
-        # 让 bench harness 不撞 codec error。
-        r = subprocess.run(
-            ['ssh', _WIN_SSH, f'powershell -c "{ps_cmd}"'],
-            capture_output=True,
-            timeout=effective_timeout,
-        )
+        r = ssh_run(remote, ps_cmd, timeout=effective_timeout)
     except subprocess.TimeoutExpired:
         print(f'  [bench] TIMEOUT after {timeout}s', flush=True)
         return None
     dt = time.monotonic() - t0
 
-    stdout_text = (r.stdout or b'').decode('utf-8', errors='replace')
-    stderr_text = (r.stderr or b'').decode('utf-8', errors='replace')
-    combined = stdout_text + stderr_text
+    combined = (r.stdout or '') + (r.stderr or '')
 
     if r.returncode != 0:
         kind = classify_subprocess_failure(r.returncode, combined)
         if kind == 'skipped':
-            print(f'  [bench] SKIPPED (libs not built)', flush=True)
+            print('  [bench] SKIPPED (libs not built)', flush=True)
             return None
         print(f'  [bench] FAIL rc={r.returncode} wall={dt:.1f}s', flush=True)
         for line in combined.splitlines()[-30:]:
@@ -112,7 +101,7 @@ def _ssh_pytest(
 
     result = parse_fps_line(combined, test_node, wall_s=dt)
     if result is None:
-        print(f'  [bench] PASS but no fps line — output 前 30 行:', flush=True)
+        print('  [bench] PASS but no fps line — output 前 30 行:', flush=True)
         for line in combined.splitlines()[:30]:
             print(f'    {line}', flush=True)
         return None
@@ -146,22 +135,22 @@ def _sort_cell_key(kv) -> tuple:
     return (key, -1, -1.0)
 
 
-def _markdown_table(results: dict, out_path: Path) -> str:
+def _markdown_table(results: dict, out_path: Path, remote: RemoteCfg) -> str:
     commit = git_commit_short(_REPO_ROOT)
     date_str = time.strftime('%Y-%m-%d %H:%M')
 
     lines = [
-        f'# I29 Win box fair bench — pure collector throughput',
-        f'',
+        '# I29 Win box fair bench — pure collector throughput',
+        '',
         f'Commit: `{commit}`',
         f'Date: {date_str}',
-        f'Box: {_WIN_SSH} (DESKTOP-GHJCC7Q, 5070 Ti + 9950X3D)',
-        f'Window: 15s per run',
-        f'',
-        f'## Headline summary',
-        f'',
-        f'| Cell | Backend | fps mean ± std (CV) | fps/actor mean ± std (CV) | mem_delta mean | n runs |',
-        f'|------|---------|---------------------|---------------------------|----------------|--------|',
+        f'Box: {remote.ssh} ({remote.hostname}, 5070 Ti + 9950X3D)',
+        'Window: 15s per run',
+        '',
+        '## Headline summary',
+        '',
+        '| Cell | Backend | fps mean ± std (CV) | fps/actor mean ± std (CV) | mem_delta mean | n runs |',
+        '|------|---------|---------------------|---------------------------|----------------|--------|',
     ]
 
     for cell_key, backends in sorted(results.items(), key=_sort_cell_key):
@@ -210,6 +199,7 @@ def main() -> int:
         help='RUN_SECONDS sweep values (None = test default 15.0)。 typical: 15 30 60',
     )
     ap.add_argument('--out', type=str, default='tools/_bench/p2_results/sweep_win.md')
+    ap.add_argument('--host-profile', default='gpu-win')
     ap.add_argument(
         '--backend',
         choices=['go', 'python_mp', 'both'],
@@ -217,6 +207,11 @@ def main() -> int:
         help='which backend(s) to sweep (default: both)',
     )
     args = ap.parse_args()
+
+    profiles = load_host_registry(HOST_REGISTRY)
+    if args.host_profile not in profiles:
+        ap.error(f'unknown host profile {args.host_profile!r}; available: {", ".join(sorted(profiles))}')
+    remote = profiles[args.host_profile]
 
     seed_list = list(range(1, args.seeds + 1))
     out_path = _REPO_ROOT / args.out
@@ -227,7 +222,7 @@ def main() -> int:
     if args.backend in ('python_mp', 'both'):
         backends_to_run.append(('python_mp', _PY_TEST))
 
-    print(f'[bench] Win collector pair sweep', flush=True)
+    print('[bench] Win collector pair sweep', flush=True)
     print(f'[bench] N_actors={args.n_actors} seeds={seed_list} backends={[b for b, _ in backends_to_run]}', flush=True)
     print(f'[bench] total runs = {len(args.n_actors) * len(backends_to_run) * len(seed_list)} × ~30s wall', flush=True)
     print(flush=True)
@@ -253,7 +248,14 @@ def main() -> int:
                     print(f'[bench] -- seed={seed} --', flush=True)
                     for backend_name, test_node in backends_to_run:
                         gomx = gomaxprocs if backend_name == 'go' else None
-                        r = _ssh_pytest(test_node, n_actors, seed, gomaxprocs=gomx, run_seconds=run_s)
+                        r = _ssh_pytest(
+                            test_node,
+                            n_actors,
+                            seed,
+                            remote=remote,
+                            gomaxprocs=gomx,
+                            run_seconds=run_s,
+                        )
                         if r:
                             flat_results[cell_key][backend_name].append(r)
                 print(flush=True)
@@ -280,7 +282,7 @@ def main() -> int:
             print(f'    ratio Go/Py = {ratio:.2f}x', flush=True)
     print(flush=True)
 
-    _markdown_table(flat_results, out_path)
+    _markdown_table(flat_results, out_path, remote)
     return 0
 
 

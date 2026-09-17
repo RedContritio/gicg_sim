@@ -23,10 +23,7 @@ run_label = "dmc_stage3_b_v_legacy_go"
 host = "remote"
 
 [remote]
-ssh = "dev@192.168.31.56"
-root = "D:/gicg_dev"
-os = "windows"
-hostname = "DESKTOP-GHJCC7Q"
+profile = "gpu-win"
 
 [pipeline]
 actor_backend = "go"  # I29 R7 — N 个独立 gicg_actor subprocess

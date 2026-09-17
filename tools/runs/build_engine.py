@@ -11,7 +11,9 @@ prepended — that's a deploy-side concern。
 Outputs:
   - Windows  → ``<remote.root>\\gicg_env\\libgicg.dll`` (Python ctypes shared)
                + ``<remote.root>\\bin\\gicg_actor.exe`` (R7 standalone subprocess)
-  - POSIX    → ``<remote.root>/gicg_env/libgicg.so``
+  - Linux    → ``<remote.root>/gicg_env/libgicg.so``
+               + ``<remote.root>/bin/gicg_actor``
+  - Darwin   → ``<remote.root>/gicg_env/libgicg.dylib``
                + ``<remote.root>/bin/gicg_actor``
 
 I29 R7.1 (2026-05-25) 删 SHM inference path + R7.2 切 N independent Go subprocess
@@ -26,6 +28,7 @@ Build 顺序:engine 先 → actor (import gicg_engine 单向依赖)。 任一失
 from __future__ import annotations
 
 import argparse
+import shlex
 import sys
 from pathlib import Path
 
@@ -85,10 +88,11 @@ def _build_ps_windows(remote: RemoteCfg) -> str:
 
 def _build_sh_posix(remote: RemoteCfg) -> str:
     """Same -a rationale as Windows path — 防 cgo ``//export`` cache stale。"""
-    parts = [f'cd {remote.root}', 'CGO_ENABLED=1']
+    lib_suffix = '.dylib' if remote.os == 'darwin' else '.so'
+    parts = [f'cd {shlex.quote(remote.root)}', 'export CGO_ENABLED=1']
     for name, kind, src in _BUILD_TARGETS:
         if kind == 'c-shared':
-            parts.append(f'go build -a -buildmode=c-shared -o gicg_env/{name}.so {src}')
+            parts.append(f'go build -a -buildmode=c-shared -o gicg_env/{name}{lib_suffix} {src}')
         elif kind == 'exe':
             parts.append(f'go build -a -o bin/{name} {src}')
         else:

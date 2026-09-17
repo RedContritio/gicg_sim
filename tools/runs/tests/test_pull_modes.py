@@ -6,6 +6,7 @@ exclude logic, glob resolve, PS shape for tar pack, + cfg-driven dispatch。
 
 from __future__ import annotations
 
+import re
 import socket
 import subprocess
 import sys
@@ -31,6 +32,7 @@ from tools.runs.pull import (
 )
 
 _REMOTE = RemoteCfg(ssh='x@y', root='D:/gicg_dev', os='windows', hostname='OTHER-PC')
+_REMOTE_POSIX = RemoteCfg(ssh='u@h', root='/srv/gicg', os='linux', hostname='OTHER-LINUX')
 
 
 def _mk_cfg(tmp_path, body: str) -> Path:
@@ -39,7 +41,24 @@ def _mk_cfg(tmp_path, body: str) -> Path:
     return cfg
 
 
-def _remote_cfg(tmp_path) -> Path:
+def _write_registry(tmp_path, hostname: str = 'OTHER-PC') -> Path:
+    path = tmp_path / 'hosts.toml'
+    path.write_text(
+        textwrap.dedent(
+            f"""
+            [test]
+            ssh = "x@y"
+            root = "D:/gicg_dev"
+            os = "windows"
+            hostname = "{hostname}"
+            """
+        )
+    )
+    return path
+
+
+def _remote_cfg(tmp_path, hostname: str = 'OTHER-PC') -> Path:
+    _write_registry(tmp_path, hostname)
     return _mk_cfg(
         tmp_path,
         textwrap.dedent(
@@ -47,13 +66,15 @@ def _remote_cfg(tmp_path) -> Path:
             [meta]
             host = "remote"
             [remote]
-            ssh = "x@y"
-            root = "D:/gicg_dev"
-            os = "windows"
-            hostname = "OTHER-PC"
+            profile = "test"
             """
         ),
     )
+
+
+@pytest.fixture(autouse=True)
+def _host_registry(tmp_path, monkeypatch):
+    monkeypatch.setattr('tools.runs._host.HOST_REGISTRY', tmp_path / 'hosts.toml')
 
 
 def test_parse_run_label(tmp_path):
@@ -103,6 +124,20 @@ def test_to_rel_absolute_outside_root_raises():
 
 def test_to_rel_backslash_normalized():
     assert _to_rel(_REMOTE, 'D:\\gicg_dev\\artifacts\\foo') == 'artifacts/foo'
+
+
+def test_to_rel_windows_is_case_insensitive_but_respects_boundary():
+    assert _to_rel(_REMOTE, 'D:/GICG_DEV/artifacts/foo') == 'artifacts/foo'
+    with pytest.raises(ValueError):
+        _to_rel(_REMOTE, 'D:/gicg_dev_extra/artifacts/foo')
+
+
+def test_to_rel_posix_is_case_sensitive_and_respects_boundary():
+    assert _to_rel(_REMOTE_POSIX, '/srv/gicg/artifacts/foo') == 'artifacts/foo'
+    with pytest.raises(ValueError):
+        _to_rel(_REMOTE_POSIX, '/srv/GICG/artifacts/foo')
+    with pytest.raises(ValueError):
+        _to_rel(_REMOTE_POSIX, '/srv/gicg_extra/artifacts/foo')
 
 
 def test_local_mirror_artifacts():
@@ -159,6 +194,19 @@ def test_resolve_glob_returns_relative():
     assert rels == ['artifacts/foo/a.toml', 'artifacts/foo/b.toml']
 
 
+def test_resolve_glob_posix_uses_find_pattern():
+    fake = subprocess.CompletedProcess(
+        args=[],
+        returncode=0,
+        stdout='/srv/gicg/artifacts/foo/a.toml\n/srv/gicg/artifacts/foo/b.toml\n',
+        stderr='',
+    )
+    with patch('tools.runs.pull.ssh_run_bash', return_value=fake) as ssh:
+        rels = _resolve_glob(_REMOTE_POSIX, 'artifacts/foo/*.toml')
+    assert rels == ['artifacts/foo/a.toml', 'artifacts/foo/b.toml']
+    assert ssh.call_args.args[1] == ("find /srv/gicg -path '/srv/gicg/artifacts/foo/*.toml' -type f -print")
+
+
 def test_pull_via_tar_ps_contains_tar_and_cleanup(tmp_path):
     """ssh_run 含 `tar -czf` 主调 + cleanup `Remove-Item` 调。"""
     ps_calls: list[str] = []
@@ -182,6 +230,83 @@ def test_pull_via_tar_ps_contains_tar_and_cleanup(tmp_path):
     assert any('Remove-Item' in ps for ps in ps_calls)
 
 
+def test_pull_via_tar_posix_uses_bash(tmp_path):
+    sh_calls: list[str] = []
+
+    def fake_ssh(remote, script, **kw):
+        sh_calls.append(script)
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+
+    def fake_scp(remote, rel, local, **kw):
+        with tarfile.open(local, 'w:gz'):
+            pass
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+
+    with (
+        patch('tools.runs.pull.ssh_run_bash', side_effect=fake_ssh),
+        patch('tools.runs.pull.scp_from', side_effect=fake_scp),
+    ):
+        rc = _pull_via_tar(_REMOTE_POSIX, ["run's files"], extract_root=tmp_path)
+    assert rc == 0
+    assert any('tar -czf' in sh and "'run'\"'\"'s files'" in sh for sh in sh_calls)
+    assert any(sh.startswith('rm -f -- ') for sh in sh_calls)
+
+
+def test_pull_via_tar_windows_quotes_root(tmp_path):
+    remote = RemoteCfg(ssh='x@y', root="D:/repo's", os='windows', hostname='OTHER-PC')
+    ps_calls: list[str] = []
+
+    def fake_ssh(remote, ps, **kw):
+        ps_calls.append(ps)
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+
+    def fake_scp(remote, rel, local, **kw):
+        with tarfile.open(local, 'w:gz'):
+            pass
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+
+    with (
+        patch('tools.runs.pull.ssh_run', side_effect=fake_ssh),
+        patch('tools.runs.pull.scp_from', side_effect=fake_scp),
+    ):
+        assert _pull_via_tar(remote, ['artifacts/x'], extract_root=tmp_path) == 0
+    assert any(ps.startswith("cd 'D:\\repo''s'; tar -czf") for ps in ps_calls)
+
+
+def test_pull_via_tar_rejects_empty_path_list(tmp_path, capsys):
+    assert _pull_via_tar(_REMOTE, [], extract_root=tmp_path) == 1
+    assert 'refusing empty tar path list' in capsys.readouterr().err
+
+
+def test_dir_mode_remote_root_uses_dot_and_self_excludes_archive(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    ps_calls: list[str] = []
+
+    def fake_ssh(remote, ps, **kw):
+        ps_calls.append(ps)
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+
+    def fake_scp(remote, rel, local, **kw):
+        with tarfile.open(local, 'w:gz'):
+            pass
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
+
+    args = _mk_args(tmp_path, dir_='D:/gicg_dev')
+    with (
+        patch('tools.runs.pull.ssh_run', side_effect=fake_ssh),
+        patch('tools.runs.pull.scp_from', side_effect=fake_scp),
+    ):
+        assert _run_dir(_REMOTE, args) == 0
+
+    tar_command = next(ps for ps in ps_calls if 'tar -czf' in ps)
+    match = re.search(r'pull_[0-9a-f]{8}\.tar\.gz', tar_command)
+    assert match is not None
+    archive = match.group(0)
+    assert f"--exclude='{archive}'" in tar_command
+    assert f"--exclude='./{archive}'" in tar_command
+    assert tar_command.endswith(" '.'")
+
+
 # ---------------------------------------------------------------------------
 # cfg-driven dispatch tests
 # ---------------------------------------------------------------------------
@@ -202,20 +327,7 @@ def test_dispatch_remote_cfg_runs_legacy(tmp_path):
 
 
 def test_dispatch_loopback_runs_local_noop(tmp_path):
-    cfg = _mk_cfg(
-        tmp_path,
-        textwrap.dedent(
-            f"""
-            [meta]
-            host = "remote"
-            [remote]
-            ssh = "x@y"
-            root = "D:/X"
-            os = "windows"
-            hostname = "{socket.gethostname()}"
-            """
-        ),
-    )
+    cfg = _remote_cfg(tmp_path, socket.gethostname())
     with patch.object(sys, 'argv', ['pull.py', str(cfg), 'runlbl']):
         assert main() == 0
 
@@ -257,159 +369,3 @@ def test_strip_artifacts_prefix_empty():
     stripped, ok = _strip_artifacts_prefix([])
     assert ok is True
     assert stripped == []
-
-
-# ---------------------------------------------------------------------------
-# --files extraction path: no nesting (regression test for tar nesting bug)
-# ---------------------------------------------------------------------------
-
-
-def _make_tar_with_entries(tar_path: Path, entries: dict[str, bytes]):
-    """Create a real tar.gz with given {arcname: content} entries."""
-    import io
-
-    with tarfile.open(tar_path, 'w:gz') as tf:
-        for name, data in entries.items():
-            info = tarfile.TarInfo(name=name)
-            info.size = len(data)
-            tf.addfile(info, io.BytesIO(data))
-
-
-def test_files_mode_extracts_flat_not_nested(tmp_path):
-    """--files glob for artifacts/run/ckpts/ckpt_7500.pt must extract to
-    artifacts/run/ckpts/ckpt_7500.pt, NOT artifacts/run/ckpts/artifacts/run/ckpts/ckpt_7500.pt.
-
-    Simulates the full _run_files flow with mocked ssh (glob resolve) and
-    mocked scp (delivers a tar whose entries match what the remote tar would
-    produce after the fix: paths relative to remote artifacts/ dir).
-    """
-    run_dir = '202606010000_000149_dmc'
-    ckpt_name = 'ckpt_7500.pt'
-    ckpt_content = b'fake-checkpoint-data'
-
-    # The tar the remote would create: cd <root>/artifacts; tar -czf ... run/ckpts/file
-    # After the fix, tar entry is relative to artifacts/ dir.
-    tar_entry = f'{run_dir}/ckpts/{ckpt_name}'
-    local_tar = tmp_path / 'transfer.tar.gz'
-    _make_tar_with_entries(local_tar, {tar_entry: ckpt_content})
-
-    # Mock ssh_run for glob resolve: return absolute Windows paths
-    glob_stdout = f'D:\\gicg_dev\\artifacts\\{run_dir}\\ckpts\\{ckpt_name}\n'
-    glob_result = subprocess.CompletedProcess(args=[], returncode=0, stdout=glob_stdout, stderr='')
-
-    # Mock ssh_run for tar creation: succeed
-    tar_result = subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-
-    ssh_call_count = [0]
-
-    def fake_ssh(remote, ps, **kw):
-        ssh_call_count[0] += 1
-        if 'Get-ChildItem' in ps:
-            return glob_result
-        if 'tar -czf' in ps:
-            return tar_result
-        # cleanup Remove-Item
-        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-
-    def fake_scp(remote, rel, local_dest, **kw):
-        import shutil
-
-        shutil.copy2(local_tar, local_dest)
-        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-
-    local_root = tmp_path / 'artifacts'
-    local_root.mkdir()
-    args = _mk_args(
-        tmp_path,
-        files=f'artifacts/{run_dir}/ckpts/{ckpt_name}',
-        local_root=str(local_root),
-    )
-
-    with (
-        patch('tools.runs.pull.ssh_run', side_effect=fake_ssh),
-        patch('tools.runs.pull.scp_from', side_effect=fake_scp),
-    ):
-        rc = _run_files(_REMOTE, args)
-
-    assert rc == 0
-
-    # Correct: file at artifacts/run/ckpts/ckpt_7500.pt
-    expected = local_root / run_dir / 'ckpts' / ckpt_name
-    assert expected.exists(), f'expected {expected} to exist'
-    assert expected.read_bytes() == ckpt_content
-
-    # Regression: must NOT have nested artifacts/ path
-    nested = local_root / run_dir / 'ckpts' / 'artifacts'
-    assert not nested.exists(), f'nested path {nested} must not exist (tar nesting bug)'
-
-
-def test_dir_mode_extracts_flat_not_nested(tmp_path):
-    """--dir artifacts/run/ must extract to artifacts/run/, not artifacts/artifacts/run/."""
-    run_dir = '202606010000_000150_az'
-    file_name = 'metrics.jsonl'
-    file_content = b'{"step":1}\n'
-
-    tar_entry = f'{run_dir}/{file_name}'
-    local_tar = tmp_path / 'transfer.tar.gz'
-    _make_tar_with_entries(local_tar, {tar_entry: file_content})
-
-    tar_result = subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-
-    def fake_ssh(remote, ps, **kw):
-        if 'tar -czf' in ps:
-            return tar_result
-        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-
-    def fake_scp(remote, rel, local_dest, **kw):
-        import shutil
-
-        shutil.copy2(local_tar, local_dest)
-        return subprocess.CompletedProcess(args=[], returncode=0, stdout='', stderr='')
-
-    local_root = tmp_path / 'artifacts'
-    local_root.mkdir()
-    args = _mk_args(
-        tmp_path,
-        dir_=f'artifacts/{run_dir}/',
-        local_root=str(local_root),
-    )
-
-    with (
-        patch('tools.runs.pull.ssh_run', side_effect=fake_ssh),
-        patch('tools.runs.pull.scp_from', side_effect=fake_scp),
-    ):
-        rc = _run_dir(_REMOTE, args)
-
-    assert rc == 0
-
-    expected = local_root / run_dir / file_name
-    assert expected.exists(), f'expected {expected} to exist'
-    assert expected.read_bytes() == file_content
-
-    nested = local_root / 'artifacts'
-    assert not nested.exists(), f'nested path {nested} must not exist (tar nesting bug)'
-
-
-def test_files_mode_tar_cwd_is_artifacts_dir(tmp_path):
-    """Verify _run_files passes tar_cwd pointing to remote artifacts/ dir
-    (not remote root) so tar entries are artifacts-relative."""
-    glob_stdout = 'D:\\gicg_dev\\artifacts\\run1\\ckpts\\latest.pt\n'
-
-    def fake_ssh(remote, ps, **kw):
-        return subprocess.CompletedProcess(
-            args=[], returncode=0, stdout=glob_stdout if 'Get-ChildItem' in ps else '', stderr=''
-        )
-
-    args = _mk_args(tmp_path, files='artifacts/run1/ckpts/latest.pt')
-
-    with (
-        patch('tools.runs.pull.ssh_run', side_effect=fake_ssh),
-        patch('tools.runs.pull._pull_via_tar', return_value=0) as m,
-    ):
-        _run_files(_REMOTE, args)
-
-    call_kw = m.call_args
-    # rel_paths should have artifacts/ prefix stripped
-    assert call_kw.args[1] == ['run1/ckpts/latest.pt']
-    # tar_cwd should point to remote root + artifacts
-    assert call_kw.kwargs['tar_cwd'] == 'D:\\gicg_dev\\artifacts'

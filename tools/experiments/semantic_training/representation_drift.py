@@ -11,7 +11,24 @@ score high even when their behaviour has changed. It systematically over-reports
 agreement) rather than instead of it.
 """
 
+import hashlib
+
 import torch
+
+
+def model_digest(agent):
+    digests = {}
+    for label, module in (('net', agent.net), ('rule_head', agent.rule_head)):
+        digest = hashlib.sha256()
+        for name, value in sorted(module.state_dict().items()):
+            tensor = value.detach().cpu().contiguous()
+            digest.update(name.encode())
+            digest.update(str(tensor.dtype).encode())
+            digest.update(str(tuple(tensor.shape)).encode())
+            serializable = tensor.to(torch.float32) if tensor.dtype == torch.bfloat16 else tensor
+            digest.update(serializable.numpy().tobytes())
+        digests[label] = digest.hexdigest()
+    return digests
 
 
 def linear_cka(features, other):
@@ -53,7 +70,9 @@ def tensor_drift(reference, candidate):
         other = candidate[key]
         if value.shape != other.shape:
             raise ValueError(f'tensor shape differs for {key}: {tuple(value.shape)} vs {tuple(other.shape)}')
-        delta = (other.to(torch.float64) - value.to(torch.float64)).abs()
+        left = value.to(device='cpu', dtype=torch.float64)
+        right = other.to(device='cpu', dtype=torch.float64)
+        delta = (right - left).abs()
         rows[key] = {'mean': float(delta.mean()), 'max': float(delta.max())}
     if not rows:
         raise ValueError('state dict is empty')

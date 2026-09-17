@@ -34,6 +34,7 @@ from tools.experiments.semantic_training.imitation_loss import imitation_loss
 from tools.experiments.semantic_training.paired_replay import PairedReplay
 from tools.experiments.semantic_training.paired_training import assess
 from tools.experiments.semantic_training.representation_drift import cosine_similarity
+from tools.experiments.semantic_training.rule_auxiliary import attach_adapter
 
 
 @dataclass(frozen=True)
@@ -41,7 +42,7 @@ class ArmSpec:
     """One preservation mechanism. Everything else is held fixed across arms."""
 
     name: str
-    trainable: str  # 'all' | 'head'
+    trainable: str  # 'all' | 'head' | 'isolated'
     learning_rate: float
     probe_fraction: float = 0.0  # >0 freezes the policy for the first fraction of steps
     replay_lambda: float = 0.0
@@ -59,6 +60,7 @@ def arm_specs(*, learning_rate=3e-4, finetune_learning_rate=3e-5, replay_lambda=
         'full_lowlr': ArmSpec('full_lowlr', 'all', finetune_learning_rate),
         'replay': ArmSpec('replay', 'all', learning_rate, replay_lambda=replay_lambda),
         'anchored': ArmSpec('anchored', 'all', learning_rate, anchor_beta=anchor_beta, gate='binary'),
+        'isolated_rule': ArmSpec('isolated_rule', 'isolated', learning_rate),
     }
 
 
@@ -169,6 +171,8 @@ def run_arm(
     torch.manual_seed(seed)
     agent.net.eval()
     names = policy_trainable_names(agent)
+    if spec.trainable == 'isolated' and not hasattr(agent, 'rule_adapter'):
+        attach_adapter(agent)
     anchor = copy.deepcopy(agent.net).eval().requires_grad_(False) if spec.anchor_beta else None
     replay = PairedReplay(pairs, seed, batch_pairs=batch_pairs)
     diagnostic = PairedReplay(pairs, seed + 7919, batch_pairs=batch_pairs)
@@ -195,12 +199,15 @@ def run_arm(
     frozen = None
     eta = None
     for step in range(1, steps + 1):
-        freeze_policy = spec.trainable == 'head' or step <= probe_steps
+        freeze_policy = spec.trainable != 'all' or step <= probe_steps
         if freeze_policy != frozen:
             frozen = freeze_policy
             apply_trainable(agent, names, not frozen)
+            rule_parameters = list(agent.rule_head.parameters())
+            if spec.trainable == 'isolated':
+                rule_parameters = list(agent.rule_adapter.parameters()) + rule_parameters
             optimizer = torch.optim.AdamW(
-                trainable_parameters(agent) + list(agent.rule_head.parameters()),
+                trainable_parameters(agent) + rule_parameters,
                 lr=spec.learning_rate,
                 weight_decay=0,
             )
@@ -232,7 +239,7 @@ def run_arm(
             (spec.replay_lambda * imitation_fit(agent, _sample_rows(teacher_rows, rng, teacher_batch))).backward()
         if spec.anchor_beta:
             (spec.anchor_beta * anchor_kl(agent, anchor, _sample_rows(teacher_rows, rng, teacher_batch))).backward()
-        parameters = trainable_parameters(agent) + list(agent.rule_head.parameters())
+        parameters = optimizer.param_groups[0]['params']
         norm = torch.nn.utils.clip_grad_norm_(parameters, 5)
         if not torch.isfinite(norm):
             raise ValueError(f'nonfinite gradient in arm {spec.name}')

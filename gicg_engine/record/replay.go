@@ -211,13 +211,13 @@ func ReplayTo(rt *interp.Runtime, rec *Record, step int) error {
 		targetRound = ri + 1
 		localIdx = len(r.Actions)
 	}
-	if err := Load(rt, rec, targetRound); err != nil {
+	if err := load(rt, rec, targetRound, true); err != nil {
 		return fmt.Errorf("load round %d: %w", targetRound, err)
 	}
 	replayer := &Replayer{Runtime: rt, Rec: rec}
 	for i := 0; i < localIdx; i++ {
 		if rt.Game.Phase == engine.PhaseGameOver {
-			return nil
+			return fmt.Errorf("game over before round %d action %d/%d", targetRound, i, localIdx)
 		}
 		if err := replayer.Step(targetRound, i); err != nil {
 			return fmt.Errorf("step round=%d local=%d: %w", targetRound, i, err)

@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 from tools.runs._host import RemoteCfg
 from tools.runs._remote_sync import (
+    _auto_sync,
     _deleted_since_commit,
     _ssh_delete_paths,
     _uncommitted_deletions,
@@ -87,8 +88,7 @@ def test_ssh_delete_paths_empty_skips_ssh():
 
 
 def test_ssh_delete_paths_windows_uses_remove_item_literalpath():
-    """Win 路径:PowerShell `Remove-Item -LiteralPath @(...) -Force
-    -ErrorAction SilentlyContinue`,路径用反斜杠(Win 风格)。"""
+    """Win 路径:PowerShell `Remove-Item -LiteralPath` fail loud,路径用反斜杠。"""
     with patch('tools.runs._remote_sync.ssh_run') as ssh:
         ssh.return_value.returncode = 0
         ssh.return_value.stderr = ''
@@ -98,10 +98,22 @@ def test_ssh_delete_paths_windows_uses_remove_item_literalpath():
     assert 'Remove-Item' in ps
     assert '-LiteralPath' in ps
     assert '-Force' in ps
-    assert 'SilentlyContinue' in ps
-    # Win 路径反斜杠:
+    assert '-ErrorAction Stop' in ps
+    assert 'SilentlyContinue' not in ps
+    assert 'if (Test-Path -LiteralPath $path)' in ps
+    assert 'exit 0 } catch { Write-Error $_; exit 1 }' in ps
     assert 'gicg_actor\\x.go' in ps
     assert 'tools\\y.py' in ps
+
+
+def test_ssh_delete_paths_windows_failure_returns_nonzero():
+    with patch('tools.runs._remote_sync.ssh_run') as ssh:
+        ssh.return_value.returncode = 7
+        ssh.return_value.stderr = 'remove failed'
+        rc = _ssh_delete_paths(_remote_win(), [Path('stale.py')])
+        ps = ssh.call_args[0][1]
+    assert rc == 7
+    assert 'catch { Write-Error $_; exit 1 }' in ps
 
 
 def test_ssh_delete_paths_posix_uses_rm_minus_f():
@@ -112,5 +124,44 @@ def test_ssh_delete_paths_posix_uses_rm_minus_f():
         assert rc == 0
         sh = ssh.call_args[0][1]
     assert 'rm -f' in sh
+    assert 'rm -f --' in sh
     assert 'a.py' in sh
     assert 'dir/b.py' in sh
+
+
+def test_auto_sync_deletion_failure_does_not_advance_sha():
+    remote = _remote_win()
+    head = 'a' * 40
+    with (
+        patch('tools.runs._remote_sync._git', return_value=head),
+        patch('tools.runs._remote_sync._read_remote_sha', return_value='b' * 40),
+        patch('tools.runs._remote_sync._committed_diff', return_value=[]),
+        patch('tools.runs._remote_sync._uncommitted_files', return_value=[]),
+        patch('tools.runs._remote_sync._deleted_since_commit', return_value=[Path('stale.py')]),
+        patch('tools.runs._remote_sync._uncommitted_deletions', return_value=[]),
+        patch('tools.runs._remote_sync._tar_and_send', return_value=0),
+        patch('tools.runs._remote_sync._ssh_delete_paths', return_value=7) as delete,
+        patch('tools.runs._remote_sync._write_remote_sha', return_value=0) as write,
+    ):
+        assert _auto_sync(remote, dry_run=False, base_sha_override=None) == 7
+    delete.assert_called_once_with(remote, [Path('stale.py')])
+    write.assert_not_called()
+
+
+def test_auto_sync_missing_remote_deletion_is_success():
+    remote = _remote_win()
+    head = 'a' * 40
+    with (
+        patch('tools.runs._remote_sync._git', return_value=head),
+        patch('tools.runs._remote_sync._read_remote_sha', return_value='b' * 40),
+        patch('tools.runs._remote_sync._committed_diff', return_value=[]),
+        patch('tools.runs._remote_sync._uncommitted_files', return_value=[]),
+        patch('tools.runs._remote_sync._deleted_since_commit', return_value=[Path('already-gone.py')]),
+        patch('tools.runs._remote_sync._uncommitted_deletions', return_value=[]),
+        patch('tools.runs._remote_sync._tar_and_send', return_value=0),
+        patch('tools.runs._remote_sync._ssh_delete_paths', return_value=0) as delete,
+        patch('tools.runs._remote_sync._write_remote_sha', return_value=0) as write,
+    ):
+        assert _auto_sync(remote, dry_run=False, base_sha_override=None) == 0
+    delete.assert_called_once_with(remote, [Path('already-gone.py')])
+    write.assert_called_once_with(remote, head)

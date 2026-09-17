@@ -51,16 +51,10 @@ def _write_local_cfg(tmp_path: Path) -> Path:
 
 
 def _write_remote_cfg(tmp_path: Path, hostname: str = 'OTHER-PC') -> Path:
-    p = tmp_path / 'remote.toml'
-    p.write_text(
+    (tmp_path / 'hosts.toml').write_text(
         textwrap.dedent(
             f"""
-            [meta]
-            seed = 1
-            paradigm = "dmc"
-            run_label = "remote_test"
-            host = "remote"
-            [remote]
+            [test]
             ssh = "dev@host"
             root = "D:/gicg_dev"
             os = "windows"
@@ -68,7 +62,26 @@ def _write_remote_cfg(tmp_path: Path, hostname: str = 'OTHER-PC') -> Path:
             """
         )
     )
+    p = tmp_path / 'remote.toml'
+    p.write_text(
+        textwrap.dedent(
+            """
+            [meta]
+            seed = 1
+            paradigm = "dmc"
+            run_label = "remote_test"
+            host = "remote"
+            [remote]
+            profile = "test"
+            """
+        )
+    )
     return p
+
+
+@pytest.fixture(autouse=True)
+def _host_registry(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr('tools.runs._host.HOST_REGISTRY', tmp_path / 'hosts.toml')
 
 
 # ---------------------------------------------------------------------------
