@@ -155,6 +155,20 @@ class CheckpointManager:
             'cfg_run_label': self.cfg.meta.run_label,
             'runtime': capture_runtime(self.runtime_components),
         }
+        # Self-describing keys for the matchup player loader
+        # (training/core/matchup/loaders + paradigms/*/_player_loader.py):
+        # 'cfg' = AgentConfig as a reconstructable dict, 'net_state_dict'
+        # = the INNER net's state dict (loadable into a fresh
+        # Agent(cfg).net). Duck-gated on the network wrapper exposing
+        # .agent.cfg / .agent.net so paradigms without that surface keep
+        # the legacy payload byte-identical. Purely additive — every
+        # pre-existing key above is untouched.
+        agent = getattr(self.network, 'agent', None) or getattr(self.network, '_agent', None)
+        agent_cfg = getattr(agent, 'cfg', None)
+        inner_net = getattr(agent, 'net', None)
+        if agent_cfg is not None and inner_net is not None:
+            payload['cfg'] = dict(vars(agent_cfg))
+            payload['net_state_dict'] = inner_net.state_dict()
         if extra:
             payload.update(extra)
         save_checkpoint(payload, ckpt_path)

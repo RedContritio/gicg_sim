@@ -32,6 +32,7 @@ def update(
     rule_optimizer=None,
     rule_beta=0.0,
     auxiliary_loss=None,
+    anchor_beta=0.02,
 ):
     stats = []
     stopped = False
@@ -62,7 +63,13 @@ def update(
             with torch.no_grad():
                 reference = anchor.net(batch)
             loss, metrics = policy_loss(
-                logits / temperature, batch['legal_mask'], actions, old, advantages, reference / temperature
+                logits / temperature,
+                batch['legal_mask'],
+                actions,
+                old,
+                advantages,
+                reference / temperature,
+                beta=anchor_beta,
             )
             if value_loss is not None:
                 metrics['value_loss'] = value_loss

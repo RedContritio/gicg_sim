@@ -30,7 +30,11 @@ _CFG = None
 _OPPONENT_DEPTH = 1
 
 
-def initialize(config, checkpoint, opponent_depth=1):
+def _evaluated_checkpoint(checkpoint, player_spec):
+    return player_spec.get('ckpt') if player_spec else checkpoint
+
+
+def initialize(config, checkpoint, opponent_depth=1, player_spec=None):
     global _AGENT, _CFG, _OPPONENT_DEPTH
     _OPPONENT_DEPTH = opponent_depth
     torch.set_num_threads(1)
@@ -38,7 +42,8 @@ def initialize(config, checkpoint, opponent_depth=1):
     if checkpoint == 'teacher-d2':
         _AGENT = GreedyPlayer(features='F1', depth=2, dice_greedy=True, seed=0)
         return
-    _AGENT = load_player({'type': 'semantic_rl', 'ckpt': str(checkpoint)})(seed=0)
+    spec = dict(player_spec) if player_spec else {'type': 'semantic_rl', 'ckpt': str(checkpoint)}
+    _AGENT = load_player(spec)(seed=0)
 
 
 def game(job):
@@ -60,15 +65,29 @@ def _game(job, game_cfg, manifest):
     )
     try:
         env.reset(seed=scenario.env_seed, deck_seeds=(scenario.deck_seed_p0, scenario.deck_seed_p1))
-        if isinstance(_AGENT, GreedyPlayer):
-            _AGENT.rng.seed(derive_seed(seed, 'own', index * 2 + side))
-        else:
+        own_seed = derive_seed(seed, 'own', index * 2 + side)
+        if hasattr(_AGENT, 'seed'):
+            _AGENT.seed(own_seed)
+        elif hasattr(_AGENT, 'rng'):
+            _AGENT.rng.seed(own_seed)
+        if hasattr(_AGENT, 'game_start'):
+            # Optional protocol: semantic agents cache static hook embeddings
+            # per game; wrappers may forward the lifecycle to their agent.
             _AGENT.game_start(env.static_obs)
         actions = []
+        search_ms = 0.0
         budget = DecisionBudget(_CFG.paradigm['max_game_steps'])
         for _ in budget.iterate(env):
             own = env.acting_player == side
-            action = _AGENT.select_action(env) if own else opponent.select_action(env)
+            if own:
+                if hasattr(_AGENT, 'last_search_ms'):
+                    t0 = time.monotonic()
+                    action = _AGENT.select_action(env)
+                    search_ms += (time.monotonic() - t0) * 1000.0
+                else:
+                    action = _AGENT.select_action(env)
+            else:
+                action = opponent.select_action(env)
             actions.append(env.get_action_identities()[action].tolist())
             env.step(action)
         if not env.done or env.winner not in (0, 1, 2):
@@ -91,6 +110,7 @@ def _game(job, game_cfg, manifest):
             'steps': budget.actions,
             'decisions': budget.decisions,
             'internal_decisions': budget.internal,
+            'search_ms_total': search_ms,
             'trajectory_sha256': hashlib.sha256(json.dumps(actions).encode()).hexdigest(),
         }
     finally:
@@ -98,7 +118,16 @@ def _game(job, game_cfg, manifest):
 
 
 def evaluate(
-    config, checkpoint, output, scenarios=64, layouts=4, workers=8, seed=124000, opponent_depth=1, variants=None
+    config,
+    checkpoint,
+    output,
+    scenarios=64,
+    layouts=4,
+    workers=8,
+    seed=124000,
+    opponent_depth=1,
+    variants=None,
+    player_spec=None,
 ):
     if opponent_depth not in (1, 2):
         raise ValueError('opponent depth must be 1 or 2')
@@ -115,16 +144,18 @@ def evaluate(
         for side in (0, 1)
         for layout in range(layouts)
     ]
+    actual_checkpoint = _evaluated_checkpoint(checkpoint, player_spec)
     result = {
         'status': 'running',
         'variants': variants,
+        'player_spec': player_spec,
         'seed': seed,
         'opponent_depth': opponent_depth,
         'scenarios': scenarios,
         'layouts': layouts,
-        'checkpoint': str(checkpoint),
-        'checkpoint_sha256': hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest()
-        if checkpoint != 'teacher-d2'
+        'checkpoint': str(actual_checkpoint) if actual_checkpoint is not None else None,
+        'checkpoint_sha256': hashlib.sha256(Path(actual_checkpoint).read_bytes()).hexdigest()
+        if actual_checkpoint not in (None, 'teacher-d2')
         else None,
         'scenario': asdict(cfg.scenario),
         'max_game_steps': cfg.paradigm['max_game_steps'],
@@ -141,7 +172,7 @@ def evaluate(
     save()
     try:
         with ProcessPoolExecutor(
-            max_workers=workers, initializer=initialize, initargs=(config, checkpoint, opponent_depth)
+            max_workers=workers, initializer=initialize, initargs=(config, checkpoint, opponent_depth, player_spec)
         ) as pool:
             for row in pool.map(game, jobs):
                 result['games'].append(row)
@@ -191,5 +222,29 @@ if __name__ == '__main__':
     p.add_argument('--workers', type=int, default=8)
     p.add_argument('--seed', type=int, default=124000)
     p.add_argument('--opponent-depth', type=int, choices=(1, 2), default=1)
+    p.add_argument(
+        '--player-spec',
+        type=str,
+        default=None,
+        help='JSON player spec (default: semantic_rl ckpt). E.g. \'{"type":"az","ckpt":"<path>","n_simulations":16}\'',
+    )
+    p.add_argument(
+        '--variants',
+        type=str,
+        default=None,
+        help='rule-variant catalog path (all games play heldout variants)',
+    )
     a = p.parse_args()
-    evaluate(a.config, a.checkpoint, a.output, a.scenarios, a.layouts, a.workers, a.seed, a.opponent_depth)
+    spec = json.loads(a.player_spec) if a.player_spec else None
+    evaluate(
+        a.config,
+        a.checkpoint,
+        a.output,
+        a.scenarios,
+        a.layouts,
+        a.workers,
+        a.seed,
+        a.opponent_depth,
+        player_spec=spec,
+        variants=a.variants,
+    )

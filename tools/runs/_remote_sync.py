@@ -1,30 +1,7 @@
-"""Sync local source to a PowerShell-capable remote host.
-
-CLI:
-
-    .venv/bin/python -m tools.runs._remote_sync <cfg.toml> [mode flags]
-
-Modes:
-  (default / --auto)   since-last-sync: uncommitted ∪ git diff <last_sha> HEAD
-  --git-changed        only uncommitted (legacy, kept for compat)
-  --single PATH        scp a single file
-  --tar-all            tar entire REPO_DIRS
-  --from-sha SHA       override the base sha for the committed-diff calc
-  --dry-run            print what would be synced; no push
-
-Default mode tracks ``<remote.root>/.last_synced_sha`` on the remote:
-each successful clean-tree sync writes local HEAD there. Dirty syncs do
-NOT update the sha — next sync still re-pushes the same committed diff
-plus whatever's still uncommitted. First sync(no remote sha)→ all tracked
-files(equivalent to --tar-all but only files git knows about)。
-
-If ``[meta].host == 'local'``(or hostname loopback)sync is a no-op
-since source = destination — emits a warning + returns 0。
-"""
+"""Synchronize local source to a configured remote host."""
 
 from __future__ import annotations
 
-import argparse
 import shlex
 import subprocess
 import sys
@@ -34,12 +11,15 @@ from pathlib import Path
 
 from tools.runs._host import (
     RemoteCfg,
-    is_local_host,
-    load_remote_from_cfg,
     ps_quote,
     scp_to,
     ssh_run,
     ssh_run_bash,
+)
+from tools.runs._sync_manifest import (
+    hash_file as _hash_file,
+    read_remote_manifest as _read_remote_manifest,
+    write_remote_manifest as _write_remote_manifest,
 )
 
 REPO_DIRS = ['gicg_engine', 'training', 'gicg_env', 'tools', 'data', 'configs']
@@ -183,7 +163,12 @@ def _print_plan(label: str, paths: list[Path], base_sha: str | None, head: str, 
 
 def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) -> int:
     """Default mode — uncommitted ∪ committed_diff(remote_sha → HEAD)+ remote-side
-    deletion of paths git 删/改名 since last sync(tar 只 upsert,不删)。"""
+    deletion of paths git 删/改名 since last sync(tar 只 upsert,不删)。
+
+    Content-addressed (09-19): the remote manifest records the sha256 of
+    every file sync has placed there; only candidates whose content hash
+    changed since the last push cross the wire. After push + deletions the
+    manifest is rewritten and read back for verification (D)."""
     head = _git('rev-parse', 'HEAD').strip()
     base = base_sha_override if base_sha_override is not None else _read_remote_sha(remote)
     uncommitted = _uncommitted_files()
@@ -208,18 +193,53 @@ def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) 
     # 纯删除场景下旧逻辑把 dirty tree 误判 clean → sha 错误前进)。
     clean = not uncommitted and not uncommitted_dels
     label = 'auto (first-sync, ls-files)' if base is None else f'auto (diff {base[:12]}..HEAD)'
+
+    # --- A: content-addressed filter (manifest may be {} on first run) --- #
+    manifest = {} if dry_run else _read_remote_manifest(remote)
+    local_hashes: dict[str, str] = {}
+    unreadable: list[Path] = []
+    to_push: list[Path] = []
+    for p in paths:
+        h = _hash_file(p)
+        if h is None:
+            unreadable.append(p)
+            continue
+        local_hashes[str(p)] = h
+        if manifest.get(str(p)) != h:
+            to_push.append(p)
+    if unreadable:
+        print(f'[sync] ERROR: {len(unreadable)} candidate file(s) unreadable: {unreadable[:3]}', file=sys.stderr)
+        return 2
+
+    if deletions:
+        # Skip deletes the remote manifest shows as already absent (idempotent
+        # re-runs of the same uncommitted deletion were re-deleting every sync).
+        known = [p for p in deletions if not manifest or str(p) in manifest]
+        skipped = len(deletions) - len(known)
+        if skipped:
+            print(f'[sync] {skipped} deletion(s) already absent on remote (manifest) — skipped')
+        deletions = known
     if dry_run:
-        _print_plan(label, paths, base, head, clean)
+        _print_plan(label, to_push, base, head, clean)
+        print(
+            f'[sync:dry-run] content-filter: {len(paths)} candidates → {len(to_push)} to push ({len(paths) - len(to_push)} unchanged)'
+        )
         if deletions:
             print(f'[sync:dry-run] + {len(deletions)} files to delete on remote:')
             for p in deletions:
                 print(f'  - {p}')
         return 0
-    if not paths and not deletions:
-        print(f'[sync] nothing to push (remote already at {head[:12]})')
+    if not to_push and not deletions:
+        print(f'[sync] nothing changed vs remote manifest (HEAD {head[:12]})')
+        if clean:
+            wrc = _write_remote_sha(remote, head)
+            if wrc != 0:
+                print('[sync] WARN: failed to update remote .last_synced_sha', file=sys.stderr)
+            else:
+                print(f'[sync] remote .last_synced_sha → {head[:12]}')
         return 0
-    if paths:
-        rc = _tar_and_send(remote, paths, label)
+    if to_push:
+        rc = _tar_and_send(remote, to_push, label)
         if rc != 0:
             return rc
     if deletions:
@@ -227,9 +247,31 @@ def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) 
         rc = _ssh_delete_paths(remote, deletions)
         if rc != 0:
             return rc
+    # Manifest = previous entries + pushed hashes - deleted paths. Entries
+    # for files synced earlier and untouched this round carry over as-is.
+    for p in deletions:
+        manifest.pop(str(p), None)
+    manifest.update(local_hashes)
+    wrc = _write_remote_manifest(remote, manifest)
+    if wrc != 0:
+        print('[sync] WARN: failed to write remote manifest (next sync re-pushes)', file=sys.stderr)
+    else:
+        # --- D: read-back verification --- #
+        back = _read_remote_manifest(remote)
+        expected = {k: v for k, v in manifest.items()}
+        if back != expected:
+            missing = sorted(set(expected) - set(back))[:5]
+            diff = sorted(k for k in expected if k in back and back[k] != expected[k])[:5]
+            print(
+                f'[sync] ERROR: manifest verification failed (missing={missing} mismatch={diff})',
+                file=sys.stderr,
+            )
+            return 3
+        print(f'[sync] manifest verified: {len(back)} files tracked')
     # Only advance sha pointer on clean trees — uncommitted means the next
     # push must re-include the same committed diff + still-dirty files,
-    # so don't move the base.
+    # so don't move the base. The manifest already makes those re-pushes
+    # content-cheap (unchanged files skip the wire).
     if clean:
         wrc = _write_remote_sha(remote, head)
         if wrc != 0:
@@ -241,56 +283,10 @@ def _auto_sync(remote: RemoteCfg, dry_run: bool, base_sha_override: str | None) 
     return 0
 
 
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument('cfg', type=Path, help='Training cfg toml; [meta].host decides local vs remote')
-    g = p.add_mutually_exclusive_group()
-    g.add_argument('--single', type=str)
-    g.add_argument('--tar-all', action='store_true')
-    g.add_argument('--git-changed', action='store_true', help='legacy: uncommitted only')
-    g.add_argument('--auto', action='store_true', help='default: uncommitted ∪ diff(remote_sha..HEAD)')
-    p.add_argument('--from-sha', type=str, default=None, help='override base sha for committed-diff calc')
-    p.add_argument('--dry-run', action='store_true', help='print plan; no push')
-    args = p.parse_args()
+def main() -> int:
+    from tools.runs._remote_sync_cli import main as run_cli
 
-    remote = load_remote_from_cfg(args.cfg)
-    if is_local_host(remote):
-        print('[sync] cfg [meta].host=local (or loopback) — nothing to push', file=sys.stderr)
-        return 0
-    assert remote is not None
-
-    if args.single:
-        if args.dry_run:
-            print(f'[sync:dry-run] mode=single  {args.single}')
-            return 0
-        r = scp_to(remote, Path(args.single), args.single)
-        if r.returncode != 0:
-            print(r.stderr, file=sys.stderr)
-        return r.returncode
-
-    if args.tar_all:
-        paths = [Path(d) for d in REPO_DIRS if Path(d).exists()]
-        if args.dry_run:
-            print('[sync:dry-run] mode=tar-all')
-            for pp in paths:
-                print(f'  {pp}')
-            return 0
-        return _tar_and_send(remote, paths, 'tar-all')
-
-    if args.git_changed:
-        paths = _uncommitted_files()
-        if args.dry_run:
-            print(f'[sync:dry-run] mode=git-changed (uncommitted)  {len(paths)} files:')
-            for pp in paths:
-                print(f'  {pp}')
-            return 0
-        if not paths:
-            print('[sync] nothing changed')
-            return 0
-        return _tar_and_send(remote, paths, 'git-changed')
-
-    # Default: auto / since-last-sync.
-    return _auto_sync(remote, dry_run=args.dry_run, base_sha_override=args.from_sha)
+    return run_cli()
 
 
 if __name__ == '__main__':

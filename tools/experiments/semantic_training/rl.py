@@ -49,6 +49,7 @@ def run(
     rule_beta=0.0,
     rule_stride=4,
     learning_rate=1e-5,
+    anchor_beta=0.02,
     evaluate_dev=True,
 ):
     if not math.isfinite(learning_rate) or learning_rate <= 0:
@@ -110,7 +111,7 @@ def run(
         master_seed=seed,
         epochs=2,
         lr=learning_rate,
-        anchor_beta=0.02,
+        anchor_beta=anchor_beta,
         clip=0.2,
         dev_seed=dev_seed,
         dev_scenarios=dev_scenarios,
@@ -235,6 +236,7 @@ def run(
                 temperature=temperature,
                 rule_optimizer=rule_optimizer,
                 rule_beta=rule_beta,
+                anchor_beta=anchor_beta,
             )
             for side in (0, 1):
                 rewards = [r['reward'] for r in records if r['side'] == side]

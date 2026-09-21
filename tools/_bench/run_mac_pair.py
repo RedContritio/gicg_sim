@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import subprocess
 import sys
 import time
@@ -208,7 +207,7 @@ Frames per run: {results['total_frames']}
             for name, st in run.get('go_perf_stages', {}).items():
                 agg_stages[name]['n'] += st['n']
                 agg_stages[name]['sum_ms'] += st['sum_ms']
-        md += f'| Stage | n calls | mean_ms |\n|-------|--------:|--------:|\n'
+        md += '| Stage | n calls | mean_ms |\n|-------|--------:|--------:|\n'
         for name in sorted(agg_stages):
             st = agg_stages[name]
             if st['n'] == 0:

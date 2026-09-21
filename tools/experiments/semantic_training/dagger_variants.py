@@ -29,11 +29,13 @@ def train(
     tie_objective='uniform',
     anchor_beta=0.0,
     recheck_seed=94290,
+    seed_base=94120,
 ):
     root = Path(output)
     root.mkdir(parents=True, exist_ok=False)
     tick = time.monotonic()
     initial, replay = checkpoint, []
+    selection_seed = seed_base - 130
     status = dict(
         status='running',
         stage='initial_evaluation',
@@ -42,8 +44,8 @@ def train(
         episodes=episodes,
         steps=steps,
         workers=workers,
-        training_seeds=list(range(94120, 94120 + rounds)),
-        selection_seed=93990,
+        training_seeds=list(range(seed_base + 1, seed_base + 1 + rounds)),
+        selection_seed=selection_seed,
         recheck_seed=recheck_seed,
         learning_rate=learning_rate,
         tie_objective=tie_objective,
@@ -94,7 +96,7 @@ def train(
     with (root / 'console.log').open('w', encoding='utf-8', buffering=1) as log:
         try:
             with redirect_stdout(log), redirect_stderr(log):
-                status['candidates'].append(panel(checkpoint, 'dev_0', 93990, 55))
+                status['candidates'].append(panel(checkpoint, 'dev_0', selection_seed, 55))
                 for index in range(1, rounds + 1):
                     status.update(stage='dagger', round=index)
                     save()
@@ -105,7 +107,7 @@ def train(
                         episodes,
                         steps,
                         workers,
-                        seed=94119 + index,
+                        seed=seed_base + index,
                         initial=checkpoint,
                         variants=catalog,
                         learner=checkpoint,
@@ -117,7 +119,7 @@ def train(
                     result = json.loads((out / 'result.json').read_text())
                     checkpoint = result['checkpoint']
                     replay.append(str(Path(result['run']) / 'teacher'))
-                    status['candidates'].append(panel(checkpoint, f'dev_{index}', 93990, 55))
+                    status['candidates'].append(panel(checkpoint, f'dev_{index}', selection_seed, 55))
                     save()
                 chosen = max(status['candidates'], key=lambda x: x['score'])['checkpoint']
                 status.update(stage='independent_development_recheck', selected=chosen)
@@ -148,5 +150,20 @@ if __name__ == '__main__':
     p.add_argument('--episodes', type=int, default=256)
     p.add_argument('--steps', type=int, default=1000)
     p.add_argument('--workers', type=int, default=8)
+    p.add_argument('--seed-base', type=int, default=94120)
+    p.add_argument('--recheck-seed', type=int, default=94290)
+    p.add_argument('--tie-objective', choices=('uniform', 'set', 'executed'), default='uniform')
     a = p.parse_args()
-    train(a.config, a.checkpoint, a.catalog, a.output, a.rounds, a.episodes, a.steps, a.workers)
+    train(
+        a.config,
+        a.checkpoint,
+        a.catalog,
+        a.output,
+        a.rounds,
+        a.episodes,
+        a.steps,
+        a.workers,
+        tie_objective=a.tie_objective,
+        recheck_seed=a.recheck_seed,
+        seed_base=a.seed_base,
+    )

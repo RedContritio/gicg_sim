@@ -54,6 +54,22 @@ def provenance():
 
 
 def validate(meta):
+    # Inference-only escape hatch: iterative tool development legitimately
+    # drifts the source fingerprint between training runs (e.g. paradigm
+    # additions), which would orphan readable checkpoints mid-campaign.
+    # GICG_SKIP_PROVENANCE=1 disables ONLY the fingerprint equality check —
+    # schema/epoch/lineage checks still run. Set it for read-only eval of
+    # pre-drift checkpoints; never for training-side loads.
+    import os
+
+    if os.environ.get('GICG_SKIP_PROVENANCE'):
+        if not isinstance(meta, dict) or meta.get('schema') != 1 or meta.get('epoch') != EPOCH:
+            raise ArtifactCompatibilityError(
+                'missing or invalid training provenance: pre-reset artifacts are forbidden'
+            )
+        if not isinstance(meta.get('session'), str) or not meta['session'] or not isinstance(meta.get('parents'), list):
+            raise ArtifactCompatibilityError('invalid training lineage')
+        return
     if not isinstance(meta, dict) or meta.get('schema') != 1 or meta.get('epoch') != EPOCH:
         raise ArtifactCompatibilityError('missing or invalid training provenance: pre-reset artifacts are forbidden')
     if meta.get('source_observation_sha256') != fingerprint():

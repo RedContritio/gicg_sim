@@ -82,7 +82,7 @@ def _episode(args, cfg, manifest):
             raise RuntimeError('RL collection did not reach terminal state')
         reward = terminal_outcome(env.winner, side)
         for row in rows:
-            row.update(reward=reward, side=side)
+            row.update(reward=reward, reward_encoding='signed_outcome', side=side)
         path = Path(directory) / f'episode_{index:05d}.pt'
         torch.save(rows, path)
         return {

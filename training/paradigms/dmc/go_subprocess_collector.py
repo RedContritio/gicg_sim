@@ -20,7 +20,7 @@ import torch
 from training.core.actor.go_subprocess_pipeline import PipelineHandle
 from training.core.actor.pipeline_tuning_cfg import PipelineTuningCfg
 from training.core.protocols import CollectorOutput
-from training.paradigms.dmc._go_assembler import AssembledEpisode, DmcTransitionAssembler
+from training.paradigms.dmc._go_assembler import DmcTransitionAssembler
 from training.paradigms.dmc._go_collector_helpers import (
     _GoCollectorInternalMixin,
     _strip_outer_length_and_decode,

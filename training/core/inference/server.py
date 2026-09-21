@@ -17,6 +17,8 @@ import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+from training.core.inference.server_loop import _server_loop
+
 if TYPE_CHECKING:
     from training.core.network import AgentConfig
 
@@ -30,9 +32,6 @@ class InferenceServerConfig:
     batch_timeout_ms: float = 3.0
     weight_queue_timeout_s: float = 0.001
     stats_emit_interval_s: float = 5.0
-
-
-from training.core.inference.server_loop import _server_loop
 
 
 class InferenceServer:
@@ -122,6 +121,21 @@ class InferenceServer:
         if not self._started:
             raise RuntimeError('InferenceServer not started')
         self._weight_queue.put({'kind': 'weight_update', 'weights': cpu_state_dict})
+
+    def is_alive(self) -> bool:
+        """Liveness probe for callers about to block on us — a dead server
+        turns weight_queue.put / pipe.send into a SILENT wedge once OS
+        buffers fill. Cheap; safe before start (False)."""
+        proc = self._process
+        return proc is not None and proc.is_alive()
+
+    def check_alive(self) -> None:
+        """Raise with the server's error queue payload if it died — loud
+        failure instead of an indefinite block downstream."""
+        if self.is_alive():
+            return
+        self._raise_if_error()
+        raise RuntimeError('InferenceServer process is not alive')
 
     def _raise_if_error(self) -> None:
         try:

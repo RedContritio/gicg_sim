@@ -21,6 +21,7 @@ from training.core.cfg import ObsShape, ParadigmConfigBase, build_shape_from_tom
 __all__ = [
     'AZParadigmConfig',
     'AgentShapeCfg',
+    'FixedOpponentCfg',
     'MCTSCfg',
     'TrainStepCfg',
 ]
@@ -65,6 +66,40 @@ class MCTSCfg:
 
 
 @dataclass(frozen=True)
+class FixedOpponentCfg:
+    """[paradigm.fixed_opponent] — fixed-opponent (non-mirror) selfplay.
+
+    ExIt remediation for the A5.2 mirror lock (docs/3_plans/cards/
+    exit_az.md + docs/5_history/handoff_20260914_part2.md): the opponent
+    seat is driven by a FIXED pool player (feature-greedy 为主 + optional
+    random / historical ckpt ring), sampled per episode, instead of the
+    training network. ``None`` (default) = legacy mirror selfplay.
+
+    Only ``type='greedy'`` is implemented this slice; ``features`` /
+    ``depth`` / ``dice_greedy`` are validated when the pool builds the
+    player (GreedyPlayer raises on unknown feature set / depth ∉ 1..4).
+    """
+
+    type: str = 'greedy'  # only 'greedy' supported this slice
+    features: str = 'F1'
+    depth: int = 2
+    dice_greedy: bool = True
+    random: float = 0.0  # weight: uniform-random player
+    greedy: float = 1.0  # weight: the GreedyPlayer spec above
+    historical: float = 0.0  # weight: learner ckpt ring (needs agent_factory)
+    ring_size: int = 20  # historical ring capacity
+    seed: int = 0
+
+    def __post_init__(self):
+        s = self.random + self.greedy + self.historical
+        if abs(s - 1.0) > 1e-6:
+            raise ValueError(
+                f'FixedOpponentCfg: weights must sum to 1.0, got {s} '
+                f'(random={self.random} greedy={self.greedy} historical={self.historical})'
+            )
+
+
+@dataclass(frozen=True)
 class TrainStepCfg:
     """[paradigm.train] section — algorithm-side training knobs.
 
@@ -76,6 +111,12 @@ class TrainStepCfg:
     value_mix_lambda: float = 0.5
     entropy_coef: float = 0.0
     delta_aux_coef: float = 0.1
+    # 09-20 锚定蒸馏（D2 战役"锚点是保护性的"教训迁移到 ExIt）：从强
+    # 初始化（RL16）热启动时，policy CE 之外加对参考策略的蒸馏锚，
+    # 防止无锚漂移（观测：policy_loss/entropy 升、argmax 低于起点）。
+    # anchor_beta=0 关闭（默认）；anchor_ckpt 为 az 格式 ckpt 路径。
+    anchor_beta: float = 0.0
+    anchor_ckpt: str = ''
 
 
 @dataclass(frozen=True)
@@ -94,6 +135,12 @@ class AZParadigmConfig(ParadigmConfigBase):
     sync_weights_every_train_steps: int = 0  # async weight republish cadence (0/1 = each train iter)
     min_buffer_before_train: int = 256
     init_from_ckpt: Optional[str] = None
+    fixed_opponent: Optional[FixedOpponentCfg] = None  # None = mirror (A5.2 legacy default)
+    # Async actor inference: True (default) = each actor process owns a local
+    # CPU Agent copy, weights via WeightsSHM (no InferenceServer → single
+    # CUDA context, no per-eval pipe round-trip). False = the legacy
+    # central InferenceServer path (explicit cross-actor batching).
+    local_inference: bool = True
     agent: ObsShape = field(default_factory=make_az_default_shape)
     mcts: MCTSCfg = field(default_factory=MCTSCfg)
     train: TrainStepCfg = field(default_factory=TrainStepCfg)
@@ -111,5 +158,6 @@ class AZParadigmConfig(ParadigmConfigBase):
                 'agent': lambda dd: build_shape_from_toml(dd, make_az_default_shape),
                 'mcts': lambda dd: MCTSCfg(**dd),
                 'train': lambda dd: TrainStepCfg(**dd),
+                'fixed_opponent': lambda dd: FixedOpponentCfg(**dd),
             },
         )

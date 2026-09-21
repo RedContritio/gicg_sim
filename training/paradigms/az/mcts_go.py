@@ -10,6 +10,7 @@ from __future__ import annotations
 import ctypes
 import json
 import random
+import sys
 from typing import Any
 
 import numpy as np
@@ -161,7 +162,16 @@ def mcts_search_go(
         }
         if profile_json_out.value is not None:
             info['profile'] = json.loads(profile_json_out.value.decode('utf-8'))
-            ctypes.CDLL(None).free(profile_json_out)
+            # The buffer was allocated by the Go c-shared lib via C malloc.
+            # POSIX: free through the process main handle (CDLL(None)) — the
+            # Go c-shared and Python share libc. Windows: CDLL(None) is not a
+            # valid ctypes name (TypeError — 09-19 this killed every go-backend
+            # actor on 56 at first search), and freeing across the mingw/
+            # msvcrt heap boundary risks heap corruption, so we deliberately
+            # LEAK the small per-search profile string there (~hundreds of
+            # bytes per decision; bounded by total decisions per process).
+            if sys.platform != 'win32':
+                ctypes.CDLL(None).free(profile_json_out)
         return chosen, info
     finally:
         env.snapshot_free(root_snap)

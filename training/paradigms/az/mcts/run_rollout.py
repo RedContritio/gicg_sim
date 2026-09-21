@@ -93,9 +93,17 @@ def run_rollout(
             prof.n_env_step += 1
             prof.env_step_s += _pc() - t0
         if info.get('need_target'):
-            raise RuntimeError(
-                'MCTS rollout hit STEP_NEED_TARGET — legacy PendingCardTarget path is unsupported by the tree.'
-            )
+            # Pending target / forced-switch continuation (normal mid-game
+            # state — see selfplay.play_self_game). The child stays
+            # non-terminal; the next loop iteration re-reads the legal
+            # list, which now contains the target choices, and resolves
+            # them like any other ply.
+            child = node.children[chosen_id]
+            child.turn = env.acting_player
+            child.terminal = False
+            path.append(child)
+            depth += 1
+            continue
 
         child = node.children[chosen_id]
         child.turn = env.acting_player

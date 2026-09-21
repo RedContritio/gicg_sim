@@ -58,6 +58,7 @@ the ``EV_*`` module constants below.
 
 from __future__ import annotations
 
+import os
 import random
 from dataclasses import dataclass
 from typing import Optional
@@ -190,7 +191,29 @@ class GreedyPlayer:
         self.minimax_node_budget = minimax_node_budget
 
     def select_action(self, env: GicgEnv) -> int:
-        """Pick one action by score-argmax with random tiebreak."""
+        """Pick one action by score-argmax with random tiebreak.
+
+        Fast path (09-19): when dice_greedy is on and the engine lib
+        exports the Go-native greedy search (capi GameSelectGreedyAction),
+        delegate the whole minimax to one cgo call. The Go port folds
+        dice payments unconditionally, so dice_greedy=False keeps the
+        pure-Python path. Equivalence gate is winrate-level (the Go
+        port's design D2), not move-by-move. GICG_NO_GO_GREEDY=1
+        disables the fast path."""
+        if self.dice_greedy and not os.environ.get('GICG_NO_GO_GREEDY'):
+            engine = getattr(env, '_engine', None)
+            if engine is not None:
+                try:
+                    pick = engine.select_greedy_action(
+                        self.cfg.features,
+                        self.cfg.depth,
+                        self.minimax_node_budget or 0,
+                        self.rng.getrandbits(63),
+                    )
+                except Exception:
+                    pick = -1
+                if pick >= 0:
+                    return pick
         action, _ = self.select_with_info(env)
         return action
 

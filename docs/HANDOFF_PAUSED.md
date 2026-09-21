@@ -1,42 +1,67 @@
 # 暂停交接
 
-2026-09-14、2026-09-15 的三次暂停记录见
-[暂停期会话记录](5_history/pause_sessions_20260914_0915.md)。
-2026-09-16 设备恢复后已完成策略保留六臂正式对照和文档收尾；当前没有已知运行中的训练。
-当前目标仍是「随机规则变体下稳定胜过 D2」，**仍未达成**。分支 `dev`，恢复时以
-`git status` 核对工作区，不 reset/clean。
+更新时间：2026-09-21。
 
-工作区包含未提交的 `remote-host-decoupling` 实现与策略保留文档；本地提交也尚未 push。
-提交状态、运行产物和完整结论分别以 `git status`、[实时状态](0_status/README.md)与
-[策略保留报告](5_history/policy_retention_20260916.md)为准。
+## 授权状态
+
+56 当前**禁止使用**。这是一项持续状态：
+
+- 用户明确授权后，保持允许，直到用户明确取消；
+- 用户明确取消后，保持禁止，直到用户明确重新授权；
+- 禁止期间不做远端只读探查、同步、训练、评估或进程操作。
+
+设备授权只决定能否访问设备，不自动授权启动训练。训练和重量级评估仍需用户明确要求。
+
+## 当前目标
+
+在保持零样本/少样本泛化能力的基础上，稳定战胜 F1-D2。目标尚未完成。
+
+正式完成标准：多训练种子、独立测试 seed、配对场景聚类 95%CI 下界高于 50%，同时 heldout 规则变体无明显崩溃。
+
+## 已确认结论
+
+- executed 模仿目标是语义路线唯一稳定阳性改进；RL16 达到原生约 42–45%、heldout 约 40–43%，但未过完成线。
+- 数据和步数翻倍、d128×2L、DAgger、RL 预算翻倍、后果残差、去锚、事后 value head、三种推理时搜索均未建立可复现收益。
+- 从零 ExIt 的 z 目标证明 value 学习机制可工作，但 g225 只有 argmax 8/220、MCTS16 10/220，无法接近 RL16。
+- 无锚 RL16 热启动 ExIt 明确退化：ep256 argmax 51/220、MCTS16 33/220。
+- 锚定 beta=0.3 仍无正向证据：
+  - argmax：75/220，对同种子基线 83/220；
+  - MCTS16：66/220，对同种子基线 64/220。
+- beta=1.0 训练切片已产出 `ckpt_2431.pt`，尚未评估，不能据此判断锚定强度是否有效。
+
+完整数字与工程过程见 [ExIt 报告](5_history/exit_pilot_20260918.md)、[F1-D2 总结](5_history/d2_campaign_20260917.md)及各专项报告。
+
+## 56 最后已知状态
+
+取消授权前最后一次检查显示没有活动 Python 训练或评估进程，CPU/GPU 近空闲。此信息只代表当时快照，禁止期间不得重新核实。
+
+run `202609200935_000084_exit_ws_anchor_b1`：
+
+- 配置：`configs/az/exit_ws_anchor.toml`
+- 单因素：`anchor_beta=1.0`，`lr=3e-4`
+- 首个有效更新后 checkpoint：`ckpt_2431.pt`
+- metadata 陈旧地保留 `status="running"`
+- 没有对应的 beta=1.0 配对评估目录
+
+本地结构清理改变了源码指纹。未来重新授权后，不得直接先同步本地树；应先决定在原远端代码现场评估，还是在确认行为等价后显式跳过 provenance 校验。
+
+## 本地工作区
+
+- 分支 `dev`，领先 `origin/dev` 15，尚未 push。
+- 09-17 以来的 ExIt/AZ、Go greedy、远端同步 manifest、语义训练工具和 Web 改动尚未统一提交。
+- 2026-09-21 已完成：
+  - 所有当前 Python 改动 Ruff 格式化；
+  - 五个超限生产文件完成职责拆分，300 行门禁恢复；
+  - 受影响的 AZ、need_target、greedy 与远端同步测试 106 通过。
+  - `v0.3.0` 至当前工作区的累计审查已完成；项目全量 Python 测试 2697 通过、18 跳过；Go test/vet/build、前端 lint/生产构建、OpenSpec 索引和 diff 检查通过。
+- `ref/genius-invokation` 是独立参考包，其 Python 测试依赖未安装的 `gitcg` 绑定，不属于上述项目验收范围。
+- 当前本地源码指纹：`0dff7aef5a6d4f71970c8b7f75977830fa1854d94b9f9d49599b663fcff1ff05`。
+- 禁止使用 `git reset`、`git clean` 或覆盖现有工作区。
 
 ## 恢复顺序
 
-1. 读本页、`CLAUDE.md`、`docs/0_status/README.md`；`git status` 核对工作区，并检查本机与 56
-   是否仍有运行任务。没有自动续训任务。
-2. **「清理」已完成，不再是前置决策**：行数清理全部收尾，`gicg_env/libgicg.dylib` 已按新 Go 源码
-   重建（指纹 `ff423c96…`）。兼容性前置已满足，但启动训练仍需用户明确要求。若之后再改
-   `fingerprint()` 覆盖范围内的源码，
-   须重新走「改完 → 重建 dylib」。`fingerprint()` 不含 `tools/` 与 `configs/`，改这两处无需重建。
-3. `remote-host-decoupling` 已实施并通过本机端到端链路验证，`configs/hosts/hosts.toml` 已建立；
-   本机测试、pre-commit、源码指纹中性验证与文档记录核对均通过。唯一未完成的验收是真实 56 的
-   **远端首次同步与训练派发全链路验收**。该验收已获授权；当前等待 56 可用，change 尚未 archive。
-   设备上线后先只读探测：
-   `.venv/bin/python -m tools.runs.exec --timeout 30 configs/dmc/native_starter.toml -- hostname`
-   再确认没有活动训练：
-   `.venv/bin/python -m tools.runs.status configs/dmc/native_starter.toml`
-   `.venv/bin/python -m tools.runs.kill configs/dmc/native_starter.toml --dry-run --all`
-   确认无活动训练后，串行执行：
-   `.venv/bin/python -m tools.runs.train configs/dmc/native_starter.toml`
-   远端根统一为 `D:/gicg_dev`。
-   **不要**全树同步覆盖 56 的指纹目录；只同步 `tools/` 与 `configs/`（`fingerprint()` 不含它们），
-   远端操作只走项目封装，不手写 `ssh` / `scp`；训练按单个任务串行执行。
-4. 策略保留六臂对照已完成。下一轮等预算 RL 从
-   `artifacts/202609160202_000021_retention_full/full_policy.pt` 开始；`warmup` 用于对照，
-   不要重跑六臂。`full` 与 `anchored` 的直接差值为 `anchored-full=+1.36pp
-   [-6.82,+9.55]`，没有证据支持 `anchored` 更好，因此选择机制更简单的 `full`。
-5. 评测纪律：开发面板与确认面板必须分开；**96400 与 96600 均已用于选模，不能再当独立证据**。
-   下一轮正式对比必须用新 seed，差值报配对场景聚类 95%CI，并做臂对臂比较。
-6. 最终三种子训练 seed 971000/981000/991000、测试 seed 971900/981900/991900 仍保留未用。
-7. 文档审计未完成全仓人工审阅（以 `coverage.tsv` 为准）；网页回放已通过桌面与 390px 移动端
-   浏览器验收。
+1. 若工作区继续变化，重跑与改动相称的本地测试和门禁。
+2. 整理提交边界；提交信息描述最终交付，不描述中间调试过程。
+3. 等用户明确重新授权 56。
+4. 重新授权后先收尾 run 000084，并评估 `ckpt_2431.pt`；未完成评估前不继续相同配方训练。
+5. beta=1.0 若仍无正向证据，下一单因素候选是降低学习率，不延长同配方。

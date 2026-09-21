@@ -119,6 +119,9 @@ class _AgentMCTSPlayer:
             env.log_resume()
         return chosen
 
+    def seed(self, seed: int) -> None:
+        self.rng.seed(seed)
+
 
 PlayerBuilder = Callable[[int], _PlayerProtocol]
 LoaderFactory = Callable[[dict], PlayerBuilder]

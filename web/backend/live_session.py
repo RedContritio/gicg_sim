@@ -75,6 +75,7 @@ def build_legal_actions(env: GicgEnv) -> list[dict]:
     labels = env.get_action_labels()
     identities = env.get_action_identities()
     payments = env.get_legal_action_payments()
+    refs = env.get_action_refs()  # [kind, count/aux, color] — drives RerollPanel
     actions = []
     for i, k in enumerate(kinds):
         if i < len(labels):
@@ -90,6 +91,7 @@ def build_legal_actions(env: GicgEnv) -> list[dict]:
                 'slot': int(slot),
                 'payment': payments[i].tolist(),
                 'identity': identities[i].tolist(),
+                'refs': refs[i].tolist(),
             }
         )
     return actions

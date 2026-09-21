@@ -92,6 +92,11 @@ class _FakeServer:
     def start(self, *a, **k):
         self.started = True
 
+    def check_alive(self):
+        """Liveness protocol added with the wedge-forensics pass — the
+        fake is always alive (no real process to die)."""
+        return None
+
     def push_weights(self, cpu_state_dict):
         if not self.started:
             raise RuntimeError('push_weights before start')
@@ -141,6 +146,9 @@ def _real_cfg(num_actors: int = 2):
                 'n_cross_layers': 1,
             },
             'mcts': {'n_rollouts': 4, 'profile': False},
+            # These tests exercise the legacy SERVER path explicitly; the
+            # production default is local_inference=True (per-actor CPU net).
+            'local_inference': False,
         },
         checkpoint=CheckpointCfg(),
     )
@@ -246,6 +254,47 @@ def test_az_async_collector_bootstrap_starts_server_then_spawns(monkeypatch):
     assert len(rt.start_actors_calls) == 1
 
 
+def test_az_async_collector_local_bootstrap_publishes_weights_shm(monkeypatch):
+    """local_inference=True (the production default): NO InferenceServer is
+    constructed; the learner weights are written to a WeightsSHM ``latest``
+    slot BEFORE spawning, and actors are handed provider_kwargs with the
+    shm attach info."""
+    import training.core.inference.server as srv_mod
+
+    def _no_server(**kwargs):  # pragma: no cover - fail loud if constructed
+        raise AssertionError('InferenceServer must not be built in local mode')
+
+    monkeypatch.setattr(srv_mod, 'InferenceServer', _no_server)
+
+    from training.paradigms.az._async import WEIGHTS_TAG, AZAsyncCollector
+
+    cfg = _real_cfg(num_actors=2)
+    paradigm = dict(cfg.paradigm)
+    paradigm['local_inference'] = True
+    object.__setattr__(cfg, 'paradigm', paradigm)
+
+    rt = _MockRuntime()
+    coll = AZAsyncCollector(cfg, _pcfg(cfg), _FakeNet(), runtime=rt, ring=_MockRing())
+    coll._bootstrap()
+
+    assert coll._inference_server is None
+    assert coll._inference_clients == []
+    # Initial weights landed in the slot before any actor spawned.
+    sd, ver = coll._weights_shm.read(WEIGHTS_TAG)
+    assert sd is not None and ver == 1
+    # Actor handoff carries the shm attach info via provider_kwargs.
+    n_actors, kw = rt.start_actors_calls[0]
+    assert n_actors == 2
+    assert 'inference_client' not in kw
+    assert kw['provider_kwargs']['weights_shm'] is not None
+    # sync_weights republishes with an advancing version.
+    coll.sync_weights(_FakeNet())
+    sd2, ver2 = coll._weights_shm.read(WEIGHTS_TAG)
+    assert ver2 == 2 and sd2 is not None
+    coll.close()
+    assert coll._weights_shm is None
+
+
 def test_az_async_collector_collect_drains_ring():
     from training.paradigms.az.collector import AZAsyncCollector
 
@@ -268,9 +317,10 @@ def test_az_async_collector_collect_drains_ring():
     assert out.episode_stats[0]['winner'] == 0 and out.episode_stats[0]['n_steps'] == 3
     assert out.episode_stats[1]['winner'] == 1 and out.episode_stats[1]['source'] == 'mp_actor'
 
-    # Empty ring → 0 units; no re-spawn.
-    out2 = coll.collect(n_episodes=10, provider=None)
-    assert out2.n_units == 0
+    # An empty ring with no live actors fails instead of advancing the
+    # learner/checkpoint cadence without a completed episode.
+    with pytest.raises(RuntimeError, match='all actors exited'):
+        coll.collect(n_episodes=10, provider=None)
     assert len(rt.start_actors_calls) == 0  # _spawned was forced True
 
 

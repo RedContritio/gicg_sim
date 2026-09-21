@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
-
 import numpy as np
 from training.core.step_encoding import parse_buffs_np
 
@@ -34,6 +33,53 @@ class SelfPlayResult:
     n_steps: int
     discovery_count: int
     mcts_profile: dict = field(default_factory=dict)
+    agent_player: int | None = None
+
+
+def _mcts_decide(
+    env: GicgEnv,
+    evaluator,
+    card_pool_spec: CardPoolSpec,
+    rng: random.Random,
+    mcts_config: MCTSConfig,
+    acting: int,
+    game_step: int,
+):
+    """Run one MCTS decision for ``acting`` — shared dispatch across the
+    mirror (``play_self_game``) and fixed-opponent
+    (``play_vs_opponent_game``) paths. Backend selection order is
+    load-bearing history; do not reorder."""
+    if mcts_config.backend == 'go':
+        from training.paradigms.az.mcts_go import mcts_search_go
+
+        return mcts_search_go(
+            env,
+            evaluator,
+            card_pool_spec,
+            rng,
+            viewing_player=acting,
+            config=mcts_config,
+            game_step=game_step,
+        )
+    if mcts_config.parallel_rollouts > 1 and isinstance(evaluator, InferenceClient):
+        return mcts_search_parallel(
+            env,
+            evaluator,
+            card_pool_spec,
+            rng,
+            viewing_player=acting,
+            config=mcts_config,
+            game_step=game_step,
+        )
+    return mcts_search(
+        env,
+        evaluator,
+        card_pool_spec,
+        rng,
+        viewing_player=acting,
+        config=mcts_config,
+        game_step=game_step,
+    )
 
 
 def play_self_game(
@@ -81,38 +127,15 @@ def play_self_game(
                     f'selfplay: env has 0 legal actions at step {step_idx} but is not done — engine deadlock'
                 )
 
-            if mcts_config.backend == 'go':
-                from training.paradigms.az.mcts_go import mcts_search_go
-
-                chosen, info = mcts_search_go(
-                    env,
-                    evaluator,
-                    card_pool_spec,
-                    rng,
-                    viewing_player=acting,
-                    config=mcts_config,
-                    game_step=step_idx,
-                )
-            elif mcts_config.parallel_rollouts > 1 and isinstance(evaluator, InferenceClient):
-                chosen, info = mcts_search_parallel(
-                    env,
-                    evaluator,
-                    card_pool_spec,
-                    rng,
-                    viewing_player=acting,
-                    config=mcts_config,
-                    game_step=step_idx,
-                )
-            else:
-                chosen, info = mcts_search(
-                    env,
-                    evaluator,
-                    card_pool_spec,
-                    rng,
-                    viewing_player=acting,
-                    config=mcts_config,
-                    game_step=step_idx,
-                )
+            chosen, info = _mcts_decide(
+                env,
+                evaluator,
+                card_pool_spec,
+                rng,
+                mcts_config,
+                acting,
+                step_idx,
+            )
             if info['discovery_events']:
                 discovery_count += 1
             if 'profile' in info:
@@ -132,9 +155,18 @@ def play_self_game(
 
             _, _, done, step_info = env.step(chosen)
             if step_info.get('need_target'):
-                raise RuntimeError(
-                    'selfplay: env.step returned need_target — legacy PendingCardTarget path is unsupported'
-                )
+                # Normal mid-game state, not an error (gicg_env/env.py
+                # step docstring): the played action left a pending
+                # target / forced-switch continuation, and the NEXT
+                # iteration's acting player resolves it from the new
+                # legal list (env.step routes to the target resolver
+                # automatically). The semantic pipelines
+                # (tools/experiments/semantic_training/rl_rollout.py,
+                # evaluate.py) never special-case it — same behavior
+                # here. The after-state is a pending-target
+                # intermediate, NOT the resolved decision state, so
+                # this step keeps has_counter_target=False.
+                continue
 
             if not done:
                 raw_after = env.get_dynamic_obs(perspective=acting)
@@ -231,3 +263,6 @@ def _build_step_dict(
         'has_counter_target': False,
         '_acting_player': acting,
     }
+
+
+from training.paradigms.az.selfplay_fixed import play_vs_opponent_game  # noqa: E402,F401

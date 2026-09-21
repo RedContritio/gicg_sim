@@ -165,7 +165,8 @@ def _local_pids_matching(args: argparse.Namespace) -> list[int]:
         return [args.pid]
     pattern = 'python' if args.all else args.match
     r = subprocess.run(['pgrep', '-f', pattern], capture_output=True, text=True)
-    return [int(x) for x in r.stdout.split() if x.strip().isdigit()]
+    own_pid = os.getpid()
+    return [int(x) for x in r.stdout.split() if x.strip().isdigit() and int(x) != own_pid]
 
 
 def _pid_exists(pid: int) -> bool:

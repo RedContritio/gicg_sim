@@ -184,10 +184,20 @@ def actor_main(
             item = record if push_episode_record else record.transitions
             try:
                 if hasattr(transition_queue, 'push'):  # SHMRing
-                    ok = transition_queue.push(item)
+                    # Bounded retry: a full ring usually means the parent is
+                    # mid-train and will drain shortly; the old push-once-and-
+                    # drop silently lost whole games under 8-actor load.
+                    ok = False
+                    for _attempt in range(5):
+                        ok = transition_queue.push(item)
+                        if ok:
+                            break
+                        time.sleep(0.005)
                     if not ok:
-                        # Ring full — yield briefly so consumer drains.
-                        time.sleep(0.001)
+                        print(
+                            f'[actor {actor_id}] transition ring full after 5 attempts — dropping episode record',
+                            flush=True,
+                        )
                 else:  # IPCQueue / mp.Queue
                     transition_queue.put(item)
             except Exception as exc:

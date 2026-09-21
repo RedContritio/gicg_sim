@@ -55,6 +55,8 @@ class AZParadigm:
 
     def make_network(self, cfg: Any) -> Any:
         """Build AZNetwork around the policy, value, and delta ActorCritic heads."""
+        if self._network is not None:
+            return self._network
         pcfg = self._resolve_pcfg(cfg)
         agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
         self._network = AZNetwork(agent_cfg, device=cfg.meta.device, lr=pcfg.lr)
@@ -98,23 +100,73 @@ class AZParadigm:
         """Serial selfplay collector (spec A5).
 
         env_factory: callable(game_idx) → GicgEnv, built by tools.runs.train.
-        opp_pool: AZ paradigm does NOT use an opponent pool in selfplay
-            (A5.2 — both sides share the same network). The kwarg is
-            accepted for protocol uniformity + ignored.
+        opp_pool: ignored in mirror mode (A5.2 — both sides share the same
+            network). With ``paradigm.fixed_opponent`` set (ExIt 固定对手
+            支线), the pool drives the opponent seat: the caller-passed pool
+            is used when present (dispatch builds it via ``make_opponent_pool``
+            so pipeline ckpt saves feed the historical ring); otherwise one
+            is built here from the paradigm cfg.
         """
         if getattr(cfg.pipeline, 'actor_backend', 'python') == 'go':
             raise ValueError(
                 "AZParadigm 不支持 actor_backend='go'(I29 Phase 2 pending);AZ 当前仅 Python actor backend。"
             )
-        del opp_pool  # AZ selfplay shares network across both sides
         pcfg = self._resolve_pcfg(cfg)
         if cfg.pipeline.mode == 'async':
+            if pcfg.fixed_opponent is not None:
+                # ExIt async(吞吐主杠杆):FixedOpponentCfg 随 cfg 进每个 actor
+                # 进程、actor 本地自建池(greedy/random 本就可本地构造;
+                # snapshot 玩家按广播的 ring 快照本地重建);historical ring
+                # 经 WeightsSHM 广播通道随 sync_weights 推送(parent 池由
+                # dispatch 经 make_opponent_pool 构建、pipeline ckpt 喂 ring)。
+                if opp_pool is None:
+                    opp_pool = self.make_opponent_pool(cfg, network)
+                return AZAsyncCollector(cfg, pcfg, network, env_factory, opponent_pool=opp_pool)
+            del opp_pool  # AZ selfplay shares network across both sides
             return AZAsyncCollector(cfg, pcfg, network, env_factory)
         # Serial default
         if env_factory is None:
             raise ValueError('AZParadigm.make_collector: env_factory required (None passed)')
         env = env_factory(0)
-        return AZSelfPlayCollector(cfg, pcfg, network, env)
+        if pcfg.fixed_opponent is None:
+            del opp_pool  # AZ selfplay shares network across both sides
+            return AZSelfPlayCollector(cfg, pcfg, network, env)
+        if opp_pool is None:
+            opp_pool = self.make_opponent_pool(cfg, network)
+        return AZSelfPlayCollector(cfg, pcfg, network, env, opponent_pool=opp_pool)
+
+    def make_opponent_pool(self, cfg: Any, network: Any) -> Any:
+        """FixedOpponentPool factory (ExIt 固定对手支线).
+
+        Called by tools.runs._train.dispatch when this method exists, so
+        the pipeline ckpt path (``opp_pool.add_snapshot``) feeds the
+        historical ring. Returns None in mirror mode (legacy default).
+        """
+        pcfg = self._resolve_pcfg(cfg)
+        fcfg = pcfg.fixed_opponent
+        if fcfg is None:
+            return None
+        from training.core.network import AgentConfig
+        from training.paradigms.az._opponent import FixedOpponentPool, make_snapshot_factory
+        from training.paradigms.az.collector import _build_mcts_config
+        from training.paradigms.az.pool_spec import make_pool_spec, resolve_pool_refs
+
+        agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
+        mcts_cfg = _build_mcts_config(pcfg)
+        card_pool_spec = make_pool_spec(cfg.scenario, resolve_pool_refs(cfg.scenario))
+
+        # Pipeline snapshots are AZNetwork.state_dict()s — the inner
+        # ActorCritic lives under the ``net.`` prefix (make_snapshot_factory
+        # strips it, ``load_net_only`` semantics).
+        historical_factory = make_snapshot_factory(agent_cfg, cfg.meta.device, mcts_cfg, card_pool_spec, seed=fcfg.seed)
+
+        return FixedOpponentPool(
+            fcfg,
+            agent_factory=historical_factory,
+            mcts_cfg=mcts_cfg,
+            card_pool_spec=card_pool_spec,
+            seed=cfg.meta.seed + 1,
+        )
 
     def make_episode_policy(self, cfg: Any, instance_id: int = 0, deterministic: bool = False) -> Any:
         """Protocol-conformant MCTS-driven actor (spec A1).
@@ -187,6 +239,14 @@ class AZParadigm:
             )
         # Steady: 1 selfplay + train_steps_per_game batches. PeriodicEval
         # gating still owned by driver scheduler (we flip the bit).
+        #
+        # Weight republish: async keeps its cadence gate. Serial mode with
+        # mcts.parallel_rollouts > 1 routes evals through the collector's
+        # local InferenceServer (weights live server-side), so republish
+        # every steady iteration — the pipeline calls
+        # collector.sync_weights(network) right after train, before the
+        # next collect. parallel_rollouts == 1 (default) evaluates
+        # in-proc against the live network: no sync needed.
         return StepPlan(
             collect=True,
             n_episodes=1,
@@ -195,5 +255,8 @@ class AZParadigm:
             batch_size=pcfg.batch_size,
             eval=True,
             advance_step=1,
-            sync_weights=async_sync_weights_due(cfg, state, pcfg.sync_weights_every_train_steps),
+            sync_weights=(
+                async_sync_weights_due(cfg, state, pcfg.sync_weights_every_train_steps)
+                or (getattr(cfg.pipeline, 'mode', 'serial') == 'serial' and pcfg.mcts.parallel_rollouts > 1)
+            ),
         )

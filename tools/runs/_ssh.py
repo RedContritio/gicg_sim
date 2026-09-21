@@ -22,6 +22,7 @@ _remote_sync / status / build_engine)— 自动 probe 远端 python + ssh-wrap
 from __future__ import annotations
 
 import argparse
+import os
 import shlex
 import sys
 from pathlib import Path
@@ -98,6 +99,17 @@ def ssh_forward(
     """
     py = discover_remote_python(remote)
     cfg_str = str(cfg_path).replace('\\', '/')
+    # GOGC forward (09-19): user-level Windows env vars do NOT reach
+    # processes spawned by an already-running sshd, so when the local
+    # launcher sets GOGC (engine Go runtime tuning, measured 1.16x step
+    # speedup) we inline it into the remote payload instead.
+    gogc_prefix = ''
+    if os.environ.get('GOGC'):
+        gogc_prefix = (
+            f'$env:GOGC={ps_quote(os.environ["GOGC"])}; '
+            if remote.os == 'windows'
+            else f'GOGC={shlex.quote(os.environ["GOGC"])} '
+        )
     if remote.os == 'windows':
         cd_root = f'cd {ps_quote(remote.root_native)}'
         quoted_cfg = ps_quote(cfg_str)
@@ -105,7 +117,7 @@ def ssh_forward(
         inner = f'{py} -X utf8 -u -m {tool_module} {quoted_cfg}'
         if quoted_extra:
             inner = f'{inner} {quoted_extra}'
-        script = f'{cd_root}; {inner}'
+        script = f'{gogc_prefix}{cd_root}; {inner}'
         argv = ssh_encoded_argv(remote, script)
     else:
         cd_root = f'cd {shlex.quote(remote.root)}'
@@ -114,7 +126,7 @@ def ssh_forward(
         inner = f'{shlex.quote(py)} -X utf8 -u -m {tool_module} {quoted_cfg}'
         if quoted_extra:
             inner = f'{inner} {quoted_extra}'
-        script = f'{cd_root} && {inner}'
+        script = f'{gogc_prefix}{cd_root} && {inner}'
         argv = ssh_bash_argv(remote, script)
     print(f'[remote.forward] {remote.ssh} >> {tool_module} {cfg_str} {" ".join(extra_args)}')
     if stream:

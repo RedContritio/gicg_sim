@@ -17,7 +17,7 @@ from unittest.mock import patch
 import pytest
 
 from tools.runs._host import RemoteCfg
-from tools.runs.kill import _build_parser, _build_ps, _build_sh, _run_local, _run_remote, main
+from tools.runs.kill import _build_parser, _build_ps, _build_sh, _local_pids_matching, _run_local, _run_remote, main
 
 
 def _write_registry(tmp_path, hostname: str = 'OTHER-PC'):
@@ -291,6 +291,14 @@ def test_run_local_remaining_nonzero_returns_one():
     ):
         assert _run_local(args) == 1
     kill.assert_called_once_with(123, signal.SIGTERM)
+
+
+def test_local_match_excludes_current_process():
+    args = _mk_args('/tmp/c.toml', '--match', 'worker')
+    own = os.getpid()
+    completed = subprocess.CompletedProcess(args=[], returncode=0, stdout=f'{own}\n123\n', stderr='')
+    with patch('tools.runs.kill.subprocess.run', return_value=completed):
+        assert _local_pids_matching(args) == [123]
 
 
 # ---------------------------------------------------------------------------

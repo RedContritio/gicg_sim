@@ -38,7 +38,7 @@ def run(
     anchor_beta=0.0,
     device='cuda',
 ):
-    if learning_rate <= 0 or tie_objective not in ('uniform', 'set') or anchor_beta < 0:
+    if learning_rate <= 0 or tie_objective not in ('uniform', 'set', 'executed') or anchor_beta < 0:
         raise ValueError('invalid supervised update settings')
     if anchor_beta and not initial:
         raise ValueError('anchored updates require an initial checkpoint')
@@ -148,7 +148,14 @@ def run(
 
             with torch.no_grad():
                 old = anchor(batch).masked_fill(~batch['legal_mask'], -1e9) if anchor is not None else None
-            loss, fit, kl = imitation_loss(logits, [r['tied'] for r in selected], tie_objective, old, anchor_beta)
+            loss, fit, kl = imitation_loss(
+                logits,
+                [r['tied'] for r in selected],
+                tie_objective,
+                old,
+                anchor_beta,
+                [r['executed_action'] for r in selected] if tie_objective == 'executed' else None,
+            )
             if not torch.isfinite(loss):
                 raise ValueError('nonfinite warm-up loss')
             optimizer.zero_grad()
@@ -204,5 +211,16 @@ if __name__ == '__main__':
     p.add_argument('--seed', type=int, default=123000)
     p.add_argument('--device', default='cuda')
     p.add_argument('--variants', default=None, help='rule-variant catalog; episodes must be divisible by four')
+    p.add_argument('--tie-objective', choices=('uniform', 'set', 'executed'), default='uniform')
     a = p.parse_args()
-    run(a.config, a.output, a.episodes, a.steps, a.workers, seed=a.seed, variants=a.variants, device=a.device)
+    run(
+        a.config,
+        a.output,
+        a.episodes,
+        a.steps,
+        a.workers,
+        seed=a.seed,
+        variants=a.variants,
+        device=a.device,
+        tie_objective=a.tie_objective,
+    )

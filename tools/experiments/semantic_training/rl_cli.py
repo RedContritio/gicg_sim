@@ -26,6 +26,7 @@ def main():
     p.add_argument('--rule-beta', type=float, default=0.0)
     p.add_argument('--rule-stride', type=int, default=4)
     p.add_argument('--learning-rate', type=float, default=1e-5)
+    p.add_argument('--anchor-beta', type=float, default=0.02)
     a = p.parse_args()
     run(
         a.config,
@@ -36,16 +37,21 @@ def main():
         a.workers,
         a.device,
         a.resume,
-        a.seed,
-        a.dev_seed,
-        a.dev_scenarios,
-        a.batch_size,
-        a.dev_depth,
-        a.opponent_depth,
-        a.value_baseline,
-        a.temperature,
-        a.variants,
-        a.rule_beta,
-        a.rule_stride,
-        a.learning_rate,
+        seed=a.seed,
+        dev_seed=a.dev_seed,
+        dev_scenarios=a.dev_scenarios,
+        batch_size=a.batch_size,
+        dev_depth=a.dev_depth,
+        opponent_depth=a.opponent_depth,
+        value_baseline=a.value_baseline,
+        temperature=a.temperature,
+        variants=a.variants,
+        rule_beta=a.rule_beta,
+        rule_stride=a.rule_stride,
+        learning_rate=a.learning_rate,
+        anchor_beta=a.anchor_beta,
     )
+
+
+if __name__ == '__main__':
+    main()

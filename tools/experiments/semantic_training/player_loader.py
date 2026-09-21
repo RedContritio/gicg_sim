@@ -13,6 +13,7 @@ from training.core.matchup.loaders import PlayerBuilder, register_loader
 from training.core.network import AgentConfig
 from tools.experiments.semantic_training.agent import SemanticAgent
 from tools.experiments.semantic_training.consequence_policy import FORMAT as CONSEQUENCE_FORMAT
+from tools.experiments.semantic_training.search_player import SearchPlayer
 
 
 FORMAT = 'semantic-q/2.0.0'
@@ -83,6 +84,39 @@ def _loader_semantic(spec: dict) -> PlayerBuilder:
     return builder
 
 
+def _loader_search(spec: dict) -> PlayerBuilder:
+    """Inference-time search player over a semantic-Q value head.
+
+    Spec keys: ``ckpt`` (required), ``n_beliefs`` (default 2),
+    ``mode`` ('value1p' default | 'rollout'), ``rollout_plies``
+    (default 8, rollout mode only), ``device`` (default 'cpu')."""
+    ckpt = spec.get('ckpt')
+    if not isinstance(ckpt, str) or not ckpt:
+        raise ValueError('search_policy requires a checkpoint')
+    n_beliefs = int(spec.get('n_beliefs', 2))
+    mode = str(spec.get('mode', 'value1p'))
+    rollout_plies = int(spec.get('rollout_plies', 8))
+    n_playouts = int(spec.get('n_playouts', 4))
+    device = str(spec.get('device', 'cpu'))
+    payload = load_semantic_payload(ckpt)
+    if mode != 'playout' and 'value_head' not in payload:
+        raise ValueError('value-head modes require a checkpoint with a value_head')
+
+    def builder(seed: int) -> SearchPlayer:
+        agent = _agent_from_payload(payload, seed, device)
+        return SearchPlayer(
+            agent,
+            n_beliefs=n_beliefs,
+            mode=mode,
+            rollout_plies=rollout_plies,
+            n_playouts=n_playouts,
+            seed=seed,
+        )
+
+    return builder
+
+
 def register_semantic_loader() -> None:
-    """Install the experimental adapter in core's loader registry."""
+    """Install the experimental adapters in core's loader registry."""
     register_loader('semantic_rl', _loader_semantic)
+    register_loader('search_policy', _loader_search)

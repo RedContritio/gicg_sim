@@ -1,12 +1,10 @@
-"""ctypes prototype setup for gicg_env.engine.GicgEngine.
-
-Split out as a mixin so gicg_env/engine.py stays within the repository
-line limit. ``_setup_api`` declares argtypes and restype for the C
-functions exported by the platform-specific libgicg shared library."""
+"""ctypes prototypes for ``GicgEngine``."""
 
 from __future__ import annotations
 
 import ctypes
+
+from gicg_env._engine_api_optional import setup_optional_apis
 
 
 class _ApiMixin:
@@ -55,6 +53,8 @@ class _ApiMixin:
 
         lib.GameGetActingPlayer.argtypes = [ctypes.c_int]
         lib.GameGetActingPlayer.restype = ctypes.c_int
+
+        self._has_go_greedy = setup_optional_apis(lib)
 
         lib.GameHasPending.argtypes = [ctypes.c_int]
         lib.GameHasPending.restype = ctypes.c_int

@@ -52,7 +52,7 @@ token(`sk-` / `ghp_` / `github_pat_` / `AKIA` / `xox`)、无密码或 key 赋值
 ## Affected specs
 
 - `openspec/specs/tools-layout/spec.md` —— 不变量 #17 被 MODIFY,并新增
-  #22–#24(注册表归属、fail-loud 契约、同步义务)。
+  #22–#25(注册表归属、fail-loud 契约、同步义务、每设备唯一项目根)。
 
 ## Out of scope
 

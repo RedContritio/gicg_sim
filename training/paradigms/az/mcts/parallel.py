@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional
 
 from gicg_env.env import _terminal_z
 
-from .action_id import ActionId, legal_ids_from_env
+from .action_id import legal_ids_from_env
 from .config import MCTSConfig
 from .node import MCTSNode
 from .rollout import (
@@ -79,9 +79,18 @@ def _descend_with_vl(
 
         _, _, done, info = env.step(action_idx)
         if info.get('need_target'):
-            raise RuntimeError(
-                'MCTS rollout hit STEP_NEED_TARGET — legacy PendingCardTarget path is unsupported by the tree.'
-            )
+            # Pending target / forced-switch continuation — see
+            # run_rollout.py. Child stays non-terminal; the suspended
+            # rollout resumes at the target choices next iteration.
+            child.turn = env.acting_player
+            child.terminal = False
+            path.append(child)
+            depth += 1
+            if depth > config.max_rollout_depth:
+                raise RuntimeError(
+                    f'MCTS rollout exceeded max_rollout_depth={config.max_rollout_depth} at depth {depth}.'
+                )
+            continue
 
         child.turn = env.acting_player
         child.terminal = bool(done)

@@ -123,6 +123,21 @@ class _ActionsMixin:
         self._lib.GameGetActionRefs(self._handle, buf)
         return np.array(buf, dtype=np.int32).reshape(n, 3)
 
+    def select_greedy_action(self, features: str, depth: int, budget: int, seed: int) -> int:
+        """Go-native greedy (F1-F5 × D1-D4) decision — one cgo call for
+        the whole minimax search. Returns the chosen action index into
+        get_legal_actions(), or -1 when unavailable (stale lib) or on
+        error. The Go port always folds the dice-payment fan-out, so
+        callers needing dice_greedy=False semantics must NOT use this.
+        Equivalence gate is winrate-level, not move-by-move (float eps
+        can flip exact ties). Added 09-19; see capi_greedy.go."""
+        self._check()
+        if not getattr(self, '_has_go_greedy', False):
+            return -1
+        return int(
+            self._lib.GameSelectGreedyAction(self._handle, features.encode('ascii'), int(depth), int(budget), int(seed))
+        )
+
     def get_action_identities(self):
         """Returns an (n_legal, 5) int32 array of engine-native action
         identities for MCTS children-dict keying. The 5 columns are

@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-14
+last_updated: 2026-09-17
 status: LIVE
 schema_version: 1
 capability: tools-layout
@@ -85,9 +85,11 @@ pre-redesign `tools.run`, `tools.runs.register`, `tools.runs.complete`, and
 
 ## Remote workflow
 
-17. Remote execution SHALL be config-driven through `[meta].host = "remote"`
-    and a `[remote]` section. `tools.runs.train` SHALL auto-sync and forward the
-    lifecycle when the configured hostname is not local.
+17. Remote execution SHALL be config-driven through `[meta].host = "remote"` and
+    a `[remote].profile` name resolving to the git-ignored host registry, which
+    carries the device's connection fields and its single project root.
+    `tools.runs.train` SHALL auto-sync and forward the lifecycle when the
+    configured hostname is not local.
 18. Public remote commands SHALL use the same config as their first positional
     argument where required: `build_engine`, `kill`, `pull`, `status`, `tail`,
     and the training entry. Users SHALL NOT need to call `_ssh` or
@@ -98,6 +100,25 @@ pre-redesign `tools.run`, `tools.runs.register`, `tools.runs.complete`, and
     authorized to allocate local runs.
 20. Checkpoint and result transfer SHALL use `tools.runs.pull`; process cleanup
     SHALL use `tools.runs.kill`; remote logs SHALL use `tools.runs.tail`.
+22. Machine-identifying remote values (`ssh`, `os`, `hostname`, `root`) SHALL
+    reside only in the git-ignored registry `configs/hosts/hosts.toml`, keyed by
+    profile name. The repository SHALL ship `configs/hosts/hosts.example.toml`
+    carrying placeholder values only, and SHALL NOT carry real values in any
+    tracked file.
+23. Resolving a remote host profile SHALL fail loudly — raising — when the
+    registry file, the named profile, or any required field is absent or
+    invalid. Resolution SHALL NOT fall back to local execution.
+24. `tools.runs._remote_sync._auto_sync` SHALL include the host registry file in
+    the path list it pushes, so the remote box resolves the same profile and its
+    own `is_local_host` check succeeds. This single injection point covers both
+    the initial full sync and the incremental sync; it is the sole sync path used
+    in production (`tools.runs.train` and `tools.runs.build_engine` both route
+    through it).
+25. A remote device SHALL have exactly one project root, and it SHALL be the
+    `root` value of that device's registry profile. Isolation between
+    experiments SHALL be provided by cfg parameters and per-run
+    `artifacts/<ts>_<NNN>_<label>/` directories, never by opening an additional
+    project root on the device.
 
 ## Historical boundary
 

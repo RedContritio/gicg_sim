@@ -64,8 +64,11 @@ def load_service_definition(
         ckpt_path=_resolve_under(root, raw['ckpt'], 'artifacts', 'ckpt'),
         report_path=_resolve_under(root, raw['report'], 'artifacts', 'report'),
     )
-    if definition.model_type != 'semantic_rl':
-        raise ValueError('semantic live service requires type semantic_rl')
+    # 09-19: AZ 支持 — live 服务不再限定 D2 时代的 semantic_rl；ExIt/AZ
+    # ckpt（player_spec type='az'，argmax 着法）同样可对战。旧 semantic_rl
+    # 行为不变。
+    if definition.model_type not in ('semantic_rl', 'az'):
+        raise ValueError('semantic live service requires type semantic_rl or az')
     return definition, load_cfg(definition.cfg_path)
 
 
@@ -95,7 +98,10 @@ def _validated_report(definition: ServiceDefinition, cfg) -> dict:
         raise ValueError('configured evaluation report is incompatible with current rules and observations')
     if report.get('scenario') != asdict(cfg.scenario):
         raise ValueError('configured evaluation report does not match the training rule config')
-    load_semantic_agent(str(definition.ckpt_path))
+    if definition.model_type == 'semantic_rl':
+        load_semantic_agent(str(definition.ckpt_path))
+    # az: report 校验（sha/指纹/场景）已锁定 ckpt，真正的 builder 加载在
+    # build_session 经 matchup loaders 完成并缓存 — 此处不再重复装载。
     return report
 
 
@@ -133,7 +139,11 @@ def build_session(msg: dict, seed: int, human_player: int) -> LiveSession:
     game_cfg = replace(cfg, scenario=replace(cfg.scenario, team_0=team_0, team_1=team_1))
     env = make_env_factory(game_cfg, None, seed)(0)
     try:
-        player.game_start(env.static_obs)
+        # semantic agents cache static hook embeddings per game; az argmax
+        # players manage their own per-decision setup (same contract as
+        # evaluate.py — game_start is optional protocol).
+        if hasattr(player, 'game_start'):
+            player.game_start(env.static_obs)
         return LiveSession(env, player, human_player)
     except BaseException:
         env.close()
@@ -177,5 +187,5 @@ def profile() -> dict:
         'allow_overlap': not scenario.disjoint_teams,
         'max_rounds': scenario.max_rounds,
         'evaluation': metrics,
-        'checkpoint_format': FORMAT,
+        'checkpoint_format': FORMAT if definition.model_type == 'semantic_rl' else 'az',
     }

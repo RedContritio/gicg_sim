@@ -147,7 +147,11 @@ export function Live() {
       <details className="match-settings" open={!view}><summary>对战设置 · 阵容与对手</summary>
       <p className="text-xs text-slate-400 mb-3">
         {profile
-          ? `${profile.name}。每队选择 ${profile.team_size} 名角色；${profile.allow_overlap ? '双方阵容可重叠' : '双方阵容不可重叠'}。沿用训练牌组与最多 ${profile.max_rounds} 回合规则。`
+          ? `${profile.name}。每队选择 ${profile.team_size} 名角色；${profile.allow_overlap ? '双方阵容可重叠' : '双方阵容不可重叠'}。沿用训练牌组与最多 ${profile.max_rounds} 回合规则。${
+              profile.evaluation && typeof profile.evaluation.score === 'number'
+                ? ` 评估：对 F1-D${profile.evaluation.opponent_depth ?? 2} 胜率 ${(profile.evaluation.score * 100).toFixed(1)}%（${profile.evaluation.scenarios ?? '?'} 场景）。`
+                : ''
+            }`
           : '正在读取当前模型与训练规则…'}
       </p>
       <div className="flex flex-wrap items-end gap-3 p-3 rounded-lg border border-slate-700 bg-slate-900/60">

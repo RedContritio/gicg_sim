@@ -34,3 +34,20 @@ def test_uniform_default_retains_original_loss():
     logits = torch.tensor([[2.0, 0.0, -1.0]])
     loss, _, _ = imitation_loss(logits, [[0, 1]])
     assert torch.allclose(loss, -logits.log_softmax(-1)[0, :2].mean())
+
+
+def test_executed_objective_is_cross_entropy_on_teacher_action():
+    logits = torch.tensor([[2.0, 0.0, -1.0]], requires_grad=True)
+    loss, fit, kl = imitation_loss(logits, [[0, 1]], 'executed', executed=[1])
+    assert torch.allclose(loss, -logits.log_softmax(-1)[0, 1])
+    loss.backward()
+    assert logits.grad[0, 1] < 0 < logits.grad[0, 0]
+    assert float(kl) == 0.0
+
+
+def test_executed_objective_requires_aligned_actions():
+    logits = torch.tensor([[2.0, 0.0, -1.0]])
+    with pytest.raises(ValueError):
+        imitation_loss(logits, [[0, 1]], 'executed')
+    with pytest.raises(ValueError):
+        imitation_loss(logits, [[0, 1], [0, 1]], 'executed', executed=[0])

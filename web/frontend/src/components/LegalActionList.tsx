@@ -11,6 +11,7 @@ export interface DisplayAction {
   slot?: number
   identity?: number[]
   payment?: number[]
+  refs?: number[]
   prob?: number
 }
 
@@ -31,6 +32,63 @@ export function LegalActionList({ actions, onPick, disabled, topIndex, view, hum
     groups.set(key, [...(groups.get(key) ?? []), action])
   }
   const paymentLabel = (a: DisplayAction) => a.kind_name === 'Tune' ? `弃置此牌 · 转换${['火','冰','水','雷','岩','风','草','万能'][a.identity?.[2] ?? -1] ?? ''}骰` : a.payment?.map((n, i) => n ? `${['火','冰','水','雷','岩','风','草','万能'][i]}×${n}` : '').filter(Boolean).join(' ') || '无需骰子'
+  // 支付推荐排序（09-20）：万能骰是稀缺通用资源，默认推荐应优先用元素
+  // （杂色）骰支付 — 小组内按万能用量升序排，默认落在第一个（零万能
+  // 或最少万能）的组合上。用户仍可手动展开下拉换其他组合。
+  const OMNI = 7
+  const omniCount = (a: DisplayAction) => a.payment?.[OMNI] ?? 0
+  for (const choices of groups.values()) {
+    choices.sort((x, y) => omniCount(x) - omniCount(y))
+  }
+
+  // 重掷阶段（09-20）：回合开始的重掷决策帧。引擎按「每颜色选数量，
+  // 最后确认」拆成多个帧，每帧的合法动作 kind 均为 Reroll（refs 颜色
+  // 8 = 确认帧）。渲染专用面板替代普通行动列表。
+  const DICE_NAMES = ['火', '冰', '水', '雷', '岩', '风', '草', '万能']
+  if (actions.length > 0 && actions.every(a => a.kind_name === 'Reroll')) {
+    const confirm = actions.find(a => (a.refs?.[2] ?? -1) === 8)
+    const color = actions[0].refs?.[2] ?? -1
+    const pool = (humanPlayer !== undefined && view) ? view.players[humanPlayer]?.dice : undefined
+    return (
+      <div className="rounded-lg border border-amber-700/60 bg-amber-950/30 p-3">
+        <div className="text-sm font-medium text-amber-200 mb-2">
+          {confirm ? '重掷确认' : `重掷阶段 · ${DICE_NAMES[color] ?? `颜色${color}`}骰`}
+        </div>
+        {pool && (
+          <div className="text-xs text-slate-300 mb-2">
+            当前骰子：{pool.map((n, i) => n > 0 ? `${DICE_NAMES[i]}×${n}` : '').filter(Boolean).join(' ') || '（无）'}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {confirm ? (
+            <button
+              disabled={disabled}
+              onClick={() => onPick?.(confirm.index)}
+              className="rounded px-3 py-1 text-sm border border-amber-500 bg-amber-800/60 hover:bg-amber-700 text-amber-100 disabled:opacity-40"
+            >
+              {confirm.name || '确认重投'}
+            </button>
+          ) : (
+            actions.map(a => (
+              <button
+                key={a.index}
+                disabled={disabled}
+                onClick={() => onPick?.(a.index)}
+                className={`rounded px-3 py-1 text-sm border transition-colors disabled:opacity-40 ${
+                  (a.refs?.[1] ?? 0) === 0
+                    ? 'border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    : 'border-amber-600 bg-amber-900/40 text-amber-100 hover:bg-amber-800/60'
+                }`}
+              >
+                {a.name}
+              </button>
+            ))
+          )}
+        </div>
+        <div className="text-xs text-slate-500 mt-2">提示：万能骰通用但稀缺，一般留在手里用元素骰支付。</div>
+      </div>
+    )
+  }
   if (actions.length === 0) {
     return <div className="text-xs text-slate-500">没有可用行动；请选择其他卡牌或角色</div>
   }
@@ -60,9 +118,9 @@ export function LegalActionList({ actions, onPick, disabled, topIndex, view, hum
             } ${isTop ? 'border-amber-400/60' : ''}`}
           >
             <span className="truncate">
-              <span className="text-slate-400">{{ Skill: '技能', Card: '出牌', Switch: '出战', EndTurn: '结束回合', Tune: '调和' }[a.kind_name] ?? a.kind_name} ·</span>{' '}
+              <span className="text-slate-400">{{ Skill: '技能', Card: '出牌', Switch: '出战', EndTurn: '结束回合', Tune: '调和', Reroll: '重掷' }[a.kind_name] ?? a.kind_name} ·</span>{' '}
               {a.name}{slotSuffix}{target && <span className="ml-1 text-emerald-200">→ {humanPlayer === undefined ? `P${targetPlayer}` : targetPlayer === humanPlayer ? '己方' : '敌方'} {target}</span>}
-              {a.payment && <span className="ml-2 text-amber-200">{paymentLabel(a)}</span>}
+              {a.payment && a.kind_name !== 'Reroll' && <span className="ml-2 text-amber-200">{paymentLabel(a)}</span>}
             </span>
             {typeof a.prob === 'number' && (
               <span className="tabular-nums text-slate-400">

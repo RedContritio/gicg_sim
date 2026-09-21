@@ -24,35 +24,39 @@ InferenceServer through the same client, so the runner never looks anything
 up in the (empty) opponent registry. The stub policy / empty opp registry
 exist only to satisfy actor_main's non-None builder validation (mirror CFR).
 
-AB13 escape hatch (D4=A): AZ reuses the DMC ``inference_client`` kwarg —
-``build_az_provider(cfg, actor_id, *, inference_client)`` matches
-``build_dmc_provider``'s signature; the parent collector constructs a shared
-``InferenceServer`` + N ``InferenceClient`` and threads each client to its
-actor.
+AB13 escape hatch (D4=A): two provider modes (see build_az_provider):
+- LOCAL (default, ``paradigm.local_inference=True``): the parent publishes
+  weights to a WeightsSHM slot; each actor builds a ``_AZLocalProvider``
+  around its own CPU Agent copy — MCTS evaluates in-proc, no server, no
+  CUDA outside the master.
+- SERVER (legacy): the parent constructs a shared ``InferenceServer`` +
+  N ``InferenceClient`` and threads each client to its actor
+  (``_AZRemoteProvider``).
+
+ExIt fixed_opponent (async): with ``paradigm.fixed_opponent`` set, the
+provider ALSO carries an actor-local :class:`FixedOpponentPool` — the pool
+is never serialized (snapshot nets too heavy); each actor rebuilds it from
+``FixedOpponentCfg`` (in cfg) + ring snapshots (WeightsSHM broadcast,
+refreshed in ``update_weights`` between episodes). The runner then plays
+``play_vs_opponent_game`` instead of mirror ``play_self_game``. AB13
+axis-1: the parent passes both via ``provider_kwargs``
+(``inference_client`` + ``opp_ring_shm``) since the bare ``inference_client``
+handoff can't carry the ring attach info.
 """
 
 from __future__ import annotations
 
-import random
 from dataclasses import dataclass, field
 from typing import Any
 
 from training.core.protocols import EpisodeSpec
-from training.paradigms.az.selfplay import SelfPlayResult, play_self_game
+from training.paradigms.az.mp_providers import _AZLocalProvider, _AZRemoteProvider
+from training.paradigms.az.mp_utils import derive_seed
+from training.paradigms.az.selfplay import SelfPlayResult, play_self_game, play_vs_opponent_game
 
 OPP_SENTINEL = 'self'  # opponent_id sentinel — decorative, never registry-looked-up
-
-
-def derive_seed(master_seed: int, *labels: Any) -> int:
-    """Deterministic seed from master + labels. Same shape as the serial
-    collector's ``derive_seed`` (intentional dup — paradigm isolation per
-    ADR-0006)."""
-    h = master_seed & 0xFFFFFFFF
-    for lab in labels:
-        for b in repr(lab).encode('utf-8'):
-            h = (h * 1000003) ^ b
-            h &= 0xFFFFFFFF
-    return int(h & 0x7FFFFFFF)
+RING_TAG = 'az_hist_ring'  # keep in sync with training.paradigms.az._async.RING_TAG
+WEIGHTS_TAG = 'latest'  # keep in sync with training.paradigms.az._async.WEIGHTS_TAG
 
 
 # ---------- spawn-safe top-level builders(actor_main resolves via dotted path) ---------- #
@@ -111,19 +115,77 @@ def build_az_policy(cfg: Any, actor_id: int):
     return _AZSelfPlayPolicy()
 
 
-def build_az_provider(cfg: Any, actor_id: int, *, inference_client: Any = None) -> Any:
-    """Return a per-actor :class:`_AZRemoteProvider` wired to the shared
-    inference server. ``inference_client`` is REQUIRED — parent process must
-    have constructed + registered it before spawning this actor. Missing
-    client raises loudly (CS4 strict): there is no LocalNetworkProvider
-    fallback in mp mode (matches ``build_dmc_provider``)."""
-    if inference_client is None:
-        raise ValueError(
-            f'build_az_provider[actor_id={actor_id}]: inference_client kwarg required — '
-            f'parent AZAsyncCollector._bootstrap must construct a shared InferenceServer, '
-            f'attach a client per actor, and pass it via actor_kwargs_factory.'
-        )
-    return _AZRemoteProvider(cfg, actor_id, client=inference_client)
+def build_az_provider(
+    cfg: Any, actor_id: int, *, inference_client: Any = None, weights_shm: Any = None, opp_ring_shm: Any = None
+) -> Any:
+    """Return a per-actor provider. Two inference modes:
+
+    - LOCAL (``weights_shm`` given, the default per
+      ``paradigm.local_inference``): the actor owns a CPU Agent copy
+      (``_AZLocalProvider``) — MCTS evaluates in-proc, weights load from
+      the WeightsSHM ``latest`` slot between episodes. No InferenceServer,
+      no CUDA outside the master.
+    - SERVER (``inference_client`` given): the legacy
+      ``_AZRemoteProvider`` wired to the shared InferenceServer.
+      ``inference_client`` missing in server mode raises loudly (CS4
+      strict) — no LocalNetworkProvider fallback in mp mode.
+
+    ExIt fixed_opponent (either mode): the actor builds its OWN
+    :class:`FixedOpponentPool` locally from ``FixedOpponentCfg`` (never
+    serialize the pool — snapshot nets are too heavy); ``opp_ring_shm``
+    is the WeightsSHM attach info for the historical-ring broadcast."""
+    if weights_shm is not None:
+        from training.core.network import AgentConfig
+        from training.paradigms.az.config import AZParadigmConfig
+        from training.paradigms.az.network import Agent
+
+        pcfg = AZParadigmConfig.from_dict(cfg.paradigm if isinstance(cfg.paradigm, dict) else {})
+        agent = Agent(AgentConfig.from_obs_shape(pcfg.agent), device='cpu')
+        provider: Any = _AZLocalProvider(cfg, actor_id, agent=agent, weights_shm_info=weights_shm)
+    else:
+        if inference_client is None:
+            raise ValueError(
+                f'build_az_provider[actor_id={actor_id}]: inference_client kwarg required in '
+                f'server mode (local_inference=False) — parent AZAsyncCollector._bootstrap must '
+                f'construct a shared InferenceServer, attach a client per actor, and pass it via '
+                f'actor_kwargs_factory. For local inference pass weights_shm instead.'
+            )
+        provider = _AZRemoteProvider(cfg, actor_id, client=inference_client)
+    if provider.pcfg.fixed_opponent is not None:
+        provider.attach_opponent_pool(_build_actor_opponent_pool(cfg, provider, opp_ring_shm))
+    return provider
+
+
+def _build_actor_opponent_pool(cfg: Any, provider: Any, opp_ring_shm: Any) -> Any:
+    """Actor-local FixedOpponentPool (ExIt async). The pool itself never
+    crosses a process boundary — only FixedOpponentCfg (via cfg) and ring
+    snapshots (via the WeightsSHM broadcast) do. Per-actor seed divergence
+    keeps opponent sampling independent across actors."""
+    from training.core.actor.weights_shm import WeightsSHM
+    from training.core.network import AgentConfig
+    from training.paradigms.az._opponent import FixedOpponentPool, make_snapshot_factory
+
+    pcfg = provider.pcfg
+    fcfg = pcfg.fixed_opponent
+    agent_cfg = AgentConfig.from_obs_shape(pcfg.agent)
+    snapshot_factory = make_snapshot_factory(
+        agent_cfg,
+        'cpu',
+        provider.mcts_config,
+        provider.card_pool_spec,
+        seed=fcfg.seed + provider.actor_id,
+    )
+    pool = FixedOpponentPool(
+        fcfg,
+        agent_factory=snapshot_factory,
+        mcts_cfg=provider.mcts_config,
+        card_pool_spec=provider.card_pool_spec,
+        seed=derive_seed(int(cfg.meta.seed), 'az_fixed_opp', provider.actor_id),
+    )
+    if opp_ring_shm is not None:
+        provider._opp_ring_shm = WeightsSHM.attach(opp_ring_shm)
+        provider._opp_ring_version = -1
+    return pool
 
 
 _SPEC_COUNTERS: dict = {}  # per-actor monotonic seq; per-process safe (each actor a spawned proc)
@@ -138,6 +200,7 @@ def az_spec_sampler(cfg: Any, actor_id: int) -> EpisodeSpec:
     return EpisodeSpec(
         scenario_seed=derive_seed(int(cfg.meta.seed), 'mp_ep', int(actor_id), int(seq)),
         opponent_id=OPP_SENTINEL,
+        starting_player=(int(actor_id) + int(seq)) % 2,
     )
 
 
@@ -157,70 +220,6 @@ class _AZSelfPlayPolicy:
         )
 
 
-class _AZRemoteProvider:
-    """Per-actor provider with a DUAL role:
-
-    1. **Evaluator** for ``play_self_game`` / its MCTS — ``game_start`` /
-       ``eval_state`` / ``game_end`` delegate to the wrapped
-       :class:`InferenceClient` (which implements the exact same evaluator
-       protocol the on-process ``Agent`` exposes, talking to the shared
-       InferenceServer over its mp.Pipe).
-    2. **cfg-config holder** for :class:`AZSelfPlayRunner` — the AB14 factory
-       signature is ``(env_factory, opp_registry)`` with no cfg, so the runner
-       reads ``card_pool_spec`` / ``mcts_config`` / ``n_counter_slots`` /
-       ``max_actions`` / ``rng`` / ``max_game_steps`` off the provider.
-
-    ``update_weights`` (called arg-less by actor_main between episodes) is a
-    no-op version-read: the InferenceServer owns the weights (the collector
-    pushes server-side), so the provider just reports the client's current
-    weight version (D3=C poll-based, no barrier)."""
-
-    def __init__(self, cfg: Any, actor_id: int, client: Any) -> None:
-        from training.paradigms.az.collector import _build_mcts_config
-        from training.paradigms.az.config import AZParadigmConfig
-        from training.paradigms.az.pool_spec import make_pool_spec, resolve_pool_refs
-
-        self.cfg = cfg
-        self.actor_id = int(actor_id)
-        self._client = client
-
-        pcfg = AZParadigmConfig.from_dict(cfg.paradigm if isinstance(cfg.paradigm, dict) else {})
-        self.card_pool_spec = make_pool_spec(cfg.scenario, resolve_pool_refs(cfg.scenario))  # A5.4
-        self.mcts_config = _build_mcts_config(pcfg)
-        self.n_counter_slots = int(pcfg.agent.n_counter_slots)
-        self.max_actions = int(pcfg.agent.max_actions)
-        self.max_game_steps = int(pcfg.max_game_steps)
-        self.rng = random.Random(derive_seed(int(cfg.meta.seed), 'az_selfplay', self.actor_id))
-
-    # --- Evaluator protocol (delegate to the shared inference server) ------ #
-
-    def game_start(self, static_obs: Any) -> dict:
-        return self._client.game_start(static_obs)
-
-    def eval_state(self, dyn: Any, refs: Any, payments: Any):
-        return self._client.eval_state(dyn, refs, payments)
-
-    def game_end(self) -> None:
-        return self._client.game_end()
-
-    # --- Weight lifecycle (server owns weights; client tracks version) ----- #
-
-    def update_weights(self) -> int:
-        return self.current_version()
-
-    def current_version(self) -> int:
-        ver = getattr(self._client, 'current_weight_version', None)
-        return int(ver) if ver is not None and int(ver) >= 0 else 0
-
-    def close(self) -> None:
-        close = getattr(self._client, 'close', None)
-        if callable(close):
-            try:
-                close()
-            except Exception:
-                pass
-
-
 class AZSelfPlayRunner:
     """AB14 lifecycle-runner — one selfplay game per ``run`` call (replaces
     ``EpisodeRunner``'s single-sided episode lifecycle). Wraps the existing,
@@ -236,21 +235,46 @@ class AZSelfPlayRunner:
     def run(self, spec: EpisodeSpec, policy: Any, provider: Any) -> '_AZRunnerOutput':
         del policy  # selfplay drives via provider (evaluator), not policy.act
         env = self.env_factory(spec.scenario_seed)
+        opponent_kind = None
         try:
-            result = play_self_game(
-                provider,  # _AZRemoteProvider — game_start / eval_state / game_end
-                env,
-                provider.card_pool_spec,
-                provider.rng,
-                provider.mcts_config,
-                max_game_steps=provider.max_game_steps,
-                n_counter_slots=provider.n_counter_slots,
-                max_actions=provider.max_actions,
-            )
+            if getattr(provider, 'opponent_pool', None) is not None:
+                # ExIt fixed_opponent (async): opponent seat driven by the
+                # actor-local pool player; only agent decisions are
+                # recorded, z from the agent seat — identical buffer row
+                # format to the serial path.
+                opponent = provider.opponent_pool.sample()
+                result = play_vs_opponent_game(
+                    provider,  # _AZRemoteProvider — game_start / eval_state / game_end
+                    env,
+                    provider.card_pool_spec,
+                    provider.rng,
+                    provider.mcts_config,
+                    opponent,
+                    max_game_steps=provider.max_game_steps,
+                    n_counter_slots=provider.n_counter_slots,
+                    max_actions=provider.max_actions,
+                    agent_player=spec.starting_player,
+                )
+                opponent_kind = provider.opponent_pool.last_kind
+            else:
+                result = play_self_game(
+                    provider,  # _AZRemoteProvider — game_start / eval_state / game_end
+                    env,
+                    provider.card_pool_spec,
+                    provider.rng,
+                    provider.mcts_config,
+                    max_game_steps=provider.max_game_steps,
+                    n_counter_slots=provider.n_counter_slots,
+                    max_actions=provider.max_actions,
+                )
         finally:
             if hasattr(env, 'close'):
                 env.close()
-        return _AZRunnerOutput(transitions=[], selfplay_result=result)
+        return _AZRunnerOutput(
+            transitions=[],
+            selfplay_result=result,
+            opponent_kind=opponent_kind,
+        )
 
 
 def build_az_selfplay_runner(env_factory, opp_registry) -> AZSelfPlayRunner:
@@ -264,7 +288,10 @@ class _AZRunnerOutput:
     ``transitions`` is the empty EpisodeRunner-contract surface; AZ sets
     ``push_episode_record=True`` so the FULL object is pushed and the
     collector reads ``selfplay_result`` (a :class:`SelfPlayResult` of
-    dicts/lists/ints + numpy — no torch tensors leak, so it pickles)."""
+    dicts/lists/ints + numpy — no torch tensors leak, so it pickles).
+    ``opponent_kind`` is the fixed-opponent pool kind sampled for this
+    game ('greedy' / 'random' / 'historical'; None in mirror mode)."""
 
     selfplay_result: SelfPlayResult
     transitions: list = field(default_factory=list)
+    opponent_kind: Any = None

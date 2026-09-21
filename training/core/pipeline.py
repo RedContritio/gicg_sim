@@ -12,6 +12,7 @@ deviation goes through StepPlan flags + breakdown dicts.
 
 from __future__ import annotations
 
+import faulthandler
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -103,6 +104,16 @@ def run_pipeline(
     )
 
     t_start = time.perf_counter()
+    # Wedge forensics: dump ALL thread tracebacks to stderr every 5 min —
+    # stderr may be piped, but faulthandler writes unbuffered at dump time,
+    # so a stuck process leaves a traceback even when stdout is buffered.
+    # Cancelled in the finally below.
+    faulthandler.dump_traceback_later(300, repeat=True)
+    # Heartbeat: while no train step progresses (warm-up collection, or a
+    # wedge), emit one row + line per 30s so「慢」and「死」are separable
+    # in metrics.jsonl without attaching a debugger.
+    _hb_last_emit = time.perf_counter()
+    _hb_last_train_steps = -1
     try:
         while max_steps is None or state.step < max_steps:
             plan = paradigm.step_schedule(state, cfg)
@@ -145,6 +156,9 @@ def run_pipeline(
                         optimizer.step()
                     state.after_train(loss_result.breakdown)
                     logger.add_scalar('train/loss', float(loss_result.loss.item()), state.train_steps)
+                    for _k, _v in loss_result.breakdown.items():
+                        if isinstance(_v, float):
+                            logger.add_scalar(f'train/{_k}', _v, state.train_steps)
 
             # Republish weights before the next async collection round.
             _maybe_sync_weights(plan, collector, network)
@@ -178,12 +192,34 @@ def run_pipeline(
                 # historical opponent, rather than repeating this iteration.
                 ckpt_mgr.save(state)
 
+            # Heartbeat while train progress stalls (warm-up collection or
+            # a wedge): stage + counters + actor liveness, 1 row/30s.
+            now = time.perf_counter()
+            if state.train_steps != _hb_last_train_steps:
+                _hb_last_train_steps = state.train_steps
+                _hb_last_emit = now
+            elif now - _hb_last_emit >= 30.0:
+                _hb_last_emit = now
+                _hb = {
+                    'step': state.step,
+                    'episodes': state.total_episodes,
+                    'frames': state.total_transitions,
+                    'buffer_len': len(buffer) if hasattr(buffer, '__len__') else -1,
+                    'actors_alive': (
+                        collector.actors_alive_count() if hasattr(collector, 'actors_alive_count') else -1
+                    ),
+                    'weights_version': getattr(collector, '_weights_version', -1),
+                }
+                logger.log('heartbeat', _hb)
+                print(f'[pipeline heartbeat] {_hb}', flush=True)
+
             if not plan.collect and not plan.train and not plan.eval:
                 # Paradigm signaled completion via empty plan.
                 break
         state.wall_seconds = time.perf_counter() - t_start
         ckpt_mgr.save(state)
     finally:
+        faulthandler.cancel_dump_traceback_later()
         # A partially failed iteration must not overwrite a resumable boundary.
         collector.close()
         logger.close()

@@ -156,7 +156,11 @@ def run(args):
     unknown = [name for name in selected if name not in specs]
     if unknown:
         raise ValueError(f'unknown arms {unknown}; available {sorted(specs)}')
-    needs_teacher = any(specs[n].replay_lambda or specs[n].anchor_beta or specs[n].gate != 'off' for n in selected)
+    # The gradient-cosine diagnostic measures at step 1 / every diag_every / final
+    # step for EVERY arm (run_arm), so the D2-imitation teacher rows are always
+    # required as the main-task proxy — even for mechanism-free arms such as
+    # `full` run alone.
+    needs_teacher = bool(selected)
 
     root = Path(args.output)
     root.mkdir(parents=True, exist_ok=False)

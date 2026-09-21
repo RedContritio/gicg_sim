@@ -95,6 +95,23 @@ class AZLoss:
             losses['delta_aux'] = delta_loss
             losses['total'] = losses['total'] + delta_aux_coef * delta_loss
 
+        # 锚定蒸馏（09-20）：从强初始化热启动时，对冻结参考策略（RL16）
+        # 的 CE 锚防止 policy 无锚漂移。参考网络惰性构建一次并缓存。
+        anchor_beta = getattr(train_cfg, 'anchor_beta', 0.0) if train_cfg is not None else 0.0
+        if anchor_beta > 0.0:
+            ref = self._anchor_ref(device)
+            with torch.no_grad():
+                ref_logits, _, _ = ref.forward_batch(d)
+            masked = ref_logits.masked_fill(~legal_mask, float('-inf'))
+            ref_prior = torch.softmax(masked, dim=-1)
+            # CE(ref_prior → current policy)：锚住当前 policy 不漂离参考。
+            # 非法位 logp 置 0 再乘（0 × -inf = nan 的坑）。
+            cur_logp = torch.log_softmax(logits.masked_fill(~legal_mask, float('-inf')), dim=-1)
+            cur_logp = cur_logp.masked_fill(~legal_mask, 0.0)
+            anchor_loss = -(ref_prior * cur_logp).sum(-1).mean()
+            losses['anchor'] = anchor_loss
+            losses['total'] = losses['total'] + anchor_beta * anchor_loss
+
         breakdown = {
             'loss': float(losses['total'].detach().item()),
             'policy_loss': float(losses['policy'].detach().item()),
@@ -104,5 +121,29 @@ class AZLoss:
         }
         if 'delta_aux' in losses:
             breakdown['delta_aux'] = float(losses['delta_aux'].detach().item())
+        if 'anchor' in losses:
+            breakdown['anchor'] = float(losses['anchor'].detach().item())
 
         return LossResult(loss=losses['total'], breakdown=breakdown)
+
+    def _anchor_ref(self, device):
+        """Lazily build + cache the frozen reference net from anchor_ckpt."""
+        ref = getattr(self, '_anchor_ref_net', None)
+        if ref is None:
+            anchor_ckpt = getattr(self.train_cfg, 'anchor_ckpt', '') if self.train_cfg is not None else ''
+            if not anchor_ckpt:
+                raise ValueError('anchor_beta > 0 requires paradigm.az.train.anchor_ckpt')
+            from training.core.checkpoint import load_checkpoint
+            from training.core.network import AgentConfig
+            from training.paradigms.az.network import Agent
+
+            blob = load_checkpoint(anchor_ckpt, map_location='cpu', weights_only=False)
+            cfg = AgentConfig(**blob['cfg'])
+            agent = Agent(cfg, device=str(device))
+            agent.net.load_state_dict(blob['net_state_dict'])
+            ref = agent
+            ref.net.eval()
+            for p in ref.net.parameters():
+                p.requires_grad_(False)
+            self._anchor_ref_net = ref
+        return self._anchor_ref_net

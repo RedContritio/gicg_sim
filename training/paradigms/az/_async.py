@@ -8,23 +8,37 @@ an ``AZSelfPlayRunner`` (AB14 ``episode_runner_factory``) wrapping the EXISTING
 ``play_self_game`` — selfplay correctness unchanged, only the mp orchestration
 differs.
 
-**Weights live server-side** (D3=C): network evaluation is centralized in one
-:class:`~training.core.inference.server.InferenceServer` (replaces the legacy
-``ParallelInferencePool``). Actors route every MCTS eval through a per-actor
-:class:`~training.core.inference.client.InferenceClient` over the server's
-``mp.Pipe``; ``sync_weights`` pushes new learner weights to the server
-(``agent.net.load_state_dict`` server-side), so — unlike DMC/PPO — AZ does NOT
-publish to ``WeightsSHM`` (the per-actor ``_AZRemoteProvider.update_weights`` is
-a no-op version read).
+**Weights broadcast** (D3=C, two modes via ``paradigm.local_inference``):
+- LOCAL (default): no server. Each actor owns a CPU Agent copy; the parent
+  writes the learner's inner-net state_dict to a WeightsSHM ``latest`` slot
+  (``sync_weights`` + one initial write before spawn); actors load it
+  between episodes in ``provider.update_weights()``. Only the master
+  process touches CUDA — no per-eval pipe round-trip, no extra CUDA
+  contexts (production wedge + CUBLAS crash forensics, 2026-09-19).
+- SERVER (``local_inference=False``, legacy): weights live server-side in
+  one shared InferenceServer; actors route every eval through a per-actor
+  InferenceClient over the server's mp.Pipe. Retained for explicit
+  cross-actor batching experiments.
 """
 
 from __future__ import annotations
 
+import time
 from typing import Any, Optional
 
 from training.core.actor.ipc.ring import SHMRing
 from training.core.actor.runtime import Runtime
+from training.core.actor.weights_shm import WeightsSHM
 from training.core.protocols import CollectorOutput
+
+# Weight-broadcast slots (ExIt async local inference):
+# - WEIGHTS_TAG: the learner's inner-net state_dict; slot version is the
+#   weight version actors load against.
+# - RING_TAG: fixed_opponent historical-ring snapshots.
+# Both ride WeightsSHM slots written by the parent's sync_weights (same
+# cadence as the legacy InferenceServer weight pushes).
+WEIGHTS_TAG = 'latest'
+RING_TAG = 'az_hist_ring'
 
 
 def _cpu_net_state_dict(network: Any) -> dict:
@@ -62,11 +76,15 @@ class AZAsyncCollector:
         *,
         runtime: Optional[Runtime] = None,
         ring: Optional[SHMRing] = None,
+        opponent_pool: Optional[Any] = None,
     ) -> None:
         del env_factory  # actors rebuild env from cfg (closures unpicklable for spawn)
         self.cfg = cfg
         self.pcfg = paradigm_cfg
         self.network = network
+        self._opponent_pool = opponent_pool  # ExIt fixed_opponent: parent-side ring source
+        self._opp_ring_shm: Optional[WeightsSHM] = None
+        self._weights_shm: Optional[WeightsSHM] = None  # local_inference broadcast
         self._master_seed = int(cfg.meta.seed)
         self._episode_seq = 0
         self._weights_version = 0
@@ -95,53 +113,9 @@ class AZAsyncCollector:
         return AgentConfig.from_obs_shape(pcfg.agent)
 
     def _bootstrap(self) -> None:
-        """One-shot stand-up (idempotent): start the shared InferenceServer,
-        push initial weights, attach N clients, then spawn actors.
+        from training.paradigms.az._async_bootstrap import bootstrap
 
-        Ordering matters — the server rebuilds a RANDOM net via
-        ``network_factory`` in its own process, so the live training weights
-        MUST be pushed (``push_weights`` requires ``start()``) before any actor
-        starts evaluating, or actors would search against random priors."""
-        if self._spawned:
-            return
-        from training.core.inference.client import InferenceClient
-        from training.core.inference.server import InferenceServer
-
-        n_actors = int(getattr(self.cfg.pipeline, 'num_actors', None) or 1)
-        server = InferenceServer(
-            agent_config=self._agent_config(),
-            n_workers=n_actors,
-            server_cfg=getattr(self.cfg, 'inference', None),
-            network_factory_path='training.paradigms.az.network.Agent',
-            inference_handlers_module_path='training.paradigms.az._inference_handlers',
-        )
-        server.start()
-        server.push_weights(_cpu_net_state_dict(self.network))
-        self._inference_server = server
-        self._inference_clients = [
-            InferenceClient(worker_id=i, pipe=server.get_worker_pipe(i)) for i in range(n_actors)
-        ]
-
-        mp_pkg = 'training.paradigms.az.mp_factories'
-        base = {
-            'build_env_factory_path': f'{mp_pkg}.build_az_env_factory',
-            'build_opp_registry_path': f'{mp_pkg}.build_az_opp_registry',
-            'build_policy_path': f'{mp_pkg}.build_az_policy',
-            'build_provider_path': f'{mp_pkg}.build_az_provider',
-            'spec_sampler_path': f'{mp_pkg}.az_spec_sampler',
-            # AB14: selfplay lifecycle ≠ single-sided episode — wrap play_self_game.
-            'episode_runner_factory_path': f'{mp_pkg}.build_az_selfplay_runner',
-            'transition_queue': self.ring,
-            # Push the full _AZRunnerOutput (carries the SelfPlayResult); the
-            # default bare-transitions push would drop game_static + winner.
-            'push_episode_record': True,
-        }
-        clients = self._inference_clients
-        self.runtime.start_actors(
-            n_actors=n_actors,
-            actor_kwargs_factory=lambda i: dict(base, inference_client=clients[i]),
-        )
-        self._spawned = True
+        bootstrap(self)
 
     def collect(self, n_episodes: int, provider: Any) -> CollectorOutput:
         """Drain the SHM ring → CollectorOutput. Each ring item is an
@@ -159,7 +133,12 @@ class AZAsyncCollector:
         while n_pulled < max_pull:
             item = self.ring.try_pop()
             if item is None:
-                break
+                if n_pulled:
+                    break
+                if self.actors_alive_count() == 0:
+                    raise RuntimeError('AZAsyncCollector: all actors exited before producing an episode')
+                time.sleep(0.01)
+                continue
             self._episode_seq += 1
             sp = item.selfplay_result
             if sp.steps:
@@ -170,7 +149,11 @@ class AZAsyncCollector:
                     'ep_idx': self._episode_seq,
                     'n_steps': int(sp.n_steps),
                     'winner': int(sp.winner),
+                    'agent_player': sp.agent_player,
                     'discovery_count': int(sp.discovery_count),
+                    # opponent_kind lives on the _AZRunnerOutput envelope
+                    # (the SelfPlayResult payload is opponent-agnostic).
+                    'opponent_kind': getattr(item, 'opponent_kind', None),
                     'source': 'mp_actor',
                 }
             )
@@ -183,12 +166,33 @@ class AZAsyncCollector:
         )
 
     def sync_weights(self, network: Any) -> int:
-        """Push learner weights to the InferenceServer (server owns the weights;
-        actors route eval through it, so no WeightsSHM publish). No-op before
-        ``_bootstrap`` — the server isn't up yet."""
+        """Republish learner weights + the fixed-opponent historical ring.
+
+        Local mode: write the WeightsSHM ``latest`` slot (actors load it
+        between episodes into their local CPU Agent). Server mode: push to
+        the InferenceServer (server owns the weights; actors route eval
+        through it, so no WeightsSHM weight slot). Ring slot is written on
+        either mode when a fixed_opponent pool is attached. No-op before
+        ``_bootstrap`` — the channels aren't up yet."""
         self._weights_version += 1
+        if self._weights_shm is not None:
+            self._weights_shm.write(
+                WEIGHTS_TAG,
+                _cpu_net_state_dict(network),
+                version=self._weights_version,
+            )
         if self._inference_server is not None:
+            # Loud failure beats a silent wedge: if the server process died
+            # (e.g. GPU context fault), weight_queue.put would block forever
+            # once OS buffers fill.
+            self._inference_server.check_alive()
             self._inference_server.push_weights(_cpu_net_state_dict(network))
+        if self._opp_ring_shm is not None and self._opponent_pool is not None:
+            self._opp_ring_shm.write(
+                RING_TAG,
+                {'snapshots': self._opponent_pool.snapshots()},
+                version=self._weights_version,
+            )
         return self._weights_version
 
     def actors_alive_count(self) -> int:
@@ -219,6 +223,12 @@ class AZAsyncCollector:
         if self._inference_server is not None:
             _safely(self._inference_server.stop)
             self._inference_server = None
+        if self._opp_ring_shm is not None:
+            _safely(self._opp_ring_shm.close)
+            self._opp_ring_shm = None
+        if self._weights_shm is not None:
+            _safely(self._weights_shm.close)
+            self._weights_shm = None
         _safely(self.runtime.close)
         _safely(self.ring.close)
         self._spawned = False

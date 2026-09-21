@@ -6,7 +6,6 @@
 **Supersedes:** `feature/tools-runs-fixes` branch (5 rounds of incremental review + patches, did not converge)
 
 ---
-
 ## Motivation
 
 5 轮 adversarial review 找到 30+ 缺陷,大部分是**多 feature 组合下的 emergent bug**:
@@ -374,4 +373,3 @@ RSYNC_FLAGS = (
 ```
 
 ---
-
