@@ -80,7 +80,7 @@ func ExportView(rt *interp.Runtime) *StateView {
 
 	view := &StateView{
 		Phase:       phaseName(g.Phase),
-		Round:       readGlobalCounter(g, roleMap, RoleRoundNum),
+		Round:       g.Round,
 		Turn:        g.Turn,
 		FirstPlayer: readGlobalCounter(g, roleMap, RoleFirstPlayer),
 		Winner:      g.Winner,

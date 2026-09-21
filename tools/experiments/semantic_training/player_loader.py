@@ -19,9 +19,14 @@ from tools.experiments.semantic_training.search_player import SearchPlayer
 FORMAT = 'semantic-q/2.0.0'
 
 
-def load_semantic_payload(ckpt_path: str) -> Mapping:
+def load_semantic_payload(ckpt_path: str, *, verify_provenance: bool = True) -> Mapping:
     """Read and validate the persisted semantic-Q envelope and provenance."""
-    payload = load_checkpoint(ckpt_path, map_location='cpu', weights_only=False)
+    payload = load_checkpoint(
+        ckpt_path,
+        map_location='cpu',
+        weights_only=False,
+        verify_provenance=verify_provenance,
+    )
     if not isinstance(payload, Mapping) or payload.get('format') not in (FORMAT, CONSEQUENCE_FORMAT):
         raise ValueError(f'unsupported semantic checkpoint; expected {FORMAT} or {CONSEQUENCE_FORMAT}')
     shape = payload.get('shape')
@@ -31,9 +36,15 @@ def load_semantic_payload(ckpt_path: str) -> Mapping:
     return payload
 
 
-def load_semantic_agent(ckpt_path: str, *, seed: int = 0, device: str = 'cpu') -> SemanticAgent:
+def load_semantic_agent(
+    ckpt_path: str,
+    *,
+    seed: int = 0,
+    device: str = 'cpu',
+    verify_provenance: bool = True,
+) -> SemanticAgent:
     """Create one independent inference agent from a compatible checkpoint."""
-    payload = load_semantic_payload(ckpt_path)
+    payload = load_semantic_payload(ckpt_path, verify_provenance=verify_provenance)
     return _agent_from_payload(payload, seed, device)
 
 
@@ -76,7 +87,10 @@ def _loader_semantic(spec: dict) -> PlayerBuilder:
     ckpt = spec.get('ckpt')
     if not isinstance(ckpt, str) or not ckpt:
         raise ValueError('semantic_rl requires a checkpoint')
-    payload = load_semantic_payload(ckpt)
+    payload = load_semantic_payload(
+        ckpt,
+        verify_provenance=not bool(spec.get('allow_unverified_checkpoint', False)),
+    )
 
     def builder(seed: int) -> SemanticAgent:
         return _agent_from_payload(payload, seed)
@@ -98,7 +112,10 @@ def _loader_search(spec: dict) -> PlayerBuilder:
     rollout_plies = int(spec.get('rollout_plies', 8))
     n_playouts = int(spec.get('n_playouts', 4))
     device = str(spec.get('device', 'cpu'))
-    payload = load_semantic_payload(ckpt)
+    payload = load_semantic_payload(
+        ckpt,
+        verify_provenance=not bool(spec.get('allow_unverified_checkpoint', False)),
+    )
     if mode != 'playout' and 'value_head' not in payload:
         raise ValueError('value-head modes require a checkpoint with a value_head')
 

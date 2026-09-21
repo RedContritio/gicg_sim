@@ -4,9 +4,6 @@ import { listCheckpoints, type CheckpointEntry } from '../api/data'
 interface Props {
   value: string
   onChange: (path: string) => void
-  // When true, include non-main ckpts (partial/failed/pool/legacy).
-  // Defaults to false so the common case shows only proper passes.
-  includeAll?: boolean
 }
 
 /**
@@ -19,11 +16,11 @@ interface Props {
  * (from an in-progress session like p0_elo) show up without a full
  * page reload.
  */
-export function CheckpointPicker({ value, onChange, includeAll = false }: Props) {
+export function CheckpointPicker({ value, onChange }: Props) {
   const [entries, setEntries] = useState<CheckpointEntry[]>([])
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showAll, setShowAll] = useState(includeAll)
+  const [query, setQuery] = useState('')
 
   const refresh = () => {
     setLoading(true)
@@ -51,9 +48,10 @@ export function CheckpointPicker({ value, onChange, includeAll = false }: Props)
     }
   }, [])
 
-  const filtered = showAll
-    ? entries
-    : entries.filter((e) => e.kind === 'main')
+  const normalizedQuery = query.trim().toLocaleLowerCase()
+  const filtered = normalizedQuery
+    ? entries.filter((entry) => `${entry.label} ${entry.session_id} ${entry.path}`.toLocaleLowerCase().includes(normalizedQuery))
+    : entries
 
   // Group by session_id for optgroup rendering.
   const bySession = new Map<string, CheckpointEntry[]>()
@@ -65,13 +63,19 @@ export function CheckpointPicker({ value, onChange, includeAll = false }: Props)
 
   return (
     <div className="flex w-full min-w-0 flex-wrap items-center gap-2">
-      <label className="text-xs text-slate-400">ckpt:</label>
+      <label className="text-xs text-slate-400">模型存档</label>
+      <input
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="搜索训练任务或文件名"
+        className="w-full min-w-0 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-100 text-xs sm:w-48"
+      />
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full min-w-0 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-100 text-xs sm:w-auto sm:min-w-[24rem]"
       >
-        <option value="">— select a checkpoint —</option>
+        <option value="">— 选择模型存档 —</option>
         {Array.from(bySession.entries()).map(([sess, list]) => (
           <optgroup key={sess} label={sess}>
             {list.map((e) => (
@@ -82,26 +86,17 @@ export function CheckpointPicker({ value, onChange, includeAll = false }: Props)
           </optgroup>
         ))}
       </select>
-      <label className="text-xs text-slate-500 flex items-center gap-1 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={showAll}
-          onChange={(e) => setShowAll(e.target.checked)}
-          className="w-3 h-3"
-        />
-        show all
-      </label>
       <button
         onClick={refresh}
         disabled={loading}
         className="text-xs px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-100 disabled:opacity-40"
-        title="Re-scan artifacts tree for new checkpoints"
+        title="重新扫描模型存档"
       >
         {loading ? '…' : '↻'}
       </button>
       {err && <span className="text-xs text-rose-400">{err}</span>}
       <span className="text-[10px] text-slate-500">
-        {filtered.length}/{entries.length}
+        {filtered.length} 个
       </span>
     </div>
   )

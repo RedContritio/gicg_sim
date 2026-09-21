@@ -1,6 +1,6 @@
 -- system/dice.lua — elemental dice mechanic
 --
--- Each round, each player rolls DICE_ROLL_COUNT dice. Each dice is
+-- Each round, each player rolls 8 dice. Each die is
 -- independently sampled uniformly over 8 colors (7 elements + omni).
 -- Unused dice are discarded at round end.
 --
@@ -12,8 +12,6 @@
 -- Counter names MUST match interp.DiceCounterNames — any rename here
 -- requires a matching change there.
 
-local DICE_ROLL_COUNT = 8
-
 local dice_fire    = declare_counter("dice_fire",    Scope.PerPlayer, 0, { min = 0, max = 16, tag = Tag.Dice })
 local dice_ice     = declare_counter("dice_ice",     Scope.PerPlayer, 0, { min = 0, max = 16, tag = Tag.Dice })
 local dice_water   = declare_counter("dice_water",   Scope.PerPlayer, 0, { min = 0, max = 16, tag = Tag.Dice })
@@ -22,11 +20,6 @@ local dice_geo     = declare_counter("dice_geo",     Scope.PerPlayer, 0, { min =
 local dice_anemo   = declare_counter("dice_anemo",   Scope.PerPlayer, 0, { min = 0, max = 16, tag = Tag.Dice })
 local dice_dendro  = declare_counter("dice_dendro",  Scope.PerPlayer, 0, { min = 0, max = 16, tag = Tag.Dice })
 local dice_omni    = declare_counter("dice_omni",    Scope.PerPlayer, 0, { min = 0, max = 16, tag = Tag.Dice })
-
--- Roll fresh dice at round start, for each player.
-on_round_start(function(ctx)
-  roll_dice(context_player(), DICE_ROLL_COUNT)
-end)
 
 -- Discard unused dice at round end.
 on_round_end(function(ctx)

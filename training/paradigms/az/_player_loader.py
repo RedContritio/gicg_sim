@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from training.core.artifact_io import load_checkpoint
 
-import torch
-
 from training.core.matchup.loaders import (
     PlayerBuilder,
     _AgentArgmaxPlayer,
@@ -17,13 +15,18 @@ from training.core.network import AgentConfig
 from training.paradigms.az.network import Agent
 
 
-def _load_az_agent_from_ckpt(ckpt_path: str) -> Agent:
+def _load_az_agent_from_ckpt(ckpt_path: str, *, verify_provenance: bool = True) -> Agent:
     """Load an AZ Agent from a checkpoint produced by AZ training.
 
     Current checkpoints use ``net_state_dict``. The legacy ``net`` key is
     retained for archived checkpoints used by retrospective benchmarks.
     """
-    blob = load_checkpoint(ckpt_path, weights_only=True, map_location='cpu')
+    blob = load_checkpoint(
+        ckpt_path,
+        weights_only=True,
+        map_location='cpu',
+        verify_provenance=verify_provenance,
+    )
     if not isinstance(blob, dict) or 'cfg' not in blob:
         raise RuntimeError(f"matchup: az ckpt {ckpt_path} missing 'cfg' key")
     state_key = 'net_state_dict' if 'net_state_dict' in blob else 'net'
@@ -40,7 +43,10 @@ def _load_az_agent_from_ckpt(ckpt_path: str) -> Agent:
 
 
 def _loader_az(spec: dict) -> PlayerBuilder:
-    agent = _load_az_agent_from_ckpt(spec['ckpt'])
+    agent = _load_az_agent_from_ckpt(
+        spec['ckpt'],
+        verify_provenance=not bool(spec.get('allow_unverified_checkpoint', False)),
+    )
     n_sims = int(spec.get('n_simulations', 0))
     max_depth = int(spec.get('max_rollout_depth', 400))
 

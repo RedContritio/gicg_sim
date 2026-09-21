@@ -20,7 +20,7 @@ from training.core.matchup.loaders import (
 from training.core.network import AgentConfig
 
 
-def _load_ppo_agent(ckpt_path: str) -> Any:
+def _load_ppo_agent(ckpt_path: str, *, verify_provenance: bool = True) -> Any:
     """Load a PPOAgent using the default production observation shape."""
     from training.core.cfg import make_ppo_default_shape
     from training.paradigms.ppo.agent import PPOAgent
@@ -28,7 +28,11 @@ def _load_ppo_agent(ckpt_path: str) -> Any:
     shape = make_ppo_default_shape()
     agent_cfg = AgentConfig.from_obs_shape(shape)
     agent = PPOAgent(agent_cfg, device='cpu')
-    state_dict = load_net_state_dict(ckpt_path, map_location='cpu')
+    state_dict = load_net_state_dict(
+        ckpt_path,
+        map_location='cpu',
+        verify_provenance=verify_provenance,
+    )
     agent.net.load_state_dict(state_dict)
     agent.net.eval()
     return agent
@@ -57,7 +61,10 @@ def _loader_ppo(spec: dict) -> PlayerBuilder:
             'PPO player loader does not support n_simulations > 0; '
             'omit it or set it to 0 for deterministic policy selection.'
         )
-    agent = _load_ppo_agent(spec['ckpt'])
+    agent = _load_ppo_agent(
+        spec['ckpt'],
+        verify_provenance=not bool(spec.get('allow_unverified_checkpoint', False)),
+    )
 
     def builder(seed: int) -> _PlayerProtocol:
         return _PpoArgmaxPlayer(agent, seed=seed)

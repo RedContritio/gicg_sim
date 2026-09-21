@@ -45,6 +45,9 @@ func TestLegacyTarget_StepAndStepTargetPreserveModifiers(t *testing.T) {
 					}
 				}})
 			env.RT.ResetDynamic(42)
+			if err := keepAllRerolls(g); err != nil {
+				t.Fatal(err)
+			}
 			receiver := env.RT.Clone()
 			if g.Step(env.FindAction(engine.ActionCard, "碌碌无为")) != engine.StepNeedTarget {
 				t.Fatal("legacy card did not request a target")
@@ -56,7 +59,8 @@ func TestLegacyTarget_StepAndStepTargetPreserveModifiers(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := record.ReplayTo(receiver, unfinished, 1); err != nil {
+			steps := record.TotalSteps(unfinished)
+			if err := record.ReplayTo(receiver, unfinished, steps); err != nil {
 				t.Fatal(err)
 			}
 			if receiver.Game.PendingCardTarget == nil || receiver.Game.Counters[marker].Value != 0 {
@@ -84,10 +88,10 @@ func TestLegacyTarget_StepAndStepTargetPreserveModifiers(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if record.TotalSteps(rec) != 1 {
+			if record.TotalSteps(rec) != steps {
 				t.Fatal("target selection was incorrectly logged as another card play")
 			}
-			if err := record.ReplayTo(receiver, rec, 1); err != nil {
+			if err := record.ReplayTo(receiver, rec, steps); err != nil {
 				t.Fatal(err)
 			}
 			want, err := g.ExportCheckpoint()

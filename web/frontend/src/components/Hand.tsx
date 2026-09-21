@@ -1,4 +1,5 @@
 import type { CardView } from '../types/state'
+import type { DragEvent } from 'react'
 import { CardArt } from './CardArt'
 
 interface Props {
@@ -8,9 +9,15 @@ interface Props {
   hidden?: boolean
   onPlay?: (idx: number) => void
   dimmed?: boolean
+  selected?: number
+  playable?: number[]
+  draggable?: number[]
+  dragging?: number
+  onCardDragStart?: (idx: number, event: DragEvent<HTMLButtonElement>) => void
+  onCardDragEnd?: () => void
 }
 
-export function Hand({ hand, deckCount, handCount, hidden, onPlay, dimmed }: Props) {
+export function Hand({ hand, deckCount, handCount, hidden, onPlay, dimmed, selected, playable, draggable, dragging, onCardDragStart, onCardDragEnd }: Props) {
   const count = handCount ?? hand?.length
   return (
     <div className={`hand-area ${hidden ? 'hidden-hand' : ''} ${dimmed ? 'waiting-hand' : ''}`}>
@@ -18,7 +25,17 @@ export function Hand({ hand, deckCount, handCount, hidden, onPlay, dimmed }: Pro
       {hidden ? <div className="card-backs" aria-label={`对方手牌 ${count ?? '未知'} 张`}>
         {Array.from({ length: Math.min(count ?? 0, 10) }, (_, i) => <span className="card-back" key={i}>✧</span>)}
       </div> : <div className="hand-cards">
-        {(hand ?? []).map((card, i) => <button key={`${card.ref}-${i}`} className="hand-card" disabled={!onPlay} onClick={() => onPlay?.(i)} title={`${card.name} · 点击查看可用行动与支付`}>
+        {(hand ?? []).map((card, i) => <button
+          key={`${card.ref}-${i}`}
+          className={`hand-card ${selected === i ? 'selected' : ''} ${dragging === i ? 'dragging' : ''}`}
+          disabled={!onPlay || (playable !== undefined && !playable.includes(i))}
+          draggable={draggable?.includes(i) ?? false}
+          aria-grabbed={dragging === i}
+          onClick={() => onPlay?.(i)}
+          onDragStart={(event) => onCardDragStart?.(i, event)}
+          onDragEnd={onCardDragEnd}
+          title={`${card.name} · 点击选择，或拖到场上打出、拖到骰子区调和`}
+        >
           <CardArt key={card.name} name={card.name} /><span>{card.name}</span>
         </button>)}
         {hand?.length === 0 && <span className="empty-hand">暂无手牌</span>}

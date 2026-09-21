@@ -4,7 +4,7 @@ import numpy as np
 
 from gicg_env.env_state import _StateMixin
 
-from ._constants import OBS_BUFF_SLOTS
+from ._constants import ACTION_REROLL, OBS_BUFF_SLOTS
 from .engine import (
     STEP_NEED_TARGET,
     GicgEngine,
@@ -224,6 +224,8 @@ class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
         # disabled avoids a cgo round-trip on the terminal-z hot path.
         me = self._engine.acting_player
         events_before = self._engine.get_reward_events(me) if self._reward_shaping is not None else None
+        kinds, _ = self.get_legal_actions()
+        is_reroll = 0 <= action_idx < len(kinds) and int(kinds[action_idx]) == ACTION_REROLL
 
         # Dispatch: if the engine is currently in a pending state (card
         # target needed or forced switch pending), route to step_target;
@@ -235,7 +237,7 @@ class GicgEnv(_StateMixin, _ActionMixin, _ObsMixin, _QueryMixin):
         else:
             result = self._engine.step(action_idx)
 
-        if result == STEP_NEED_TARGET:
+        if result == STEP_NEED_TARGET and not is_reroll:
             reward = self._score_reward(events_before, me, done=False)
             return (
                 self._get_obs(),

@@ -38,6 +38,7 @@ import pytest
 import torch
 
 from gicg_env import GicgEnv
+from training.tests._helpers import keep_all_rerolls
 from training.core.matchup.greedy_player import GreedyPlayer
 from training.paradigms.az.buffer import STEP_DYNAMIC_KEYS
 from training.paradigms.az.determinize import SharedFixedPool
@@ -122,6 +123,7 @@ def _make_env(seed: int) -> _TrackingEnv:
         decks=[DECK, DECK],
     )
     env.reset(seed=seed)
+    keep_all_rerolls(env)
     return env
 
 

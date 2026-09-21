@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 import tomllib
 
-from tools.experiments.semantic_training.player_loader import FORMAT, load_semantic_agent, register_semantic_loader
+from tools.experiments.semantic_training.player_loader import FORMAT, register_semantic_loader
 from training.core.artifact_io import fingerprint
 from training.core.config.loader import load_cfg
 from training.core.env_factory import make_env_factory
@@ -26,7 +26,22 @@ class ServiceDefinition:
     model_type: str
     cfg_path: Path
     ckpt_path: Path
-    report_path: Path
+    report_path: Path | None
+    n_simulations: int
+    max_rollout_depth: int
+
+    def player_spec(self) -> dict:
+        spec = {
+            'type': self.model_type,
+            'ckpt': str(self.ckpt_path),
+            'n_simulations': self.n_simulations,
+        }
+        if self.n_simulations > 0:
+            spec['max_rollout_depth'] = self.max_rollout_depth
+        return spec
+
+    def behavior_spec(self) -> dict:
+        return _behavior_spec(self.player_spec())
 
 
 def _resolve_under(root: Path, value: object, directory: str, label: str) -> Path:
@@ -52,23 +67,34 @@ def load_service_definition(
     except ValueError as exc:
         raise ValueError('live model service config must stay under configs/') from exc
     raw = tomllib.loads(path.read_text(encoding='utf-8'))
-    allowed = {'name', 'type', 'cfg', 'ckpt', 'report'}
+    allowed = {'name', 'type', 'cfg', 'ckpt', 'report', 'n_simulations', 'max_rollout_depth'}
     if unknown := set(raw) - allowed:
         raise ValueError(f'unknown live model service fields: {sorted(unknown)}')
-    if set(raw) != allowed:
-        raise ValueError(f'live model service config requires fields: {sorted(allowed)}')
+    required = {'name', 'type', 'cfg', 'ckpt'}
+    if not required.issubset(raw):
+        raise ValueError(f'live model service config requires fields: {sorted(required)}')
+    n_simulations = raw.get('n_simulations', 0)
+    max_rollout_depth = raw.get('max_rollout_depth', 400)
+    if isinstance(n_simulations, bool) or not isinstance(n_simulations, int) or n_simulations < 0:
+        raise ValueError('n_simulations must be a non-negative integer')
+    if isinstance(max_rollout_depth, bool) or not isinstance(max_rollout_depth, int) or max_rollout_depth < 1:
+        raise ValueError('max_rollout_depth must be a positive integer')
     definition = ServiceDefinition(
         name=str(raw['name']),
         model_type=str(raw['type']),
         cfg_path=_resolve_under(root, raw['cfg'], 'configs', 'cfg'),
         ckpt_path=_resolve_under(root, raw['ckpt'], 'artifacts', 'ckpt'),
-        report_path=_resolve_under(root, raw['report'], 'artifacts', 'report'),
+        report_path=_resolve_under(root, raw['report'], 'artifacts', 'report') if 'report' in raw else None,
+        n_simulations=n_simulations,
+        max_rollout_depth=max_rollout_depth,
     )
     # 09-19: AZ 支持 — live 服务不再限定 D2 时代的 semantic_rl；ExIt/AZ
     # ckpt（player_spec type='az'，argmax 着法）同样可对战。旧 semantic_rl
     # 行为不变。
     if definition.model_type not in ('semantic_rl', 'az'):
         raise ValueError('semantic live service requires type semantic_rl or az')
+    if definition.model_type == 'semantic_rl' and definition.n_simulations != 0:
+        raise ValueError('semantic_rl live models require n_simulations = 0')
     return definition, load_cfg(definition.cfg_path)
 
 
@@ -80,29 +106,44 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _validated_report(definition: ServiceDefinition, cfg) -> dict:
-    if not definition.ckpt_path.is_file():
-        raise ValueError('configured checkpoint is not installed')
-    if not definition.report_path.is_file():
-        raise ValueError('configured evaluation report is not installed')
-    report = json.loads(definition.report_path.read_text(encoding='utf-8'))
-    if not isinstance(report, dict):
-        raise ValueError('configured evaluation report must be a JSON object')
-    if report.get('status') != 'complete':
-        raise ValueError('configured evaluation report is incomplete')
-    if report.get('checkpoint_sha256') != _sha256(definition.ckpt_path):
-        raise ValueError('configured checkpoint does not match its evaluation report')
-    report_provenance = report.get('provenance')
-    source = report_provenance.get('source_observation_sha256') if isinstance(report_provenance, dict) else None
-    if source != fingerprint():
-        raise ValueError('configured evaluation report is incompatible with current rules and observations')
-    if report.get('scenario') != asdict(cfg.scenario):
-        raise ValueError('configured evaluation report does not match the training rule config')
-    if definition.model_type == 'semantic_rl':
-        load_semantic_agent(str(definition.ckpt_path))
-    # az: report 校验（sha/指纹/场景）已锁定 ckpt，真正的 builder 加载在
-    # build_session 经 matchup loaders 完成并缓存 — 此处不再重复装载。
-    return report
+def _behavior_spec(player_spec: object) -> dict:
+    if player_spec is None:
+        return {'type': 'semantic_rl', 'n_simulations': 0}
+    if not isinstance(player_spec, dict):
+        raise ValueError('evaluation report player_spec must be an object or null')
+    model_type = player_spec.get('type')
+    if model_type not in ('semantic_rl', 'az'):
+        raise ValueError('evaluation report player_spec has unsupported type')
+    n_simulations = player_spec.get('n_simulations', 0)
+    if isinstance(n_simulations, bool) or not isinstance(n_simulations, int) or n_simulations < 0:
+        raise ValueError('evaluation report player_spec has invalid n_simulations')
+    behavior = {'type': model_type, 'n_simulations': n_simulations}
+    if n_simulations > 0:
+        max_rollout_depth = player_spec.get('max_rollout_depth', 400)
+        if isinstance(max_rollout_depth, bool) or not isinstance(max_rollout_depth, int) or max_rollout_depth < 1:
+            raise ValueError('evaluation report player_spec has invalid max_rollout_depth')
+        behavior['max_rollout_depth'] = max_rollout_depth
+    return behavior
+
+
+def _matching_report(definition: ServiceDefinition, cfg) -> dict | None:
+    if definition.report_path is None or not definition.report_path.is_file():
+        return None
+    try:
+        report = json.loads(definition.report_path.read_text(encoding='utf-8'))
+        report_provenance = report.get('provenance') if isinstance(report, dict) else None
+        source = report_provenance.get('source_observation_sha256') if isinstance(report_provenance, dict) else None
+        matches = (
+            isinstance(report, dict)
+            and report.get('status') == 'complete'
+            and report.get('checkpoint_sha256') == _sha256(definition.ckpt_path)
+            and _behavior_spec(report.get('player_spec')) == definition.behavior_spec()
+            and source == fingerprint()
+            and report.get('scenario') == asdict(cfg.scenario)
+        )
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return None
+    return report if matches else None
 
 
 def _validate_teams(msg: dict, cfg) -> tuple[list[str], list[str]]:
@@ -129,10 +170,9 @@ def _validate_teams(msg: dict, cfg) -> tuple[list[str], list[str]]:
 
 def build_session(msg: dict, seed: int, human_player: int) -> LiveSession:
     definition, cfg = load_service_definition()
-    _validated_report(definition, cfg)
     team_0, team_1 = _validate_teams(msg, cfg)
     player = build_opponent_player(
-        {'type': definition.model_type, 'ckpt': str(definition.ckpt_path)},
+        definition.player_spec(),
         seed,
         ckpt_allow_root=ROOT / 'artifacts',
     )
@@ -166,8 +206,15 @@ def profile() -> dict:
     report = None
     error = None
     try:
-        report = _validated_report(definition, cfg)
-    except (FileNotFoundError, OSError, ValueError) as exc:
+        if not definition.ckpt_path.is_file():
+            raise ValueError('configured checkpoint is not installed')
+        build_opponent_player(
+            definition.player_spec(),
+            0,
+            ckpt_allow_root=ROOT / 'artifacts',
+        )
+        report = _matching_report(definition, cfg)
+    except (FileNotFoundError, OSError, RuntimeError, TypeError, ValueError) as exc:
         error = str(exc)
     metrics = {
         key: report[key]
@@ -187,5 +234,6 @@ def profile() -> dict:
         'allow_overlap': not scenario.disjoint_teams,
         'max_rounds': scenario.max_rounds,
         'evaluation': metrics,
+        'inference': definition.behavior_spec(),
         'checkpoint_format': FORMAT if definition.model_type == 'semantic_rl' else 'az',
     }

@@ -194,7 +194,11 @@ func TestReplayEveryPrefixAcrossRounds(t *testing.T) {
 	source := NewGameWithDeck(t, []string{"赤蝶"}, []string{"墨客"})
 	rng := engine.NewRandom(123)
 	expected := map[int][]byte{}
-	steps := 0
+	initial, err := record.Parse(record.Export(source.RT))
+	if err != nil {
+		t.Fatal(err)
+	}
+	steps := record.TotalSteps(initial)
 	for steps < 300 && source.G.Phase != engine.PhaseGameOver {
 		actions := source.G.GetLegalActions()
 		if len(actions) == 0 {

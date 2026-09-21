@@ -33,6 +33,9 @@ func TestResetDynamic_RestoresInitialState(t *testing.T) {
 
 	// Reset
 	env.RT.ResetDynamic(123)
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	if env.HP(0, 0) != initHP0 {
 		t.Errorf("HP0 not restored: got %d want %d", env.HP(0, 0), initHP0)

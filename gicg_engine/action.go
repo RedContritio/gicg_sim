@@ -74,6 +74,9 @@ func (g *Game) GetLegalActions() []Action {
 	// 回合间暂停：自动推进到下一回合
 	if g.Phase == PhaseRoundStart {
 		g.NewRound()
+		if g.PendingDice != nil {
+			return g.diceSelectionActions()
+		}
 	}
 
 	if g.PendingAction != nil && g.PendingAction.Kind == ActionSwitch {

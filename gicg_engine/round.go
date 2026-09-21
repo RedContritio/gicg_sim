@@ -1,5 +1,11 @@
 package engine
 
+const roundDiceCount = 8
+
+type diceRoller interface {
+	RollDice(playerIdx, n int)
+}
+
 // enterRoundPause 进入回合间暂停状态。在 PhaseRoundStart 中，counter 值即为
 // 即将开始的回合的"初始状态"（hooks 未触发，AP 未重置，卡未摸）。
 // 此处捕获 RoundStartSnap，下次 Step/GetLegalActions 会自动调用 NewRound 推进。
@@ -56,6 +62,14 @@ func (g *Game) newRound() {
 	}
 	g.Turn = firstPlayer
 	order := []int{firstPlayer, 1 - firstPlayer}
+	rt := g.Extra.(diceRoller)
+	for _, player := range order {
+		rt.RollDice(player, roundDiceCount)
+	}
+	for _, player := range order {
+		g.ChooseReroll(player, 1)
+	}
+
 	ctx := &EventContext{ActionCtx: ActNone}
 	g.FirePerPlayerHooks(HookRoundStart, ctx, order)
 

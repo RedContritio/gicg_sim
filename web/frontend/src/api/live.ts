@@ -13,7 +13,7 @@ export type OpponentSpec =
 
 export interface LiveProfile {
   name: string
-  model_type: 'semantic_rl'
+  model_type: 'semantic_rl' | 'az'
   available: boolean
   unavailable_reason: string | null
   characters: string[]
@@ -24,6 +24,11 @@ export interface LiveProfile {
   allow_overlap: boolean
   max_rounds: number
   evaluation: Record<string, number>
+  inference: {
+    type: 'semantic_rl' | 'az'
+    n_simulations: number
+    max_rollout_depth?: number
+  }
   checkpoint_format: string
 }
 
@@ -48,7 +53,12 @@ export interface LiveActionMessage {
   index: number
 }
 
-export type LiveOutbound = LiveNewMessage | LiveActionMessage
+export interface LiveRerollMessage {
+  type: 'reroll'
+  counts: number[]
+}
+
+export type LiveOutbound = LiveNewMessage | LiveActionMessage | LiveRerollMessage
 
 // Reconnection policy: up to MAX_RECONNECT attempts with exponential
 // backoff starting at INITIAL_BACKOFF_MS. After a successful

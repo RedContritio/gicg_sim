@@ -4,6 +4,7 @@ import numpy as np
 import torch
 
 from gicg_env import GicgEnv
+from training.tests._helpers import keep_all_rerolls
 from tools.experiments.tactical_data import label_actions, step_checked
 from tools.experiments.tactical_learning import batch_rows
 from training.core.config.loader import load_cfg
@@ -28,6 +29,7 @@ def test_joint_card_targets_reach_logits_and_gradients():
     )
     try:
         env.reset(seed=300)
+        keep_all_rerolls(env)
         for _ in range(2):
             index = next(i for i, a in enumerate(env.get_action_labels()) if a[:2] == ('Skill', '枪'))
             step_checked(env, index)

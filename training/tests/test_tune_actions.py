@@ -4,6 +4,7 @@ import numpy as np
 import torch
 
 from gicg_env import ACTION_TUNE, GicgEnv
+from training.tests._helpers import keep_all_rerolls
 from tools.experiments.action_audit import check_action_aliases
 from tools.experiments.tactical_learning import batch_rows
 from training.core.config.loader import load_cfg
@@ -23,6 +24,7 @@ def test_tune_rule_color_and_logits():
     )
     try:
         env.reset(seed=500)
+        keep_all_rerolls(env)
         env.get_legal_actions()
         env.set_player_dice(env.acting_player, [0, 0, 2, 2, 0, 0, 0, 0])
         refs = env.get_action_refs()

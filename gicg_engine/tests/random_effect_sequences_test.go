@@ -101,7 +101,7 @@ func TestRandomEffectSequences(t *testing.T) {
 					if err := restored.Game.RestoreCheckpoint(before); err != nil {
 						t.Fatal(err)
 					}
-				} else if g.PendingAction == nil && g.PendingCardTarget == nil {
+				} else if g.PendingAction == nil && g.PendingCardTarget == nil && g.PendingDice == nil {
 					t.Fatal(exportErr)
 				}
 				pooled.Game.RestoreFromSnap(snap)

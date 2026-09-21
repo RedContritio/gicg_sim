@@ -88,6 +88,23 @@ def test_skip_provenance_env_gate_keeps_lineage_checks(monkeypatch, tmp_path):
         aio.validate(good)
 
 
+@pytest.mark.parametrize(
+    'metadata',
+    [None, {**provenance(), 'source_observation_sha256': '0' * 64}],
+)
+def test_inference_load_can_skip_provenance_without_global_env(tmp_path, metadata):
+    path = tmp_path / 'unverified.pt'
+    payload = {'net': {}}
+    if metadata is not None:
+        payload[KEY] = metadata
+    torch.save(payload, path)
+
+    with pytest.raises(ArtifactCompatibilityError):
+        load_checkpoint(path, weights_only=True)
+    loaded = load_checkpoint(path, weights_only=True, verify_provenance=False)
+    assert loaded['net'] == {}
+
+
 def test_rl16_conversion_creates_child_provenance(monkeypatch, tmp_path):
     import hashlib
 

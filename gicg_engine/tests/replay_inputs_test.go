@@ -11,6 +11,11 @@ import (
 func TestReplayExactInputsAcrossReceiverSeeds(t *testing.T) {
 	for _, seed := range []int64{7, 42, 1337} {
 		source := newGame(t, []string{"赤蝶"}, []string{"墨客"}, seed, true)
+		initial, err := record.Parse(record.Export(source.RT))
+		if err != nil {
+			t.Fatal(err)
+		}
+		initialSteps := record.TotalSteps(initial)
 		var inputs []engine.ActionInput
 		// Exercise non-default payments and tuning without crossing a round
 		// boundary (cached later-round state has separate completeness tests).
@@ -42,16 +47,16 @@ func TestReplayExactInputsAcrossReceiverSeeds(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if record.TotalSteps(rec) != len(inputs) {
+		if record.TotalSteps(rec) != initialSteps+len(inputs) {
 			t.Fatalf("seed %d: lost actions", seed)
 		}
-		for i, a := range rec.Rounds[0].Actions {
+		for i, a := range rec.Rounds[0].Actions[initialSteps:] {
 			if a.Input == nil || *a.Input != inputs[i] {
 				t.Fatalf("seed %d action %d lost exact input", seed, i)
 			}
 		}
 		receiver := newGame(t, []string{"赤蝶"}, []string{"墨客"}, 999, true)
-		if err := record.ReplayTo(receiver.RT, rec, len(inputs)); err != nil {
+		if err := record.ReplayTo(receiver.RT, rec, record.TotalSteps(rec)); err != nil {
 			t.Fatalf("seed %d: %v", seed, err)
 		}
 		if !reflect.DeepEqual(source.G.Counters, receiver.G.Counters) {

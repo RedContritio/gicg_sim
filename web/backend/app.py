@@ -126,6 +126,7 @@ def create_app() -> FastAPI:
           - partial: same but suffix .partial.pt (G-scheme fallback)
           - failed:  same but suffix .failed.pt
           - pool:    <session>/pool/pool_*.pt
+          - main:    <session>/ckpts/*.pt
           - legacy:  artifacts/checkpoints/*.pt (pre-session layout)
         Sorted by mtime desc so recent runs float to the top.
 
@@ -175,6 +176,10 @@ def create_app() -> FastAPI:
                 label = '/'.join(label_parts)
                 if kind != 'main':
                     label += f' [{kind}]'
+            elif len(parts) >= 3 and parts[1] == 'ckpts':
+                kind = 'main'
+                stage = parts[-1]
+                label = f'{session_id}/{stage}'
             elif parts[:1] == ('checkpoints',):
                 kind = 'legacy'
                 session_id = 'checkpoints'

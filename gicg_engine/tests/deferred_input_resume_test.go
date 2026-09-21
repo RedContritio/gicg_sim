@@ -100,6 +100,9 @@ func TestDeferredInput_NewRoundQueryDoesNotRestartWaitingRound(t *testing.T) {
 		}})
 	g.Step(env.FindAction(engine.ActionEndTurn, ""))
 	g.Step(env.FindAction(engine.ActionEndTurn, ""))
+	if err := keepAllRerolls(g); err != nil {
+		t.Fatal(err)
+	}
 	for query := 0; query < 3; query++ {
 		if len(g.GetLegalActions()) != 1 || g.Round != 2 || g.Counters[marker].Value != 0 {
 			t.Fatal("repeated action query restarted or completed a waiting round")

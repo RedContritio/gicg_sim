@@ -6,6 +6,7 @@ import numpy as np
 
 from gicg_env import GicgEngine
 from gicg_env.engine import PHASE_GAME_OVER, PHASE_ACTION, ACTION_SKILL, ACTION_END_TURN
+from gicg_env.tests._helpers import keep_all_rerolls
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
@@ -71,6 +72,7 @@ def game(engine):
     # use the bare engine fixture.
     engine.step(0)
     engine.step(0)
+    keep_all_rerolls(engine)
     yield engine
     engine.close()
 
@@ -129,6 +131,8 @@ class TestGameplay:
         kinds, _ = game.get_legal_actions()
         et_idx = np.where(kinds == ACTION_END_TURN)[0][0]
         game.step(int(et_idx))
+
+        keep_all_rerolls(game)
 
         # Should have advanced to round 2 (still in action phase)
         assert game.phase == PHASE_ACTION

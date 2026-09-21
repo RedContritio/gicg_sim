@@ -30,7 +30,7 @@ export function OpponentPicker({ value, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-xs text-slate-400">对手</div>
+      <div className="text-xs text-slate-400">对手模型</div>
       <div className="flex flex-wrap gap-2 items-end">
         <select
           value={value.type}
@@ -39,7 +39,7 @@ export function OpponentPicker({ value, onChange }: Props) {
         >
           {TYPES.map((t) => (
             <option key={t} value={t}>
-              {t === 'semantic_rl' ? '当前 RL 模型' : t === 'random' ? '随机对手 · 练习体验' : t}
+              {t === 'semantic_rl' ? '当前模型' : t === 'random' ? '随机练习对手' : t === 'mcts_pure' ? '纯搜索对手' : t.toUpperCase()}
             </option>
           ))}
         </select>
@@ -58,7 +58,7 @@ export function OpponentPicker({ value, onChange }: Props) {
 
         {hasBudget && (
           <label className="flex flex-col gap-1 text-xs text-slate-400">
-            n_simulations
+            搜索次数
             <input
               type="number"
               min={0}
@@ -79,22 +79,22 @@ export function OpponentPicker({ value, onChange }: Props) {
       </div>
       {value.type === 'mcts_pure' && (
         <div className="text-[10px] text-slate-500">
-          pure UCT, uniform prior, no network
+          不使用神经网络，仅通过局面搜索决策。
         </div>
       )}
       {value.type === 'az' && (
         <div className="text-[10px] text-slate-500">
-          AlphaZero ckpt; 0 = argmax of policy head, &gt;0 = network + MCTS
+          搜索次数为 0 时直接采用策略网络，否则结合搜索决策。
         </div>
       )}
       {value.type === 'cfr' && (
         <div className="text-[10px] text-slate-500">
-          Deep-CFR strategy ckpt; 0 = argmax, &gt;0 = CFR prior + MCTS
+          搜索次数为 0 时直接采用策略网络，否则结合搜索决策。
         </div>
       )}
       {value.type === 'random' && (
         <div className="text-[10px] text-slate-500">
-          uniform-random over legal moves
+          从当前合法行动中随机选择。
         </div>
       )}
     </div>

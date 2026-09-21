@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 from gicg_env import GicgEngine
+from gicg_env.tests._helpers import keep_all_rerolls
 from gicg_env.engine import ACTION_SKILL, STEP_NEED_TARGET
 
 
@@ -26,6 +27,7 @@ def test_dsl_deferred_choice_survives_clone_and_restore(tmp_path):
         eng.new_game(players=[['赤蝶'], ['墨客', '刻师傅', '猫咪']], seed=42, data_dir=str(tmp_path))
         eng.step(0)
         eng.step(0)
+        keep_all_rerolls(eng)
         eng.set_player_dice(0, [0, 0, 0, 0, 0, 0, 0, 8])
         kinds, _ = eng.get_legal_actions()
         skill = next(i for i, kind in enumerate(kinds) if kind == ACTION_SKILL)

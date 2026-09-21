@@ -223,10 +223,8 @@ func ReplayTo(rt *interp.Runtime, rec *Record, step int) error {
 			return fmt.Errorf("step round=%d local=%d: %w", targetRound, i, err)
 		}
 	}
-	// Advance out of PhaseRoundStart if no in-round actions ran — otherwise
-	// callers observing the view see the pre-round_start state where
-	// round_num and the dice pool are stale. Fires round_start hooks so
-	// dice roll, hand draws and round_num increment apply.
+	// Enter the round if no in-round actions ran so callers observe its
+	// initial reroll decision instead of the preceding inter-round pause.
 	if rt.Game.Phase == engine.PhaseRoundStart {
 		rt.Game.GetLegalActions()
 	}

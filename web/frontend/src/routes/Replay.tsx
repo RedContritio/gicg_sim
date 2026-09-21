@@ -1,202 +1,131 @@
 import { useEffect, useState } from 'react'
-import { listReplays, getReplay } from '../api/replay'
+import { getReplay, listReplays, refreshReplays } from '../api/replay'
 import type { ReplayDetail, ReplayListEntry } from '../types/state'
 import { Board } from '../components/Board'
-import { PolicyBars } from '../components/PolicyBars'
-import { AttentionHeatmap } from '../components/AttentionHeatmap'
-import { ValueTimeline } from '../components/ValueTimeline'
-import { LegalActionList } from '../components/LegalActionList'
-import { CheckpointPicker } from '../components/CheckpointPicker'
 
 export function Replay() {
   const [entries, setEntries] = useState<ReplayListEntry[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [step, setStep] = useState(0)
-  const [ckpt, setCkpt] = useState('')
   const [detail, setDetail] = useState<ReplayDetail | null>(null)
   const [err, setErr] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [reloadNonce, setReloadNonce] = useState(0)
-  // Value history accumulates as the user scrubs — one entry per
-  // fetched step, keyed by step index so the timeline doesn't
-  // duplicate entries on re-scrubs.
-  const [valueByStep, setValueByStep] = useState<Record<number, number>>({})
+  const [loading, setLoading] = useState(true)
+  const [playing, setPlaying] = useState(false)
+
+  const loadList = () => {
+    setLoading(true)
+    listReplays()
+      .then((response) => {
+        setEntries(response.replays)
+        setSelected((current) => current ?? response.replays[0]?.rel_path ?? null)
+      })
+      .catch((error) => setErr(String(error)))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
+    let cancelled = false
     listReplays()
-      .then((r) => setEntries(r.replays))
-      .catch((e) => setErr(String(e)))
+      .then((response) => {
+        if (cancelled) return
+        setEntries(response.replays)
+        setSelected(response.replays[0]?.rel_path ?? null)
+      })
+      .catch((error) => { if (!cancelled) setErr(String(error)) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
     if (!selected) return
     let cancelled = false
-    getReplay(selected, step, ckpt || undefined)
-      .then((d) => {
-        if (cancelled) return
-        setDetail(d)
-        if (d.agent && !d.agent.error) {
-          setValueByStep((prev) => ({ ...prev, [step]: d.agent!.value }))
-        }
-      })
-      .catch((e) => {
-        if (!cancelled) setErr(String(e))
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [selected, step, ckpt, reloadNonce])
+    getReplay(selected, step)
+      .then((next) => { if (!cancelled) setDetail(next) })
+      .catch((error) => { if (!cancelled) setErr(String(error)) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [selected, step])
 
-  const onSelect = (rel: string) => {
-    setLoading(true)
+  useEffect(() => {
+    if (!playing || !detail) return
+    if (step >= detail.total_steps) return
+    const timer = window.setTimeout(() => {
+      const next = step + 1
+      setLoading(true)
+      setStep(next)
+      if (next >= detail.total_steps) setPlaying(false)
+    }, 800)
+    return () => window.clearTimeout(timer)
+  }, [playing, detail, step])
+
+  const selectReplay = (relPath: string) => {
+    setPlaying(false)
     setErr(null)
+    setLoading(true)
     setDetail(null)
-    setSelected(rel)
+    setSelected(relPath)
     setStep(0)
-    setValueByStep({})
-    setReloadNonce((n) => n + 1)
   }
 
   const changeStep = (next: number) => {
-    setLoading(true)
+    if (!detail) return
     setErr(null)
-    setStep(next)
+    setLoading(true)
+    setStep(Math.max(0, Math.min(detail.total_steps, next)))
   }
 
-  const valueSeries = detail
-    ? Array.from({ length: detail.total_steps + 1 }, (_, i) => valueByStep[i] ?? NaN)
-        .filter((v) => !Number.isNaN(v))
-    : []
+  const refresh = async () => {
+    setLoading(true)
+    setErr(null)
+    try {
+      await refreshReplays()
+      loadList()
+    } catch (error) {
+      setErr(String(error))
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="flex h-full flex-col md:flex-row">
-      <aside className="max-h-48 w-full shrink-0 overflow-auto border-b border-slate-700 bg-slate-950/60 p-3 md:max-h-none md:w-64 md:border-b-0 md:border-r">
-        <h2 className="text-sm font-semibold text-slate-200 mb-2">Replays</h2>
-        {entries.length === 0 && (
-          <div className="text-xs text-slate-500">no replays found</div>
-        )}
-        <ul className="flex flex-col gap-1">
-          {entries.map((e) => (
-            <li key={e.rel_path}>
-              <button
-                onClick={() => onSelect(e.rel_path)}
-                className={`text-left w-full text-xs px-2 py-1 rounded ${
-                  selected === e.rel_path
-                    ? 'bg-sky-500/20 text-sky-200'
-                    : 'hover:bg-slate-800 text-slate-300'
-                }`}
-                title={e.rel_path}
-              >
-                <div className="truncate">{e.scenario || e.rel_path}</div>
-                <div className="text-[10px] text-slate-500 truncate">
-                  {[e.session_id, ...e.curriculum, e.stage]
-                    .filter(Boolean)
-                    .join("/")}
-                </div>
+    <div className="replay-shell">
+      <aside className="replay-library">
+        <div className="replay-library-heading">
+          <div><span>对局档案</span><strong>{entries.length} 场</strong></div>
+          <button disabled={loading} onClick={refresh} title="刷新回放">↻</button>
+        </div>
+        {entries.length === 0 && !loading && <div className="replay-empty">暂无可用回放</div>}
+        <ul>
+          {entries.map((entry) => (
+            <li key={entry.rel_path}>
+              <button className={selected === entry.rel_path ? 'active' : ''} onClick={() => selectReplay(entry.rel_path)} title={entry.rel_path}>
+                <strong>{entry.scenario || '未命名对局'}</strong>
+                <span>{[...entry.curriculum, entry.stage].filter(Boolean).join(' · ') || entry.session_id}</span>
               </button>
             </li>
           ))}
         </ul>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-4 overflow-auto p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <CheckpointPicker
-            value={ckpt}
-            onChange={(next) => {
-              setLoading(true)
-              setErr(null)
-              setDetail((current) =>
-                current ? { ...current, agent: null } : current,
-              )
-              setCkpt(next)
-              setValueByStep({})
-            }}
-          />
-          {loading && <span className="text-xs text-sky-300">loading…</span>}
-          {err && <span className="text-xs text-rose-400">{err}</span>}
-        </div>
-
+      <main className="replay-viewer">
+        {err && <div role="alert" className="live-error">{err}</div>}
+        {!detail && (loading || selected) && <div className="match-loading"><span className="thinking-orbit" /><h2>正在载入回放</h2></div>}
+        {!detail && !loading && !selected && !err && <div className="replay-welcome"><span>✧</span><h2>选择一场对局</h2><p>查看每一步行动和牌局状态。</p></div>}
         {detail && (
           <>
-            <Board view={detail.view} />
-
-            <div className="flex items-center gap-3">
-              <button
-                className="px-2 py-1 rounded bg-slate-700 text-slate-100 text-xs disabled:opacity-40"
-                disabled={step <= 0}
-                onClick={() => changeStep(Math.max(0, step - 1))}
-              >
-                ←
-              </button>
-              <input
-                type="range"
-                min={0}
-                max={detail.total_steps}
-                value={step}
-                onChange={(e) => changeStep(Number(e.target.value))}
-                className="flex-1"
-              />
-              <button
-                className="px-2 py-1 rounded bg-slate-700 text-slate-100 text-xs disabled:opacity-40"
-                disabled={step >= detail.total_steps}
-                onClick={() =>
-                  changeStep(Math.min(detail.total_steps, step + 1))
-                }
-              >
-                →
-              </button>
-              <span className="text-xs text-slate-400 tabular-nums">
-                {step} / {detail.total_steps}
-              </span>
+            <div className="replay-toolbar">
+              <div className="replay-title">
+                <span>{detail.stage || '对局回放'}</span>
+                <strong>{detail.teams[0].join('、')} 对阵 {detail.teams[1].join('、')}</strong>
+              </div>
+              <div className="replay-controls">
+                <button disabled={step <= 0} onClick={() => changeStep(step - 1)} aria-label="上一步">←</button>
+                <button className="play-toggle" onClick={() => setPlaying((value) => !value)}>{playing ? '暂停' : '播放'}</button>
+                <button disabled={step >= detail.total_steps} onClick={() => changeStep(step + 1)} aria-label="下一步">→</button>
+                <span>{step} / {detail.total_steps}</span>
+              </div>
+              <input aria-label="回放进度" type="range" min={0} max={detail.total_steps} value={step} onChange={(event) => changeStep(Number(event.target.value))} />
             </div>
-
-            {detail.agent && !detail.agent.error ? (
-              <div className="grid grid-cols-2 gap-4">
-                <section className="flex flex-col gap-2">
-                  <h3 className="text-xs font-semibold text-slate-300">
-                    Policy (value {detail.agent.value.toFixed(3)}, entropy{' '}
-                    {detail.agent.entropy.toFixed(3)})
-                  </h3>
-                  <PolicyBars agent={detail.agent} />
-                </section>
-                <section className="flex flex-col gap-2">
-                  <h3 className="text-xs font-semibold text-slate-300">Attention</h3>
-                  <AttentionHeatmap layers={detail.agent.attention} />
-                </section>
-                <section className="col-span-2 flex flex-col gap-2">
-                  <h3 className="text-xs font-semibold text-slate-300">
-                    Value timeline
-                  </h3>
-                  <ValueTimeline values={valueSeries} currentStep={step} />
-                </section>
-                <section className="col-span-2 flex flex-col gap-2">
-                  <h3 className="text-xs font-semibold text-slate-300">
-                    Legal actions
-                  </h3>
-                  <LegalActionList
-                    actions={
-                      detail.agent?.legal_actions?.map((a, i) => ({
-                        index: i,
-                        kind_name: a.kind,  // replay's agent uses strings directly
-                        name: a.name,
-                        prob: detail.agent?.policy?.[i],
-                      })) ?? []
-                    }
-                    disabled
-                    topIndex={detail.agent?.top_k?.[0]?.index}
-                  />
-                </section>
-              </div>
-            ) : (
-              <div className="text-xs text-slate-500">
-                {detail.agent?.error ||
-                  'supply a ckpt above to enable agent inspection'}
-              </div>
-            )}
+            <Board view={detail.view} />
           </>
         )}
       </main>

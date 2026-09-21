@@ -22,6 +22,7 @@ from typing import Protocol
 from gicg_env import GicgEnv
 from gicg_env.engine import PHASE_SELECT_ACTIVE
 from training.core.matchup.loaders import load_player
+from web.backend.live_log import LiveGameLog
 
 # ckpt path allow-list root — any ``ckpt`` field in an opponent spec
 # must resolve under this directory. Guards against arbitrary file
@@ -37,7 +38,8 @@ CKPT_ALLOW_ROOT = (_REPO_ROOT / 'artifacts').resolve()
 WS_IDLE_TIMEOUT_S = 600.0
 
 # Process-level LRU cache for loaded ckpt players. Keyed by
-# (opponent_type, resolved_ckpt_path, n_simulations, mtime). mtime
+# (opponent_type, resolved_ckpt_path, n_simulations, max_rollout_depth,
+# provenance policy, mtime). mtime
 # bust ensures a retrained ckpt at the same path invalidates. We cache
 # PlayerBuilder functions (not player instances) — each game still
 # calls builder(seed) to get a fresh player with fresh MCTS state.
@@ -45,6 +47,7 @@ WS_IDLE_TIMEOUT_S = 600.0
 # creating isolated per-game agent state.
 _BUILDER_CACHE_CAP = 4
 _builder_cache: 'OrderedDict[tuple, object]' = OrderedDict()
+_DICE_NAMES = ('火', '冰', '水', '雷', '岩', '风', '草', '万能')
 
 
 class _PlayerProtocol(Protocol):
@@ -57,6 +60,7 @@ class LiveSession:
     player: _PlayerProtocol
     human_player: int
     history: list[str] = field(default_factory=list)
+    game_log: LiveGameLog | None = None
 
 
 def build_legal_actions(env: GicgEnv) -> list[dict]:
@@ -112,7 +116,7 @@ def auto_advance_agent(sess: LiveSession) -> None:
     passes back to the human."""
     # PhaseSelectActive: auto-pick first alive for both players.
     while not sess.env.done and sess.env._engine.phase == PHASE_SELECT_ACTIVE:
-        sess.env.step(0)
+        step_session(sess, 0, 'automatic')
 
     # Agent turns.
     while not sess.env.done and sess.env.acting_player != sess.human_player:
@@ -120,8 +124,7 @@ def auto_advance_agent(sess: LiveSession) -> None:
         if len(kinds) == 0:
             break
         action = sess.player.select_action(sess.env)
-        record_action(sess, action)
-        sess.env.step(action)
+        step_session(sess, action, 'agent')
 
 
 def _validate_ckpt_path(ckpt: str, allow_root: Path = CKPT_ALLOW_ROOT) -> Path:
@@ -172,10 +175,18 @@ def build_opponent_player(
         except OSError:
             mtime = 0.0
         n_sim = int(opponent_spec.get('n_simulations', 0))
-        cache_key = (t, str(resolved), n_sim, mtime)
+        max_depth = int(opponent_spec.get('max_rollout_depth', 400))
+        allow_unverified = True
+        cache_key = (t, str(resolved), n_sim, max_depth, allow_unverified, mtime)
         builder = _builder_cache.get(cache_key)
         if builder is None:
-            builder = load_player({**opponent_spec, 'ckpt': str(resolved)})
+            builder = load_player(
+                {
+                    **opponent_spec,
+                    'ckpt': str(resolved),
+                    'allow_unverified_checkpoint': allow_unverified,
+                }
+            )
             _builder_cache[cache_key] = builder
             # Evict oldest beyond cap
             while len(_builder_cache) > _BUILDER_CACHE_CAP:
@@ -200,9 +211,88 @@ def sanitize_error(exc: Exception) -> str:
     return f'{type(exc).__name__}: {msg}' if msg else type(exc).__name__
 
 
-def record_action(sess, action):
+def attach_game_log(sess: LiveSession, root: Path, msg: dict, seed: int) -> None:
+    config = {
+        key: msg[key]
+        for key in (
+            'team_0',
+            'team_1',
+            'human_player',
+            'opponent',
+            'profile_rules',
+            'card_pool',
+            'pool',
+            'deck_padding',
+            'decks',
+        )
+        if key in msg
+    }
+    sess.game_log = LiveGameLog(root, config, seed, sess.env)
+
+
+def record_action(sess: LiveSession, action: int, source: str) -> None:
     kind, name, _ = sess.env.get_action_labels()[action]
-    labels = {'Skill': '技能', 'Card': '出牌', 'Switch': '换人', 'EndTurn': '结束回合', 'Tune': '调和'}
+    labels = {
+        'Skill': '技能',
+        'Card': '出牌',
+        'Switch': '换人',
+        'EndTurn': '结束回合',
+        'Tune': '调和',
+        'Reroll': '重掷',
+    }
+    if kind == 'Reroll':
+        ref = sess.env.get_action_refs()[action]
+        count, color = int(ref[1]), int(ref[2])
+        if color == len(_DICE_NAMES):
+            name = '确认选择'
+        elif count == 0:
+            name = f'保留{_DICE_NAMES[color]}骰'
+        else:
+            name = f'{_DICE_NAMES[color]}骰 {count} 枚'
     sess.history.append(
         f'第{sess.env.export_view()["round"]}回合 P{sess.env.acting_player}：{labels.get(kind, kind)} {name}'
     )
+    if sess.game_log is not None:
+        sess.game_log.record_action(sess.env, action, source)
+
+
+def step_session(sess: LiveSession, action: int, source: str) -> None:
+    record_action(sess, action, source)
+    sess.env.step(action)
+    if sess.game_log is not None:
+        sess.game_log.record_state(sess.env, source)
+
+
+def step_reroll_selection(sess: LiveSession, counts: list[int], source: str) -> None:
+    if len(counts) != len(_DICE_NAMES):
+        raise ValueError('重掷选择不完整')
+    if any(isinstance(count, bool) or not isinstance(count, int) or count < 0 for count in counts):
+        raise ValueError('重掷选择无效')
+
+    pool = sess.env.dice_counts(sess.human_player)
+    if any(count > int(pool[color]) for color, count in enumerate(counts)):
+        raise ValueError('选择的骰子超过当前持有数量')
+
+    while True:
+        actions = build_legal_actions(sess.env)
+        if not actions or any(action['kind_name'] != 'Reroll' for action in actions):
+            raise ValueError('当前无法重掷骰子')
+        color = int(actions[0]['refs'][2])
+        wanted = 0 if color == len(_DICE_NAMES) else counts[color]
+        match = next(
+            (action for action in actions if int(action['refs'][2]) == color and int(action['refs'][1]) == wanted),
+            None,
+        )
+        if match is None:
+            raise ValueError('重掷选择无效')
+        step_session(sess, int(match['index']), source)
+        if color == len(_DICE_NAMES):
+            return
+
+
+def finish_session(sess: LiveSession, reason: str) -> None:
+    try:
+        if sess.game_log is not None:
+            sess.game_log.finish(sess.env, reason)
+    finally:
+        sess.env.close()

@@ -19,7 +19,7 @@ from training.core.matchup.loaders import (
 from training.core.network import AgentConfig
 
 
-def _load_dmc_agent(ckpt_path: str) -> Any:
+def _load_dmc_agent(ckpt_path: str, *, verify_provenance: bool = True) -> Any:
     """Load a DmcAgent from a CheckpointManager-format checkpoint.
 
     The network shape comes from ``make_dmc_default_shape`` because the
@@ -32,7 +32,11 @@ def _load_dmc_agent(ckpt_path: str) -> Any:
     shape = make_dmc_default_shape()
     agent_cfg = AgentConfig.from_obs_shape(shape)
     agent = DmcAgent(agent_cfg, device='cpu', lr=1e-4, epsilon=0.0)
-    state_dict = load_net_state_dict(ckpt_path, map_location='cpu')
+    state_dict = load_net_state_dict(
+        ckpt_path,
+        map_location='cpu',
+        verify_provenance=verify_provenance,
+    )
     agent.net.load_state_dict(state_dict)
     agent.net.eval()
     return agent
@@ -64,7 +68,10 @@ def _loader_dmc(spec: dict) -> PlayerBuilder:
         raise NotImplementedError(
             'DMC player loader does not support n_simulations > 0; omit it or set it to 0 for greedy Q selection.'
         )
-    agent = _load_dmc_agent(spec['ckpt'])
+    agent = _load_dmc_agent(
+        spec['ckpt'],
+        verify_provenance=not bool(spec.get('allow_unverified_checkpoint', False)),
+    )
 
     def builder(seed: int) -> _PlayerProtocol:
         return _DmcArgmaxPlayer(agent)

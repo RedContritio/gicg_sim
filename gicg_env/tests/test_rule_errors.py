@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from gicg_env import GicgEngine
+from gicg_env.tests._helpers import keep_all_rerolls
 from gicg_env.engine import ACTION_SKILL
 
 
@@ -32,6 +33,7 @@ def test_failed_rule_raises_and_requires_reset(broken_rules, raw_call):
         eng.new_game(players=[['赤蝶'], ['墨客']], seed=42, data_dir=str(broken_rules))
         eng.step(0)
         eng.step(0)
+        keep_all_rerolls(eng)
         eng.set_player_dice(0, [0, 0, 0, 0, 0, 0, 0, 8])
         kinds, _ = eng.get_legal_actions()
         skill = next(i for i, kind in enumerate(kinds) if kind == ACTION_SKILL)

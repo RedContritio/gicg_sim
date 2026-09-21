@@ -123,9 +123,11 @@ func TestYiYiDaiLao_RoundStartDice_P0Owner(t *testing.T) {
 	env.SetDice(0, map[int]int{int(engine.DiceColorOmni): 8})
 	playCard(t, env, "以逸待劳") // battle action → turn P1
 
-	env.StepEndTurn()           // P1 declare end
-	env.StepEndTurn()           // P0 declare end → round ends
-	_ = env.G.GetLegalActions() // NewRound → round_start hooks
+	env.StepEndTurn() // P1 declare end
+	env.StepEndTurn() // P0 declare end → round ends
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	// P0 出战 = 赤蝶(Fire) → +2 火骰;P1 没打出该卡 → 全 0(PerPlayer 门控)。
 	assertDicePool(t, env, 0, map[int]int{engine.DiceColorFire: 2})
@@ -141,7 +143,9 @@ func TestYiYiDaiLao_RoundStartDice_P1Owner(t *testing.T) {
 	playCard(t, env, "以逸待劳") // battle action;P0 已 declare → turn 留 P1
 
 	env.StepEndTurn() // P1 declare end → round ends
-	_ = env.G.GetLegalActions()
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	// P1 出战 = 墨客(Water) → +2 水骰;P0 全 0。
 	assertDicePool(t, env, 1, map[int]int{engine.DiceColorWater: 2})
@@ -159,7 +163,9 @@ func TestYiYiDaiLao_RoundStartDice_FollowsActiveSwitch(t *testing.T) {
 
 	env.StepEndTurn() // P1 declare end(先 declare → round 2 先手)
 	env.StepEndTurn() // P0 declare end → round ends
-	_ = env.G.GetLegalActions()
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	// Round 2:赤蝶(Fire)出战 → +2 火骰。
 	assertDicePool(t, env, 0, map[int]int{engine.DiceColorFire: 2})
@@ -181,7 +187,9 @@ func TestYiYiDaiLao_RoundStartDice_FollowsActiveSwitch(t *testing.T) {
 		t.Fatalf("P0 ActiveChar = %d after switch, want 1 (猫咪)", got)
 	}
 	env.StepEndTurn() // P0 declare end → round ends
-	_ = env.G.GetLegalActions()
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	// Round 3:猫咪(Ice)出战 → +2 冰骰(回合末弃骰 + FixDice 全 0 隔离)。
 	assertDicePool(t, env, 0, map[int]int{engine.DiceColorIce: 2})

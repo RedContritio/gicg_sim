@@ -182,7 +182,9 @@ func newGame(t *testing.T, team0, team1 []string, seed int64, withDecks bool, po
 	g.Step(0) // P1 select char 0
 	// Game is now in PhaseRoundStart (inter-round pause). Advance into round 1
 	// so tests see the standard "ready to play" PhaseAction state.
-	g.GetLegalActions()
+	if err := keepAllRerolls(g); err != nil {
+		t.Fatal(err)
+	}
 
 	env := &GameEnv{G: g, RT: rt, T: t}
 

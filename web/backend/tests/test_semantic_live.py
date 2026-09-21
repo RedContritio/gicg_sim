@@ -15,7 +15,7 @@ from training.core.artifact_io import provenance, save_checkpoint
 from training.core.config.loader import load_cfg
 from training.core.network import AgentConfig
 from web.backend.app import create_app
-from web.backend import semantic_live
+from web.backend import live_session, semantic_live
 
 
 @pytest.fixture
@@ -128,14 +128,16 @@ def test_semantic_rules_report_and_independent_players(live_model):
         eval_session.env.close()
 
 
-def test_semantic_report_and_path_guards_fail_closed(live_model):
+def test_semantic_stale_report_does_not_block_model(live_model):
     root, _, report_path = live_model
     report = json.loads(report_path.read_text())
     report['checkpoint_sha256'] = '0' * 64
     report_path.write_text(json.dumps(report))
-    assert semantic_live.profile()['available'] is False
-    with pytest.raises(ValueError, match='does not match'):
-        semantic_live.build_session({}, 1, 0)
+    current = semantic_live.profile()
+    assert current['available'] is True
+    assert current['evaluation'] == {}
+    session = semantic_live.build_session({}, 1, 0)
+    session.env.close()
 
     service = root / 'configs/web/semantic_live.toml'
     service.write_text(service.read_text().replace('artifacts/model/semantic.pt', '../outside.pt'))
@@ -151,14 +153,101 @@ def test_semantic_profile_handles_missing_model(live_model):
     assert missing['unavailable_reason'] == 'configured checkpoint is not installed'
 
 
-def test_semantic_profile_rejects_wrong_fingerprint(live_model):
+def test_semantic_profile_allows_missing_report(live_model):
+    root, _, report_path = live_model
+    report_path.unlink()
+    service_path = root / 'configs/web/semantic_live.toml'
+    service_path.write_text(
+        '\n'.join(line for line in service_path.read_text().splitlines() if not line.startswith('report ='))
+    )
+
+    current = semantic_live.profile()
+    assert current['available'] is True
+    assert current['evaluation'] == {}
+
+
+def test_semantic_profile_hides_evaluation_with_wrong_fingerprint(live_model):
     _, _, report_path = live_model
     report = json.loads(report_path.read_text())
     report['provenance']['source_observation_sha256'] = '0' * 64
     report_path.write_text(json.dumps(report))
     current = semantic_live.profile()
-    assert current['available'] is False
-    assert 'incompatible with current rules' in current['unavailable_reason']
+    assert current['available'] is True
+    assert current['unavailable_reason'] is None
+    assert current['evaluation'] == {}
+
+
+def test_profile_hides_evaluation_for_different_inference_behavior(live_model):
+    _, _, report_path = live_model
+    report = json.loads(report_path.read_text())
+    report['player_spec'] = {'type': 'az', 'ckpt': '/evaluated/model.pt', 'n_simulations': 0}
+    report_path.write_text(json.dumps(report))
+
+    current = semantic_live.profile()
+    assert current['available'] is True
+    assert current['unavailable_reason'] is None
+    assert current['evaluation'] == {}
+
+
+def test_configured_inference_behavior_is_forwarded_to_player_loader(live_model, monkeypatch):
+    root, _, report_path = live_model
+    service_path = root / 'configs/web/semantic_live.toml'
+    service_path.write_text(
+        service_path.read_text().replace('type = "semantic_rl"', 'type = "az"')
+        + '\nn_simulations = 16\nmax_rollout_depth = 77\n'
+    )
+    report = json.loads(report_path.read_text())
+    report['player_spec'] = {
+        'type': 'az',
+        'ckpt': '/evaluated/model.pt',
+        'n_simulations': 16,
+        'max_rollout_depth': 77,
+    }
+    report_path.write_text(json.dumps(report))
+    captured = {}
+
+    class Player:
+        def select_action(self, env):
+            return 0
+
+    def build_player(spec, seed, **kwargs):
+        captured.update(spec=spec, seed=seed, kwargs=kwargs)
+        return Player()
+
+    monkeypatch.setattr(semantic_live, 'build_opponent_player', build_player)
+    session = semantic_live.build_session({}, 51, 0)
+    try:
+        assert captured['spec'] == {
+            'type': 'az',
+            'ckpt': str((root / 'artifacts/model/semantic.pt').resolve()),
+            'n_simulations': 16,
+            'max_rollout_depth': 77,
+        }
+        assert semantic_live.profile()['inference'] == {
+            'type': 'az',
+            'n_simulations': 16,
+            'max_rollout_depth': 77,
+        }
+    finally:
+        session.env.close()
+
+
+def test_player_cache_distinguishes_search_depth(tmp_path, monkeypatch):
+    ckpt = tmp_path / 'artifacts/model.pt'
+    ckpt.parent.mkdir(parents=True)
+    ckpt.write_bytes(b'checkpoint')
+    calls = []
+
+    def load(spec):
+        calls.append(spec)
+        return lambda seed: object()
+
+    live_session._builder_cache.clear()
+    monkeypatch.setattr(live_session, 'load_player', load)
+    base = {'type': 'az', 'ckpt': str(ckpt), 'n_simulations': 16}
+    live_session.build_opponent_player({**base, 'max_rollout_depth': 50}, 1, ckpt_allow_root=ckpt.parents[1])
+    live_session.build_opponent_player({**base, 'max_rollout_depth': 100}, 1, ckpt_allow_root=ckpt.parents[1])
+    assert len(calls) == 2
 
 
 def test_old_semantic_checkpoint_format_is_unavailable(live_model):

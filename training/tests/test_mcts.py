@@ -16,6 +16,7 @@ import pytest
 import torch
 
 from gicg_env import GicgEnv
+from training.tests._helpers import keep_all_rerolls
 from training.paradigms.az.determinize import SharedFixedPool
 from training.paradigms.az.mcts import (
     ACTION_TUNE,
@@ -82,6 +83,7 @@ def _make_env(team_0, team_1, cards=None, seed=42):
     env = GicgEnv(team_0, team_1, card_pool=cards, seed=seed, data_dir=DATA_DIR)
     env.reset(seed=seed)
     _advance_past_select_active(env)
+    keep_all_rerolls(env)
     return env
 
 

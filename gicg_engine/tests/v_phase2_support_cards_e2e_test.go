@@ -64,7 +64,9 @@ func TestSupport_派蒙_TwoRoundLifecycle(t *testing.T) {
 	// 推进到 round 2:dual StepEndTurn → PhaseRoundStart;GetLegalActions 触发 NewRound
 	env.StepEndTurn()
 	env.StepEndTurn()
-	_ = env.G.GetLegalActions() // trigger NewRound + round_start hooks
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	// Round 2 start 后:fresh roll 全 0 (FixDice) + 派蒙 add_dice(Omni, 2) = omni=2
 	if got := env.G.Counters[omniCID].Value; got != 2 {
@@ -77,10 +79,12 @@ func TestSupport_派蒙_TwoRoundLifecycle(t *testing.T) {
 	// 推进到 round 3
 	env.StepEndTurn()
 	env.StepEndTurn()
-	_ = env.G.GetLegalActions()
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
 
 	// Round 3 start 后:fresh roll 全 0 + 派蒙 +2(active 从 1→0)+ remove_support
-	// 注意:omniCID 已被 round_start 中 system/dice.lua roll_dice 重置后又被派蒙 +2 → 仍 =2
+	// 骰池先被新回合掷骰重置，双方重掷结束后派蒙再 +2，所以仍为 2。
 	if got := env.G.Counters[omniCID].Value; got != 2 {
 		t.Errorf("round 3 start 后 dice_omni=%d, want 2 (第 2 次 trigger,fresh roll=0)", got)
 	}

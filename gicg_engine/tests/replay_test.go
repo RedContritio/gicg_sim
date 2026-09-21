@@ -65,6 +65,9 @@ func TestReplay_RoundTrip_ChiDieVsKeShiFu(t *testing.T) {
 
 	// Second run: fresh game, replay from the record
 	env2 := NewGameWithDeck(t, []string{"赤蝶"}, []string{"刻师傅"})
+	if err := record.Load(env2.RT, rec, 1); err != nil {
+		t.Fatalf("load replay start: %v", err)
+	}
 	replayer := &record.Replayer{Runtime: env2.RT, Rec: rec}
 
 	// Play each round, then verify the captured RoundStartSnap matches the record.

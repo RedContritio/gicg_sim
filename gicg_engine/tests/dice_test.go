@@ -73,6 +73,38 @@ func TestNewGameAutoRollsDice(t *testing.T) {
 	}
 }
 
+func TestRoundStartRerollsBeforeRoundStartEffects(t *testing.T) {
+	env := NewGame(t, []string{"赤蝶"}, []string{"墨客"})
+	marker := env.G.CreateCounter(0, 0, 1)
+	env.G.Hooks.Register(engine.Hook{
+		Type:        engine.HookRoundStart,
+		OwnerPlayer: 0,
+		Fn: func(g *engine.Game, _ *engine.EventContext) {
+			g.WriteCounter(marker, engine.OpAdd, 1)
+		},
+	})
+
+	env.StepEndTurn()
+	env.StepEndTurn()
+	actions := env.G.GetLegalActions()
+	if len(actions) == 0 || actions[0].Kind != engine.ActionReroll {
+		t.Fatal("round start did not pause for reroll")
+	}
+	if env.DiceTotal(0) != 8 || env.DiceTotal(1) != 8 {
+		t.Fatalf("both players must roll before reroll: totals=%d/%d", env.DiceTotal(0), env.DiceTotal(1))
+	}
+	if env.G.Counters[marker].Value != 0 {
+		t.Fatal("round-start effect fired before rerolls completed")
+	}
+
+	if err := keepAllRerolls(env.G); err != nil {
+		t.Fatal(err)
+	}
+	if env.G.Counters[marker].Value != 1 || env.G.Phase != engine.PhaseAction {
+		t.Fatal("round-start effect did not fire after both rerolls")
+	}
+}
+
 // TestRollDiceClearsPreviousPool verifies RollDice zeroes existing
 // dice before rolling new ones (so calling it twice doesn't accumulate
 // to 16 dice from two 8-rolls).

@@ -12,6 +12,7 @@ import os
 import pytest
 
 from gicg_env import GicgEnv
+from gicg_env.tests._helpers import keep_all_rerolls
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
@@ -33,6 +34,7 @@ class TestSetHiddenState:
     def test_set_player_hand_replaces_content(self):
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
+            keep_all_rerolls(env)
             view_before = env.export_view()
             p0_hand_before = view_before['players'][0]['hand']
             assert len(p0_hand_before) > 0, 'expected non-empty initial hand'
@@ -50,6 +52,7 @@ class TestSetHiddenState:
         or the other player's hand."""
         with make_env(['赤蝶', '墨客'], ['猫咪', '刻师傅']) as env:
             env.reset()
+            keep_all_rerolls(env)
             view_before = env.export_view()
             p0_hp = [c['hp'] for c in view_before['players'][0]['chars']]
             p1_hp = [c['hp'] for c in view_before['players'][1]['chars']]
@@ -110,6 +113,7 @@ class TestSetHiddenState:
     def test_set_player_deck_replaces_content(self):
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
+            keep_all_rerolls(env)
             # Grab a ref from existing state to use as injection content
             view = env.export_view()
             ref = view['players'][0]['hand'][0]['ref']
@@ -124,6 +128,7 @@ class TestSetHiddenState:
         state is visible between restore and snapshot_free."""
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
+            keep_all_rerolls(env)
             snap = env.snapshot()
             try:
                 view_before = env.export_view()
@@ -179,6 +184,7 @@ class TestExportView:
     def test_hand_names_populated(self):
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
+            keep_all_rerolls(env)
             view = env.export_view()
             for pi in range(2):
                 for card in view['players'][pi]['hand']:
@@ -189,6 +195,7 @@ class TestExportView:
         """Play one step and verify the view actually updated."""
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
+            keep_all_rerolls(env)
             env.set_player_dice(0, [0, 0, 0, 0, 0, 0, 0, 8])
             before = env.export_view()
             kinds, _ = env.get_legal_actions()

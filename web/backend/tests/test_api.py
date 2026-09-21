@@ -1,6 +1,7 @@
 """Backend API smoke tests — just enough to catch "route doesn't
 register" / "response shape changed" regressions."""
 
+import json
 import os
 from pathlib import Path
 
@@ -53,6 +54,30 @@ def test_checkpoints_endpoint():
     # mtime-sorted: first entry's mtime should be ≥ last's.
     if len(ckpts) >= 2:
         assert ckpts[0]['mtime'] >= ckpts[-1]['mtime']
+
+
+def test_semantic_ckpt_layout_is_selectable_by_default(tmp_path, monkeypatch):
+    import importlib
+
+    app_module = importlib.import_module('web.backend.app')
+    ckpt = tmp_path / 'training_session' / 'ckpts' / 'latest.pt'
+    ckpt.parent.mkdir(parents=True)
+    ckpt.write_bytes(b'checkpoint')
+    monkeypatch.setattr(app_module, 'ARTIFACTS_ROOT', tmp_path)
+    monkeypatch.setitem(app_module._checkpoints_cache, 'entries', None)
+
+    response = TestClient(create_app()).get('/api/checkpoints')
+    assert response.status_code == 200
+    assert response.json()['checkpoints'] == [
+        {
+            'path': str(ckpt),
+            'session_id': 'training_session',
+            'stage': 'latest.pt',
+            'kind': 'main',
+            'label': 'training_session/latest.pt',
+            'mtime': ckpt.stat().st_mtime,
+        }
+    ]
 
 
 def test_replays_list():
@@ -154,6 +179,43 @@ def test_root_placeholder_when_no_frontend():
 
 
 class TestLiveWebSocket:
+    def test_match_persists_events_and_replay(self, live_log_root):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'card_pool': ['碌碌无为'],
+                    'opponent': {'type': 'random'},
+                    'seed': 1,
+                }
+            )
+            state = ws.receive_json()
+            session_id = state['session_id']
+            for _ in range(12):
+                ws.send_json({'type': 'action', 'index': state['legal_actions'][0]['index']})
+                state = ws.receive_json()
+                if not state['legal_actions'] or state['legal_actions'][0]['kind_name'] != 'Reroll':
+                    break
+
+        directory = live_log_root / session_id / 'web'
+        events = [json.loads(line) for line in (directory / 'events.jsonl').read_text().splitlines()]
+        names = [event['event'] for event in events]
+        assert names[0] == 'session_started'
+        assert 'action_selected' in names
+        assert 'state_advanced' in names
+        assert names[-1] == 'session_finished'
+        assert any(event.get('source') == 'human' for event in events)
+        assert any(event.get('source') == 'agent' for event in events)
+        assert (directory / 'metadata.json').is_file()
+        replay = directory / 'replays' / 'match.yaml'
+        assert replay.stat().st_size > 0
+        from gicg_env.engine import record_extract_info
+
+        assert record_extract_info(str(replay))['total_steps'] > 0
+
     def test_mcts_pure_opponent_new_and_action(self):
         """Start a game against pure-MCTS, receive state, play one
         human action, verify round-trip and labeled legal actions.
@@ -187,6 +249,7 @@ class TestLiveWebSocket:
                     'Switch',
                     'EndTurn',
                     'Tune',
+                    'Reroll',
                 )
                 assert isinstance(act['name'], str)
                 assert isinstance(act['slot'], int)
@@ -197,12 +260,60 @@ class TestLiveWebSocket:
                 else:
                     assert act['slot'] == -1
 
+            assert all(act['kind_name'] == 'Reroll' for act in state['legal_actions'])
+
             # Always exercise the action path (test F3 fix).
             assert not state['done']
             assert state['current_player'] == 0
             ws.send_json({'type': 'action', 'index': state['legal_actions'][0]['index']})
             state2 = ws.receive_json()
             assert state2['type'] == 'state'
+
+    def test_reroll_selection_is_submitted_as_one_decision(self):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'card_pool': ['碌碌无为'],
+                    'opponent': {'type': 'random'},
+                    'seed': 1,
+                }
+            )
+            state = ws.receive_json()
+            assert all(action['kind_name'] == 'Reroll' for action in state['legal_actions'])
+
+            ws.send_json({'type': 'reroll', 'counts': [0] * 8})
+            next_state = ws.receive_json()
+
+            assert next_state['type'] == 'state'
+            assert not all(action['kind_name'] == 'Reroll' for action in next_state['legal_actions'])
+            assert any('确认选择' in line for line in next_state['history'])
+
+    def test_invalid_reroll_selection_keeps_session_usable(self):
+        client = TestClient(create_app())
+        with client.websocket_connect('/ws/live') as ws:
+            ws.send_json(
+                {
+                    'type': 'new',
+                    'team_0': ['赤蝶'],
+                    'team_1': ['墨客'],
+                    'card_pool': ['碌碌无为'],
+                    'opponent': {'type': 'random'},
+                    'seed': 1,
+                }
+            )
+            ws.receive_json()
+
+            ws.send_json({'type': 'reroll', 'counts': [-1] + [0] * 7})
+            error = ws.receive_json()
+            assert error['type'] == 'error'
+
+            ws.send_json({'type': 'reroll', 'counts': [0] * 8})
+            state = ws.receive_json()
+            assert state['type'] == 'state'
 
     def test_default_open_succeeds(self):
         """F4: a bare default 'new' (no card_pool, no decks, default

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 import random
 from typing import Optional
 
@@ -12,15 +13,19 @@ from gicg_env import GicgEnv
 from web.backend.live_session import (
     WS_IDLE_TIMEOUT_S,
     LiveSession,
+    attach_game_log,
     auto_advance_agent,
     build_legal_actions,
     build_opponent_player,
+    finish_session,
     get_winner,
-    record_action,
     sanitize_error,
+    step_reroll_selection,
+    step_session,
 )
 
 router = APIRouter()
+LIVE_LOG_ROOT = Path(__file__).resolve().parents[2] / 'artifacts'
 
 # F4 pinned default decks. The pre-F4 engine silently truncated the
 # implicit eligible set to deck_padding.target_size (byte-order head);
@@ -70,9 +75,12 @@ async def _send_state(ws: WebSocket, sess: LiveSession) -> None:
         'legal_actions': build_legal_actions(sess.env),
         'human_player': sess.human_player,
         'history': sess.history[-100:],
+        'session_id': sess.game_log.session_id if sess.game_log is not None else None,
     }
     if sess.env.done:
         payload['winner'] = get_winner(sess.env)
+        if sess.game_log is not None:
+            sess.game_log.finish(sess.env, 'completed')
     await ws.send_json(payload)
 
 
@@ -132,12 +140,13 @@ async def _handle_new(
         builder = build_session if opponent_spec.get('type') == 'semantic_rl' else build_practice_session
         sess = builder(msg, seed, human_player)
         try:
-            auto_advance_agent(sess)
+            attach_game_log(sess, LIVE_LOG_ROOT, msg, seed)
+            await asyncio.to_thread(auto_advance_agent, sess)
         except BaseException:
-            sess.env.close()
+            finish_session(sess, 'failed')
             raise
         if prev is not None:
-            prev.env.close()
+            finish_session(prev, 'replaced')
         return sess
 
     player = build_opponent_player(opponent_spec, seed)
@@ -152,11 +161,16 @@ async def _handle_new(
     )
     env.reset(seed=seed)
 
+    sess = LiveSession(env=env, player=player, human_player=human_player)
+    try:
+        attach_game_log(sess, LIVE_LOG_ROOT, msg, seed)
+        await asyncio.to_thread(auto_advance_agent, sess)
+    except BaseException:
+        finish_session(sess, 'failed')
+        raise
+
     if prev is not None:
-        try:
-            prev.env.close()
-        except Exception:
-            pass
+        finish_session(prev, 'replaced')
         # Explicit drop of old player / env references; without this,
         # the caller's `session` variable still held a LiveSession that
         # could only be GC'd after re-assignment, which briefly pinned
@@ -165,8 +179,6 @@ async def _handle_new(
         prev.env = None  # type: ignore[assignment]
         prev.player = None  # type: ignore[assignment]
 
-    sess = LiveSession(env=env, player=player, human_player=human_player)
-    auto_advance_agent(sess)
     return sess
 
 
@@ -185,19 +197,27 @@ async def _handle_action(ws: WebSocket, msg: dict, sess: LiveSession) -> None:
     kinds, _ = sess.env.get_legal_actions()
     if idx < 0 or idx >= len(kinds):
         raise ValueError(f'illegal action index {idx}')
-    record_action(sess, idx)
-    sess.env.step(idx)
-    auto_advance_agent(sess)
+    step_session(sess, idx, 'human')
+    await asyncio.to_thread(auto_advance_agent, sess)
+
+
+async def _handle_reroll(ws: WebSocket, msg: dict, sess: LiveSession) -> None:
+    if sess.env.done:
+        raise ValueError('对局已结束')
+    if sess.env.acting_player != sess.human_player:
+        raise ValueError('当前不是你的行动')
+    counts = msg.get('counts')
+    if not isinstance(counts, list):
+        raise ValueError('重掷选择无效')
+    step_reroll_selection(sess, counts, 'human')
+    await asyncio.to_thread(auto_advance_agent, sess)
 
 
 @router.websocket('/ws/live')
 async def live_ws(ws: WebSocket) -> None:
-    """Main WebSocket handler. Every per-message action is wrapped in
-    try/except so a single bad input or a player.select_action
-    exception sends an error frame instead of killing the connection
-    (A1 from the review)."""
     await ws.accept()
     session: Optional[LiveSession] = None
+    close_reason = 'disconnected'
     try:
         while True:
             try:
@@ -217,6 +237,7 @@ async def live_ws(ws: WebSocket) -> None:
                     )
                 except Exception:
                     pass
+                close_reason = 'idle_timeout'
                 break
             except WebSocketDisconnect:
                 break
@@ -238,6 +259,17 @@ async def live_ws(ws: WebSocket) -> None:
                         continue
                     await _handle_action(ws, msg, session)
                     await _send_state(ws, session)
+                elif kind == 'reroll':
+                    if session is None:
+                        await ws.send_json(
+                            {
+                                'type': 'error',
+                                'message': "no active session; send 'new' first",
+                            }
+                        )
+                        continue
+                    await _handle_reroll(ws, msg, session)
+                    await _send_state(ws, session)
                 else:
                     await ws.send_json(
                         {
@@ -248,6 +280,8 @@ async def live_ws(ws: WebSocket) -> None:
             except WebSocketDisconnect:
                 raise
             except Exception as exc:
+                if session is not None and session.game_log is not None:
+                    session.game_log.record_error(sanitize_error(exc))
                 try:
                     await ws.send_json(
                         {
@@ -263,7 +297,4 @@ async def live_ws(ws: WebSocket) -> None:
         pass
     finally:
         if session is not None:
-            try:
-                session.env.close()
-            except Exception:
-                pass
+            finish_session(session, close_reason)

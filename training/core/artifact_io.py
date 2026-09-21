@@ -1,7 +1,7 @@
 """Fail-closed persistence for post-reset training artifacts.
 
-Fingerprints identify compatibility, not correctness or authenticity. No legacy
-fallback exists. Inspection-only tools may read old files without using weights.
+Training consumers verify provenance by default. Explicit inference surfaces may
+load unverified weights while retaining their own format and shape validation.
 """
 
 from functools import lru_cache
@@ -93,9 +93,10 @@ def save_checkpoint(payload, path, **kwargs):
     torch.save({**payload, KEY: provenance()}, path, **kwargs)
 
 
-def load_checkpoint(path, **kwargs):
+def load_checkpoint(path, *, verify_provenance=True, **kwargs):
     payload = torch.load(path, **kwargs)
-    validate(payload.get(KEY) if isinstance(payload, dict) else None)
+    if verify_provenance:
+        validate(payload.get(KEY) if isinstance(payload, dict) else None)
     _parent(path)
     return payload
 

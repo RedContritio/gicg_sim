@@ -33,7 +33,9 @@ func currentCardGame(t *testing.T, owner int, teams ...[]string) *GameEnv {
 	}
 	h.Game.Step(0)
 	h.Game.Step(0)
-	h.Game.GetLegalActions()
+	if err := keepAllRerolls(h.Game); err != nil {
+		t.Fatal(err)
+	}
 	h.Game.Players[0].Hand = nil
 	h.Game.Players[1].Hand = nil
 	h.Game.Turn = owner

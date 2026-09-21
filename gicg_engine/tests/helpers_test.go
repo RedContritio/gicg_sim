@@ -88,6 +88,15 @@ func (env *GameEnv) SkillID(charName, skillName string) int {
 
 // FindAction finds a legal action by kind and skill/card name.
 func (env *GameEnv) FindAction(kind engine.ActionKind, name string) int {
+	if kind != engine.ActionReroll {
+		if err := keepAllRerolls(env.G); err != nil {
+			if env.T != nil {
+				env.T.Helper()
+				env.T.Fatal(err)
+			}
+			panic(err)
+		}
+	}
 	actions := env.G.GetLegalActions()
 	for i, a := range actions {
 		if a.Kind != kind {
@@ -110,6 +119,17 @@ func (env *GameEnv) FindAction(kind engine.ActionKind, name string) int {
 		}
 	}
 	return -1
+}
+
+func keepAllRerolls(g *engine.Game) error {
+	for steps := 0; steps < 20; steps++ {
+		actions := g.GetLegalActions()
+		if len(actions) == 0 || actions[0].Kind != engine.ActionReroll {
+			return nil
+		}
+		g.Step(0)
+	}
+	return fmt.Errorf("round-start reroll did not finish")
 }
 
 // Step executes action at index, handling targets. Runs the package

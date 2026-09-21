@@ -5,13 +5,14 @@ interface Props {
   char: CharView
   isActive: boolean
   isCurrentTurn?: boolean
+  isSelected?: boolean
   onSelect?: () => void
 }
 
-export function CharPortrait({ char, isActive, isCurrentTurn, onSelect }: Props) {
+export function CharPortrait({ char, isActive, isCurrentTurn, isSelected, onSelect }: Props) {
   const clickable = !!onSelect && char.alive
   return (
-    <div className={`character-wrap ${isActive ? 'active' : ''}`}>
+    <div className={`character-wrap ${isActive ? 'active' : ''} ${isSelected ? 'selected' : ''}`}>
       <button disabled={!clickable} onClick={onSelect}
         className={`character-card element-${char.element ?? 'none'} ${!char.alive ? 'defeated' : ''} ${isCurrentTurn && isActive ? 'has-turn' : ''}`}
         title={`${char.name} · 生命 ${char.hp}/${char.hp_max} · 充能 ${char.energy}/${char.energy_max}${clickable ? ' · 点击选择' : ''}`}>

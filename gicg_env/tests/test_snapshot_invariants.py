@@ -20,6 +20,7 @@ from gicg_env.engine import (
     PHASE_ACTION,
     PHASE_GAME_OVER,
 )
+from gicg_env.tests._helpers import keep_all_rerolls
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
@@ -33,6 +34,7 @@ def _fresh_game(seed=SEED):
     eng.new_game(players=PLAYERS, seed=seed, data_dir=DATA_DIR)
     eng.step(0)  # P0 select active
     eng.step(0)  # P1 select active
+    keep_all_rerolls(eng)
     assert eng.phase == PHASE_ACTION
     return eng
 

@@ -4,7 +4,8 @@ import os
 import pytest
 import numpy as np
 
-from gicg_env import GicgEnv
+from gicg_env import ACTION_REROLL, GicgEnv
+from gicg_env.tests._helpers import keep_all_rerolls
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
@@ -36,12 +37,37 @@ class TestEnvBasic:
             kinds, indices = env.get_legal_actions()
             assert len(kinds) > 0
 
+    def test_round_start_requests_one_reroll_for_each_player(self):
+        with make_env(['赤蝶'], ['墨客']) as env:
+            env.reset(seed=20260922)
+
+            first_player = env.acting_player
+            kinds, _ = env.get_legal_actions()
+            assert len(kinds) > 0
+            assert set(kinds.tolist()) == {ACTION_REROLL}
+
+            for _ in range(20):
+                _, _, done, info = env.step(0)
+                assert done is False
+                assert info.get('need_target') is not True
+                if env.acting_player != first_player:
+                    break
+            assert env.acting_player == 1 - first_player
+            kinds, _ = env.get_legal_actions()
+            assert len(kinds) > 0
+            assert set(kinds.tolist()) == {ACTION_REROLL}
+
+            keep_all_rerolls(env)
+            assert env.has_pending is False
+            assert env.export_view()['phase'] == 'action'
+
     def test_action_identities_shape(self):
         """get_action_identities returns (n_legal, 5) with every row
         having a recognizable kind code, and subject_ref populated
         for Skill/Card/Switch/Tune where applicable."""
         with make_env(['赤蝶'], ['赤蝶']) as env:
             env.reset()
+            keep_all_rerolls(env)
             kinds, _ = env.get_legal_actions()
             ids = env.get_action_identities()
             assert ids.shape == (len(kinds), 5)
@@ -115,6 +141,7 @@ class TestEnvBasic:
     def test_payments_end_turn_all_zero(self):
         with make_env(['赤蝶'], ['赤蝶']) as env:
             env.reset()
+            keep_all_rerolls(env)
             kinds, _ = env.get_legal_actions()
             payments = env._engine.get_legal_action_payments()
             # ActionEndTurn kind == 3
@@ -288,10 +315,13 @@ class TestActingPlayerAndPending:
             assert env.acting_player == env._engine.turn
             assert env.acting_player in (0, 1)
 
-    def test_has_pending_false_on_fresh_state(self):
+    def test_has_pending_true_during_fresh_reroll(self):
         with make_env(['赤蝶'], ['墨客']) as env:
             env.reset()
-            assert env.has_pending is False
+            assert env.has_pending is True
+            kinds, _ = env.get_legal_actions()
+            assert len(kinds) > 0
+            assert set(kinds.tolist()) == {ACTION_REROLL}
 
     def test_current_player_alias(self):
         """current_player is kept as a back-compat alias for acting_player."""

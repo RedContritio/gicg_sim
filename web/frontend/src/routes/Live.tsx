@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { LiveClient, type LiveProfile, type OpponentSpec } from '../api/live'
-
 import type { LegalAction, LiveFrame, StateView } from '../types/state'
+import { ActionFlow } from '../components/ActionFlow'
 import { Board } from '../components/Board'
-import { LegalActionList } from '../components/LegalActionList'
-import { OpponentPicker } from '../components/OpponentPicker'
+import { MatchSetup } from '../components/MatchSetup'
+
+type Selection = { kind: 'Card' | 'Switch'; slot: number; mode?: 'play' | 'tune' }
 
 export function Live() {
   const [allChars, setAllChars] = useState<string[]>([])
@@ -12,47 +13,47 @@ export function Live() {
   const [team1, setTeam1] = useState<string[]>([])
   const [profile, setProfile] = useState<LiveProfile | null>(null)
   const [humanPlayer, setHumanPlayer] = useState<0 | 1>(0)
-  const [opponent, setOpponent] = useState<OpponentSpec>({
-    type: 'semantic_rl',
-  })
-
-  const [selection, setSelection] = useState<{ kind: string; slot: number } | null>(null)
-  const [gameOpponent, setGameOpponent] = useState('当前 RL 模型')
+  const [opponent, setOpponent] = useState<OpponentSpec>({ type: 'semantic_rl' })
+  const [selection, setSelection] = useState<Selection | null>(null)
   const [history, setHistory] = useState<string[]>([])
   const [view, setView] = useState<StateView | null>(null)
   const [legalActions, setLegalActions] = useState<LegalAction[]>([])
-  const [currentPlayer, setCurrentPlayer] = useState<number>(0)
+  const [currentPlayer, setCurrentPlayer] = useState(0)
   const [done, setDone] = useState(false)
   const [busy, setBusy] = useState(false)
   const [gameHuman, setGameHuman] = useState<0 | 1>(0)
+  const [gameOpponent, setGameOpponent] = useState('当前模型')
   const [err, setErr] = useState<string | null>(null)
-  const [connState, setConnState] = useState<
-    'idle' | 'connected' | 'reconnecting' | 'disconnected' | 'closed'
-  >('idle')
+  const [connState, setConnState] = useState<'idle' | 'connected' | 'reconnecting' | 'disconnected' | 'closed'>('idle')
+  const [decisionKey, setDecisionKey] = useState(0)
+  const [gameStage, setGameStage] = useState<HTMLDivElement | null>(null)
   const clientRef = useRef<LiveClient | null>(null)
 
   useEffect(() => {
-    fetch('/api/live/profile').then((r) => { if (!r.ok) throw new Error('无法读取对战配置'); return r.json() })
-      .then((profile: LiveProfile) => {
-        setProfile(profile)
-        setAllChars(profile.characters)
-        setTeam0(profile.team_0)
-        setTeam1(profile.team_1)
+    fetch('/api/live/profile')
+      .then((response) => {
+        if (!response.ok) throw new Error('无法读取对战配置')
+        return response.json()
       })
-      .catch((e) => setErr(String(e)))
-    return () => {
-      clientRef.current?.close()
-    }
+      .then((next: LiveProfile) => {
+        setProfile(next)
+        setAllChars(next.characters)
+        setTeam0(next.team_0)
+        setTeam1(next.team_1)
+      })
+      .catch((error) => setErr(String(error)))
+    return () => clientRef.current?.close()
   }, [])
 
   const onFrame = (frame: LiveFrame) => {
     setBusy(false)
-    setSelection(null)
     if (frame.type === 'error') {
       setErr(frame.message)
       return
     }
     setErr(null)
+    setSelection(null)
+    setDecisionKey((key) => key + 1)
     setGameHuman(frame.human_player as 0 | 1)
     setHistory(frame.history ?? [])
     setView(frame.view)
@@ -61,27 +62,16 @@ export function Live() {
     setDone(frame.done)
   }
 
-  const validate = (): string | null => {
+  const validate = () => {
     if (opponent.type === 'semantic_rl') {
       if (!profile) return '对战配置仍在加载'
-      if (!profile.available) return profile.unavailable_reason || '当前 RL 模型不可用'
-      if (team0.length !== profile.team_size || team1.length !== profile.team_size) {
-        return `双方各选择 ${profile.team_size} 名角色`
-      }
-      if (profile.disjoint_teams && team0.some((name) => team1.includes(name))) {
-        return '双方角色不能重叠'
-      }
+      if (!profile.available) return profile.unavailable_reason || '当前模型不可用'
+      if (team0.length !== profile.team_size || team1.length !== profile.team_size) return `双方各选择 ${profile.team_size} 名角色`
+      if (profile.disjoint_teams && team0.some((name) => team1.includes(name))) return '双方角色不能重叠'
     }
-    if (team0.length === 0) return 'Team P0 is empty'
-    if (team1.length === 0) return 'Team P1 is empty'
-    if (opponent.type === 'az' || opponent.type === 'cfr') {
-      if (!opponent.ckpt) {
-        return `${opponent.type} opponent requires a ckpt`
-      }
-    }
-    if (opponent.type === 'mcts_pure' && opponent.n_simulations <= 0) {
-      return 'mcts_pure requires n_simulations > 0'
-    }
+    if (team0.length === 0 || team1.length === 0) return '双方阵容不能为空'
+    if ((opponent.type === 'az' || opponent.type === 'cfr') && !opponent.ckpt) return '请选择模型存档'
+    if (opponent.type === 'mcts_pure' && opponent.n_simulations <= 0) return '搜索次数必须大于 0'
     return null
   }
 
@@ -92,213 +82,111 @@ export function Live() {
       return
     }
     setErr(null)
-    setGameOpponent(opponent.type === 'semantic_rl' ? '当前 RL 模型' : opponent.type === 'random' ? '随机对手 · 练习对局' : opponent.type)
+    setGameOpponent(opponent.type === 'semantic_rl' ? profile?.name ?? '当前模型' : opponent.type === 'random' ? '随机练习对手' : opponent.type.toUpperCase())
     setView(null)
     setLegalActions([])
     setDone(false)
     setBusy(true)
-
-    // Close the previous client before creating a new one — otherwise
-    // stale WS messages from the old session bleed into this state.
     clientRef.current?.close()
-
-    const c = new LiveClient(onFrame, (state) => setConnState(state))
-    clientRef.current = c
+    const client = new LiveClient(onFrame, setConnState)
+    clientRef.current = client
     try {
-      await c.connect()
-      c.send({
-        type: 'new',
-        profile_rules: true,
-        team_0: team0,
-        team_1: team1,
-        opponent,
-        human_player: humanPlayer,
-      })
-    } catch (e) {
-      // Connection failed — clear ref so pickAction doesn't throw
-      // on the dead client (A8).
+      await client.connect()
+      client.send({ type: 'new', profile_rules: true, team_0: team0, team_1: team1, opponent, human_player: humanPlayer })
+    } catch (error) {
       clientRef.current = null
       setBusy(false)
       setConnState('disconnected')
-      setErr(String(e))
+      setErr(String(error))
     }
   }
 
-  const pickAction = (idx: number) => {
+  const pickAction = (index: number) => {
     if (!clientRef.current || done || busy) return
     setBusy(true)
-    clientRef.current.send({ type: 'action', index: idx })
+    clientRef.current.send({ type: 'action', index })
   }
 
-  const playCard = (_playerIdx: number, handIdx: number) => {
-    if (!view) return
-    setSelection({ kind: 'Card', slot: handIdx })
-  }
-
-  const selectChar = (playerIdx: number, charIdx: number) => {
-    if (playerIdx !== gameHuman || !view) return
-    setSelection({ kind: 'Switch', slot: charIdx })
+  const pickReroll = (counts: number[]) => {
+    if (!clientRef.current || done || busy) return
+    setBusy(true)
+    clientRef.current.send({ type: 'reroll', counts })
   }
 
   const isHumanTurn = currentPlayer === gameHuman && !done && !busy
+  const isReroll = legalActions.length > 0 && legalActions.every((action) => action.kind_name === 'Reroll')
+  const outcome = view?.winner === gameHuman ? '你赢了' : view?.winner === 2 ? '平局' : '对方获胜'
+  const castableCards = [...new Set(legalActions.filter((action) => action.kind_name === 'Card').map((action) => action.slot))]
+  const tunableCards = [...new Set(legalActions.filter((action) => action.kind_name === 'Tune').map((action) => action.slot))]
+  const playableCards = [...new Set([...castableCards, ...tunableCards])]
+  const switchableChars = [...new Set(legalActions.filter((action) => action.kind_name === 'Switch').map((action) => action.slot))]
 
   return (
-    <div className="game-shell flex flex-col h-full overflow-y-auto p-3 md:p-5 gap-3">
-      <details className="match-settings" open={!view}><summary>对战设置 · 阵容与对手</summary>
-      <p className="text-xs text-slate-400 mb-3">
-        {profile
-          ? `${profile.name}。每队选择 ${profile.team_size} 名角色；${profile.allow_overlap ? '双方阵容可重叠' : '双方阵容不可重叠'}。沿用训练牌组与最多 ${profile.max_rounds} 回合规则。${
-              profile.evaluation && typeof profile.evaluation.score === 'number'
-                ? ` 评估：对 F1-D${profile.evaluation.opponent_depth ?? 2} 胜率 ${(profile.evaluation.score * 100).toFixed(1)}%（${profile.evaluation.scenarios ?? '?'} 场景）。`
-                : ''
-            }`
-          : '正在读取当前模型与训练规则…'}
-      </p>
-      <div className="flex flex-wrap items-end gap-3 p-3 rounded-lg border border-slate-700 bg-slate-900/60">
-        <TeamPicker
-          label={`阵容 P0${humanPlayer === 0 ? ' (you)' : ''}`}
-          team={team0}
-          setTeam={setTeam0}
-          allChars={allChars}
-          limit={profile?.team_size ?? 1}
-        />
-        <TeamPicker
-          label={`阵容 P1${humanPlayer === 1 ? ' (you)' : ''}`}
-          team={team1}
-          setTeam={setTeam1}
-          allChars={allChars}
-          limit={profile?.team_size ?? 1}
-        />
-        <div className="flex flex-col gap-1">
-          <div className="text-xs text-slate-400">我的席位</div>
-          <div className="flex gap-1">
-            {[0, 1].map((side) => (
-              <button
-                key={side}
-                onClick={() => setHumanPlayer(side as 0 | 1)}
-                className={`text-xs px-2 py-1 rounded border ${
-                  humanPlayer === side
-                    ? 'bg-sky-500/30 border-sky-400 text-sky-100'
-                    : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-400'
-                }`}
-              >
-                P{side}
-              </button>
-            ))}
-          </div>
-        </div>
-        <OpponentPicker value={opponent} onChange={setOpponent} />
-        <button
-          onClick={start}
-          className="px-3 py-1 rounded bg-sky-500 hover:bg-sky-400 text-slate-950 text-sm font-medium"
-        >
-          {connState === 'idle' ? '开始对战' : '重新开局'}
-        </button>
-        {connState === 'reconnecting' && (
-          <span className="text-xs text-amber-300">
-            reconnecting...
-          </span>
-        )}
-        {connState === 'disconnected' && (
-          <span className="text-xs text-rose-400">
-            disconnected — press Restart
-          </span>
-        )}
-        {err && <span className="text-xs text-rose-400">{err}</span>}
-        {profile && !profile.available && !err && opponent.type === 'semantic_rl' && (
-          <span className="text-xs text-rose-400">
-            当前 RL 模型不可用：{profile.unavailable_reason}
-          </span>
-        )}
-        {done && view && (
-          <span className="text-xs text-amber-300">
-            对局结束：{view.winner === gameHuman ? '你赢了' : view.winner === 2 ? '平局' : '对方获胜'}
-          </span>
-        )}
-        {view && !done && isHumanTurn && view.phase === 'select_active' && (
-          <span className="text-xs text-sky-300">
-            点击角色选择出战
-          </span>
-        )}
-        {view && !done && isHumanTurn && view.phase === 'action' && (
-          <span className="text-xs text-sky-300">
-            轮到你了：在下方选择行动与骰子支付
-          </span>
-        )}
-        {view && !done && !isHumanTurn && (
-          <span className="text-xs text-slate-400">对方行动中…</span>
-        )}
-      </div>
+    <div className={`game-shell ${view ? 'match-active' : ''}`}>
+      <MatchSetup
+        profile={profile} team0={team0} team1={team1} allChars={allChars}
+        humanPlayer={humanPlayer} opponent={opponent} started={!!view} busy={busy}
+        onTeam0={setTeam0} onTeam1={setTeam1} onHumanPlayer={setHumanPlayer}
+        onOpponent={setOpponent} onStart={start}
+      />
 
-      </details>
-      {err && view && <p role="alert" className="text-sm text-rose-300">{err}</p>}
+      {err && <div role="alert" className="live-error">{err}</div>}
+      {connState === 'reconnecting' && <div className="connection-banner">正在重新连接…</div>}
+      {connState === 'disconnected' && <div className="connection-banner error">连接已断开，请重新开局</div>}
+
       {view && (
-        <>
-          <div className="flex justify-between gap-2 text-xs text-slate-300"><span>{gameOpponent}</span><span aria-live="polite">{done ? (view.winner === gameHuman ? '你赢了' : view.winner === 2 ? '平局' : '对方获胜') : isHumanTurn ? '等待你的行动' : '对方行动中…'}</span></div>
-          <Board
-            view={view}
-            humanPlayer={gameHuman}
-            onPlayCard={isHumanTurn ? playCard : undefined}
-            onSelectChar={isHumanTurn ? selectChar : undefined}
-          />
-          <section className="action-dock flex flex-col gap-2">
-            <h3 className="text-xs font-semibold text-slate-300">
-              {done ? '对局结束' : !isHumanTurn ? '对方行动中…' : view.phase === 'select_active' ? '选择出战角色，再确认出战' : selection ? '选择目标与支付方式，再执行行动' : '轮到你了 · 使用技能，或点击手牌与角色查看行动'}
-              {selection && <button className="ml-3 underline text-amber-200" onClick={() => setSelection(null)}>返回全部行动</button>}
-            </h3>
-            <LegalActionList
-              view={view}
-              humanPlayer={gameHuman}
-              actions={selection ? legalActions.filter(a => (a.kind_name === selection.kind || (selection.kind === 'Card' && a.kind_name === 'Tune')) && a.slot === selection.slot) : legalActions.filter(a => a.kind_name !== 'Card' && a.kind_name !== 'Switch' && a.kind_name !== 'Tune')}
-              onPick={pickAction}
-              disabled={!isHumanTurn}
-            />
-          </section>
-          <details className="text-xs text-slate-300"><summary>对局记录</summary><div className="max-h-40 overflow-auto flex flex-col-reverse">{[...history].reverse().map((line, i) => <div key={i}>{line}</div>)}</div></details>
-        </>
+        <div className="live-workspace">
+          <main className="live-playfield">
+            <div className="match-bar">
+              <div><span>对手</span><strong>{gameOpponent}</strong></div>
+              <div className={`turn-status ${isHumanTurn ? 'ready' : ''}`} aria-live="polite">
+                {done ? outcome : busy || !isHumanTurn ? <><i className="thinking-dot" />对方思考中</> : isReroll ? '选择重掷骰子' : '轮到你行动'}
+              </div>
+            </div>
+            <div className="game-stage" ref={setGameStage}>
+              <Board
+                view={view}
+                humanPlayer={gameHuman}
+                selectedCard={selection?.kind === 'Card' ? selection.slot : undefined}
+                selectedChar={selection?.kind === 'Switch' ? selection.slot : undefined}
+                playableCards={playableCards}
+                castableCards={castableCards}
+                tunableCards={tunableCards}
+                switchableChars={switchableChars}
+                onPlayCard={isHumanTurn ? (_player, slot) => { setSelection({ kind: 'Card', slot }); setDecisionKey((key) => key + 1) } : undefined}
+                onCardIntent={isHumanTurn ? (slot, mode) => { setSelection({ kind: 'Card', slot, mode }); setDecisionKey((key) => key + 1) } : undefined}
+                onSelectChar={isHumanTurn ? (player, slot) => { if (player === gameHuman) { setSelection({ kind: 'Switch', slot }); setDecisionKey((key) => key + 1) } } : undefined}
+              />
+            </div>
+          </main>
+
+          <aside className="command-panel">
+            {done ? (
+              <div className="result-card"><span>对局结束</span><h2>{outcome}</h2><button onClick={start}>再来一局</button></div>
+            ) : isHumanTurn ? (
+              <ActionFlow
+                key={decisionKey}
+                view={view}
+                humanPlayer={gameHuman}
+                actions={legalActions}
+                source={selection}
+                onClearSource={() => { setSelection(null); setDecisionKey((key) => key + 1) }}
+                onPick={pickAction}
+                onReroll={pickReroll}
+                dicePortalTarget={gameStage}
+              />
+            ) : (
+              <div className="thinking-card"><span className="thinking-orbit" /><h2>对方正在思考</h2><p>模型完成决策后，对局会自动继续。</p></div>
+            )}
+            <details className="match-history">
+              <summary>对局记录 <span>{history.length}</span></summary>
+              <div>{[...history].reverse().map((line, index) => <p key={`${line}-${index}`}>{line}</p>)}</div>
+            </details>
+          </aside>
+        </div>
       )}
-    </div>
-  )
-}
 
-interface TeamPickerProps {
-  label: string
-  team: string[]
-  setTeam: (t: string[]) => void
-  allChars: string[]
-  limit: number
-}
-
-function TeamPicker({ label, team, setTeam, allChars, limit }: TeamPickerProps) {
-  const toggle = (name: string) => {
-    setTeam(team.includes(name) ? team.filter((n) => n !== name) : team.length < limit ? [...team, name] : team)
-  }
-  if (allChars.length === 0) {
-    return (
-      <div className="flex flex-col gap-1">
-        <div className="text-xs text-slate-400">{label}</div>
-        <div className="text-xs text-slate-600">loading chars…</div>
-      </div>
-    )
-  }
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="text-xs text-slate-400">{label}</div>
-      <div className="flex flex-wrap gap-1">
-        {allChars.map((name) => (
-          <button
-            key={name}
-            onClick={() => toggle(name)}
-            className={`text-xs px-2 py-1 rounded border ${
-              team.includes(name)
-                ? 'bg-sky-500/30 border-sky-400 text-sky-100'
-                : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-400'
-            }`}
-          >
-            {name}{team.includes(name) ? ` ${team.indexOf(name) + 1}` : ''}
-          </button>
-        ))}
-      </div>
+      {!view && busy && <div className="match-loading"><span className="thinking-orbit" /><h2>正在准备对局</h2><p>模型载入后将自动开始。</p></div>}
     </div>
   )
 }

@@ -61,6 +61,9 @@ func TestLifecycle_SpecialtyActualPlayCloneRestoreReset(t *testing.T) {
 	clone := env.RT.Clone()
 	play := func(game *engine.Game) {
 		t.Helper()
+		if err := keepAllRerolls(game); err != nil {
+			t.Fatal(err)
+		}
 		for i, a := range game.GetLegalActions() {
 			if a.Kind == engine.ActionCard && a.Index == 0 {
 				game.Step(i)
@@ -103,6 +106,9 @@ func TestLifecycle_ResetMatchesFreshGame(t *testing.T) {
 		g.DeckRngs[0].Int63()
 	}
 	env.RT.ResetDynamic(42)
+	if err := keepAllRerolls(g); err != nil {
+		t.Fatal(err)
+	}
 	// Slice capacity and nil-vs-empty are allocation details, not game state.
 	players := g.Players
 	for pi := range players {

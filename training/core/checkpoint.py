@@ -21,7 +21,12 @@ from training.core.protocols import PipelineState
 from training.core.checkpoint_runtime import capture_runtime, restore_runtime
 
 
-def load_net_state_dict(ckpt_path: Any, *, map_location: Any = 'cpu') -> dict:
+def load_net_state_dict(
+    ckpt_path: Any,
+    *,
+    map_location: Any = 'cpu',
+    verify_provenance: bool = True,
+) -> dict:
     """Load a CheckpointManager-format ckpt and return the net state_dict
     ready for ``module.load_state_dict()``. Strips the production wrapper's
     ``net.`` prefix when every key has it.
@@ -39,7 +44,12 @@ def load_net_state_dict(ckpt_path: Any, *, map_location: Any = 'cpu') -> dict:
     Returns:
         state_dict suitable for ``net.load_state_dict()``.
     """
-    blob = load_checkpoint(ckpt_path, map_location=map_location, weights_only=False)
+    blob = load_checkpoint(
+        ckpt_path,
+        map_location=map_location,
+        weights_only=False,
+        verify_provenance=verify_provenance,
+    )
     state_dict = blob['net']
     if state_dict and all(k.startswith('net.') for k in state_dict.keys()):
         state_dict = {k[len('net.') :]: v for k, v in state_dict.items()}

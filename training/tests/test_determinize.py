@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from gicg_env import GicgEnv
+from training.tests._helpers import keep_all_rerolls
 from training.paradigms.az.determinize import (
     HiddenState,
     SharedFixedPool,
@@ -24,6 +25,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 def _env(team_0, team_1, seed=42):
     env = GicgEnv(team_0, team_1, seed=seed, data_dir=DATA_DIR)
     env.reset(seed=seed)
+    keep_all_rerolls(env)
     return env
 
 

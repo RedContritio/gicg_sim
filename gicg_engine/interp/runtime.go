@@ -140,8 +140,7 @@ func (rt *Runtime) Clone() *Runtime {
 // ResetDynamic restores the wrapped Game to its just-after-load state and
 // re-fires per-char spawn hooks so DSL handlers (alive_count, status
 // counters, etc.) reinitialize cleanly. After this call, the game sits in
-// PhaseAction with both players having selected char 0 and round 1 set up,
-// matching the post-init state in capi/initGame and tests/helpers_test.go.
+// the opening round's reroll decision with both players having selected char 0.
 //
 // Static identity (Ruleset, Hooks, CounterPerm, HookPerm) is preserved.
 // The clone-friendly invariant Game.Extra == rt is maintained.
@@ -154,8 +153,8 @@ func (rt *Runtime) ResetDynamic(seed int64) {
 // InitShuffle); deckSeeds[pi] independently control per-player deck
 // Fisher-Yates shuffle. ResetDynamic(seed) routes here as
 // ResetDynamicWithSeeds(seed, [seed, seed]) so legacy single-seed callers
-// keep identical deck shuffles. Post-state: PhaseAction, both players
-// have selected char 0, round 1 setup — same as pre-D.5 ResetDynamic.
+// keep identical deck shuffles. Post-state: the opening round's reroll
+// decision, with both players having selected char 0.
 func (rt *Runtime) ResetDynamicWithSeeds(diceSeed int64, deckSeeds [2]int64) {
 	g := rt.Game
 	g.ResetDynamicStateWithSeeds(diceSeed, deckSeeds)

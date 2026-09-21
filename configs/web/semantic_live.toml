@@ -3,3 +3,5 @@ type = "az"
 cfg = "configs/dmc/native_starter.toml"
 ckpt = "artifacts/live_models/az_exit/model.pt"
 report = "artifacts/live_models/az_exit/evaluation.json"
+n_simulations = 0
+max_rollout_depth = 400
