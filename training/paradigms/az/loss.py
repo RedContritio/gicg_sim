@@ -18,6 +18,7 @@ from typing import Any
 
 import torch
 
+from training.core.obs_constants import ACTION_REROLL
 from training.core.protocols import Batch, LossResult
 from training.paradigms.az._az_losses import az_losses
 
@@ -108,7 +109,16 @@ class AZLoss:
             # 非法位 logp 置 0 再乘（0 × -inf = nan 的坑）。
             cur_logp = torch.log_softmax(logits.masked_fill(~legal_mask, float('-inf')), dim=-1)
             cur_logp = cur_logp.masked_fill(~legal_mask, 0.0)
-            anchor_loss = -(ref_prior * cur_logp).sum(-1).mean()
+            anchor_row_loss = -(ref_prior * cur_logp).sum(-1)
+            anchor_rows = torch.ones_like(anchor_row_loss, dtype=torch.bool)
+            if getattr(train_cfg, 'anchor_exclude_reroll', False):
+                if 'action_refs' not in d:
+                    raise ValueError('anchor_exclude_reroll requires action_refs in the training batch')
+                action_refs = torch.as_tensor(d['action_refs'], device=device)
+                action_kinds = action_refs[..., 0]
+                reroll_rows = ((action_kinds == ACTION_REROLL) | ~legal_mask).all(dim=-1) & legal_mask.any(dim=-1)
+                anchor_rows &= ~reroll_rows
+            anchor_loss = anchor_row_loss[anchor_rows].mean() if anchor_rows.any() else logits.sum() * 0.0
             losses['anchor'] = anchor_loss
             losses['total'] = losses['total'] + anchor_beta * anchor_loss
 

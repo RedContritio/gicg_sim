@@ -1,0 +1,19 @@
+[meta]
+extends = "exit_ws_anchor.toml"
+seed = 96710
+paradigm = "az"
+run_label = "exit_ws_reroll_anchor"
+host = "remote"
+device = "cpu"
+
+[remote]
+profile = "gpu-win"
+
+[paradigm.az]
+init_from_ckpt = "artifacts/warmstart_rl16.pt"
+total_games = 64
+
+[paradigm.az.train]
+anchor_beta = 1.0
+anchor_exclude_reroll = true
+anchor_ckpt = "artifacts/warmstart_rl16.pt"

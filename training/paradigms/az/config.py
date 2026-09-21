@@ -117,6 +117,7 @@ class TrainStepCfg:
     # anchor_beta=0 关闭（默认）；anchor_ckpt 为 az 格式 ckpt 路径。
     anchor_beta: float = 0.0
     anchor_ckpt: str = ''
+    anchor_exclude_reroll: bool = False
 
 
 @dataclass(frozen=True)

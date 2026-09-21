@@ -64,13 +64,14 @@ def test_az_paradigm_config_from_dict_full():
             'priority_weight': 2.0,
             'agent': {'d_model': 64, 'n_cross_layers': 2},
             'mcts': {'n_rollouts': 50, 'c_puct': 2.0},
-            'train': {'l2_coef': 1e-5, 'entropy_coef': 0.01},
+            'train': {'l2_coef': 1e-5, 'entropy_coef': 0.01, 'anchor_exclude_reroll': True},
         }
     )
     assert cfg.lr == 5e-4
     assert cfg.agent.d_model == 64
     assert cfg.mcts.n_rollouts == 50
     assert cfg.train.entropy_coef == 0.01
+    assert cfg.train.anchor_exclude_reroll is True
 
 
 def test_az_paradigm_config_from_dict_unknown_key_raises():
