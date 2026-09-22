@@ -23,7 +23,7 @@ fn kaeya_skills_and_icicle_follow_real_results() {
     let player = PlayerConfig {
         characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
         deck: vec!["splash".to_owned(); 15],
-        active: 0,
+        active: None,
         dice: omni(16),
     };
     let mut game = Game::new(
@@ -35,6 +35,13 @@ fn kaeya_skills_and_icicle_follow_real_results() {
         },
     )
     .unwrap();
+
+    assert_eq!(game.state.phase, Phase::SelectActive);
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    assert_eq!(game.state.phase, Phase::Redraw);
 
     game.submit(Command::Redraw {
         selected: Vec::new(),
@@ -143,7 +150,7 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     let player = PlayerConfig {
         characters: vec!["kaeya".to_owned()],
         deck: vec!["splash".to_owned(); 15],
-        active: 0,
+        active: Some(0),
         dice: DiceSet::default(),
     };
     let mut game = Game::new(

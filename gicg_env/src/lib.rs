@@ -37,7 +37,7 @@ impl GameSession {
         let player = |characters| PlayerConfig {
             characters,
             deck: deck.clone(),
-            active: 0,
+            active: None,
             dice: DiceSet::default(),
         };
         let game = Game::new(

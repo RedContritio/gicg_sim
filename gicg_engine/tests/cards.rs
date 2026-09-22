@@ -14,7 +14,7 @@ fn cards_select_healing_targets_and_draw_from_the_deck() {
     let player = |card: &str| PlayerConfig {
         characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
         deck: vec![card.to_owned(); 15],
-        active: 0,
+        active: Some(0),
         dice: omni(32),
     };
     let mut game = Game::new(
@@ -76,7 +76,7 @@ fn ready(card: &str) -> Game {
     let player = PlayerConfig {
         characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
         deck: vec![card.to_owned(); 15],
-        active: 0,
+        active: Some(0),
         dice: omni(32),
     };
     let mut game = Game::new(

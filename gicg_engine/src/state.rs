@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Phase {
+    SelectActive,
     Redraw,
     Roll,
     Action,
@@ -79,7 +80,7 @@ pub struct ModifierState {
 pub struct PlayerConfig {
     pub characters: Vec<String>,
     pub deck: Vec<String>,
-    pub active: usize,
+    pub active: Option<usize>,
     pub dice: DiceSet,
 }
 
@@ -106,58 +107,14 @@ impl GameState {
                 config.first
             )));
         }
+        let phase = initial_phase(&config.players)?;
         let mut players = [PlayerState::default(), PlayerState::default()];
         for (player_id, player_config) in config.players.into_iter().enumerate() {
-            if player_config.characters.is_empty() {
-                return Err(EngineError::InvalidGame(format!(
-                    "player {player_id} has no characters"
-                )));
-            }
-            if player_config.active >= player_config.characters.len() {
-                return Err(EngineError::InvalidGame(format!(
-                    "player {player_id} active slot {} is invalid",
-                    player_config.active
-                )));
-            }
-            let mut characters = Vec::with_capacity(player_config.characters.len());
-            for character_id in player_config.characters {
-                let definition = rules.character(&character_id).ok_or_else(|| {
-                    EngineError::InvalidGame(format!(
-                        "player {player_id} character {character_id:?} is not defined"
-                    ))
-                })?;
-                characters.push(CharacterState {
-                    definition: definition.id.clone(),
-                    counters: definition.counters.initial_values(),
-                    auras: Vec::new(),
-                    modifiers: Vec::new(),
-                });
-            }
-            let deck = player_config
-                .deck
-                .into_iter()
-                .map(|card_id| {
-                    rules
-                        .card(&card_id)
-                        .map(|card| card.id.clone())
-                        .ok_or_else(|| {
-                            EngineError::InvalidGame(format!(
-                                "player {player_id} card {card_id:?} is not defined"
-                            ))
-                        })
-                })
-                .collect::<Result<Vec<_>>>()?;
-            players[player_id] = PlayerState {
-                characters,
-                active: player_config.active,
-                dice: player_config.dice,
-                deck,
-                ..PlayerState::default()
-            };
+            players[player_id] = build_player(rules, player_id, player_config)?;
         }
         Ok(Self {
             round: 1,
-            phase: Phase::Redraw,
+            phase,
             turn: config.first,
             winner: None,
             decision: None,
@@ -426,4 +383,63 @@ impl GameState {
             Zone::Support => &mut self.players[location.player].supports[location.index],
         }
     }
+}
+
+fn initial_phase(players: &[PlayerConfig; 2]) -> Result<Phase> {
+    match (players[0].active, players[1].active) {
+        (None, None) => Ok(Phase::SelectActive),
+        (Some(_), Some(_)) => Ok(Phase::Redraw),
+        _ => Err(EngineError::InvalidGame(
+            "both players must either select or preselect active characters".to_owned(),
+        )),
+    }
+}
+
+fn build_player(rules: &Ruleset, player: PlayerId, config: PlayerConfig) -> Result<PlayerState> {
+    if config.characters.is_empty() {
+        return Err(EngineError::InvalidGame(format!(
+            "player {player} has no characters"
+        )));
+    }
+    let active = config.active.unwrap_or(0);
+    if active >= config.characters.len() {
+        return Err(EngineError::InvalidGame(format!(
+            "player {player} active slot {active} is invalid"
+        )));
+    }
+    let characters = config
+        .characters
+        .into_iter()
+        .map(|id| build_character(rules, player, &id))
+        .collect::<Result<Vec<_>>>()?;
+    let deck = config
+        .deck
+        .into_iter()
+        .map(|id| validate_card(rules, player, &id))
+        .collect::<Result<Vec<_>>>()?;
+    Ok(PlayerState {
+        characters,
+        active,
+        dice: config.dice,
+        deck,
+        ..PlayerState::default()
+    })
+}
+
+fn build_character(rules: &Ruleset, player: PlayerId, id: &str) -> Result<CharacterState> {
+    let definition = rules.character(id).ok_or_else(|| {
+        EngineError::InvalidGame(format!("player {player} character {id:?} is not defined"))
+    })?;
+    Ok(CharacterState {
+        definition: definition.id.clone(),
+        counters: definition.counters.initial_values(),
+        auras: Vec::new(),
+        modifiers: Vec::new(),
+    })
+}
+
+fn validate_card(rules: &Ruleset, player: PlayerId, id: &str) -> Result<String> {
+    rules.card(id).map(|card| card.id.clone()).ok_or_else(|| {
+        EngineError::InvalidGame(format!("player {player} card {id:?} is not defined"))
+    })
 }

@@ -48,6 +48,7 @@ const dieSides = [
   [0, 4, 5],
 ];
 const phaseNames = {
+  select_active: "选择初始出战角色",
   redraw: "选择要替换的起始手牌",
   roll: "选择要重掷的元素骰",
   action: "行动阶段",

@@ -70,6 +70,7 @@ struct QueuedEffect {
 }
 
 enum PendingDecision {
+    InitialActive,
     Continuation {
         handler: HandlerId,
         context: RuleContext,
@@ -156,6 +157,9 @@ impl Game {
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
             game.draw(player, 5);
+        }
+        if game.state.phase == Phase::SelectActive {
+            game.create_initial_active_decision(first);
         }
         Ok(game)
     }
@@ -329,6 +333,9 @@ impl Game {
     pub fn choose(&mut self, decision_id: crate::DecisionId, option: usize) -> Result<()> {
         let (decision, selected) = self.take_decision(decision_id, option)?;
         match self.pending.take() {
+            Some(PendingDecision::InitialActive) => {
+                self.select_initial_active(decision.player, selected)?;
+            }
             Some(PendingDecision::Continuation { handler, context }) => {
                 self.continue_choice(handler, context, selected)?;
             }
@@ -354,12 +361,57 @@ impl Game {
                 "decision {decision_id} is not active"
             )));
         }
-        let selected = decision.options.get(option).cloned().ok_or_else(|| {
-            EngineError::InvalidCommand(format!(
+        let Some(selected) = decision.options.get(option).cloned() else {
+            self.state.decision = Some(decision);
+            return Err(EngineError::InvalidCommand(format!(
                 "option {option} is invalid for decision {decision_id}"
-            ))
-        })?;
+            )));
+        };
         Ok((decision, selected))
+    }
+
+    fn create_initial_active_decision(&mut self, player: PlayerId) {
+        let options = self.state.players[player]
+            .characters
+            .iter()
+            .enumerate()
+            .map(|(slot, character)| ChoiceOption {
+                id: slot.to_string(),
+                label: self
+                    .runtime
+                    .rules()
+                    .character(&character.definition)
+                    .expect("state references a loaded character")
+                    .name
+                    .clone(),
+            })
+            .collect();
+        self.state.decision = Some(Decision {
+            id: self.state.next_decision,
+            player,
+            options,
+        });
+        self.state.next_decision += 1;
+        self.pending = Some(PendingDecision::InitialActive);
+    }
+
+    fn select_initial_active(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
+        let slot = selected.id.parse::<usize>().map_err(|error| {
+            EngineError::Rule(format!("invalid initial character option: {error}"))
+        })?;
+        self.state.character(player, slot)?;
+        self.state.players[player].active = slot;
+        self.phase_done[player] = true;
+        let opponent = 1 - player;
+        if !self.phase_done[opponent] {
+            self.state.turn = opponent;
+            self.create_initial_active_decision(opponent);
+            return Ok(());
+        }
+        self.phase_done = [false; 2];
+        self.state.phase = Phase::Redraw;
+        self.state.turn = self.round_first;
+        Ok(())
     }
 
     fn continue_choice(

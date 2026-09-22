@@ -15,7 +15,7 @@ fn ready(characters: &[&str]) -> (Rc<LuaRuntime>, Game) {
     let player = PlayerConfig {
         characters: characters.iter().map(|value| (*value).to_owned()).collect(),
         deck: Vec::new(),
-        active: 0,
+        active: Some(0),
         dice: omni(64),
     };
     let mut game = Game::new(
