@@ -548,6 +548,11 @@ fn cards_search_recover_and_shuffle_cards_between_piles() {
         die: Die::Pyro,
     })
     .unwrap();
+    assert!(game.state.history.iter().any(|event| {
+        event.kind == EventKind::CardDiscarded
+            && event.player == 0
+            && event.action_id.as_deref() == Some("splash")
+    }));
     game.submit(Command::Card {
         hand: 0,
         payment: DiceSet::default(),

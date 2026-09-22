@@ -1040,8 +1040,9 @@ impl Game {
         state.dice.0[die.index()] -= 1;
         state.dice.0[target.index()] += 1;
         let card = state.hand.remove(hand);
-        state.discard.push(card);
-        Ok(())
+        state.discard.push(card.clone());
+        self.emit_card_event(EventKind::CardDiscarded, player, card)?;
+        self.drain()
     }
 
     fn submit_end(&mut self, player: PlayerId) -> Result<()> {
