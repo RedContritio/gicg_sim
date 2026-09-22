@@ -302,6 +302,15 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function discard(side, count)
             return { kind = "discard", side = side, count = count }
         end
+        function draw_card(card)
+            return { kind = "draw_card", card = card }
+        end
+        function recover_card(card)
+            return { kind = "recover_card", card = card }
+        end
+        function add_deck_card(card, count)
+            return { kind = "add_deck_card", card = card, count = count }
+        end
         function choose(continuation, options)
             return { kind = "choice", continuation = continuation, options = options }
         end

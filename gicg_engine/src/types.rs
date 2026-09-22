@@ -252,6 +252,8 @@ pub enum EventKind {
     Conceded,
     CardDrawn,
     CardDiscarded,
+    CardCreated,
+    CardRecovered,
 }
 
 impl EventKind {

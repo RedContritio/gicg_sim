@@ -969,13 +969,7 @@ impl Game {
         let Some(card) = self.state.players[player].deck.pop() else {
             return Ok(false);
         };
-        if self.state.players[player].hand.len() < 10 {
-            self.state.players[player].hand.push(card.clone());
-            self.emit_card_event(EventKind::CardDrawn, player, card)?;
-        } else {
-            self.state.players[player].discard.push(card.clone());
-            self.emit_card_event(EventKind::CardDiscarded, player, card)?;
-        }
+        self.gain_card(player, card, EventKind::CardDrawn)?;
         Ok(true)
     }
 
@@ -1200,6 +1194,11 @@ impl Game {
             Effect::Discard { side, count } => {
                 self.discard(&queued.context, side, usize::from(count))
             }
+            Effect::DrawCard { card } => self.draw_card(&queued.context, &card),
+            Effect::RecoverCard { card } => self.recover_card(&queued.context, &card),
+            Effect::AddDeckCard { card, count } => {
+                self.add_deck_card(&queued.context, &card, count)
+            }
             Effect::UseSkill { action } => self.use_skill(&queued.context, &action),
             Effect::CompleteSkill { action, skill } => {
                 self.complete_skill(&queued.context, action, skill)
@@ -1375,16 +1374,68 @@ impl Game {
     }
 
     fn add_card(&mut self, context: &RuleContext, card: &str) -> Result<()> {
-        if self.runtime.rules().card(card).is_none() {
-            return Err(EngineError::Rule(format!("card {card:?} is not defined")));
-        }
-        let state = &mut self.state.players[context_owner(context)?];
-        if state.hand.len() < 10 {
-            state.hand.push(card.to_owned());
+        self.require_card(card)?;
+        self.gain_card(
+            context_owner(context)?,
+            card.to_owned(),
+            EventKind::CardCreated,
+        )
+    }
+
+    fn draw_card(&mut self, context: &RuleContext, card: &str) -> Result<()> {
+        self.require_card(card)?;
+        let player = context_owner(context)?;
+        let Some(index) = self.state.players[player]
+            .deck
+            .iter()
+            .rposition(|candidate| candidate == card)
+        else {
+            return Ok(());
+        };
+        let card = self.state.players[player].deck.remove(index);
+        self.gain_card(player, card, EventKind::CardDrawn)
+    }
+
+    fn recover_card(&mut self, context: &RuleContext, card: &str) -> Result<()> {
+        self.require_card(card)?;
+        let player = context_owner(context)?;
+        let Some(index) = self.state.players[player]
+            .discard
+            .iter()
+            .rposition(|candidate| candidate == card)
+        else {
+            return Ok(());
+        };
+        let card = self.state.players[player].discard.remove(index);
+        self.gain_card(player, card, EventKind::CardRecovered)
+    }
+
+    fn add_deck_card(&mut self, context: &RuleContext, card: &str, count: u8) -> Result<()> {
+        self.require_card(card)?;
+        let player = context_owner(context)?;
+        self.state.players[player]
+            .deck
+            .extend(std::iter::repeat_n(card.to_owned(), usize::from(count)));
+        self.state.players[player].deck.shuffle(&mut self.rng);
+        self.emit_card_event_count(EventKind::CardCreated, player, card.to_owned(), count)
+    }
+
+    fn require_card(&self, card: &str) -> Result<()> {
+        self.runtime
+            .rules()
+            .card(card)
+            .map(|_| ())
+            .ok_or_else(|| EngineError::Rule(format!("card {card:?} is not defined")))
+    }
+
+    fn gain_card(&mut self, player: PlayerId, card: String, kind: EventKind) -> Result<()> {
+        if self.state.players[player].hand.len() < 10 {
+            self.state.players[player].hand.push(card.clone());
+            self.emit_card_event(kind, player, card)
         } else {
-            state.discard.push(card.to_owned());
+            self.state.players[player].discard.push(card.clone());
+            self.emit_card_event(EventKind::CardDiscarded, player, card)
         }
-        Ok(())
     }
 
     fn add_dice(&mut self, context: &RuleContext, die: Die, count: u8) -> Result<()> {
@@ -1497,6 +1548,16 @@ impl Game {
     }
 
     fn emit_card_event(&mut self, kind: EventKind, player: PlayerId, card: String) -> Result<()> {
+        self.emit_card_event_count(kind, player, card, 1)
+    }
+
+    fn emit_card_event_count(
+        &mut self,
+        kind: EventKind,
+        player: PlayerId,
+        card: String,
+        count: u8,
+    ) -> Result<()> {
         self.emit(Event {
             kind,
             actor: None,
@@ -1507,7 +1568,7 @@ impl Game {
             skill: None,
             element: None,
             reaction: None,
-            amount: 1,
+            amount: i32::from(count),
         })
     }
 

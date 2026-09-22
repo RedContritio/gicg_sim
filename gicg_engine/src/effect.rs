@@ -80,6 +80,16 @@ pub enum Effect {
         side: TargetSide,
         count: u8,
     },
+    DrawCard {
+        card: String,
+    },
+    RecoverCard {
+        card: String,
+    },
+    AddDeckCard {
+        card: String,
+        count: u8,
+    },
     UseSkill {
         action: String,
     },

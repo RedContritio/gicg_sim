@@ -384,3 +384,64 @@ fn talent_cards_equip_and_immediately_use_the_declared_skill() {
             && event.skill == Some(gicg_engine::SkillKind::ElementalSkill)
     }));
 }
+
+#[test]
+fn cards_search_recover_and_shuffle_cards_between_piles() {
+    let mut game = ready("where_is_the_unseen_razor");
+    game.state.players[0]
+        .deck
+        .push("travelers_handy_sword".to_owned());
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert!(
+        game.state.players[0]
+            .hand
+            .iter()
+            .any(|card| card == "travelers_handy_sword")
+    );
+
+    let mut game = ready("yesterdays_memory");
+    game.state.players[0].hand[0] = "splash".to_owned();
+    let mut dice = omni(31);
+    dice.set(Die::Pyro, 1);
+    game.state.players[0].dice = dice;
+    game.submit(Command::Tune {
+        hand: 0,
+        die: Die::Pyro,
+    })
+    .unwrap();
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert!(
+        game.state.players[0]
+            .hand
+            .iter()
+            .any(|card| card == "splash")
+    );
+    assert!(
+        !game.state.players[0]
+            .discard
+            .iter()
+            .any(|card| card == "splash")
+    );
+
+    let mut game = ready("backup_supplies");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert!(
+        game.state.players[0]
+            .hand
+            .iter()
+            .any(|card| card == "splash")
+    );
+    assert_eq!(game.state.players[0].deck.len(), 11);
+}
