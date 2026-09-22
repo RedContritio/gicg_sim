@@ -186,6 +186,7 @@ impl Game {
             last_combat_switch: [false; 2],
             round_transition: RoundTransition::None,
         };
+        game.initialize_passives();
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
             game.draw(player, 5)?;
@@ -194,6 +195,39 @@ impl Game {
             game.create_initial_active_decision(first);
         }
         Ok(game)
+    }
+
+    fn initialize_passives(&mut self) {
+        for player in 0..2 {
+            for slot in 0..self.state.players[player].characters.len() {
+                let character = &self.state.players[player].characters[slot].definition;
+                let passives = self
+                    .runtime
+                    .rules()
+                    .character(character)
+                    .expect("state references a loaded character")
+                    .passives
+                    .clone();
+                for passive in passives {
+                    let counters = self
+                        .runtime
+                        .rules()
+                        .modifier(&passive)
+                        .expect("passive references a loaded modifier")
+                        .counters
+                        .initial_values();
+                    let instance = self.state.next_instance;
+                    self.state.next_instance += 1;
+                    self.state.players[player].characters[slot]
+                        .modifiers
+                        .push(ModifierState {
+                            instance,
+                            definition: passive,
+                            counters,
+                        });
+                }
+            }
+        }
     }
 
     pub fn rules(&self) -> &crate::Ruleset {
@@ -2041,9 +2075,19 @@ impl Game {
         let EntityRef::Character { player, slot } = target else {
             unreachable!()
         };
+        let definition = &self.state.character(player, slot)?.definition;
+        let passives = self
+            .runtime
+            .rules()
+            .character(definition)
+            .expect("state references a loaded character")
+            .passives
+            .clone();
         let character = self.state.character_mut(player, slot)?;
         character.auras.clear();
-        character.modifiers.clear();
+        character
+            .modifiers
+            .retain(|modifier| passives.contains(&modifier.definition));
         let alive = self.alive_slots(player)?;
         if alive.is_empty() {
             self.finish_match(1 - player, crate::FinishReason::Defeat);

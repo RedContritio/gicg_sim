@@ -1,4 +1,22 @@
 modifier {
+    id = "mavuika.fighting_spirit",
+    name = "战意汇聚",
+    zone = "character",
+    merge = "replace",
+    counters = {},
+    handlers = {
+        action_resolved = function(ctx)
+            if ctx.event.player ~= ctx.owner
+                or ctx.actor_definition ~= "mavuika"
+                or ctx.event.skill ~= "normal_attack" then
+                return nil
+            end
+            return { add_character_counter("mavuika", "fighting_spirit", 1) }
+        end,
+    },
+}
+
+modifier {
     id = "mavuika.ring_of_searing_radiance",
     name = "诸火武装·焚曜之环",
     zone = "combat",
@@ -33,6 +51,7 @@ character {
     id = "mavuika",
     name = "玛薇卡",
     element = "pyro",
+    passives = { "mavuika.fighting_spirit" },
     counters = {
         hp = { initial = 10, min = 0, max = 10 },
         fighting_spirit = { initial = 0, min = 0, max = 6 },
@@ -45,10 +64,7 @@ character {
             kind = "normal_attack",
             cost = { dice = { pyro = 1, any = 2 } },
             resolve = function(ctx)
-                return {
-                    damage("enemy_active", "physical", 2),
-                    add_counter("actor", "fighting_spirit", 1),
-                }
+                return { damage("enemy_active", "physical", 2) }
             end,
         },
         {

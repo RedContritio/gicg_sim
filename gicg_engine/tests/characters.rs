@@ -227,6 +227,12 @@ fn mualani_nightsoul_action_and_missile_complete_the_cycle() {
 
 #[test]
 fn mavuika_choices_cross_character_trigger_and_burst_resource() {
+    {
+        let (runtime, mut game) = ready(&["mavuika", "kaeya"]);
+        skill(&mut game, "flames_weave_life", 3);
+        assert_eq!(counter(&game, &runtime, 0, 0, "fighting_spirit"), 1);
+    }
+
     for (option, card) in [
         "mavuika.motorcycle_leap",
         "mavuika.motorcycle_traverse",

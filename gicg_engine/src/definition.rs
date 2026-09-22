@@ -194,6 +194,7 @@ pub struct CharacterDefinition {
     pub element: crate::Element,
     pub counters: CounterSchema,
     pub actions: Vec<ActionDefinition>,
+    pub passives: Vec<String>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -229,6 +230,7 @@ impl CharacterDefinition {
         element: crate::Element,
         counters: CounterSchema,
         actions: Vec<ActionDefinition>,
+        passives: Vec<String>,
     ) -> Result<Self> {
         let mut ids = HashSet::new();
         for action in &actions {
@@ -245,6 +247,7 @@ impl CharacterDefinition {
             element,
             counters,
             actions,
+            passives,
         })
     }
 
@@ -333,6 +336,9 @@ impl Ruleset {
             validate_card_target(card)?;
             validate_talent(card, &characters)?;
         }
+        for character in &characters {
+            validate_passives(character, &modifiers)?;
+        }
         Ok(Self {
             hash,
             characters,
@@ -354,6 +360,37 @@ impl Ruleset {
     pub fn card(&self, id: &str) -> Option<&CardDefinition> {
         self.cards.iter().find(|definition| definition.id == id)
     }
+}
+
+fn validate_passives(
+    character: &CharacterDefinition,
+    modifiers: &[ModifierDefinition],
+) -> Result<()> {
+    let mut unique = HashSet::new();
+    for passive in &character.passives {
+        if !unique.insert(passive) {
+            return Err(EngineError::InvalidRuleset(format!(
+                "character {:?} repeats passive {passive:?}",
+                character.id
+            )));
+        }
+        let modifier = modifiers
+            .iter()
+            .find(|modifier| modifier.id == *passive)
+            .ok_or_else(|| {
+                EngineError::InvalidRuleset(format!(
+                    "character {:?} references missing passive {passive:?}",
+                    character.id
+                ))
+            })?;
+        if modifier.zone != Zone::Character {
+            return Err(EngineError::InvalidRuleset(format!(
+                "character {:?} passive {passive:?} must use the character zone",
+                character.id
+            )));
+        }
+    }
+    Ok(())
 }
 
 fn validate_card_target(card: &CardDefinition) -> Result<()> {

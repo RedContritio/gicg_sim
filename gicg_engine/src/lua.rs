@@ -443,7 +443,9 @@ fn parse_character(
     let counters = parse_counters(table.get("counters")?)?;
     require_hp(&id, &counters)?;
     let actions = parse_actions(lua, state, &table, &id, &counters)?;
-    crate::CharacterDefinition::new(id, name, element, counters, actions).map_err(lua_error)
+    let passives = parse_strings(&table, "passives")?;
+    crate::CharacterDefinition::new(id, name, element, counters, actions, passives)
+        .map_err(lua_error)
 }
 
 fn parse_action(
