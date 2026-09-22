@@ -35,7 +35,10 @@ def snapshot(session: GameSession) -> dict:
 def selected_players(
     body: CreateGame, defaults: list[list[str]], team_size: int
 ) -> list[list[str]]:
-    players = [body.player_one or defaults[0], body.player_two or defaults[1]]
+    players = [
+        body.player_one if body.player_one is not None else defaults[0],
+        body.player_two if body.player_two is not None else defaults[1],
+    ]
     if any(len(player) != team_size for player in players):
         raise HTTPException(409, f"每位玩家需要选择 {team_size} 名角色")
     if any(len(set(player)) != len(player) for player in players):
@@ -73,7 +76,10 @@ def configured_session(
 
 
 def selected_decks(body: CreateGame, defaults: list[list[str]]) -> list[list[str]]:
-    return [body.player_one_deck or defaults[0], body.player_two_deck or defaults[1]]
+    return [
+        body.player_one_deck if body.player_one_deck is not None else defaults[0],
+        body.player_two_deck if body.player_two_deck is not None else defaults[1],
+    ]
 
 
 def requested_session(
