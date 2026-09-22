@@ -49,7 +49,7 @@ card {
     description = "回合开始时生成2个万能元素骰，可用2次。",
     kind = "support",
     tempo = "fast",
-    cost = { dice = { any = 3 } },
+    cost = { dice = { same = 3 } },
     resolve = function(ctx)
         return { add_modifier("own_active", "card.paimon") }
     end,

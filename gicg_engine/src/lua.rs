@@ -816,10 +816,10 @@ fn parse_dice_cost(table: &Table, cost: &mut Cost) -> mlua::Result<()> {
     };
     for entry in dice.pairs::<String, u8>() {
         let (name, count) = entry?;
-        if name == "any" {
-            cost.any = count;
-        } else {
-            cost.dice.set(parse_specific_die(&name)?, count);
+        match name.as_str() {
+            "any" => cost.any = count,
+            "same" => cost.same = count,
+            _ => cost.dice.set(parse_specific_die(&name)?, count),
         }
     }
     Ok(())

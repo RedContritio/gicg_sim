@@ -83,12 +83,13 @@ pub struct CounterCost {
 pub struct Cost {
     pub dice: DiceSet,
     pub any: u8,
+    pub same: u8,
     pub counters: Vec<CounterCost>,
 }
 
 impl Cost {
     pub fn dice_total(&self) -> u16 {
-        self.dice.total() + u16::from(self.any)
+        self.dice.total() + u16::from(self.any) + u16::from(self.same)
     }
 
     pub fn valid_payment(&self, inventory: DiceSet, payment: DiceSet) -> bool {
@@ -106,7 +107,20 @@ impl Cost {
             .map(|die| self.dice.get(*die).saturating_sub(payment.get(*die)))
             .map(u16::from)
             .sum();
-        u16::from(payment.get(Die::Omni)) >= missing
+        let omni = u16::from(payment.get(Die::Omni));
+        if omni < missing {
+            return false;
+        }
+        self.same == 0 || self.valid_same_payment(payment, (omni - missing) as u8)
+    }
+
+    fn valid_same_payment(&self, payment: DiceSet, omni: u8) -> bool {
+        let matching = Die::ALL[..Die::Omni.index()]
+            .iter()
+            .map(|die| payment.get(*die).saturating_sub(self.dice.get(*die)))
+            .max()
+            .unwrap_or(0);
+        self.same <= matching.saturating_add(omni)
     }
 
     pub fn reduce_dice(&mut self, amount: u8) -> u8 {
@@ -114,6 +128,9 @@ impl Cost {
         let reduced_any = self.any.min(remaining);
         self.any -= reduced_any;
         remaining -= reduced_any;
+        let reduced_same = self.same.min(remaining);
+        self.same -= reduced_same;
+        remaining -= reduced_same;
         for die in Die::ALL[..Die::Omni.index()].iter().copied() {
             let reduced = self.dice.get(die).min(remaining);
             self.dice.0[die.index()] -= reduced;

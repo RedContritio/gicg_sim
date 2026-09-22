@@ -36,7 +36,7 @@ const counterNames = {
   rounds: "持续回合",
   power: "强化",
 };
-const switchCost = { dice: Array(8).fill(0), any: 1, counters: [] };
+const switchCost = { dice: Array(8).fill(0), any: 1, same: 0, counters: [] };
 const dieSides = [
   [1, 7, 6],
   [4, 0, 2],
@@ -264,7 +264,7 @@ function costView(cost, schema) {
 function effectiveCost(cost, schema, preview) {
   const value = costView(cost, schema);
   if (!preview) return value;
-  return { ...value, dice: preview.dice, any: preview.any };
+  return { ...value, dice: preview.dice, any: preview.any, same: preview.same };
 }
 
 function render() {
@@ -582,12 +582,17 @@ function selectedCounts() {
 
 function validPayment(payment, cost) {
   const total = payment.reduce((sum, value) => sum + value, 0);
-  const required = cost.dice.reduce((sum, value) => sum + value, 0) + cost.any;
+  const required = cost.dice.reduce((sum, value) => sum + value, 0) + cost.any + cost.same;
   if (total !== required) return false;
   const missing = cost.dice
     .slice(0, 7)
     .reduce((sum, value, index) => sum + Math.max(0, value - payment[index]), 0);
-  return payment[7] >= missing;
+  const omni = payment[7] - missing;
+  if (omni < 0) return false;
+  const matching = Math.max(
+    ...payment.slice(0, 7).map((value, index) => Math.max(0, value - cost.dice[index])),
+  );
+  return !cost.same || matching + omni >= cost.same;
 }
 
 function diceSummary(values) {
@@ -660,6 +665,7 @@ function costText(cost) {
     if (count) parts.push(`${diceNames[index]} ${count}`);
   });
   if (cost.any) parts.push(`任意 ${cost.any}`);
+  if (cost.same) parts.push(`同色 ${cost.same}`);
   cost.counters.forEach((value) => {
     parts.push(`${counterNames[value.name] || value.name} ${value.require}`);
   });

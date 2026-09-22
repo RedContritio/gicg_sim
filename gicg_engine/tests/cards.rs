@@ -204,9 +204,24 @@ fn equipment_and_supports_persist_in_their_zones() {
     );
 
     let mut game = ready("paimon");
+    let mut mixed = DiceSet::default();
+    mixed.set(Die::Cryo, 1);
+    mixed.set(Die::Hydro, 1);
+    mixed.set(Die::Pyro, 1);
+    game.state.players[0].dice = mixed;
+    assert!(
+        game.submit(Command::Card {
+            hand: 0,
+            payment: mixed,
+        })
+        .is_err()
+    );
+    let mut matching = DiceSet::default();
+    matching.set(Die::Cryo, 3);
+    game.state.players[0].dice = matching;
     game.submit(Command::Card {
         hand: 0,
-        payment: omni(3),
+        payment: matching,
     })
     .unwrap();
     assert_eq!(game.state.players[0].supports[0].definition, "card.paimon");

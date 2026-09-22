@@ -126,6 +126,7 @@ pub struct ActionPreview {
     pub tempo: ActionTempo,
     pub dice: DiceSet,
     pub any: u8,
+    pub same: u8,
     pub playable: bool,
 }
 
@@ -239,6 +240,7 @@ impl Game {
             tempo: action.tempo,
             dice: action.cost.dice,
             any: action.cost.any,
+            same: action.cost.same,
             playable: true,
         })
     }
