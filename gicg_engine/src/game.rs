@@ -7,11 +7,12 @@ use serde::Deserialize;
 use crate::{
     ActionDefinition, ActionTempo, ChoiceOption,
     Command::*,
-    CounterConsume, Decision, DiceSet, Die, Effect, Element, EngineError, EntityRef, Event,
-    EventKind, GameConfig, GameState, HandlerId, LuaRuntime, MergePolicy, ModifierState, Phase,
-    PlayerId, Reaction, ReactionRecord, Result, RuleContext, Zone,
+    CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
+    Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
+    LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, Reaction, ReactionRecord, Result,
+    RuleContext, Zone,
     lua::resolve_target,
-    reaction::{self, CATALYZING_FIELD, CRYSTALLIZE_SHIELD, DENDRO_CORE, FROZEN},
+    reaction::{self, FROZEN},
 };
 
 #[derive(Clone, Debug, Deserialize)]
@@ -75,7 +76,14 @@ struct PendingDecision {
 
 struct DamageResolution {
     amount: i32,
+    element: Element,
     reaction: Option<reaction::ReactionMatch>,
+}
+
+struct DamageInvocation {
+    source: EntityRef,
+    host: Option<EntityRef>,
+    rule: DamageModifierDefinition,
 }
 
 #[derive(Clone, Copy)]
@@ -791,7 +799,7 @@ impl Game {
             )));
         };
         let resolved = self.prepare_damage(&context, target, element, amount)?;
-        let applied = self.commit_damage(&context, target, element, &resolved)?;
+        let applied = self.commit_damage(&context, target, &resolved)?;
         self.finish_damage(context, target, player, resolved, applied)
     }
 
@@ -802,21 +810,34 @@ impl Game {
         element: Element,
         amount: i32,
     ) -> Result<DamageResolution> {
-        let status_bonus = self.consume_damage_statuses(context, element)?;
+        let (element, amount) = self.apply_damage_modifiers(
+            DamageDirection::Outgoing,
+            context,
+            target,
+            element,
+            amount,
+        )?;
         let reaction = self.resolve_reaction(target, element)?;
         let reaction_bonus = reaction.map_or(0, |value| value.kind.bonus());
-        let boosted = amount
-            .saturating_add(status_bonus)
-            .saturating_add(reaction_bonus);
-        let amount = self.absorb_crystallize(target, element, boosted)?;
-        Ok(DamageResolution { amount, reaction })
+        let boosted = amount.saturating_add(reaction_bonus);
+        let (element, amount) = self.apply_damage_modifiers(
+            DamageDirection::Incoming,
+            context,
+            target,
+            element,
+            boosted,
+        )?;
+        Ok(DamageResolution {
+            amount,
+            element,
+            reaction,
+        })
     }
 
     fn commit_damage(
         &mut self,
         context: &RuleContext,
         target: EntityRef,
-        element: Element,
         resolved: &DamageResolution,
     ) -> Result<i32> {
         let EntityRef::Character { player, slot } = target else {
@@ -837,7 +858,7 @@ impl Game {
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
             action_id: context.action_id.clone(),
-            element: Some(element),
+            element: Some(resolved.element),
             reaction: reaction_kind,
             amount: applied,
         })?;
@@ -908,59 +929,103 @@ impl Game {
         Ok(matched)
     }
 
-    fn consume_damage_statuses(&mut self, context: &RuleContext, element: Element) -> Result<i32> {
-        let Some(player) = context.source.map(EntityRef::player) else {
-            return Ok(0);
-        };
-        let mut bonus = 0;
-        if matches!(element, Element::Pyro | Element::Electro)
-            && self.consume_modifier(player, DENDRO_CORE, "uses")?
-        {
-            bonus += 2;
+    fn apply_damage_modifiers(
+        &mut self,
+        direction: DamageDirection,
+        context: &RuleContext,
+        target: EntityRef,
+        mut element: Element,
+        mut amount: i32,
+    ) -> Result<(Element, i32)> {
+        for invocation in self.damage_invocations() {
+            if !self.damage_rule_applies(&invocation, direction, context, target, element)? {
+                continue;
+            }
+            if let Some(counter) = &invocation.rule.shield {
+                let points =
+                    self.state
+                        .counter(self.runtime.rules(), invocation.source, counter)?;
+                let absorbed = points.min(amount);
+                amount -= absorbed;
+                self.add_entity_counter(invocation.source, counter, -absorbed)?;
+                continue;
+            }
+            amount = amount.saturating_add(invocation.rule.delta).max(0);
+            if let Some(value) = invocation.rule.set_element {
+                element = value;
+            }
+            if let Some(counter) = &invocation.rule.counter {
+                self.add_entity_counter(invocation.source, counter, -invocation.rule.consume)?;
+            }
         }
-        if matches!(element, Element::Electro | Element::Dendro)
-            && self.consume_modifier(player, CATALYZING_FIELD, "uses")?
-        {
-            bonus += 1;
-        }
-        Ok(bonus)
+        Ok((element, amount))
     }
 
-    fn consume_modifier(
-        &mut self,
-        player: PlayerId,
-        definition: &str,
-        counter: &str,
+    fn damage_rule_applies(
+        &self,
+        invocation: &DamageInvocation,
+        direction: DamageDirection,
+        context: &RuleContext,
+        target: EntityRef,
+        element: Element,
     ) -> Result<bool> {
-        let Some(target) = self.state.modifier_entity(player, definition) else {
+        if invocation.rule.direction != direction {
             return Ok(false);
-        };
-        self.add_entity_counter(target, counter, -1)?;
+        }
+        if !damage_element_matches(&invocation.rule, element) {
+            return Ok(false);
+        }
+        let owner = invocation.source.player();
+        if !damage_owner_matches(direction, owner, context.source, target) {
+            return Ok(false);
+        }
+        if !damage_host_matches(invocation.host, direction, context.actor, target) {
+            return Ok(false);
+        }
+        if invocation.rule.active_only && !self.is_active_target(target) {
+            return Ok(false);
+        }
+        if let Some(counter) = &invocation.rule.counter {
+            return Ok(self
+                .state
+                .counter(self.runtime.rules(), invocation.source, counter)?
+                > 0);
+        }
         Ok(true)
     }
 
-    fn absorb_crystallize(
-        &mut self,
-        target: EntityRef,
-        element: Element,
-        amount: i32,
-    ) -> Result<i32> {
-        if element == Element::Piercing {
-            return Ok(amount);
-        }
+    fn is_active_target(&self, target: EntityRef) -> bool {
         let EntityRef::Character { player, slot } = target else {
-            unreachable!()
+            return false;
         };
-        if self.state.players[player].active != slot {
-            return Ok(amount);
+        self.state.players[player].active == slot
+    }
+
+    fn damage_invocations(&self) -> Vec<DamageInvocation> {
+        let mut invocations = Vec::new();
+        for (player, state) in self.state.players.iter().enumerate() {
+            for (slot, character) in state.characters.iter().enumerate() {
+                for modifier in &character.modifiers {
+                    collect_damage_rule(
+                        &self.runtime,
+                        player,
+                        Some(EntityRef::Character { player, slot }),
+                        modifier,
+                        &mut invocations,
+                    );
+                }
+            }
+            for modifier in state
+                .combat
+                .iter()
+                .chain(&state.summons)
+                .chain(&state.supports)
+            {
+                collect_damage_rule(&self.runtime, player, None, modifier, &mut invocations);
+            }
         }
-        let Some(target) = self.state.modifier_entity(player, CRYSTALLIZE_SHIELD) else {
-            return Ok(amount);
-        };
-        let points = self.state.counter(self.runtime.rules(), target, "points")?;
-        let absorbed = points.min(amount);
-        self.add_entity_counter(target, "points", -absorbed)?;
-        Ok(amount - absorbed)
+        invocations.sort_by_key(|value| modifier_instance(value.source));
+        invocations
     }
 
     fn apply_reaction_result(
@@ -1338,6 +1403,71 @@ fn merge_modifier(existing: &mut ModifierState, definition: &crate::ModifierDefi
         };
         existing.counters[index] = value.clamp(field.min, field.max);
     }
+}
+
+fn damage_owner_matches(
+    direction: DamageDirection,
+    owner: PlayerId,
+    source: Option<EntityRef>,
+    target: EntityRef,
+) -> bool {
+    match direction {
+        DamageDirection::Outgoing => source.is_some_and(|value| value.player() == owner),
+        DamageDirection::Incoming => target.player() == owner,
+    }
+}
+
+fn damage_element_matches(rule: &DamageModifierDefinition, element: Element) -> bool {
+    if element == Element::Piercing && !rule.include_piercing {
+        return false;
+    }
+    rule.elements.is_empty() || rule.elements.contains(&element)
+}
+
+fn damage_host_matches(
+    host: Option<EntityRef>,
+    direction: DamageDirection,
+    actor: Option<EntityRef>,
+    target: EntityRef,
+) -> bool {
+    let Some(host) = host else {
+        return true;
+    };
+    match direction {
+        DamageDirection::Outgoing => actor == Some(host),
+        DamageDirection::Incoming => target == host,
+    }
+}
+
+fn modifier_instance(source: EntityRef) -> u32 {
+    let EntityRef::Modifier { instance, .. } = source else {
+        unreachable!()
+    };
+    instance
+}
+
+fn collect_damage_rule(
+    runtime: &LuaRuntime,
+    player: PlayerId,
+    host: Option<EntityRef>,
+    modifier: &ModifierState,
+    output: &mut Vec<DamageInvocation>,
+) {
+    let definition = runtime
+        .rules()
+        .modifier(&modifier.definition)
+        .expect("state references a loaded modifier");
+    let Some(rule) = definition.damage.clone() else {
+        return;
+    };
+    output.push(DamageInvocation {
+        source: EntityRef::Modifier {
+            player,
+            instance: modifier.instance,
+        },
+        host,
+        rule,
+    });
 }
 
 fn collect_handlers(

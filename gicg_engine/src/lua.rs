@@ -9,9 +9,9 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     ActionDefinition, ActionTempo, CardDefinition, Cost, CounterConsume, CounterCost,
-    CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef, EventKind,
-    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, TargetRef,
-    Zone,
+    CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition, Effect, Element,
+    EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy, ModifierDefinition,
+    Result, RuleContext, Ruleset, TargetRef, Zone,
 };
 
 struct LoadState {
@@ -399,6 +399,7 @@ fn parse_modifier(
     let merge = parse_merge(&table)?;
     let counters = parse_counters(table.get("counters")?)?;
     let remove_at_zero = parse_remove_at_zero(&table, &id, &counters)?;
+    let damage = parse_damage_modifier(&table, &id, &counters)?;
     let handlers = parse_handlers(lua, state, &table, &id)?;
     Ok(ModifierDefinition {
         id,
@@ -407,8 +408,107 @@ fn parse_modifier(
         counters,
         merge,
         remove_at_zero,
+        damage,
         handlers,
     })
+}
+
+fn parse_damage_modifier(
+    table: &Table,
+    modifier_id: &str,
+    counters: &CounterSchema,
+) -> mlua::Result<Option<DamageModifierDefinition>> {
+    let Some(damage) = table.get::<Option<Table>>("damage")? else {
+        return Ok(None);
+    };
+    let direction = parse_damage_direction(&damage)?;
+    let elements = parse_elements(&damage)?;
+    let (counter, shield) = parse_damage_counters(&damage, modifier_id, counters)?;
+    let consume = parse_damage_consume(&damage, modifier_id)?;
+    Ok(Some(DamageModifierDefinition {
+        direction,
+        elements,
+        delta: damage.get::<Option<i32>>("delta")?.unwrap_or(0),
+        set_element: parse_optional_element(&damage, "set_element")?,
+        counter,
+        consume,
+        shield,
+        active_only: damage.get::<Option<bool>>("active_only")?.unwrap_or(false),
+        include_piercing: damage
+            .get::<Option<bool>>("include_piercing")?
+            .unwrap_or(false),
+    }))
+}
+
+fn parse_damage_direction(table: &Table) -> mlua::Result<DamageDirection> {
+    match required_string(table, "direction")?.as_str() {
+        "outgoing" => Ok(DamageDirection::Outgoing),
+        "incoming" => Ok(DamageDirection::Incoming),
+        value => Err(mlua::Error::runtime(format!(
+            "unknown damage direction {value:?}"
+        ))),
+    }
+}
+
+fn parse_damage_counters(
+    table: &Table,
+    modifier_id: &str,
+    counters: &CounterSchema,
+) -> mlua::Result<(Option<String>, Option<String>)> {
+    let counter = parse_counter_name(table, "counter", modifier_id, counters)?;
+    let shield = parse_counter_name(table, "shield", modifier_id, counters)?;
+    if counter.is_some() && shield.is_some() {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} damage rule cannot define both counter and shield"
+        )));
+    }
+    Ok((counter, shield))
+}
+
+fn parse_damage_consume(table: &Table, modifier_id: &str) -> mlua::Result<i32> {
+    let consume = table.get::<Option<i32>>("consume")?.unwrap_or(1);
+    if consume <= 0 {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} damage consume must be positive"
+        )));
+    }
+    Ok(consume)
+}
+
+fn parse_optional_element(table: &Table, field: &str) -> mlua::Result<Option<Element>> {
+    table
+        .get::<Option<String>>(field)?
+        .map(|value| Element::parse(&value).map_err(lua_error))
+        .transpose()
+}
+
+fn parse_elements(table: &Table) -> mlua::Result<Vec<Element>> {
+    let Some(elements) = table.get::<Option<Table>>("elements")? else {
+        return Ok(Vec::new());
+    };
+    elements
+        .sequence_values::<String>()
+        .map(|value| Element::parse(&value?).map_err(lua_error))
+        .collect()
+}
+
+fn parse_counter_name(
+    table: &Table,
+    field: &str,
+    modifier_id: &str,
+    counters: &CounterSchema,
+) -> mlua::Result<Option<String>> {
+    table
+        .get::<Option<String>>(field)?
+        .map(|name| {
+            counters.field(&name).ok_or_else(|| {
+                mlua::Error::runtime(format!(
+                    "modifier {modifier_id:?} damage {field} counter {name:?} does not exist"
+                ))
+            })?;
+            Ok(name)
+        })
+        .transpose()
 }
 
 fn parse_tempo(table: &Table, default: &str) -> mlua::Result<ActionTempo> {

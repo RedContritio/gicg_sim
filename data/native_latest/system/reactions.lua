@@ -19,6 +19,11 @@ modifier {
     merge = "add",
     counters = { points = { initial = 1, min = 0, max = 2 } },
     remove_at_zero = "points",
+    damage = {
+        direction = "incoming",
+        shield = "points",
+        active_only = true,
+    },
     handlers = {},
 }
 
@@ -46,6 +51,12 @@ modifier {
     merge = "add",
     counters = { uses = { initial = 1, min = 0, max = 2 } },
     remove_at_zero = "uses",
+    damage = {
+        direction = "outgoing",
+        elements = { "pyro", "electro" },
+        delta = 2,
+        counter = "uses",
+    },
     handlers = {},
 }
 
@@ -56,5 +67,11 @@ modifier {
     merge = "replace",
     counters = { uses = { initial = 2, min = 0, max = 2 } },
     remove_at_zero = "uses",
+    damage = {
+        direction = "outgoing",
+        elements = { "electro", "dendro" },
+        delta = 1,
+        counter = "uses",
+    },
     handlers = {},
 }

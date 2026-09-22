@@ -5,6 +5,12 @@ modifier {
     merge = "replace",
     counters = { rounds = { initial = 0, min = 0, max = 3 } },
     remove_at_zero = "rounds",
+    damage = {
+        direction = "outgoing",
+        elements = { "physical" },
+        set_element = "dendro",
+        delta = 1,
+    },
     handlers = {
         round_end = function(ctx)
             return { add_counter("source", "rounds", -1) }
@@ -26,13 +32,6 @@ character {
             name = "溯因反绎法",
             cost = { dice = { dendro = 1, any = 2 } },
             resolve = function(ctx)
-                if ctx.modifier_counter("alhaitham.chisel_light_mirror", "rounds") > 0 then
-                    return {
-                        damage("enemy_active", "dendro", 2),
-                        damage("enemy_active", "dendro", 1),
-                        add_counter("actor", "energy", 1),
-                    }
-                end
                 return {
                     damage("enemy_active", "physical", 2),
                     add_counter("actor", "energy", 1),

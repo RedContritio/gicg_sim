@@ -178,8 +178,29 @@ pub struct ModifierDefinition {
     pub counters: CounterSchema,
     pub merge: MergePolicy,
     pub remove_at_zero: Option<FieldId>,
+    pub damage: Option<DamageModifierDefinition>,
     #[serde(skip)]
     pub handlers: HashMap<EventKind, HandlerId>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DamageDirection {
+    Outgoing,
+    Incoming,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DamageModifierDefinition {
+    pub direction: DamageDirection,
+    pub elements: Vec<crate::Element>,
+    pub delta: Counter,
+    pub set_element: Option<crate::Element>,
+    pub counter: Option<String>,
+    pub consume: Counter,
+    pub shield: Option<String>,
+    pub active_only: bool,
+    pub include_piercing: bool,
 }
 
 #[derive(Debug, Serialize)]
