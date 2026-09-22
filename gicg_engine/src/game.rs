@@ -245,6 +245,19 @@ impl Game {
     }
 
     pub fn choose(&mut self, decision_id: crate::DecisionId, option: usize) -> Result<()> {
+        let (decision, selected) = self.take_decision(decision_id, option)?;
+        match decision.kind {
+            DecisionKind::Choice => self.continue_choice(decision_id, selected)?,
+            DecisionKind::ForcedSwitch => self.force_switch(decision.player, selected)?,
+        }
+        self.drain()
+    }
+
+    fn take_decision(
+        &mut self,
+        decision_id: crate::DecisionId,
+        option: usize,
+    ) -> Result<(Decision, ChoiceOption)> {
         let decision = self.state.decision.take().ok_or_else(|| {
             EngineError::InvalidCommand(format!("decision {decision_id} is not active"))
         })?;
@@ -259,39 +272,42 @@ impl Game {
                 "option {option} is invalid for decision {decision_id}"
             ))
         })?;
-        match decision.kind {
-            DecisionKind::Choice => {
-                let pending = self.pending.take().ok_or_else(|| {
-                    EngineError::Rule(format!("decision {decision_id} has no continuation"))
-                })?;
-                let mut context = pending.context;
-                context.option = Some(selected.id);
-                self.enqueue_handler(pending.handler, context)?;
-            }
-            DecisionKind::ForcedSwitch => {
-                let slot = selected.id.parse::<u8>().map_err(|error| {
-                    EngineError::Rule(format!(
-                        "forced switch option {:?} is invalid: {error}",
-                        selected.id
-                    ))
-                })?;
-                let player = decision.player;
-                let actor = self.state.active_character(player);
-                self.state.players[usize::from(player)].active = slot;
-                let target = self.state.active_character(player);
-                self.emit(Event {
-                    kind: EventKind::Switch,
-                    actor: Some(actor),
-                    source: Some(actor),
-                    target: Some(target),
-                    player,
-                    action_id: Some("forced_switch".to_owned()),
-                    element: None,
-                    amount: 0,
-                })?;
-            }
-        }
-        self.drain()
+        Ok((decision, selected))
+    }
+
+    fn continue_choice(
+        &mut self,
+        decision_id: crate::DecisionId,
+        selected: ChoiceOption,
+    ) -> Result<()> {
+        let pending = self.pending.take().ok_or_else(|| {
+            EngineError::Rule(format!("decision {decision_id} has no continuation"))
+        })?;
+        let mut context = pending.context;
+        context.option = Some(selected.id);
+        self.enqueue_handler(pending.handler, context)
+    }
+
+    fn force_switch(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
+        let slot = selected.id.parse::<u8>().map_err(|error| {
+            EngineError::Rule(format!(
+                "forced switch option {:?} is invalid: {error}",
+                selected.id
+            ))
+        })?;
+        let actor = self.state.active_character(player);
+        self.state.players[usize::from(player)].active = slot;
+        let target = self.state.active_character(player);
+        self.emit(Event {
+            kind: EventKind::Switch,
+            actor: Some(actor),
+            source: Some(actor),
+            target: Some(target),
+            player,
+            action_id: Some("forced_switch".to_owned()),
+            element: None,
+            amount: 0,
+        })
     }
 
     fn submit_character_action(
@@ -612,6 +628,16 @@ impl Game {
     }
 
     fn drain(&mut self) -> Result<()> {
+        if self.drain_effects()? || self.state.decision.is_some() || !self.effects.is_empty() {
+            return Ok(());
+        }
+        if self.emit_action_resolved()? {
+            return self.drain();
+        }
+        self.finish_active_action()
+    }
+
+    fn drain_effects(&mut self) -> Result<bool> {
         while self.state.decision.is_none() {
             let Some(effect) = self.effects.pop_front() else {
                 break;
@@ -620,33 +646,38 @@ impl Game {
             if self.state.phase == Phase::Finished {
                 self.effects.clear();
                 self.active = None;
-                return Ok(());
+                return Ok(true);
             }
         }
-        if self.state.decision.is_some() || !self.effects.is_empty() {
-            return Ok(());
-        }
+        Ok(false)
+    }
+
+    fn emit_action_resolved(&mut self) -> Result<bool> {
         let Some(active) = &mut self.active else {
+            return Ok(false);
+        };
+        if active.emitted_resolved {
+            return Ok(false);
+        }
+        active.emitted_resolved = true;
+        let event = Event {
+            kind: EventKind::ActionResolved,
+            actor: Some(active.actor),
+            source: Some(active.actor),
+            target: None,
+            player: active.player,
+            action_id: Some(active.definition.id.clone()),
+            element: None,
+            amount: 0,
+        };
+        self.emit(event)?;
+        Ok(!self.effects.is_empty())
+    }
+
+    fn finish_active_action(&mut self) -> Result<()> {
+        let Some(active) = self.active.take() else {
             return Ok(());
         };
-        if !active.emitted_resolved {
-            active.emitted_resolved = true;
-            let event = Event {
-                kind: EventKind::ActionResolved,
-                actor: Some(active.actor),
-                source: Some(active.actor),
-                target: None,
-                player: active.player,
-                action_id: Some(active.definition.id.clone()),
-                element: None,
-                amount: 0,
-            };
-            self.emit(event)?;
-            if !self.effects.is_empty() {
-                return self.drain();
-            }
-        }
-        let active = self.active.take().expect("active action exists");
         if active.definition.tempo == ActionTempo::Combat {
             let opponent = 1 - active.player;
             if !self.state.players[usize::from(opponent)].ended {
@@ -662,42 +693,22 @@ impl Game {
                 target,
                 name,
                 value,
-            } => {
-                let target = resolve_target(&self.state, &queued.context, target)?;
-                self.state
-                    .set_counter(self.runtime.rules(), target, &name, value)?;
-                self.remove_exhausted(target)
-            }
+            } => self.set_counter(&queued.context, target, &name, value),
             Effect::AddCounter {
                 target,
                 name,
                 delta,
-            } => {
-                let target = resolve_target(&self.state, &queued.context, target)?;
-                let current = self.state.counter(self.runtime.rules(), target, &name)?;
-                let (min, max) = self
-                    .state
-                    .counter_range(self.runtime.rules(), target, &name)?;
-                let value = current.saturating_add(delta).clamp(min, max);
-                self.state
-                    .set_counter(self.runtime.rules(), target, &name, value)?;
-                self.remove_exhausted(target)
-            }
+            } => self.add_counter(&queued.context, target, &name, delta),
             Effect::Damage {
                 target,
                 element,
                 amount,
-            } => {
-                let target = resolve_target(&self.state, &queued.context, target)?;
-                self.apply_damage(queued.context, target, element, amount)
-            }
+            } => self.damage(&queued.context, target, element, amount),
             Effect::AddModifier { target, definition } => {
-                let target = resolve_target(&self.state, &queued.context, target)?;
-                self.add_modifier(target, definition)
+                self.add_modifier_effect(&queued.context, target, definition)
             }
             Effect::RemoveModifier { target, reason } => {
-                let target = resolve_target(&self.state, &queued.context, target)?;
-                self.remove_modifier(target, reason)
+                self.remove_modifier_effect(&queued.context, target, reason)
             }
             Effect::Choice {
                 player,
@@ -705,10 +716,81 @@ impl Game {
                 continuation,
             } => self.create_choice(player, options, &continuation, queued.context),
             Effect::ActivateAbility { target, ability } => {
-                let target = resolve_target(&self.state, &queued.context, target)?;
-                self.activate_ability(target, &ability, queued.context)
+                self.activate_effect(queued.context, target, &ability)
             }
         }
+    }
+
+    fn set_counter(
+        &mut self,
+        context: &RuleContext,
+        target: crate::TargetRef,
+        name: &str,
+        value: i32,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        self.state
+            .set_counter(self.runtime.rules(), target, name, value)?;
+        self.remove_exhausted(target)
+    }
+
+    fn add_counter(
+        &mut self,
+        context: &RuleContext,
+        target: crate::TargetRef,
+        name: &str,
+        delta: i32,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        let current = self.state.counter(self.runtime.rules(), target, name)?;
+        let (min, max) = self
+            .state
+            .counter_range(self.runtime.rules(), target, name)?;
+        let value = current.saturating_add(delta).clamp(min, max);
+        self.state
+            .set_counter(self.runtime.rules(), target, name, value)?;
+        self.remove_exhausted(target)
+    }
+
+    fn damage(
+        &mut self,
+        context: &RuleContext,
+        target: crate::TargetRef,
+        element: crate::Element,
+        amount: i32,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        self.apply_damage(context.clone(), target, element, amount)
+    }
+
+    fn add_modifier_effect(
+        &mut self,
+        context: &RuleContext,
+        target: crate::TargetRef,
+        definition: u32,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        self.add_modifier(target, definition)
+    }
+
+    fn remove_modifier_effect(
+        &mut self,
+        context: &RuleContext,
+        target: crate::TargetRef,
+        reason: RemovalReason,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        self.remove_modifier(target, reason)
+    }
+
+    fn activate_effect(
+        &mut self,
+        context: RuleContext,
+        target: crate::TargetRef,
+        ability: &str,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, &context, target)?;
+        self.activate_ability(target, ability, context)
     }
 
     fn apply_damage(
@@ -808,16 +890,7 @@ impl Game {
             })?
             .clone();
         let player = target.player();
-        let host = match (definition.zone, target) {
-            (Zone::Character, EntityRef::Character { slot, .. }) => slot,
-            (Zone::Character, _) => {
-                return Err(EngineError::Rule(format!(
-                    "character modifier {:?} requires a character target",
-                    definition.id
-                )));
-            }
-            _ => 0,
-        };
+        let host = modifier_host(&definition, target)?;
         let existing_index = if definition.merge == MergePolicy::Independent {
             None
         } else {
@@ -830,28 +903,7 @@ impl Game {
             let existing = &mut self
                 .state
                 .modifier_list_mut(player, definition.zone, host)?[existing_index];
-            match definition.merge {
-                MergePolicy::Replace => {
-                    existing.counters = definition.counters.initial_values();
-                }
-                MergePolicy::Add | MergePolicy::Max => {
-                    for (index, incoming) in
-                        definition.counters.initial_values().into_iter().enumerate()
-                    {
-                        let field = definition
-                            .counters
-                            .definition(index as u16)
-                            .expect("counter field exists");
-                        let value = if definition.merge == MergePolicy::Add {
-                            existing.counters[index].saturating_add(incoming)
-                        } else {
-                            existing.counters[index].max(incoming)
-                        };
-                        existing.counters[index] = value.clamp(field.min, field.max);
-                    }
-                }
-                MergePolicy::Independent => unreachable!(),
-            }
+            merge_modifier(existing, &definition);
             return Ok(());
         }
         let instance = self.state.next_instance;
@@ -1031,6 +1083,36 @@ impl Game {
             }
         }
         Ok(alive)
+    }
+}
+
+fn modifier_host(definition: &crate::ModifierDefinition, target: EntityRef) -> Result<u8> {
+    match (definition.zone, target) {
+        (Zone::Character, EntityRef::Character { slot, .. }) => Ok(slot),
+        (Zone::Character, _) => Err(EngineError::Rule(format!(
+            "character modifier {:?} requires a character target",
+            definition.id
+        ))),
+        _ => Ok(0),
+    }
+}
+
+fn merge_modifier(existing: &mut ModifierState, definition: &crate::ModifierDefinition) {
+    if definition.merge == MergePolicy::Replace {
+        existing.counters = definition.counters.initial_values();
+        return;
+    }
+    for (index, incoming) in definition.counters.initial_values().into_iter().enumerate() {
+        let field = definition
+            .counters
+            .definition(index as u16)
+            .expect("counter field exists");
+        let value = match definition.merge {
+            MergePolicy::Add => existing.counters[index].saturating_add(incoming),
+            MergePolicy::Max => existing.counters[index].max(incoming),
+            MergePolicy::Replace | MergePolicy::Independent => unreachable!(),
+        };
+        existing.counters[index] = value.clamp(field.min, field.max);
     }
 }
 

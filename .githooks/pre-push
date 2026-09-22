@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+
+python=.venv/bin/python
+maturin=.venv/bin/maturin
+
+if [ ! -x "$python" ] || [ ! -x "$maturin" ]; then
+    echo "missing .venv; run: python3 -m venv .venv && .venv/bin/python -m pip install -e '.[dev]'" >&2
+    exit 1
+fi
+
+cargo test --workspace
+"$maturin" develop --quiet
+"$python" -m compileall -q python web
+node --check web/static/app.js
+"$python" -c "from gicg_env import GameSession; from web.app import create_app; assert GameSession and create_app().title"

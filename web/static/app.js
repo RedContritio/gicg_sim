@@ -1,5 +1,14 @@
 const diceNames = ["冰", "水", "火", "雷", "风", "岩", "草", "万能"];
-const elementNames = { cryo: "冰元素", hydro: "水元素", pyro: "火元素", electro: "雷元素", anemo: "风元素", geo: "岩元素", dendro: "草元素", physical: "物理" };
+const elementNames = {
+  cryo: "冰元素",
+  hydro: "水元素",
+  pyro: "火元素",
+  electro: "雷元素",
+  anemo: "风元素",
+  geo: "岩元素",
+  dendro: "草元素",
+  physical: "物理",
+};
 const elementDice = { cryo: 0, hydro: 1, pyro: 2, electro: 3, anemo: 4, geo: 5, dendro: 6 };
 const dieSides = [
   [1, 7, 6],
@@ -11,7 +20,12 @@ const dieSides = [
   [5, 2, 0],
   [0, 4, 5],
 ];
-const phaseNames = { redraw: "选择要替换的起始手牌", roll: "选择要重掷的元素骰", action: "行动阶段", finished: "对局结束" };
+const phaseNames = {
+  redraw: "选择要替换的起始手牌",
+  roll: "选择要重掷的元素骰",
+  action: "行动阶段",
+  finished: "对局结束",
+};
 let gameId;
 let state;
 let selected = new Set();
@@ -35,7 +49,10 @@ async function start() {
 async function request(path, options = {}, creating = false) {
   notice.classList.add("hidden");
   try {
-    const response = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
+    const response = await fetch(path, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "操作失败");
     if (creating) {
@@ -55,12 +72,14 @@ async function request(path, options = {}, creating = false) {
 
 function render() {
   round.textContent = `第 ${state.round} 回合`;
-  status.textContent = state.phase === "finished"
-    ? `玩家 ${state.winner + 1} 获胜`
-    : `玩家 ${state.turn + 1} · ${phaseNames[state.phase]}`;
-  const players = state.phase === "finished"
-    ? state.players
-    : [state.players[1 - state.turn], state.players[state.turn]];
+  status.textContent =
+    state.phase === "finished"
+      ? `玩家 ${state.winner + 1} 获胜`
+      : `玩家 ${state.turn + 1} · ${phaseNames[state.phase]}`;
+  const players =
+    state.phase === "finished"
+      ? state.players
+      : [state.players[1 - state.turn], state.players[state.turn]];
   board.replaceChildren(...players.map(playerView));
   renderPhaseControl();
   renderDecision();
@@ -79,7 +98,7 @@ function playerView(player) {
     <div class="meters">
       ${meter("生命", hp)}
       ${meter("充能", energy, "energy")}
-      ${player.combat.map(modifier => `<div class="modifier">${modifier.name} · ${modifier.counters.map(value => `${value.name} ${value.value}`).join(" / ")}</div>`).join("")}
+      ${player.combat.map((modifier) => `<div class="modifier">${modifier.name} · ${modifier.counters.map((value) => `${value.name} ${value.value}`).join(" / ")}</div>`).join("")}
     </div>`;
 
   const center = node("div");
@@ -90,8 +109,14 @@ function playerView(player) {
   for (const action of character.actions) {
     const button = node("button", "action");
     button.innerHTML = `<strong>${action.name}</strong><span class="detail">${costText(action.cost)} · ${action.tempo === "fast" ? "快速行动" : "战斗行动"}</span>`;
-    button.disabled = !current || state.phase !== "action" || !!state.decision || !hasCounters(character, action.cost);
-    button.addEventListener("click", () => openPayment({ kind: "skill", action: action.id }, action.name, action.cost, player));
+    button.disabled =
+      !current ||
+      state.phase !== "action" ||
+      !!state.decision ||
+      !hasCounters(character, action.cost);
+    button.addEventListener("click", () =>
+      openPayment({ kind: "skill", action: action.id }, action.name, action.cost, player),
+    );
     actions.append(button);
   }
   center.append(heading, actions, handView(player, current));
@@ -118,12 +143,16 @@ function handView(player, current) {
   hand.append(nodeText("p", "section-title", `手牌 · ${player.hand.length}`));
   if (!current && state.phase !== "finished") {
     const backs = node("div", "card-backs");
-    for (let index = 0; index < player.hand.length; index++) backs.append(nodeText("span", "card-back", "✧"));
+    for (let index = 0; index < player.hand.length; index++)
+      backs.append(nodeText("span", "card-back", "✧"));
     hand.append(backs);
     return hand;
   }
   for (const card of player.hand) {
-    const wrapper = node("div", `card${state.phase === "redraw" && selected.has(card.hand) ? " selected" : ""}`);
+    const wrapper = node(
+      "div",
+      `card${state.phase === "redraw" && selected.has(card.hand) ? " selected" : ""}`,
+    );
     const title = node("button", "card-main");
     title.innerHTML = `<strong>${card.name}</strong><span class="detail">${card.description}<br>${costText(card.cost)} · 快速行动</span>`;
     title.disabled = !current || !["redraw", "action"].includes(state.phase) || !!state.decision;
@@ -150,12 +179,18 @@ function renderPhaseControl() {
   if (state.phase === "redraw") {
     control.append(nodeText("strong", "", `已选择 ${selected.size} 张手牌`));
     const confirm = nodeText("button", "confirm", selected.size ? "替换所选手牌" : "保留起始手牌");
-    confirm.addEventListener("click", () => act({ kind: "redraw", selected: [...selected].sort((a, b) => a - b) }));
+    confirm.addEventListener("click", () =>
+      act({ kind: "redraw", selected: [...selected].sort((a, b) => a - b) }),
+    );
     control.append(confirm);
   } else {
     const player = state.players[state.turn];
     control.append(selectableDice(player.dice, true));
-    const confirm = nodeText("button", "confirm", selected.size ? `重掷 ${selected.size} 枚` : "保留全部骰子");
+    const confirm = nodeText(
+      "button",
+      "confirm",
+      selected.size ? `重掷 ${selected.size} 枚` : "保留全部骰子",
+    );
     confirm.addEventListener("click", () => act({ kind: "reroll", payment: selectedCounts() }));
     control.append(confirm);
   }
@@ -169,7 +204,12 @@ function openPayment(command, title, cost, player) {
 }
 
 function openTune(hand, player) {
-  pending = { type: "tune", hand, player, target: elementDice[player.characters[player.active].element] };
+  pending = {
+    type: "tune",
+    hand,
+    player,
+    target: elementDice[player.characters[player.active].element],
+  };
   selected = new Set();
   renderDialog();
 }
@@ -182,19 +222,36 @@ function renderDialog() {
   }
   const panel = node("div", "dialog-panel");
   panel.append(nodeText("h2", "", pending.type === "payment" ? pending.title : "元素调和"));
-  panel.append(nodeText("p", "detail", pending.type === "payment" ? `请选择 ${costText(pending.cost)}` : `选择 1 枚要转化为${diceNames[pending.target]}元素的骰子`));
+  panel.append(
+    nodeText(
+      "p",
+      "detail",
+      pending.type === "payment"
+        ? `请选择 ${costText(pending.cost)}`
+        : `选择 1 枚要转化为${diceNames[pending.target]}元素的骰子`,
+    ),
+  );
   panel.append(selectableDice(pending.player.dice, false, pending.type === "tune", pending.target));
   const footer = node("div", "dialog-actions");
   const cancel = nodeText("button", "ghost", "取消");
   cancel.addEventListener("click", closeDialog);
-  const confirm = nodeText("button", "confirm", pending.type === "payment" ? "确认支付" : "确认调和");
+  const confirm = nodeText(
+    "button",
+    "confirm",
+    pending.type === "payment" ? "确认支付" : "确认调和",
+  );
   if (pending.type === "payment") {
     confirm.disabled = !validPayment(selectedCounts(), pending.cost);
     confirm.addEventListener("click", () => act({ ...pending.command, payment: selectedCounts() }));
   } else {
     const chosen = [...selected];
-    confirm.disabled = chosen.length !== 1 || chosen[0].startsWith("7-") || chosen[0].startsWith(`${pending.target}-`);
-    confirm.addEventListener("click", () => act({ kind: "tune", hand: pending.hand, die: Number([...selected][0].split("-")[0]) }));
+    confirm.disabled =
+      chosen.length !== 1 ||
+      chosen[0].startsWith("7-") ||
+      chosen[0].startsWith(`${pending.target}-`);
+    confirm.addEventListener("click", () =>
+      act({ kind: "tune", hand: pending.hand, die: Number([...selected][0].split("-")[0]) }),
+    );
   }
   footer.append(cancel, confirm);
   panel.append(footer);
@@ -209,7 +266,10 @@ function selectableDice(pool, reroll, tune = false, tuneTarget = -1) {
       const id = `${color}-${ordinal}`;
       const button = node("button", `die-token${selected.has(id) ? " selected" : ""}`);
       button.innerHTML = dieSvg(color);
-      button.setAttribute("aria-label", `${diceNames[color]}元素骰${selected.has(id) ? "，已选择" : ""}`);
+      button.setAttribute(
+        "aria-label",
+        `${diceNames[color]}元素骰${selected.has(id) ? "，已选择" : ""}`,
+      );
       if (tune && (color === tuneTarget || color === 7)) button.disabled = true;
       button.addEventListener("click", () => {
         if (tune) selected.clear();
@@ -235,7 +295,9 @@ function toggleSelected(index) {
 
 function selectedCounts() {
   const counts = Array(8).fill(0);
-  selected.forEach(id => { counts[Number(String(id).split("-")[0])] += 1; });
+  selected.forEach((id) => {
+    counts[Number(String(id).split("-")[0])] += 1;
+  });
   return counts;
 }
 
@@ -243,7 +305,9 @@ function validPayment(payment, cost) {
   const total = payment.reduce((sum, value) => sum + value, 0);
   const required = cost.dice.reduce((sum, value) => sum + value, 0) + cost.any;
   if (total !== required) return false;
-  const missing = cost.dice.slice(0, 7).reduce((sum, value, index) => sum + Math.max(0, value - payment[index]), 0);
+  const missing = cost.dice
+    .slice(0, 7)
+    .reduce((sum, value, index) => sum + Math.max(0, value - payment[index]), 0);
   return payment[7] >= missing;
 }
 
@@ -280,7 +344,12 @@ function renderDecision() {
   decision.replaceChildren(nodeText("div", "", `玩家 ${state.decision.player + 1} 请选择`));
   state.decision.options.forEach((option, index) => {
     const button = nodeText("button", "", option.label);
-    button.addEventListener("click", () => request(`/api/games/${gameId}/choices`, { method: "POST", body: JSON.stringify({ decision: state.decision.id, option: index }) }));
+    button.addEventListener("click", () =>
+      request(`/api/games/${gameId}/choices`, {
+        method: "POST",
+        body: JSON.stringify({ decision: state.decision.id, option: index }),
+      }),
+    );
     decision.append(button);
   });
   decision.classList.remove("hidden");
@@ -291,23 +360,29 @@ function act(body) {
 }
 
 function hasCounters(character, cost) {
-  return cost.counters.every(required => counter(character, required.name).value >= required.require);
+  return cost.counters.every(
+    (required) => counter(character, required.name).value >= required.require,
+  );
 }
 
 function counter(character, name) {
-  return character.counters.find(value => value.name === name);
+  return character.counters.find((value) => value.name === name);
 }
 
 function costText(cost) {
   const parts = [];
-  cost.dice.forEach((count, index) => { if (count) parts.push(`${diceNames[index]} ${count}`); });
+  cost.dice.forEach((count, index) => {
+    if (count) parts.push(`${diceNames[index]} ${count}`);
+  });
   if (cost.any) parts.push(`任意 ${cost.any}`);
-  cost.counters.forEach(value => parts.push(`${value.name === "energy" ? "充能" : value.name} ${value.require}`));
+  cost.counters.forEach((value) => {
+    parts.push(`${value.name === "energy" ? "充能" : value.name} ${value.require}`);
+  });
   return parts.length ? parts.join(" · ") : "无消耗";
 }
 
 function meter(label, value, className = "") {
-  return `<div><div class="meter-line"><span>${label}</span><span>${value.value} / ${value.max}</span></div><div class="meter ${className}"><i style="width:${value.value / value.max * 100}%"></i></div></div>`;
+  return `<div><div class="meter-line"><span>${label}</span><span>${value.value} / ${value.max}</span></div><div class="meter ${className}"><i style="width:${(value.value / value.max) * 100}%"></i></div></div>`;
 }
 
 function node(tag, className = "") {

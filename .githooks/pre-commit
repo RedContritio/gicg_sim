@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+
+python=.venv/bin/python
+bin=.venv/bin
+biome=node_modules/.bin/biome
+
+if [ ! -x "$python" ]; then
+    echo "missing .venv; run: python3 -m venv .venv && .venv/bin/python -m pip install -e '.[dev]'" >&2
+    exit 1
+fi
+if [ ! -x "$bin/ruff" ] || [ ! -x "$bin/lizard" ] || [ ! -x "$bin/check-toml" ]; then
+    echo "missing Python development tools; run: .venv/bin/python -m pip install -e '.[dev]'" >&2
+    exit 1
+fi
+if [ ! -x "$biome" ]; then
+    echo "missing Biome; run: npm install" >&2
+    exit 1
+fi
+if [ ! -f AGENTS.md ]; then
+    echo "AGENTS.md must remain at the repository root" >&2
+    exit 1
+fi
+
+git diff --cached --check
+git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/check-merge-conflict"
+git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/detect-private-key"
+git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/check-added-large-files" --maxkb=5120
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.toml' | xargs -0 "$bin/check-toml"
+
+"$python" -m ruff format --check python web
+"$python" -m ruff check python web
+"$biome" check web/static
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+"$python" -m lizard -C 10 -w gicg_engine gicg_env python web data/native_latest
+cargo test -p gicg-engine --test kaeya opening_cards_and_round_transition_follow_match_flow --quiet

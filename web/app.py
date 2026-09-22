@@ -11,7 +11,6 @@ from pydantic import BaseModel, Field
 
 from gicg_env import GameSession
 
-
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "web" / "static"
 
@@ -35,13 +34,46 @@ class Choice(BaseModel):
     option: int
 
 
+def snapshot(session: GameSession) -> dict:
+    return json.loads(session.snapshot_json())
+
+
+def dispatch(session: GameSession, action: Action) -> str:
+    match action.kind:
+        case "redraw":
+            return session.redraw(action.selected)
+        case "reroll":
+            return session.reroll(action.payment)
+        case "end":
+            return session.end_round()
+        case _:
+            return dispatch_parameterized(session, action)
+
+
+def dispatch_parameterized(session: GameSession, action: Action) -> str:
+    match action.kind:
+        case "skill" if action.action is not None:
+            return session.action(action.action, action.payment)
+        case "card" if action.hand is not None:
+            return session.play_card(action.hand, action.payment)
+        case _:
+            return dispatch_board_action(session, action)
+
+
+def dispatch_board_action(session: GameSession, action: Action) -> str:
+    match action.kind:
+        case "tune" if action.hand is not None and action.die is not None:
+            return session.tune(action.hand, action.die)
+        case "switch" if action.slot is not None:
+            return session.switch(action.slot, action.payment)
+        case _:
+            raise HTTPException(422, "行动参数不完整")
+
+
 def create_app(config_path: Path | None = None) -> FastAPI:
     config = load_config(config_path or ROOT / "configs" / "web" / "local.toml")
     games: dict[str, GameSession] = {}
     app = FastAPI(title="七圣召唤")
-
-    def state(session: GameSession) -> dict:
-        return json.loads(session.snapshot_json())
 
     def game(game_id: str) -> GameSession:
         try:
@@ -61,32 +93,17 @@ def create_app(config_path: Path | None = None) -> FastAPI:
         )
         game_id = secrets.token_urlsafe(12)
         games[game_id] = session
-        return {"game_id": game_id, "state": state(session)}
+        return {"game_id": game_id, "state": snapshot(session)}
 
     @app.get("/api/games/{game_id}")
     async def inspect(game_id: str) -> dict:
-        return state(game(game_id))
+        return snapshot(game(game_id))
 
     @app.post("/api/games/{game_id}/actions")
     async def act(game_id: str, body: Action) -> dict:
         session = game(game_id)
         try:
-            if body.kind == "redraw":
-                result = session.redraw(body.selected)
-            elif body.kind == "reroll":
-                result = session.reroll(body.payment)
-            elif body.kind == "skill" and body.action is not None:
-                result = session.action(body.action, body.payment)
-            elif body.kind == "card" and body.hand is not None:
-                result = session.play_card(body.hand, body.payment)
-            elif body.kind == "tune" and body.hand is not None and body.die is not None:
-                result = session.tune(body.hand, body.die)
-            elif body.kind == "switch" and body.slot is not None:
-                result = session.switch(body.slot, body.payment)
-            elif body.kind == "end":
-                result = session.end_round()
-            else:
-                raise HTTPException(422, "行动参数不完整")
+            result = dispatch(session, body)
         except RuntimeError as error:
             raise HTTPException(409, str(error)) from error
         return json.loads(result)

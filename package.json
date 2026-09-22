@@ -1,0 +1,10 @@
+{
+  "name": "gicg-web",
+  "private": true,
+  "scripts": {
+    "check": "biome check web/static"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14"
+  }
+}

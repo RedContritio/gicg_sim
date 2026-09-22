@@ -29,6 +29,7 @@ configs/       train / eval / web 完整配置
 
 - 测试只覆盖规则结果、跨语言边界、训练闭环、评测统计和 Web 主流程。
 - 不测试内部拆分、导入路径、兼容别名、历史入口或输入校验。
+- 单个函数的圈复杂度不得超过 10；Rust、Python、JavaScript 和 Lua 统一由 Lizard 检查，Python 同时启用 Ruff `C901`。
 
 ## 配置与产物
 
@@ -39,6 +40,8 @@ configs/       train / eval / web 完整配置
 ## 验证与提交
 
 - 验证范围与风险匹配；Rust 优先运行 `cargo test --workspace` 与 `cargo clippy --workspace --all-targets -- -D warnings`。
+- `pre-commit` 只执行快速、只读的格式、静态分析、复杂度和仓库卫生检查；完整测试放在 `pre-push`。
+- hook 缺少依赖时必须直接失败并给出安装命令，不得联网安装、静默跳过或自动修改文件。
 - 提交信息准确描述交付结果，不描述中间过程。
 
 ## 用户可见内容
