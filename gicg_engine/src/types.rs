@@ -239,6 +239,7 @@ pub enum EventKind {
     ActionResolved,
     DamageApplied,
     Healed,
+    Revived,
     Switch,
     ModifierAdded,
     ModifierRemoved,

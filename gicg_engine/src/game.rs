@@ -1109,6 +1109,7 @@ impl Game {
                 amount,
             } => self.damage(&queued.context, target, element, amount),
             Effect::Heal { target, amount } => self.heal(&queued.context, target, amount),
+            Effect::Revive { target, amount } => self.revive(&queued.context, target, amount),
             Effect::AddModifier { target, definition } => {
                 self.add_modifier_effect(&queued.context, target, &definition)
             }
@@ -1205,6 +1206,46 @@ impl Game {
             element: None,
             reaction: None,
             amount: healed,
+        })
+    }
+
+    fn revive(
+        &mut self,
+        context: &RuleContext,
+        target: crate::TargetRef,
+        amount: u32,
+    ) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        let EntityRef::Character { player, .. } = target else {
+            return Err(EngineError::Rule(format!(
+                "revive target {target:?} is not a character"
+            )));
+        };
+        let hp = self.state.counter(self.runtime.rules(), target, "hp")?;
+        if hp != 0 {
+            return Err(EngineError::Rule(
+                "cannot revive a living character".to_owned(),
+            ));
+        }
+        let (_, maximum) = self
+            .state
+            .counter_range(self.runtime.rules(), target, "hp")?;
+        let restored = i32::try_from(amount)
+            .map_err(|_| EngineError::Rule(format!("revive amount {amount} overflows i32")))?
+            .min(maximum);
+        self.state
+            .set_counter(self.runtime.rules(), target, "hp", restored)?;
+        self.emit(Event {
+            kind: EventKind::Revived,
+            actor: context.actor,
+            source: context.source,
+            target: Some(target),
+            player: context.source.map_or(player, EntityRef::player),
+            action_id: context.action_id.clone(),
+            skill: context.skill,
+            element: None,
+            reaction: None,
+            amount: restored,
         })
     }
 

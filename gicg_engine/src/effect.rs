@@ -45,6 +45,10 @@ pub enum Effect {
         target: TargetRef,
         amount: u32,
     },
+    Revive {
+        target: TargetRef,
+        amount: u32,
+    },
     AddModifier {
         target: TargetRef,
         definition: String,

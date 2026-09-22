@@ -8,6 +8,18 @@ fn omni(count: u8) -> DiceSet {
     dice
 }
 
+fn take(dice: DiceSet, count: u8) -> DiceSet {
+    let mut payment = DiceSet::default();
+    let mut remaining = count;
+    for die in Die::ALL {
+        let selected = dice.get(die).min(remaining);
+        payment.set(die, selected);
+        remaining -= selected;
+    }
+    assert_eq!(remaining, 0);
+    payment
+}
+
 #[test]
 fn cards_select_healing_targets_and_draw_from_the_deck() {
     let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
@@ -269,4 +281,56 @@ fn food_modifies_only_the_matching_skill_kind() {
     game.submit(Command::End).unwrap();
     game.submit(Command::End).unwrap();
     assert!(!game.state.players[0].characters[0].satiated);
+}
+
+#[test]
+fn revival_targets_only_defeated_characters() {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let mut game = ready_with_cards(["splash", "teyvat_fried_egg"]);
+    game.submit(Command::Skill {
+        action: "frostgnaw".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    game.submit(Command::End).unwrap();
+    for _ in 0..3 {
+        game.submit(Command::Skill {
+            action: "frostgnaw".to_owned(),
+            payment: omni(3),
+        })
+        .unwrap();
+    }
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    game.submit(Command::End).unwrap();
+    for _ in 0..2 {
+        game.submit(Command::Reroll {
+            payment: DiceSet::default(),
+        })
+        .unwrap();
+    }
+
+    assert!(game.action_previews().unwrap()[1].cards[0].playable);
+    let payment = take(game.state.players[1].dice, 3);
+    game.submit(Command::Card { hand: 0, payment }).unwrap();
+    let decision = game.state.decision.as_ref().unwrap();
+    assert_eq!(decision.options.len(), 1);
+    game.choose(decision.id, 0).unwrap();
+    assert_eq!(
+        game.state
+            .counter(
+                runtime.rules(),
+                EntityRef::Character { player: 1, slot: 0 },
+                "hp"
+            )
+            .unwrap(),
+        3
+    );
+    assert!(game.state.players[1].characters[0].satiated);
+    assert!(
+        game.state
+            .history
+            .iter()
+            .any(|event| event.kind == gicg_engine::EventKind::Revived)
+    );
 }

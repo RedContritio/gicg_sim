@@ -275,6 +275,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function heal(target, amount)
             return { kind = "heal", target = target, amount = amount }
         end
+        function revive(target, amount)
+            return { kind = "revive", target = target, amount = amount }
+        end
         function add_modifier(target, definition)
             return { kind = "add_modifier", target = target, definition = definition }
         end
