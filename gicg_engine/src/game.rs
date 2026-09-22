@@ -220,7 +220,7 @@ impl Game {
             switch_action(),
             ActionTraits::default(),
         )?;
-        switch.playable = self.alive_slots(player)?.len() > 1;
+        switch.playable &= self.alive_slots(player)?.len() > 1;
         let cards = self.state.players[player]
             .hand
             .iter()
@@ -236,7 +236,7 @@ impl Game {
                     card.action.clone(),
                     ActionTraits::default(),
                 )?;
-                preview.playable = self.card_playable(player, card)?;
+                preview.playable &= self.card_playable(player, card)?;
                 Ok(preview)
             })
             .collect::<Result<Vec<_>>>()?;
@@ -261,14 +261,14 @@ impl Game {
             dice: action.cost.dice,
             any: action.cost.any,
             same: action.cost.same,
-            playable: true,
+            playable: action.cost.can_pay(self.state.players[actor.player()].dice),
         })
     }
 
     fn preview_skill(&self, actor: EntityRef, action: ActionDefinition) -> Result<ActionPreview> {
         let traits = self.skill_traits(actor.player(), &action);
         let mut preview = self.preview_action(actor, ActionKind::Skill, action.clone(), traits)?;
-        preview.playable = self.skill_playable(actor, &action)?;
+        preview.playable &= self.skill_playable(actor, &action)?;
         Ok(preview)
     }
 

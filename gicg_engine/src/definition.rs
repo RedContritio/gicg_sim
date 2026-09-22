@@ -115,6 +115,40 @@ impl Cost {
         self.same == 0 || self.valid_same_payment(payment, (omni - missing) as u8)
     }
 
+    pub fn can_pay(&self, inventory: DiceSet) -> bool {
+        if self.dice_total() > inventory.total() {
+            return false;
+        }
+        if self.same == 0 {
+            return self.can_pay_after_same(inventory);
+        }
+        Die::ALL[..Die::Omni.index()].iter().copied().any(|die| {
+            let available = inventory.get(die).min(self.same);
+            (0..=available).any(|native| {
+                let omni = self.same - native;
+                if omni > inventory.get(Die::Omni) {
+                    return false;
+                }
+                let mut remaining = inventory;
+                remaining.0[die.index()] -= native;
+                remaining.0[Die::Omni.index()] -= omni;
+                self.can_pay_after_same(remaining)
+            })
+        })
+    }
+
+    fn can_pay_after_same(&self, inventory: DiceSet) -> bool {
+        let mut omni = inventory.get(Die::Omni);
+        for die in Die::ALL[..Die::Omni.index()].iter().copied() {
+            let missing = self.dice.get(die).saturating_sub(inventory.get(die));
+            if missing > omni {
+                return false;
+            }
+            omni -= missing;
+        }
+        true
+    }
+
     fn valid_same_payment(&self, payment: DiceSet, omni: u8) -> bool {
         let matching = Die::ALL[..Die::Omni.index()]
             .iter()

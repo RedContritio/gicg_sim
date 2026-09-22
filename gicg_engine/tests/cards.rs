@@ -235,6 +235,7 @@ fn equipment_and_supports_persist_in_their_zones() {
     mixed.set(Die::Hydro, 1);
     mixed.set(Die::Pyro, 1);
     game.state.players[0].dice = mixed;
+    assert!(!game.action_previews().unwrap()[0].cards[0].playable);
     assert!(
         game.submit(Command::Card {
             hand: 0,
@@ -245,6 +246,7 @@ fn equipment_and_supports_persist_in_their_zones() {
     let mut matching = DiceSet::default();
     matching.set(Die::Cryo, 3);
     game.state.players[0].dice = matching;
+    assert!(game.action_previews().unwrap()[0].cards[0].playable);
     game.submit(Command::Card {
         hand: 0,
         payment: matching,
