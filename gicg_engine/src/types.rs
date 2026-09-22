@@ -161,6 +161,7 @@ impl ActionTempo {
 pub enum EventKind {
     ActionResolved,
     DamageApplied,
+    Healed,
     Switch,
     ModifierAdded,
     ModifierRemoved,

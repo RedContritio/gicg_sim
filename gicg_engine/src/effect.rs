@@ -8,6 +8,7 @@ pub enum TargetRef {
     Source,
     EventTarget,
     OwnActive,
+    OwnOption,
     EnemyActive,
 }
 
@@ -18,6 +19,7 @@ impl TargetRef {
             "source" => Some(Self::Source),
             "target" => Some(Self::EventTarget),
             "own_active" => Some(Self::OwnActive),
+            "own_option" => Some(Self::OwnOption),
             "enemy_active" => Some(Self::EnemyActive),
             _ => None,
         }
@@ -35,6 +37,10 @@ pub enum Effect {
     Damage {
         target: TargetRef,
         element: Element,
+        amount: u32,
+    },
+    Heal {
+        target: TargetRef,
         amount: u32,
     },
     AddModifier {
@@ -61,8 +67,14 @@ pub enum Effect {
         die: Die,
         count: u8,
     },
+    Draw {
+        count: u8,
+    },
     Choice {
         options: Vec<ChoiceOption>,
+        continuation: String,
+    },
+    CharacterChoice {
         continuation: String,
     },
 }

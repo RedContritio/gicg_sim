@@ -271,6 +271,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function damage(target, element, amount)
             return { kind = "damage", target = target, element = element, amount = amount }
         end
+        function heal(target, amount)
+            return { kind = "heal", target = target, amount = amount }
+        end
         function add_modifier(target, definition)
             return { kind = "add_modifier", target = target, definition = definition }
         end
@@ -289,8 +292,14 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function add_dice(die, count)
             return { kind = "add_dice", die = die, count = count }
         end
+        function draw(count)
+            return { kind = "draw", count = count }
+        end
         function choose(continuation, options)
             return { kind = "choice", continuation = continuation, options = options }
+        end
+        function choose_character(continuation)
+            return { kind = "character_choice", continuation = continuation }
         end
         "#,
     )
@@ -335,6 +344,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
     let tempo = parse_tempo(&table, "fast")?;
     let cost = parse_optional_cost(&table, &CounterSchema::default())?;
     let resolve = add_table_handler(lua, state, &table, "resolve", &format!("card {id} resolve"))?;
+    let continuations = parse_continuations(lua, state, &table, &format!("card {id}"))?;
     Ok(CardDefinition {
         id: id.clone(),
         name: name.clone(),
@@ -345,7 +355,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
             tempo,
             cost,
             resolve,
-            continuations: HashMap::new(),
+            continuations,
         },
     })
 }
@@ -377,7 +387,8 @@ fn parse_action(
     let cost = parse_optional_cost(&table, counters)?;
     let label = format!("action {character_id}.{id} resolve");
     let resolve = add_table_handler(lua, state, &table, "resolve", &label)?;
-    let continuations = parse_continuations(lua, state, &table, character_id, &id)?;
+    let continuations =
+        parse_continuations(lua, state, &table, &format!("action {character_id}.{id}"))?;
     Ok(ActionDefinition {
         id,
         name,
@@ -569,8 +580,7 @@ fn parse_continuations(
     lua: &Lua,
     state: &mut LoadState,
     table: &Table,
-    character_id: &str,
-    action_id: &str,
+    owner: &str,
 ) -> mlua::Result<HashMap<String, HandlerId>> {
     let mut continuations = HashMap::new();
     let Some(entries) = table.get::<Option<Table>>("continue")? else {
@@ -578,7 +588,7 @@ fn parse_continuations(
     };
     for entry in entries.pairs::<String, Function>() {
         let (name, function) = entry?;
-        let label = format!("action {character_id}.{action_id} continuation {name}");
+        let label = format!("{owner} continuation {name}");
         continuations.insert(name, state.add_handler(lua, function, &label)?);
     }
     Ok(continuations)
@@ -862,9 +872,25 @@ pub(crate) fn resolve_target(
             .source
             .map(|source| state.active_character(source.player()))
             .ok_or_else(|| EngineError::Rule("context has no source".to_owned())),
+        TargetRef::OwnOption => resolve_own_option(state, context),
         TargetRef::EnemyActive => context
             .source
             .map(|source| state.active_character(1 - source.player()))
             .ok_or_else(|| EngineError::Rule("context has no source".to_owned())),
     }
+}
+
+fn resolve_own_option(state: &GameState, context: &RuleContext) -> Result<EntityRef> {
+    let player = context
+        .source
+        .map(EntityRef::player)
+        .ok_or_else(|| EngineError::Rule("context has no source".to_owned()))?;
+    let slot = context
+        .option
+        .as_deref()
+        .ok_or_else(|| EngineError::Rule("context has no option".to_owned()))?
+        .parse::<usize>()
+        .map_err(|error| EngineError::Rule(format!("invalid character option: {error}")))?;
+    state.character(player, slot)?;
+    Ok(EntityRef::Character { player, slot })
 }

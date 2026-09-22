@@ -652,6 +652,7 @@ impl Game {
                 element,
                 amount,
             } => self.damage(&queued.context, target, element, amount),
+            Effect::Heal { target, amount } => self.heal(&queued.context, target, amount),
             Effect::AddModifier { target, definition } => {
                 self.add_modifier_effect(&queued.context, target, &definition)
             }
@@ -670,10 +671,17 @@ impl Game {
             }
             Effect::AddCard { card } => self.add_card(&queued.context, &card),
             Effect::AddDice { die, count } => self.add_dice(&queued.context, die, count),
+            Effect::Draw { count } => {
+                self.draw(context_owner(&queued.context)?, usize::from(count));
+                Ok(())
+            }
             Effect::Choice {
                 options,
                 continuation,
             } => self.create_choice(options, &continuation, queued.context),
+            Effect::CharacterChoice { continuation } => {
+                self.create_character_choice(&continuation, queued.context)
+            }
         }
     }
 
@@ -710,6 +718,40 @@ impl Game {
         let amount = i32::try_from(amount)
             .map_err(|_| EngineError::Rule(format!("damage amount {amount} overflows i32")))?;
         self.apply_damage(context.clone(), target, element, amount)
+    }
+
+    fn heal(&mut self, context: &RuleContext, target: crate::TargetRef, amount: u32) -> Result<()> {
+        let target = resolve_target(&self.state, context, target)?;
+        let EntityRef::Character { player, .. } = target else {
+            return Err(EngineError::Rule(format!(
+                "healing target {target:?} is not a character"
+            )));
+        };
+        let hp = self.state.counter(self.runtime.rules(), target, "hp")?;
+        if hp <= 0 {
+            return Err(EngineError::Rule(
+                "cannot heal a defeated character".to_owned(),
+            ));
+        }
+        let (_, maximum) = self
+            .state
+            .counter_range(self.runtime.rules(), target, "hp")?;
+        let amount = i32::try_from(amount)
+            .map_err(|_| EngineError::Rule(format!("healing amount {amount} overflows i32")))?;
+        let healed = amount.min(maximum - hp);
+        self.state
+            .set_counter(self.runtime.rules(), target, "hp", hp + healed)?;
+        self.emit(Event {
+            kind: EventKind::Healed,
+            actor: context.actor,
+            source: context.source,
+            target: Some(target),
+            player: context.source.map_or(player, EntityRef::player),
+            action_id: context.action_id.clone(),
+            element: None,
+            reaction: None,
+            amount: healed,
+        })
     }
 
     fn add_modifier_effect(
@@ -1176,6 +1218,25 @@ impl Game {
         self.state.next_decision += 1;
         self.pending = Some(PendingDecision { handler, context });
         Ok(())
+    }
+
+    fn create_character_choice(&mut self, continuation: &str, context: RuleContext) -> Result<()> {
+        let player = context_owner(&context)?;
+        let options = self
+            .alive_slots(player)?
+            .into_iter()
+            .map(|slot| ChoiceOption {
+                id: slot.to_string(),
+                label: self
+                    .runtime
+                    .rules()
+                    .character(&self.state.players[player].characters[slot].definition)
+                    .expect("state references a loaded character")
+                    .name
+                    .clone(),
+            })
+            .collect();
+        self.create_choice(options, continuation, context)
     }
 
     fn add_modifier(&mut self, target: EntityRef, definition_id: &str) -> Result<()> {
