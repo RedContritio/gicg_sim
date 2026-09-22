@@ -1,10 +1,20 @@
 use std::{path::PathBuf, rc::Rc};
 
-use gicg_engine::{Command, DiceSet, Game, GameConfig, LuaRuntime, PlayerConfig};
+use gicg_engine::{
+    Command, DiceSet, Game, GameConfig, GameState, LuaRuntime, PlayerActionPreviews, PlayerConfig,
+};
 use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
     prelude::*,
 };
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct Snapshot<'a> {
+    #[serde(flatten)]
+    state: &'a GameState,
+    action_previews: [PlayerActionPreviews; 2],
+}
 
 #[pyclass(unsendable)]
 struct GameSession {
@@ -43,7 +53,12 @@ impl GameSession {
     }
 
     fn snapshot_json(&self) -> PyResult<String> {
-        serde_json::to_string(&self.game.state).map_err(runtime_error)
+        let action_previews = self.game.action_previews().map_err(runtime_error)?;
+        serde_json::to_string(&Snapshot {
+            state: &self.game.state,
+            action_previews,
+        })
+        .map_err(runtime_error)
     }
 
     fn rules_json(&self) -> PyResult<String> {

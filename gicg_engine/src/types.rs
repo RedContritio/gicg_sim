@@ -150,6 +150,21 @@ pub enum ActionTempo {
     Fast,
 }
 
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum ActionKind {
+    Skill,
+    Switch,
+    Card,
+}
+
+impl ActionKind {
+    pub fn parse(value: &str) -> Result<Self> {
+        parse_name(value, "action kind")
+    }
+}
+
 impl ActionTempo {
     pub fn parse(value: &str) -> Result<Self> {
         parse_name(value, "action tempo")

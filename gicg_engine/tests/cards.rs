@@ -70,3 +70,63 @@ fn cards_select_healing_targets_and_draw_from_the_deck() {
     assert_eq!(game.state.players[0].deck.len(), 8);
     assert_eq!(game.state.players[0].discard.len(), 1);
 }
+
+fn ready(card: &str) -> Game {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let player = PlayerConfig {
+        characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
+        deck: vec![card.to_owned(); 15],
+        active: 0,
+        dice: omni(32),
+    };
+    let mut game = Game::new(
+        runtime,
+        GameConfig {
+            players: [player.clone(), player],
+            first: 0,
+            seed: 7,
+        },
+    )
+    .unwrap();
+    for _ in 0..2 {
+        game.submit(Command::Redraw { selected: vec![] }).unwrap();
+    }
+    for _ in 0..2 {
+        game.submit(Command::Reroll {
+            payment: DiceSet::default(),
+        })
+        .unwrap();
+    }
+    game
+}
+
+#[test]
+fn cards_modify_switch_cost_and_tempo() {
+    let mut game = ready("leave_it_to_me");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    game.submit(Command::Switch {
+        slot: 1,
+        payment: omni(1),
+    })
+    .unwrap();
+    assert_eq!(game.state.turn, 0);
+    assert!(game.state.players[0].combat.is_empty());
+
+    let mut game = ready("changing_shifts");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    game.submit(Command::Switch {
+        slot: 1,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert_eq!(game.state.turn, 1);
+    assert!(game.state.players[0].combat.is_empty());
+}

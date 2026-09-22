@@ -173,33 +173,44 @@ function hydrate(raw) {
   return {
     ...raw,
     ruleset: rules.hash,
-    players: raw.players.map((player, id) => ({
-      ...player,
-      id,
-      deck_count: player.deck.length,
-      discard_count: player.discard.length,
-      hand: player.hand.map((definition, hand) => cardView(definition, hand)),
-      characters: player.characters.map(characterView),
-      combat: modifierViews(player.combat),
-      summons: modifierViews(player.summons),
-      supports: modifierViews(player.supports),
-    })),
+    players: raw.players.map((player, id) => {
+      const previews = raw.action_previews[id];
+      return {
+        ...player,
+        id,
+        deck_count: player.deck.length,
+        discard_count: player.discard.length,
+        hand: player.hand.map((definition, hand) =>
+          cardView(definition, hand, previews.cards[hand]),
+        ),
+        characters: player.characters.map((character, slot) =>
+          characterView(character, slot, slot === player.active ? previews.skills : []),
+        ),
+        switch: {
+          tempo: previews.switch.tempo,
+          cost: effectiveCost(switchCost, undefined, previews.switch),
+        },
+        combat: modifierViews(player.combat),
+        summons: modifierViews(player.summons),
+        supports: modifierViews(player.supports),
+      };
+    }),
   };
 }
 
-function cardView(definition, hand) {
+function cardView(definition, hand, preview) {
   const card = definitions.get(definition);
   return {
     hand,
     id: card.id,
     name: card.name,
     description: card.description,
-    tempo: card.action.tempo,
-    cost: costView(card.action.cost),
+    tempo: preview.tempo,
+    cost: effectiveCost(card.action.cost, undefined, preview),
   };
 }
 
-function characterView(character, slot) {
+function characterView(character, slot, previews) {
   const definition = definitions.get(character.definition);
   return {
     slot,
@@ -208,12 +219,15 @@ function characterView(character, slot) {
     element: definition.element,
     counters: counterViews(definition.counters, character.counters),
     auras: character.auras,
-    actions: definition.actions.map((action) => ({
-      id: action.id,
-      name: action.name,
-      tempo: action.tempo,
-      cost: costView(action.cost, definition.counters),
-    })),
+    actions: definition.actions.map((action) => {
+      const preview = previews.find((value) => value.id === action.id);
+      return {
+        id: action.id,
+        name: action.name,
+        tempo: preview?.tempo ?? action.tempo,
+        cost: effectiveCost(action.cost, definition.counters, preview),
+      };
+    }),
     modifiers: modifierViews(character.modifiers),
   };
 }
@@ -243,6 +257,12 @@ function costView(cost, schema) {
       require: value.require,
     })),
   };
+}
+
+function effectiveCost(cost, schema, preview) {
+  const value = costView(cost, schema);
+  if (!preview) return value;
+  return { ...value, dice: preview.dice, any: preview.any };
 }
 
 function render() {
@@ -334,7 +354,7 @@ function teamView(player, current) {
         openPayment(
           { kind: "switch", slot: character.slot },
           `切换至${character.name}`,
-          switchCost,
+          player.switch.cost,
           player,
         ),
       );

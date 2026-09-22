@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    ActionTempo, Counter, DiceSet, Die, EngineError, EventKind, FieldId, HandlerId, MergePolicy,
-    Result, Zone,
+    ActionKind, ActionTempo, Counter, DiceSet, Die, EngineError, EventKind, FieldId, HandlerId,
+    MergePolicy, Result, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -108,6 +108,19 @@ impl Cost {
             .sum();
         u16::from(payment.get(Die::Omni)) >= missing
     }
+
+    pub fn reduce_dice(&mut self, amount: u8) -> u8 {
+        let mut remaining = amount;
+        let reduced_any = self.any.min(remaining);
+        self.any -= reduced_any;
+        remaining -= reduced_any;
+        for die in Die::ALL[..Die::Omni.index()].iter().copied() {
+            let reduced = self.dice.get(die).min(remaining);
+            self.dice.0[die.index()] -= reduced;
+            remaining -= reduced;
+        }
+        amount - remaining
+    }
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -179,6 +192,7 @@ pub struct ModifierDefinition {
     pub merge: MergePolicy,
     pub remove_at_zero: Option<FieldId>,
     pub damage: Option<DamageModifierDefinition>,
+    pub action: Option<ActionModifierDefinition>,
     #[serde(skip)]
     pub handlers: HashMap<EventKind, HandlerId>,
 }
@@ -201,6 +215,16 @@ pub struct DamageModifierDefinition {
     pub shield: Option<String>,
     pub active_only: bool,
     pub include_piercing: bool,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct ActionModifierDefinition {
+    pub kinds: Vec<ActionKind>,
+    pub actions: Vec<String>,
+    pub reduce_dice: u8,
+    pub tempo: Option<ActionTempo>,
+    pub counter: Option<String>,
+    pub consume: Counter,
 }
 
 #[derive(Debug, Serialize)]

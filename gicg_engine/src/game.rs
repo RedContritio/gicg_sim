@@ -2,10 +2,10 @@ use std::{collections::VecDeque, rc::Rc};
 
 use rand::{RngExt, SeedableRng, seq::SliceRandom};
 use rand_chacha::ChaCha8Rng;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    ActionDefinition, ActionTempo, ChoiceOption,
+    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
     Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
@@ -92,11 +92,38 @@ struct DamageInvocation {
     rule: DamageModifierDefinition,
 }
 
+struct ActionInvocation {
+    source: EntityRef,
+    host: Option<EntityRef>,
+    rule: ActionModifierDefinition,
+}
+
+struct ActionConsumption {
+    source: EntityRef,
+    counter: String,
+    amount: i32,
+}
+
 #[derive(Clone, Copy)]
 struct EventInvocation {
     instance: u32,
     source: EntityRef,
     handler: HandlerId,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct ActionPreview {
+    pub id: String,
+    pub tempo: ActionTempo,
+    pub dice: DiceSet,
+    pub any: u8,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct PlayerActionPreviews {
+    pub skills: Vec<ActionPreview>,
+    pub switch: ActionPreview,
+    pub cards: Vec<ActionPreview>,
 }
 
 pub struct Game {
@@ -135,6 +162,65 @@ impl Game {
 
     pub fn rules(&self) -> &crate::Ruleset {
         self.runtime.rules()
+    }
+
+    pub fn action_previews(&self) -> Result<[PlayerActionPreviews; 2]> {
+        Ok([
+            self.player_action_previews(0)?,
+            self.player_action_previews(1)?,
+        ])
+    }
+
+    fn player_action_previews(&self, player: PlayerId) -> Result<PlayerActionPreviews> {
+        let actor = self.state.active_character(player);
+        let EntityRef::Character { slot, .. } = actor else {
+            unreachable!()
+        };
+        let character = self.state.character(player, slot)?;
+        let definition = self
+            .runtime
+            .rules()
+            .character(&character.definition)
+            .expect("state references a loaded character");
+        let skills = definition
+            .actions
+            .iter()
+            .cloned()
+            .map(|action| self.preview_action(actor, ActionKind::Skill, action))
+            .collect::<Result<Vec<_>>>()?;
+        let switch = self.preview_action(actor, ActionKind::Switch, switch_action())?;
+        let cards = self.state.players[player]
+            .hand
+            .iter()
+            .map(|id| {
+                let card = self
+                    .runtime
+                    .rules()
+                    .card(id)
+                    .expect("hand references a loaded card");
+                self.preview_action(actor, ActionKind::Card, card.action.clone())
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(PlayerActionPreviews {
+            skills,
+            switch,
+            cards,
+        })
+    }
+
+    fn preview_action(
+        &self,
+        actor: EntityRef,
+        kind: ActionKind,
+        action: ActionDefinition,
+    ) -> Result<ActionPreview> {
+        let (action, _) = self.prepare_action(actor, kind, action)?;
+        Ok(ActionPreview {
+            id: action.id,
+            tempo: action.tempo,
+            dice: action.cost.dice,
+            any: action.cost.any,
+        })
     }
 
     pub fn submit(&mut self, command: Command) -> Result<()> {
@@ -340,7 +426,9 @@ impl Game {
                 definition.id
             ))
         })?;
+        let (action, consumptions) = self.prepare_action(actor, ActionKind::Skill, action)?;
         self.pay(actor, &action, payment)?;
+        self.consume_action_modifiers(consumptions)?;
         self.active = Some(ActiveAction {
             player,
             actor,
@@ -372,18 +460,10 @@ impl Game {
                 "character {player}:{slot} is defeated"
             )));
         }
-        let switch = ActionDefinition {
-            id: "switch".to_owned(),
-            name: "Switch".to_owned(),
-            tempo: ActionTempo::Combat,
-            cost: crate::Cost {
-                any: 1,
-                ..crate::Cost::default()
-            },
-            resolve: 0,
-            continuations: Default::default(),
-        };
+        let switch = switch_action();
+        let (switch, consumptions) = self.prepare_action(current, ActionKind::Switch, switch)?;
         self.pay(current, &switch, payment)?;
+        self.consume_action_modifiers(consumptions)?;
         self.state.players[player].active = slot;
         self.active = Some(ActiveAction {
             player,
@@ -418,17 +498,20 @@ impl Game {
             .expect("hand references a loaded card")
             .clone();
         let actor = self.state.active_character(player);
-        self.pay(actor, &card.action, payment)?;
+        let (action, consumptions) =
+            self.prepare_action(actor, ActionKind::Card, card.action.clone())?;
+        self.pay(actor, &action, payment)?;
+        self.consume_action_modifiers(consumptions)?;
         let removed = self.state.players[player].hand.remove(hand);
         self.state.players[player].discard.push(removed);
         self.active = Some(ActiveAction {
             player,
             actor,
-            definition: card.action.clone(),
+            definition: action.clone(),
             emitted_resolved: false,
         });
         self.enqueue_handler(
-            card.action.resolve,
+            action.resolve,
             RuleContext {
                 actor: Some(actor),
                 source: Some(actor),
@@ -587,6 +670,93 @@ impl Game {
             self.state.players[player].dice.0[die.index()] -= payment.get(die);
         }
         consume_counter_costs(self.state.character_mut(player, slot)?, action);
+        Ok(())
+    }
+
+    fn prepare_action(
+        &self,
+        actor: EntityRef,
+        kind: ActionKind,
+        mut action: ActionDefinition,
+    ) -> Result<(ActionDefinition, Vec<ActionConsumption>)> {
+        let mut consumptions = Vec::new();
+        for invocation in self.action_invocations(actor.player()) {
+            if !self.action_rule_applies(&invocation, actor, kind, &action.id)? {
+                continue;
+            }
+            let changed = apply_action_rule(&mut action, &invocation.rule);
+            if changed && let Some(counter) = invocation.rule.counter {
+                consumptions.push(ActionConsumption {
+                    source: invocation.source,
+                    counter,
+                    amount: invocation.rule.consume,
+                });
+            }
+        }
+        Ok((action, consumptions))
+    }
+
+    fn action_rule_applies(
+        &self,
+        invocation: &ActionInvocation,
+        actor: EntityRef,
+        kind: ActionKind,
+        action: &str,
+    ) -> Result<bool> {
+        if invocation.host.is_some_and(|host| host != actor) {
+            return Ok(false);
+        }
+        if !invocation.rule.kinds.is_empty() && !invocation.rule.kinds.contains(&kind) {
+            return Ok(false);
+        }
+        if !invocation.rule.actions.is_empty()
+            && !invocation.rule.actions.iter().any(|value| value == action)
+        {
+            return Ok(false);
+        }
+        let Some(counter) = &invocation.rule.counter else {
+            return Ok(true);
+        };
+        Ok(self
+            .state
+            .counter(self.runtime.rules(), invocation.source, counter)?
+            > 0)
+    }
+
+    fn action_invocations(&self, player: PlayerId) -> Vec<ActionInvocation> {
+        let state = &self.state.players[player];
+        let mut invocations = Vec::new();
+        for (slot, character) in state.characters.iter().enumerate() {
+            for modifier in &character.modifiers {
+                collect_action_rule(
+                    &self.runtime,
+                    player,
+                    Some(EntityRef::Character { player, slot }),
+                    modifier,
+                    &mut invocations,
+                );
+            }
+        }
+        for modifier in state
+            .combat
+            .iter()
+            .chain(&state.summons)
+            .chain(&state.supports)
+        {
+            collect_action_rule(&self.runtime, player, None, modifier, &mut invocations);
+        }
+        invocations.sort_by_key(|value| modifier_instance(value.source));
+        invocations
+    }
+
+    fn consume_action_modifiers(&mut self, consumptions: Vec<ActionConsumption>) -> Result<()> {
+        for consumption in consumptions {
+            self.add_entity_counter(
+                consumption.source,
+                &consumption.counter,
+                -consumption.amount,
+            )?;
+        }
         Ok(())
     }
 
@@ -1466,6 +1636,20 @@ fn context_owner(context: &RuleContext) -> Result<PlayerId> {
         .ok_or_else(|| EngineError::Rule("effect context has no owner".to_owned()))
 }
 
+fn switch_action() -> ActionDefinition {
+    ActionDefinition {
+        id: "switch".to_owned(),
+        name: "Switch".to_owned(),
+        tempo: ActionTempo::Combat,
+        cost: crate::Cost {
+            any: 1,
+            ..crate::Cost::default()
+        },
+        resolve: 0,
+        continuations: Default::default(),
+    }
+}
+
 fn validate_counter_costs(
     character: &crate::CharacterState,
     action: &ActionDefinition,
@@ -1565,6 +1749,15 @@ fn damage_host_matches(
     }
 }
 
+fn apply_action_rule(action: &mut ActionDefinition, rule: &ActionModifierDefinition) -> bool {
+    let reduced = action.cost.reduce_dice(rule.reduce_dice) > 0;
+    let tempo_changed = rule.tempo.is_some_and(|tempo| tempo != action.tempo);
+    if let Some(tempo) = rule.tempo {
+        action.tempo = tempo;
+    }
+    reduced || tempo_changed
+}
+
 fn modifier_instance(source: EntityRef) -> u32 {
     let EntityRef::Modifier { instance, .. } = source else {
         unreachable!()
@@ -1587,6 +1780,30 @@ fn collect_damage_rule(
         return;
     };
     output.push(DamageInvocation {
+        source: EntityRef::Modifier {
+            player,
+            instance: modifier.instance,
+        },
+        host,
+        rule,
+    });
+}
+
+fn collect_action_rule(
+    runtime: &LuaRuntime,
+    player: PlayerId,
+    host: Option<EntityRef>,
+    modifier: &ModifierState,
+    output: &mut Vec<ActionInvocation>,
+) {
+    let definition = runtime
+        .rules()
+        .modifier(&modifier.definition)
+        .expect("state references a loaded modifier");
+    let Some(rule) = definition.action.clone() else {
+        return;
+    };
+    output.push(ActionInvocation {
         source: EntityRef::Modifier {
             player,
             instance: modifier.instance,
