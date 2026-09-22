@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use mlua::{Function, Lua, LuaOptions, LuaSerdeExt, RegistryKey, StdLib, Table, Value};
+use mlua::{Function, Lua, LuaOptions, LuaSerdeExt, RegistryKey, Scope, StdLib, Table, Value};
 use sha2::{Digest, Sha256};
 
 use crate::{
@@ -115,15 +115,43 @@ impl LuaRuntime {
         self.lua
             .scope(|scope| {
                 let table = context_table(&self.lua, context)?;
-                let counter = scope.create_function(|_, (target, name): (String, String)| {
-                    read_counter(state, &self.rules, context, &target, &name)
-                })?;
-                table.set("counter", counter)?;
+                set_actor_definition(&table, state, context)?;
+                install_counter_reader(scope, &table, state, &self.rules, context)?;
+                let modifier_counter =
+                    scope.create_function(|_, (definition, name): (String, String)| {
+                        read_modifier_counter(state, &self.rules, context, &definition, &name)
+                    })?;
+                table.set("modifier_counter", modifier_counter)?;
                 let value: Value = function.call(table)?;
                 parse_effects(&self.lua, value).map_err(lua_error)
             })
             .map_err(EngineError::from)
     }
+}
+
+fn set_actor_definition(
+    table: &Table,
+    state: &GameState,
+    context: &RuleContext,
+) -> mlua::Result<()> {
+    let Some(EntityRef::Character { player, slot }) = context.actor else {
+        return Ok(());
+    };
+    let definition = &state.character(player, slot).map_err(lua_error)?.definition;
+    table.set("actor_definition", definition.as_str())
+}
+
+fn install_counter_reader<'scope, 'env: 'scope>(
+    scope: &'scope Scope<'scope, 'env>,
+    table: &Table,
+    state: &'env GameState,
+    rules: &'env Ruleset,
+    context: &'env RuleContext,
+) -> mlua::Result<()> {
+    let counter = scope.create_function(|_, (target, name): (String, String)| {
+        read_counter(state, rules, context, &target, &name)
+    })?;
+    table.set("counter", counter)
 }
 
 fn require_lua_files(root: &Path, files: &[PathBuf]) -> Result<()> {
@@ -197,6 +225,24 @@ fn read_counter(
     state.counter(rules, entity, name).map_err(lua_error)
 }
 
+fn read_modifier_counter(
+    state: &GameState,
+    rules: &Ruleset,
+    context: &RuleContext,
+    definition: &str,
+    name: &str,
+) -> mlua::Result<i32> {
+    let player = context
+        .source
+        .or(context.actor)
+        .map(EntityRef::player)
+        .ok_or_else(|| mlua::Error::runtime("context has no owner"))?;
+    let Some(entity) = state.modifier_entity(player, definition) else {
+        return Ok(0);
+    };
+    state.counter(rules, entity, name).map_err(lua_error)
+}
+
 fn lua_files(root: &Path) -> Result<Vec<PathBuf>> {
     fn visit(path: &Path, files: &mut Vec<PathBuf>) -> std::io::Result<()> {
         for entry in fs::read_dir(path)? {
@@ -227,6 +273,24 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         end
         function add_modifier(target, definition)
             return { kind = "add_modifier", target = target, definition = definition }
+        end
+        function add_modifier_counter(definition, name, delta)
+            return { kind = "add_modifier_counter", definition = definition, name = name, delta = delta }
+        end
+        function add_character_counter(character, name, delta)
+            return { kind = "add_character_counter", character = character, name = name, delta = delta }
+        end
+        function remove_modifier(definition)
+            return { kind = "remove_modifier", definition = definition }
+        end
+        function add_card(card)
+            return { kind = "add_card", card = card }
+        end
+        function add_dice(die, count)
+            return { kind = "add_dice", die = die, count = count }
+        end
+        function choose(continuation, options)
+            return { kind = "choice", continuation = continuation, options = options }
         end
         "#,
     )
@@ -281,6 +345,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
             tempo,
             cost,
             resolve,
+            continuations: HashMap::new(),
         },
     })
 }
@@ -312,12 +377,14 @@ fn parse_action(
     let cost = parse_optional_cost(&table, counters)?;
     let label = format!("action {character_id}.{id} resolve");
     let resolve = add_table_handler(lua, state, &table, "resolve", &label)?;
+    let continuations = parse_continuations(lua, state, &table, character_id, &id)?;
     Ok(ActionDefinition {
         id,
         name,
         tempo,
         cost,
         resolve,
+        continuations,
     })
 }
 
@@ -396,6 +463,25 @@ fn parse_actions(
         )));
     }
     Ok(actions)
+}
+
+fn parse_continuations(
+    lua: &Lua,
+    state: &mut LoadState,
+    table: &Table,
+    character_id: &str,
+    action_id: &str,
+) -> mlua::Result<HashMap<String, HandlerId>> {
+    let mut continuations = HashMap::new();
+    let Some(entries) = table.get::<Option<Table>>("continue")? else {
+        return Ok(continuations);
+    };
+    for entry in entries.pairs::<String, Function>() {
+        let (name, function) = entry?;
+        let label = format!("action {character_id}.{action_id} continuation {name}");
+        continuations.insert(name, state.add_handler(lua, function, &label)?);
+    }
+    Ok(continuations)
 }
 
 fn parse_zone(table: &Table) -> mlua::Result<Zone> {
@@ -610,6 +696,9 @@ fn set_context_source(lua: &Lua, table: &Table, source: Option<EntityRef>) -> ml
 fn set_context_action(table: &Table, context: &RuleContext) -> mlua::Result<()> {
     if let Some(action_id) = &context.action_id {
         table.set("action", action_id.as_str())?;
+    }
+    if let Some(option) = &context.option {
+        table.set("option", option.as_str())?;
     }
     Ok(())
 }

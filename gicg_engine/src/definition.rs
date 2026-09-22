@@ -118,6 +118,8 @@ pub struct ActionDefinition {
     pub cost: Cost,
     #[serde(skip)]
     pub resolve: HandlerId,
+    #[serde(skip)]
+    pub continuations: HashMap<String, HandlerId>,
 }
 
 #[derive(Clone, Debug, Serialize)]

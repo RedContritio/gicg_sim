@@ -1,4 +1,4 @@
-use crate::{Counter, Element, EntityRef, EventKind, PlayerId};
+use crate::{ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId};
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
@@ -41,6 +41,30 @@ pub enum Effect {
         target: TargetRef,
         definition: String,
     },
+    AddModifierCounter {
+        definition: String,
+        name: String,
+        delta: Counter,
+    },
+    AddCharacterCounter {
+        character: String,
+        name: String,
+        delta: Counter,
+    },
+    RemoveModifier {
+        definition: String,
+    },
+    AddCard {
+        card: String,
+    },
+    AddDice {
+        die: Die,
+        count: u8,
+    },
+    Choice {
+        options: Vec<ChoiceOption>,
+        continuation: String,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -62,4 +86,5 @@ pub struct RuleContext {
     pub target: Option<EntityRef>,
     pub event: Option<Event>,
     pub action_id: Option<String>,
+    pub option: Option<String>,
 }

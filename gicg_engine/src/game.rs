@@ -65,6 +65,11 @@ struct QueuedEffect {
     context: RuleContext,
 }
 
+struct PendingDecision {
+    handler: HandlerId,
+    context: RuleContext,
+}
+
 #[derive(Clone, Copy)]
 struct EventInvocation {
     instance: u32,
@@ -77,6 +82,7 @@ pub struct Game {
     pub state: GameState,
     effects: VecDeque<QueuedEffect>,
     active: Option<ActiveAction>,
+    pending: Option<PendingDecision>,
     rng: ChaCha8Rng,
     first_ended: Option<PlayerId>,
     round_first: PlayerId,
@@ -92,6 +98,7 @@ impl Game {
             runtime,
             effects: VecDeque::new(),
             active: None,
+            pending: None,
             rng: ChaCha8Rng::seed_from_u64(seed),
             first_ended: None,
             round_first: first,
@@ -208,7 +215,11 @@ impl Game {
 
     pub fn choose(&mut self, decision_id: crate::DecisionId, option: usize) -> Result<()> {
         let (decision, selected) = self.take_decision(decision_id, option)?;
-        self.force_switch(decision.player, selected)?;
+        if self.pending.is_some() {
+            self.continue_choice(decision_id, selected)?;
+        } else {
+            self.force_switch(decision.player, selected)?;
+        }
         self.drain()
     }
 
@@ -232,6 +243,19 @@ impl Game {
             ))
         })?;
         Ok((decision, selected))
+    }
+
+    fn continue_choice(
+        &mut self,
+        decision_id: crate::DecisionId,
+        selected: ChoiceOption,
+    ) -> Result<()> {
+        let pending = self.pending.take().ok_or_else(|| {
+            EngineError::Rule(format!("decision {decision_id} has no continuation"))
+        })?;
+        let mut context = pending.context;
+        context.option = Some(selected.id);
+        self.enqueue_handler(pending.handler, context)
     }
 
     fn force_switch(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
@@ -319,6 +343,7 @@ impl Game {
                 ..crate::Cost::default()
             },
             resolve: 0,
+            continuations: Default::default(),
         };
         self.pay(current, &switch, payment)?;
         self.state.players[player].active = slot;
@@ -594,6 +619,25 @@ impl Game {
             Effect::AddModifier { target, definition } => {
                 self.add_modifier_effect(&queued.context, target, &definition)
             }
+            Effect::AddModifierCounter {
+                definition,
+                name,
+                delta,
+            } => self.add_modifier_counter(&queued.context, &definition, &name, delta),
+            Effect::AddCharacterCounter {
+                character,
+                name,
+                delta,
+            } => self.add_character_counter(&queued.context, &character, &name, delta),
+            Effect::RemoveModifier { definition } => {
+                self.remove_modifier_definition(&queued.context, &definition)
+            }
+            Effect::AddCard { card } => self.add_card(&queued.context, &card),
+            Effect::AddDice { die, count } => self.add_dice(&queued.context, die, count),
+            Effect::Choice {
+                options,
+                continuation,
+            } => self.create_choice(options, &continuation, queued.context),
         }
     }
 
@@ -605,6 +649,10 @@ impl Game {
         delta: i32,
     ) -> Result<()> {
         let target = resolve_target(&self.state, context, target)?;
+        self.add_entity_counter(target, name, delta)
+    }
+
+    fn add_entity_counter(&mut self, target: EntityRef, name: &str, delta: i32) -> Result<()> {
         let current = self.state.counter(self.runtime.rules(), target, name)?;
         let (min, max) = self
             .state
@@ -636,6 +684,70 @@ impl Game {
     ) -> Result<()> {
         let target = resolve_target(&self.state, context, target)?;
         self.add_modifier(target, definition)
+    }
+
+    fn add_modifier_counter(
+        &mut self,
+        context: &RuleContext,
+        definition: &str,
+        name: &str,
+        delta: i32,
+    ) -> Result<()> {
+        let player = context_owner(context)?;
+        let target = self
+            .state
+            .modifier_entity(player, definition)
+            .ok_or_else(|| EngineError::Rule(format!("modifier {definition:?} is not active")))?;
+        self.add_entity_counter(target, name, delta)
+    }
+
+    fn add_character_counter(
+        &mut self,
+        context: &RuleContext,
+        character: &str,
+        name: &str,
+        delta: i32,
+    ) -> Result<()> {
+        let player = context_owner(context)?;
+        let target = self
+            .state
+            .character_entity(player, character)
+            .ok_or_else(|| EngineError::Rule(format!("character {character:?} is not active")))?;
+        self.add_entity_counter(target, name, delta)
+    }
+
+    fn remove_modifier_definition(
+        &mut self,
+        context: &RuleContext,
+        definition: &str,
+    ) -> Result<()> {
+        let player = context_owner(context)?;
+        let target = self
+            .state
+            .modifier_entity(player, definition)
+            .ok_or_else(|| EngineError::Rule(format!("modifier {definition:?} is not active")))?;
+        self.remove_modifier(target)
+    }
+
+    fn add_card(&mut self, context: &RuleContext, card: &str) -> Result<()> {
+        if self.runtime.rules().card(card).is_none() {
+            return Err(EngineError::Rule(format!("card {card:?} is not defined")));
+        }
+        let state = &mut self.state.players[context_owner(context)?];
+        if state.hand.len() < 10 {
+            state.hand.push(card.to_owned());
+        } else {
+            state.discard.push(card.to_owned());
+        }
+        Ok(())
+    }
+
+    fn add_dice(&mut self, context: &RuleContext, die: Die, count: u8) -> Result<()> {
+        let dice = &mut self.state.players[context_owner(context)?].dice.0[die.index()];
+        *dice = dice
+            .checked_add(count)
+            .ok_or_else(|| EngineError::Rule("dice count overflowed".to_owned()))?;
+        Ok(())
     }
 
     fn apply_damage(
@@ -688,6 +800,44 @@ impl Game {
             });
             self.state.next_decision += 1;
         }
+        Ok(())
+    }
+
+    fn create_choice(
+        &mut self,
+        options: Vec<ChoiceOption>,
+        continuation: &str,
+        context: RuleContext,
+    ) -> Result<()> {
+        if options.is_empty() {
+            return Err(EngineError::Rule("choice has no options".to_owned()));
+        }
+        let active = self
+            .active
+            .as_ref()
+            .ok_or_else(|| EngineError::Rule("choice was created outside an action".to_owned()))?;
+        let handler = active
+            .definition
+            .continuations
+            .get(continuation)
+            .copied()
+            .ok_or_else(|| {
+                EngineError::Rule(format!(
+                    "action {:?} has no continuation {continuation:?}",
+                    active.definition.id
+                ))
+            })?;
+        let player = context
+            .actor
+            .ok_or_else(|| EngineError::Rule("choice requires an acting character".to_owned()))?
+            .player();
+        self.state.decision = Some(Decision {
+            id: self.state.next_decision,
+            player,
+            options,
+        });
+        self.state.next_decision += 1;
+        self.pending = Some(PendingDecision { handler, context });
         Ok(())
     }
 
@@ -829,6 +979,7 @@ impl Game {
                     target: event.target,
                     event: Some(event.clone()),
                     action_id: event.action_id.clone(),
+                    option: None,
                 },
             )?;
         }
@@ -848,6 +999,14 @@ impl Game {
         }
         Ok(alive)
     }
+}
+
+fn context_owner(context: &RuleContext) -> Result<PlayerId> {
+    context
+        .source
+        .or(context.actor)
+        .map(EntityRef::player)
+        .ok_or_else(|| EngineError::Rule("effect context has no owner".to_owned()))
 }
 
 fn validate_counter_costs(

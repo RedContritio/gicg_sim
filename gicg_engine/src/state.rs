@@ -353,6 +353,30 @@ impl GameState {
         None
     }
 
+    pub(crate) fn character_entity(&self, player: PlayerId, definition: &str) -> Option<EntityRef> {
+        self.players[player]
+            .characters
+            .iter()
+            .position(|character| character.definition == definition)
+            .map(|slot| EntityRef::Character { player, slot })
+    }
+
+    pub(crate) fn modifier_entity(&self, player: PlayerId, definition: &str) -> Option<EntityRef> {
+        let state = &self.players[player];
+        state
+            .characters
+            .iter()
+            .flat_map(|character| &character.modifiers)
+            .chain(&state.combat)
+            .chain(&state.summons)
+            .chain(&state.supports)
+            .find(|modifier| modifier.definition == definition)
+            .map(|modifier| EntityRef::Modifier {
+                player,
+                instance: modifier.instance,
+            })
+    }
+
     pub(crate) fn modifier_at(&self, location: ModifierLocation) -> &ModifierState {
         match location.zone {
             Zone::Character => {
