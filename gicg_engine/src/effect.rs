@@ -1,4 +1,4 @@
-use crate::{ChoiceOption, Counter, Element, EntityRef, EventKind, PlayerId, RemovalReason};
+use crate::{Counter, Element, EntityRef, EventKind, PlayerId};
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
@@ -27,11 +27,6 @@ impl TargetRef {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Effect {
-    SetCounter {
-        target: TargetRef,
-        name: String,
-        value: Counter,
-    },
     AddCounter {
         target: TargetRef,
         name: String,
@@ -45,18 +40,6 @@ pub enum Effect {
     AddModifier {
         target: TargetRef,
         definition: String,
-    },
-    RemoveModifier {
-        target: TargetRef,
-        reason: RemovalReason,
-    },
-    Choice {
-        options: Vec<ChoiceOption>,
-        continuation: String,
-    },
-    ActivateAbility {
-        target: TargetRef,
-        ability: String,
     },
 }
 
@@ -79,5 +62,4 @@ pub struct RuleContext {
     pub target: Option<EntityRef>,
     pub event: Option<Event>,
     pub action_id: Option<String>,
-    pub option: Option<String>,
 }

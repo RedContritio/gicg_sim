@@ -10,8 +10,8 @@ use sha2::{Digest, Sha256};
 use crate::{
     ActionDefinition, ActionTempo, CardDefinition, Cost, CounterConsume, CounterCost,
     CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef, EventKind,
-    GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext,
-    Ruleset, TargetRef, Zone,
+    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, TargetRef,
+    Zone,
 };
 
 struct LoadState {
@@ -219,9 +219,6 @@ fn lua_files(root: &Path) -> Result<Vec<PathBuf>> {
 fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
     lua.load(
         r#"
-        function set_counter(target, name, value)
-            return { kind = "set_counter", target = target, name = name, value = value }
-        end
         function add_counter(target, name, delta)
             return { kind = "add_counter", target = target, name = name, delta = delta }
         end
@@ -230,15 +227,6 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         end
         function add_modifier(target, definition)
             return { kind = "add_modifier", target = target, definition = definition }
-        end
-        function remove_modifier(target, reason)
-            return { kind = "remove_modifier", target = target, reason = reason }
-        end
-        function choose(continuation, options)
-            return { kind = "choice", continuation = continuation, options = options }
-        end
-        function activate(target, ability)
-            return { kind = "activate", target = target, ability = ability }
         end
         "#,
     )
@@ -293,7 +281,6 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
             tempo,
             cost,
             resolve,
-            continuations: HashMap::new(),
         },
     })
 }
@@ -325,14 +312,12 @@ fn parse_action(
     let cost = parse_optional_cost(&table, counters)?;
     let label = format!("action {character_id}.{id} resolve");
     let resolve = add_table_handler(lua, state, &table, "resolve", &label)?;
-    let continuations = parse_continuations(lua, state, &table, character_id, &id)?;
     Ok(ActionDefinition {
         id,
         name,
         tempo,
         cost,
         resolve,
-        continuations,
     })
 }
 
@@ -348,7 +333,6 @@ fn parse_modifier(
     let counters = parse_counters(table.get("counters")?)?;
     let remove_at_zero = parse_remove_at_zero(&table, &id, &counters)?;
     let handlers = parse_handlers(lua, state, &table, &id)?;
-    let abilities = parse_abilities(lua, state, &table, &id)?;
     Ok(ModifierDefinition {
         id,
         name,
@@ -357,7 +341,6 @@ fn parse_modifier(
         merge,
         remove_at_zero,
         handlers,
-        abilities,
     })
 }
 
@@ -415,25 +398,6 @@ fn parse_actions(
     Ok(actions)
 }
 
-fn parse_continuations(
-    lua: &Lua,
-    state: &mut LoadState,
-    table: &Table,
-    character_id: &str,
-    action_id: &str,
-) -> mlua::Result<HashMap<String, HandlerId>> {
-    let mut continuations = HashMap::new();
-    let Some(entries) = table.get::<Option<Table>>("continue")? else {
-        return Ok(continuations);
-    };
-    for entry in entries.pairs::<String, Function>() {
-        let (name, function) = entry?;
-        let label = format!("action {character_id}.{action_id} continuation {name}");
-        continuations.insert(name, state.add_handler(lua, function, &label)?);
-    }
-    Ok(continuations)
-}
-
 fn parse_zone(table: &Table) -> mlua::Result<Zone> {
     let value = table.get::<Option<String>>("zone")?;
     Zone::parse(value.as_deref().unwrap_or("character")).map_err(lua_error)
@@ -466,8 +430,8 @@ fn parse_handlers(
     state: &mut LoadState,
     table: &Table,
     modifier_id: &str,
-) -> mlua::Result<HashMap<EventKind, Vec<HandlerDefinition>>> {
-    let mut handlers: HashMap<EventKind, Vec<HandlerDefinition>> = HashMap::new();
+) -> mlua::Result<HashMap<EventKind, HandlerId>> {
+    let mut handlers = HashMap::new();
     let Some(entries) = table.get::<Option<Table>>("handlers")? else {
         return Ok(handlers);
     };
@@ -476,30 +440,9 @@ fn parse_handlers(
         let event = EventKind::parse(&event_name).map_err(lua_error)?;
         let label = format!("modifier {modifier_id} handler {event_name}");
         let handler = state.add_handler(lua, function, &label)?;
-        handlers.entry(event).or_default().push(HandlerDefinition {
-            priority: 0,
-            handler,
-        });
+        handlers.insert(event, handler);
     }
     Ok(handlers)
-}
-
-fn parse_abilities(
-    lua: &Lua,
-    state: &mut LoadState,
-    table: &Table,
-    modifier_id: &str,
-) -> mlua::Result<HashMap<String, HandlerId>> {
-    let mut abilities = HashMap::new();
-    let Some(entries) = table.get::<Option<Table>>("abilities")? else {
-        return Ok(abilities);
-    };
-    for entry in entries.pairs::<String, Function>() {
-        let (ability, function) = entry?;
-        let label = format!("modifier {modifier_id} ability {ability}");
-        abilities.insert(ability, state.add_handler(lua, function, &label)?);
-    }
-    Ok(abilities)
 }
 
 fn parse_counters(table: Table) -> mlua::Result<CounterSchema> {
@@ -667,9 +610,6 @@ fn set_context_source(lua: &Lua, table: &Table, source: Option<EntityRef>) -> ml
 fn set_context_action(table: &Table, context: &RuleContext) -> mlua::Result<()> {
     if let Some(action_id) = &context.action_id {
         table.set("action", action_id.as_str())?;
-    }
-    if let Some(option) = &context.option {
-        table.set("option", option.as_str())?;
     }
     Ok(())
 }

@@ -118,8 +118,6 @@ pub struct ActionDefinition {
     pub cost: Cost,
     #[serde(skip)]
     pub resolve: HandlerId,
-    #[serde(skip)]
-    pub continuations: HashMap<String, HandlerId>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -170,12 +168,6 @@ impl CharacterDefinition {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct HandlerDefinition {
-    pub priority: i16,
-    pub handler: HandlerId,
-}
-
 #[derive(Clone, Debug, Serialize)]
 pub struct ModifierDefinition {
     pub id: String,
@@ -185,9 +177,7 @@ pub struct ModifierDefinition {
     pub merge: MergePolicy,
     pub remove_at_zero: Option<FieldId>,
     #[serde(skip)]
-    pub handlers: HashMap<EventKind, Vec<HandlerDefinition>>,
-    #[serde(skip)]
-    pub abilities: HashMap<String, HandlerId>,
+    pub handlers: HashMap<EventKind, HandlerId>,
 }
 
 #[derive(Debug, Serialize)]

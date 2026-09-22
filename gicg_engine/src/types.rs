@@ -183,17 +183,6 @@ impl EntityRef {
     }
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum RemovalReason {
-    Consumed,
-    Exhausted,
-    Expired,
-    Discarded,
-    Replaced,
-    Death,
-}
-
 fn parse_name<T: std::str::FromStr>(value: &str, kind: &str) -> Result<T> {
     value
         .parse()

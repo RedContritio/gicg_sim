@@ -1,14 +1,14 @@
-use std::{cmp::Ordering, collections::VecDeque, rc::Rc};
+use std::{collections::VecDeque, rc::Rc};
 
 use rand::{RngExt, SeedableRng, seq::SliceRandom};
 use rand_chacha::ChaCha8Rng;
 use serde::Deserialize;
 
 use crate::{
-    ActionDefinition, ActionTempo, ChoiceOption, Command::*, CounterConsume, Decision,
-    DecisionKind, DiceSet, Die, Effect, EngineError, EntityRef, Event, EventKind, GameConfig,
-    GameState, HandlerId, LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, RemovalReason,
-    Result, RuleContext, Zone, lua::resolve_target,
+    ActionDefinition, ActionTempo, ChoiceOption, Command::*, CounterConsume, Decision, DiceSet,
+    Die, Effect, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
+    LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, Result, RuleContext, Zone,
+    lua::resolve_target,
 };
 
 #[derive(Clone, Debug, Deserialize)]
@@ -60,11 +60,6 @@ struct ActiveAction {
     emitted_resolved: bool,
 }
 
-struct PendingDecision {
-    handler: HandlerId,
-    context: RuleContext,
-}
-
 struct QueuedEffect {
     effect: Effect,
     context: RuleContext,
@@ -72,7 +67,6 @@ struct QueuedEffect {
 
 #[derive(Clone, Copy)]
 struct EventInvocation {
-    priority: i16,
     instance: u32,
     source: EntityRef,
     handler: HandlerId,
@@ -83,7 +77,6 @@ pub struct Game {
     pub state: GameState,
     effects: VecDeque<QueuedEffect>,
     active: Option<ActiveAction>,
-    pending: Option<PendingDecision>,
     rng: ChaCha8Rng,
     first_ended: Option<PlayerId>,
     round_first: PlayerId,
@@ -99,7 +92,6 @@ impl Game {
             runtime,
             effects: VecDeque::new(),
             active: None,
-            pending: None,
             rng: ChaCha8Rng::seed_from_u64(seed),
             first_ended: None,
             round_first: first,
@@ -216,10 +208,7 @@ impl Game {
 
     pub fn choose(&mut self, decision_id: crate::DecisionId, option: usize) -> Result<()> {
         let (decision, selected) = self.take_decision(decision_id, option)?;
-        match decision.kind {
-            DecisionKind::Choice => self.continue_choice(decision_id, selected)?,
-            DecisionKind::ForcedSwitch => self.force_switch(decision.player, selected)?,
-        }
+        self.force_switch(decision.player, selected)?;
         self.drain()
     }
 
@@ -243,19 +232,6 @@ impl Game {
             ))
         })?;
         Ok((decision, selected))
-    }
-
-    fn continue_choice(
-        &mut self,
-        decision_id: crate::DecisionId,
-        selected: ChoiceOption,
-    ) -> Result<()> {
-        let pending = self.pending.take().ok_or_else(|| {
-            EngineError::Rule(format!("decision {decision_id} has no continuation"))
-        })?;
-        let mut context = pending.context;
-        context.option = Some(selected.id);
-        self.enqueue_handler(pending.handler, context)
     }
 
     fn force_switch(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
@@ -295,12 +271,7 @@ impl Game {
             .runtime
             .rules()
             .character(&character.definition)
-            .ok_or_else(|| {
-                EngineError::Rule(format!(
-                    "character definition {} is missing",
-                    character.definition
-                ))
-            })?;
+            .expect("state references a loaded character");
         let action = definition.action(action_id).cloned().ok_or_else(|| {
             EngineError::InvalidCommand(format!(
                 "character {:?} has no action {action_id:?}",
@@ -348,7 +319,6 @@ impl Game {
                 ..crate::Cost::default()
             },
             resolve: 0,
-            continuations: Default::default(),
         };
         self.pay(current, &switch, payment)?;
         self.state.players[player].active = slot;
@@ -381,9 +351,7 @@ impl Game {
             .runtime
             .rules()
             .card(&definition_id)
-            .ok_or_else(|| {
-                EngineError::Rule(format!("card definition {definition_id} is missing"))
-            })?
+            .expect("hand references a loaded card")
             .clone();
         let actor = self.state.active_character(player);
         self.pay(actor, &card.action, payment)?;
@@ -567,72 +535,52 @@ impl Game {
     }
 
     fn drain(&mut self) -> Result<()> {
-        if self.drain_effects()? || self.state.decision.is_some() || !self.effects.is_empty() {
-            return Ok(());
-        }
-        if self.emit_action_resolved()? {
-            return self.drain();
-        }
-        self.finish_active_action()
-    }
-
-    fn drain_effects(&mut self) -> Result<bool> {
-        while self.state.decision.is_none() {
-            let Some(effect) = self.effects.pop_front() else {
-                break;
+        loop {
+            while self.state.decision.is_none() {
+                let Some(effect) = self.effects.pop_front() else {
+                    break;
+                };
+                self.apply(effect)?;
+                if self.state.phase == Phase::Finished {
+                    self.effects.clear();
+                    self.active = None;
+                    return Ok(());
+                }
+            }
+            if self.state.decision.is_some() {
+                return Ok(());
+            }
+            let Some(active) = &self.active else {
+                return Ok(());
             };
-            self.apply(effect)?;
-            if self.state.phase == Phase::Finished {
-                self.effects.clear();
-                self.active = None;
-                return Ok(true);
+            if active.emitted_resolved {
+                let active = self.active.take().expect("active action exists");
+                if active.definition.tempo == ActionTempo::Combat {
+                    let opponent = 1 - active.player;
+                    if !self.state.players[opponent].ended {
+                        self.state.turn = opponent;
+                    }
+                }
+                return Ok(());
             }
+            let active = self.active.as_mut().expect("active action exists");
+            active.emitted_resolved = true;
+            let event = Event {
+                kind: EventKind::ActionResolved,
+                actor: Some(active.actor),
+                source: Some(active.actor),
+                target: None,
+                player: active.player,
+                action_id: Some(active.definition.id.clone()),
+                element: None,
+                amount: 0,
+            };
+            self.emit(event)?;
         }
-        Ok(false)
-    }
-
-    fn emit_action_resolved(&mut self) -> Result<bool> {
-        let Some(active) = &mut self.active else {
-            return Ok(false);
-        };
-        if active.emitted_resolved {
-            return Ok(false);
-        }
-        active.emitted_resolved = true;
-        let event = Event {
-            kind: EventKind::ActionResolved,
-            actor: Some(active.actor),
-            source: Some(active.actor),
-            target: None,
-            player: active.player,
-            action_id: Some(active.definition.id.clone()),
-            element: None,
-            amount: 0,
-        };
-        self.emit(event)?;
-        Ok(!self.effects.is_empty())
-    }
-
-    fn finish_active_action(&mut self) -> Result<()> {
-        let Some(active) = self.active.take() else {
-            return Ok(());
-        };
-        if active.definition.tempo == ActionTempo::Combat {
-            let opponent = 1 - active.player;
-            if !self.state.players[opponent].ended {
-                self.state.turn = opponent;
-            }
-        }
-        Ok(())
     }
 
     fn apply(&mut self, queued: QueuedEffect) -> Result<()> {
         match queued.effect {
-            Effect::SetCounter {
-                target,
-                name,
-                value,
-            } => self.set_counter(&queued.context, target, &name, value),
             Effect::AddCounter {
                 target,
                 name,
@@ -646,30 +594,7 @@ impl Game {
             Effect::AddModifier { target, definition } => {
                 self.add_modifier_effect(&queued.context, target, &definition)
             }
-            Effect::RemoveModifier { target, reason } => {
-                self.remove_modifier_effect(&queued.context, target, reason)
-            }
-            Effect::Choice {
-                options,
-                continuation,
-            } => self.create_choice(options, &continuation, queued.context),
-            Effect::ActivateAbility { target, ability } => {
-                self.activate_effect(queued.context, target, &ability)
-            }
         }
-    }
-
-    fn set_counter(
-        &mut self,
-        context: &RuleContext,
-        target: crate::TargetRef,
-        name: &str,
-        value: i32,
-    ) -> Result<()> {
-        let target = resolve_target(&self.state, context, target)?;
-        self.state
-            .set_counter(self.runtime.rules(), target, name, value)?;
-        self.remove_exhausted(target)
     }
 
     fn add_counter(
@@ -711,26 +636,6 @@ impl Game {
     ) -> Result<()> {
         let target = resolve_target(&self.state, context, target)?;
         self.add_modifier(target, definition)
-    }
-
-    fn remove_modifier_effect(
-        &mut self,
-        context: &RuleContext,
-        target: crate::TargetRef,
-        reason: RemovalReason,
-    ) -> Result<()> {
-        let target = resolve_target(&self.state, context, target)?;
-        self.remove_modifier(target, reason)
-    }
-
-    fn activate_effect(
-        &mut self,
-        context: RuleContext,
-        target: crate::TargetRef,
-        ability: &str,
-    ) -> Result<()> {
-        let target = resolve_target(&self.state, &context, target)?;
-        self.activate_ability(target, ability, context)
     }
 
     fn apply_damage(
@@ -778,51 +683,11 @@ impl Game {
                 .collect();
             self.state.decision = Some(Decision {
                 id: self.state.next_decision,
-                kind: DecisionKind::ForcedSwitch,
                 player,
                 options,
             });
             self.state.next_decision += 1;
         }
-        Ok(())
-    }
-
-    fn create_choice(
-        &mut self,
-        options: Vec<ChoiceOption>,
-        continuation: &str,
-        context: RuleContext,
-    ) -> Result<()> {
-        if options.is_empty() {
-            return Err(EngineError::Rule("choice has no options".to_owned()));
-        }
-        let player = context
-            .actor
-            .ok_or_else(|| EngineError::Rule("choice requires an acting character".to_owned()))?
-            .player();
-        let active = self
-            .active
-            .as_ref()
-            .ok_or_else(|| EngineError::Rule("choice was created outside an action".to_owned()))?;
-        let handler = active
-            .definition
-            .continuations
-            .get(continuation)
-            .copied()
-            .ok_or_else(|| {
-                EngineError::Rule(format!(
-                    "action {:?} has no continuation {continuation:?}",
-                    active.definition.id
-                ))
-            })?;
-        self.state.decision = Some(Decision {
-            id: self.state.next_decision,
-            kind: DecisionKind::Choice,
-            player,
-            options,
-        });
-        self.state.next_decision += 1;
-        self.pending = Some(PendingDecision { handler, context });
         Ok(())
     }
 
@@ -874,7 +739,7 @@ impl Game {
         })
     }
 
-    fn remove_modifier(&mut self, target: EntityRef, reason: RemovalReason) -> Result<()> {
+    fn remove_modifier(&mut self, target: EntityRef) -> Result<()> {
         let EntityRef::Modifier { player, instance } = target else {
             return Err(EngineError::Rule(format!(
                 "remove target {target:?} is not a modifier"
@@ -896,7 +761,7 @@ impl Game {
             source: Some(target),
             target: Some(target),
             player,
-            action_id: Some(format!("reason:{reason:?}")),
+            action_id: None,
             element: None,
             amount: 0,
         })
@@ -913,52 +778,13 @@ impl Game {
             .runtime
             .rules()
             .modifier(&modifier.definition)
-            .ok_or_else(|| {
-                EngineError::Rule(format!(
-                    "modifier definition {} is missing",
-                    modifier.definition
-                ))
-            })?;
+            .expect("state references a loaded modifier");
         if let Some(field) = definition.remove_at_zero
             && self.state.modifier_at(location).counters[field] <= 0
         {
-            self.remove_modifier(target, RemovalReason::Exhausted)?;
+            self.remove_modifier(target)?;
         }
         Ok(())
-    }
-
-    fn activate_ability(
-        &mut self,
-        target: EntityRef,
-        ability: &str,
-        mut context: RuleContext,
-    ) -> Result<()> {
-        let EntityRef::Modifier { instance, .. } = target else {
-            return Err(EngineError::Rule(format!(
-                "ability target {target:?} is not a modifier"
-            )));
-        };
-        let (_, modifier) = self.state.find_modifier(instance).ok_or_else(|| {
-            EngineError::Rule(format!("modifier instance {instance} is not active"))
-        })?;
-        let definition = self
-            .runtime
-            .rules()
-            .modifier(&modifier.definition)
-            .ok_or_else(|| {
-                EngineError::Rule(format!(
-                    "modifier definition {} is missing",
-                    modifier.definition
-                ))
-            })?;
-        let handler = definition.abilities.get(ability).copied().ok_or_else(|| {
-            EngineError::Rule(format!(
-                "modifier {:?} has no ability {ability:?}",
-                definition.id
-            ))
-        })?;
-        context.source = Some(target);
-        self.enqueue_handler(handler, context)
     }
 
     fn emit(&mut self, event: Event) -> Result<()> {
@@ -990,10 +816,7 @@ impl Game {
                 );
             }
         }
-        invocations.sort_by(|left, right| match left.priority.cmp(&right.priority) {
-            Ordering::Equal => left.instance.cmp(&right.instance),
-            ordering => ordering,
-        });
+        invocations.sort_by_key(|invocation| invocation.instance);
         for invocation in invocations {
             if self.state.find_modifier(invocation.instance).is_none() {
                 continue;
@@ -1006,7 +829,6 @@ impl Game {
                     target: event.target,
                     event: Some(event.clone()),
                     action_id: event.action_id.clone(),
-                    option: None,
                 },
             )?;
         }
@@ -1092,21 +914,19 @@ fn collect_handlers(
     modifier: &ModifierState,
     output: &mut Vec<EventInvocation>,
 ) {
-    let Some(definition) = runtime.rules().modifier(&modifier.definition) else {
+    let definition = runtime
+        .rules()
+        .modifier(&modifier.definition)
+        .expect("state references a loaded modifier");
+    let Some(&handler) = definition.handlers.get(&event) else {
         return;
     };
-    let Some(handlers) = definition.handlers.get(&event) else {
-        return;
-    };
-    for handler in handlers {
-        output.push(EventInvocation {
-            priority: handler.priority,
+    output.push(EventInvocation {
+        instance: modifier.instance,
+        source: EntityRef::Modifier {
+            player,
             instance: modifier.instance,
-            source: EntityRef::Modifier {
-                player,
-                instance: modifier.instance,
-            },
-            handler: handler.handler,
-        });
-    }
+        },
+        handler,
+    });
 }

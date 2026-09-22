@@ -13,13 +13,6 @@ pub enum Phase {
     Finished,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum DecisionKind {
-    Choice,
-    ForcedSwitch,
-}
-
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ChoiceOption {
     pub id: String,
@@ -29,7 +22,6 @@ pub struct ChoiceOption {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Decision {
     pub id: crate::DecisionId,
-    pub kind: DecisionKind,
     pub player: PlayerId,
     pub options: Vec<ChoiceOption>,
 }
@@ -173,12 +165,9 @@ impl GameState {
     }
 
     pub fn character(&self, player: PlayerId, slot: usize) -> Result<&CharacterState> {
-        self.players
-            .get(player)
-            .and_then(|state| state.characters.get(slot))
-            .ok_or_else(|| {
-                EngineError::InvalidCommand(format!("character {player}:{slot} does not exist"))
-            })
+        self.players[player].characters.get(slot).ok_or_else(|| {
+            EngineError::InvalidCommand(format!("character {player}:{slot} does not exist"))
+        })
     }
 
     pub(crate) fn character_mut(
@@ -186,9 +175,9 @@ impl GameState {
         player: PlayerId,
         slot: usize,
     ) -> Result<&mut CharacterState> {
-        self.players
-            .get_mut(player)
-            .and_then(|state| state.characters.get_mut(slot))
+        self.players[player]
+            .characters
+            .get_mut(slot)
             .ok_or_else(|| {
                 EngineError::InvalidCommand(format!("character {player}:{slot} does not exist"))
             })
@@ -246,24 +235,18 @@ impl GameState {
         match entity {
             EntityRef::Character { player, slot } => {
                 let character = self.character(player, slot)?;
-                let definition = rules.character(&character.definition).ok_or_else(|| {
-                    EngineError::Rule(format!(
-                        "character definition {} is missing",
-                        character.definition
-                    ))
-                })?;
+                let definition = rules
+                    .character(&character.definition)
+                    .expect("state references a loaded character");
                 Ok((&definition.counters, &character.counters))
             }
             EntityRef::Modifier { instance, .. } => {
                 let (_, modifier) = self.find_modifier(instance).ok_or_else(|| {
                     EngineError::Rule(format!("modifier instance {instance} is not active"))
                 })?;
-                let definition = rules.modifier(&modifier.definition).ok_or_else(|| {
-                    EngineError::Rule(format!(
-                        "modifier definition {} is missing",
-                        modifier.definition
-                    ))
-                })?;
+                let definition = rules
+                    .modifier(&modifier.definition)
+                    .expect("state references a loaded modifier");
                 Ok((&definition.counters, &modifier.counters))
             }
         }
@@ -279,11 +262,7 @@ impl GameState {
                 let definition_id = self.character(player, slot)?.definition.clone();
                 let schema = &rules
                     .character(&definition_id)
-                    .ok_or_else(|| {
-                        EngineError::Rule(format!(
-                            "character definition {definition_id} is missing"
-                        ))
-                    })?
+                    .expect("state references a loaded character")
                     .counters;
                 let character = self.character_mut(player, slot)?;
                 Ok((schema, &mut character.counters))
@@ -298,9 +277,7 @@ impl GameState {
                 let definition_id = self.modifier_at(location).definition.clone();
                 let schema = &rules
                     .modifier(&definition_id)
-                    .ok_or_else(|| {
-                        EngineError::Rule(format!("modifier definition {definition_id} is missing"))
-                    })?
+                    .expect("state references a loaded modifier")
                     .counters;
                 Ok((schema, &mut self.modifier_at_mut(location).counters))
             }
@@ -313,10 +290,7 @@ impl GameState {
         zone: Zone,
         host: usize,
     ) -> Result<&mut Vec<ModifierState>> {
-        let player_state = self
-            .players
-            .get_mut(player)
-            .ok_or_else(|| EngineError::Rule(format!("player {player} is invalid")))?;
+        let player_state = &mut self.players[player];
         match zone {
             Zone::Character => player_state
                 .characters
