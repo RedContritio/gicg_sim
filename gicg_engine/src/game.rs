@@ -2610,9 +2610,11 @@ impl Game {
             .ok_or_else(|| {
                 EngineError::Rule(format!("modifier instance {instance} is not active"))
             })?;
-        self.state
-            .modifier_list_mut(location.player, location.zone, location.host)?
-            .remove(location.index);
+        if location.player != player {
+            return Err(EngineError::Rule(format!(
+                "modifier instance {instance} belongs to another player"
+            )));
+        }
         self.emit(Event {
             kind: EventKind::ModifierRemoved,
             actor: None,
@@ -2626,7 +2628,11 @@ impl Game {
             reaction: None,
             amount: 0,
             traits: ActionTraits::default(),
-        })
+        })?;
+        self.state
+            .modifier_list_mut(location.player, location.zone, location.host)?
+            .remove(location.index);
+        Ok(())
     }
 
     fn remove_exhausted(&mut self, target: EntityRef) -> Result<()> {

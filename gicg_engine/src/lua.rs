@@ -125,7 +125,7 @@ impl LuaRuntime {
         self.lua
             .scope(|scope| {
                 let table = context_table(&self.lua, context)?;
-                set_actor_definition(&table, state, context)?;
+                set_context_definitions(&table, state, context)?;
                 install_counter_reader(scope, &table, state, &self.rules, context)?;
                 let modifier_counter =
                     scope.create_function(|_, (definition, name): (String, String)| {
@@ -139,16 +139,36 @@ impl LuaRuntime {
     }
 }
 
-fn set_actor_definition(
+fn set_context_definitions(
     table: &Table,
     state: &GameState,
     context: &RuleContext,
 ) -> mlua::Result<()> {
-    let Some(EntityRef::Character { player, slot }) = context.actor else {
-        return Ok(());
+    set_entity_definition(table, "actor_definition", state, context.actor)?;
+    set_entity_definition(table, "source_definition", state, context.source)?;
+    set_entity_definition(table, "target_definition", state, context.target)
+}
+
+fn set_entity_definition(
+    table: &Table,
+    field: &str,
+    state: &GameState,
+    entity: Option<EntityRef>,
+) -> mlua::Result<()> {
+    let definition = match entity {
+        Some(EntityRef::Character { player, slot }) => Some(
+            state
+                .character(player, slot)
+                .map_err(lua_error)?
+                .definition
+                .as_str(),
+        ),
+        Some(EntityRef::Modifier { instance, .. }) => state
+            .find_modifier(instance)
+            .map(|(_, modifier)| modifier.definition.as_str()),
+        None => None,
     };
-    let definition = &state.character(player, slot).map_err(lua_error)?.definition;
-    table.set("actor_definition", definition.as_str())
+    table.set(field, definition)
 }
 
 fn install_counter_reader<'scope, 'env: 'scope>(
