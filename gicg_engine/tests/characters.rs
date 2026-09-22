@@ -278,3 +278,22 @@ fn mavuika_choices_cross_character_trigger_and_burst_resource() {
     assert_eq!(counter(&game, &runtime, 0, 0, "fighting_spirit"), 0);
     assert_eq!(counter(&game, &runtime, 0, 0, "nightsoul"), 2);
 }
+
+#[test]
+fn round_transition_waits_for_forced_switches() {
+    let (runtime, mut game) = ready(&["yae_miko", "kaeya"]);
+    skill(&mut game, "yakan_evocation_sesshou_sakura", 3);
+    game.submit(Command::End).unwrap();
+    for _ in 0..9 {
+        skill(&mut game, "spiritfox_sin_eater", 3);
+    }
+    assert_eq!(counter(&game, &runtime, 1, 0, "hp"), 1);
+
+    game.submit(Command::End).unwrap();
+    assert_eq!(game.state.round, 1);
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    assert_eq!(game.state.players[1].active, 1);
+    assert_eq!(game.state.round, 2);
+    assert_eq!(game.state.phase, gicg_engine::Phase::Roll);
+}

@@ -75,6 +75,7 @@ struct QueuedEffect {
 
 enum PendingDecision {
     InitialActive,
+    ForcedSwitch,
     Continuation {
         handler: HandlerId,
         context: RuleContext,
@@ -149,6 +150,7 @@ pub struct Game {
     round_first: PlayerId,
     phase_done: [bool; 2],
     last_combat_switch: [bool; 2],
+    start_round_pending: bool,
 }
 
 impl Game {
@@ -175,6 +177,7 @@ impl Game {
             round_first: first,
             phase_done: [false; 2],
             last_combat_switch: [false; 2],
+            start_round_pending: false,
         };
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
@@ -406,6 +409,7 @@ impl Game {
         self.effects.clear();
         self.active = None;
         self.pending = None;
+        self.start_round_pending = false;
     }
 
     fn submit_redraw(&mut self, player: PlayerId, mut hand: Vec<usize>) -> Result<()> {
@@ -488,9 +492,17 @@ impl Game {
                 context,
                 satiate,
             }) => self.continue_card_target(handler, context, selected, satiate)?,
-            None => self.force_switch(decision.player, selected)?,
+            Some(PendingDecision::ForcedSwitch) => {
+                self.force_switch(decision.player, selected)?;
+            }
+            None => {
+                return Err(EngineError::Rule(
+                    "decision has no pending operation".to_owned(),
+                ));
+            }
         }
-        self.drain()
+        self.drain()?;
+        self.resume_round_transition()
     }
 
     fn take_decision(
@@ -994,6 +1006,7 @@ impl Game {
             self.state.turn = opponent;
             return Ok(());
         }
+        self.start_round_pending = true;
         self.emit(Event {
             kind: EventKind::RoundEnd,
             actor: None,
@@ -1008,6 +1021,17 @@ impl Game {
             traits: ActionTraits::default(),
         })?;
         self.drain()?;
+        self.resume_round_transition()
+    }
+
+    fn resume_round_transition(&mut self) -> Result<()> {
+        if !self.start_round_pending
+            || self.state.decision.is_some()
+            || self.state.phase == Phase::Finished
+        {
+            return Ok(());
+        }
+        self.start_round_pending = false;
         self.start_round()
     }
 
@@ -2034,6 +2058,7 @@ impl Game {
             options,
         });
         self.state.next_decision += 1;
+        self.pending = Some(PendingDecision::ForcedSwitch);
     }
 
     fn switch_next(&mut self, player: PlayerId) -> Result<()> {
