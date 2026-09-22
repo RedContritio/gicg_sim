@@ -29,7 +29,7 @@ impl GameSession {
         ruleset,
         player_one,
         player_two,
-        deck,
+        decks,
         format,
         seed=1,
         first=0
@@ -38,22 +38,22 @@ impl GameSession {
         ruleset: PathBuf,
         player_one: Vec<String>,
         player_two: Vec<String>,
-        deck: Vec<String>,
+        decks: (Vec<String>, Vec<String>),
         format: (usize, usize, usize),
         seed: u64,
         first: usize,
     ) -> PyResult<Self> {
         let runtime = Rc::new(LuaRuntime::load(ruleset).map_err(runtime_error)?);
-        let player = |characters| PlayerConfig {
+        let player = |characters, deck| PlayerConfig {
             characters,
-            deck: deck.clone(),
+            deck,
             active: None,
             dice: DiceSet::default(),
         };
         let game = Game::new_match(
             runtime,
             GameConfig {
-                players: [player(player_one), player(player_two)],
+                players: [player(player_one, decks.0), player(player_two, decks.1)],
                 first,
                 seed,
             },

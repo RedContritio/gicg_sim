@@ -19,6 +19,8 @@ class CreateGame(BaseModel):
     seed: int | None = None
     player_one: list[str] | None = None
     player_two: list[str] | None = None
+    player_one_deck: list[str] | None = None
+    player_two_deck: list[str] | None = None
 
 
 class Choice(BaseModel):
@@ -42,11 +44,25 @@ def selected_players(
 
 
 def new_session(game_config: dict, players: list[list[str]], seed: int = 1) -> GameSession:
+    return configured_session(
+        game_config,
+        players,
+        [game_config["player_one_deck"], game_config["player_two_deck"]],
+        seed,
+    )
+
+
+def configured_session(
+    game_config: dict,
+    players: list[list[str]],
+    decks: list[list[str]],
+    seed: int,
+) -> GameSession:
     return GameSession(
         ROOT / game_config["ruleset"],
         players[0],
         players[1],
-        [game_config["deck_card"]] * game_config["deck_size"],
+        (decks[0], decks[1]),
         (
             game_config["team_size"],
             game_config["deck_size"],
@@ -56,9 +72,18 @@ def new_session(game_config: dict, players: list[list[str]], seed: int = 1) -> G
     )
 
 
-def requested_session(game_config: dict, players: list[list[str]], seed: int) -> GameSession:
+def selected_decks(body: CreateGame, defaults: list[list[str]]) -> list[list[str]]:
+    return [body.player_one_deck or defaults[0], body.player_two_deck or defaults[1]]
+
+
+def requested_session(
+    game_config: dict,
+    players: list[list[str]],
+    decks: list[list[str]],
+    seed: int,
+) -> GameSession:
     try:
-        return new_session(game_config, players, seed)
+        return configured_session(game_config, players, decks, seed)
     except RuntimeError as error:
         raise HTTPException(409, str(error)) from error
 
@@ -81,6 +106,7 @@ def create_app(config_path: Path | None = None) -> FastAPI:
     config = load_config(config_path or ROOT / "configs" / "web" / "local.toml")
     game_config = config["game"]
     defaults = [game_config["player_one"], game_config["player_two"]]
+    default_decks = [game_config["player_one_deck"], game_config["player_two_deck"]]
     catalog = new_session(game_config, defaults)
     rules = json.loads(catalog.rules_json())
     games: dict[str, GameSession] = {}
@@ -92,14 +118,18 @@ def create_app(config_path: Path | None = None) -> FastAPI:
             "characters": rules["characters"],
             "team_size": game_config["team_size"],
             "players": defaults,
+            "cards": rules["cards"],
+            "decks": default_decks,
         }
 
     @app.post("/api/games")
     async def create(body: CreateGame) -> dict:
         players = selected_players(body, defaults, game_config["team_size"])
+        decks = selected_decks(body, default_decks)
         session = requested_session(
             game_config,
             players,
+            decks,
             body.seed if body.seed is not None else secrets.randbits(64),
         )
         game_id = secrets.token_urlsafe(12)
