@@ -524,7 +524,7 @@ impl Game {
         self.state.phase = next;
         self.state.turn = self.round_first;
         if next == Phase::Roll {
-            self.begin_roll_phase()?;
+            self.enter_roll_phase()?;
         }
         Ok(())
     }
@@ -1128,6 +1128,10 @@ impl Game {
             }
             self.draw(player, 2)?;
         }
+        self.enter_roll_phase()
+    }
+
+    fn enter_roll_phase(&mut self) -> Result<()> {
         self.begin_roll_phase()?;
         self.emit(Event {
             kind: EventKind::RoundStart,

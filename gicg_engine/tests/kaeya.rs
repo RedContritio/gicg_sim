@@ -214,6 +214,14 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     assert_eq!(game.state.phase, Phase::Roll);
     assert_eq!(game.state.players[0].hand.len(), 5);
     assert_eq!(game.state.players[0].dice.total(), 8);
+    assert_eq!(
+        game.state
+            .history
+            .iter()
+            .filter(|event| event.kind == gicg_engine::EventKind::RoundStart)
+            .count(),
+        1
+    );
 
     game.submit(Command::Reroll {
         payment: DiceSet::default(),
@@ -242,6 +250,14 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     assert_eq!(game.state.players[1].hand.len(), 7);
     assert_eq!(game.state.players[0].dice.total(), 8);
     assert_eq!(game.state.players[1].dice.total(), 8);
+    assert_eq!(
+        game.state
+            .history
+            .iter()
+            .filter(|event| event.kind == gicg_engine::EventKind::RoundStart)
+            .count(),
+        2
+    );
 
     game.submit(Command::Concede).unwrap();
     assert_eq!(game.state.phase, Phase::Finished);
