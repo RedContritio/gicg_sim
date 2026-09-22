@@ -28,6 +28,7 @@ character {
     id = "chiori",
     name = "千织",
     element = "geo",
+    tags = { "sword", "inazuma" },
     counters = {
         hp = { initial = 10, min = 0, max = 10 },
         energy = { initial = 0, min = 0, max = 2 },

@@ -195,6 +195,7 @@ pub struct CharacterDefinition {
     pub counters: CounterSchema,
     pub actions: Vec<ActionDefinition>,
     pub passives: Vec<String>,
+    pub tags: Vec<String>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -221,6 +222,7 @@ pub struct CardTargetDefinition {
     pub state: TargetState,
     pub damaged: bool,
     pub active_only: bool,
+    pub tags: Vec<String>,
 }
 
 impl CharacterDefinition {
@@ -231,6 +233,7 @@ impl CharacterDefinition {
         counters: CounterSchema,
         actions: Vec<ActionDefinition>,
         passives: Vec<String>,
+        tags: Vec<String>,
     ) -> Result<Self> {
         let mut ids = HashSet::new();
         for action in &actions {
@@ -241,6 +244,15 @@ impl CharacterDefinition {
                 )));
             }
         }
+        let mut character_tags = HashSet::new();
+        if tags
+            .iter()
+            .any(|tag| tag.is_empty() || !character_tags.insert(tag))
+        {
+            return Err(EngineError::InvalidRuleset(format!(
+                "character {id:?} has invalid or duplicate tags"
+            )));
+        }
         Ok(Self {
             id,
             name,
@@ -248,6 +260,7 @@ impl CharacterDefinition {
             counters,
             actions,
             passives,
+            tags,
         })
     }
 
@@ -418,8 +431,22 @@ fn validate_card_target(card: &CardDefinition) -> Result<()> {
             card.id
         )));
     }
+    let mut tags = HashSet::new();
+    if target
+        .tags
+        .iter()
+        .any(|tag| tag.is_empty() || !tags.insert(tag))
+    {
+        return Err(EngineError::InvalidRuleset(format!(
+            "card {:?} has invalid or duplicate target tags",
+            card.id
+        )));
+    }
     if target.zone != Zone::Character
-        && (target.state != TargetState::Alive || target.damaged || target.active_only)
+        && (target.state != TargetState::Alive
+            || target.damaged
+            || target.active_only
+            || !target.tags.is_empty())
     {
         return Err(EngineError::InvalidRuleset(format!(
             "card {:?} uses character filters on a non-character target",

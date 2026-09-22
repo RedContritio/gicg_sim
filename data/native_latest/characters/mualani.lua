@@ -19,6 +19,7 @@ character {
     id = "mualani",
     name = "玛拉妮",
     element = "hydro",
+    tags = { "catalyst", "natlan" },
     counters = {
         hp = { initial = 10, min = 0, max = 10 },
         energy = { initial = 0, min = 0, max = 2 },

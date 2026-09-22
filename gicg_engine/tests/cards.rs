@@ -24,7 +24,7 @@ fn take(dice: DiceSet, count: u8) -> DiceSet {
 fn cards_select_healing_targets_and_draw_from_the_deck() {
     let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
     let player = |card: &str| PlayerConfig {
-        characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
+        characters: vec!["kaeya".to_owned(), "yae_miko".to_owned()],
         deck: vec![card.to_owned(); 15],
         active: Some(0),
         dice: omni(32),
@@ -108,7 +108,7 @@ fn ready_with_cards(cards: [&str; 2]) -> Game {
 fn ready_with_dice(cards: [&str; 2], dice: DiceSet) -> Game {
     let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
     let player = |card: &str| PlayerConfig {
-        characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
+        characters: vec!["kaeya".to_owned(), "yae_miko".to_owned()],
         deck: vec![card.to_owned(); 15],
         active: Some(0),
         dice,
@@ -207,7 +207,9 @@ fn equipment_and_supports_persist_in_their_zones() {
         payment: omni(2),
     })
     .unwrap();
-    let decision = game.state.decision.as_ref().unwrap().id;
+    let decision = game.state.decision.as_ref().unwrap();
+    assert_eq!(decision.options.len(), 1);
+    let decision = decision.id;
     game.choose(decision, 0).unwrap();
     assert_eq!(
         game.state.players[0].characters[0].modifiers[0].definition,

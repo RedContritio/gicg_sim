@@ -22,6 +22,7 @@ character {
     id = "alhaitham",
     name = "艾尔海森",
     element = "dendro",
+    tags = { "sword", "sumeru" },
     counters = {
         hp = { initial = 10, min = 0, max = 10 },
         energy = { initial = 0, min = 0, max = 2 },

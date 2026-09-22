@@ -52,6 +52,7 @@ character {
     id = "mavuika",
     name = "玛薇卡",
     element = "pyro",
+    tags = { "claymore", "natlan" },
     passives = { "mavuika.fighting_spirit" },
     counters = {
         hp = { initial = 10, min = 0, max = 10 },

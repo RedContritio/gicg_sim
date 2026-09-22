@@ -24,6 +24,7 @@ character {
     id = "kaeya",
     name = "凯亚",
     element = "cryo",
+    tags = { "sword", "mondstadt" },
     counters = {
         hp = { initial = 10, min = 0, max = 10 },
         energy = { initial = 0, min = 0, max = 2 },

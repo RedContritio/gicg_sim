@@ -47,7 +47,7 @@ card {
     kind = "equipment",
     tempo = "fast",
     cost = { dice = { any = 2 } },
-    target = { side = "own", state = "alive" },
+    target = { side = "own", state = "alive", tags = { "sword" } },
     resolve = function(ctx)
         return { add_modifier("target", "card.travelers_handy_sword") }
     end,

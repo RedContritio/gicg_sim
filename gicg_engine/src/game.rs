@@ -925,7 +925,13 @@ impl Game {
                 .counter_range(self.runtime.rules(), character, "hp")
                 .is_ok_and(|(_, maximum)| hp < maximum);
         let food_matches = !food || !self.character_state(character).satiated;
-        state_matches && active_matches && damaged_matches && food_matches
+        let definition = self
+            .runtime
+            .rules()
+            .character(&self.character_state(character).definition)
+            .expect("state references a loaded character");
+        let tags_match = target.tags.iter().all(|tag| definition.tags.contains(tag));
+        state_matches && active_matches && damaged_matches && food_matches && tags_match
     }
 
     fn create_card_target_choice(

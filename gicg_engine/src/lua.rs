@@ -428,16 +428,21 @@ fn parse_card_target(table: &Table) -> mlua::Result<Option<CardTargetDefinition>
     let Some(target) = table.get::<Option<Table>>("target")? else {
         return Ok(None);
     };
+    parse_card_target_table(&target).map(Some)
+}
+
+fn parse_card_target_table(target: &Table) -> mlua::Result<CardTargetDefinition> {
     let side = target.get::<Option<String>>("side")?;
     let state = target.get::<Option<String>>("state")?;
     let kind = target.get::<Option<String>>("kind")?;
-    Ok(Some(CardTargetDefinition {
+    Ok(CardTargetDefinition {
         zone: Zone::parse(kind.as_deref().unwrap_or("character")).map_err(lua_error)?,
         side: TargetSide::parse(side.as_deref().unwrap_or("own")).map_err(lua_error)?,
         state: TargetState::parse(state.as_deref().unwrap_or("alive")).map_err(lua_error)?,
         damaged: target.get::<Option<bool>>("damaged")?.unwrap_or(false),
         active_only: target.get::<Option<bool>>("active_only")?.unwrap_or(false),
-    }))
+        tags: parse_strings(target, "tags")?,
+    })
 }
 
 fn parse_character(
@@ -452,7 +457,8 @@ fn parse_character(
     require_hp(&id, &counters)?;
     let actions = parse_actions(lua, state, &table, &id, &counters)?;
     let passives = parse_strings(&table, "passives")?;
-    crate::CharacterDefinition::new(id, name, element, counters, actions, passives)
+    let tags = parse_strings(&table, "tags")?;
+    crate::CharacterDefinition::new(id, name, element, counters, actions, passives, tags)
         .map_err(lua_error)
 }
 
