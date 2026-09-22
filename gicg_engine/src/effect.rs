@@ -41,6 +41,10 @@ pub enum Effect {
         element: Element,
         amount: u32,
     },
+    Piercing {
+        side: TargetSide,
+        amount: u32,
+    },
     Heal {
         target: TargetRef,
         amount: u32,

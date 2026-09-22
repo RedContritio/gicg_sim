@@ -68,6 +68,7 @@ character {
             },
             resolve = function(ctx)
                 return {
+                    piercing("enemy", 1),
                     damage("enemy_active", "hydro", 2),
                     add_modifier("actor", "mualani.shark_missile"),
                 }

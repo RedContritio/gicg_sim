@@ -1269,6 +1269,7 @@ impl Game {
                 element,
                 amount,
             } => self.damage(&queued.context, target, element, amount),
+            Effect::Piercing { side, amount } => self.piercing(&queued.context, side, amount),
             Effect::Heal { target, amount } => self.heal(&queued.context, target, amount),
             Effect::Revive { target, amount } => self.revive(&queued.context, target, amount),
             Effect::AddModifier { target, definition } => {
@@ -1346,6 +1347,30 @@ impl Game {
         let amount = i32::try_from(amount)
             .map_err(|_| EngineError::Rule(format!("damage amount {amount} overflows i32")))?;
         self.apply_damage(context.clone(), target, element, amount)
+    }
+
+    fn piercing(&mut self, context: &RuleContext, side: TargetSide, amount: u32) -> Result<()> {
+        let owner = context_owner(context)?;
+        let player = match side {
+            TargetSide::Own => owner,
+            TargetSide::Enemy => 1 - owner,
+        };
+        let active = self.state.players[player].active;
+        let amount = i32::try_from(amount)
+            .map_err(|_| EngineError::Rule(format!("piercing amount {amount} overflows i32")))?;
+        for slot in self
+            .alive_slots(player)?
+            .into_iter()
+            .filter(|slot| *slot != active)
+        {
+            self.apply_damage(
+                context.clone(),
+                EntityRef::Character { player, slot },
+                Element::Piercing,
+                amount,
+            )?;
+        }
+        Ok(())
     }
 
     fn heal(&mut self, context: &RuleContext, target: crate::TargetRef, amount: u32) -> Result<()> {

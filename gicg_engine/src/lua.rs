@@ -273,6 +273,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function damage(target, element, amount)
             return { kind = "damage", target = target, element = element, amount = amount }
         end
+        function piercing(side, amount)
+            return { kind = "piercing", side = side, amount = amount }
+        end
         function heal(target, amount)
             return { kind = "heal", target = target, amount = amount }
         end

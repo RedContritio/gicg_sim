@@ -201,7 +201,7 @@ fn full_summon_zone_replaces_the_selected_summon() {
 
 #[test]
 fn mualani_nightsoul_action_and_missile_complete_the_cycle() {
-    let (runtime, mut game) = ready(&["mualani"]);
+    let (runtime, mut game) = ready(&["mualani", "kaeya", "alhaitham"]);
     skill(&mut game, "surfshark_wavebreaker", 2);
     game.submit(Command::End).unwrap();
     skill(&mut game, "sharky_surfboard", 0);
@@ -215,6 +215,8 @@ fn mualani_nightsoul_action_and_missile_complete_the_cycle() {
         modifier_counter(&game, &runtime, 0, "mualani.shark_missile", "uses"),
         2
     );
+    assert_eq!(counter(&game, &runtime, 1, 1, "hp"), 9);
+    assert_eq!(counter(&game, &runtime, 1, 2, "hp"), 9);
     game.submit(Command::End).unwrap();
     assert_eq!(
         modifier_counter(&game, &runtime, 0, "mualani.shark_missile", "uses"),
