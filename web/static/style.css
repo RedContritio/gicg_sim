@@ -64,21 +64,21 @@ main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 44
 .dice-picker { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin: 18px 0; }
 .die-token { width: 62px; height: 72px; padding: 0; border: 0; color: #eefcff; background: transparent; cursor: pointer; filter: drop-shadow(0 5px 5px rgba(0,0,0,.32)); transition: transform .14s, filter .14s; }
 .die-token svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.die-front { fill: var(--die-front); stroke: rgba(255,255,255,.5); stroke-width: 1.4; }
-.die-side { fill: var(--die-side); stroke: rgba(255,255,255,.2); stroke-width: 1; }
+.die-front { fill: var(--die-color); stroke: rgba(255,255,255,.5); stroke-width: 1.4; }
+.die-side { fill: var(--die-color); stroke: rgba(255,255,255,.2); stroke-width: 1; }
 .die-side-bottom { filter: brightness(.68); }
 .die-side-left { filter: brightness(.82); }
 .die-side-right { filter: brightness(.58); }
 .die-outline { fill: none; stroke: rgba(220,246,250,.7); stroke-width: 1.5; }
 .die-token text { fill: white; font: 700 19px "PingFang SC", sans-serif; paint-order: stroke; stroke: rgba(0,0,0,.28); stroke-width: 2px; }
-.die-token svg[data-color="0"] { --die-front: #72d9ef; --die-side: #397e9b; }
-.die-token svg[data-color="1"] { --die-front: #56bff0; --die-side: #236d9c; }
-.die-token svg[data-color="2"] { --die-front: #ed7053; --die-side: #973929; }
-.die-token svg[data-color="3"] { --die-front: #b783ea; --die-side: #694798; }
-.die-token svg[data-color="4"] { --die-front: #67d8ba; --die-side: #2d876f; }
-.die-token svg[data-color="5"] { --die-front: #d8b45b; --die-side: #8c6b2d; }
-.die-token svg[data-color="6"] { --die-front: #82c85d; --die-side: #447a2f; }
-.die-token svg[data-color="7"] { --die-front: #d7c5f3; --die-side: #77829f; }
+.die-token [data-color="0"] { --die-color: #72d9ef; }
+.die-token [data-color="1"] { --die-color: #56bff0; }
+.die-token [data-color="2"] { --die-color: #ed7053; }
+.die-token [data-color="3"] { --die-color: #b783ea; }
+.die-token [data-color="4"] { --die-color: #67d8ba; }
+.die-token [data-color="5"] { --die-color: #d8b45b; }
+.die-token [data-color="6"] { --die-color: #82c85d; }
+.die-token [data-color="7"] { --die-color: #d7c5f3; }
 .die-token.selected { transform: translateY(-5px) scale(1.06); filter: drop-shadow(0 0 8px rgba(245,198,107,.85)); }
 .die-token.selected .die-outline { stroke: var(--gold); stroke-width: 3; }
 .die-token:disabled { opacity: .24; cursor: not-allowed; }

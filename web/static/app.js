@@ -1,6 +1,16 @@
 const diceNames = ["冰", "水", "火", "雷", "风", "岩", "草", "万能"];
 const elementNames = { cryo: "冰元素", hydro: "水元素", pyro: "火元素", electro: "雷元素", anemo: "风元素", geo: "岩元素", dendro: "草元素", physical: "物理" };
 const elementDice = { cryo: 0, hydro: 1, pyro: 2, electro: 3, anemo: 4, geo: 5, dendro: 6 };
+const dieSides = [
+  [1, 7, 6],
+  [4, 0, 2],
+  [6, 3, 1],
+  [2, 5, 4],
+  [7, 1, 3],
+  [3, 6, 7],
+  [5, 2, 0],
+  [0, 4, 5],
+];
 const phaseNames = { redraw: "选择要替换的起始手牌", roll: "选择要重掷的元素骰", action: "行动阶段", finished: "对局结束" };
 let gameId;
 let state;
@@ -251,11 +261,12 @@ function diceSummary(values) {
 }
 
 function dieSvg(color) {
-  return `<svg viewBox="0 0 100 115" aria-hidden="true" data-color="${color}">
-    <polygon class="die-side die-side-left" points="50,14 16,73 3,17" />
-    <polygon class="die-side die-side-right" points="50,14 97,17 84,73" />
-    <polygon class="die-side die-side-bottom" points="16,73 84,73 50,110" />
-    <polygon class="die-front" points="50,14 84,73 16,73" />
+  const [left, right, bottom] = dieSides[color];
+  return `<svg viewBox="0 0 100 115" aria-hidden="true">
+    <polygon class="die-side die-side-left" data-color="${left}" points="50,14 16,73 3,17" />
+    <polygon class="die-side die-side-right" data-color="${right}" points="50,14 97,17 84,73" />
+    <polygon class="die-side die-side-bottom" data-color="${bottom}" points="16,73 84,73 50,110" />
+    <polygon class="die-front" data-color="${color}" points="50,14 84,73 16,73" />
     <polyline class="die-outline" points="3,17 50,14 97,17 84,73 50,110 16,73 3,17" />
     <text x="50" y="57" text-anchor="middle">${diceNames[color]}</text>
   </svg>`;
