@@ -66,6 +66,9 @@ pub enum Effect {
     RemoveModifier {
         definition: String,
     },
+    RemoveTarget {
+        target: TargetRef,
+    },
     AddCard {
         card: String,
     },

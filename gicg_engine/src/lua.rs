@@ -9,10 +9,10 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardDefinition, CardKind,
-    CharacterTargetDefinition, Cost, CounterConsume, CounterCost, CounterDefinition, CounterSchema,
-    DamageDirection, DamageModifierDefinition, Effect, Element, EngineError, EntityRef, EventKind,
-    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, SkillKind,
-    TalentDefinition, TargetRef, TargetSide, TargetState, Zone,
+    CardTargetDefinition, CardTargetKind, Cost, CounterConsume, CounterCost, CounterDefinition,
+    CounterSchema, DamageDirection, DamageModifierDefinition, Effect, Element, EngineError,
+    EntityRef, EventKind, GameState, HandlerId, MergePolicy, ModifierDefinition, Result,
+    RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef, TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -290,6 +290,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function remove_modifier(definition)
             return { kind = "remove_modifier", definition = definition }
         end
+        function remove_target(target)
+            return { kind = "remove_target", target = target }
+        end
         function add_card(card)
             return { kind = "add_card", card = card }
         end
@@ -378,7 +381,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
 
 type CardProperties = (
     CardKind,
-    Option<CharacterTargetDefinition>,
+    Option<CardTargetDefinition>,
     Option<TalentDefinition>,
     ActionTempo,
     Cost,
@@ -387,7 +390,7 @@ type CardProperties = (
 fn parse_card_properties(table: &Table) -> mlua::Result<CardProperties> {
     Ok((
         parse_card_kind(table)?,
-        parse_character_target(table)?,
+        parse_card_target(table)?,
         parse_talent(table)?,
         parse_tempo(table, "fast")?,
         parse_optional_cost(table, &CounterSchema::default())?,
@@ -409,13 +412,15 @@ fn parse_card_kind(table: &Table) -> mlua::Result<CardKind> {
     CardKind::parse(value.as_deref().unwrap_or("event")).map_err(lua_error)
 }
 
-fn parse_character_target(table: &Table) -> mlua::Result<Option<CharacterTargetDefinition>> {
+fn parse_card_target(table: &Table) -> mlua::Result<Option<CardTargetDefinition>> {
     let Some(target) = table.get::<Option<Table>>("target")? else {
         return Ok(None);
     };
     let side = target.get::<Option<String>>("side")?;
     let state = target.get::<Option<String>>("state")?;
-    Ok(Some(CharacterTargetDefinition {
+    let kind = target.get::<Option<String>>("kind")?;
+    Ok(Some(CardTargetDefinition {
+        kind: CardTargetKind::parse(kind.as_deref().unwrap_or("character")).map_err(lua_error)?,
         side: TargetSide::parse(side.as_deref().unwrap_or("own")).map_err(lua_error)?,
         state: TargetState::parse(state.as_deref().unwrap_or("alive")).map_err(lua_error)?,
         damaged: target.get::<Option<bool>>("damaged")?.unwrap_or(false),

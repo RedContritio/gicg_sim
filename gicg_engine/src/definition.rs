@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    ActionKind, ActionTempo, CardKind, Counter, DiceSet, Die, EngineError, EventKind, FieldId,
-    HandlerId, MergePolicy, Result, SkillKind, TargetSide, TargetState, Zone,
+    ActionKind, ActionTempo, CardKind, CardTargetKind, Counter, DiceSet, Die, EngineError,
+    EventKind, FieldId, HandlerId, MergePolicy, Result, SkillKind, TargetSide, TargetState, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -168,7 +168,7 @@ pub struct CardDefinition {
     pub name: String,
     pub description: String,
     pub kind: CardKind,
-    pub target: Option<CharacterTargetDefinition>,
+    pub target: Option<CardTargetDefinition>,
     pub talent: Option<TalentDefinition>,
     pub action: ActionDefinition,
 }
@@ -180,7 +180,8 @@ pub struct TalentDefinition {
 }
 
 #[derive(Clone, Debug, Serialize)]
-pub struct CharacterTargetDefinition {
+pub struct CardTargetDefinition {
+    pub kind: CardTargetKind,
     pub side: TargetSide,
     pub state: TargetState,
     pub damaged: bool,
@@ -293,6 +294,7 @@ impl Ruleset {
             }
         }
         for card in &cards {
+            validate_card_target(card)?;
             validate_talent(card, &characters)?;
         }
         Ok(Self {
@@ -316,6 +318,29 @@ impl Ruleset {
     pub fn card(&self, id: &str) -> Option<&CardDefinition> {
         self.cards.iter().find(|definition| definition.id == id)
     }
+}
+
+fn validate_card_target(card: &CardDefinition) -> Result<()> {
+    let Some(target) = &card.target else {
+        return Ok(());
+    };
+    if matches!(card.kind, CardKind::Food | CardKind::Equipment)
+        && target.kind != CardTargetKind::Character
+    {
+        return Err(EngineError::InvalidRuleset(format!(
+            "card {:?} requires a character target",
+            card.id
+        )));
+    }
+    if target.kind != CardTargetKind::Character
+        && (target.state != TargetState::Alive || target.damaged || target.active_only)
+    {
+        return Err(EngineError::InvalidRuleset(format!(
+            "card {:?} uses character filters on a non-character target",
+            card.id
+        )));
+    }
+    Ok(())
 }
 
 fn validate_talent(card: &CardDefinition, characters: &[CharacterDefinition]) -> Result<()> {

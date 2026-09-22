@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardKind,
-    CharacterTargetDefinition, ChoiceOption,
+    CardTargetDefinition, CardTargetKind, ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
     Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
@@ -85,7 +85,6 @@ enum PendingDecision {
     CardTarget {
         handler: HandlerId,
         context: RuleContext,
-        player: PlayerId,
         satiate: bool,
     },
 }
@@ -453,9 +452,8 @@ impl Game {
             Some(PendingDecision::CardTarget {
                 handler,
                 context,
-                player,
                 satiate,
-            }) => self.continue_card_target(handler, context, player, selected, satiate)?,
+            }) => self.continue_card_target(handler, context, selected, satiate)?,
             None => self.force_switch(decision.player, selected)?,
         }
         self.drain()
@@ -542,20 +540,42 @@ impl Game {
         &mut self,
         handler: HandlerId,
         mut context: RuleContext,
-        player: PlayerId,
         selected: ChoiceOption,
         satiate: bool,
     ) -> Result<()> {
-        let slot = selected
-            .id
-            .parse::<usize>()
-            .map_err(|error| EngineError::Rule(format!("invalid card target option: {error}")))?;
-        self.state.character(player, slot)?;
+        let target = parse_card_target_option(&selected.id)?;
+        self.validate_card_target(target)?;
         if satiate {
+            let EntityRef::Character { player, slot } = target else {
+                return Err(EngineError::Rule(
+                    "food target is not a character".to_owned(),
+                ));
+            };
             self.state.character_mut(player, slot)?.satiated = true;
         }
-        context.target = Some(EntityRef::Character { player, slot });
+        context.target = Some(target);
         self.enqueue_handler(handler, context)
+    }
+
+    fn validate_card_target(&self, target: EntityRef) -> Result<()> {
+        match target {
+            EntityRef::Character { player, slot } => {
+                self.state.character(player, slot)?;
+            }
+            EntityRef::Modifier { player, instance } => {
+                let (location, _) = self.state.find_modifier(instance).ok_or_else(|| {
+                    EngineError::Rule(format!(
+                        "card target modifier {instance} is no longer active"
+                    ))
+                })?;
+                if location.player != player {
+                    return Err(EngineError::Rule(format!(
+                        "card target modifier {instance} belongs to another player"
+                    )));
+                }
+            }
+        }
+        Ok(())
     }
 
     fn force_switch(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
@@ -750,18 +770,32 @@ impl Game {
     fn card_targets(
         &self,
         player: PlayerId,
-        target: &CharacterTargetDefinition,
+        target: &CardTargetDefinition,
         food: bool,
     ) -> Vec<EntityRef> {
         let owner = match target.side {
             TargetSide::Own => player,
             TargetSide::Enemy => 1 - player,
         };
-        (0..self.state.players[owner].characters.len())
-            .map(|slot| EntityRef::Character {
-                player: owner,
-                slot,
-            })
+        match target.kind {
+            CardTargetKind::Character => self.character_card_targets(owner, target, food),
+            CardTargetKind::Summon => {
+                modifier_card_targets(owner, &self.state.players[owner].summons)
+            }
+            CardTargetKind::Support => {
+                modifier_card_targets(owner, &self.state.players[owner].supports)
+            }
+        }
+    }
+
+    fn character_card_targets(
+        &self,
+        player: PlayerId,
+        target: &CardTargetDefinition,
+        food: bool,
+    ) -> Vec<EntityRef> {
+        (0..self.state.players[player].characters.len())
+            .map(|slot| EntityRef::Character { player, slot })
             .filter(|character| self.card_target_matches(*character, target, food))
             .collect()
     }
@@ -769,7 +803,7 @@ impl Game {
     fn card_target_matches(
         &self,
         character: EntityRef,
-        target: &CharacterTargetDefinition,
+        target: &CardTargetDefinition,
         food: bool,
     ) -> bool {
         let hp = self
@@ -799,12 +833,11 @@ impl Game {
         context: RuleContext,
         satiate: bool,
     ) {
-        let player = targets[0].player();
         let options = targets
             .into_iter()
             .map(|target| ChoiceOption {
-                id: character_slot(target).to_string(),
-                label: self.character_name(target).to_owned(),
+                id: card_target_option(target),
+                label: self.target_name(target).to_owned(),
             })
             .collect();
         self.state.decision = Some(Decision {
@@ -816,7 +849,6 @@ impl Game {
         self.pending = Some(PendingDecision::CardTarget {
             handler,
             context,
-            player,
             satiate,
         });
     }
@@ -828,17 +860,30 @@ impl Game {
         &self.state.players[player].characters[slot]
     }
 
-    fn character_name(&self, target: EntityRef) -> &str {
-        let EntityRef::Character { player, slot } = target else {
-            unreachable!()
-        };
-        let character = &self.state.players[player].characters[slot];
-        &self
-            .runtime
-            .rules()
-            .character(&character.definition)
-            .expect("state references a loaded character")
-            .name
+    fn target_name(&self, target: EntityRef) -> &str {
+        match target {
+            EntityRef::Character { player, slot } => {
+                let character = &self.state.players[player].characters[slot];
+                &self
+                    .runtime
+                    .rules()
+                    .character(&character.definition)
+                    .expect("state references a loaded character")
+                    .name
+            }
+            EntityRef::Modifier { instance, .. } => {
+                let (_, modifier) = self
+                    .state
+                    .find_modifier(instance)
+                    .expect("card target modifier is active");
+                &self
+                    .runtime
+                    .rules()
+                    .modifier(&modifier.definition)
+                    .expect("state references a loaded modifier")
+                    .name
+            }
+        }
     }
 
     fn submit_tune(&mut self, player: PlayerId, hand: usize, die: Die) -> Result<()> {
@@ -1187,6 +1232,10 @@ impl Game {
             } => self.add_character_counter(&queued.context, &character, &name, delta),
             Effect::RemoveModifier { definition } => {
                 self.remove_modifier_definition(&queued.context, &definition)
+            }
+            Effect::RemoveTarget { target } => {
+                let target = resolve_target(&self.state, &queued.context, target)?;
+                self.remove_modifier(target)
             }
             Effect::AddCard { card } => self.add_card(&queued.context, &card),
             Effect::AddDice { die, count } => self.add_dice(&queued.context, die, count),
@@ -2371,6 +2420,48 @@ fn character_slot(character: EntityRef) -> usize {
         unreachable!()
     };
     slot
+}
+
+fn modifier_card_targets(player: PlayerId, modifiers: &[ModifierState]) -> Vec<EntityRef> {
+    modifiers
+        .iter()
+        .map(|modifier| EntityRef::Modifier {
+            player,
+            instance: modifier.instance,
+        })
+        .collect()
+}
+
+fn card_target_option(target: EntityRef) -> String {
+    match target {
+        EntityRef::Character { player, slot } => format!("character:{player}:{slot}"),
+        EntityRef::Modifier { player, instance } => format!("modifier:{player}:{instance}"),
+    }
+}
+
+fn parse_card_target_option(value: &str) -> Result<EntityRef> {
+    let parts = value.split(':').collect::<Vec<_>>();
+    if parts.len() != 3 {
+        return Err(EngineError::Rule(format!(
+            "invalid card target option {value:?}"
+        )));
+    }
+    let player = parts[1]
+        .parse::<usize>()
+        .map_err(|error| EngineError::Rule(format!("invalid target player: {error}")))?;
+    match parts[0] {
+        "character" => parts[2]
+            .parse::<usize>()
+            .map(|slot| EntityRef::Character { player, slot })
+            .map_err(|error| EngineError::Rule(format!("invalid target slot: {error}"))),
+        "modifier" => parts[2]
+            .parse::<u32>()
+            .map(|instance| EntityRef::Modifier { player, instance })
+            .map_err(|error| EngineError::Rule(format!("invalid target instance: {error}"))),
+        kind => Err(EngineError::Rule(format!(
+            "invalid card target kind {kind:?}"
+        ))),
+    }
 }
 
 fn collect_damage_rule(

@@ -445,3 +445,51 @@ fn cards_search_recover_and_shuffle_cards_between_piles() {
     );
     assert_eq!(game.state.players[0].deck.len(), 11);
 }
+
+#[test]
+fn cards_target_and_remove_enemy_summons() {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let player = |character: &str, card: &str| PlayerConfig {
+        characters: vec![character.to_owned()],
+        deck: vec![card.to_owned(); 15],
+        active: Some(0),
+        dice: omni(32),
+    };
+    let mut game = Game::new(
+        runtime,
+        GameConfig {
+            players: [player("chiori", "splash"), player("kaeya", "send_off")],
+            first: 0,
+            seed: 7,
+        },
+    )
+    .unwrap();
+    for _ in 0..2 {
+        game.submit(Command::Redraw { selected: vec![] }).unwrap();
+    }
+    for _ in 0..2 {
+        game.submit(Command::Reroll {
+            payment: DiceSet::default(),
+        })
+        .unwrap();
+    }
+
+    game.submit(Command::Skill {
+        action: "fluttering_hasode".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    assert_eq!(game.state.players[0].summons.len(), 1);
+
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(2),
+    })
+    .unwrap();
+    let decision = game.state.decision.as_ref().unwrap();
+    assert_eq!(decision.options.len(), 1);
+    game.choose(decision.id, 0).unwrap();
+    assert!(game.state.players[0].summons.is_empty());
+}
