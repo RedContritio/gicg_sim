@@ -297,3 +297,33 @@ fn round_transition_waits_for_forced_switches() {
     assert_eq!(game.state.round, 2);
     assert_eq!(game.state.phase, gicg_engine::Phase::Roll);
 }
+
+#[test]
+fn round_end_event_waits_for_end_declaration_decisions() {
+    let (runtime, mut game) = ready(&["yae_miko", "kaeya"]);
+    skill(&mut game, "yakan_evocation_sesshou_sakura", 3);
+    game.submit(Command::End).unwrap();
+    skill(&mut game, "yakan_evocation_sesshou_sakura", 3);
+    for _ in 0..9 {
+        skill(&mut game, "spiritfox_sin_eater", 3);
+    }
+    assert_eq!(counter(&game, &runtime, 1, 0, "hp"), 1);
+
+    game.submit(Command::End).unwrap();
+    assert!(
+        !game
+            .state
+            .history
+            .iter()
+            .any(|event| event.kind == gicg_engine::EventKind::RoundEnd)
+    );
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    assert!(
+        game.state
+            .history
+            .iter()
+            .any(|event| event.kind == gicg_engine::EventKind::RoundEnd)
+    );
+    assert_eq!(game.state.round, 2);
+}

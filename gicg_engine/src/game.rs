@@ -91,6 +91,13 @@ enum PendingDecision {
     },
 }
 
+#[derive(Clone, Copy)]
+enum RoundTransition {
+    None,
+    EmitRoundEnd(PlayerId),
+    StartRound,
+}
+
 struct DamageResolution {
     amount: i32,
     element: Element,
@@ -150,7 +157,7 @@ pub struct Game {
     round_first: PlayerId,
     phase_done: [bool; 2],
     last_combat_switch: [bool; 2],
-    start_round_pending: bool,
+    round_transition: RoundTransition,
 }
 
 impl Game {
@@ -177,7 +184,7 @@ impl Game {
             round_first: first,
             phase_done: [false; 2],
             last_combat_switch: [false; 2],
-            start_round_pending: false,
+            round_transition: RoundTransition::None,
         };
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
@@ -409,7 +416,7 @@ impl Game {
         self.effects.clear();
         self.active = None;
         self.pending = None;
-        self.start_round_pending = false;
+        self.round_transition = RoundTransition::None;
     }
 
     fn submit_redraw(&mut self, player: PlayerId, mut hand: Vec<usize>) -> Result<()> {
@@ -1006,33 +1013,39 @@ impl Game {
             self.state.turn = opponent;
             return Ok(());
         }
-        self.start_round_pending = true;
-        self.emit(Event {
-            kind: EventKind::RoundEnd,
-            actor: None,
-            source: None,
-            target: None,
-            player,
-            action_id: None,
-            skill: None,
-            element: None,
-            reaction: None,
-            amount: 0,
-            traits: ActionTraits::default(),
-        })?;
-        self.drain()?;
+        self.round_transition = RoundTransition::EmitRoundEnd(player);
         self.resume_round_transition()
     }
 
     fn resume_round_transition(&mut self) -> Result<()> {
-        if !self.start_round_pending
-            || self.state.decision.is_some()
-            || self.state.phase == Phase::Finished
-        {
+        if self.state.decision.is_some() || self.state.phase == Phase::Finished {
             return Ok(());
         }
-        self.start_round_pending = false;
-        self.start_round()
+        match self.round_transition {
+            RoundTransition::None => Ok(()),
+            RoundTransition::EmitRoundEnd(player) => {
+                self.round_transition = RoundTransition::StartRound;
+                self.emit(Event {
+                    kind: EventKind::RoundEnd,
+                    actor: None,
+                    source: None,
+                    target: None,
+                    player,
+                    action_id: None,
+                    skill: None,
+                    element: None,
+                    reaction: None,
+                    amount: 0,
+                    traits: ActionTraits::default(),
+                })?;
+                self.drain()?;
+                self.resume_round_transition()
+            }
+            RoundTransition::StartRound => {
+                self.round_transition = RoundTransition::None;
+                self.start_round()
+            }
+        }
     }
 
     fn start_round(&mut self) -> Result<()> {
