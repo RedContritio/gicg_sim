@@ -165,7 +165,7 @@ impl Game {
         };
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
-            game.draw(player, 5);
+            game.draw(player, 5)?;
         }
         if game.state.phase == Phase::SelectActive {
             game.create_initial_active_decision(first);
@@ -341,7 +341,7 @@ impl Game {
         for slot in hand.into_iter().rev() {
             returned.push(player_state.hand.remove(slot));
         }
-        self.draw(player, returned.len());
+        self.draw(player, returned.len())?;
         self.state.players[player].deck.extend(returned);
         self.state.players[player].deck.shuffle(&mut self.rng);
         self.finish_shared_phase(player, Phase::Roll)
@@ -830,7 +830,7 @@ impl Game {
         for player in 0..2 {
             self.state.players[player].ended = false;
             self.state.players[player].dice = DiceSet::default();
-            self.draw(player, 2);
+            self.draw(player, 2)?;
             self.roll(player, 8);
         }
         self.emit(Event {
@@ -847,18 +847,28 @@ impl Game {
         self.drain()
     }
 
-    fn draw(&mut self, player: PlayerId, count: usize) {
-        let state = &mut self.state.players[player];
+    fn draw(&mut self, player: PlayerId, count: usize) -> Result<()> {
         for _ in 0..count {
-            let Some(card) = state.deck.pop() else {
+            if !self.draw_one(player)? {
                 break;
-            };
-            if state.hand.len() < 10 {
-                state.hand.push(card);
-            } else {
-                state.discard.push(card);
             }
+            self.drain()?;
         }
+        Ok(())
+    }
+
+    fn draw_one(&mut self, player: PlayerId) -> Result<bool> {
+        let Some(card) = self.state.players[player].deck.pop() else {
+            return Ok(false);
+        };
+        if self.state.players[player].hand.len() < 10 {
+            self.state.players[player].hand.push(card.clone());
+            self.emit_card_event(EventKind::CardDrawn, player, card)?;
+        } else {
+            self.state.players[player].discard.push(card.clone());
+            self.emit_card_event(EventKind::CardDiscarded, player, card)?;
+        }
+        Ok(true)
     }
 
     fn roll(&mut self, player: PlayerId, count: usize) {
@@ -1065,9 +1075,9 @@ impl Game {
             }
             Effect::AddCard { card } => self.add_card(&queued.context, &card),
             Effect::AddDice { die, count } => self.add_dice(&queued.context, die, count),
-            Effect::Draw { count } => {
-                self.draw(context_owner(&queued.context)?, usize::from(count));
-                Ok(())
+            Effect::Draw { count } => self.draw_effect(queued.context, count),
+            Effect::Discard { side, count } => {
+                self.discard(&queued.context, side, usize::from(count))
             }
             Effect::Choice {
                 options,
@@ -1217,6 +1227,51 @@ impl Game {
             .checked_add(count)
             .ok_or_else(|| EngineError::Rule("dice count overflowed".to_owned()))?;
         Ok(())
+    }
+
+    fn discard(&mut self, context: &RuleContext, side: TargetSide, count: usize) -> Result<()> {
+        let owner = context_owner(context)?;
+        let player = match side {
+            TargetSide::Own => owner,
+            TargetSide::Enemy => 1 - owner,
+        };
+        for _ in 0..count.min(self.state.players[player].hand.len()) {
+            let index = self
+                .rng
+                .random_range(0..self.state.players[player].hand.len());
+            let card = self.state.players[player].hand.remove(index);
+            self.state.players[player].discard.push(card.clone());
+            self.emit_card_event(EventKind::CardDiscarded, player, card)?;
+        }
+        Ok(())
+    }
+
+    fn draw_effect(&mut self, context: RuleContext, count: u8) -> Result<()> {
+        if count == 0 {
+            return Ok(());
+        }
+        if count > 1 {
+            self.effects.push_front(QueuedEffect {
+                effect: Effect::Draw { count: count - 1 },
+                context: context.clone(),
+            });
+        }
+        self.draw_one(context_owner(&context)?)?;
+        Ok(())
+    }
+
+    fn emit_card_event(&mut self, kind: EventKind, player: PlayerId, card: String) -> Result<()> {
+        self.emit(Event {
+            kind,
+            actor: None,
+            source: None,
+            target: None,
+            player,
+            action_id: Some(card),
+            element: None,
+            reaction: None,
+            amount: 1,
+        })
     }
 
     fn apply_damage(

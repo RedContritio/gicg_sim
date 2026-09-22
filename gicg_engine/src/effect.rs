@@ -1,4 +1,6 @@
-use crate::{ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId, Reaction};
+use crate::{
+    ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId, Reaction, TargetSide,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
@@ -67,6 +69,10 @@ pub enum Effect {
         count: u8,
     },
     Draw {
+        count: u8,
+    },
+    Discard {
+        side: TargetSide,
         count: u8,
     },
     Choice {

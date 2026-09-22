@@ -296,6 +296,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function draw(count)
             return { kind = "draw", count = count }
         end
+        function discard(side, count)
+            return { kind = "discard", side = side, count = count }
+        end
         function choose(continuation, options)
             return { kind = "choice", continuation = continuation, options = options }
         end

@@ -174,7 +174,7 @@ impl CardKind {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, EnumString, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum TargetSide {
@@ -229,6 +229,8 @@ pub enum EventKind {
     RoundStart,
     RoundEnd,
     Conceded,
+    CardDrawn,
+    CardDiscarded,
 }
 
 impl EventKind {

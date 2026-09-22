@@ -84,8 +84,12 @@ fn cards_select_healing_targets_and_draw_from_the_deck() {
 }
 
 fn ready(card: &str) -> Game {
+    ready_with_cards([card, card])
+}
+
+fn ready_with_cards(cards: [&str; 2]) -> Game {
     let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
-    let player = PlayerConfig {
+    let player = |card: &str| PlayerConfig {
         characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
         deck: vec![card.to_owned(); 15],
         active: Some(0),
@@ -94,7 +98,7 @@ fn ready(card: &str) -> Game {
     let mut game = Game::new(
         runtime,
         GameConfig {
-            players: [player.clone(), player],
+            players: [player(cards[0]), player(cards[1])],
             first: 0,
             seed: 7,
         },
@@ -110,6 +114,31 @@ fn ready(card: &str) -> Game {
         .unwrap();
     }
     game
+}
+
+#[test]
+fn draw_and_random_discard_emit_card_events() {
+    let mut game = ready_with_cards(["miscalculation", "splash"]);
+    assert_eq!(
+        game.state
+            .history
+            .iter()
+            .filter(|event| event.kind == gicg_engine::EventKind::CardDrawn)
+            .count(),
+        10
+    );
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(1),
+    })
+    .unwrap();
+    assert_eq!(game.state.players[1].hand.len(), 4);
+    assert_eq!(game.state.players[1].discard, ["splash"]);
+    assert!(
+        game.state.history.iter().any(|event| {
+            event.kind == gicg_engine::EventKind::CardDiscarded && event.player == 1
+        })
+    );
 }
 
 #[test]
