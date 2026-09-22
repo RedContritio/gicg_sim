@@ -255,6 +255,7 @@ pub enum EventKind {
     DamageApplied,
     Healed,
     Revived,
+    CharacterDefeated,
     Switch,
     ModifierAdded,
     ModifierRemoved,

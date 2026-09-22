@@ -2008,7 +2008,11 @@ impl Game {
             defeated = false;
         }
         if defeated {
-            self.handle_defeat(target, reaction_kind.is_some_and(Reaction::force_switch))?;
+            self.handle_defeat(
+                &context,
+                target,
+                reaction_kind.is_some_and(Reaction::force_switch),
+            )?;
         }
         if self.state.phase == Phase::Finished {
             return Ok(());
@@ -2262,23 +2266,17 @@ impl Game {
         Ok(())
     }
 
-    fn handle_defeat(&mut self, target: EntityRef, force_switch: bool) -> Result<()> {
+    fn handle_defeat(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        force_switch: bool,
+    ) -> Result<()> {
         let EntityRef::Character { player, slot } = target else {
             unreachable!()
         };
-        let definition = &self.state.character(player, slot)?.definition;
-        let passives = self
-            .runtime
-            .rules()
-            .character(definition)
-            .expect("state references a loaded character")
-            .passives
-            .clone();
-        let character = self.state.character_mut(player, slot)?;
-        character.auras.clear();
-        character
-            .modifiers
-            .retain(|modifier| passives.contains(&modifier.definition));
+        self.emit_character_defeated(context, target, player)?;
+        self.clear_defeated_character(player, slot)?;
         let alive = self.alive_slots(player)?;
         if alive.is_empty() {
             self.finish_match(1 - player, crate::FinishReason::Defeat);
@@ -2288,6 +2286,50 @@ impl Game {
             } else {
                 self.create_switch_decision(player, alive);
             }
+        }
+        Ok(())
+    }
+
+    fn emit_character_defeated(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        player: PlayerId,
+    ) -> Result<()> {
+        self.emit(Event {
+            kind: EventKind::CharacterDefeated,
+            actor: context.actor,
+            source: context.source,
+            target: Some(target),
+            player: context.source.map_or(player, EntityRef::player),
+            action_id: context.action_id.clone(),
+            action_kind: context.action_kind,
+            skill: context.skill,
+            element: None,
+            reaction: None,
+            amount: 0,
+            traits: context.traits,
+        })
+    }
+
+    fn clear_defeated_character(&mut self, player: PlayerId, slot: usize) -> Result<()> {
+        let definition = &self.state.character(player, slot)?.definition;
+        let passives = self
+            .runtime
+            .rules()
+            .character(definition)
+            .expect("state references a loaded character")
+            .passives
+            .clone();
+        self.state.character_mut(player, slot)?.auras.clear();
+        let removed = self.state.players[player].characters[slot]
+            .modifiers
+            .iter()
+            .filter(|modifier| !passives.contains(&modifier.definition))
+            .map(|modifier| modifier.instance)
+            .collect::<Vec<_>>();
+        for instance in removed {
+            self.remove_modifier(EntityRef::Modifier { player, instance })?;
         }
         Ok(())
     }

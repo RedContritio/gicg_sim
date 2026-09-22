@@ -313,6 +313,10 @@ fn round_transition_waits_for_forced_switches() {
 
     game.submit(Command::End).unwrap();
     assert_eq!(game.state.round, 1);
+    assert!(game.state.history.iter().any(|event| {
+        event.kind == gicg_engine::EventKind::CharacterDefeated
+            && event.target == Some(EntityRef::Character { player: 1, slot: 0 })
+    }));
     let decision = game.state.decision.as_ref().unwrap().id;
     game.choose(decision, 0).unwrap();
     assert_eq!(game.state.players[1].active, 1);
@@ -374,5 +378,12 @@ fn defeat_prevention_revives_before_character_cleanup() {
             "uses"
         ),
         1
+    );
+    assert!(
+        !game
+            .state
+            .history
+            .iter()
+            .any(|event| event.kind == gicg_engine::EventKind::CharacterDefeated)
     );
 }
