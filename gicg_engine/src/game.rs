@@ -1316,9 +1316,13 @@ impl Game {
     }
 
     fn add_dice(&mut self, context: &RuleContext, die: Die, count: u8) -> Result<()> {
-        let dice = &mut self.state.players[context_owner(context)?].dice.0[die.index()];
+        let player = context_owner(context)?;
+        let available = DiceSet::MAX_TOTAL.saturating_sub(self.state.players[player].dice.total());
+        let added =
+            u8::try_from(available.min(u16::from(count))).expect("dice capacity fits in u8");
+        let dice = &mut self.state.players[player].dice.0[die.index()];
         *dice = dice
-            .checked_add(count)
+            .checked_add(added)
             .ok_or_else(|| EngineError::Rule("dice count overflowed".to_owned()))?;
         Ok(())
     }
@@ -1990,7 +1994,7 @@ impl Game {
             }
         }
         invocations.sort_by_key(|invocation| invocation.instance);
-        for invocation in invocations {
+        for invocation in invocations.into_iter().rev() {
             if self.state.find_modifier(invocation.instance).is_none() {
                 continue;
             }

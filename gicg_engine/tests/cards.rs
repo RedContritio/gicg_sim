@@ -102,12 +102,16 @@ fn ready(card: &str) -> Game {
 }
 
 fn ready_with_cards(cards: [&str; 2]) -> Game {
+    ready_with_dice(cards, omni(32))
+}
+
+fn ready_with_dice(cards: [&str; 2], dice: DiceSet) -> Game {
     let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
     let player = |card: &str| PlayerConfig {
         characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
         deck: vec![card.to_owned(); 15],
         active: Some(0),
-        dice: omni(32),
+        dice,
     };
     let mut game = Game::new(
         runtime,
@@ -153,6 +157,14 @@ fn draw_and_random_discard_emit_card_events() {
             event.kind == gicg_engine::EventKind::CardDiscarded && event.player == 1
         })
     );
+
+    let mut game = ready_with_dice(["mavuika.motorcycle_traverse", "splash"], omni(15));
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert_eq!(game.state.players[0].dice.total(), DiceSet::MAX_TOTAL);
 }
 
 #[test]

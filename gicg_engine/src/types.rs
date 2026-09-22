@@ -97,6 +97,8 @@ impl Die {
 pub struct DiceSet(pub [u8; Die::COUNT]);
 
 impl DiceSet {
+    pub const MAX_TOTAL: u16 = 16;
+
     pub fn get(self, die: Die) -> u8 {
         self.0[die.index()]
     }
