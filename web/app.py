@@ -2,12 +2,11 @@ import json
 import secrets
 import tomllib
 from pathlib import Path
-from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from gicg_env import GameSession
 
@@ -19,16 +18,6 @@ class CreateGame(BaseModel):
     seed: int | None = None
 
 
-class Action(BaseModel):
-    kind: Literal["redraw", "reroll", "skill", "card", "tune", "switch", "end"]
-    action: str | None = None
-    hand: int | None = None
-    slot: int | None = None
-    die: int | None = None
-    payment: list[int] = Field(default_factory=list)
-    selected: list[int] = Field(default_factory=list)
-
-
 class Choice(BaseModel):
     decision: int
     option: int
@@ -36,38 +25,6 @@ class Choice(BaseModel):
 
 def snapshot(session: GameSession) -> dict:
     return json.loads(session.snapshot_json())
-
-
-def dispatch(session: GameSession, action: Action) -> str:
-    match action.kind:
-        case "redraw":
-            return session.redraw(action.selected)
-        case "reroll":
-            return session.reroll(action.payment)
-        case "end":
-            return session.end_round()
-        case _:
-            return dispatch_parameterized(session, action)
-
-
-def dispatch_parameterized(session: GameSession, action: Action) -> str:
-    match action.kind:
-        case "skill" if action.action is not None:
-            return session.action(action.action, action.payment)
-        case "card" if action.hand is not None:
-            return session.play_card(action.hand, action.payment)
-        case _:
-            return dispatch_board_action(session, action)
-
-
-def dispatch_board_action(session: GameSession, action: Action) -> str:
-    match action.kind:
-        case "tune" if action.hand is not None and action.die is not None:
-            return session.tune(action.hand, action.die)
-        case "switch" if action.slot is not None:
-            return session.switch(action.slot, action.payment)
-        case _:
-            raise HTTPException(422, "行动参数不完整")
 
 
 def create_app(config_path: Path | None = None) -> FastAPI:
@@ -93,17 +50,21 @@ def create_app(config_path: Path | None = None) -> FastAPI:
         )
         game_id = secrets.token_urlsafe(12)
         games[game_id] = session
-        return {"game_id": game_id, "state": snapshot(session)}
+        return {
+            "game_id": game_id,
+            "rules": json.loads(session.rules_json()),
+            "state": snapshot(session),
+        }
 
     @app.get("/api/games/{game_id}")
     async def inspect(game_id: str) -> dict:
         return snapshot(game(game_id))
 
     @app.post("/api/games/{game_id}/actions")
-    async def act(game_id: str, body: Action) -> dict:
+    async def act(game_id: str, body: dict) -> dict:
         session = game(game_id)
         try:
-            result = dispatch(session, body)
+            result = session.submit(json.dumps(body))
         except RuntimeError as error:
             raise HTTPException(409, str(error)) from error
         return json.loads(result)

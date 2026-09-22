@@ -2,8 +2,10 @@ use crate::{
     Counter, CounterSchema, DefinitionId, DiceSet, EngineError, EntityRef, InstanceId, PlayerId,
     Result, Ruleset, Zone,
 };
+use serde::Serialize;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Phase {
     Redraw,
     Roll,
@@ -11,19 +13,20 @@ pub enum Phase {
     Finished,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum DecisionKind {
     Choice,
     ForcedSwitch,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct ChoiceOption {
     pub id: String,
     pub label: String,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Decision {
     pub id: crate::DecisionId,
     pub kind: DecisionKind,
@@ -31,7 +34,7 @@ pub struct Decision {
     pub options: Vec<ChoiceOption>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct GameState {
     pub round: u16,
     pub phase: Phase,
@@ -43,9 +46,8 @@ pub struct GameState {
     pub next_decision: crate::DecisionId,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct PlayerState {
-    pub counters: Vec<Counter>,
     pub characters: Vec<CharacterState>,
     pub active: u8,
     pub dice: DiceSet,
@@ -58,15 +60,14 @@ pub struct PlayerState {
     pub supports: Vec<ModifierState>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct CharacterState {
     pub definition: DefinitionId,
     pub counters: Vec<Counter>,
-    pub auras: u16,
     pub modifiers: Vec<ModifierState>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct ModifierState {
     pub instance: InstanceId,
     pub definition: DefinitionId,
@@ -127,7 +128,6 @@ impl GameState {
                 characters.push(CharacterState {
                     definition: definition.definition,
                     counters: definition.counters.initial_values(),
-                    auras: 0,
                     modifiers: Vec::new(),
                 });
             }

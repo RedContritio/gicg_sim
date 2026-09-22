@@ -1,6 +1,6 @@
-use std::fmt;
-
 use crate::{EngineError, Result};
+use serde::{Deserialize, Serialize};
+use strum::{Display, EnumString};
 
 pub type Counter = i32;
 pub type DefinitionId = u32;
@@ -10,8 +10,10 @@ pub type DecisionId = u64;
 pub type FieldId = u16;
 pub type PlayerId = u8;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Display, EnumString, Eq, PartialEq, Hash, Serialize)]
 #[repr(u8)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum Element {
     Physical,
     Cryo,
@@ -25,39 +27,27 @@ pub enum Element {
 
 impl Element {
     pub fn parse(value: &str) -> Result<Self> {
-        match value {
-            "physical" => Ok(Self::Physical),
-            "cryo" => Ok(Self::Cryo),
-            "hydro" => Ok(Self::Hydro),
-            "pyro" => Ok(Self::Pyro),
-            "electro" => Ok(Self::Electro),
-            "anemo" => Ok(Self::Anemo),
-            "geo" => Ok(Self::Geo),
-            "dendro" => Ok(Self::Dendro),
-            _ => Err(EngineError::InvalidRuleset(format!(
-                "unknown element {value:?}"
-            ))),
+        parse_name(value, "element")
+    }
+
+    pub const fn die(self) -> Option<Die> {
+        match self {
+            Self::Physical => None,
+            Self::Cryo => Some(Die::Cryo),
+            Self::Hydro => Some(Die::Hydro),
+            Self::Pyro => Some(Die::Pyro),
+            Self::Electro => Some(Die::Electro),
+            Self::Anemo => Some(Die::Anemo),
+            Self::Geo => Some(Die::Geo),
+            Self::Dendro => Some(Die::Dendro),
         }
     }
 }
 
-impl fmt::Display for Element {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(match self {
-            Self::Physical => "physical",
-            Self::Cryo => "cryo",
-            Self::Hydro => "hydro",
-            Self::Pyro => "pyro",
-            Self::Electro => "electro",
-            Self::Anemo => "anemo",
-            Self::Geo => "geo",
-            Self::Dendro => "dendro",
-        })
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Deserialize, EnumString, Eq, PartialEq, Hash)]
 #[repr(u8)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum Die {
     Cryo,
     Hydro,
@@ -83,19 +73,7 @@ impl Die {
     ];
 
     pub fn parse(value: &str) -> Result<Self> {
-        match value {
-            "cryo" => Ok(Self::Cryo),
-            "hydro" => Ok(Self::Hydro),
-            "pyro" => Ok(Self::Pyro),
-            "electro" => Ok(Self::Electro),
-            "anemo" => Ok(Self::Anemo),
-            "geo" => Ok(Self::Geo),
-            "dendro" => Ok(Self::Dendro),
-            "omni" => Ok(Self::Omni),
-            _ => Err(EngineError::InvalidRuleset(format!(
-                "unknown die {value:?}"
-            ))),
-        }
+        parse_name(value, "die")
     }
 
     pub const fn index(self) -> usize {
@@ -103,7 +81,8 @@ impl Die {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(transparent)]
 pub struct DiceSet(pub [u8; Die::COUNT]);
 
 impl DiceSet {
@@ -120,7 +99,9 @@ impl DiceSet {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum Zone {
     Character,
     Combat,
@@ -130,19 +111,13 @@ pub enum Zone {
 
 impl Zone {
     pub fn parse(value: &str) -> Result<Self> {
-        match value {
-            "character" => Ok(Self::Character),
-            "combat" => Ok(Self::Combat),
-            "summon" => Ok(Self::Summon),
-            "support" => Ok(Self::Support),
-            _ => Err(EngineError::InvalidRuleset(format!(
-                "unknown zone {value:?}"
-            ))),
-        }
+        parse_name(value, "zone")
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum MergePolicy {
     Replace,
     Add,
@@ -152,19 +127,13 @@ pub enum MergePolicy {
 
 impl MergePolicy {
     pub fn parse(value: &str) -> Result<Self> {
-        match value {
-            "replace" => Ok(Self::Replace),
-            "add" => Ok(Self::Add),
-            "max" => Ok(Self::Max),
-            "independent" => Ok(Self::Independent),
-            _ => Err(EngineError::InvalidRuleset(format!(
-                "unknown merge policy {value:?}"
-            ))),
-        }
+        parse_name(value, "merge policy")
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum ActionTempo {
     Combat,
     Fast,
@@ -172,56 +141,12 @@ pub enum ActionTempo {
 
 impl ActionTempo {
     pub fn parse(value: &str) -> Result<Self> {
-        match value {
-            "combat" => Ok(Self::Combat),
-            "fast" => Ok(Self::Fast),
-            _ => Err(EngineError::InvalidRuleset(format!(
-                "unknown action tempo {value:?}"
-            ))),
-        }
+        parse_name(value, "action tempo")
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
-pub struct ActionTags(pub u32);
-
-impl ActionTags {
-    pub const SKILL: u32 = 1 << 0;
-    pub const NORMAL: u32 = 1 << 1;
-    pub const ELEMENTAL_SKILL: u32 = 1 << 2;
-    pub const BURST: u32 = 1 << 3;
-    pub const CARD: u32 = 1 << 4;
-    pub const SWITCH: u32 = 1 << 5;
-    pub const TECHNIQUE: u32 = 1 << 6;
-    pub const CHARGED: u32 = 1 << 7;
-    pub const PREPARED: u32 = 1 << 8;
-
-    pub fn insert_name(&mut self, value: &str) -> Result<()> {
-        self.0 |= match value {
-            "skill" => Self::SKILL,
-            "normal" => Self::NORMAL,
-            "elemental_skill" => Self::ELEMENTAL_SKILL,
-            "burst" => Self::BURST,
-            "card" => Self::CARD,
-            "switch" => Self::SWITCH,
-            "technique" => Self::TECHNIQUE,
-            "charged" => Self::CHARGED,
-            "prepared" => Self::PREPARED,
-            _ => {
-                return Err(EngineError::InvalidRuleset(format!(
-                    "unknown action tag {value:?}"
-                )));
-            }
-        };
-        Ok(())
-    }
-
-    pub const fn contains(self, tag: u32) -> bool {
-        self.0 & tag != 0
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Hash)]
+#[strum(serialize_all = "snake_case")]
 pub enum EventKind {
     ActionResolved,
     DamageApplied,
@@ -229,27 +154,13 @@ pub enum EventKind {
     ModifierAdded,
     ModifierRemoved,
     PlayerEndDeclared,
-    DecisionStart,
     RoundStart,
     RoundEnd,
 }
 
 impl EventKind {
     pub fn parse(value: &str) -> Result<Self> {
-        match value {
-            "action_resolved" => Ok(Self::ActionResolved),
-            "damage_applied" => Ok(Self::DamageApplied),
-            "switch" => Ok(Self::Switch),
-            "modifier_added" => Ok(Self::ModifierAdded),
-            "modifier_removed" => Ok(Self::ModifierRemoved),
-            "player_end_declared" => Ok(Self::PlayerEndDeclared),
-            "decision_start" => Ok(Self::DecisionStart),
-            "round_start" => Ok(Self::RoundStart),
-            "round_end" => Ok(Self::RoundEnd),
-            _ => Err(EngineError::InvalidRuleset(format!(
-                "unknown event {value:?}"
-            ))),
-        }
+        parse_name(value, "event")
     }
 }
 
@@ -281,4 +192,10 @@ pub enum RemovalReason {
     Discarded,
     Replaced,
     Death,
+}
+
+fn parse_name<T: std::str::FromStr>(value: &str, kind: &str) -> Result<T> {
+    value
+        .parse()
+        .map_err(|_| EngineError::InvalidRuleset(format!("unknown {kind} {value:?}")))
 }

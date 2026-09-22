@@ -15,7 +15,7 @@ impl TargetRef {
     pub fn parse(value: &str) -> Option<Self> {
         match value {
             "actor" => Some(Self::Actor),
-            "source" | "self" => Some(Self::Source),
+            "source" => Some(Self::Source),
             "target" => Some(Self::EventTarget),
             "own_active" => Some(Self::OwnActive),
             "enemy_active" => Some(Self::EnemyActive),

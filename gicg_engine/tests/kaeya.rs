@@ -37,28 +37,23 @@ fn kaeya_skills_and_icicle_follow_real_results() {
     .unwrap();
 
     game.submit(Command::Redraw {
-        player: 0,
-        hand: Vec::new(),
+        selected: Vec::new(),
     })
     .unwrap();
     game.submit(Command::Redraw {
-        player: 1,
-        hand: Vec::new(),
+        selected: Vec::new(),
     })
     .unwrap();
     game.submit(Command::Reroll {
-        player: 0,
-        dice: DiceSet::default(),
+        payment: DiceSet::default(),
     })
     .unwrap();
     game.submit(Command::Reroll {
-        player: 1,
-        dice: DiceSet::default(),
+        payment: DiceSet::default(),
     })
     .unwrap();
 
-    game.submit(Command::CharacterAction {
-        player: 0,
+    game.submit(Command::Skill {
         action: "frostgnaw".to_owned(),
         payment: omni(3),
     })
@@ -84,38 +79,32 @@ fn kaeya_skills_and_icicle_follow_real_results() {
         1
     );
 
-    game.submit(Command::CharacterAction {
-        player: 1,
+    game.submit(Command::Skill {
         action: "ceremonial_bladework".to_owned(),
         payment: omni(3),
     })
     .unwrap();
-    game.submit(Command::CharacterAction {
-        player: 0,
+    game.submit(Command::Skill {
         action: "frostgnaw".to_owned(),
         payment: omni(3),
     })
     .unwrap();
     game.submit(Command::Switch {
-        player: 1,
         slot: 1,
         payment: omni(1),
     })
     .unwrap();
-    game.submit(Command::CharacterAction {
-        player: 0,
+    game.submit(Command::Skill {
         action: "glacial_waltz".to_owned(),
         payment: omni(4),
     })
     .unwrap();
     game.submit(Command::Switch {
-        player: 1,
         slot: 0,
         payment: omni(1),
     })
     .unwrap();
     game.submit(Command::Switch {
-        player: 0,
         slot: 1,
         payment: omni(1),
     })
@@ -168,13 +157,11 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     .unwrap();
 
     game.submit(Command::Redraw {
-        player: 0,
-        hand: vec![0, 1],
+        selected: vec![0, 1],
     })
     .unwrap();
     game.submit(Command::Redraw {
-        player: 1,
-        hand: Vec::new(),
+        selected: Vec::new(),
     })
     .unwrap();
     assert_eq!(game.state.phase, Phase::Roll);
@@ -182,19 +169,16 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     assert_eq!(game.state.players[0].dice.total(), 8);
 
     game.submit(Command::Reroll {
-        player: 0,
-        dice: DiceSet::default(),
+        payment: DiceSet::default(),
     })
     .unwrap();
     game.submit(Command::Reroll {
-        player: 1,
-        dice: DiceSet::default(),
+        payment: DiceSet::default(),
     })
     .unwrap();
     assert_eq!(game.state.phase, Phase::Action);
 
-    game.submit(Command::PlayCard {
-        player: 0,
+    game.submit(Command::Card {
         hand: 0,
         payment: first_die(game.state.players[0].dice),
     })
@@ -202,8 +186,8 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     assert_eq!(game.state.turn, 0);
     assert_eq!(game.state.players[0].discard.len(), 1);
 
-    game.submit(Command::EndRound { player: 0 }).unwrap();
-    game.submit(Command::EndRound { player: 1 }).unwrap();
+    game.submit(Command::End).unwrap();
+    game.submit(Command::End).unwrap();
     assert_eq!(game.state.round, 2);
     assert_eq!(game.state.phase, Phase::Roll);
     assert_eq!(game.state.turn, 0);

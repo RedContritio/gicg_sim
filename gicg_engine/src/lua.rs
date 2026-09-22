@@ -1,19 +1,17 @@
 use std::{
-    cell::RefCell,
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    rc::Rc,
 };
 
 use mlua::{Function, Lua, LuaOptions, RegistryKey, StdLib, Table, Value};
 use sha2::{Digest, Sha256};
 
 use crate::{
-    ActionDefinition, ActionTags, ActionTempo, CardDefinition, ChoiceOption, Cost, CounterConsume,
-    CounterCost, CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef,
-    EventKind, GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition,
-    RemovalReason, Result, RuleContext, Ruleset, TargetRef, Zone,
+    ActionDefinition, ActionTempo, CardDefinition, ChoiceOption, Cost, CounterConsume, CounterCost,
+    CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef, EventKind,
+    GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition, RemovalReason,
+    Result, RuleContext, Ruleset, TargetRef, Zone,
 };
 
 struct LoadState {
@@ -83,11 +81,13 @@ impl LuaRuntime {
             LuaOptions::default(),
         )?;
         install_effect_constructors(&lua)?;
-        let state = Rc::new(RefCell::new(LoadState::new()));
-        install_definition_functions(&lua, Rc::clone(&state))?;
+        lua.set_app_data(LoadState::new());
+        install_definition_functions(&lua)?;
         let hash = execute_files(&lua, root, files)?;
         lock_runtime(&lua)?;
-        let state = take_load_state(state)?;
+        let state: LoadState = lua.remove_app_data().ok_or_else(|| {
+            EngineError::InvalidRuleset("ruleset loader lost its state".to_owned())
+        })?;
         seal_handlers(&lua, &state.handlers)?;
         let rules = Ruleset::new(hash, state.characters, state.modifiers, state.cards)?;
         Ok(Self {
@@ -120,8 +120,7 @@ impl LuaRuntime {
                 })?;
                 table.set("counter", counter)?;
                 let value: Value = function.call(table)?;
-                parse_effects(value, &self.rules, context)
-                    .map_err(|error| mlua::Error::runtime(error.to_string()))
+                parse_effects(value, &self.rules, context).map_err(lua_error)
             })
             .map_err(EngineError::from)
     }
@@ -185,12 +184,6 @@ fn lock_runtime(lua: &Lua) -> Result<()> {
     lua.gc_collect().map_err(EngineError::from)
 }
 
-fn take_load_state(state: Rc<RefCell<LoadState>>) -> Result<LoadState> {
-    Ok(Rc::try_unwrap(state)
-        .map_err(|_| EngineError::InvalidRuleset("ruleset loader leaked state".to_owned()))?
-        .into_inner())
-}
-
 fn read_counter(
     state: &GameState,
     rules: &Ruleset,
@@ -200,11 +193,8 @@ fn read_counter(
 ) -> mlua::Result<i32> {
     let target =
         TargetRef::parse(target).ok_or_else(|| mlua::Error::runtime("unknown counter target"))?;
-    let entity = resolve_target(state, context, target)
-        .map_err(|error| mlua::Error::runtime(error.to_string()))?;
-    state
-        .counter(rules, entity, name)
-        .map_err(|error| mlua::Error::runtime(error.to_string()))
+    let entity = resolve_target(state, context, target).map_err(lua_error)?;
+    state.counter(rules, entity, name).map_err(lua_error)
 }
 
 fn lua_files(root: &Path) -> Result<Vec<PathBuf>> {
@@ -255,30 +245,31 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
     .exec()
 }
 
-fn install_definition_functions(lua: &Lua, state: Rc<RefCell<LoadState>>) -> mlua::Result<()> {
-    let character_state = Rc::clone(&state);
+fn install_definition_functions(lua: &Lua) -> mlua::Result<()> {
     lua.globals().set(
         "character",
-        lua.create_function(move |lua, table: Table| {
-            let definition = parse_character(lua, &mut character_state.borrow_mut(), table)?;
-            character_state.borrow_mut().characters.push(definition);
+        lua.create_function(|lua, table: Table| {
+            let mut state = lua.app_data_mut::<LoadState>().expect("load state exists");
+            let definition = parse_character(lua, &mut state, table)?;
+            state.characters.push(definition);
             Ok(())
         })?,
     )?;
-    let modifier_state = Rc::clone(&state);
     lua.globals().set(
         "modifier",
-        lua.create_function(move |lua, table: Table| {
-            let definition = parse_modifier(lua, &mut modifier_state.borrow_mut(), table)?;
-            modifier_state.borrow_mut().modifiers.push(definition);
+        lua.create_function(|lua, table: Table| {
+            let mut state = lua.app_data_mut::<LoadState>().expect("load state exists");
+            let definition = parse_modifier(lua, &mut state, table)?;
+            state.modifiers.push(definition);
             Ok(())
         })?,
     )?;
     lua.globals().set(
         "card",
-        lua.create_function(move |lua, table: Table| {
-            let definition = parse_card(lua, &mut state.borrow_mut(), table)?;
-            state.borrow_mut().cards.push(definition);
+        lua.create_function(|lua, table: Table| {
+            let mut state = lua.app_data_mut::<LoadState>().expect("load state exists");
+            let definition = parse_card(lua, &mut state, table)?;
+            state.cards.push(definition);
             Ok(())
         })?,
     )?;
@@ -300,7 +291,6 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
         action: ActionDefinition {
             id,
             name,
-            tags: ActionTags(ActionTags::CARD),
             tempo,
             cost,
             resolve,
@@ -320,8 +310,7 @@ fn parse_character(
     let counters = parse_counters(table.get("counters")?)?;
     require_hp(&id, &counters)?;
     let actions = parse_actions(lua, state, &table, &id, &counters)?;
-    crate::CharacterDefinition::new(id, name, element, counters, actions)
-        .map_err(|error| mlua::Error::runtime(error.to_string()))
+    crate::CharacterDefinition::new(id, name, element, counters, actions).map_err(lua_error)
 }
 
 fn parse_action(
@@ -334,7 +323,6 @@ fn parse_action(
     let id = required_string(&table, "id")?;
     let name = required_string(&table, "name")?;
     let tempo = parse_tempo(&table, "combat")?;
-    let tags = parse_action_tags(&table, character_id, &id)?;
     let cost = parse_optional_cost(&table, counters)?;
     let label = format!("action {character_id}.{id} resolve");
     let resolve = add_table_handler(lua, state, &table, "resolve", &label)?;
@@ -342,7 +330,6 @@ fn parse_action(
     Ok(ActionDefinition {
         id,
         name,
-        tags,
         tempo,
         cost,
         resolve,
@@ -378,8 +365,7 @@ fn parse_modifier(
 
 fn parse_tempo(table: &Table, default: &str) -> mlua::Result<ActionTempo> {
     let value = table.get::<Option<String>>("tempo")?;
-    ActionTempo::parse(value.as_deref().unwrap_or(default))
-        .map_err(|error| mlua::Error::runtime(error.to_string()))
+    ActionTempo::parse(value.as_deref().unwrap_or(default)).map_err(lua_error)
 }
 
 fn parse_optional_cost(table: &Table, counters: &CounterSchema) -> mlua::Result<Cost> {
@@ -400,8 +386,7 @@ fn add_table_handler(
 }
 
 fn parse_element(table: &Table) -> mlua::Result<Element> {
-    Element::parse(&required_string(table, "element")?)
-        .map_err(|error| mlua::Error::runtime(error.to_string()))
+    Element::parse(&required_string(table, "element")?).map_err(lua_error)
 }
 
 fn require_hp(character_id: &str, counters: &CounterSchema) -> mlua::Result<()> {
@@ -432,24 +417,6 @@ fn parse_actions(
     Ok(actions)
 }
 
-fn parse_action_tags(
-    table: &Table,
-    character_id: &str,
-    action_id: &str,
-) -> mlua::Result<ActionTags> {
-    let mut tags = ActionTags::default();
-    for tag in table.get::<Table>("tags")?.sequence_values::<String>() {
-        tags.insert_name(&tag?)
-            .map_err(|error| mlua::Error::runtime(error.to_string()))?;
-    }
-    if tags.0 == 0 {
-        return Err(mlua::Error::runtime(format!(
-            "action {character_id}.{action_id} has no tags"
-        )));
-    }
-    Ok(tags)
-}
-
 fn parse_continuations(
     lua: &Lua,
     state: &mut LoadState,
@@ -471,14 +438,12 @@ fn parse_continuations(
 
 fn parse_zone(table: &Table) -> mlua::Result<Zone> {
     let value = table.get::<Option<String>>("zone")?;
-    Zone::parse(value.as_deref().unwrap_or("character"))
-        .map_err(|error| mlua::Error::runtime(error.to_string()))
+    Zone::parse(value.as_deref().unwrap_or("character")).map_err(lua_error)
 }
 
 fn parse_merge(table: &Table) -> mlua::Result<MergePolicy> {
     let value = table.get::<Option<String>>("merge")?;
-    MergePolicy::parse(value.as_deref().unwrap_or("replace"))
-        .map_err(|error| mlua::Error::runtime(error.to_string()))
+    MergePolicy::parse(value.as_deref().unwrap_or("replace")).map_err(lua_error)
 }
 
 fn parse_remove_at_zero(
@@ -510,12 +475,10 @@ fn parse_handlers(
     };
     for entry in entries.pairs::<String, Function>() {
         let (event_name, function) = entry?;
-        let event = EventKind::parse(&event_name)
-            .map_err(|error| mlua::Error::runtime(error.to_string()))?;
+        let event = EventKind::parse(&event_name).map_err(lua_error)?;
         let label = format!("modifier {modifier_id} handler {event_name}");
         let handler = state.add_handler(lua, function, &label)?;
         handlers.entry(event).or_default().push(HandlerDefinition {
-            event,
             priority: 0,
             handler,
         });
@@ -552,7 +515,7 @@ fn parse_counters(table: Table) -> mlua::Result<CounterSchema> {
             max: definition.get::<Option<i32>>("max")?.unwrap_or(i32::MAX),
         });
     }
-    CounterSchema::new(counters).map_err(|error| mlua::Error::runtime(error.to_string()))
+    CounterSchema::new(counters).map_err(lua_error)
 }
 
 fn parse_cost(table: Table, counters: &CounterSchema) -> mlua::Result<Cost> {
@@ -578,7 +541,7 @@ fn parse_dice_cost(table: &Table, cost: &mut Cost) -> mlua::Result<()> {
 }
 
 fn parse_specific_die(name: &str) -> mlua::Result<crate::Die> {
-    let die = crate::Die::parse(name).map_err(|error| mlua::Error::runtime(error.to_string()))?;
+    let die = crate::Die::parse(name).map_err(lua_error)?;
     if die == crate::Die::Omni {
         return Err(mlua::Error::runtime("omni cannot be a specific dice cost"));
     }
@@ -632,6 +595,10 @@ fn required_string(table: &Table, field: &str) -> mlua::Result<String> {
         )));
     }
     Ok(value)
+}
+
+fn lua_error(error: impl ToString) -> mlua::Error {
+    mlua::Error::runtime(error.to_string())
 }
 
 fn seal_handlers(lua: &Lua, handlers: &HashMap<HandlerId, RegistryKey>) -> mlua::Result<()> {

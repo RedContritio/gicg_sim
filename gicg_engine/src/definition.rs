@@ -1,11 +1,13 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+
+use serde::Serialize;
 
 use crate::{
-    ActionTags, ActionTempo, Counter, DefinitionId, DiceSet, Die, EngineError, EventKind, FieldId,
-    HandlerId, MergePolicy, Result, Zone,
+    ActionTempo, Counter, DefinitionId, DiceSet, Die, EngineError, EventKind, FieldId, HandlerId,
+    MergePolicy, Result, Zone,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct CounterDefinition {
     pub name: String,
     pub initial: Counter,
@@ -13,16 +15,14 @@ pub struct CounterDefinition {
     pub max: Counter,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CounterSchema {
     fields: Vec<CounterDefinition>,
-    by_name: HashMap<String, FieldId>,
 }
 
 impl CounterSchema {
     pub fn new(mut fields: Vec<CounterDefinition>) -> Result<Self> {
         fields.sort_unstable_by(|left, right| left.name.cmp(&right.name));
-        let mut by_name = HashMap::with_capacity(fields.len());
         for (index, field) in fields.iter().enumerate() {
             if field.name.is_empty() {
                 return Err(EngineError::InvalidRuleset(
@@ -35,21 +35,24 @@ impl CounterSchema {
                     field.name, field.min, field.max, field.initial
                 )));
             }
-            let field_id = FieldId::try_from(index).map_err(|_| {
+            FieldId::try_from(index).map_err(|_| {
                 EngineError::InvalidRuleset("one entity declares too many counters".to_owned())
             })?;
-            if by_name.insert(field.name.clone(), field_id).is_some() {
+            if index > 0 && fields[index - 1].name == field.name {
                 return Err(EngineError::InvalidRuleset(format!(
                     "duplicate counter {:?}",
                     field.name
                 )));
             }
         }
-        Ok(Self { fields, by_name })
+        Ok(Self { fields })
     }
 
     pub fn field(&self, name: &str) -> Option<FieldId> {
-        self.by_name.get(name).copied()
+        self.fields
+            .binary_search_by_key(&name, |field| field.name.as_str())
+            .ok()
+            .and_then(|index| FieldId::try_from(index).ok())
     }
 
     pub fn definition(&self, field: FieldId) -> Option<&CounterDefinition> {
@@ -65,21 +68,22 @@ impl CounterSchema {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum CounterConsume {
     None,
     Fixed(Counter),
     All,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize)]
 pub struct CounterCost {
     pub field: FieldId,
     pub require: Counter,
     pub consume: CounterConsume,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct Cost {
     pub dice: DiceSet,
     pub any: u8,
@@ -110,18 +114,19 @@ impl Cost {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct ActionDefinition {
     pub id: String,
     pub name: String,
-    pub tags: ActionTags,
     pub tempo: ActionTempo,
     pub cost: Cost,
+    #[serde(skip)]
     pub resolve: HandlerId,
+    #[serde(skip)]
     pub continuations: HashMap<String, HandlerId>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct CharacterDefinition {
     pub definition: DefinitionId,
     pub id: String,
@@ -129,10 +134,9 @@ pub struct CharacterDefinition {
     pub element: crate::Element,
     pub counters: CounterSchema,
     pub actions: Vec<ActionDefinition>,
-    action_by_id: HashMap<String, usize>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct CardDefinition {
     pub definition: DefinitionId,
     pub id: String,
@@ -149,9 +153,9 @@ impl CharacterDefinition {
         counters: CounterSchema,
         actions: Vec<ActionDefinition>,
     ) -> Result<Self> {
-        let mut action_by_id = HashMap::with_capacity(actions.len());
-        for (index, action) in actions.iter().enumerate() {
-            if action_by_id.insert(action.id.clone(), index).is_some() {
+        let mut ids = HashSet::new();
+        for action in &actions {
+            if !ids.insert(&action.id) {
                 return Err(EngineError::InvalidRuleset(format!(
                     "character {id:?} has duplicate action {:?}",
                     action.id
@@ -165,23 +169,21 @@ impl CharacterDefinition {
             element,
             counters,
             actions,
-            action_by_id,
         })
     }
 
     pub fn action(&self, id: &str) -> Option<&ActionDefinition> {
-        self.action_by_id.get(id).map(|index| &self.actions[*index])
+        self.actions.iter().find(|action| action.id == id)
     }
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct HandlerDefinition {
-    pub event: EventKind,
     pub priority: i16,
     pub handler: HandlerId,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct ModifierDefinition {
     pub definition: DefinitionId,
     pub id: String,
@@ -190,22 +192,18 @@ pub struct ModifierDefinition {
     pub counters: CounterSchema,
     pub merge: MergePolicy,
     pub remove_at_zero: Option<FieldId>,
+    #[serde(skip)]
     pub handlers: HashMap<EventKind, Vec<HandlerDefinition>>,
+    #[serde(skip)]
     pub abilities: HashMap<String, HandlerId>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Ruleset {
     pub hash: String,
     pub characters: Vec<CharacterDefinition>,
     pub modifiers: Vec<ModifierDefinition>,
     pub cards: Vec<CardDefinition>,
-    character_by_id: HashMap<String, usize>,
-    modifier_by_id: HashMap<String, usize>,
-    card_by_id: HashMap<String, usize>,
-    character_by_definition: HashMap<DefinitionId, usize>,
-    modifier_by_definition: HashMap<DefinitionId, usize>,
-    card_by_definition: HashMap<DefinitionId, usize>,
 }
 
 impl Ruleset {
@@ -215,16 +213,10 @@ impl Ruleset {
         mut modifiers: Vec<ModifierDefinition>,
         mut cards: Vec<CardDefinition>,
     ) -> Result<Self> {
-        let mut ids = HashMap::<String, ()>::new();
-        let mut character_by_id = HashMap::new();
-        let mut modifier_by_id = HashMap::new();
-        let mut card_by_id = HashMap::new();
-        let mut character_by_definition = HashMap::new();
-        let mut modifier_by_definition = HashMap::new();
-        let mut card_by_definition = HashMap::new();
+        let mut ids = HashSet::new();
         let mut next_definition = 1;
-        for (index, character) in characters.iter_mut().enumerate() {
-            if ids.insert(character.id.clone(), ()).is_some() {
+        for character in &mut characters {
+            if !ids.insert(&character.id) {
                 return Err(EngineError::InvalidRuleset(format!(
                     "duplicate definition id {:?}",
                     character.id
@@ -232,11 +224,9 @@ impl Ruleset {
             }
             character.definition = next_definition;
             next_definition += 1;
-            character_by_id.insert(character.id.clone(), index);
-            character_by_definition.insert(character.definition, index);
         }
-        for (index, modifier) in modifiers.iter_mut().enumerate() {
-            if ids.insert(modifier.id.clone(), ()).is_some() {
+        for modifier in &mut modifiers {
+            if !ids.insert(&modifier.id) {
                 return Err(EngineError::InvalidRuleset(format!(
                     "duplicate definition id {:?}",
                     modifier.id
@@ -244,11 +234,9 @@ impl Ruleset {
             }
             modifier.definition = next_definition;
             next_definition += 1;
-            modifier_by_id.insert(modifier.id.clone(), index);
-            modifier_by_definition.insert(modifier.definition, index);
         }
-        for (index, card) in cards.iter_mut().enumerate() {
-            if ids.insert(card.id.clone(), ()).is_some() {
+        for card in &mut cards {
+            if !ids.insert(&card.id) {
                 return Err(EngineError::InvalidRuleset(format!(
                     "duplicate definition id {:?}",
                     card.id
@@ -256,54 +244,46 @@ impl Ruleset {
             }
             card.definition = next_definition;
             next_definition += 1;
-            card_by_id.insert(card.id.clone(), index);
-            card_by_definition.insert(card.definition, index);
         }
         Ok(Self {
             hash,
             characters,
             modifiers,
             cards,
-            character_by_id,
-            modifier_by_id,
-            card_by_id,
-            character_by_definition,
-            modifier_by_definition,
-            card_by_definition,
         })
     }
 
     pub fn character(&self, id: &str) -> Option<&CharacterDefinition> {
-        self.character_by_id
-            .get(id)
-            .map(|index| &self.characters[*index])
+        self.characters
+            .iter()
+            .find(|definition| definition.id == id)
     }
 
     pub fn character_definition(&self, id: DefinitionId) -> Option<&CharacterDefinition> {
-        self.character_by_definition
-            .get(&id)
-            .map(|index| &self.characters[*index])
+        definition_index(id).and_then(|index| self.characters.get(index))
     }
 
     pub fn modifier(&self, id: &str) -> Option<&ModifierDefinition> {
-        self.modifier_by_id
-            .get(id)
-            .map(|index| &self.modifiers[*index])
+        self.modifiers.iter().find(|definition| definition.id == id)
     }
 
     pub fn modifier_definition(&self, id: DefinitionId) -> Option<&ModifierDefinition> {
-        self.modifier_by_definition
-            .get(&id)
-            .map(|index| &self.modifiers[*index])
+        definition_index(id)
+            .and_then(|index| index.checked_sub(self.characters.len()))
+            .and_then(|index| self.modifiers.get(index))
     }
 
     pub fn card(&self, id: &str) -> Option<&CardDefinition> {
-        self.card_by_id.get(id).map(|index| &self.cards[*index])
+        self.cards.iter().find(|definition| definition.id == id)
     }
 
     pub fn card_definition(&self, id: DefinitionId) -> Option<&CardDefinition> {
-        self.card_by_definition
-            .get(&id)
-            .map(|index| &self.cards[*index])
+        definition_index(id)
+            .and_then(|index| index.checked_sub(self.characters.len() + self.modifiers.len()))
+            .and_then(|index| self.cards.get(index))
     }
+}
+
+fn definition_index(id: DefinitionId) -> Option<usize> {
+    usize::try_from(id).ok()?.checked_sub(1)
 }

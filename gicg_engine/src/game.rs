@@ -2,6 +2,7 @@ use std::{cmp::Ordering, collections::VecDeque, rc::Rc};
 
 use rand::{RngExt, SeedableRng, seq::SliceRandom};
 use rand_chacha::ChaCha8Rng;
+use serde::Deserialize;
 
 use crate::{
     ActionDefinition, ActionTempo, ChoiceOption, Command::*, CounterConsume, Decision,
@@ -10,51 +11,43 @@ use crate::{
     Result, RuleContext, Zone, lua::resolve_target,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Command {
     Redraw {
-        player: PlayerId,
-        hand: Vec<usize>,
+        selected: Vec<usize>,
     },
     Reroll {
-        player: PlayerId,
-        dice: DiceSet,
+        payment: DiceSet,
     },
-    CharacterAction {
-        player: PlayerId,
+    #[serde(rename = "skill")]
+    Skill {
         action: String,
         payment: DiceSet,
     },
     Switch {
-        player: PlayerId,
         slot: u8,
         payment: DiceSet,
     },
-    PlayCard {
-        player: PlayerId,
+    #[serde(rename = "card")]
+    Card {
         hand: usize,
         payment: DiceSet,
     },
     Tune {
-        player: PlayerId,
         hand: usize,
         die: Die,
     },
-    EndRound {
-        player: PlayerId,
-    },
+    #[serde(rename = "end")]
+    End,
 }
 
 impl Command {
-    fn player(&self) -> PlayerId {
+    fn phase(&self) -> Phase {
         match self {
-            Redraw { player, .. }
-            | Reroll { player, .. }
-            | CharacterAction { player, .. }
-            | Switch { player, .. }
-            | PlayCard { player, .. }
-            | Tune { player, .. }
-            | EndRound { player } => *player,
+            Redraw { .. } => Phase::Redraw,
+            Reroll { .. } => Phase::Roll,
+            Skill { .. } | Switch { .. } | Card { .. } | Tune { .. } | End => Phase::Action,
         }
     }
 }
@@ -124,6 +117,20 @@ impl Game {
     }
 
     pub fn submit(&mut self, command: Command) -> Result<()> {
+        self.validate_command(&command)?;
+        let player = self.state.turn;
+        match command {
+            Redraw { selected } => self.submit_redraw(player, selected),
+            Reroll { payment } => self.submit_reroll(player, payment),
+            Skill { action, payment } => self.submit_character_action(player, &action, payment),
+            Switch { slot, payment } => self.submit_switch(player, slot, payment),
+            Card { hand, payment } => self.submit_card(player, hand, payment),
+            Tune { hand, die } => self.submit_tune(player, hand, die),
+            End => self.submit_end(player),
+        }
+    }
+
+    fn validate_command(&self, command: &Command) -> Result<()> {
         if let Some(decision) = &self.state.decision {
             return Err(EngineError::InvalidCommand(format!(
                 "decision {} must be answered first",
@@ -135,46 +142,13 @@ impl Game {
                 "an action is already resolving".to_owned(),
             ));
         }
-        if command.player() != self.state.turn {
+        if command.phase() != self.state.phase {
             return Err(EngineError::InvalidCommand(format!(
-                "player {} cannot act during player {} turn",
-                command.player(),
-                self.state.turn
+                "command is not valid during {:?} phase",
+                self.state.phase
             )));
         }
-        match (self.state.phase, command) {
-            (Phase::Redraw, Redraw { player, hand }) => self.submit_redraw(player, hand),
-            (Phase::Roll, Reroll { player, dice }) => self.submit_reroll(player, dice),
-            (
-                Phase::Action,
-                CharacterAction {
-                    player,
-                    action,
-                    payment,
-                },
-            ) => self.submit_character_action(player, &action, payment),
-            (
-                Phase::Action,
-                Switch {
-                    player,
-                    slot,
-                    payment,
-                },
-            ) => self.submit_switch(player, slot, payment),
-            (
-                Phase::Action,
-                PlayCard {
-                    player,
-                    hand,
-                    payment,
-                },
-            ) => self.submit_card(player, hand, payment),
-            (Phase::Action, Tune { player, hand, die }) => self.submit_tune(player, hand, die),
-            (Phase::Action, EndRound { player }) => self.submit_end(player),
-            (phase, _) => Err(EngineError::InvalidCommand(format!(
-                "command is not valid during {phase:?} phase"
-            ))),
-        }
+        Ok(())
     }
 
     fn submit_redraw(&mut self, player: PlayerId, mut hand: Vec<usize>) -> Result<()> {
@@ -372,7 +346,6 @@ impl Game {
         let switch = ActionDefinition {
             id: "switch".to_owned(),
             name: "Switch".to_owned(),
-            tags: crate::ActionTags(crate::ActionTags::SWITCH),
             tempo: ActionTempo::Combat,
             cost: crate::Cost {
                 any: 1,
@@ -440,7 +413,7 @@ impl Game {
     }
 
     fn submit_tune(&mut self, player: PlayerId, hand: usize, die: Die) -> Result<()> {
-        let target = match self
+        let target = self
             .runtime
             .rules()
             .character_definition(
@@ -450,20 +423,8 @@ impl Game {
             )
             .expect("loaded character definition exists")
             .element
-        {
-            crate::Element::Cryo => Die::Cryo,
-            crate::Element::Hydro => Die::Hydro,
-            crate::Element::Pyro => Die::Pyro,
-            crate::Element::Electro => Die::Electro,
-            crate::Element::Anemo => Die::Anemo,
-            crate::Element::Geo => Die::Geo,
-            crate::Element::Dendro => Die::Dendro,
-            crate::Element::Physical => {
-                return Err(EngineError::Rule(
-                    "physical character cannot tune dice".to_owned(),
-                ));
-            }
-        };
+            .die()
+            .ok_or_else(|| EngineError::Rule("physical character cannot tune dice".to_owned()))?;
         if die == target || die == Die::Omni {
             return Err(EngineError::InvalidCommand(
                 "selected die cannot be tuned".to_owned(),
@@ -590,29 +551,11 @@ impl Game {
                 "only characters can pay action costs".to_owned(),
             ));
         };
-        let character = self.state.character(player, slot)?;
-        for cost in &action.cost.counters {
-            let value = character.counters[usize::from(cost.field)];
-            if value < cost.require {
-                return Err(EngineError::InvalidCommand(format!(
-                    "action {:?} requires counter value {}, has {}",
-                    action.id, cost.require, value
-                )));
-            }
-        }
+        validate_counter_costs(self.state.character(player, slot)?, action)?;
         for die in crate::Die::ALL {
             self.state.players[usize::from(player)].dice.0[die.index()] -= payment.get(die);
         }
-        let character = self.state.character_mut(player, slot)?;
-        for cost in &action.cost.counters {
-            match cost.consume {
-                CounterConsume::None => {}
-                CounterConsume::Fixed(amount) => {
-                    character.counters[usize::from(cost.field)] -= amount;
-                }
-                CounterConsume::All => character.counters[usize::from(cost.field)] = 0,
-            }
-        }
+        consume_counter_costs(self.state.character_mut(player, slot)?, action);
         Ok(())
     }
 
@@ -1083,6 +1026,33 @@ impl Game {
             }
         }
         Ok(alive)
+    }
+}
+
+fn validate_counter_costs(
+    character: &crate::CharacterState,
+    action: &ActionDefinition,
+) -> Result<()> {
+    for cost in &action.cost.counters {
+        let value = character.counters[usize::from(cost.field)];
+        if value < cost.require {
+            return Err(EngineError::InvalidCommand(format!(
+                "action {:?} requires counter value {}, has {}",
+                action.id, cost.require, value
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn consume_counter_costs(character: &mut crate::CharacterState, action: &ActionDefinition) {
+    for cost in &action.cost.counters {
+        let value = &mut character.counters[usize::from(cost.field)];
+        match cost.consume {
+            CounterConsume::None => {}
+            CounterConsume::Fixed(amount) => *value -= amount,
+            CounterConsume::All => *value = 0,
+        }
     }
 }
 

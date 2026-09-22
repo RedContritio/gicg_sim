@@ -14,7 +14,7 @@ modifier {
             end
             return {
                 damage("enemy_active", "cryo", 2),
-                add_counter("self", "uses", -1),
+                add_counter("source", "uses", -1),
             }
         end,
     },
@@ -32,7 +32,6 @@ character {
         {
             id = "ceremonial_bladework",
             name = "仪典剑术",
-            tags = { "skill", "normal" },
             cost = { dice = { cryo = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -44,7 +43,6 @@ character {
         {
             id = "frostgnaw",
             name = "霜袭",
-            tags = { "skill", "elemental_skill" },
             cost = { dice = { cryo = 3 } },
             resolve = function(ctx)
                 return {
@@ -56,7 +54,6 @@ character {
         {
             id = "glacial_waltz",
             name = "凛冽轮舞",
-            tags = { "skill", "burst" },
             cost = {
                 dice = { cryo = 4 },
                 counters = {
@@ -72,4 +69,3 @@ character {
         },
     },
 }
-

@@ -1,4 +1,5 @@
 const diceNames = ["冰", "水", "火", "雷", "风", "岩", "草", "万能"];
+const diceIds = ["cryo", "hydro", "pyro", "electro", "anemo", "geo", "dendro", "omni"];
 const elementNames = {
   cryo: "冰元素",
   hydro: "水元素",
@@ -28,6 +29,8 @@ const phaseNames = {
 };
 let gameId;
 let state;
+let rules;
+let definitions;
 let selected = new Set();
 let pending = null;
 
@@ -57,9 +60,16 @@ async function request(path, options = {}, creating = false) {
     if (!response.ok) throw new Error(payload.detail || "操作失败");
     if (creating) {
       gameId = payload.game_id;
-      state = payload.state;
+      rules = payload.rules;
+      definitions = new Map(
+        [...rules.characters, ...rules.modifiers, ...rules.cards].map((value) => [
+          value.definition,
+          value,
+        ]),
+      );
+      state = hydrate(payload.state);
     } else {
-      state = payload;
+      state = hydrate(payload);
     }
     selected = new Set();
     pending = null;
@@ -68,6 +78,81 @@ async function request(path, options = {}, creating = false) {
     notice.textContent = error.message;
     notice.classList.remove("hidden");
   }
+}
+
+function hydrate(raw) {
+  return {
+    ...raw,
+    ruleset: rules.hash,
+    players: raw.players.map((player, id) => ({
+      ...player,
+      id,
+      deck_count: player.deck.length,
+      discard_count: player.discard.length,
+      hand: player.hand.map((definition, hand) => cardView(definition, hand)),
+      characters: player.characters.map(characterView),
+      combat: modifierViews(player.combat),
+      summons: modifierViews(player.summons),
+      supports: modifierViews(player.supports),
+    })),
+  };
+}
+
+function cardView(definition, hand) {
+  const card = definitions.get(definition);
+  return {
+    hand,
+    id: card.id,
+    name: card.name,
+    description: card.description,
+    tempo: card.action.tempo,
+    cost: costView(card.action.cost),
+  };
+}
+
+function characterView(character, slot) {
+  const definition = definitions.get(character.definition);
+  return {
+    slot,
+    id: definition.id,
+    name: definition.name,
+    element: definition.element,
+    counters: counterViews(definition.counters, character.counters),
+    actions: definition.actions.map((action) => ({
+      id: action.id,
+      name: action.name,
+      tempo: action.tempo,
+      cost: costView(action.cost, definition.counters),
+    })),
+    modifiers: modifierViews(character.modifiers),
+  };
+}
+
+function modifierViews(modifiers) {
+  return modifiers.map((modifier) => {
+    const definition = definitions.get(modifier.definition);
+    return {
+      instance: modifier.instance,
+      id: definition.id,
+      name: definition.name,
+      zone: definition.zone,
+      counters: counterViews(definition.counters, modifier.counters),
+    };
+  });
+}
+
+function counterViews(schema, values) {
+  return schema.fields.map((definition, index) => ({ ...definition, value: values[index] }));
+}
+
+function costView(cost, schema) {
+  return {
+    ...cost,
+    counters: cost.counters.map((value) => ({
+      name: schema.fields[value.field].name,
+      require: value.require,
+    })),
+  };
 }
 
 function render() {
@@ -250,7 +335,11 @@ function renderDialog() {
       chosen[0].startsWith("7-") ||
       chosen[0].startsWith(`${pending.target}-`);
     confirm.addEventListener("click", () =>
-      act({ kind: "tune", hand: pending.hand, die: Number([...selected][0].split("-")[0]) }),
+      act({
+        kind: "tune",
+        hand: pending.hand,
+        die: diceIds[Number([...selected][0].split("-")[0])],
+      }),
     );
   }
   footer.append(cancel, confirm);
