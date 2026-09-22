@@ -1,14 +1,25 @@
-use std::{cmp::Ordering, collections::VecDeque};
+use std::{cmp::Ordering, collections::VecDeque, rc::Rc};
+
+use rand::{RngExt, SeedableRng, seq::SliceRandom};
+use rand_chacha::ChaCha8Rng;
 
 use crate::{
     ActionDefinition, ActionTempo, ChoiceOption, Command::*, CounterConsume, Decision,
-    DecisionKind, DiceSet, Effect, EngineError, EntityRef, Event, EventKind, GameConfig, GameState,
-    HandlerId, LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, RemovalReason, Result,
-    RuleContext, Zone, lua::resolve_target,
+    DecisionKind, DiceSet, Die, Effect, EngineError, EntityRef, Event, EventKind, GameConfig,
+    GameState, HandlerId, LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, RemovalReason,
+    Result, RuleContext, Zone, lua::resolve_target,
 };
 
 #[derive(Clone, Debug)]
 pub enum Command {
+    Redraw {
+        player: PlayerId,
+        hand: Vec<usize>,
+    },
+    Reroll {
+        player: PlayerId,
+        dice: DiceSet,
+    },
     CharacterAction {
         player: PlayerId,
         action: String,
@@ -19,12 +30,31 @@ pub enum Command {
         slot: u8,
         payment: DiceSet,
     },
+    PlayCard {
+        player: PlayerId,
+        hand: usize,
+        payment: DiceSet,
+    },
+    Tune {
+        player: PlayerId,
+        hand: usize,
+        die: Die,
+    },
+    EndRound {
+        player: PlayerId,
+    },
 }
 
 impl Command {
     fn player(&self) -> PlayerId {
         match self {
-            CharacterAction { player, .. } | Switch { player, .. } => *player,
+            Redraw { player, .. }
+            | Reroll { player, .. }
+            | CharacterAction { player, .. }
+            | Switch { player, .. }
+            | PlayCard { player, .. }
+            | Tune { player, .. }
+            | EndRound { player } => *player,
         }
     }
 }
@@ -55,31 +85,45 @@ struct EventInvocation {
     handler: HandlerId,
 }
 
-pub struct Game<'runtime> {
-    runtime: &'runtime LuaRuntime,
+pub struct Game {
+    runtime: Rc<LuaRuntime>,
     pub state: GameState,
     effects: VecDeque<QueuedEffect>,
     active: Option<ActiveAction>,
     pending: Option<PendingDecision>,
+    rng: ChaCha8Rng,
+    first_ended: Option<PlayerId>,
+    round_first: PlayerId,
+    phase_done: [bool; 2],
 }
 
-impl<'runtime> Game<'runtime> {
-    pub fn new(runtime: &'runtime LuaRuntime, config: GameConfig) -> Result<Self> {
-        Ok(Self {
+impl Game {
+    pub fn new(runtime: Rc<LuaRuntime>, config: GameConfig) -> Result<Self> {
+        let seed = config.seed;
+        let first = config.first;
+        let mut game = Self {
             state: GameState::new(runtime.rules(), config)?,
             runtime,
             effects: VecDeque::new(),
             active: None,
             pending: None,
-        })
+            rng: ChaCha8Rng::seed_from_u64(seed),
+            first_ended: None,
+            round_first: first,
+            phase_done: [false; 2],
+        };
+        for player in 0..2 {
+            game.state.players[player].deck.shuffle(&mut game.rng);
+            game.draw(player as PlayerId, 5);
+        }
+        Ok(game)
+    }
+
+    pub fn rules(&self) -> &crate::Ruleset {
+        self.runtime.rules()
     }
 
     pub fn submit(&mut self, command: Command) -> Result<()> {
-        if self.state.phase != Phase::Action {
-            return Err(EngineError::InvalidCommand(
-                "game is not accepting actions".to_owned(),
-            ));
-        }
         if let Some(decision) = &self.state.decision {
             return Err(EngineError::InvalidCommand(format!(
                 "decision {} must be answered first",
@@ -98,18 +142,106 @@ impl<'runtime> Game<'runtime> {
                 self.state.turn
             )));
         }
-        match command {
-            CharacterAction {
-                player,
-                action,
-                payment,
-            } => self.submit_character_action(player, &action, payment),
-            Switch {
-                player,
-                slot,
-                payment,
-            } => self.submit_switch(player, slot, payment),
+        match (self.state.phase, command) {
+            (Phase::Redraw, Redraw { player, hand }) => self.submit_redraw(player, hand),
+            (Phase::Roll, Reroll { player, dice }) => self.submit_reroll(player, dice),
+            (
+                Phase::Action,
+                CharacterAction {
+                    player,
+                    action,
+                    payment,
+                },
+            ) => self.submit_character_action(player, &action, payment),
+            (
+                Phase::Action,
+                Switch {
+                    player,
+                    slot,
+                    payment,
+                },
+            ) => self.submit_switch(player, slot, payment),
+            (
+                Phase::Action,
+                PlayCard {
+                    player,
+                    hand,
+                    payment,
+                },
+            ) => self.submit_card(player, hand, payment),
+            (Phase::Action, Tune { player, hand, die }) => self.submit_tune(player, hand, die),
+            (Phase::Action, EndRound { player }) => self.submit_end(player),
+            (phase, _) => Err(EngineError::InvalidCommand(format!(
+                "command is not valid during {phase:?} phase"
+            ))),
         }
+    }
+
+    fn submit_redraw(&mut self, player: PlayerId, mut hand: Vec<usize>) -> Result<()> {
+        hand.sort_unstable();
+        if hand.windows(2).any(|pair| pair[0] == pair[1]) {
+            return Err(EngineError::InvalidCommand(
+                "redraw contains duplicate hand slots".to_owned(),
+            ));
+        }
+        let player_state = &mut self.state.players[usize::from(player)];
+        if hand
+            .last()
+            .is_some_and(|slot| *slot >= player_state.hand.len())
+        {
+            return Err(EngineError::InvalidCommand(
+                "redraw contains an invalid hand slot".to_owned(),
+            ));
+        }
+        let mut returned = Vec::with_capacity(hand.len());
+        for slot in hand.into_iter().rev() {
+            returned.push(player_state.hand.remove(slot));
+        }
+        self.draw(player, returned.len());
+        self.state.players[usize::from(player)]
+            .deck
+            .extend(returned);
+        self.state.players[usize::from(player)]
+            .deck
+            .shuffle(&mut self.rng);
+        self.finish_shared_phase(player, Phase::Roll)
+    }
+
+    fn submit_reroll(&mut self, player: PlayerId, selected: DiceSet) -> Result<()> {
+        let inventory = self.state.players[usize::from(player)].dice;
+        if Die::ALL
+            .iter()
+            .any(|die| selected.get(*die) > inventory.get(*die))
+        {
+            return Err(EngineError::InvalidCommand(
+                "reroll selects unavailable dice".to_owned(),
+            ));
+        }
+        for die in Die::ALL {
+            self.state.players[usize::from(player)].dice.0[die.index()] -= selected.get(die);
+        }
+        self.roll(player, usize::from(selected.total()));
+        self.finish_shared_phase(player, Phase::Action)
+    }
+
+    fn finish_shared_phase(&mut self, player: PlayerId, next: Phase) -> Result<()> {
+        self.phase_done[usize::from(player)] = true;
+        let opponent = 1 - player;
+        if !self.phase_done[usize::from(opponent)] {
+            self.state.turn = opponent;
+            return Ok(());
+        }
+        self.phase_done = [false; 2];
+        self.state.phase = next;
+        self.state.turn = self.round_first;
+        if next == Phase::Roll {
+            for player in 0..2 {
+                if self.state.players[player].dice.total() == 0 {
+                    self.roll(player as PlayerId, 8);
+                }
+            }
+        }
+        Ok(())
     }
 
     pub fn choose(&mut self, decision_id: crate::DecisionId, option: usize) -> Result<()> {
@@ -254,6 +386,180 @@ impl<'runtime> Game<'runtime> {
         self.drain()
     }
 
+    fn submit_card(&mut self, player: PlayerId, hand: usize, payment: DiceSet) -> Result<()> {
+        let definition_id = *self.state.players[usize::from(player)]
+            .hand
+            .get(hand)
+            .ok_or_else(|| EngineError::InvalidCommand(format!("hand slot {hand} is invalid")))?;
+        let card = self
+            .runtime
+            .rules()
+            .card_definition(definition_id)
+            .ok_or_else(|| {
+                EngineError::Rule(format!("card definition {definition_id} is missing"))
+            })?
+            .clone();
+        let actor = self.state.active_character(player);
+        self.pay(actor, &card.action, payment)?;
+        let removed = self.state.players[usize::from(player)].hand.remove(hand);
+        self.state.players[usize::from(player)]
+            .discard
+            .push(removed);
+        self.active = Some(ActiveAction {
+            player,
+            actor,
+            definition: card.action.clone(),
+            emitted_resolved: false,
+        });
+        self.enqueue_handler(
+            card.action.resolve,
+            RuleContext {
+                actor: Some(actor),
+                source: Some(actor),
+                action_id: Some(card.id),
+                ..RuleContext::default()
+            },
+        )?;
+        self.drain()
+    }
+
+    fn submit_tune(&mut self, player: PlayerId, hand: usize, die: Die) -> Result<()> {
+        let target = match self
+            .runtime
+            .rules()
+            .character_definition(
+                self.state
+                    .character(player, self.state.players[usize::from(player)].active)?
+                    .definition,
+            )
+            .expect("loaded character definition exists")
+            .element
+        {
+            crate::Element::Cryo => Die::Cryo,
+            crate::Element::Hydro => Die::Hydro,
+            crate::Element::Pyro => Die::Pyro,
+            crate::Element::Electro => Die::Electro,
+            crate::Element::Anemo => Die::Anemo,
+            crate::Element::Geo => Die::Geo,
+            crate::Element::Dendro => Die::Dendro,
+            crate::Element::Physical => {
+                return Err(EngineError::Rule(
+                    "physical character cannot tune dice".to_owned(),
+                ));
+            }
+        };
+        if die == target || die == Die::Omni {
+            return Err(EngineError::InvalidCommand(
+                "selected die cannot be tuned".to_owned(),
+            ));
+        }
+        let state = &mut self.state.players[usize::from(player)];
+        if state.dice.get(die) == 0 {
+            return Err(EngineError::InvalidCommand(
+                "selected die is not available".to_owned(),
+            ));
+        }
+        if hand >= state.hand.len() {
+            return Err(EngineError::InvalidCommand(format!(
+                "hand slot {hand} is invalid"
+            )));
+        }
+        state.dice.0[die.index()] -= 1;
+        state.dice.0[target.index()] += 1;
+        let card = state.hand.remove(hand);
+        state.discard.push(card);
+        Ok(())
+    }
+
+    fn submit_end(&mut self, player: PlayerId) -> Result<()> {
+        if self.state.players[usize::from(player)].ended {
+            return Err(EngineError::InvalidCommand(format!(
+                "player {player} has already ended the round"
+            )));
+        }
+        self.state.players[usize::from(player)].ended = true;
+        self.first_ended.get_or_insert(player);
+        let actor = self.state.active_character(player);
+        self.emit(Event {
+            kind: EventKind::PlayerEndDeclared,
+            actor: Some(actor),
+            source: Some(actor),
+            target: None,
+            player,
+            action_id: Some("end_round".to_owned()),
+            element: None,
+            amount: 0,
+        })?;
+        self.drain()?;
+        let opponent = 1 - player;
+        if !self.state.players[usize::from(opponent)].ended {
+            self.state.turn = opponent;
+            return Ok(());
+        }
+        self.emit(Event {
+            kind: EventKind::RoundEnd,
+            actor: None,
+            source: None,
+            target: None,
+            player,
+            action_id: None,
+            element: None,
+            amount: 0,
+        })?;
+        self.drain()?;
+        self.start_round()
+    }
+
+    fn start_round(&mut self) -> Result<()> {
+        self.state.round = self
+            .state
+            .round
+            .checked_add(1)
+            .ok_or_else(|| EngineError::Rule("round counter overflowed".to_owned()))?;
+        self.round_first = self.first_ended.take().expect("both players ended");
+        self.state.turn = self.round_first;
+        self.state.phase = Phase::Roll;
+        self.phase_done = [false; 2];
+        for player in 0..2 {
+            self.state.players[player].ended = false;
+            self.state.players[player].dice = DiceSet::default();
+            self.draw(player as PlayerId, 2);
+            self.roll(player as PlayerId, 8);
+        }
+        self.emit(Event {
+            kind: EventKind::RoundStart,
+            actor: None,
+            source: None,
+            target: None,
+            player: self.state.turn,
+            action_id: None,
+            element: None,
+            amount: 0,
+        })?;
+        self.drain()
+    }
+
+    fn draw(&mut self, player: PlayerId, count: usize) {
+        let state = &mut self.state.players[usize::from(player)];
+        for _ in 0..count {
+            let Some(card) = state.deck.pop() else {
+                break;
+            };
+            if state.hand.len() < 10 {
+                state.hand.push(card);
+            } else {
+                state.discard.push(card);
+            }
+        }
+    }
+
+    fn roll(&mut self, player: PlayerId, count: usize) {
+        let dice = &mut self.state.players[usize::from(player)].dice;
+        for _ in 0..count {
+            dice.0[self.rng.random_range(0..Die::COUNT)] += 1;
+        }
+    }
+
     fn pay(&mut self, actor: EntityRef, action: &ActionDefinition, payment: DiceSet) -> Result<()> {
         let player = actor.player();
         let inventory = self.state.players[usize::from(player)].dice;
@@ -342,7 +648,10 @@ impl<'runtime> Game<'runtime> {
         }
         let active = self.active.take().expect("active action exists");
         if active.definition.tempo == ActionTempo::Combat {
-            self.state.turn = 1 - active.player;
+            let opponent = 1 - active.player;
+            if !self.state.players[usize::from(opponent)].ended {
+                self.state.turn = opponent;
+            }
         }
         Ok(())
     }
@@ -660,7 +969,13 @@ impl<'runtime> Game<'runtime> {
             let player = player as PlayerId;
             for character in &player_state.characters {
                 for modifier in &character.modifiers {
-                    collect_handlers(self.runtime, event.kind, player, modifier, &mut invocations);
+                    collect_handlers(
+                        &self.runtime,
+                        event.kind,
+                        player,
+                        modifier,
+                        &mut invocations,
+                    );
                 }
             }
             for modifier in player_state
@@ -669,7 +984,13 @@ impl<'runtime> Game<'runtime> {
                 .chain(&player_state.summons)
                 .chain(&player_state.supports)
             {
-                collect_handlers(self.runtime, event.kind, player, modifier, &mut invocations);
+                collect_handlers(
+                    &self.runtime,
+                    event.kind,
+                    player,
+                    modifier,
+                    &mut invocations,
+                );
             }
         }
         invocations.sort_by(|left, right| match left.priority.cmp(&right.priority) {

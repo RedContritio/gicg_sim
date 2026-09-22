@@ -56,6 +56,10 @@ impl CounterSchema {
         self.fields.get(usize::from(field))
     }
 
+    pub fn fields(&self) -> &[CounterDefinition] {
+        &self.fields
+    }
+
     pub fn initial_values(&self) -> Vec<Counter> {
         self.fields.iter().map(|field| field.initial).collect()
     }
@@ -128,6 +132,15 @@ pub struct CharacterDefinition {
     action_by_id: HashMap<String, usize>,
 }
 
+#[derive(Clone, Debug)]
+pub struct CardDefinition {
+    pub definition: DefinitionId,
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub action: ActionDefinition,
+}
+
 impl CharacterDefinition {
     pub fn new(
         id: String,
@@ -186,10 +199,13 @@ pub struct Ruleset {
     pub hash: String,
     pub characters: Vec<CharacterDefinition>,
     pub modifiers: Vec<ModifierDefinition>,
+    pub cards: Vec<CardDefinition>,
     character_by_id: HashMap<String, usize>,
     modifier_by_id: HashMap<String, usize>,
+    card_by_id: HashMap<String, usize>,
     character_by_definition: HashMap<DefinitionId, usize>,
     modifier_by_definition: HashMap<DefinitionId, usize>,
+    card_by_definition: HashMap<DefinitionId, usize>,
 }
 
 impl Ruleset {
@@ -197,12 +213,15 @@ impl Ruleset {
         hash: String,
         mut characters: Vec<CharacterDefinition>,
         mut modifiers: Vec<ModifierDefinition>,
+        mut cards: Vec<CardDefinition>,
     ) -> Result<Self> {
         let mut ids = HashMap::<String, ()>::new();
         let mut character_by_id = HashMap::new();
         let mut modifier_by_id = HashMap::new();
+        let mut card_by_id = HashMap::new();
         let mut character_by_definition = HashMap::new();
         let mut modifier_by_definition = HashMap::new();
+        let mut card_by_definition = HashMap::new();
         let mut next_definition = 1;
         for (index, character) in characters.iter_mut().enumerate() {
             if ids.insert(character.id.clone(), ()).is_some() {
@@ -228,14 +247,29 @@ impl Ruleset {
             modifier_by_id.insert(modifier.id.clone(), index);
             modifier_by_definition.insert(modifier.definition, index);
         }
+        for (index, card) in cards.iter_mut().enumerate() {
+            if ids.insert(card.id.clone(), ()).is_some() {
+                return Err(EngineError::InvalidRuleset(format!(
+                    "duplicate definition id {:?}",
+                    card.id
+                )));
+            }
+            card.definition = next_definition;
+            next_definition += 1;
+            card_by_id.insert(card.id.clone(), index);
+            card_by_definition.insert(card.definition, index);
+        }
         Ok(Self {
             hash,
             characters,
             modifiers,
+            cards,
             character_by_id,
             modifier_by_id,
+            card_by_id,
             character_by_definition,
             modifier_by_definition,
+            card_by_definition,
         })
     }
 
@@ -261,5 +295,15 @@ impl Ruleset {
         self.modifier_by_definition
             .get(&id)
             .map(|index| &self.modifiers[*index])
+    }
+
+    pub fn card(&self, id: &str) -> Option<&CardDefinition> {
+        self.card_by_id.get(id).map(|index| &self.cards[*index])
+    }
+
+    pub fn card_definition(&self, id: DefinitionId) -> Option<&CardDefinition> {
+        self.card_by_definition
+            .get(&id)
+            .map(|index| &self.cards[*index])
     }
 }

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>七圣召唤</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">对局演练</p>
+        <h1>七圣召唤</h1>
+      </div>
+      <div class="round" id="round">第 1 回合</div>
+      <button class="ghost" id="restart">重新开局</button>
+    </header>
+    <section class="status" id="status">正在准备对局</section>
+    <section class="board" id="board"></section>
+    <section class="decision hidden" id="decision"></section>
+    <section class="notice hidden" id="notice"></section>
+    <section class="dialog-layer hidden" id="dialog"></section>
+  </main>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

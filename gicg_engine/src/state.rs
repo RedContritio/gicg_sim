@@ -5,6 +5,8 @@ use crate::{
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Phase {
+    Redraw,
+    Roll,
     Action,
     Finished,
 }
@@ -47,6 +49,10 @@ pub struct PlayerState {
     pub characters: Vec<CharacterState>,
     pub active: u8,
     pub dice: DiceSet,
+    pub deck: Vec<DefinitionId>,
+    pub hand: Vec<DefinitionId>,
+    pub discard: Vec<DefinitionId>,
+    pub ended: bool,
     pub combat: Vec<ModifierState>,
     pub summons: Vec<ModifierState>,
     pub supports: Vec<ModifierState>,
@@ -70,6 +76,7 @@ pub struct ModifierState {
 #[derive(Clone, Debug)]
 pub struct PlayerConfig {
     pub characters: Vec<String>,
+    pub deck: Vec<String>,
     pub active: u8,
     pub dice: DiceSet,
 }
@@ -78,6 +85,7 @@ pub struct PlayerConfig {
 pub struct GameConfig {
     pub players: [PlayerConfig; 2],
     pub first: PlayerId,
+    pub seed: u64,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -123,16 +131,31 @@ impl GameState {
                     modifiers: Vec::new(),
                 });
             }
+            let deck = player_config
+                .deck
+                .into_iter()
+                .map(|card_id| {
+                    rules
+                        .card(&card_id)
+                        .map(|card| card.definition)
+                        .ok_or_else(|| {
+                            EngineError::InvalidGame(format!(
+                                "player {player_id} card {card_id:?} is not defined"
+                            ))
+                        })
+                })
+                .collect::<Result<Vec<_>>>()?;
             players[player_id] = PlayerState {
                 characters,
                 active: player_config.active,
                 dice: player_config.dice,
+                deck,
                 ..PlayerState::default()
             };
         }
         Ok(Self {
             round: 1,
-            phase: Phase::Action,
+            phase: Phase::Redraw,
             turn: config.first,
             winner: None,
             decision: None,

@@ -1,0 +1,9 @@
+[server]
+host = "127.0.0.1"
+port = 8000
+
+[game]
+ruleset = "data/native_latest"
+character = "kaeya"
+deck_card = "splash"
+deck_size = 15

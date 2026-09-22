@@ -10,15 +10,16 @@ use mlua::{Function, Lua, LuaOptions, RegistryKey, StdLib, Table, Value};
 use sha2::{Digest, Sha256};
 
 use crate::{
-    ActionDefinition, ActionTags, ActionTempo, ChoiceOption, Cost, CounterConsume, CounterCost,
-    CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef, EventKind,
-    GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition, RemovalReason,
-    Result, RuleContext, Ruleset, TargetRef, Zone,
+    ActionDefinition, ActionTags, ActionTempo, CardDefinition, ChoiceOption, Cost, CounterConsume,
+    CounterCost, CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef,
+    EventKind, GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition,
+    RemovalReason, Result, RuleContext, Ruleset, TargetRef, Zone,
 };
 
 struct LoadState {
     characters: Vec<crate::CharacterDefinition>,
     modifiers: Vec<ModifierDefinition>,
+    cards: Vec<CardDefinition>,
     handlers: HashMap<HandlerId, RegistryKey>,
     next_handler: HandlerId,
 }
@@ -28,6 +29,7 @@ impl LoadState {
         Self {
             characters: Vec::new(),
             modifiers: Vec::new(),
+            cards: Vec::new(),
             handlers: HashMap::new(),
             next_handler: 1,
         }
@@ -45,7 +47,7 @@ impl LoadState {
                 "{label} must accept exactly one context parameter"
             )));
         }
-        if info.num_upvalues != 1 || function.environment().is_none() {
+        if info.num_upvalues > 1 || (info.num_upvalues == 1 && function.environment().is_none()) {
             return Err(mlua::Error::runtime(format!(
                 "{label} must not capture local state"
             )));
@@ -108,6 +110,7 @@ impl LuaRuntime {
 
         lua.globals().set("character", Value::Nil)?;
         lua.globals().set("modifier", Value::Nil)?;
+        lua.globals().set("card", Value::Nil)?;
         for name in ["_G", "load", "dofile", "loadfile", "collectgarbage"] {
             lua.globals().set(name, Value::Nil)?;
         }
@@ -121,7 +124,7 @@ impl LuaRuntime {
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect();
-        let rules = Ruleset::new(hash, state.characters, state.modifiers)?;
+        let rules = Ruleset::new(hash, state.characters, state.modifiers, state.cards)?;
         Ok(Self {
             lua,
             rules,
@@ -223,15 +226,57 @@ fn install_definition_functions(lua: &Lua, state: Rc<RefCell<LoadState>>) -> mlu
             Ok(())
         })?,
     )?;
+    let modifier_state = Rc::clone(&state);
     lua.globals().set(
         "modifier",
         lua.create_function(move |lua, table: Table| {
-            let definition = parse_modifier(lua, &mut state.borrow_mut(), table)?;
-            state.borrow_mut().modifiers.push(definition);
+            let definition = parse_modifier(lua, &mut modifier_state.borrow_mut(), table)?;
+            modifier_state.borrow_mut().modifiers.push(definition);
+            Ok(())
+        })?,
+    )?;
+    lua.globals().set(
+        "card",
+        lua.create_function(move |lua, table: Table| {
+            let definition = parse_card(lua, &mut state.borrow_mut(), table)?;
+            state.borrow_mut().cards.push(definition);
             Ok(())
         })?,
     )?;
     Ok(())
+}
+
+fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<CardDefinition> {
+    let id = required_string(&table, "id")?;
+    let name = required_string(&table, "name")?;
+    let description = required_string(&table, "description")?;
+    let tempo = ActionTempo::parse(
+        table
+            .get::<Option<String>>("tempo")?
+            .as_deref()
+            .unwrap_or("fast"),
+    )
+    .map_err(|error| mlua::Error::runtime(error.to_string()))?;
+    let cost = match table.get::<Option<Table>>("cost")? {
+        Some(value) => parse_cost(value, &CounterSchema::default())?,
+        None => Cost::default(),
+    };
+    let resolve = state.add_handler(lua, table.get("resolve")?, &format!("card {id} resolve"))?;
+    Ok(CardDefinition {
+        definition: 0,
+        id: id.clone(),
+        name: name.clone(),
+        description,
+        action: ActionDefinition {
+            id,
+            name,
+            tags: ActionTags(ActionTags::CARD),
+            tempo,
+            cost,
+            resolve,
+            continuations: HashMap::new(),
+        },
+    })
 }
 
 fn parse_character(
@@ -481,6 +526,9 @@ fn seal_handlers(lua: &Lua, handlers: &HashMap<HandlerId, RegistryKey>) -> mlua:
     environment.set_metatable(Some(metatable))?;
     for key in handlers.values() {
         let function: Function = lua.registry_value(key)?;
+        if function.info().num_upvalues == 0 {
+            continue;
+        }
         if !function.set_environment(environment.clone())? {
             return Err(mlua::Error::runtime(
                 "rule handler has no replaceable environment",
