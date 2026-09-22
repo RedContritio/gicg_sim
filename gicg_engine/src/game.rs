@@ -44,14 +44,16 @@ pub enum Command {
     },
     #[serde(rename = "end")]
     End,
+    Concede,
 }
 
 impl Command {
-    fn phase(&self) -> Phase {
+    fn phase(&self) -> Option<Phase> {
         match self {
-            Redraw { .. } => Phase::Redraw,
-            Reroll { .. } => Phase::Roll,
-            Skill { .. } | Switch { .. } | Card { .. } | Tune { .. } | End => Phase::Action,
+            Redraw { .. } => Some(Phase::Redraw),
+            Reroll { .. } => Some(Phase::Roll),
+            Skill { .. } | Switch { .. } | Card { .. } | Tune { .. } | End => Some(Phase::Action),
+            Concede => None,
         }
     }
 }
@@ -230,7 +232,11 @@ impl Game {
     pub fn submit(&mut self, command: Command) -> Result<()> {
         self.validate_command(&command)?;
         let previous_reaction = self.state.last_reaction.take();
-        let player = self.state.turn;
+        let player = self
+            .state
+            .decision
+            .as_ref()
+            .map_or(self.state.turn, |decision| decision.player);
         let result = match command {
             Redraw { selected } => self.submit_redraw(player, selected),
             Reroll { payment } => self.submit_reroll(player, payment),
@@ -239,6 +245,7 @@ impl Game {
             Card { hand, payment } => self.submit_card(player, hand, payment),
             Tune { hand, die } => self.submit_tune(player, hand, die),
             End => self.submit_end(player),
+            Concede => self.submit_concede(player),
         };
         if result.is_err() {
             self.state.last_reaction = previous_reaction;
@@ -247,6 +254,13 @@ impl Game {
     }
 
     fn validate_command(&self, command: &Command) -> Result<()> {
+        if matches!(command, Concede) {
+            return (self.state.phase != Phase::Finished)
+                .then_some(())
+                .ok_or_else(|| {
+                    EngineError::InvalidCommand("match is already finished".to_owned())
+                });
+        }
         if let Some(decision) = &self.state.decision {
             return Err(EngineError::InvalidCommand(format!(
                 "decision {} must be answered first",
@@ -258,13 +272,39 @@ impl Game {
                 "an action is already resolving".to_owned(),
             ));
         }
-        if command.phase() != self.state.phase {
+        if command.phase() != Some(self.state.phase) {
             return Err(EngineError::InvalidCommand(format!(
                 "command is not valid during {:?} phase",
                 self.state.phase
             )));
         }
         Ok(())
+    }
+
+    fn submit_concede(&mut self, player: PlayerId) -> Result<()> {
+        self.state.history.push(Event {
+            kind: EventKind::Conceded,
+            actor: None,
+            source: None,
+            target: None,
+            player,
+            action_id: Some("concede".to_owned()),
+            element: None,
+            reaction: None,
+            amount: 0,
+        });
+        self.finish_match(1 - player, crate::FinishReason::Concede);
+        Ok(())
+    }
+
+    fn finish_match(&mut self, winner: PlayerId, reason: crate::FinishReason) {
+        self.state.phase = Phase::Finished;
+        self.state.winner = Some(winner);
+        self.state.finish_reason = Some(reason);
+        self.state.decision = None;
+        self.effects.clear();
+        self.active = None;
+        self.pending = None;
     }
 
     fn submit_redraw(&mut self, player: PlayerId, mut hand: Vec<usize>) -> Result<()> {
@@ -1357,9 +1397,7 @@ impl Game {
         character.modifiers.clear();
         let alive = self.alive_slots(player)?;
         if alive.is_empty() {
-            self.state.phase = Phase::Finished;
-            self.state.winner = Some(1 - player);
-            self.state.decision = None;
+            self.finish_match(1 - player, crate::FinishReason::Defeat);
         } else if self.state.players[player].active == slot {
             if force_switch {
                 self.switch_next(player)?;
@@ -1617,6 +1655,7 @@ impl Game {
     }
 
     fn emit(&mut self, event: Event) -> Result<()> {
+        self.state.history.push(event.clone());
         let mut invocations = Vec::new();
         for (player, player_state) in self.state.players.iter().enumerate() {
             for character in &player_state.characters {

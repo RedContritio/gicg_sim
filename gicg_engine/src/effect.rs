@@ -1,5 +1,5 @@
 use crate::{ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId, Reaction};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -79,7 +79,7 @@ pub enum Effect {
     },
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Event {
     pub kind: EventKind,
     pub actor: Option<EntityRef>,

@@ -1,5 +1,5 @@
 use crate::{
-    Counter, CounterSchema, DiceSet, Element, EngineError, EntityRef, InstanceId, PlayerId,
+    Counter, CounterSchema, DiceSet, Element, EngineError, EntityRef, Event, InstanceId, PlayerId,
     Reaction, Result, Ruleset, Zone,
 };
 use serde::{Deserialize, Serialize};
@@ -12,6 +12,13 @@ pub enum Phase {
     Roll,
     Action,
     Finished,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FinishReason {
+    Defeat,
+    Concede,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -33,8 +40,10 @@ pub struct GameState {
     pub phase: Phase,
     pub turn: PlayerId,
     pub winner: Option<PlayerId>,
+    pub finish_reason: Option<FinishReason>,
     pub decision: Option<Decision>,
     pub last_reaction: Option<ReactionRecord>,
+    pub history: Vec<Event>,
     pub players: [PlayerState; 2],
     pub next_instance: InstanceId,
     pub next_decision: crate::DecisionId,
@@ -117,8 +126,10 @@ impl GameState {
             phase,
             turn: config.first,
             winner: None,
+            finish_reason: None,
             decision: None,
             last_reaction: None,
+            history: Vec::new(),
             players,
             next_instance: 1,
             next_decision: 1,

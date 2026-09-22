@@ -171,7 +171,8 @@ impl ActionTempo {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Hash, Serialize)]
+#[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum EventKind {
     ActionResolved,
@@ -183,6 +184,7 @@ pub enum EventKind {
     PlayerEndDeclared,
     RoundStart,
     RoundEnd,
+    Conceded,
 }
 
 impl EventKind {
@@ -191,7 +193,8 @@ impl EventKind {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 pub enum EntityRef {
     Character {
         player: PlayerId,

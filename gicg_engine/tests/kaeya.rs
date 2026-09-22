@@ -1,7 +1,8 @@
 use std::rc::Rc;
 
 use gicg_engine::{
-    Command, DiceSet, Die, EntityRef, Game, GameConfig, LuaRuntime, Phase, PlayerConfig,
+    Command, DiceSet, Die, EntityRef, FinishReason, Game, GameConfig, LuaRuntime, Phase,
+    PlayerConfig,
 };
 
 fn omni(count: u8) -> DiceSet {
@@ -202,4 +203,13 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     assert_eq!(game.state.players[1].hand.len(), 7);
     assert_eq!(game.state.players[0].dice.total(), 8);
     assert_eq!(game.state.players[1].dice.total(), 8);
+
+    game.submit(Command::Concede).unwrap();
+    assert_eq!(game.state.phase, Phase::Finished);
+    assert_eq!(game.state.winner, Some(1));
+    assert_eq!(game.state.finish_reason, Some(FinishReason::Concede));
+    assert_eq!(
+        game.state.history.last().unwrap().kind,
+        gicg_engine::EventKind::Conceded
+    );
 }

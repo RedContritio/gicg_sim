@@ -270,14 +270,15 @@ function render() {
   round.textContent = `第 ${state.round} 回合`;
   const phase =
     state.phase === "finished"
-      ? `玩家 ${state.winner + 1} 获胜`
+      ? `玩家 ${state.winner + 1} 获胜${state.finish_reason === "concede" ? " · 对手认输" : ""}`
       : `玩家 ${state.turn + 1} · ${phaseNames[state.phase]}`;
   const reaction = state.last_reaction ? ` · ${reactionNames[state.last_reaction.kind]}` : "";
   status.textContent = phase + reaction;
+  const controller = state.decision?.player ?? state.turn;
   const players =
     state.phase === "finished"
       ? state.players
-      : [state.players[1 - state.turn], state.players[state.turn]];
+      : [state.players[1 - controller], state.players[controller]];
   board.replaceChildren(...players.map(playerView));
   renderPhaseControl();
   renderDecision();
@@ -285,7 +286,8 @@ function render() {
 }
 
 function playerView(player) {
-  const current = state.phase !== "finished" && state.turn === player.id;
+  const current =
+    state.phase !== "finished" && (state.decision?.player ?? state.turn) === player.id;
   const section = node("section", `player${current ? " current" : ""}`);
   const character = player.characters[player.active];
   const characterBox = teamView(player, current);
@@ -321,6 +323,12 @@ function playerView(player) {
     modifierZone("召唤物", player.summons),
     modifierZone("支援", player.supports),
   );
+  appendPlayerControls(resources, current);
+  section.append(characterBox, center, resources);
+  return section;
+}
+
+function appendPlayerControls(resources, current) {
   if (state.phase === "action") {
     const end = node("button", "end");
     end.textContent = "结束回合";
@@ -328,8 +336,13 @@ function playerView(player) {
     end.addEventListener("click", () => act({ kind: "end" }));
     resources.append(end);
   }
-  section.append(characterBox, center, resources);
-  return section;
+  if (current && state.phase !== "finished") {
+    const concede = nodeText("button", "concede", "认输");
+    concede.addEventListener("click", () => {
+      if (window.confirm("确认认输？")) act({ kind: "concede" });
+    });
+    resources.append(concede);
+  }
 }
 
 function teamView(player, current) {
