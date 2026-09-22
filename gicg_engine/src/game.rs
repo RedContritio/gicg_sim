@@ -687,6 +687,7 @@ impl Game {
         })?;
         let actor = self.state.active_character(player);
         self.state.players[player].active = slot;
+        self.plunging_ready[player] = true;
         let target = self.state.active_character(player);
         self.emit(Event {
             kind: EventKind::Switch,
@@ -732,6 +733,7 @@ impl Game {
             self.prepare_action(actor, ActionKind::Skill, action, traits)?;
         self.pay(actor, &action, payment)?;
         self.consume_action_modifiers(consumptions)?;
+        self.begin_action(player, ActionKind::Skill, action.tempo);
         self.active = Some(ActiveAction {
             player,
             actor,
@@ -775,7 +777,9 @@ impl Game {
             self.prepare_action(current, ActionKind::Switch, switch, traits)?;
         self.pay(current, &switch, payment)?;
         self.consume_action_modifiers(consumptions)?;
+        self.begin_action(player, ActionKind::Switch, switch.tempo);
         self.state.players[player].active = slot;
+        self.plunging_ready[player] = true;
         self.active = Some(ActiveAction {
             player,
             actor: current,
@@ -830,6 +834,7 @@ impl Game {
             self.prepare_action(actor, ActionKind::Card, card.action.clone(), traits)?;
         self.pay(actor, &action, payment)?;
         self.consume_action_modifiers(consumptions)?;
+        self.begin_action(player, ActionKind::Card, action.tempo);
         let removed = self.state.players[player].hand.remove(hand);
         self.state.players[player].discard.push(removed);
         self.active = Some(ActiveAction {
@@ -1422,18 +1427,18 @@ impl Game {
 
     fn finish_active_action(&mut self) {
         let active = self.active.take().expect("active action exists");
-        if active.kind == ActionKind::Switch {
-            self.plunging_ready[active.player] = true;
-        }
         if active.definition.tempo != ActionTempo::Combat {
             return;
-        }
-        if active.kind != ActionKind::Switch {
-            self.plunging_ready[active.player] = false;
         }
         let opponent = 1 - active.player;
         if !self.state.players[opponent].ended {
             self.state.turn = opponent;
+        }
+    }
+
+    fn begin_action(&mut self, player: PlayerId, kind: ActionKind, tempo: ActionTempo) {
+        if tempo == ActionTempo::Combat && kind != ActionKind::Switch {
+            self.plunging_ready[player] = false;
         }
     }
 
@@ -1497,6 +1502,7 @@ impl Game {
             Effect::AddCard { card } => self.add_card(&queued.context, &card),
             Effect::AddDice { die, count } => self.add_dice(&queued.context, die, count),
             Effect::ConvertDice { die } => self.convert_dice(&queued.context, die),
+            Effect::SwitchActive { side } => self.switch_active(&queued.context, side),
             Effect::Draw { count } => self.draw_effect(queued.context, count),
             Effect::Discard { side, count } => {
                 self.discard(&queued.context, side, usize::from(count))
@@ -1795,6 +1801,15 @@ impl Game {
         Ok(())
     }
 
+    fn switch_active(&mut self, context: &RuleContext, side: TargetSide) -> Result<()> {
+        let owner = context_owner(context)?;
+        let player = match side {
+            TargetSide::Own => owner,
+            TargetSide::Enemy => 1 - owner,
+        };
+        self.switch_next(player)
+    }
+
     fn discard(&mut self, context: &RuleContext, side: TargetSide, count: usize) -> Result<()> {
         let owner = context_owner(context)?;
         let player = match side {
@@ -1851,6 +1866,7 @@ impl Game {
         consume_counter_costs(self.state.character_mut(player, slot)?, &action);
         let skill = action.skill.expect("character action has skill kind");
         let traits = self.skill_traits(player, &action);
+        self.begin_action(player, ActionKind::Skill, action.tempo);
         let skill_context = RuleContext {
             actor: Some(actor),
             source: Some(actor),

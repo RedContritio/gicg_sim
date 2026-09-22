@@ -83,6 +83,9 @@ pub enum Effect {
     ConvertDice {
         die: Die,
     },
+    SwitchActive {
+        side: TargetSide,
+    },
     Draw {
         count: u8,
     },

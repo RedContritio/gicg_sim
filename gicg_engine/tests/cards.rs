@@ -213,6 +213,34 @@ fn cards_modify_switch_cost_and_tempo() {
     .unwrap();
     assert_eq!(game.state.turn, 1);
     assert!(game.state.players[0].combat.is_empty());
+
+    let mut game = ready("when_the_crane_returned");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(1),
+    })
+    .unwrap();
+    game.submit(Command::Skill {
+        action: "frostgnaw".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    assert_eq!(game.state.players[0].active, 1);
+    assert!(game.state.players[0].combat.is_empty());
+    game.submit(Command::End).unwrap();
+    game.submit(Command::Skill {
+        action: "spiritfox_sin_eater".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    let action = game
+        .state
+        .history
+        .iter()
+        .rev()
+        .find(|event| event.kind == EventKind::ActionResolved)
+        .unwrap();
+    assert!(action.traits.plunging);
 }
 
 #[test]

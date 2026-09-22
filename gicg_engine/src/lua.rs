@@ -314,6 +314,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function convert_dice(die)
             return { kind = "convert_dice", die = die }
         end
+        function switch_active(side)
+            return { kind = "switch_active", side = side }
+        end
         function draw(count)
             return { kind = "draw", count = count }
         end
