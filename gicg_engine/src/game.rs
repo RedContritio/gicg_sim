@@ -201,9 +201,10 @@ impl Game {
             .actions
             .iter()
             .cloned()
-            .map(|action| self.preview_action(actor, ActionKind::Skill, action))
+            .map(|action| self.preview_skill(actor, action))
             .collect::<Result<Vec<_>>>()?;
-        let switch = self.preview_action(actor, ActionKind::Switch, switch_action())?;
+        let mut switch = self.preview_action(actor, ActionKind::Switch, switch_action())?;
+        switch.playable = self.alive_slots(player)?.len() > 1;
         let cards = self.state.players[player]
             .hand
             .iter()
@@ -215,11 +216,7 @@ impl Game {
                     .expect("hand references a loaded card");
                 let mut preview =
                     self.preview_action(actor, ActionKind::Card, card.action.clone())?;
-                preview.playable = card.target.as_ref().is_none_or(|target| {
-                    !self
-                        .card_targets(player, target, card.kind == CardKind::Food)
-                        .is_empty()
-                });
+                preview.playable = self.card_playable(player, card)?;
                 Ok(preview)
             })
             .collect::<Result<Vec<_>>>()?;
@@ -245,6 +242,58 @@ impl Game {
             same: action.cost.same,
             playable: true,
         })
+    }
+
+    fn preview_skill(&self, actor: EntityRef, action: ActionDefinition) -> Result<ActionPreview> {
+        let mut preview = self.preview_action(actor, ActionKind::Skill, action.clone())?;
+        preview.playable = self.skill_playable(actor, &action)?;
+        Ok(preview)
+    }
+
+    fn skill_playable(&self, actor: EntityRef, action: &ActionDefinition) -> Result<bool> {
+        let EntityRef::Character { player, slot } = actor else {
+            return Ok(false);
+        };
+        if !self.is_alive(actor)?
+            || self
+                .state
+                .character_modifier_entity(player, slot, FROZEN)
+                .is_some()
+        {
+            return Ok(false);
+        }
+        Ok(validate_counter_costs(self.state.character(player, slot)?, action).is_ok())
+    }
+
+    fn card_playable(&self, player: PlayerId, card: &crate::CardDefinition) -> Result<bool> {
+        if let Some(talent) = &card.talent {
+            let Some(action) = self.talent_action(player, talent) else {
+                return Ok(false);
+            };
+            if !self.skill_playable(self.state.active_character(player), action)? {
+                return Ok(false);
+            }
+        }
+        Ok(card.target.as_ref().is_none_or(|target| {
+            !self
+                .card_targets(player, target, card.kind == CardKind::Food)
+                .is_empty()
+        }))
+    }
+
+    fn talent_action(
+        &self,
+        player: PlayerId,
+        talent: &crate::TalentDefinition,
+    ) -> Option<&ActionDefinition> {
+        let active = &self.state.players[player].characters[self.state.players[player].active];
+        if active.definition != talent.character {
+            return None;
+        }
+        self.runtime
+            .rules()
+            .character(&talent.character)
+            .and_then(|character| character.action(&talent.action))
     }
 
     pub fn submit(&mut self, command: Command) -> Result<()> {
@@ -637,16 +686,16 @@ impl Game {
             .card(&definition_id)
             .expect("hand references a loaded card")
             .clone();
+        if !self.card_playable(player, &card)? {
+            return Err(EngineError::InvalidCommand(format!(
+                "card {:?} is not playable",
+                card.id
+            )));
+        }
         let targets = card
             .target
             .as_ref()
             .map(|target| self.card_targets(player, target, card.kind == CardKind::Food));
-        if targets.as_ref().is_some_and(Vec::is_empty) {
-            return Err(EngineError::InvalidCommand(format!(
-                "card {:?} has no legal target",
-                card.id
-            )));
-        }
         let actor = self.state.active_character(player);
         let (action, consumptions) =
             self.prepare_action(actor, ActionKind::Card, card.action.clone())?;
@@ -663,9 +712,28 @@ impl Game {
         let context = RuleContext {
             actor: Some(actor),
             source: Some(actor),
-            action_id: Some(card.id),
+            action_id: Some(card.id.clone()),
             ..RuleContext::default()
         };
+        self.queue_card_resolution(&card, &action, context, targets)?;
+        self.drain()
+    }
+
+    fn queue_card_resolution(
+        &mut self,
+        card: &crate::CardDefinition,
+        action: &ActionDefinition,
+        context: RuleContext,
+        targets: Option<Vec<EntityRef>>,
+    ) -> Result<()> {
+        if let Some(talent) = &card.talent {
+            self.effects.push_front(QueuedEffect {
+                effect: Effect::UseSkill {
+                    action: talent.action.clone(),
+                },
+                context: context.clone(),
+            });
+        }
         if let Some(targets) = targets {
             self.create_card_target_choice(
                 targets,
@@ -676,7 +744,7 @@ impl Game {
         } else {
             self.enqueue_handler(action.resolve, context)?;
         }
-        self.drain()
+        Ok(())
     }
 
     fn card_targets(
@@ -1132,6 +1200,10 @@ impl Game {
             Effect::Discard { side, count } => {
                 self.discard(&queued.context, side, usize::from(count))
             }
+            Effect::UseSkill { action } => self.use_skill(&queued.context, &action),
+            Effect::CompleteSkill { action, skill } => {
+                self.complete_skill(&queued.context, action, skill)
+            }
             Effect::Choice {
                 options,
                 continuation,
@@ -1356,6 +1428,72 @@ impl Game {
         }
         self.draw_one(context_owner(&context)?)?;
         Ok(())
+    }
+
+    fn use_skill(&mut self, context: &RuleContext, action_id: &str) -> Result<()> {
+        let actor = context
+            .actor
+            .ok_or_else(|| EngineError::Rule("skill effect has no actor".to_owned()))?;
+        let EntityRef::Character { player, slot } = actor else {
+            return Err(EngineError::Rule(
+                "skill actor is not a character".to_owned(),
+            ));
+        };
+        let definition_id = self.state.character(player, slot)?.definition.clone();
+        let action = self
+            .runtime
+            .rules()
+            .character(&definition_id)
+            .and_then(|character| character.action(action_id))
+            .cloned()
+            .ok_or_else(|| EngineError::Rule(format!("skill {action_id:?} is not defined")))?;
+        if !self.skill_playable(actor, &action)? {
+            return Err(EngineError::Rule(format!(
+                "skill {action_id:?} cannot be used"
+            )));
+        }
+        consume_counter_costs(self.state.character_mut(player, slot)?, &action);
+        let skill = action.skill.expect("character action has skill kind");
+        self.effects.push_front(QueuedEffect {
+            effect: Effect::CompleteSkill {
+                action: action.id.clone(),
+                skill,
+            },
+            context: context.clone(),
+        });
+        self.enqueue_handler(
+            action.resolve,
+            RuleContext {
+                actor: Some(actor),
+                source: Some(actor),
+                action_id: Some(action.id),
+                skill: Some(skill),
+                ..RuleContext::default()
+            },
+        )
+    }
+
+    fn complete_skill(
+        &mut self,
+        context: &RuleContext,
+        action: String,
+        skill: crate::SkillKind,
+    ) -> Result<()> {
+        let actor = context
+            .actor
+            .ok_or_else(|| EngineError::Rule("completed skill has no actor".to_owned()))?;
+        self.emit(Event {
+            kind: EventKind::ActionResolved,
+            actor: Some(actor),
+            source: Some(actor),
+            target: None,
+            player: actor.player(),
+            action_id: Some(action),
+            skill: Some(skill),
+            element: None,
+            reaction: None,
+            amount: 0,
+        })
     }
 
     fn emit_card_event(&mut self, kind: EventKind, player: PlayerId, card: String) -> Result<()> {

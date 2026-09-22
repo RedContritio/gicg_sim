@@ -237,6 +237,12 @@ fn frozen_blocks_actions_and_physical_damage_shatters_it() {
         modifier_uses(&game, &runtime, 1, "system.frozen", "uses"),
         Some(1)
     );
+    assert!(
+        game.action_previews().unwrap()[1]
+            .skills
+            .iter()
+            .all(|action| !action.playable)
+    );
     let error = game
         .submit(Command::Skill {
             action: "cooling_treatment".to_owned(),

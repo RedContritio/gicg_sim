@@ -167,6 +167,7 @@ pub enum ActionKind {
 pub enum CardKind {
     Event,
     Food,
+    Talent,
     Equipment,
     Support,
 }
@@ -212,7 +213,7 @@ impl ActionKind {
     }
 }
 
-#[derive(Clone, Copy, Debug, Display, EnumString, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Display, EnumString, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum SkillKind {

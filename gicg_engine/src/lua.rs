@@ -12,7 +12,7 @@ use crate::{
     CharacterTargetDefinition, Cost, CounterConsume, CounterCost, CounterDefinition, CounterSchema,
     DamageDirection, DamageModifierDefinition, Effect, Element, EngineError, EntityRef, EventKind,
     GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, SkillKind,
-    TargetRef, TargetSide, TargetState, Zone,
+    TalentDefinition, TargetRef, TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -345,10 +345,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
     let id = required_string(&table, "id")?;
     let name = required_string(&table, "name")?;
     let description = required_string(&table, "description")?;
-    let kind = parse_card_kind(&table)?;
-    let target = parse_character_target(&table)?;
-    let tempo = parse_tempo(&table, "fast")?;
-    let cost = parse_optional_cost(&table, &CounterSchema::default())?;
+    let (kind, target, talent, tempo, cost) = parse_card_properties(&table)?;
     let resolve = add_table_handler(lua, state, &table, "resolve", &format!("card {id} resolve"))?;
     let continuations = parse_continuations(lua, state, &table, &format!("card {id}"))?;
     Ok(CardDefinition {
@@ -357,6 +354,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
         description,
         kind,
         target,
+        talent,
         action: ActionDefinition {
             id,
             name,
@@ -367,6 +365,34 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
             continuations,
         },
     })
+}
+
+type CardProperties = (
+    CardKind,
+    Option<CharacterTargetDefinition>,
+    Option<TalentDefinition>,
+    ActionTempo,
+    Cost,
+);
+
+fn parse_card_properties(table: &Table) -> mlua::Result<CardProperties> {
+    Ok((
+        parse_card_kind(table)?,
+        parse_character_target(table)?,
+        parse_talent(table)?,
+        parse_tempo(table, "fast")?,
+        parse_optional_cost(table, &CounterSchema::default())?,
+    ))
+}
+
+fn parse_talent(table: &Table) -> mlua::Result<Option<TalentDefinition>> {
+    let Some(talent) = table.get::<Option<Table>>("talent")? else {
+        return Ok(None);
+    };
+    Ok(Some(TalentDefinition {
+        character: required_string(&talent, "character")?,
+        action: required_string(&talent, "action")?,
+    }))
 }
 
 fn parse_card_kind(table: &Table) -> mlua::Result<CardKind> {

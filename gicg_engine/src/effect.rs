@@ -80,6 +80,13 @@ pub enum Effect {
         side: TargetSide,
         count: u8,
     },
+    UseSkill {
+        action: String,
+    },
+    CompleteSkill {
+        action: String,
+        skill: SkillKind,
+    },
     Choice {
         options: Vec<ChoiceOption>,
         continuation: String,

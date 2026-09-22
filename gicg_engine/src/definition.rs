@@ -169,7 +169,14 @@ pub struct CardDefinition {
     pub description: String,
     pub kind: CardKind,
     pub target: Option<CharacterTargetDefinition>,
+    pub talent: Option<TalentDefinition>,
     pub action: ActionDefinition,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct TalentDefinition {
+    pub character: String,
+    pub action: String,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -285,6 +292,9 @@ impl Ruleset {
                 )));
             }
         }
+        for card in &cards {
+            validate_talent(card, &characters)?;
+        }
         Ok(Self {
             hash,
             characters,
@@ -306,4 +316,32 @@ impl Ruleset {
     pub fn card(&self, id: &str) -> Option<&CardDefinition> {
         self.cards.iter().find(|definition| definition.id == id)
     }
+}
+
+fn validate_talent(card: &CardDefinition, characters: &[CharacterDefinition]) -> Result<()> {
+    let Some(talent) = &card.talent else {
+        return Ok(());
+    };
+    let character = characters
+        .iter()
+        .find(|character| character.id == talent.character)
+        .ok_or_else(|| {
+            EngineError::InvalidRuleset(format!(
+                "talent card {:?} references missing character {:?}",
+                card.id, talent.character
+            ))
+        })?;
+    if character.action(&talent.action).is_none() {
+        return Err(EngineError::InvalidRuleset(format!(
+            "talent card {:?} references missing action {:?}",
+            card.id, talent.action
+        )));
+    }
+    if card.target.is_some() {
+        return Err(EngineError::InvalidRuleset(format!(
+            "talent card {:?} cannot define a target",
+            card.id
+        )));
+    }
+    Ok(())
 }

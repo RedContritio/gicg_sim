@@ -228,6 +228,7 @@ function characterView(character, slot, previews) {
         id: action.id,
         name: action.name,
         tempo: preview?.tempo ?? action.tempo,
+        playable: preview?.playable ?? false,
         cost: effectiveCost(action.cost, definition.counters, preview),
       };
     }),
@@ -306,6 +307,7 @@ function playerView(player) {
       !current ||
       state.phase !== "action" ||
       !!state.decision ||
+      !action.playable ||
       !hasCounters(character, action.cost);
     button.addEventListener("click", () =>
       openPayment({ kind: "skill", action: action.id }, action.name, action.cost, player),
@@ -364,7 +366,12 @@ function teamView(player, current) {
       ${character.satiated ? '<span class="modifier">饱腹</span>' : ""}
       ${character.modifiers.map(modifierText).join("")}`;
     const canSwitch =
-      current && state.phase === "action" && !state.decision && !active && hp.value > 0;
+      current &&
+      state.phase === "action" &&
+      !state.decision &&
+      player.switch.playable &&
+      !active &&
+      hp.value > 0;
     button.disabled = !canSwitch;
     if (canSwitch) {
       button.addEventListener("click", () =>

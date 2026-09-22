@@ -346,3 +346,41 @@ fn revival_targets_only_defeated_characters() {
             .any(|event| event.kind == gicg_engine::EventKind::Revived)
     );
 }
+
+#[test]
+fn talent_cards_equip_and_immediately_use_the_declared_skill() {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let mut game = ready("cold_blooded_strike");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(3),
+    })
+    .unwrap();
+    assert_eq!(game.state.turn, 1);
+    assert_eq!(
+        game.state
+            .counter(
+                runtime.rules(),
+                EntityRef::Character { player: 1, slot: 0 },
+                "hp"
+            )
+            .unwrap(),
+        7
+    );
+    assert_eq!(
+        game.state
+            .counter(
+                runtime.rules(),
+                EntityRef::Character { player: 0, slot: 0 },
+                "energy"
+            )
+            .unwrap(),
+        1
+    );
+    let talent = &game.state.players[0].characters[0].modifiers[0];
+    assert_eq!(talent.definition, "talent.kaeya.cold_blooded_strike");
+    assert!(game.state.history.iter().any(|event| {
+        event.action_id.as_deref() == Some("frostgnaw")
+            && event.skill == Some(gicg_engine::SkillKind::ElementalSkill)
+    }));
+}
