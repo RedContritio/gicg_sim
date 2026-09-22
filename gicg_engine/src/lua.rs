@@ -1096,15 +1096,13 @@ fn set_context_source(lua: &Lua, table: &Table, source: Option<EntityRef>) -> ml
 }
 
 fn set_context_action(table: &Table, context: &RuleContext) -> mlua::Result<()> {
-    if let Some(action_id) = &context.action_id {
-        table.set("action", action_id.as_str())?;
-    }
-    if let Some(skill) = context.skill {
-        table.set("skill", skill.to_string())?;
-    }
-    if let Some(option) = &context.option {
-        table.set("option", option.as_str())?;
-    }
+    table.set("action", context.action_id.as_deref())?;
+    table.set(
+        "action_kind",
+        context.action_kind.map(|kind| kind.to_string()),
+    )?;
+    table.set("skill", context.skill.map(|skill| skill.to_string()))?;
+    table.set("option", context.option.as_deref())?;
     table.set("charged", context.traits.charged)?;
     table.set("plunging", context.traits.plunging)?;
     Ok(())
@@ -1130,6 +1128,10 @@ fn event_table(lua: &Lua, event: &crate::Event) -> mlua::Result<Table> {
 
 fn set_event_action(table: &Table, event: &crate::Event) -> mlua::Result<()> {
     table.set("action", event.action_id.as_deref())?;
+    table.set(
+        "action_kind",
+        event.action_kind.map(|kind| kind.to_string()),
+    )?;
     table.set("skill", event.skill.map(|skill| skill.to_string()))
 }
 

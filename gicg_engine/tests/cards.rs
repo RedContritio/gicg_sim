@@ -1,6 +1,9 @@
 use std::rc::Rc;
 
-use gicg_engine::{Command, DiceSet, Die, EntityRef, Game, GameConfig, LuaRuntime, PlayerConfig};
+use gicg_engine::{
+    ActionKind, Command, DiceSet, Die, EntityRef, EventKind, Game, GameConfig, LuaRuntime,
+    PlayerConfig,
+};
 
 fn omni(count: u8) -> DiceSet {
     let mut dice = DiceSet::default();
@@ -182,6 +185,20 @@ fn cards_modify_switch_cost_and_tempo() {
     .unwrap();
     assert_eq!(game.state.turn, 0);
     assert!(game.state.players[0].combat.is_empty());
+    game.submit(Command::Skill {
+        action: "spiritfox_sin_eater".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    let action = game
+        .state
+        .history
+        .iter()
+        .rev()
+        .find(|event| event.kind == EventKind::ActionResolved)
+        .unwrap();
+    assert_eq!(action.action_kind, Some(ActionKind::Skill));
+    assert!(action.traits.plunging);
 
     let mut game = ready("changing_shifts");
     game.submit(Command::Card {

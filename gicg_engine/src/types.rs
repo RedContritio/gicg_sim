@@ -152,7 +152,7 @@ pub enum ActionTempo {
     Fast,
 }
 
-#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Display, EnumString, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum ActionKind {

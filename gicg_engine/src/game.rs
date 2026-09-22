@@ -63,6 +63,7 @@ impl Command {
 struct ActiveAction {
     player: PlayerId,
     actor: EntityRef,
+    kind: ActionKind,
     definition: ActionDefinition,
     emitted_resolved: bool,
     traits: ActionTraits,
@@ -156,7 +157,7 @@ pub struct Game {
     first_ended: Option<PlayerId>,
     round_first: PlayerId,
     phase_done: [bool; 2],
-    last_combat_switch: [bool; 2],
+    plunging_ready: [bool; 2],
     round_transition: RoundTransition,
 }
 
@@ -183,7 +184,7 @@ impl Game {
             first_ended: None,
             round_first: first,
             phase_done: [false; 2],
-            last_combat_switch: [false; 2],
+            plunging_ready: [false; 2],
             round_transition: RoundTransition::None,
         };
         game.initialize_passives();
@@ -342,7 +343,7 @@ impl Game {
         }
         ActionTraits {
             charged: self.state.players[player].dice.total().is_multiple_of(2),
-            plunging: self.last_combat_switch[player],
+            plunging: self.plunging_ready[player],
         }
     }
 
@@ -437,6 +438,7 @@ impl Game {
             target: None,
             player,
             action_id: Some("concede".to_owned()),
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -693,6 +695,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: Some("forced_switch".to_owned()),
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -732,6 +735,7 @@ impl Game {
         self.active = Some(ActiveAction {
             player,
             actor,
+            kind: ActionKind::Skill,
             definition: action.clone(),
             emitted_resolved: false,
             traits,
@@ -742,6 +746,7 @@ impl Game {
                 actor: Some(actor),
                 source: Some(actor),
                 action_id: Some(action.id),
+                action_kind: Some(ActionKind::Skill),
                 skill: action.skill,
                 traits,
                 ..RuleContext::default()
@@ -774,6 +779,7 @@ impl Game {
         self.active = Some(ActiveAction {
             player,
             actor: current,
+            kind: ActionKind::Switch,
             definition: switch,
             emitted_resolved: false,
             traits,
@@ -785,6 +791,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: Some("switch".to_owned()),
+            action_kind: Some(ActionKind::Switch),
             skill: None,
             element: None,
             reaction: None,
@@ -828,6 +835,7 @@ impl Game {
         self.active = Some(ActiveAction {
             player,
             actor,
+            kind: ActionKind::Card,
             definition: action.clone(),
             emitted_resolved: false,
             traits,
@@ -836,6 +844,7 @@ impl Game {
             actor: Some(actor),
             source: Some(actor),
             action_id: Some(card.id.clone()),
+            action_kind: Some(ActionKind::Card),
             traits,
             ..RuleContext::default()
         };
@@ -1046,6 +1055,7 @@ impl Game {
             target: None,
             player,
             action_id: Some("end_round".to_owned()),
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -1077,6 +1087,7 @@ impl Game {
                     target: None,
                     player,
                     action_id: None,
+                    action_kind: None,
                     skill: None,
                     element: None,
                     reaction: None,
@@ -1103,7 +1114,7 @@ impl Game {
         self.state.turn = self.round_first;
         self.state.phase = Phase::Roll;
         self.phase_done = [false; 2];
-        self.last_combat_switch = [false; 2];
+        self.plunging_ready = [false; 2];
         for player in 0..2 {
             self.state.players[player].ended = false;
             self.state.players[player].dice = DiceSet::default();
@@ -1120,6 +1131,7 @@ impl Game {
             target: None,
             player: self.state.turn,
             action_id: None,
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -1401,33 +1413,50 @@ impl Game {
                 return Ok(());
             };
             if active.emitted_resolved {
-                let active = self.active.take().expect("active action exists");
-                if active.definition.tempo == ActionTempo::Combat {
-                    self.last_combat_switch[active.player] = active.definition.id == "switch";
-                    let opponent = 1 - active.player;
-                    if !self.state.players[opponent].ended {
-                        self.state.turn = opponent;
-                    }
-                }
+                self.finish_active_action();
                 return Ok(());
             }
+            self.emit_active_action_resolved()?;
+        }
+    }
+
+    fn finish_active_action(&mut self) {
+        let active = self.active.take().expect("active action exists");
+        if active.kind == ActionKind::Switch {
+            self.plunging_ready[active.player] = true;
+        }
+        if active.definition.tempo != ActionTempo::Combat {
+            return;
+        }
+        if active.kind != ActionKind::Switch {
+            self.plunging_ready[active.player] = false;
+        }
+        let opponent = 1 - active.player;
+        if !self.state.players[opponent].ended {
+            self.state.turn = opponent;
+        }
+    }
+
+    fn emit_active_action_resolved(&mut self) -> Result<()> {
+        let event = {
             let active = self.active.as_mut().expect("active action exists");
             active.emitted_resolved = true;
-            let event = Event {
+            Event {
                 kind: EventKind::ActionResolved,
                 actor: Some(active.actor),
                 source: Some(active.actor),
                 target: None,
                 player: active.player,
                 action_id: Some(active.definition.id.clone()),
+                action_kind: Some(active.kind),
                 skill: active.definition.skill,
                 element: None,
                 reaction: None,
                 amount: 0,
                 traits: active.traits,
-            };
-            self.emit(event)?;
-        }
+            }
+        };
+        self.emit(event)
     }
 
     fn apply(&mut self, queued: QueuedEffect) -> Result<()> {
@@ -1574,6 +1603,7 @@ impl Game {
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
             action_id: context.action_id.clone(),
+            action_kind: context.action_kind,
             skill: context.skill,
             element: None,
             reaction: None,
@@ -1615,6 +1645,7 @@ impl Game {
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
             action_id: context.action_id.clone(),
+            action_kind: context.action_kind,
             skill: context.skill,
             element: None,
             reaction: None,
@@ -1813,6 +1844,7 @@ impl Game {
             actor: Some(actor),
             source: Some(actor),
             action_id: Some(action.id.clone()),
+            action_kind: Some(ActionKind::Skill),
             skill: Some(skill),
             traits,
             ..RuleContext::default()
@@ -1843,6 +1875,7 @@ impl Game {
             target: None,
             player: actor.player(),
             action_id: Some(action),
+            action_kind: Some(ActionKind::Skill),
             skill: Some(skill),
             element: None,
             reaction: None,
@@ -1869,6 +1902,7 @@ impl Game {
             target: None,
             player,
             action_id: Some(card),
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -1949,6 +1983,7 @@ impl Game {
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
             action_id: context.action_id.clone(),
+            action_kind: context.action_kind,
             skill: context.skill,
             element: Some(resolved.element),
             reaction: reaction_kind,
@@ -2022,6 +2057,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: context.action_id,
+            action_kind: context.action_kind,
             skill: context.skill,
             element: None,
             reaction: None,
@@ -2418,6 +2454,7 @@ impl Game {
             target: Some(entity),
             player,
             action_id: None,
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -2509,6 +2546,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: None,
+            action_kind: None,
             skill: None,
             element: None,
             reaction: None,
@@ -2580,6 +2618,7 @@ impl Game {
                     target: event.target,
                     event: Some(event.clone()),
                     action_id: event.action_id.clone(),
+                    action_kind: event.action_kind,
                     skill: event.skill,
                     option: None,
                     traits: event.traits,
