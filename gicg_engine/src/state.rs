@@ -1,6 +1,6 @@
 use crate::{
-    Counter, CounterSchema, DiceSet, EngineError, EntityRef, InstanceId, PlayerId, Result, Ruleset,
-    Zone,
+    Counter, CounterSchema, DiceSet, Element, EngineError, EntityRef, InstanceId, PlayerId,
+    Reaction, Result, Ruleset, Zone,
 };
 use serde::{Deserialize, Serialize};
 
@@ -33,6 +33,7 @@ pub struct GameState {
     pub turn: PlayerId,
     pub winner: Option<PlayerId>,
     pub decision: Option<Decision>,
+    pub last_reaction: Option<ReactionRecord>,
     pub players: [PlayerState; 2],
     pub next_instance: InstanceId,
     pub next_decision: crate::DecisionId,
@@ -56,7 +57,15 @@ pub struct PlayerState {
 pub struct CharacterState {
     pub definition: String,
     pub counters: Vec<Counter>,
+    pub auras: Vec<Element>,
     pub modifiers: Vec<ModifierState>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+pub struct ReactionRecord {
+    pub kind: Reaction,
+    pub player: PlayerId,
+    pub slot: usize,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -120,6 +129,7 @@ impl GameState {
                 characters.push(CharacterState {
                     definition: definition.id.clone(),
                     counters: definition.counters.initial_values(),
+                    auras: Vec::new(),
                     modifiers: Vec::new(),
                 });
             }
@@ -151,6 +161,7 @@ impl GameState {
             turn: config.first,
             winner: None,
             decision: None,
+            last_reaction: None,
             players,
             next_instance: 1,
             next_decision: 1,
@@ -370,6 +381,22 @@ impl GameState {
             .chain(&state.combat)
             .chain(&state.summons)
             .chain(&state.supports)
+            .find(|modifier| modifier.definition == definition)
+            .map(|modifier| EntityRef::Modifier {
+                player,
+                instance: modifier.instance,
+            })
+    }
+
+    pub(crate) fn character_modifier_entity(
+        &self,
+        player: PlayerId,
+        slot: usize,
+        definition: &str,
+    ) -> Option<EntityRef> {
+        self.players[player].characters[slot]
+            .modifiers
+            .iter()
             .find(|modifier| modifier.definition == definition)
             .map(|modifier| EntityRef::Modifier {
                 player,

@@ -710,6 +710,10 @@ fn set_context_event(lua: &Lua, table: &Table, context: &RuleContext) -> mlua::R
         event_table.set("action", event.action_id.as_deref())?;
         event_table.set("amount", event.amount)?;
         event_table.set("element", event.element.map(|element| element.to_string()))?;
+        event_table.set(
+            "reaction",
+            event.reaction.map(|reaction| reaction.to_string()),
+        )?;
         table.set("event", event_table)?;
     }
     Ok(())

@@ -5,10 +5,13 @@ use rand_chacha::ChaCha8Rng;
 use serde::Deserialize;
 
 use crate::{
-    ActionDefinition, ActionTempo, ChoiceOption, Command::*, CounterConsume, Decision, DiceSet,
-    Die, Effect, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
-    LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, Result, RuleContext, Zone,
+    ActionDefinition, ActionTempo, ChoiceOption,
+    Command::*,
+    CounterConsume, Decision, DiceSet, Die, Effect, Element, EngineError, EntityRef, Event,
+    EventKind, GameConfig, GameState, HandlerId, LuaRuntime, MergePolicy, ModifierState, Phase,
+    PlayerId, Reaction, ReactionRecord, Result, RuleContext, Zone,
     lua::resolve_target,
+    reaction::{self, CATALYZING_FIELD, CRYSTALLIZE_SHIELD, DENDRO_CORE, FROZEN},
 };
 
 #[derive(Clone, Debug, Deserialize)]
@@ -70,6 +73,11 @@ struct PendingDecision {
     context: RuleContext,
 }
 
+struct DamageResolution {
+    amount: i32,
+    reaction: Option<reaction::ReactionMatch>,
+}
+
 #[derive(Clone, Copy)]
 struct EventInvocation {
     instance: u32,
@@ -117,8 +125,9 @@ impl Game {
 
     pub fn submit(&mut self, command: Command) -> Result<()> {
         self.validate_command(&command)?;
+        let previous_reaction = self.state.last_reaction.take();
         let player = self.state.turn;
-        match command {
+        let result = match command {
             Redraw { selected } => self.submit_redraw(player, selected),
             Reroll { payment } => self.submit_reroll(player, payment),
             Skill { action, payment } => self.submit_character_action(player, &action, payment),
@@ -126,7 +135,11 @@ impl Game {
             Card { hand, payment } => self.submit_card(player, hand, payment),
             Tune { hand, die } => self.submit_tune(player, hand, die),
             End => self.submit_end(player),
+        };
+        if result.is_err() {
+            self.state.last_reaction = previous_reaction;
         }
+        result
     }
 
     fn validate_command(&self, command: &Command) -> Result<()> {
@@ -276,6 +289,7 @@ impl Game {
             player,
             action_id: Some("forced_switch".to_owned()),
             element: None,
+            reaction: None,
             amount: 0,
         })
     }
@@ -290,6 +304,15 @@ impl Game {
         let EntityRef::Character { slot, .. } = actor else {
             unreachable!()
         };
+        if self
+            .state
+            .character_modifier_entity(player, slot, FROZEN)
+            .is_some()
+        {
+            return Err(EngineError::InvalidCommand(
+                "frozen character cannot use an action".to_owned(),
+            ));
+        }
         let character = self.state.character(player, slot)?;
         let definition = self
             .runtime
@@ -361,6 +384,7 @@ impl Game {
             player,
             action_id: Some("switch".to_owned()),
             element: None,
+            reaction: None,
             amount: 0,
         })?;
         self.drain()
@@ -454,6 +478,7 @@ impl Game {
             player,
             action_id: Some("end_round".to_owned()),
             element: None,
+            reaction: None,
             amount: 0,
         })?;
         self.drain()?;
@@ -470,6 +495,7 @@ impl Game {
             player,
             action_id: None,
             element: None,
+            reaction: None,
             amount: 0,
         })?;
         self.drain()?;
@@ -500,6 +526,7 @@ impl Game {
             player: self.state.turn,
             action_id: None,
             element: None,
+            reaction: None,
             amount: 0,
         })?;
         self.drain()
@@ -598,6 +625,7 @@ impl Game {
                 player: active.player,
                 action_id: Some(active.definition.id.clone()),
                 element: None,
+                reaction: None,
                 amount: 0,
             };
             self.emit(event)?;
@@ -754,53 +782,297 @@ impl Game {
         &mut self,
         context: RuleContext,
         target: EntityRef,
-        element: crate::Element,
+        element: Element,
         amount: i32,
     ) -> Result<()> {
-        let EntityRef::Character { player, slot } = target else {
+        let EntityRef::Character { player, .. } = target else {
             return Err(EngineError::Rule(format!(
                 "damage target {target:?} is not a character"
             )));
         };
+        let resolved = self.prepare_damage(&context, target, element, amount)?;
+        let applied = self.commit_damage(&context, target, element, &resolved)?;
+        self.finish_damage(context, target, player, resolved, applied)
+    }
+
+    fn prepare_damage(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        element: Element,
+        amount: i32,
+    ) -> Result<DamageResolution> {
+        let status_bonus = self.consume_damage_statuses(context, element)?;
+        let reaction = self.resolve_reaction(target, element)?;
+        let reaction_bonus = reaction.map_or(0, |value| value.kind.bonus());
+        let boosted = amount
+            .saturating_add(status_bonus)
+            .saturating_add(reaction_bonus);
+        let amount = self.absorb_crystallize(target, element, boosted)?;
+        Ok(DamageResolution { amount, reaction })
+    }
+
+    fn commit_damage(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        element: Element,
+        resolved: &DamageResolution,
+    ) -> Result<i32> {
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
         let hp = self.state.counter(self.runtime.rules(), target, "hp")?;
-        let applied = amount.min(hp);
+        let applied = resolved.amount.min(hp);
         self.state
             .set_counter(self.runtime.rules(), target, "hp", hp - applied)?;
+        let reaction_kind = resolved.reaction.map(|value| value.kind);
+        if let Some(kind) = reaction_kind {
+            self.state.last_reaction = Some(ReactionRecord { kind, player, slot });
+        }
         self.emit(Event {
             kind: EventKind::DamageApplied,
             actor: context.actor,
             source: context.source,
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
-            action_id: context.action_id,
+            action_id: context.action_id.clone(),
             element: Some(element),
+            reaction: reaction_kind,
             amount: applied,
         })?;
-        if hp - applied > 0 {
+        Ok(applied)
+    }
+
+    fn finish_damage(
+        &mut self,
+        context: RuleContext,
+        target: EntityRef,
+        player: PlayerId,
+        resolved: DamageResolution,
+        applied: i32,
+    ) -> Result<()> {
+        let hp = self.state.counter(self.runtime.rules(), target, "hp")?;
+        let defeated = hp <= 0 && applied > 0;
+        let reaction_kind = resolved.reaction.map(|value| value.kind);
+        if defeated {
+            self.handle_defeat(target, reaction_kind.is_some_and(Reaction::force_switch))?;
+        }
+        if self.state.phase == Phase::Finished {
             return Ok(());
         }
+        self.finish_reaction(&context, target, player, resolved.reaction, defeated)
+    }
+
+    fn finish_reaction(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        player: PlayerId,
+        reaction: Option<reaction::ReactionMatch>,
+        defeated: bool,
+    ) -> Result<()> {
+        if let Some(reaction) = reaction {
+            self.apply_reaction_result(context, target, reaction, defeated)?;
+            if reaction.kind.force_switch() && !defeated {
+                self.switch_next(player)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn resolve_reaction(
+        &mut self,
+        target: EntityRef,
+        element: Element,
+    ) -> Result<Option<reaction::ReactionMatch>> {
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
+        if matches!(element, Element::Physical | Element::Pyro)
+            && let Some(frozen) = self.state.character_modifier_entity(player, slot, FROZEN)
+        {
+            self.remove_modifier(frozen)?;
+            return Ok(Some(reaction::ReactionMatch {
+                kind: Reaction::Shatter,
+                aura: element,
+            }));
+        }
+        let matched = reaction::resolve(&self.state.character(player, slot)?.auras, element);
+        let character = self.state.character_mut(player, slot)?;
+        if let Some(value) = matched {
+            character.auras.retain(|aura| *aura != value.aura);
+        } else if element.attaches() && !character.auras.contains(&element) {
+            character.auras.push(element);
+        }
+        Ok(matched)
+    }
+
+    fn consume_damage_statuses(&mut self, context: &RuleContext, element: Element) -> Result<i32> {
+        let Some(player) = context.source.map(EntityRef::player) else {
+            return Ok(0);
+        };
+        let mut bonus = 0;
+        if matches!(element, Element::Pyro | Element::Electro)
+            && self.consume_modifier(player, DENDRO_CORE, "uses")?
+        {
+            bonus += 2;
+        }
+        if matches!(element, Element::Electro | Element::Dendro)
+            && self.consume_modifier(player, CATALYZING_FIELD, "uses")?
+        {
+            bonus += 1;
+        }
+        Ok(bonus)
+    }
+
+    fn consume_modifier(
+        &mut self,
+        player: PlayerId,
+        definition: &str,
+        counter: &str,
+    ) -> Result<bool> {
+        let Some(target) = self.state.modifier_entity(player, definition) else {
+            return Ok(false);
+        };
+        self.add_entity_counter(target, counter, -1)?;
+        Ok(true)
+    }
+
+    fn absorb_crystallize(
+        &mut self,
+        target: EntityRef,
+        element: Element,
+        amount: i32,
+    ) -> Result<i32> {
+        if element == Element::Piercing {
+            return Ok(amount);
+        }
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
+        if self.state.players[player].active != slot {
+            return Ok(amount);
+        }
+        let Some(target) = self.state.modifier_entity(player, CRYSTALLIZE_SHIELD) else {
+            return Ok(amount);
+        };
+        let points = self.state.counter(self.runtime.rules(), target, "points")?;
+        let absorbed = points.min(amount);
+        self.add_entity_counter(target, "points", -absorbed)?;
+        Ok(amount - absorbed)
+    }
+
+    fn apply_reaction_result(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        reaction: reaction::ReactionMatch,
+        defeated: bool,
+    ) -> Result<()> {
+        if let Some(definition) = reaction.kind.modifier()
+            && !(defeated && reaction.kind == Reaction::Frozen)
+        {
+            let host = if reaction.kind == Reaction::Frozen {
+                target
+            } else {
+                context
+                    .source
+                    .ok_or_else(|| EngineError::Rule("reaction has no source entity".to_owned()))?
+            };
+            self.add_modifier(host, definition)?;
+        }
+        if let Some(element) = reaction.kind.collateral(reaction.aura) {
+            self.damage_other_characters(context, target, element)?;
+        }
+        Ok(())
+    }
+
+    fn damage_other_characters(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        element: Element,
+    ) -> Result<()> {
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
+        let candidates = self.alive_slots(player)?;
+        for other in candidates.into_iter().filter(|other| *other != slot) {
+            self.apply_damage(
+                context.clone(),
+                EntityRef::Character {
+                    player,
+                    slot: other,
+                },
+                element,
+                1,
+            )?;
+        }
+        Ok(())
+    }
+
+    fn handle_defeat(&mut self, target: EntityRef, force_switch: bool) -> Result<()> {
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
+        let character = self.state.character_mut(player, slot)?;
+        character.auras.clear();
+        character.modifiers.clear();
         let alive = self.alive_slots(player)?;
         if alive.is_empty() {
             self.state.phase = Phase::Finished;
             self.state.winner = Some(1 - player);
-            return Ok(());
-        }
-        if self.state.players[player].active == slot {
-            let options = alive
-                .into_iter()
-                .map(|slot| ChoiceOption {
-                    id: slot.to_string(),
-                    label: format!("character:{slot}"),
-                })
-                .collect();
-            self.state.decision = Some(Decision {
-                id: self.state.next_decision,
-                player,
-                options,
-            });
-            self.state.next_decision += 1;
+            self.state.decision = None;
+        } else if self.state.players[player].active == slot {
+            if force_switch {
+                self.switch_next(player)?;
+            } else {
+                self.create_switch_decision(player, alive);
+            }
         }
         Ok(())
+    }
+
+    fn create_switch_decision(&mut self, player: PlayerId, alive: Vec<usize>) {
+        let options = alive
+            .into_iter()
+            .map(|slot| ChoiceOption {
+                id: slot.to_string(),
+                label: format!("character:{slot}"),
+            })
+            .collect();
+        self.state.decision = Some(Decision {
+            id: self.state.next_decision,
+            player,
+            options,
+        });
+        self.state.next_decision += 1;
+    }
+
+    fn switch_next(&mut self, player: PlayerId) -> Result<()> {
+        let Some(slot) = self.next_alive_slot(player)? else {
+            return Ok(());
+        };
+        self.force_switch(
+            player,
+            ChoiceOption {
+                id: slot.to_string(),
+                label: format!("character:{slot}"),
+            },
+        )
+    }
+
+    fn next_alive_slot(&self, player: PlayerId) -> Result<Option<usize>> {
+        let current = self.state.players[player].active;
+        let count = self.state.players[player].characters.len();
+        for offset in 1..count {
+            let slot = (current + offset) % count;
+            if self.is_alive(EntityRef::Character { player, slot })? {
+                return Ok(Some(slot));
+            }
+        }
+        Ok(None)
     }
 
     fn create_choice(
@@ -885,6 +1157,7 @@ impl Game {
             player,
             action_id: None,
             element: None,
+            reaction: None,
             amount: 0,
         })
     }
@@ -913,6 +1186,7 @@ impl Game {
             player,
             action_id: None,
             element: None,
+            reaction: None,
             amount: 0,
         })
     }

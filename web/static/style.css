@@ -207,6 +207,10 @@ main {
   color: var(--muted);
   font-size: 11px;
 }
+.aura {
+  color: #b8e7ef;
+  font-size: 12px;
+}
 .actions,
 .hand {
   display: flex;

@@ -1,4 +1,4 @@
-use crate::{ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId};
+use crate::{ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId, Reaction};
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
@@ -76,6 +76,7 @@ pub struct Event {
     pub player: PlayerId,
     pub action_id: Option<String>,
     pub element: Option<Element>,
+    pub reaction: Option<Reaction>,
     pub amount: Counter,
 }
 

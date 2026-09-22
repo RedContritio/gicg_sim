@@ -22,6 +22,7 @@ pub enum Element {
     Anemo,
     Geo,
     Dendro,
+    Piercing,
 }
 
 impl Element {
@@ -31,7 +32,7 @@ impl Element {
 
     pub const fn die(self) -> Option<Die> {
         match self {
-            Self::Physical => None,
+            Self::Physical | Self::Piercing => None,
             Self::Cryo => Some(Die::Cryo),
             Self::Hydro => Some(Die::Hydro),
             Self::Pyro => Some(Die::Pyro),
@@ -40,6 +41,17 @@ impl Element {
             Self::Geo => Some(Die::Geo),
             Self::Dendro => Some(Die::Dendro),
         }
+    }
+
+    pub const fn attaches(self) -> bool {
+        matches!(
+            self,
+            Self::Cryo | Self::Hydro | Self::Pyro | Self::Electro | Self::Dendro
+        )
+    }
+
+    pub const fn can_swirl(self) -> bool {
+        matches!(self, Self::Cryo | Self::Hydro | Self::Pyro | Self::Electro)
     }
 }
 

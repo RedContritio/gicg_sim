@@ -9,6 +9,21 @@ const elementNames = {
   geo: "岩元素",
   dendro: "草元素",
   physical: "物理",
+  piercing: "穿透",
+};
+const reactionNames = {
+  vaporize: "蒸发",
+  melt: "融化",
+  overloaded: "超载",
+  superconduct: "超导",
+  electro_charged: "感电",
+  frozen: "冻结",
+  swirl: "扩散",
+  crystallize: "结晶",
+  burning: "燃烧",
+  bloom: "绽放",
+  quicken: "原激化",
+  shatter: "碎冰",
 };
 const elementDice = { cryo: 0, hydro: 1, pyro: 2, electro: 3, anemo: 4, geo: 5, dendro: 6 };
 const counterNames = {
@@ -192,6 +207,7 @@ function characterView(character, slot) {
     name: definition.name,
     element: definition.element,
     counters: counterViews(definition.counters, character.counters),
+    auras: character.auras,
     actions: definition.actions.map((action) => ({
       id: action.id,
       name: action.name,
@@ -231,10 +247,12 @@ function costView(cost, schema) {
 
 function render() {
   round.textContent = `第 ${state.round} 回合`;
-  status.textContent =
+  const phase =
     state.phase === "finished"
       ? `玩家 ${state.winner + 1} 获胜`
       : `玩家 ${state.turn + 1} · ${phaseNames[state.phase]}`;
+  const reaction = state.last_reaction ? ` · ${reactionNames[state.last_reaction.kind]}` : "";
+  status.textContent = phase + reaction;
   const players =
     state.phase === "finished"
       ? state.players
@@ -306,6 +324,7 @@ function teamView(player, current) {
       <span class="element">${elementNames[character.element]}</span>
       <strong>${character.name}</strong>
       <span class="counter-list">${character.counters.map(counterText).join("")}</span>
+      ${character.auras.length ? `<span class="aura">附着 · ${character.auras.map((aura) => elementNames[aura]).join(" / ")}</span>` : ""}
       ${character.modifiers.map(modifierText).join("")}`;
     const canSwitch =
       current && state.phase === "action" && !state.decision && !active && hp.value > 0;
@@ -559,7 +578,7 @@ function renderDecision() {
   }
   decision.replaceChildren(nodeText("div", "", `玩家 ${state.decision.player + 1} 请选择`));
   state.decision.options.forEach((option, index) => {
-    const button = nodeText("button", "", option.label);
+    const button = nodeText("button", "", choiceLabel(option));
     button.addEventListener("click", () =>
       request(`/api/games/${gameId}/choices`, {
         method: "POST",
@@ -569,6 +588,12 @@ function renderDecision() {
     decision.append(button);
   });
   decision.classList.remove("hidden");
+}
+
+function choiceLabel(option) {
+  if (!option.label.startsWith("character:")) return option.label;
+  const character = state.players[state.decision.player].characters[Number(option.id)];
+  return `切换至${character.name}`;
 }
 
 function act(body) {
