@@ -303,6 +303,7 @@ impl Game {
             target: None,
             player,
             action_id: Some("concede".to_owned()),
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -516,6 +517,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: Some("forced_switch".to_owned()),
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -568,6 +570,7 @@ impl Game {
                 actor: Some(actor),
                 source: Some(actor),
                 action_id: Some(action.id),
+                skill: action.skill,
                 ..RuleContext::default()
             },
         )?;
@@ -605,6 +608,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: Some("switch".to_owned()),
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -792,6 +796,7 @@ impl Game {
             target: None,
             player,
             action_id: Some("end_round".to_owned()),
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -809,6 +814,7 @@ impl Game {
             target: None,
             player,
             action_id: None,
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -840,6 +846,7 @@ impl Game {
             target: None,
             player: self.state.turn,
             action_id: None,
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -908,7 +915,7 @@ impl Game {
     ) -> Result<(ActionDefinition, Vec<ActionConsumption>)> {
         let mut consumptions = Vec::new();
         for invocation in self.action_invocations(actor.player()) {
-            if !self.action_rule_applies(&invocation, actor, kind, &action.id)? {
+            if !self.action_rule_applies(&invocation, actor, kind, &action)? {
                 continue;
             }
             let changed = apply_action_rule(&mut action, &invocation.rule);
@@ -928,7 +935,7 @@ impl Game {
         invocation: &ActionInvocation,
         actor: EntityRef,
         kind: ActionKind,
-        action: &str,
+        action: &ActionDefinition,
     ) -> Result<bool> {
         if invocation.host.is_some_and(|host| host != actor) {
             return Ok(false);
@@ -936,8 +943,19 @@ impl Game {
         if !invocation.rule.kinds.is_empty() && !invocation.rule.kinds.contains(&kind) {
             return Ok(false);
         }
+        if !invocation.rule.skills.is_empty()
+            && action
+                .skill
+                .is_none_or(|skill| !invocation.rule.skills.contains(&skill))
+        {
+            return Ok(false);
+        }
         if !invocation.rule.actions.is_empty()
-            && !invocation.rule.actions.iter().any(|value| value == action)
+            && !invocation
+                .rule
+                .actions
+                .iter()
+                .any(|value| value == &action.id)
         {
             return Ok(false);
         }
@@ -1036,6 +1054,7 @@ impl Game {
                 target: None,
                 player: active.player,
                 action_id: Some(active.definition.id.clone()),
+                skill: active.definition.skill,
                 element: None,
                 reaction: None,
                 amount: 0,
@@ -1149,6 +1168,7 @@ impl Game {
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
             action_id: context.action_id.clone(),
+            skill: context.skill,
             element: None,
             reaction: None,
             amount: healed,
@@ -1268,6 +1288,7 @@ impl Game {
             target: None,
             player,
             action_id: Some(card),
+            skill: None,
             element: None,
             reaction: None,
             amount: 1,
@@ -1346,6 +1367,7 @@ impl Game {
             target: Some(target),
             player: context.source.map_or(player, EntityRef::player),
             action_id: context.action_id.clone(),
+            skill: context.skill,
             element: Some(resolved.element),
             reaction: reaction_kind,
             amount: applied,
@@ -1746,6 +1768,7 @@ impl Game {
             target: Some(entity),
             player,
             action_id: None,
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -1835,6 +1858,7 @@ impl Game {
             target: Some(target),
             player,
             action_id: None,
+            skill: None,
             element: None,
             reaction: None,
             amount: 0,
@@ -1904,6 +1928,7 @@ impl Game {
                     target: event.target,
                     event: Some(event.clone()),
                     action_id: event.action_id.clone(),
+                    skill: event.skill,
                     option: None,
                 },
             )?;
@@ -1938,6 +1963,7 @@ fn switch_action() -> ActionDefinition {
     ActionDefinition {
         id: "switch".to_owned(),
         name: "Switch".to_owned(),
+        skill: None,
         tempo: ActionTempo::Combat,
         cost: crate::Cost {
             any: 1,

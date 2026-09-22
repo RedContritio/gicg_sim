@@ -61,6 +61,7 @@ character {
         {
             id = "spiritfox_sin_eater",
             name = "狐灵食罪式",
+            kind = "normal_attack",
             cost = { dice = { electro = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -72,6 +73,7 @@ character {
         {
             id = "yakan_evocation_sesshou_sakura",
             name = "野干役咒·杀生樱",
+            kind = "elemental_skill",
             cost = { dice = { electro = 3 } },
             resolve = function(ctx)
                 local existing = ctx.modifier_counter("yae_miko.sesshou_sakura", "uses")
@@ -87,6 +89,7 @@ character {
         {
             id = "great_secret_art",
             name = "大密法·天狐显真",
+            kind = "elemental_burst",
             cost = {
                 dice = { electro = 3 },
                 counters = { { name = "energy", require = 2, consume = 2 } },

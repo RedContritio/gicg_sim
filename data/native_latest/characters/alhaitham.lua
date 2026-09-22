@@ -30,6 +30,7 @@ character {
         {
             id = "abductive_reasoning",
             name = "溯因反绎法",
+            kind = "normal_attack",
             cost = { dice = { dendro = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -41,6 +42,7 @@ character {
         {
             id = "universality_an_elaboration_on_form",
             name = "共相·理式摹写",
+            kind = "elemental_skill",
             cost = { dice = { dendro = 3 } },
             resolve = function(ctx)
                 return {
@@ -54,6 +56,7 @@ character {
         {
             id = "particular_field_fetters_of_phenomena",
             name = "殊境·显像缚结",
+            kind = "elemental_burst",
             cost = {
                 dice = { dendro = 3 },
                 counters = { { name = "energy", require = 2, consume = 2 } },

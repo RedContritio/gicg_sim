@@ -11,8 +11,8 @@ use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardDefinition, CardKind,
     CharacterTargetDefinition, Cost, CounterConsume, CounterCost, CounterDefinition, CounterSchema,
     DamageDirection, DamageModifierDefinition, Effect, Element, EngineError, EntityRef, EventKind,
-    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, TargetRef,
-    TargetSide, TargetState, Zone,
+    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, SkillKind,
+    TargetRef, TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -357,6 +357,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
         action: ActionDefinition {
             id,
             name,
+            skill: None,
             tempo,
             cost,
             resolve,
@@ -407,6 +408,7 @@ fn parse_action(
 ) -> mlua::Result<ActionDefinition> {
     let id = required_string(&table, "id")?;
     let name = required_string(&table, "name")?;
+    let skill = SkillKind::parse(&required_string(&table, "kind")?).map_err(lua_error)?;
     let tempo = parse_tempo(&table, "combat")?;
     let cost = parse_optional_cost(&table, counters)?;
     let label = format!("action {character_id}.{id} resolve");
@@ -416,6 +418,7 @@ fn parse_action(
     Ok(ActionDefinition {
         id,
         name,
+        skill: Some(skill),
         tempo,
         cost,
         resolve,
@@ -501,12 +504,13 @@ fn parse_action_modifier_table(
     modifier_id: &str,
     counters: &CounterSchema,
 ) -> mlua::Result<ActionModifierDefinition> {
-    let (kinds, actions) = parse_action_filters(&table)?;
+    let (kinds, skills, actions) = parse_action_filters(&table)?;
     let (reduce_dice, tempo) = parse_action_changes(&table, modifier_id)?;
     let counter = parse_counter_name(&table, "counter", modifier_id, counters, "action")?;
     let consume = parse_modifier_consume(&table, modifier_id, "action")?;
     Ok(ActionModifierDefinition {
         kinds,
+        skills,
         actions,
         reduce_dice,
         tempo,
@@ -515,8 +519,14 @@ fn parse_action_modifier_table(
     })
 }
 
-fn parse_action_filters(table: &Table) -> mlua::Result<(Vec<ActionKind>, Vec<String>)> {
-    Ok((parse_action_kinds(table)?, parse_strings(table, "actions")?))
+fn parse_action_filters(
+    table: &Table,
+) -> mlua::Result<(Vec<ActionKind>, Vec<SkillKind>, Vec<String>)> {
+    Ok((
+        parse_action_kinds(table)?,
+        parse_skill_kinds(table)?,
+        parse_strings(table, "actions")?,
+    ))
 }
 
 fn parse_action_changes(
@@ -540,6 +550,13 @@ fn parse_action_kinds(table: &Table) -> mlua::Result<Vec<ActionKind>> {
     parse_strings(table, "kinds")?
         .into_iter()
         .map(|value| ActionKind::parse(&value).map_err(lua_error))
+        .collect()
+}
+
+fn parse_skill_kinds(table: &Table) -> mlua::Result<Vec<SkillKind>> {
+    parse_strings(table, "skills")?
+        .into_iter()
+        .map(|value| SkillKind::parse(&value).map_err(lua_error))
         .collect()
 }
 
@@ -938,6 +955,9 @@ fn set_context_action(table: &Table, context: &RuleContext) -> mlua::Result<()> 
     if let Some(action_id) = &context.action_id {
         table.set("action", action_id.as_str())?;
     }
+    if let Some(skill) = context.skill {
+        table.set("skill", skill.to_string())?;
+    }
     if let Some(option) = &context.option {
         table.set("option", option.as_str())?;
     }
@@ -949,6 +969,7 @@ fn set_context_event(lua: &Lua, table: &Table, context: &RuleContext) -> mlua::R
         let event_table = lua.create_table()?;
         event_table.set("player", event.player)?;
         event_table.set("action", event.action_id.as_deref())?;
+        event_table.set("skill", event.skill.map(|skill| skill.to_string()))?;
         event_table.set("amount", event.amount)?;
         event_table.set("element", event.element.map(|element| element.to_string()))?;
         event_table.set(

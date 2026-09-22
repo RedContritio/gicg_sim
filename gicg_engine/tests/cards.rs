@@ -214,3 +214,39 @@ fn equipment_and_supports_persist_in_their_zones() {
     game.submit(Command::End).unwrap();
     assert_eq!(game.state.players[0].dice.total(), 10);
 }
+
+#[test]
+fn food_modifies_only_the_matching_skill_kind() {
+    let mut game = ready("minty_meat_rolls");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(1),
+    })
+    .unwrap();
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+
+    let previews = game.action_previews().unwrap();
+    let normal = previews[0]
+        .skills
+        .iter()
+        .find(|action| action.id == "ceremonial_bladework")
+        .unwrap();
+    let elemental = previews[0]
+        .skills
+        .iter()
+        .find(|action| action.id == "frostgnaw")
+        .unwrap();
+    assert_eq!(normal.dice.total() + u16::from(normal.any), 2);
+    assert_eq!(elemental.dice.total() + u16::from(elemental.any), 3);
+
+    game.submit(Command::Skill {
+        action: "ceremonial_bladework".to_owned(),
+        payment: omni(2),
+    })
+    .unwrap();
+    assert_eq!(
+        game.state.history.last().unwrap().skill,
+        Some(gicg_engine::SkillKind::NormalAttack)
+    );
+}

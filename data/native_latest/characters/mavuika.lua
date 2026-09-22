@@ -42,6 +42,7 @@ character {
         {
             id = "flames_weave_life",
             name = "以火织命",
+            kind = "normal_attack",
             cost = { dice = { pyro = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -53,6 +54,7 @@ character {
         {
             id = "the_named_moment",
             name = "称名之刻",
+            kind = "elemental_skill",
             cost = { dice = { pyro = 3 } },
             resolve = function(ctx)
                 return {
@@ -74,6 +76,7 @@ character {
         {
             id = "hour_of_burning_skies",
             name = "燔天之时",
+            kind = "elemental_burst",
             cost = {
                 dice = { pyro = 4 },
                 counters = { { name = "fighting_spirit", require = 3 } },

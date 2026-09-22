@@ -29,6 +29,7 @@ character {
         {
             id = "cooling_treatment",
             name = "降温处理",
+            kind = "normal_attack",
             cost = { dice = { hydro = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -40,6 +41,7 @@ character {
         {
             id = "surfshark_wavebreaker",
             name = "踏鲨破浪",
+            kind = "elemental_skill",
             cost = { dice = { hydro = 2 } },
             resolve = function(ctx)
                 return { add_counter("actor", "nightsoul", 2) }
@@ -48,6 +50,7 @@ character {
         {
             id = "sharky_surfboard",
             name = "鲨鲨冲浪板",
+            kind = "special",
             cost = {
                 counters = { { name = "nightsoul", require = 1, consume = 1 } },
             },
@@ -58,6 +61,7 @@ character {
         {
             id = "boomsharka_laka",
             name = "爆瀑飞弹",
+            kind = "elemental_burst",
             cost = {
                 dice = { hydro = 3 },
                 counters = { { name = "energy", require = 2, consume = 2 } },

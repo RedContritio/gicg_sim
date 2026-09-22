@@ -209,6 +209,22 @@ impl ActionKind {
     }
 }
 
+#[derive(Clone, Copy, Debug, Display, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum SkillKind {
+    NormalAttack,
+    ElementalSkill,
+    ElementalBurst,
+    Special,
+}
+
+impl SkillKind {
+    pub fn parse(value: &str) -> Result<Self> {
+        parse_name(value, "skill kind")
+    }
+}
+
 impl ActionTempo {
     pub fn parse(value: &str) -> Result<Self> {
         parse_name(value, "action tempo")

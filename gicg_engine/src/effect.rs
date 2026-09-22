@@ -1,5 +1,6 @@
 use crate::{
-    ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId, Reaction, TargetSide,
+    ChoiceOption, Counter, Die, Element, EntityRef, EventKind, PlayerId, Reaction, SkillKind,
+    TargetSide,
 };
 use serde::{Deserialize, Serialize};
 
@@ -89,6 +90,7 @@ pub struct Event {
     pub target: Option<EntityRef>,
     pub player: PlayerId,
     pub action_id: Option<String>,
+    pub skill: Option<SkillKind>,
     pub element: Option<Element>,
     pub reaction: Option<Reaction>,
     pub amount: Counter,
@@ -101,5 +103,6 @@ pub struct RuleContext {
     pub target: Option<EntityRef>,
     pub event: Option<Event>,
     pub action_id: Option<String>,
+    pub skill: Option<SkillKind>,
     pub option: Option<String>,
 }

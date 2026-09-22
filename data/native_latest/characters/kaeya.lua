@@ -32,6 +32,7 @@ character {
         {
             id = "ceremonial_bladework",
             name = "仪典剑术",
+            kind = "normal_attack",
             cost = { dice = { cryo = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -43,6 +44,7 @@ character {
         {
             id = "frostgnaw",
             name = "霜袭",
+            kind = "elemental_skill",
             cost = { dice = { cryo = 3 } },
             resolve = function(ctx)
                 return {
@@ -54,6 +56,7 @@ character {
         {
             id = "glacial_waltz",
             name = "凛冽轮舞",
+            kind = "elemental_burst",
             cost = {
                 dice = { cryo = 4 },
                 counters = {

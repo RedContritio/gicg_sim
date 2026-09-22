@@ -36,6 +36,7 @@ character {
         {
             id = "weaving_blade",
             name = "心织刀流",
+            kind = "normal_attack",
             cost = { dice = { geo = 1, any = 2 } },
             resolve = function(ctx)
                 return {
@@ -47,6 +48,7 @@ character {
         {
             id = "fluttering_hasode",
             name = "羽袖一触",
+            kind = "elemental_skill",
             cost = { dice = { geo = 3 } },
             resolve = function(ctx)
                 return {
@@ -70,6 +72,7 @@ character {
         {
             id = "hiyoku_twin_blades",
             name = "二刀之形·比翼",
+            kind = "elemental_burst",
             cost = {
                 dice = { geo = 3 },
                 counters = { { name = "energy", require = 2, consume = 2 } },

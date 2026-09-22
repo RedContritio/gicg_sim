@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{
     ActionKind, ActionTempo, CardKind, Counter, DiceSet, Die, EngineError, EventKind, FieldId,
-    HandlerId, MergePolicy, Result, TargetSide, TargetState, Zone,
+    HandlerId, MergePolicy, Result, SkillKind, TargetSide, TargetState, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -127,6 +127,7 @@ impl Cost {
 pub struct ActionDefinition {
     pub id: String,
     pub name: String,
+    pub skill: Option<SkillKind>,
     pub tempo: ActionTempo,
     pub cost: Cost,
     #[serde(skip)]
@@ -231,6 +232,7 @@ pub struct DamageModifierDefinition {
 #[derive(Clone, Debug, Serialize)]
 pub struct ActionModifierDefinition {
     pub kinds: Vec<ActionKind>,
+    pub skills: Vec<SkillKind>,
     pub actions: Vec<String>,
     pub reduce_dice: u8,
     pub tempo: Option<ActionTempo>,
