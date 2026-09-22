@@ -4,14 +4,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use mlua::{Function, Lua, LuaOptions, RegistryKey, StdLib, Table, Value};
+use mlua::{Function, Lua, LuaOptions, LuaSerdeExt, RegistryKey, StdLib, Table, Value};
 use sha2::{Digest, Sha256};
 
 use crate::{
-    ActionDefinition, ActionTempo, CardDefinition, ChoiceOption, Cost, CounterConsume, CounterCost,
+    ActionDefinition, ActionTempo, CardDefinition, Cost, CounterConsume, CounterCost,
     CounterDefinition, CounterSchema, Effect, Element, EngineError, EntityRef, EventKind,
-    GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition, RemovalReason,
-    Result, RuleContext, Ruleset, TargetRef, Zone,
+    GameState, HandlerDefinition, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext,
+    Ruleset, TargetRef, Zone,
 };
 
 struct LoadState {
@@ -120,7 +120,7 @@ impl LuaRuntime {
                 })?;
                 table.set("counter", counter)?;
                 let value: Value = function.call(table)?;
-                parse_effects(value, &self.rules, context).map_err(lua_error)
+                parse_effects(&self.lua, value).map_err(lua_error)
             })
             .map_err(EngineError::from)
     }
@@ -284,7 +284,6 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
     let cost = parse_optional_cost(&table, &CounterSchema::default())?;
     let resolve = add_table_handler(lua, state, &table, "resolve", &format!("card {id} resolve"))?;
     Ok(CardDefinition {
-        definition: 0,
         id: id.clone(),
         name: name.clone(),
         description,
@@ -351,7 +350,6 @@ fn parse_modifier(
     let handlers = parse_handlers(lua, state, &table, &id)?;
     let abilities = parse_abilities(lua, state, &table, &id)?;
     Ok(ModifierDefinition {
-        definition: 0,
         id,
         name,
         zone,
@@ -450,7 +448,7 @@ fn parse_remove_at_zero(
     table: &Table,
     modifier_id: &str,
     counters: &CounterSchema,
-) -> mlua::Result<Option<u16>> {
+) -> mlua::Result<Option<usize>> {
     table
         .get::<Option<String>>("remove_at_zero")?
         .map(|name| {
@@ -705,153 +703,11 @@ fn entity_table(lua: &Lua, entity: EntityRef) -> mlua::Result<Table> {
     Ok(table)
 }
 
-fn parse_effects(value: Value, rules: &Ruleset, context: &RuleContext) -> Result<Vec<Effect>> {
+fn parse_effects(lua: &Lua, value: Value) -> mlua::Result<Vec<Effect>> {
     if value == Value::Nil {
         return Ok(Vec::new());
     }
-    let table = value
-        .as_table()
-        .ok_or_else(|| EngineError::Rule("handler must return an effect list or nil".to_owned()))?;
-    let mut effects = Vec::new();
-    for value in table.clone().sequence_values::<Table>() {
-        let effect = value.map_err(EngineError::from)?;
-        effects.push(parse_effect(effect, rules, context)?);
-    }
-    Ok(effects)
-}
-
-fn parse_effect(table: Table, rules: &Ruleset, context: &RuleContext) -> Result<Effect> {
-    let kind: String = table.get("kind")?;
-    match kind.as_str() {
-        "set_counter" => parse_set_counter(&table),
-        "add_counter" => parse_add_counter(&table),
-        "damage" => parse_damage(&table),
-        "add_modifier" => parse_add_modifier(&table, rules),
-        "remove_modifier" => parse_remove_modifier(&table),
-        "choice" => parse_choice(&table, context),
-        "activate" => parse_activate(&table),
-        _ => Err(EngineError::Rule(format!("unknown effect kind {kind:?}"))),
-    }
-}
-
-fn parse_set_counter(table: &Table) -> Result<Effect> {
-    Ok(Effect::SetCounter {
-        target: effect_target(table)?,
-        name: table.get("name")?,
-        value: table.get("value")?,
-    })
-}
-
-fn parse_add_counter(table: &Table) -> Result<Effect> {
-    Ok(Effect::AddCounter {
-        target: effect_target(table)?,
-        name: table.get("name")?,
-        delta: table.get("delta")?,
-    })
-}
-
-fn parse_damage(table: &Table) -> Result<Effect> {
-    let amount: i32 = table.get("amount")?;
-    if amount < 0 {
-        return Err(EngineError::Rule(format!(
-            "damage amount {amount} is negative"
-        )));
-    }
-    Ok(Effect::Damage {
-        target: effect_target(table)?,
-        element: Element::parse(&table.get::<String>("element")?)?,
-        amount,
-    })
-}
-
-fn parse_add_modifier(table: &Table, rules: &Ruleset) -> Result<Effect> {
-    let id: String = table.get("definition")?;
-    let definition = rules
-        .modifier(&id)
-        .ok_or_else(|| EngineError::Rule(format!("modifier {id:?} is not defined")))?;
-    Ok(Effect::AddModifier {
-        target: effect_target(table)?,
-        definition: definition.definition,
-    })
-}
-
-fn parse_remove_modifier(table: &Table) -> Result<Effect> {
-    Ok(Effect::RemoveModifier {
-        target: effect_target(table)?,
-        reason: parse_removal_reason(&table.get::<String>("reason")?)?,
-    })
-}
-
-fn parse_choice(table: &Table, context: &RuleContext) -> Result<Effect> {
-    let actor = context
-        .actor
-        .ok_or_else(|| EngineError::Rule("choice requires an acting character".to_owned()))?;
-    let options = parse_choice_options(table)?;
-    Ok(Effect::Choice {
-        player: actor.player(),
-        options,
-        continuation: table.get("continuation")?,
-    })
-}
-
-fn parse_choice_options(table: &Table) -> Result<Vec<ChoiceOption>> {
-    let mut options = Vec::new();
-    for value in table.get::<Table>("options")?.sequence_values::<Value>() {
-        options.push(parse_choice_option(value?)?);
-    }
-    if options.is_empty() {
-        return Err(EngineError::Rule("choice has no options".to_owned()));
-    }
-    Ok(options)
-}
-
-fn parse_choice_option(value: Value) -> Result<ChoiceOption> {
-    match value {
-        Value::String(value) => {
-            let id = value.to_str()?.to_owned();
-            Ok(ChoiceOption {
-                label: id.clone(),
-                id,
-            })
-        }
-        Value::Table(value) => {
-            let id: String = value.get("id")?;
-            let label = value
-                .get::<Option<String>>("label")?
-                .unwrap_or_else(|| id.clone());
-            Ok(ChoiceOption { id, label })
-        }
-        _ => Err(EngineError::Rule(
-            "choice option must be a string or table".to_owned(),
-        )),
-    }
-}
-
-fn parse_activate(table: &Table) -> Result<Effect> {
-    Ok(Effect::ActivateAbility {
-        target: effect_target(table)?,
-        ability: table.get("ability")?,
-    })
-}
-
-fn effect_target(table: &Table) -> Result<TargetRef> {
-    let value: String = table.get("target")?;
-    TargetRef::parse(&value)
-        .ok_or_else(|| EngineError::Rule(format!("unknown effect target {value:?}")))
-}
-
-fn parse_removal_reason(value: &str) -> Result<RemovalReason> {
-    match value {
-        "consumed" => Ok(RemovalReason::Consumed),
-        "exhausted" => Ok(RemovalReason::Exhausted),
-        "expired" => Ok(RemovalReason::Expired),
-        "discarded" => Ok(RemovalReason::Discarded),
-        "replaced" => Ok(RemovalReason::Replaced),
-        "death" => Ok(RemovalReason::Death),
-        _ => Err(EngineError::Rule(format!(
-            "unknown removal reason {value:?}"
-        ))),
-    }
+    lua.from_value(value)
 }
 
 pub(crate) fn resolve_target(

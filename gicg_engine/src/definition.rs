@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    ActionTempo, Counter, DefinitionId, DiceSet, Die, EngineError, EventKind, FieldId, HandlerId,
-    MergePolicy, Result, Zone,
+    ActionTempo, Counter, DiceSet, Die, EngineError, EventKind, FieldId, HandlerId, MergePolicy,
+    Result, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -35,9 +35,6 @@ impl CounterSchema {
                     field.name, field.min, field.max, field.initial
                 )));
             }
-            FieldId::try_from(index).map_err(|_| {
-                EngineError::InvalidRuleset("one entity declares too many counters".to_owned())
-            })?;
             if index > 0 && fields[index - 1].name == field.name {
                 return Err(EngineError::InvalidRuleset(format!(
                     "duplicate counter {:?}",
@@ -52,11 +49,10 @@ impl CounterSchema {
         self.fields
             .binary_search_by_key(&name, |field| field.name.as_str())
             .ok()
-            .and_then(|index| FieldId::try_from(index).ok())
     }
 
     pub fn definition(&self, field: FieldId) -> Option<&CounterDefinition> {
-        self.fields.get(usize::from(field))
+        self.fields.get(field)
     }
 
     pub fn fields(&self) -> &[CounterDefinition] {
@@ -128,7 +124,6 @@ pub struct ActionDefinition {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct CharacterDefinition {
-    pub definition: DefinitionId,
     pub id: String,
     pub name: String,
     pub element: crate::Element,
@@ -138,7 +133,6 @@ pub struct CharacterDefinition {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct CardDefinition {
-    pub definition: DefinitionId,
     pub id: String,
     pub name: String,
     pub description: String,
@@ -163,7 +157,6 @@ impl CharacterDefinition {
             }
         }
         Ok(Self {
-            definition: 0,
             id,
             name,
             element,
@@ -185,7 +178,6 @@ pub struct HandlerDefinition {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct ModifierDefinition {
-    pub definition: DefinitionId,
     pub id: String,
     pub name: String,
     pub zone: Zone,
@@ -209,41 +201,22 @@ pub struct Ruleset {
 impl Ruleset {
     pub(crate) fn new(
         hash: String,
-        mut characters: Vec<CharacterDefinition>,
-        mut modifiers: Vec<ModifierDefinition>,
-        mut cards: Vec<CardDefinition>,
+        characters: Vec<CharacterDefinition>,
+        modifiers: Vec<ModifierDefinition>,
+        cards: Vec<CardDefinition>,
     ) -> Result<Self> {
         let mut ids = HashSet::new();
-        let mut next_definition = 1;
-        for character in &mut characters {
-            if !ids.insert(&character.id) {
+        for id in characters
+            .iter()
+            .map(|value| &value.id)
+            .chain(modifiers.iter().map(|value| &value.id))
+            .chain(cards.iter().map(|value| &value.id))
+        {
+            if !ids.insert(id) {
                 return Err(EngineError::InvalidRuleset(format!(
-                    "duplicate definition id {:?}",
-                    character.id
+                    "duplicate definition id {id:?}"
                 )));
             }
-            character.definition = next_definition;
-            next_definition += 1;
-        }
-        for modifier in &mut modifiers {
-            if !ids.insert(&modifier.id) {
-                return Err(EngineError::InvalidRuleset(format!(
-                    "duplicate definition id {:?}",
-                    modifier.id
-                )));
-            }
-            modifier.definition = next_definition;
-            next_definition += 1;
-        }
-        for card in &mut cards {
-            if !ids.insert(&card.id) {
-                return Err(EngineError::InvalidRuleset(format!(
-                    "duplicate definition id {:?}",
-                    card.id
-                )));
-            }
-            card.definition = next_definition;
-            next_definition += 1;
         }
         Ok(Self {
             hash,
@@ -259,31 +232,11 @@ impl Ruleset {
             .find(|definition| definition.id == id)
     }
 
-    pub fn character_definition(&self, id: DefinitionId) -> Option<&CharacterDefinition> {
-        definition_index(id).and_then(|index| self.characters.get(index))
-    }
-
     pub fn modifier(&self, id: &str) -> Option<&ModifierDefinition> {
         self.modifiers.iter().find(|definition| definition.id == id)
-    }
-
-    pub fn modifier_definition(&self, id: DefinitionId) -> Option<&ModifierDefinition> {
-        definition_index(id)
-            .and_then(|index| index.checked_sub(self.characters.len()))
-            .and_then(|index| self.modifiers.get(index))
     }
 
     pub fn card(&self, id: &str) -> Option<&CardDefinition> {
         self.cards.iter().find(|definition| definition.id == id)
     }
-
-    pub fn card_definition(&self, id: DefinitionId) -> Option<&CardDefinition> {
-        definition_index(id)
-            .and_then(|index| index.checked_sub(self.characters.len() + self.modifiers.len()))
-            .and_then(|index| self.cards.get(index))
-    }
-}
-
-fn definition_index(id: DefinitionId) -> Option<usize> {
-    usize::try_from(id).ok()?.checked_sub(1)
 }

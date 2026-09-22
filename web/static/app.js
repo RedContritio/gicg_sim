@@ -62,10 +62,7 @@ async function request(path, options = {}, creating = false) {
       gameId = payload.game_id;
       rules = payload.rules;
       definitions = new Map(
-        [...rules.characters, ...rules.modifiers, ...rules.cards].map((value) => [
-          value.definition,
-          value,
-        ]),
+        [...rules.characters, ...rules.modifiers, ...rules.cards].map((value) => [value.id, value]),
       );
       state = hydrate(payload.state);
     } else {

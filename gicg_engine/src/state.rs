@@ -1,8 +1,8 @@
 use crate::{
-    Counter, CounterSchema, DefinitionId, DiceSet, EngineError, EntityRef, InstanceId, PlayerId,
-    Result, Ruleset, Zone,
+    Counter, CounterSchema, DiceSet, EngineError, EntityRef, InstanceId, PlayerId, Result, Ruleset,
+    Zone,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -20,7 +20,7 @@ pub enum DecisionKind {
     ForcedSwitch,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ChoiceOption {
     pub id: String,
     pub label: String,
@@ -49,11 +49,11 @@ pub struct GameState {
 #[derive(Clone, Debug, Default, Serialize)]
 pub struct PlayerState {
     pub characters: Vec<CharacterState>,
-    pub active: u8,
+    pub active: usize,
     pub dice: DiceSet,
-    pub deck: Vec<DefinitionId>,
-    pub hand: Vec<DefinitionId>,
-    pub discard: Vec<DefinitionId>,
+    pub deck: Vec<String>,
+    pub hand: Vec<String>,
+    pub discard: Vec<String>,
     pub ended: bool,
     pub combat: Vec<ModifierState>,
     pub summons: Vec<ModifierState>,
@@ -62,7 +62,7 @@ pub struct PlayerState {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct CharacterState {
-    pub definition: DefinitionId,
+    pub definition: String,
     pub counters: Vec<Counter>,
     pub modifiers: Vec<ModifierState>,
 }
@@ -70,7 +70,7 @@ pub struct CharacterState {
 #[derive(Clone, Debug, Serialize)]
 pub struct ModifierState {
     pub instance: InstanceId,
-    pub definition: DefinitionId,
+    pub definition: String,
     pub counters: Vec<Counter>,
 }
 
@@ -78,7 +78,7 @@ pub struct ModifierState {
 pub struct PlayerConfig {
     pub characters: Vec<String>,
     pub deck: Vec<String>,
-    pub active: u8,
+    pub active: usize,
     pub dice: DiceSet,
 }
 
@@ -93,7 +93,7 @@ pub struct GameConfig {
 pub(crate) struct ModifierLocation {
     pub player: PlayerId,
     pub zone: Zone,
-    pub host: u8,
+    pub host: usize,
     pub index: usize,
 }
 
@@ -112,7 +112,7 @@ impl GameState {
                     "player {player_id} has no characters"
                 )));
             }
-            if usize::from(player_config.active) >= player_config.characters.len() {
+            if player_config.active >= player_config.characters.len() {
                 return Err(EngineError::InvalidGame(format!(
                     "player {player_id} active slot {} is invalid",
                     player_config.active
@@ -126,7 +126,7 @@ impl GameState {
                     ))
                 })?;
                 characters.push(CharacterState {
-                    definition: definition.definition,
+                    definition: definition.id.clone(),
                     counters: definition.counters.initial_values(),
                     modifiers: Vec::new(),
                 });
@@ -137,7 +137,7 @@ impl GameState {
                 .map(|card_id| {
                     rules
                         .card(&card_id)
-                        .map(|card| card.definition)
+                        .map(|card| card.id.clone())
                         .ok_or_else(|| {
                             EngineError::InvalidGame(format!(
                                 "player {player_id} card {card_id:?} is not defined"
@@ -168,14 +168,14 @@ impl GameState {
     pub fn active_character(&self, player: PlayerId) -> EntityRef {
         EntityRef::Character {
             player,
-            slot: self.players[usize::from(player)].active,
+            slot: self.players[player].active,
         }
     }
 
-    pub fn character(&self, player: PlayerId, slot: u8) -> Result<&CharacterState> {
+    pub fn character(&self, player: PlayerId, slot: usize) -> Result<&CharacterState> {
         self.players
-            .get(usize::from(player))
-            .and_then(|state| state.characters.get(usize::from(slot)))
+            .get(player)
+            .and_then(|state| state.characters.get(slot))
             .ok_or_else(|| {
                 EngineError::InvalidCommand(format!("character {player}:{slot} does not exist"))
             })
@@ -184,11 +184,11 @@ impl GameState {
     pub(crate) fn character_mut(
         &mut self,
         player: PlayerId,
-        slot: u8,
+        slot: usize,
     ) -> Result<&mut CharacterState> {
         self.players
-            .get_mut(usize::from(player))
-            .and_then(|state| state.characters.get_mut(usize::from(slot)))
+            .get_mut(player)
+            .and_then(|state| state.characters.get_mut(slot))
             .ok_or_else(|| {
                 EngineError::InvalidCommand(format!("character {player}:{slot} does not exist"))
             })
@@ -199,7 +199,7 @@ impl GameState {
         let field = schema.field(name).ok_or_else(|| {
             EngineError::Rule(format!("entity {entity:?} has no counter {name:?}"))
         })?;
-        Ok(values[usize::from(field)])
+        Ok(values[field])
     }
 
     pub(crate) fn set_counter(
@@ -220,7 +220,7 @@ impl GameState {
                 definition.min, definition.max
             )));
         }
-        values[usize::from(field)] = value;
+        values[field] = value;
         Ok(())
     }
 
@@ -246,29 +246,24 @@ impl GameState {
         match entity {
             EntityRef::Character { player, slot } => {
                 let character = self.character(player, slot)?;
-                let definition = rules
-                    .character_definition(character.definition)
-                    .ok_or_else(|| {
-                        EngineError::Rule(format!(
-                            "character definition {} is missing",
-                            character.definition
-                        ))
-                    })?;
+                let definition = rules.character(&character.definition).ok_or_else(|| {
+                    EngineError::Rule(format!(
+                        "character definition {} is missing",
+                        character.definition
+                    ))
+                })?;
                 Ok((&definition.counters, &character.counters))
             }
             EntityRef::Modifier { instance, .. } => {
                 let (_, modifier) = self.find_modifier(instance).ok_or_else(|| {
                     EngineError::Rule(format!("modifier instance {instance} is not active"))
                 })?;
-                let definition =
-                    rules
-                        .modifier_definition(modifier.definition)
-                        .ok_or_else(|| {
-                            EngineError::Rule(format!(
-                                "modifier definition {} is missing",
-                                modifier.definition
-                            ))
-                        })?;
+                let definition = rules.modifier(&modifier.definition).ok_or_else(|| {
+                    EngineError::Rule(format!(
+                        "modifier definition {} is missing",
+                        modifier.definition
+                    ))
+                })?;
                 Ok((&definition.counters, &modifier.counters))
             }
         }
@@ -281,9 +276,9 @@ impl GameState {
     ) -> Result<(&'a CounterSchema, &'a mut Vec<Counter>)> {
         match entity {
             EntityRef::Character { player, slot } => {
-                let definition_id = self.character(player, slot)?.definition;
+                let definition_id = self.character(player, slot)?.definition.clone();
                 let schema = &rules
-                    .character_definition(definition_id)
+                    .character(&definition_id)
                     .ok_or_else(|| {
                         EngineError::Rule(format!(
                             "character definition {definition_id} is missing"
@@ -300,9 +295,9 @@ impl GameState {
                     .ok_or_else(|| {
                         EngineError::Rule(format!("modifier instance {instance} is not active"))
                     })?;
-                let definition_id = self.modifier_at(location).definition;
+                let definition_id = self.modifier_at(location).definition.clone();
                 let schema = &rules
-                    .modifier_definition(definition_id)
+                    .modifier(&definition_id)
                     .ok_or_else(|| {
                         EngineError::Rule(format!("modifier definition {definition_id} is missing"))
                     })?
@@ -316,16 +311,16 @@ impl GameState {
         &mut self,
         player: PlayerId,
         zone: Zone,
-        host: u8,
+        host: usize,
     ) -> Result<&mut Vec<ModifierState>> {
         let player_state = self
             .players
-            .get_mut(usize::from(player))
+            .get_mut(player)
             .ok_or_else(|| EngineError::Rule(format!("player {player} is invalid")))?;
         match zone {
             Zone::Character => player_state
                 .characters
-                .get_mut(usize::from(host))
+                .get_mut(host)
                 .map(|character| &mut character.modifiers)
                 .ok_or_else(|| {
                     EngineError::Rule(format!("character {player}:{host} does not exist"))
@@ -350,9 +345,9 @@ impl GameState {
                 {
                     return Some((
                         ModifierLocation {
-                            player: player as PlayerId,
+                            player,
                             zone: Zone::Character,
-                            host: slot as u8,
+                            host: slot,
                             index,
                         },
                         modifier,
@@ -371,7 +366,7 @@ impl GameState {
                 {
                     return Some((
                         ModifierLocation {
-                            player: player as PlayerId,
+                            player,
                             zone,
                             host: 0,
                             index,
@@ -387,27 +382,23 @@ impl GameState {
     pub(crate) fn modifier_at(&self, location: ModifierLocation) -> &ModifierState {
         match location.zone {
             Zone::Character => {
-                &self.players[usize::from(location.player)].characters[usize::from(location.host)]
-                    .modifiers[location.index]
+                &self.players[location.player].characters[location.host].modifiers[location.index]
             }
-            Zone::Combat => &self.players[usize::from(location.player)].combat[location.index],
-            Zone::Summon => &self.players[usize::from(location.player)].summons[location.index],
-            Zone::Support => &self.players[usize::from(location.player)].supports[location.index],
+            Zone::Combat => &self.players[location.player].combat[location.index],
+            Zone::Summon => &self.players[location.player].summons[location.index],
+            Zone::Support => &self.players[location.player].supports[location.index],
         }
     }
 
     pub(crate) fn modifier_at_mut(&mut self, location: ModifierLocation) -> &mut ModifierState {
         match location.zone {
             Zone::Character => {
-                &mut self.players[usize::from(location.player)].characters
-                    [usize::from(location.host)]
-                .modifiers[location.index]
+                &mut self.players[location.player].characters[location.host].modifiers
+                    [location.index]
             }
-            Zone::Combat => &mut self.players[usize::from(location.player)].combat[location.index],
-            Zone::Summon => &mut self.players[usize::from(location.player)].summons[location.index],
-            Zone::Support => {
-                &mut self.players[usize::from(location.player)].supports[location.index]
-            }
+            Zone::Combat => &mut self.players[location.player].combat[location.index],
+            Zone::Summon => &mut self.players[location.player].summons[location.index],
+            Zone::Support => &mut self.players[location.player].supports[location.index],
         }
     }
 }

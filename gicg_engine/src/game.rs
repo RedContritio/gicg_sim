@@ -26,7 +26,7 @@ pub enum Command {
         payment: DiceSet,
     },
     Switch {
-        slot: u8,
+        slot: usize,
         payment: DiceSet,
     },
     #[serde(rename = "card")]
@@ -107,7 +107,7 @@ impl Game {
         };
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
-            game.draw(player as PlayerId, 5);
+            game.draw(player, 5);
         }
         Ok(game)
     }
@@ -158,7 +158,7 @@ impl Game {
                 "redraw contains duplicate hand slots".to_owned(),
             ));
         }
-        let player_state = &mut self.state.players[usize::from(player)];
+        let player_state = &mut self.state.players[player];
         if hand
             .last()
             .is_some_and(|slot| *slot >= player_state.hand.len())
@@ -172,17 +172,13 @@ impl Game {
             returned.push(player_state.hand.remove(slot));
         }
         self.draw(player, returned.len());
-        self.state.players[usize::from(player)]
-            .deck
-            .extend(returned);
-        self.state.players[usize::from(player)]
-            .deck
-            .shuffle(&mut self.rng);
+        self.state.players[player].deck.extend(returned);
+        self.state.players[player].deck.shuffle(&mut self.rng);
         self.finish_shared_phase(player, Phase::Roll)
     }
 
     fn submit_reroll(&mut self, player: PlayerId, selected: DiceSet) -> Result<()> {
-        let inventory = self.state.players[usize::from(player)].dice;
+        let inventory = self.state.players[player].dice;
         if Die::ALL
             .iter()
             .any(|die| selected.get(*die) > inventory.get(*die))
@@ -192,16 +188,16 @@ impl Game {
             ));
         }
         for die in Die::ALL {
-            self.state.players[usize::from(player)].dice.0[die.index()] -= selected.get(die);
+            self.state.players[player].dice.0[die.index()] -= selected.get(die);
         }
         self.roll(player, usize::from(selected.total()));
         self.finish_shared_phase(player, Phase::Action)
     }
 
     fn finish_shared_phase(&mut self, player: PlayerId, next: Phase) -> Result<()> {
-        self.phase_done[usize::from(player)] = true;
+        self.phase_done[player] = true;
         let opponent = 1 - player;
-        if !self.phase_done[usize::from(opponent)] {
+        if !self.phase_done[opponent] {
             self.state.turn = opponent;
             return Ok(());
         }
@@ -211,7 +207,7 @@ impl Game {
         if next == Phase::Roll {
             for player in 0..2 {
                 if self.state.players[player].dice.total() == 0 {
-                    self.roll(player as PlayerId, 8);
+                    self.roll(player, 8);
                 }
             }
         }
@@ -263,14 +259,14 @@ impl Game {
     }
 
     fn force_switch(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
-        let slot = selected.id.parse::<u8>().map_err(|error| {
+        let slot = selected.id.parse::<usize>().map_err(|error| {
             EngineError::Rule(format!(
                 "forced switch option {:?} is invalid: {error}",
                 selected.id
             ))
         })?;
         let actor = self.state.active_character(player);
-        self.state.players[usize::from(player)].active = slot;
+        self.state.players[player].active = slot;
         let target = self.state.active_character(player);
         self.emit(Event {
             kind: EventKind::Switch,
@@ -298,7 +294,7 @@ impl Game {
         let definition = self
             .runtime
             .rules()
-            .character_definition(character.definition)
+            .character(&character.definition)
             .ok_or_else(|| {
                 EngineError::Rule(format!(
                     "character definition {} is missing",
@@ -330,9 +326,9 @@ impl Game {
         self.drain()
     }
 
-    fn submit_switch(&mut self, player: PlayerId, slot: u8, payment: DiceSet) -> Result<()> {
+    fn submit_switch(&mut self, player: PlayerId, slot: usize, payment: DiceSet) -> Result<()> {
         let current = self.state.active_character(player);
-        if self.state.players[usize::from(player)].active == slot {
+        if self.state.players[player].active == slot {
             return Err(EngineError::InvalidCommand(format!(
                 "character {player}:{slot} is already active"
             )));
@@ -355,7 +351,7 @@ impl Game {
             continuations: Default::default(),
         };
         self.pay(current, &switch, payment)?;
-        self.state.players[usize::from(player)].active = slot;
+        self.state.players[player].active = slot;
         self.active = Some(ActiveAction {
             player,
             actor: current,
@@ -376,24 +372,23 @@ impl Game {
     }
 
     fn submit_card(&mut self, player: PlayerId, hand: usize, payment: DiceSet) -> Result<()> {
-        let definition_id = *self.state.players[usize::from(player)]
+        let definition_id = self.state.players[player]
             .hand
             .get(hand)
-            .ok_or_else(|| EngineError::InvalidCommand(format!("hand slot {hand} is invalid")))?;
+            .ok_or_else(|| EngineError::InvalidCommand(format!("hand slot {hand} is invalid")))?
+            .clone();
         let card = self
             .runtime
             .rules()
-            .card_definition(definition_id)
+            .card(&definition_id)
             .ok_or_else(|| {
                 EngineError::Rule(format!("card definition {definition_id} is missing"))
             })?
             .clone();
         let actor = self.state.active_character(player);
         self.pay(actor, &card.action, payment)?;
-        let removed = self.state.players[usize::from(player)].hand.remove(hand);
-        self.state.players[usize::from(player)]
-            .discard
-            .push(removed);
+        let removed = self.state.players[player].hand.remove(hand);
+        self.state.players[player].discard.push(removed);
         self.active = Some(ActiveAction {
             player,
             actor,
@@ -416,9 +411,10 @@ impl Game {
         let target = self
             .runtime
             .rules()
-            .character_definition(
-                self.state
-                    .character(player, self.state.players[usize::from(player)].active)?
+            .character(
+                &self
+                    .state
+                    .character(player, self.state.players[player].active)?
                     .definition,
             )
             .expect("loaded character definition exists")
@@ -430,7 +426,7 @@ impl Game {
                 "selected die cannot be tuned".to_owned(),
             ));
         }
-        let state = &mut self.state.players[usize::from(player)];
+        let state = &mut self.state.players[player];
         if state.dice.get(die) == 0 {
             return Err(EngineError::InvalidCommand(
                 "selected die is not available".to_owned(),
@@ -449,12 +445,12 @@ impl Game {
     }
 
     fn submit_end(&mut self, player: PlayerId) -> Result<()> {
-        if self.state.players[usize::from(player)].ended {
+        if self.state.players[player].ended {
             return Err(EngineError::InvalidCommand(format!(
                 "player {player} has already ended the round"
             )));
         }
-        self.state.players[usize::from(player)].ended = true;
+        self.state.players[player].ended = true;
         self.first_ended.get_or_insert(player);
         let actor = self.state.active_character(player);
         self.emit(Event {
@@ -469,7 +465,7 @@ impl Game {
         })?;
         self.drain()?;
         let opponent = 1 - player;
-        if !self.state.players[usize::from(opponent)].ended {
+        if !self.state.players[opponent].ended {
             self.state.turn = opponent;
             return Ok(());
         }
@@ -500,8 +496,8 @@ impl Game {
         for player in 0..2 {
             self.state.players[player].ended = false;
             self.state.players[player].dice = DiceSet::default();
-            self.draw(player as PlayerId, 2);
-            self.roll(player as PlayerId, 8);
+            self.draw(player, 2);
+            self.roll(player, 8);
         }
         self.emit(Event {
             kind: EventKind::RoundStart,
@@ -517,7 +513,7 @@ impl Game {
     }
 
     fn draw(&mut self, player: PlayerId, count: usize) {
-        let state = &mut self.state.players[usize::from(player)];
+        let state = &mut self.state.players[player];
         for _ in 0..count {
             let Some(card) = state.deck.pop() else {
                 break;
@@ -531,7 +527,7 @@ impl Game {
     }
 
     fn roll(&mut self, player: PlayerId, count: usize) {
-        let dice = &mut self.state.players[usize::from(player)].dice;
+        let dice = &mut self.state.players[player].dice;
         for _ in 0..count {
             dice.0[self.rng.random_range(0..Die::COUNT)] += 1;
         }
@@ -539,7 +535,7 @@ impl Game {
 
     fn pay(&mut self, actor: EntityRef, action: &ActionDefinition, payment: DiceSet) -> Result<()> {
         let player = actor.player();
-        let inventory = self.state.players[usize::from(player)].dice;
+        let inventory = self.state.players[player].dice;
         if !action.cost.valid_payment(inventory, payment) {
             return Err(EngineError::InvalidCommand(format!(
                 "invalid dice payment for action {:?}",
@@ -553,7 +549,7 @@ impl Game {
         };
         validate_counter_costs(self.state.character(player, slot)?, action)?;
         for die in crate::Die::ALL {
-            self.state.players[usize::from(player)].dice.0[die.index()] -= payment.get(die);
+            self.state.players[player].dice.0[die.index()] -= payment.get(die);
         }
         consume_counter_costs(self.state.character_mut(player, slot)?, action);
         Ok(())
@@ -623,7 +619,7 @@ impl Game {
         };
         if active.definition.tempo == ActionTempo::Combat {
             let opponent = 1 - active.player;
-            if !self.state.players[usize::from(opponent)].ended {
+            if !self.state.players[opponent].ended {
                 self.state.turn = opponent;
             }
         }
@@ -648,16 +644,15 @@ impl Game {
                 amount,
             } => self.damage(&queued.context, target, element, amount),
             Effect::AddModifier { target, definition } => {
-                self.add_modifier_effect(&queued.context, target, definition)
+                self.add_modifier_effect(&queued.context, target, &definition)
             }
             Effect::RemoveModifier { target, reason } => {
                 self.remove_modifier_effect(&queued.context, target, reason)
             }
             Effect::Choice {
-                player,
                 options,
                 continuation,
-            } => self.create_choice(player, options, &continuation, queued.context),
+            } => self.create_choice(options, &continuation, queued.context),
             Effect::ActivateAbility { target, ability } => {
                 self.activate_effect(queued.context, target, &ability)
             }
@@ -700,9 +695,11 @@ impl Game {
         context: &RuleContext,
         target: crate::TargetRef,
         element: crate::Element,
-        amount: i32,
+        amount: u32,
     ) -> Result<()> {
         let target = resolve_target(&self.state, context, target)?;
+        let amount = i32::try_from(amount)
+            .map_err(|_| EngineError::Rule(format!("damage amount {amount} overflows i32")))?;
         self.apply_damage(context.clone(), target, element, amount)
     }
 
@@ -710,7 +707,7 @@ impl Game {
         &mut self,
         context: &RuleContext,
         target: crate::TargetRef,
-        definition: u32,
+        definition: &str,
     ) -> Result<()> {
         let target = resolve_target(&self.state, context, target)?;
         self.add_modifier(target, definition)
@@ -771,7 +768,7 @@ impl Game {
             self.state.winner = Some(1 - player);
             return Ok(());
         }
-        if self.state.players[usize::from(player)].active == slot {
+        if self.state.players[player].active == slot {
             let options = alive
                 .into_iter()
                 .map(|slot| ChoiceOption {
@@ -792,11 +789,17 @@ impl Game {
 
     fn create_choice(
         &mut self,
-        player: PlayerId,
         options: Vec<ChoiceOption>,
         continuation: &str,
         context: RuleContext,
     ) -> Result<()> {
+        if options.is_empty() {
+            return Err(EngineError::Rule("choice has no options".to_owned()));
+        }
+        let player = context
+            .actor
+            .ok_or_else(|| EngineError::Rule("choice requires an acting character".to_owned()))?
+            .player();
         let active = self
             .active
             .as_ref()
@@ -823,11 +826,11 @@ impl Game {
         Ok(())
     }
 
-    fn add_modifier(&mut self, target: EntityRef, definition_id: u32) -> Result<()> {
+    fn add_modifier(&mut self, target: EntityRef, definition_id: &str) -> Result<()> {
         let definition = self
             .runtime
             .rules()
-            .modifier_definition(definition_id)
+            .modifier(definition_id)
             .ok_or_else(|| {
                 EngineError::Rule(format!("modifier definition {definition_id} is missing"))
             })?
@@ -855,7 +858,7 @@ impl Game {
             .modifier_list_mut(player, definition.zone, host)?
             .push(ModifierState {
                 instance,
-                definition: definition_id,
+                definition: definition.id.clone(),
                 counters: definition.counters.initial_values(),
             });
         let entity = EntityRef::Modifier { player, instance };
@@ -909,7 +912,7 @@ impl Game {
         let definition = self
             .runtime
             .rules()
-            .modifier_definition(modifier.definition)
+            .modifier(&modifier.definition)
             .ok_or_else(|| {
                 EngineError::Rule(format!(
                     "modifier definition {} is missing",
@@ -917,7 +920,7 @@ impl Game {
                 ))
             })?;
         if let Some(field) = definition.remove_at_zero
-            && self.state.modifier_at(location).counters[usize::from(field)] <= 0
+            && self.state.modifier_at(location).counters[field] <= 0
         {
             self.remove_modifier(target, RemovalReason::Exhausted)?;
         }
@@ -941,7 +944,7 @@ impl Game {
         let definition = self
             .runtime
             .rules()
-            .modifier_definition(modifier.definition)
+            .modifier(&modifier.definition)
             .ok_or_else(|| {
                 EngineError::Rule(format!(
                     "modifier definition {} is missing",
@@ -961,7 +964,6 @@ impl Game {
     fn emit(&mut self, event: Event) -> Result<()> {
         let mut invocations = Vec::new();
         for (player, player_state) in self.state.players.iter().enumerate() {
-            let player = player as PlayerId;
             for character in &player_state.characters {
                 for modifier in &character.modifiers {
                     collect_handlers(
@@ -1015,12 +1017,9 @@ impl Game {
         Ok(self.state.counter(self.runtime.rules(), character, "hp")? > 0)
     }
 
-    fn alive_slots(&self, player: PlayerId) -> Result<Vec<u8>> {
+    fn alive_slots(&self, player: PlayerId) -> Result<Vec<usize>> {
         let mut alive = Vec::new();
-        for slot in 0..self.state.players[usize::from(player)].characters.len() {
-            let slot = u8::try_from(slot).map_err(|_| {
-                EngineError::Rule("a player has more than 255 characters".to_owned())
-            })?;
+        for slot in 0..self.state.players[player].characters.len() {
             if self.is_alive(EntityRef::Character { player, slot })? {
                 alive.push(slot);
             }
@@ -1034,7 +1033,7 @@ fn validate_counter_costs(
     action: &ActionDefinition,
 ) -> Result<()> {
     for cost in &action.cost.counters {
-        let value = character.counters[usize::from(cost.field)];
+        let value = character.counters[cost.field];
         if value < cost.require {
             return Err(EngineError::InvalidCommand(format!(
                 "action {:?} requires counter value {}, has {}",
@@ -1047,7 +1046,7 @@ fn validate_counter_costs(
 
 fn consume_counter_costs(character: &mut crate::CharacterState, action: &ActionDefinition) {
     for cost in &action.cost.counters {
-        let value = &mut character.counters[usize::from(cost.field)];
+        let value = &mut character.counters[cost.field];
         match cost.consume {
             CounterConsume::None => {}
             CounterConsume::Fixed(amount) => *value -= amount,
@@ -1056,7 +1055,7 @@ fn consume_counter_costs(character: &mut crate::CharacterState, action: &ActionD
     }
 }
 
-fn modifier_host(definition: &crate::ModifierDefinition, target: EntityRef) -> Result<u8> {
+fn modifier_host(definition: &crate::ModifierDefinition, target: EntityRef) -> Result<usize> {
     match (definition.zone, target) {
         (Zone::Character, EntityRef::Character { slot, .. }) => Ok(slot),
         (Zone::Character, _) => Err(EngineError::Rule(format!(
@@ -1075,7 +1074,7 @@ fn merge_modifier(existing: &mut ModifierState, definition: &crate::ModifierDefi
     for (index, incoming) in definition.counters.initial_values().into_iter().enumerate() {
         let field = definition
             .counters
-            .definition(index as u16)
+            .definition(index)
             .expect("counter field exists");
         let value = match definition.merge {
             MergePolicy::Add => existing.counters[index].saturating_add(incoming),
@@ -1093,7 +1092,7 @@ fn collect_handlers(
     modifier: &ModifierState,
     output: &mut Vec<EventInvocation>,
 ) {
-    let Some(definition) = runtime.rules().modifier_definition(modifier.definition) else {
+    let Some(definition) = runtime.rules().modifier(&modifier.definition) else {
         return;
     };
     let Some(handlers) = definition.handlers.get(&event) else {

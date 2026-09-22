@@ -1,8 +1,8 @@
-use crate::{
-    ChoiceOption, Counter, DefinitionId, Element, EntityRef, EventKind, PlayerId, RemovalReason,
-};
+use crate::{ChoiceOption, Counter, Element, EntityRef, EventKind, PlayerId, RemovalReason};
+use serde::Deserialize;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum TargetRef {
     Actor,
     Source,
@@ -24,7 +24,8 @@ impl TargetRef {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Effect {
     SetCounter {
         target: TargetRef,
@@ -39,18 +40,17 @@ pub enum Effect {
     Damage {
         target: TargetRef,
         element: Element,
-        amount: Counter,
+        amount: u32,
     },
     AddModifier {
         target: TargetRef,
-        definition: DefinitionId,
+        definition: String,
     },
     RemoveModifier {
         target: TargetRef,
         reason: RemovalReason,
     },
     Choice {
-        player: PlayerId,
         options: Vec<ChoiceOption>,
         continuation: String,
     },

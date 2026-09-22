@@ -3,14 +3,13 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 
 pub type Counter = i32;
-pub type DefinitionId = u32;
 pub type HandlerId = u32;
 pub type InstanceId = u32;
 pub type DecisionId = u64;
-pub type FieldId = u16;
-pub type PlayerId = u8;
+pub type FieldId = usize;
+pub type PlayerId = usize;
 
-#[derive(Clone, Copy, Debug, Display, EnumString, Eq, PartialEq, Hash, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Display, EnumString, Eq, PartialEq, Hash, Serialize)]
 #[repr(u8)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -99,7 +98,7 @@ impl DiceSet {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, EnumString, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum Zone {
@@ -168,7 +167,7 @@ impl EventKind {
 pub enum EntityRef {
     Character {
         player: PlayerId,
-        slot: u8,
+        slot: usize,
     },
     Modifier {
         player: PlayerId,
@@ -184,7 +183,8 @@ impl EntityRef {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum RemovalReason {
     Consumed,
     Exhausted,

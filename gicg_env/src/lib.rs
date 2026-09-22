@@ -21,7 +21,7 @@ impl GameSession {
         player_two: Vec<String>,
         deck: Vec<String>,
         seed: u64,
-        first: u8,
+        first: usize,
     ) -> PyResult<Self> {
         let runtime = Rc::new(LuaRuntime::load(ruleset).map_err(runtime_error)?);
         let player = |characters| PlayerConfig {
