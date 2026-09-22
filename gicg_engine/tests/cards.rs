@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use gicg_engine::{
     ActionKind, Command, DiceSet, Die, EntityRef, EventKind, Game, GameConfig, LuaRuntime,
-    PlayerConfig,
+    MatchFormat, PlayerConfig,
 };
 
 fn omni(count: u8) -> DiceSet {
@@ -213,6 +213,68 @@ fn cards_modify_switch_cost_and_tempo() {
     .unwrap();
     assert_eq!(game.state.turn, 1);
     assert!(game.state.players[0].combat.is_empty());
+}
+
+#[test]
+fn regional_deck_cards_convert_existing_dice() {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let format = MatchFormat {
+        characters: 2,
+        cards: 1,
+        max_card_copies: 1,
+    };
+    let mut dice = DiceSet::default();
+    dice.set(Die::Cryo, 3);
+    dice.set(Die::Electro, 2);
+    let player = |characters: [&str; 2]| PlayerConfig {
+        characters: characters.map(str::to_owned).to_vec(),
+        deck: vec!["thunder_and_eternity".to_owned()],
+        active: Some(0),
+        dice,
+    };
+    let error = Game::new_match(
+        Rc::clone(&runtime),
+        GameConfig {
+            players: [
+                player(["yae_miko", "kaeya"]),
+                player(["yae_miko", "chiori"]),
+            ],
+            first: 0,
+            seed: 7,
+        },
+        format,
+    )
+    .err()
+    .unwrap();
+    assert!(error.to_string().contains("inazuma"));
+
+    let legal = player(["yae_miko", "chiori"]);
+    let mut game = Game::new_match(
+        runtime,
+        GameConfig {
+            players: [legal.clone(), legal],
+            first: 0,
+            seed: 7,
+        },
+        format,
+    )
+    .unwrap();
+    for _ in 0..2 {
+        game.submit(Command::Redraw { selected: vec![] }).unwrap();
+    }
+    for _ in 0..2 {
+        game.submit(Command::Reroll {
+            payment: DiceSet::default(),
+        })
+        .unwrap();
+    }
+    game.submit(Command::Card {
+        hand: 0,
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert_eq!(game.state.players[0].dice.get(Die::Omni), 5);
+    assert_eq!(game.state.players[0].dice.total(), 5);
 }
 
 #[test]

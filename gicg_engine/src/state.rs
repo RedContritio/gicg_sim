@@ -157,17 +157,43 @@ impl MatchFormat {
                     "player {player} has too many copies of card {card:?}"
                 )));
             }
-            if let Some(talent) = rules.card(card).and_then(|card| card.talent.as_ref())
-                && !config.characters.contains(&talent.character)
-            {
-                return Err(EngineError::InvalidGame(format!(
-                    "player {player} talent card {card:?} requires character {:?}",
-                    talent.character
-                )));
+            if let Some(definition) = rules.card(card) {
+                validate_card_deck(rules, player, config, definition)?;
             }
         }
         Ok(())
     }
+}
+
+fn validate_card_deck(
+    rules: &Ruleset,
+    player: PlayerId,
+    config: &PlayerConfig,
+    card: &crate::CardDefinition,
+) -> Result<()> {
+    if let Some(talent) = &card.talent
+        && !config.characters.contains(&talent.character)
+    {
+        return Err(EngineError::InvalidGame(format!(
+            "player {player} talent card {:?} requires character {:?}",
+            card.id, talent.character
+        )));
+    }
+    for requirement in &card.deck_requirements {
+        let count = config
+            .characters
+            .iter()
+            .filter_map(|id| rules.character(id))
+            .filter(|character| character.has_tag(&requirement.tag))
+            .count();
+        if count < requirement.count {
+            return Err(EngineError::InvalidGame(format!(
+                "player {player} card {:?} requires {} characters tagged {:?}",
+                card.id, requirement.count, requirement.tag
+            )));
+        }
+    }
+    Ok(())
 }
 
 #[derive(Clone, Copy, Debug)]

@@ -1496,6 +1496,7 @@ impl Game {
             }
             Effect::AddCard { card } => self.add_card(&queued.context, &card),
             Effect::AddDice { die, count } => self.add_dice(&queued.context, die, count),
+            Effect::ConvertDice { die } => self.convert_dice(&queued.context, die),
             Effect::Draw { count } => self.draw_effect(queued.context, count),
             Effect::Discard { side, count } => {
                 self.discard(&queued.context, side, usize::from(count))
@@ -1781,6 +1782,16 @@ impl Game {
         *dice = dice
             .checked_add(added)
             .ok_or_else(|| EngineError::Rule("dice count overflowed".to_owned()))?;
+        Ok(())
+    }
+
+    fn convert_dice(&mut self, context: &RuleContext, die: Die) -> Result<()> {
+        let player = context_owner(context)?;
+        let total = u8::try_from(self.state.players[player].dice.total())
+            .map_err(|_| EngineError::Rule("dice total cannot fit in one face".to_owned()))?;
+        let mut dice = DiceSet::default();
+        dice.set(die, total);
+        self.state.players[player].dice = dice;
         Ok(())
     }
 

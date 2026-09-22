@@ -204,9 +204,16 @@ pub struct CardDefinition {
     pub name: String,
     pub description: String,
     pub kind: CardKind,
+    pub deck_requirements: Vec<DeckRequirementDefinition>,
     pub target: Option<CardTargetDefinition>,
     pub talent: Option<TalentDefinition>,
     pub action: ActionDefinition,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DeckRequirementDefinition {
+    pub tag: String,
+    pub count: usize,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -266,6 +273,10 @@ impl CharacterDefinition {
 
     pub fn action(&self, id: &str) -> Option<&ActionDefinition> {
         self.actions.iter().find(|action| action.id == id)
+    }
+
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.tags.iter().any(|value| value == tag) || self.element.to_string() == tag
     }
 }
 
@@ -363,6 +374,7 @@ impl Ruleset {
         }
         for card in &cards {
             validate_card_target(card)?;
+            validate_deck_requirements(card)?;
             validate_talent(card, &characters)?;
         }
         for character in &characters {
@@ -389,6 +401,19 @@ impl Ruleset {
     pub fn card(&self, id: &str) -> Option<&CardDefinition> {
         self.cards.iter().find(|definition| definition.id == id)
     }
+}
+
+fn validate_deck_requirements(card: &CardDefinition) -> Result<()> {
+    let mut tags = HashSet::new();
+    if card.deck_requirements.iter().any(|requirement| {
+        requirement.tag.is_empty() || requirement.count == 0 || !tags.insert(&requirement.tag)
+    }) {
+        return Err(EngineError::InvalidRuleset(format!(
+            "card {:?} has invalid or duplicate deck requirements",
+            card.id
+        )));
+    }
+    Ok(())
 }
 
 fn validate_passives(

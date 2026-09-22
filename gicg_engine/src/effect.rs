@@ -80,6 +80,9 @@ pub enum Effect {
         die: Die,
         count: u8,
     },
+    ConvertDice {
+        die: Die,
+    },
     Draw {
         count: u8,
     },

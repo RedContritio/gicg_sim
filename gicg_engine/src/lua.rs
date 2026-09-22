@@ -10,10 +10,10 @@ use sha2::{Digest, Sha256};
 use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ActionTraits,
     CardDefinition, CardKind, CardTargetDefinition, Cost, CounterConsume, CounterCost,
-    CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition, DiceSet, Effect,
-    Element, EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy,
-    ModifierDefinition, Result, RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef,
-    TargetSide, TargetState, Zone,
+    CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition,
+    DeckRequirementDefinition, DiceSet, Effect, Element, EngineError, EntityRef, EventKind,
+    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, SkillKind,
+    TalentDefinition, TargetRef, TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -311,6 +311,9 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function add_dice(die, count)
             return { kind = "add_dice", die = die, count = count }
         end
+        function convert_dice(die)
+            return { kind = "convert_dice", die = die }
+        end
         function draw(count)
             return { kind = "draw", count = count }
         end
@@ -377,6 +380,7 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
         name: name.clone(),
         description,
         kind,
+        deck_requirements: parse_deck_requirements(&table)?,
         target,
         talent,
         action: ActionDefinition {
@@ -389,6 +393,21 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
             continuations,
         },
     })
+}
+
+fn parse_deck_requirements(table: &Table) -> mlua::Result<Vec<DeckRequirementDefinition>> {
+    let Some(deck) = table.get::<Option<Table>>("deck")? else {
+        return Ok(Vec::new());
+    };
+    let Some(tags) = deck.get::<Option<Table>>("tags")? else {
+        return Ok(Vec::new());
+    };
+    tags.pairs::<String, usize>()
+        .map(|entry| {
+            let (tag, count) = entry?;
+            Ok(DeckRequirementDefinition { tag, count })
+        })
+        .collect()
 }
 
 type CardProperties = (
