@@ -268,6 +268,7 @@ pub struct ModifierDefinition {
     pub damage: Option<DamageModifierDefinition>,
     pub action: Option<ActionModifierDefinition>,
     pub roll: Option<RollModifierDefinition>,
+    pub revive: Option<ReviveModifierDefinition>,
     #[serde(skip)]
     pub handlers: HashMap<EventKind, HandlerId>,
 }
@@ -276,6 +277,13 @@ pub struct ModifierDefinition {
 pub struct RollModifierDefinition {
     pub rerolls: u8,
     pub fixed: DiceSet,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct ReviveModifierDefinition {
+    pub hp: Counter,
+    pub counter: String,
+    pub consume: Counter,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]

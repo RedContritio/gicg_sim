@@ -1925,8 +1925,11 @@ impl Game {
         applied: i32,
     ) -> Result<()> {
         let hp = self.state.counter(self.runtime.rules(), target, "hp")?;
-        let defeated = hp <= 0 && applied > 0;
+        let mut defeated = hp <= 0 && applied > 0;
         let reaction_kind = resolved.reaction.map(|value| value.kind);
+        if defeated && self.prevent_defeat(context.clone(), target)? {
+            defeated = false;
+        }
         if defeated {
             self.handle_defeat(target, reaction_kind.is_some_and(Reaction::force_switch))?;
         }
@@ -1934,6 +1937,56 @@ impl Game {
             return Ok(());
         }
         self.finish_reaction(&context, target, player, resolved.reaction, defeated)
+    }
+
+    fn prevent_defeat(&mut self, context: RuleContext, target: EntityRef) -> Result<bool> {
+        let EntityRef::Character { player, slot } = target else {
+            return Ok(false);
+        };
+        let revival = self.state.players[player].characters[slot]
+            .modifiers
+            .iter()
+            .find_map(|modifier| {
+                let rule = self
+                    .runtime
+                    .rules()
+                    .modifier(&modifier.definition)?
+                    .revive
+                    .as_ref()?;
+                (modifier.counters[self
+                    .runtime
+                    .rules()
+                    .modifier(&modifier.definition)?
+                    .counters
+                    .field(&rule.counter)?]
+                    >= rule.consume)
+                    .then(|| (modifier.instance, rule.clone()))
+            });
+        let Some((instance, rule)) = revival else {
+            return Ok(false);
+        };
+        let source = EntityRef::Modifier { player, instance };
+        self.add_entity_counter(source, &rule.counter, -rule.consume)?;
+        let (_, maximum) = self
+            .state
+            .counter_range(self.runtime.rules(), target, "hp")?;
+        let restored = rule.hp.min(maximum);
+        self.state
+            .set_counter(self.runtime.rules(), target, "hp", restored)?;
+        self.emit(Event {
+            kind: EventKind::Revived,
+            actor: context.actor,
+            source: Some(source),
+            target: Some(target),
+            player,
+            action_id: context.action_id,
+            skill: context.skill,
+            element: None,
+            reaction: None,
+            amount: restored,
+            traits: context.traits,
+        })?;
+        Ok(true)
     }
 
     fn finish_reaction(

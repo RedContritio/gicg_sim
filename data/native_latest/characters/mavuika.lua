@@ -40,10 +40,11 @@ modifier {
 modifier {
     id = "mavuika.crucible_of_death_and_life",
     name = "死生之炉",
-    zone = "combat",
+    zone = "character",
     merge = "replace",
     counters = { uses = { initial = 2, min = 0, max = 2 } },
     remove_at_zero = "uses",
+    revive = { hp = 1, counter = "uses" },
     handlers = {},
 }
 

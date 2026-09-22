@@ -51,6 +51,22 @@ fn counter(game: &Game, runtime: &LuaRuntime, player: usize, slot: usize, name: 
         .unwrap()
 }
 
+fn set_counter(
+    game: &mut Game,
+    runtime: &LuaRuntime,
+    player: usize,
+    slot: usize,
+    name: &str,
+    value: i32,
+) {
+    let character = runtime
+        .rules()
+        .character(&game.state.players[player].characters[slot].definition)
+        .unwrap();
+    let field = character.counters.field(name).unwrap();
+    game.state.players[player].characters[slot].counters[field] = value;
+}
+
 fn modifier_counter(
     game: &Game,
     runtime: &LuaRuntime,
@@ -332,4 +348,31 @@ fn round_end_event_waits_for_end_declaration_decisions() {
             .any(|event| event.kind == gicg_engine::EventKind::RoundEnd)
     );
     assert_eq!(game.state.round, 2);
+}
+
+#[test]
+fn defeat_prevention_revives_before_character_cleanup() {
+    let (runtime, mut game) = ready(&["mavuika", "kaeya"]);
+    set_counter(&mut game, &runtime, 0, 0, "fighting_spirit", 6);
+    skill(&mut game, "hour_of_burning_skies", 4);
+    game.submit(Command::Switch {
+        slot: 1,
+        payment: omni(1),
+    })
+    .unwrap();
+    game.submit(Command::End).unwrap();
+    set_counter(&mut game, &runtime, 0, 0, "hp", 1);
+
+    skill(&mut game, "frostgnaw", 3);
+    assert_eq!(counter(&game, &runtime, 0, 0, "hp"), 1);
+    assert_eq!(
+        modifier_counter(
+            &game,
+            &runtime,
+            0,
+            "mavuika.crucible_of_death_and_life",
+            "uses"
+        ),
+        1
+    );
 }

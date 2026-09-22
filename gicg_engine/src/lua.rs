@@ -29,6 +29,7 @@ struct ParsedModifierRules {
     damage: Option<DamageModifierDefinition>,
     action: Option<ActionModifierDefinition>,
     roll: Option<crate::RollModifierDefinition>,
+    revive: Option<crate::ReviveModifierDefinition>,
 }
 
 impl LoadState {
@@ -506,6 +507,7 @@ fn parse_modifier(
         damage: rules.damage,
         action: rules.action,
         roll: rules.roll,
+        revive: rules.revive,
         handlers,
     })
 }
@@ -573,7 +575,36 @@ fn parse_modifier_rules(
         damage: parse_damage_modifier(table, modifier_id, counters)?,
         action: parse_action_modifier(table, modifier_id, counters)?,
         roll: parse_roll_modifier(table, modifier_id)?,
+        revive: parse_revive_modifier(table, modifier_id, counters)?,
     })
+}
+
+fn parse_revive_modifier(
+    table: &Table,
+    modifier_id: &str,
+    counters: &CounterSchema,
+) -> mlua::Result<Option<crate::ReviveModifierDefinition>> {
+    let Some(revive) = table.get::<Option<Table>>("revive")? else {
+        return Ok(None);
+    };
+    let hp = revive.get::<i32>("hp")?;
+    if hp <= 0 {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} revive hp must be positive"
+        )));
+    }
+    let counter = required_string(&revive, "counter")?;
+    if counters.field(&counter).is_none() {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} revive refers to unknown counter {counter:?}"
+        )));
+    }
+    let consume = parse_modifier_consume(&revive, modifier_id, "revive")?;
+    Ok(Some(crate::ReviveModifierDefinition {
+        hp,
+        counter,
+        consume,
+    }))
 }
 
 fn parse_action_modifier(
