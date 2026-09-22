@@ -24,11 +24,18 @@ if [ ! -f AGENTS.md ]; then
     exit 1
 fi
 
-git diff --cached --check
-git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/check-merge-conflict"
-git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/detect-private-key"
-git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/check-added-large-files" --maxkb=5120
-git diff --cached --name-only --diff-filter=ACMR -z -- '*.toml' | xargs -0 "$bin/check-toml"
+if [ "${CI:-}" = "true" ]; then
+    git ls-files -z | xargs -0 "$bin/check-merge-conflict"
+    git ls-files -z | xargs -0 "$bin/detect-private-key"
+    "$bin/check-added-large-files" --enforce-all --maxkb=5120
+    git ls-files -z -- '*.toml' | xargs -0 "$bin/check-toml"
+else
+    git diff --cached --check
+    git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/check-merge-conflict"
+    git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/detect-private-key"
+    git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 "$bin/check-added-large-files" --maxkb=5120
+    git diff --cached --name-only --diff-filter=ACMR -z -- '*.toml' | xargs -0 "$bin/check-toml"
+fi
 
 "$python" -m ruff format --check python web
 "$python" -m ruff check python web

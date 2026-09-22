@@ -40,7 +40,7 @@ configs/       train / eval / web 完整配置
 ## 验证与提交
 
 - 验证范围与风险匹配；Rust 优先运行 `cargo test --workspace` 与 `cargo clippy --workspace --all-targets -- -D warnings`。
-- `pre-commit` 只执行快速、只读的格式、静态分析、复杂度和仓库卫生检查；完整测试放在 `pre-push`。
+- `pre-commit` 只执行快速、只读的格式、静态分析、复杂度和仓库卫生检查；完整测试由 GitHub Actions CI 执行。
 - hook 缺少依赖时必须直接失败并给出安装命令，不得联网安装、静默跳过或自动修改文件。
 - 提交信息准确描述交付结果，不描述中间过程。
 
