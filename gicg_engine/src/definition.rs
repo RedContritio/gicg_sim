@@ -3,8 +3,9 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    ActionKind, ActionTempo, CardKind, CardTargetKind, Counter, DiceSet, Die, EngineError,
-    EventKind, FieldId, HandlerId, MergePolicy, Result, SkillKind, TargetSide, TargetState, Zone,
+    ActionKind, ActionTempo, ActionTraits, CardKind, CardTargetKind, Counter, DiceSet, Die,
+    EngineError, EventKind, FieldId, HandlerId, MergePolicy, Result, SkillKind, TargetSide,
+    TargetState, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -252,6 +253,7 @@ pub struct DamageModifierDefinition {
     pub shield: Option<String>,
     pub active_only: bool,
     pub include_piercing: bool,
+    pub traits: ActionTraits,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -263,6 +265,7 @@ pub struct ActionModifierDefinition {
     pub tempo: Option<ActionTempo>,
     pub counter: Option<String>,
     pub consume: Counter,
+    pub traits: ActionTraits,
 }
 
 #[derive(Debug, Serialize)]

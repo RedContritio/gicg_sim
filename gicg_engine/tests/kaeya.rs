@@ -18,6 +18,45 @@ fn first_die(dice: DiceSet) -> DiceSet {
     payment
 }
 
+fn ready_action_game() -> Game {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let player = PlayerConfig {
+        characters: vec!["kaeya".to_owned(), "kaeya".to_owned()],
+        deck: vec!["splash".to_owned(); 15],
+        active: Some(0),
+        dice: omni(32),
+    };
+    let mut game = Game::new(
+        runtime,
+        GameConfig {
+            players: [player.clone(), player],
+            first: 0,
+            seed: 7,
+        },
+    )
+    .unwrap();
+    for _ in 0..2 {
+        game.submit(Command::Redraw { selected: vec![] }).unwrap();
+    }
+    for _ in 0..2 {
+        game.submit(Command::Reroll {
+            payment: DiceSet::default(),
+        })
+        .unwrap();
+    }
+    game
+}
+
+fn last_action_traits(game: &Game) -> gicg_engine::ActionTraits {
+    game.state
+        .history
+        .iter()
+        .rev()
+        .find(|event| event.kind == gicg_engine::EventKind::ActionResolved)
+        .unwrap()
+        .traits
+}
+
 #[test]
 fn kaeya_skills_and_icicle_follow_real_results() {
     let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
@@ -211,5 +250,42 @@ fn opening_cards_and_round_transition_follow_match_flow() {
     assert_eq!(
         game.state.history.last().unwrap().kind,
         gicg_engine::EventKind::Conceded
+    );
+}
+
+#[test]
+fn normal_attacks_record_charged_and_plunging_traits() {
+    let mut game = ready_action_game();
+    game.submit(Command::Skill {
+        action: "ceremonial_bladework".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    assert_eq!(
+        last_action_traits(&game),
+        gicg_engine::ActionTraits {
+            charged: true,
+            plunging: false,
+        }
+    );
+
+    let mut game = ready_action_game();
+    game.submit(Command::Switch {
+        slot: 1,
+        payment: omni(1),
+    })
+    .unwrap();
+    game.submit(Command::End).unwrap();
+    game.submit(Command::Skill {
+        action: "ceremonial_bladework".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    assert_eq!(
+        last_action_traits(&game),
+        gicg_engine::ActionTraits {
+            charged: false,
+            plunging: true,
+        }
     );
 }

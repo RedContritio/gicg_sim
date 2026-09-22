@@ -238,6 +238,18 @@ pub enum SkillKind {
     Special,
 }
 
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize)]
+pub struct ActionTraits {
+    pub charged: bool,
+    pub plunging: bool,
+}
+
+impl ActionTraits {
+    pub const fn contains(self, required: Self) -> bool {
+        (!required.charged || self.charged) && (!required.plunging || self.plunging)
+    }
+}
+
 impl SkillKind {
     pub fn parse(value: &str) -> Result<Self> {
         parse_name(value, "skill kind")

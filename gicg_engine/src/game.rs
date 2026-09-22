@@ -5,7 +5,7 @@ use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardKind,
+    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ActionTraits, CardKind,
     CardTargetDefinition, CardTargetKind, ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
@@ -65,6 +65,7 @@ struct ActiveAction {
     actor: EntityRef,
     definition: ActionDefinition,
     emitted_resolved: bool,
+    traits: ActionTraits,
 }
 
 struct QueuedEffect {
@@ -147,6 +148,7 @@ pub struct Game {
     first_ended: Option<PlayerId>,
     round_first: PlayerId,
     phase_done: [bool; 2],
+    last_combat_switch: [bool; 2],
 }
 
 impl Game {
@@ -172,6 +174,7 @@ impl Game {
             first_ended: None,
             round_first: first,
             phase_done: [false; 2],
+            last_combat_switch: [false; 2],
         };
         for player in 0..2 {
             game.state.players[player].deck.shuffle(&mut game.rng);
@@ -211,7 +214,12 @@ impl Game {
             .cloned()
             .map(|action| self.preview_skill(actor, action))
             .collect::<Result<Vec<_>>>()?;
-        let mut switch = self.preview_action(actor, ActionKind::Switch, switch_action())?;
+        let mut switch = self.preview_action(
+            actor,
+            ActionKind::Switch,
+            switch_action(),
+            ActionTraits::default(),
+        )?;
         switch.playable = self.alive_slots(player)?.len() > 1;
         let cards = self.state.players[player]
             .hand
@@ -222,8 +230,12 @@ impl Game {
                     .rules()
                     .card(id)
                     .expect("hand references a loaded card");
-                let mut preview =
-                    self.preview_action(actor, ActionKind::Card, card.action.clone())?;
+                let mut preview = self.preview_action(
+                    actor,
+                    ActionKind::Card,
+                    card.action.clone(),
+                    ActionTraits::default(),
+                )?;
                 preview.playable = self.card_playable(player, card)?;
                 Ok(preview)
             })
@@ -240,8 +252,9 @@ impl Game {
         actor: EntityRef,
         kind: ActionKind,
         action: ActionDefinition,
+        traits: ActionTraits,
     ) -> Result<ActionPreview> {
-        let (action, _) = self.prepare_action(actor, kind, action)?;
+        let (action, _) = self.prepare_action(actor, kind, action, traits)?;
         Ok(ActionPreview {
             id: action.id,
             tempo: action.tempo,
@@ -253,7 +266,8 @@ impl Game {
     }
 
     fn preview_skill(&self, actor: EntityRef, action: ActionDefinition) -> Result<ActionPreview> {
-        let mut preview = self.preview_action(actor, ActionKind::Skill, action.clone())?;
+        let traits = self.skill_traits(actor.player(), &action);
+        let mut preview = self.preview_action(actor, ActionKind::Skill, action.clone(), traits)?;
         preview.playable = self.skill_playable(actor, &action)?;
         Ok(preview)
     }
@@ -271,6 +285,16 @@ impl Game {
             return Ok(false);
         }
         Ok(validate_counter_costs(self.state.character(player, slot)?, action).is_ok())
+    }
+
+    fn skill_traits(&self, player: PlayerId, action: &ActionDefinition) -> ActionTraits {
+        if action.skill != Some(crate::SkillKind::NormalAttack) {
+            return ActionTraits::default();
+        }
+        ActionTraits {
+            charged: self.state.players[player].dice.total().is_multiple_of(2),
+            plunging: self.last_combat_switch[player],
+        }
     }
 
     fn card_playable(&self, player: PlayerId, card: &crate::CardDefinition) -> Result<bool> {
@@ -368,6 +392,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         });
         self.finish_match(1 - player, crate::FinishReason::Concede);
         Ok(())
@@ -608,6 +633,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         })
     }
 
@@ -642,7 +668,9 @@ impl Game {
                 definition.id
             ))
         })?;
-        let (action, consumptions) = self.prepare_action(actor, ActionKind::Skill, action)?;
+        let traits = self.skill_traits(player, &action);
+        let (action, consumptions) =
+            self.prepare_action(actor, ActionKind::Skill, action, traits)?;
         self.pay(actor, &action, payment)?;
         self.consume_action_modifiers(consumptions)?;
         self.active = Some(ActiveAction {
@@ -650,6 +678,7 @@ impl Game {
             actor,
             definition: action.clone(),
             emitted_resolved: false,
+            traits,
         });
         self.enqueue_handler(
             action.resolve,
@@ -658,6 +687,7 @@ impl Game {
                 source: Some(actor),
                 action_id: Some(action.id),
                 skill: action.skill,
+                traits,
                 ..RuleContext::default()
             },
         )?;
@@ -678,7 +708,9 @@ impl Game {
             )));
         }
         let switch = switch_action();
-        let (switch, consumptions) = self.prepare_action(current, ActionKind::Switch, switch)?;
+        let traits = ActionTraits::default();
+        let (switch, consumptions) =
+            self.prepare_action(current, ActionKind::Switch, switch, traits)?;
         self.pay(current, &switch, payment)?;
         self.consume_action_modifiers(consumptions)?;
         self.state.players[player].active = slot;
@@ -687,6 +719,7 @@ impl Game {
             actor: current,
             definition: switch,
             emitted_resolved: false,
+            traits,
         });
         self.emit(Event {
             kind: EventKind::Switch,
@@ -699,6 +732,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits,
         })?;
         self.drain()
     }
@@ -726,8 +760,9 @@ impl Game {
             .as_ref()
             .map(|target| self.card_targets(player, target, card.kind == CardKind::Food));
         let actor = self.state.active_character(player);
+        let traits = ActionTraits::default();
         let (action, consumptions) =
-            self.prepare_action(actor, ActionKind::Card, card.action.clone())?;
+            self.prepare_action(actor, ActionKind::Card, card.action.clone(), traits)?;
         self.pay(actor, &action, payment)?;
         self.consume_action_modifiers(consumptions)?;
         let removed = self.state.players[player].hand.remove(hand);
@@ -737,11 +772,13 @@ impl Game {
             actor,
             definition: action.clone(),
             emitted_resolved: false,
+            traits,
         });
         let context = RuleContext {
             actor: Some(actor),
             source: Some(actor),
             action_id: Some(card.id.clone()),
+            traits,
             ..RuleContext::default()
         };
         self.queue_card_resolution(&card, &action, context, targets)?;
@@ -952,6 +989,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         })?;
         self.drain()?;
         let opponent = 1 - player;
@@ -970,6 +1008,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         })?;
         self.drain()?;
         self.start_round()
@@ -985,6 +1024,7 @@ impl Game {
         self.state.turn = self.round_first;
         self.state.phase = Phase::Roll;
         self.phase_done = [false; 2];
+        self.last_combat_switch = [false; 2];
         for player in 0..2 {
             self.state.players[player].ended = false;
             self.state.players[player].dice = DiceSet::default();
@@ -1005,6 +1045,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         })?;
         self.drain()
     }
@@ -1061,10 +1102,11 @@ impl Game {
         actor: EntityRef,
         kind: ActionKind,
         mut action: ActionDefinition,
+        traits: ActionTraits,
     ) -> Result<(ActionDefinition, Vec<ActionConsumption>)> {
         let mut consumptions = Vec::new();
         for invocation in self.action_invocations(actor.player()) {
-            if !self.action_rule_applies(&invocation, actor, kind, &action)? {
+            if !self.action_rule_applies(&invocation, actor, kind, &action, traits)? {
                 continue;
             }
             let changed = apply_action_rule(&mut action, &invocation.rule);
@@ -1085,6 +1127,7 @@ impl Game {
         actor: EntityRef,
         kind: ActionKind,
         action: &ActionDefinition,
+        traits: ActionTraits,
     ) -> Result<bool> {
         if invocation.host.is_some_and(|host| host != actor) {
             return Ok(false);
@@ -1106,6 +1149,9 @@ impl Game {
                 .iter()
                 .any(|value| value == &action.id)
         {
+            return Ok(false);
+        }
+        if !traits.contains(invocation.rule.traits) {
             return Ok(false);
         }
         let Some(counter) = &invocation.rule.counter else {
@@ -1187,6 +1233,7 @@ impl Game {
             if active.emitted_resolved {
                 let active = self.active.take().expect("active action exists");
                 if active.definition.tempo == ActionTempo::Combat {
+                    self.last_combat_switch[active.player] = active.definition.id == "switch";
                     let opponent = 1 - active.player;
                     if !self.state.players[opponent].ended {
                         self.state.turn = opponent;
@@ -1207,6 +1254,7 @@ impl Game {
                 element: None,
                 reaction: None,
                 amount: 0,
+                traits: active.traits,
             };
             self.emit(event)?;
         }
@@ -1335,6 +1383,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: healed,
+            traits: context.traits,
         })
     }
 
@@ -1375,6 +1424,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: restored,
+            traits: context.traits,
         })
     }
 
@@ -1563,23 +1613,23 @@ impl Game {
         }
         consume_counter_costs(self.state.character_mut(player, slot)?, &action);
         let skill = action.skill.expect("character action has skill kind");
+        let traits = self.skill_traits(player, &action);
+        let skill_context = RuleContext {
+            actor: Some(actor),
+            source: Some(actor),
+            action_id: Some(action.id.clone()),
+            skill: Some(skill),
+            traits,
+            ..RuleContext::default()
+        };
         self.effects.push_front(QueuedEffect {
             effect: Effect::CompleteSkill {
                 action: action.id.clone(),
                 skill,
             },
-            context: context.clone(),
+            context: skill_context.clone(),
         });
-        self.enqueue_handler(
-            action.resolve,
-            RuleContext {
-                actor: Some(actor),
-                source: Some(actor),
-                action_id: Some(action.id),
-                skill: Some(skill),
-                ..RuleContext::default()
-            },
-        )
+        self.enqueue_handler(action.resolve, skill_context)
     }
 
     fn complete_skill(
@@ -1602,6 +1652,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: context.traits,
         })
     }
 
@@ -1627,6 +1678,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: i32::from(count),
+            traits: ActionTraits::default(),
         })
     }
 
@@ -1706,6 +1758,7 @@ impl Game {
             element: Some(resolved.element),
             reaction: reaction_kind,
             amount: applied,
+            traits: context.traits,
         })?;
         Ok(applied)
     }
@@ -1828,6 +1881,9 @@ impl Game {
             return Ok(false);
         }
         if invocation.rule.active_only && !self.is_active_target(target) {
+            return Ok(false);
+        }
+        if !context.traits.contains(invocation.rule.traits) {
             return Ok(false);
         }
         if let Some(counter) = &invocation.rule.counter {
@@ -2107,6 +2163,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         })
     }
 
@@ -2197,6 +2254,7 @@ impl Game {
             element: None,
             reaction: None,
             amount: 0,
+            traits: ActionTraits::default(),
         })
     }
 
@@ -2265,6 +2323,7 @@ impl Game {
                     action_id: event.action_id.clone(),
                     skill: event.skill,
                     option: None,
+                    traits: event.traits,
                 },
             )?;
         }

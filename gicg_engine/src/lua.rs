@@ -8,11 +8,12 @@ use mlua::{Function, Lua, LuaOptions, LuaSerdeExt, RegistryKey, Scope, StdLib, T
 use sha2::{Digest, Sha256};
 
 use crate::{
-    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardDefinition, CardKind,
-    CardTargetDefinition, CardTargetKind, Cost, CounterConsume, CounterCost, CounterDefinition,
-    CounterSchema, DamageDirection, DamageModifierDefinition, Effect, Element, EngineError,
-    EntityRef, EventKind, GameState, HandlerId, MergePolicy, ModifierDefinition, Result,
-    RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef, TargetSide, TargetState, Zone,
+    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ActionTraits,
+    CardDefinition, CardKind, CardTargetDefinition, CardTargetKind, Cost, CounterConsume,
+    CounterCost, CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition,
+    Effect, Element, EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy,
+    ModifierDefinition, Result, RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef,
+    TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -559,6 +560,7 @@ fn parse_action_modifier_table(
         tempo,
         counter,
         consume,
+        traits: parse_action_traits(&table)?,
     })
 }
 
@@ -618,15 +620,23 @@ fn parse_damage_modifier(
     let Some(damage) = table.get::<Option<Table>>("damage")? else {
         return Ok(None);
     };
-    let direction = parse_damage_direction(&damage)?;
-    let elements = parse_elements(&damage)?;
-    let (counter, shield) = parse_damage_counters(&damage, modifier_id, counters)?;
-    let consume = parse_damage_consume(&damage, modifier_id)?;
-    Ok(Some(DamageModifierDefinition {
+    parse_damage_modifier_table(&damage, modifier_id, counters).map(Some)
+}
+
+fn parse_damage_modifier_table(
+    damage: &Table,
+    modifier_id: &str,
+    counters: &CounterSchema,
+) -> mlua::Result<DamageModifierDefinition> {
+    let direction = parse_damage_direction(damage)?;
+    let elements = parse_elements(damage)?;
+    let (counter, shield) = parse_damage_counters(damage, modifier_id, counters)?;
+    let consume = parse_damage_consume(damage, modifier_id)?;
+    Ok(DamageModifierDefinition {
         direction,
         elements,
         delta: damage.get::<Option<i32>>("delta")?.unwrap_or(0),
-        set_element: parse_optional_element(&damage, "set_element")?,
+        set_element: parse_optional_element(damage, "set_element")?,
         counter,
         consume,
         shield,
@@ -634,7 +644,15 @@ fn parse_damage_modifier(
         include_piercing: damage
             .get::<Option<bool>>("include_piercing")?
             .unwrap_or(false),
-    }))
+        traits: parse_action_traits(damage)?,
+    })
+}
+
+fn parse_action_traits(table: &Table) -> mlua::Result<ActionTraits> {
+    Ok(ActionTraits {
+        charged: table.get::<Option<bool>>("charged")?.unwrap_or(false),
+        plunging: table.get::<Option<bool>>("plunging")?.unwrap_or(false),
+    })
 }
 
 fn parse_damage_direction(table: &Table) -> mlua::Result<DamageDirection> {
@@ -1004,24 +1022,40 @@ fn set_context_action(table: &Table, context: &RuleContext) -> mlua::Result<()> 
     if let Some(option) = &context.option {
         table.set("option", option.as_str())?;
     }
+    table.set("charged", context.traits.charged)?;
+    table.set("plunging", context.traits.plunging)?;
     Ok(())
 }
 
 fn set_context_event(lua: &Lua, table: &Table, context: &RuleContext) -> mlua::Result<()> {
     if let Some(event) = &context.event {
-        let event_table = lua.create_table()?;
-        event_table.set("player", event.player)?;
-        event_table.set("action", event.action_id.as_deref())?;
-        event_table.set("skill", event.skill.map(|skill| skill.to_string()))?;
-        event_table.set("amount", event.amount)?;
-        event_table.set("element", event.element.map(|element| element.to_string()))?;
-        event_table.set(
-            "reaction",
-            event.reaction.map(|reaction| reaction.to_string()),
-        )?;
-        table.set("event", event_table)?;
+        table.set("event", event_table(lua, event)?)?;
     }
     Ok(())
+}
+
+fn event_table(lua: &Lua, event: &crate::Event) -> mlua::Result<Table> {
+    let table = lua.create_table()?;
+    table.set("player", event.player)?;
+    table.set("amount", event.amount)?;
+    table.set("charged", event.traits.charged)?;
+    table.set("plunging", event.traits.plunging)?;
+    set_event_action(&table, event)?;
+    set_event_damage(&table, event)?;
+    Ok(table)
+}
+
+fn set_event_action(table: &Table, event: &crate::Event) -> mlua::Result<()> {
+    table.set("action", event.action_id.as_deref())?;
+    table.set("skill", event.skill.map(|skill| skill.to_string()))
+}
+
+fn set_event_damage(table: &Table, event: &crate::Event) -> mlua::Result<()> {
+    table.set("element", event.element.map(|element| element.to_string()))?;
+    table.set(
+        "reaction",
+        event.reaction.map(|reaction| reaction.to_string()),
+    )
 }
 
 fn entity_table(lua: &Lua, entity: EntityRef) -> mlua::Result<Table> {
