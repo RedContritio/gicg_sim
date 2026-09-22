@@ -298,6 +298,9 @@ impl Game {
         action: ActionDefinition,
         traits: ActionTraits,
     ) -> Result<ActionPreview> {
+        let forbidden = self
+            .action_forbidden(actor, kind, &action, traits)?
+            .is_some();
         let (action, _) = self.prepare_action(actor, kind, action, traits)?;
         Ok(ActionPreview {
             id: action.id,
@@ -305,7 +308,7 @@ impl Game {
             dice: action.cost.dice,
             any: action.cost.any,
             same: action.cost.same,
-            playable: action.cost.can_pay(self.state.players[actor.player()].dice),
+            playable: !forbidden && action.cost.can_pay(self.state.players[actor.player()].dice),
         })
     }
 
@@ -320,11 +323,13 @@ impl Game {
         let EntityRef::Character { player, slot } = actor else {
             return Ok(false);
         };
-        if !self.is_alive(actor)?
-            || self
-                .state
-                .character_modifier_entity(player, slot, FROZEN)
-                .is_some()
+        if !self.is_alive(actor)? {
+            return Ok(false);
+        }
+        let traits = self.skill_traits(player, action);
+        if self
+            .action_forbidden(actor, ActionKind::Skill, action, traits)?
+            .is_some()
         {
             return Ok(false);
         }
@@ -706,15 +711,6 @@ impl Game {
         let EntityRef::Character { slot, .. } = actor else {
             unreachable!()
         };
-        if self
-            .state
-            .character_modifier_entity(player, slot, FROZEN)
-            .is_some()
-        {
-            return Err(EngineError::InvalidCommand(
-                "frozen character cannot use an action".to_owned(),
-            ));
-        }
         let character = self.state.character(player, slot)?;
         let definition = self
             .runtime
@@ -728,6 +724,7 @@ impl Game {
             ))
         })?;
         let traits = self.skill_traits(player, &action);
+        self.require_action_allowed(actor, ActionKind::Skill, &action, traits)?;
         let (action, consumptions) =
             self.prepare_action(actor, ActionKind::Skill, action, traits)?;
         self.pay(actor, &action, payment)?;
@@ -768,6 +765,7 @@ impl Game {
         }
         let switch = switch_action();
         let traits = ActionTraits::default();
+        self.require_action_allowed(current, ActionKind::Switch, &switch, traits)?;
         let (switch, consumptions) =
             self.prepare_action(current, ActionKind::Switch, switch, traits)?;
         self.pay(current, &switch, payment)?;
@@ -820,6 +818,7 @@ impl Game {
             .map(|target| self.card_targets(player, target, card.kind == CardKind::Food));
         let actor = self.state.active_character(player);
         let traits = ActionTraits::default();
+        self.require_action_allowed(actor, ActionKind::Card, &card.action, traits)?;
         let (action, consumptions) =
             self.prepare_action(actor, ActionKind::Card, card.action.clone(), traits)?;
         self.pay(actor, &action, payment)?;
@@ -1253,6 +1252,43 @@ impl Game {
             }
         }
         Ok((action, consumptions))
+    }
+
+    fn require_action_allowed(
+        &self,
+        actor: EntityRef,
+        kind: ActionKind,
+        action: &ActionDefinition,
+        traits: ActionTraits,
+    ) -> Result<()> {
+        if let Some(modifier) = self.action_forbidden(actor, kind, action, traits)? {
+            return Err(EngineError::InvalidCommand(format!(
+                "action {:?} is forbidden by modifier {modifier:?}",
+                action.id
+            )));
+        }
+        Ok(())
+    }
+
+    fn action_forbidden(
+        &self,
+        actor: EntityRef,
+        kind: ActionKind,
+        action: &ActionDefinition,
+        traits: ActionTraits,
+    ) -> Result<Option<String>> {
+        for invocation in self.action_invocations(actor.player()) {
+            if invocation.rule.forbid
+                && self.action_rule_applies(&invocation, actor, kind, action, traits)?
+            {
+                let (_, modifier) = self
+                    .state
+                    .find_modifier(modifier_instance(invocation.source))
+                    .expect("action rule source is active");
+                return Ok(Some(modifier.definition.clone()));
+            }
+        }
+        Ok(None)
     }
 
     fn action_rule_applies(

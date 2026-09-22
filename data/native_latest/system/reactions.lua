@@ -5,6 +5,7 @@ modifier {
     merge = "replace",
     counters = { uses = { initial = 1, min = 0, max = 1 } },
     remove_at_zero = "uses",
+    action = { kinds = { "skill" }, forbid = true },
     handlers = {
         round_end = function(ctx)
             return { add_counter("source", "uses", -1) }

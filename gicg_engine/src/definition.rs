@@ -330,6 +330,7 @@ pub struct ActionModifierDefinition {
     pub counter: Option<String>,
     pub consume: Counter,
     pub traits: ActionTraits,
+    pub forbid: bool,
 }
 
 #[derive(Debug, Serialize)]

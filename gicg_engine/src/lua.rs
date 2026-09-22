@@ -630,7 +630,7 @@ fn parse_action_modifier_table(
     counters: &CounterSchema,
 ) -> mlua::Result<ActionModifierDefinition> {
     let (kinds, skills, actions) = parse_action_filters(&table)?;
-    let (reduce_dice, tempo) = parse_action_changes(&table, modifier_id)?;
+    let (reduce_dice, tempo, forbid) = parse_action_changes(&table, modifier_id)?;
     let counter = parse_counter_name(&table, "counter", modifier_id, counters, "action")?;
     let consume = parse_modifier_consume(&table, modifier_id, "action")?;
     Ok(ActionModifierDefinition {
@@ -642,6 +642,7 @@ fn parse_action_modifier_table(
         counter,
         consume,
         traits: parse_action_traits(&table)?,
+        forbid,
     })
 }
 
@@ -658,18 +659,19 @@ fn parse_action_filters(
 fn parse_action_changes(
     table: &Table,
     modifier_id: &str,
-) -> mlua::Result<(u8, Option<ActionTempo>)> {
+) -> mlua::Result<(u8, Option<ActionTempo>, bool)> {
     let reduce_dice = table.get::<Option<u8>>("reduce_dice")?.unwrap_or(0);
+    let forbid = table.get::<Option<bool>>("forbid")?.unwrap_or(false);
     let tempo = table
         .get::<Option<String>>("tempo")?
         .map(|value| ActionTempo::parse(&value).map_err(lua_error))
         .transpose()?;
-    if reduce_dice == 0 && tempo.is_none() {
+    if reduce_dice == 0 && tempo.is_none() && !forbid {
         return Err(mlua::Error::runtime(format!(
             "modifier {modifier_id:?} action rule has no effect"
         )));
     }
-    Ok((reduce_dice, tempo))
+    Ok((reduce_dice, tempo, forbid))
 }
 
 fn parse_action_kinds(table: &Table) -> mlua::Result<Vec<ActionKind>> {
