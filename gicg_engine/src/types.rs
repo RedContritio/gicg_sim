@@ -261,6 +261,7 @@ pub enum EventKind {
     ModifierRemoved,
     PlayerEndDeclared,
     RoundStart,
+    ActionPhaseStart,
     RoundEnd,
     Conceded,
     CardDrawn,

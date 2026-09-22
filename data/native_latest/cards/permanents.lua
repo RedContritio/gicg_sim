@@ -31,7 +31,7 @@ modifier {
     counters = { uses = { initial = 2, min = 0, max = 2 } },
     remove_at_zero = "uses",
     handlers = {
-        round_start = function(ctx)
+        action_phase_start = function(ctx)
             return {
                 add_dice("omni", 2),
                 add_counter("source", "uses", -1),

@@ -364,6 +364,15 @@ fn equipment_and_supports_persist_in_their_zones() {
     assert_eq!(game.state.players[0].supports[0].definition, "card.paimon");
     game.submit(Command::End).unwrap();
     game.submit(Command::End).unwrap();
+    assert_eq!(game.state.players[0].dice.total(), 8);
+    game.submit(Command::Reroll {
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    game.submit(Command::Reroll {
+        payment: DiceSet::default(),
+    })
+    .unwrap();
     assert_eq!(game.state.players[0].dice.total(), 10);
 }
 

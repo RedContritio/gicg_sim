@@ -525,6 +525,8 @@ impl Game {
         self.state.turn = self.round_first;
         if next == Phase::Roll {
             self.enter_roll_phase()?;
+        } else if next == Phase::Action {
+            self.enter_action_phase()?;
         }
         Ok(())
     }
@@ -1136,6 +1138,24 @@ impl Game {
         self.begin_roll_phase()?;
         self.emit(Event {
             kind: EventKind::RoundStart,
+            actor: None,
+            source: None,
+            target: None,
+            player: self.state.turn,
+            action_id: None,
+            action_kind: None,
+            skill: None,
+            element: None,
+            reaction: None,
+            amount: 0,
+            traits: ActionTraits::default(),
+        })?;
+        self.drain()
+    }
+
+    fn enter_action_phase(&mut self) -> Result<()> {
+        self.emit(Event {
+            kind: EventKind::ActionPhaseStart,
             actor: None,
             source: None,
             target: None,
