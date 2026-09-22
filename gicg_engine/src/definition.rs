@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    ActionKind, ActionTempo, Counter, DiceSet, Die, EngineError, EventKind, FieldId, HandlerId,
-    MergePolicy, Result, Zone,
+    ActionKind, ActionTempo, CardKind, Counter, DiceSet, Die, EngineError, EventKind, FieldId,
+    HandlerId, MergePolicy, Result, TargetSide, TargetState, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -149,7 +149,17 @@ pub struct CardDefinition {
     pub id: String,
     pub name: String,
     pub description: String,
+    pub kind: CardKind,
+    pub target: Option<CharacterTargetDefinition>,
     pub action: ActionDefinition,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct CharacterTargetDefinition {
+    pub side: TargetSide,
+    pub state: TargetState,
+    pub damaged: bool,
+    pub active_only: bool,
 }
 
 impl CharacterDefinition {
@@ -188,6 +198,7 @@ pub struct ModifierDefinition {
     pub id: String,
     pub name: String,
     pub zone: Zone,
+    pub slot: Option<String>,
     pub counters: CounterSchema,
     pub merge: MergePolicy,
     pub remove_at_zero: Option<FieldId>,

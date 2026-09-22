@@ -6,9 +6,9 @@ use serde::{Deserialize, Serialize};
 pub enum TargetRef {
     Actor,
     Source,
+    #[serde(rename = "target")]
     EventTarget,
     OwnActive,
-    OwnOption,
     EnemyActive,
 }
 
@@ -19,7 +19,6 @@ impl TargetRef {
             "source" => Some(Self::Source),
             "target" => Some(Self::EventTarget),
             "own_active" => Some(Self::OwnActive),
-            "own_option" => Some(Self::OwnOption),
             "enemy_active" => Some(Self::EnemyActive),
             _ => None,
         }
@@ -72,9 +71,6 @@ pub enum Effect {
     },
     Choice {
         options: Vec<ChoiceOption>,
-        continuation: String,
-    },
-    CharacterChoice {
         continuation: String,
     },
 }

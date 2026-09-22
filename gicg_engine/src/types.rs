@@ -159,6 +159,50 @@ pub enum ActionKind {
     Card,
 }
 
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum CardKind {
+    Event,
+    Equipment,
+    Support,
+}
+
+impl CardKind {
+    pub fn parse(value: &str) -> Result<Self> {
+        parse_name(value, "card kind")
+    }
+}
+
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum TargetSide {
+    Own,
+    Enemy,
+}
+
+impl TargetSide {
+    pub fn parse(value: &str) -> Result<Self> {
+        parse_name(value, "target side")
+    }
+}
+
+#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum TargetState {
+    Alive,
+    Defeated,
+    Any,
+}
+
+impl TargetState {
+    pub fn parse(value: &str) -> Result<Self> {
+        parse_name(value, "target state")
+    }
+}
+
 impl ActionKind {
     pub fn parse(value: &str) -> Result<Self> {
         parse_name(value, "action kind")

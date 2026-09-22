@@ -47,7 +47,7 @@ fn cards_select_healing_targets_and_draw_from_the_deck() {
     })
     .unwrap();
     let decision = game.state.decision.as_ref().unwrap();
-    assert_eq!(decision.options.len(), 2);
+    assert_eq!(decision.options.len(), 1);
     game.choose(decision.id, 0).unwrap();
     assert_eq!(
         game.state
@@ -69,6 +69,18 @@ fn cards_select_healing_targets_and_draw_from_the_deck() {
     assert_eq!(game.state.players[0].hand.len(), 6);
     assert_eq!(game.state.players[0].deck.len(), 8);
     assert_eq!(game.state.players[0].discard.len(), 1);
+
+    let mut game = ready("sweet_madame");
+    assert!(!game.action_previews().unwrap()[0].cards[0].playable);
+    assert!(
+        game.submit(Command::Card {
+            hand: 0,
+            payment: DiceSet::default(),
+        })
+        .is_err()
+    );
+    assert_eq!(game.state.players[0].hand.len(), 5);
+    assert!(game.state.players[0].discard.is_empty());
 }
 
 fn ready(card: &str) -> Game {
@@ -129,4 +141,47 @@ fn cards_modify_switch_cost_and_tempo() {
     .unwrap();
     assert_eq!(game.state.turn, 1);
     assert!(game.state.players[0].combat.is_empty());
+}
+
+#[test]
+fn equipment_and_supports_persist_in_their_zones() {
+    let runtime = Rc::new(LuaRuntime::load("../data/native_latest").unwrap());
+    let mut game = ready("travelers_handy_sword");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(2),
+    })
+    .unwrap();
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    assert_eq!(
+        game.state.players[0].characters[0].modifiers[0].definition,
+        "card.travelers_handy_sword"
+    );
+    game.submit(Command::Skill {
+        action: "ceremonial_bladework".to_owned(),
+        payment: omni(3),
+    })
+    .unwrap();
+    assert_eq!(
+        game.state
+            .counter(
+                runtime.rules(),
+                EntityRef::Character { player: 1, slot: 0 },
+                "hp"
+            )
+            .unwrap(),
+        7
+    );
+
+    let mut game = ready("paimon");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(3),
+    })
+    .unwrap();
+    assert_eq!(game.state.players[0].supports[0].definition, "card.paimon");
+    game.submit(Command::End).unwrap();
+    game.submit(Command::End).unwrap();
+    assert_eq!(game.state.players[0].dice.total(), 10);
 }

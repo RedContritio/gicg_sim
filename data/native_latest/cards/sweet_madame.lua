@@ -3,12 +3,8 @@ card {
     name = "甜甜花酿鸡",
     description = "治疗一个我方角色1点。",
     tempo = "fast",
+    target = { side = "own", state = "alive", damaged = true },
     resolve = function(ctx)
-        return { choose_character("target") }
+        return { heal("target", 1) }
     end,
-    continue = {
-        target = function(ctx)
-            return { heal("own_option", 1) }
-        end,
-    },
 }

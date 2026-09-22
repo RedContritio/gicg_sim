@@ -207,6 +207,7 @@ function cardView(definition, hand, preview) {
     name: card.name,
     description: card.description,
     tempo: preview.tempo,
+    playable: preview.playable,
     cost: effectiveCost(card.action.cost, undefined, preview),
   };
 }
@@ -420,7 +421,7 @@ function handView(player, current) {
     const title = node("button", "card-main");
     const tempo = card.tempo === "fast" ? "快速行动" : "战斗行动";
     title.innerHTML = `<strong>${card.name}</strong><span class="detail">${card.description}<br>${costText(card.cost)} · ${tempo}</span>`;
-    title.disabled = !current || !["redraw", "action"].includes(state.phase) || !!state.decision;
+    title.disabled = cardDisabled(current, card);
     title.addEventListener("click", () => {
       if (state.phase === "redraw") toggleSelected(card.hand);
       else openPayment({ kind: "card", hand: card.hand }, card.name, card.cost, player);
@@ -434,6 +435,15 @@ function handView(player, current) {
     hand.append(wrapper);
   }
   return hand;
+}
+
+function cardDisabled(current, card) {
+  return (
+    !current ||
+    !["redraw", "action"].includes(state.phase) ||
+    !!state.decision ||
+    (state.phase === "action" && !card.playable)
+  );
 }
 
 function renderPhaseControl() {

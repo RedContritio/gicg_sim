@@ -8,10 +8,11 @@ use mlua::{Function, Lua, LuaOptions, LuaSerdeExt, RegistryKey, Scope, StdLib, T
 use sha2::{Digest, Sha256};
 
 use crate::{
-    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardDefinition, Cost,
-    CounterConsume, CounterCost, CounterDefinition, CounterSchema, DamageDirection,
-    DamageModifierDefinition, Effect, Element, EngineError, EntityRef, EventKind, GameState,
-    HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, TargetRef, Zone,
+    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardDefinition, CardKind,
+    CharacterTargetDefinition, Cost, CounterConsume, CounterCost, CounterDefinition, CounterSchema,
+    DamageDirection, DamageModifierDefinition, Effect, Element, EngineError, EntityRef, EventKind,
+    GameState, HandlerId, MergePolicy, ModifierDefinition, Result, RuleContext, Ruleset, TargetRef,
+    TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -298,9 +299,6 @@ fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {
         function choose(continuation, options)
             return { kind = "choice", continuation = continuation, options = options }
         end
-        function choose_character(continuation)
-            return { kind = "character_choice", continuation = continuation }
-        end
         "#,
     )
     .exec()
@@ -341,6 +339,8 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
     let id = required_string(&table, "id")?;
     let name = required_string(&table, "name")?;
     let description = required_string(&table, "description")?;
+    let kind = parse_card_kind(&table)?;
+    let target = parse_character_target(&table)?;
     let tempo = parse_tempo(&table, "fast")?;
     let cost = parse_optional_cost(&table, &CounterSchema::default())?;
     let resolve = add_table_handler(lua, state, &table, "resolve", &format!("card {id} resolve"))?;
@@ -349,6 +349,8 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
         id: id.clone(),
         name: name.clone(),
         description,
+        kind,
+        target,
         action: ActionDefinition {
             id,
             name,
@@ -358,6 +360,25 @@ fn parse_card(lua: &Lua, state: &mut LoadState, table: Table) -> mlua::Result<Ca
             continuations,
         },
     })
+}
+
+fn parse_card_kind(table: &Table) -> mlua::Result<CardKind> {
+    let value = table.get::<Option<String>>("kind")?;
+    CardKind::parse(value.as_deref().unwrap_or("event")).map_err(lua_error)
+}
+
+fn parse_character_target(table: &Table) -> mlua::Result<Option<CharacterTargetDefinition>> {
+    let Some(target) = table.get::<Option<Table>>("target")? else {
+        return Ok(None);
+    };
+    let side = target.get::<Option<String>>("side")?;
+    let state = target.get::<Option<String>>("state")?;
+    Ok(Some(CharacterTargetDefinition {
+        side: TargetSide::parse(side.as_deref().unwrap_or("own")).map_err(lua_error)?,
+        state: TargetState::parse(state.as_deref().unwrap_or("alive")).map_err(lua_error)?,
+        damaged: target.get::<Option<bool>>("damaged")?.unwrap_or(false),
+        active_only: target.get::<Option<bool>>("active_only")?.unwrap_or(false),
+    }))
 }
 
 fn parse_character(
@@ -407,6 +428,7 @@ fn parse_modifier(
     let id = required_string(&table, "id")?;
     let name = required_string(&table, "name")?;
     let zone = parse_zone(&table)?;
+    let slot = parse_modifier_slot(&table, zone, &id)?;
     let merge = parse_merge(&table)?;
     let counters = parse_counters(table.get("counters")?)?;
     let (remove_at_zero, damage, action) = parse_modifier_rules(&table, &id, &counters)?;
@@ -415,6 +437,7 @@ fn parse_modifier(
         id,
         name,
         zone,
+        slot,
         counters,
         merge,
         remove_at_zero,
@@ -422,6 +445,25 @@ fn parse_modifier(
         action,
         handlers,
     })
+}
+
+fn parse_modifier_slot(
+    table: &Table,
+    zone: Zone,
+    modifier_id: &str,
+) -> mlua::Result<Option<String>> {
+    let slot = table.get::<Option<String>>("slot")?;
+    if slot.as_deref().is_some_and(str::is_empty) {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} slot must not be empty"
+        )));
+    }
+    if slot.is_some() && zone != Zone::Character {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} slot requires character zone"
+        )));
+    }
+    Ok(slot)
 }
 
 fn parse_modifier_rules(
@@ -958,25 +1000,9 @@ pub(crate) fn resolve_target(
             .source
             .map(|source| state.active_character(source.player()))
             .ok_or_else(|| EngineError::Rule("context has no source".to_owned())),
-        TargetRef::OwnOption => resolve_own_option(state, context),
         TargetRef::EnemyActive => context
             .source
             .map(|source| state.active_character(1 - source.player()))
             .ok_or_else(|| EngineError::Rule("context has no source".to_owned())),
     }
-}
-
-fn resolve_own_option(state: &GameState, context: &RuleContext) -> Result<EntityRef> {
-    let player = context
-        .source
-        .map(EntityRef::player)
-        .ok_or_else(|| EngineError::Rule("context has no source".to_owned()))?;
-    let slot = context
-        .option
-        .as_deref()
-        .ok_or_else(|| EngineError::Rule("context has no option".to_owned()))?
-        .parse::<usize>()
-        .map_err(|error| EngineError::Rule(format!("invalid character option: {error}")))?;
-    state.character(player, slot)?;
-    Ok(EntityRef::Character { player, slot })
 }

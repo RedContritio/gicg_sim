@@ -5,12 +5,13 @@ use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ChoiceOption,
+    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CharacterTargetDefinition,
+    ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
     Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
     LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, Reaction, ReactionRecord, Result,
-    RuleContext, Zone,
+    RuleContext, TargetSide, TargetState, Zone,
     lua::resolve_target,
     reaction::{self, FROZEN},
 };
@@ -81,6 +82,11 @@ enum PendingDecision {
         target: EntityRef,
         definition: String,
     },
+    CardTarget {
+        handler: HandlerId,
+        context: RuleContext,
+        player: PlayerId,
+    },
 }
 
 struct DamageResolution {
@@ -120,6 +126,7 @@ pub struct ActionPreview {
     pub tempo: ActionTempo,
     pub dice: DiceSet,
     pub any: u8,
+    pub playable: bool,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -204,7 +211,13 @@ impl Game {
                     .rules()
                     .card(id)
                     .expect("hand references a loaded card");
-                self.preview_action(actor, ActionKind::Card, card.action.clone())
+                let mut preview =
+                    self.preview_action(actor, ActionKind::Card, card.action.clone())?;
+                preview.playable = card
+                    .target
+                    .as_ref()
+                    .is_none_or(|target| !self.card_targets(player, target).is_empty());
+                Ok(preview)
             })
             .collect::<Result<Vec<_>>>()?;
         Ok(PlayerActionPreviews {
@@ -226,6 +239,7 @@ impl Game {
             tempo: action.tempo,
             dice: action.cost.dice,
             any: action.cost.any,
+            playable: true,
         })
     }
 
@@ -382,6 +396,11 @@ impl Game {
             Some(PendingDecision::ModifierReplacement { target, definition }) => {
                 self.replace_modifier(decision.player, selected, target, &definition)?;
             }
+            Some(PendingDecision::CardTarget {
+                handler,
+                context,
+                player,
+            }) => self.continue_card_target(handler, context, player, selected)?,
             None => self.force_switch(decision.player, selected)?,
         }
         self.drain()
@@ -461,6 +480,22 @@ impl Game {
         selected: ChoiceOption,
     ) -> Result<()> {
         context.option = Some(selected.id);
+        self.enqueue_handler(handler, context)
+    }
+
+    fn continue_card_target(
+        &mut self,
+        handler: HandlerId,
+        mut context: RuleContext,
+        player: PlayerId,
+        selected: ChoiceOption,
+    ) -> Result<()> {
+        let slot = selected
+            .id
+            .parse::<usize>()
+            .map_err(|error| EngineError::Rule(format!("invalid card target option: {error}")))?;
+        self.state.character(player, slot)?;
+        context.target = Some(EntityRef::Character { player, slot });
         self.enqueue_handler(handler, context)
     }
 
@@ -589,6 +624,16 @@ impl Game {
             .card(&definition_id)
             .expect("hand references a loaded card")
             .clone();
+        let targets = card
+            .target
+            .as_ref()
+            .map(|target| self.card_targets(player, target));
+        if targets.as_ref().is_some_and(Vec::is_empty) {
+            return Err(EngineError::InvalidCommand(format!(
+                "card {:?} has no legal target",
+                card.id
+            )));
+        }
         let actor = self.state.active_character(player);
         let (action, consumptions) =
             self.prepare_action(actor, ActionKind::Card, card.action.clone())?;
@@ -602,16 +647,96 @@ impl Game {
             definition: action.clone(),
             emitted_resolved: false,
         });
-        self.enqueue_handler(
-            action.resolve,
-            RuleContext {
-                actor: Some(actor),
-                source: Some(actor),
-                action_id: Some(card.id),
-                ..RuleContext::default()
-            },
-        )?;
+        let context = RuleContext {
+            actor: Some(actor),
+            source: Some(actor),
+            action_id: Some(card.id),
+            ..RuleContext::default()
+        };
+        if let Some(targets) = targets {
+            self.create_card_target_choice(targets, action.resolve, context);
+        } else {
+            self.enqueue_handler(action.resolve, context)?;
+        }
         self.drain()
+    }
+
+    fn card_targets(&self, player: PlayerId, target: &CharacterTargetDefinition) -> Vec<EntityRef> {
+        let owner = match target.side {
+            TargetSide::Own => player,
+            TargetSide::Enemy => 1 - player,
+        };
+        (0..self.state.players[owner].characters.len())
+            .map(|slot| EntityRef::Character {
+                player: owner,
+                slot,
+            })
+            .filter(|character| self.card_target_matches(*character, target))
+            .collect()
+    }
+
+    fn card_target_matches(
+        &self,
+        character: EntityRef,
+        target: &CharacterTargetDefinition,
+    ) -> bool {
+        let hp = self
+            .state
+            .counter(self.runtime.rules(), character, "hp")
+            .expect("character has hp");
+        let state_matches = match target.state {
+            TargetState::Alive => hp > 0,
+            TargetState::Defeated => hp == 0,
+            TargetState::Any => true,
+        };
+        let active_matches = !target.active_only
+            || self.state.players[character.player()].active == character_slot(character);
+        let damaged_matches = !target.damaged
+            || self
+                .state
+                .counter_range(self.runtime.rules(), character, "hp")
+                .is_ok_and(|(_, maximum)| hp < maximum);
+        state_matches && active_matches && damaged_matches
+    }
+
+    fn create_card_target_choice(
+        &mut self,
+        targets: Vec<EntityRef>,
+        handler: HandlerId,
+        context: RuleContext,
+    ) {
+        let player = targets[0].player();
+        let options = targets
+            .into_iter()
+            .map(|target| ChoiceOption {
+                id: character_slot(target).to_string(),
+                label: self.character_name(target).to_owned(),
+            })
+            .collect();
+        self.state.decision = Some(Decision {
+            id: self.state.next_decision,
+            player: context.actor.expect("card has actor").player(),
+            options,
+        });
+        self.state.next_decision += 1;
+        self.pending = Some(PendingDecision::CardTarget {
+            handler,
+            context,
+            player,
+        });
+    }
+
+    fn character_name(&self, target: EntityRef) -> &str {
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
+        let character = &self.state.players[player].characters[slot];
+        &self
+            .runtime
+            .rules()
+            .character(&character.definition)
+            .expect("state references a loaded character")
+            .name
     }
 
     fn submit_tune(&mut self, player: PlayerId, hand: usize, die: Die) -> Result<()> {
@@ -948,9 +1073,6 @@ impl Game {
                 options,
                 continuation,
             } => self.create_choice(options, &continuation, queued.context),
-            Effect::CharacterChoice { continuation } => {
-                self.create_character_choice(&continuation, queued.context)
-            }
         }
     }
 
@@ -1487,25 +1609,6 @@ impl Game {
         Ok(())
     }
 
-    fn create_character_choice(&mut self, continuation: &str, context: RuleContext) -> Result<()> {
-        let player = context_owner(&context)?;
-        let options = self
-            .alive_slots(player)?
-            .into_iter()
-            .map(|slot| ChoiceOption {
-                id: slot.to_string(),
-                label: self
-                    .runtime
-                    .rules()
-                    .character(&self.state.players[player].characters[slot].definition)
-                    .expect("state references a loaded character")
-                    .name
-                    .clone(),
-            })
-            .collect();
-        self.create_choice(options, continuation, context)
-    }
-
     fn add_modifier(&mut self, target: EntityRef, definition_id: &str) -> Result<()> {
         let definition = self
             .runtime
@@ -1517,24 +1620,60 @@ impl Game {
             .clone();
         let player = target.player();
         let host = modifier_host(&definition, target)?;
-        let existing_index = if definition.merge == MergePolicy::Independent {
-            None
-        } else {
-            self.state
-                .modifier_list_mut(player, definition.zone, host)?
-                .iter()
-                .position(|modifier| modifier.definition == definition_id)
-        };
-        if let Some(existing_index) = existing_index {
-            let existing = &mut self
-                .state
-                .modifier_list_mut(player, definition.zone, host)?[existing_index];
-            merge_modifier(existing, &definition);
+        if self.merge_existing_modifier(player, host, &definition)? {
             return Ok(());
         }
+        self.replace_equipment(player, host, &definition)?;
         if modifier_zone_full(&self.state, player, definition.zone) {
             return self.create_modifier_replacement(target, &definition);
         }
+        self.insert_modifier(player, host, &definition)
+    }
+
+    fn merge_existing_modifier(
+        &mut self,
+        player: PlayerId,
+        host: usize,
+        definition: &crate::ModifierDefinition,
+    ) -> Result<bool> {
+        if definition.merge == MergePolicy::Independent {
+            return Ok(false);
+        }
+        let modifiers = self
+            .state
+            .modifier_list_mut(player, definition.zone, host)?;
+        let Some(existing) = modifiers
+            .iter_mut()
+            .find(|modifier| modifier.definition == definition.id)
+        else {
+            return Ok(false);
+        };
+        merge_modifier(existing, definition);
+        Ok(true)
+    }
+
+    fn replace_equipment(
+        &mut self,
+        player: PlayerId,
+        host: usize,
+        definition: &crate::ModifierDefinition,
+    ) -> Result<()> {
+        let Some(instance) = definition
+            .slot
+            .as_deref()
+            .and_then(|slot| self.equipped_instance(player, host, slot))
+        else {
+            return Ok(());
+        };
+        self.remove_modifier(EntityRef::Modifier { player, instance })
+    }
+
+    fn insert_modifier(
+        &mut self,
+        player: PlayerId,
+        host: usize,
+        definition: &crate::ModifierDefinition,
+    ) -> Result<()> {
         let instance = self.state.next_instance;
         self.state.next_instance += 1;
         self.state
@@ -1556,6 +1695,19 @@ impl Game {
             reaction: None,
             amount: 0,
         })
+    }
+
+    fn equipped_instance(&self, player: PlayerId, host: usize, slot: &str) -> Option<u32> {
+        self.state.players[player].characters[host]
+            .modifiers
+            .iter()
+            .find(|modifier| {
+                self.runtime
+                    .rules()
+                    .modifier(&modifier.definition)
+                    .is_some_and(|definition| definition.slot.as_deref() == Some(slot))
+            })
+            .map(|modifier| modifier.instance)
     }
 
     fn create_modifier_replacement(
@@ -1854,6 +2006,13 @@ fn modifier_instance(source: EntityRef) -> u32 {
         unreachable!()
     };
     instance
+}
+
+fn character_slot(character: EntityRef) -> usize {
+    let EntityRef::Character { slot, .. } = character else {
+        unreachable!()
+    };
+    slot
 }
 
 fn collect_damage_rule(
