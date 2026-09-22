@@ -221,6 +221,7 @@ function characterView(character, slot, previews) {
     element: definition.element,
     counters: counterViews(definition.counters, character.counters),
     auras: character.auras,
+    satiated: character.satiated,
     actions: definition.actions.map((action) => {
       const preview = previews.find((value) => value.id === action.id);
       return {
@@ -360,6 +361,7 @@ function teamView(player, current) {
       <strong>${character.name}</strong>
       <span class="counter-list">${character.counters.map(counterText).join("")}</span>
       ${character.auras.length ? `<span class="aura">附着 · ${character.auras.map((aura) => elementNames[aura]).join(" / ")}</span>` : ""}
+      ${character.satiated ? '<span class="modifier">饱腹</span>' : ""}
       ${character.modifiers.map(modifierText).join("")}`;
     const canSwitch =
       current && state.phase === "action" && !state.decision && !active && hp.value > 0;

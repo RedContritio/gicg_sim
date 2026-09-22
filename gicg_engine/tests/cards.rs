@@ -49,6 +49,8 @@ fn cards_select_healing_targets_and_draw_from_the_deck() {
     let decision = game.state.decision.as_ref().unwrap();
     assert_eq!(decision.options.len(), 1);
     game.choose(decision.id, 0).unwrap();
+    assert!(game.state.players[1].characters[0].satiated);
+    assert!(!game.action_previews().unwrap()[1].cards[0].playable);
     assert_eq!(
         game.state
             .counter(
@@ -264,4 +266,7 @@ fn food_modifies_only_the_matching_skill_kind() {
         game.state.history.last().unwrap().skill,
         Some(gicg_engine::SkillKind::NormalAttack)
     );
+    game.submit(Command::End).unwrap();
+    game.submit(Command::End).unwrap();
+    assert!(!game.state.players[0].characters[0].satiated);
 }

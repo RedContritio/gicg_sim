@@ -18,7 +18,7 @@ card {
     id = "minty_meat_rolls",
     name = "薄荷兽肉卷",
     description = "目标角色接下来的3次普通攻击少花费1个元素骰。",
-    kind = "event",
+    kind = "food",
     tempo = "fast",
     cost = { dice = { any = 1 } },
     target = { side = "own", state = "alive" },

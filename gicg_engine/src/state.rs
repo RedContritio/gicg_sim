@@ -68,6 +68,7 @@ pub struct CharacterState {
     pub definition: String,
     pub counters: Vec<Counter>,
     pub auras: Vec<Element>,
+    pub satiated: bool,
     pub modifiers: Vec<ModifierState>,
 }
 
@@ -445,6 +446,7 @@ fn build_character(rules: &Ruleset, player: PlayerId, id: &str) -> Result<Charac
         definition: definition.id.clone(),
         counters: definition.counters.initial_values(),
         auras: Vec::new(),
+        satiated: false,
         modifiers: Vec::new(),
     })
 }

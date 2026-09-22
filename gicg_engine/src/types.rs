@@ -164,6 +164,7 @@ pub enum ActionKind {
 #[strum(serialize_all = "snake_case")]
 pub enum CardKind {
     Event,
+    Food,
     Equipment,
     Support,
 }

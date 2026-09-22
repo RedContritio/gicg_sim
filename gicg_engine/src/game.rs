@@ -5,8 +5,8 @@ use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CharacterTargetDefinition,
-    ChoiceOption,
+    ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, CardKind,
+    CharacterTargetDefinition, ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
     Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
@@ -86,6 +86,7 @@ enum PendingDecision {
         handler: HandlerId,
         context: RuleContext,
         player: PlayerId,
+        satiate: bool,
     },
 }
 
@@ -214,10 +215,11 @@ impl Game {
                     .expect("hand references a loaded card");
                 let mut preview =
                     self.preview_action(actor, ActionKind::Card, card.action.clone())?;
-                preview.playable = card
-                    .target
-                    .as_ref()
-                    .is_none_or(|target| !self.card_targets(player, target).is_empty());
+                preview.playable = card.target.as_ref().is_none_or(|target| {
+                    !self
+                        .card_targets(player, target, card.kind == CardKind::Food)
+                        .is_empty()
+                });
                 Ok(preview)
             })
             .collect::<Result<Vec<_>>>()?;
@@ -403,7 +405,8 @@ impl Game {
                 handler,
                 context,
                 player,
-            }) => self.continue_card_target(handler, context, player, selected)?,
+                satiate,
+            }) => self.continue_card_target(handler, context, player, selected, satiate)?,
             None => self.force_switch(decision.player, selected)?,
         }
         self.drain()
@@ -492,12 +495,16 @@ impl Game {
         mut context: RuleContext,
         player: PlayerId,
         selected: ChoiceOption,
+        satiate: bool,
     ) -> Result<()> {
         let slot = selected
             .id
             .parse::<usize>()
             .map_err(|error| EngineError::Rule(format!("invalid card target option: {error}")))?;
         self.state.character(player, slot)?;
+        if satiate {
+            self.state.character_mut(player, slot)?.satiated = true;
+        }
         context.target = Some(EntityRef::Character { player, slot });
         self.enqueue_handler(handler, context)
     }
@@ -633,7 +640,7 @@ impl Game {
         let targets = card
             .target
             .as_ref()
-            .map(|target| self.card_targets(player, target));
+            .map(|target| self.card_targets(player, target, card.kind == CardKind::Food));
         if targets.as_ref().is_some_and(Vec::is_empty) {
             return Err(EngineError::InvalidCommand(format!(
                 "card {:?} has no legal target",
@@ -660,14 +667,24 @@ impl Game {
             ..RuleContext::default()
         };
         if let Some(targets) = targets {
-            self.create_card_target_choice(targets, action.resolve, context);
+            self.create_card_target_choice(
+                targets,
+                action.resolve,
+                context,
+                card.kind == CardKind::Food,
+            );
         } else {
             self.enqueue_handler(action.resolve, context)?;
         }
         self.drain()
     }
 
-    fn card_targets(&self, player: PlayerId, target: &CharacterTargetDefinition) -> Vec<EntityRef> {
+    fn card_targets(
+        &self,
+        player: PlayerId,
+        target: &CharacterTargetDefinition,
+        food: bool,
+    ) -> Vec<EntityRef> {
         let owner = match target.side {
             TargetSide::Own => player,
             TargetSide::Enemy => 1 - player,
@@ -677,7 +694,7 @@ impl Game {
                 player: owner,
                 slot,
             })
-            .filter(|character| self.card_target_matches(*character, target))
+            .filter(|character| self.card_target_matches(*character, target, food))
             .collect()
     }
 
@@ -685,6 +702,7 @@ impl Game {
         &self,
         character: EntityRef,
         target: &CharacterTargetDefinition,
+        food: bool,
     ) -> bool {
         let hp = self
             .state
@@ -702,7 +720,8 @@ impl Game {
                 .state
                 .counter_range(self.runtime.rules(), character, "hp")
                 .is_ok_and(|(_, maximum)| hp < maximum);
-        state_matches && active_matches && damaged_matches
+        let food_matches = !food || !self.character_state(character).satiated;
+        state_matches && active_matches && damaged_matches && food_matches
     }
 
     fn create_card_target_choice(
@@ -710,6 +729,7 @@ impl Game {
         targets: Vec<EntityRef>,
         handler: HandlerId,
         context: RuleContext,
+        satiate: bool,
     ) {
         let player = targets[0].player();
         let options = targets
@@ -729,7 +749,15 @@ impl Game {
             handler,
             context,
             player,
+            satiate,
         });
+    }
+
+    fn character_state(&self, target: EntityRef) -> &crate::CharacterState {
+        let EntityRef::Character { player, slot } = target else {
+            unreachable!()
+        };
+        &self.state.players[player].characters[slot]
     }
 
     fn character_name(&self, target: EntityRef) -> &str {
@@ -838,6 +866,9 @@ impl Game {
         for player in 0..2 {
             self.state.players[player].ended = false;
             self.state.players[player].dice = DiceSet::default();
+            for character in &mut self.state.players[player].characters {
+                character.satiated = false;
+            }
             self.draw(player, 2)?;
             self.roll(player, 8);
         }
