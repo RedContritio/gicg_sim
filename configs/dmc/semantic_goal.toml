@@ -1,9 +1,0 @@
-# Isolated source tree for semantic NN goal; historical runs stay in D:/gicg_dev.
-[meta]
-extends = "pre_rl_small.toml"
-host = "remote"
-device = "cuda"
-run_label = "semantic_goal"
-
-[remote]
-profile = "gpu-win"

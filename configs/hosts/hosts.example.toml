@@ -1,5 +1,0 @@
-[my-box]
-ssh = "192.0.2.10"          # [user@]host,user 可省
-os = "windows"              # windows | linux | darwin
-hostname = "DEV-PC"         # remote socket.gethostname()
-root = "D:/project"         # 该设备唯一的项目根

@@ -1,7 +1,0 @@
-name = "原生五角色 3v3 · ExIt/AZ（RL16 热启动）"
-type = "az"
-cfg = "configs/dmc/native_starter.toml"
-ckpt = "artifacts/exit_az/release/az_exit/model.pt"
-report = "artifacts/exit_az/release/az_exit/evaluation.json"
-n_simulations = 0
-max_rollout_depth = 400

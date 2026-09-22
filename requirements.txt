@@ -1,8 +1,0 @@
-torch>=2.0
-numpy>=1.24
-psutil>=5.9
-pytest>=7.0
-pytest-xdist>=3.0
-jsonschema>=4.0
-PyYAML>=6.0
-lxml>=5.0  # tools/cards/ HTML 解析(parse.py 用 lxml.html / lxml.etree)

@@ -1,7 +1,0 @@
-# Reserved adaptation scenario. Exclude from base/tactics training and selection.
-[meta]
-extends = "readiness_tactics.toml"
-run_label = "ready_holdout_v10"
-
-[scenario]
-card_pool = ["以逸待劳", "速速茶点"]
