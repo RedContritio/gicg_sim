@@ -11,6 +11,17 @@ const elementNames = {
   physical: "物理",
 };
 const elementDice = { cryo: 0, hydro: 1, pyro: 2, electro: 3, anemo: 4, geo: 5, dendro: 6 };
+const counterNames = {
+  hp: "生命",
+  energy: "充能",
+  nightsoul: "夜魂值",
+  fighting_spirit: "战意",
+  bite_stacks: "浪势充能",
+  uses: "可用次数",
+  rounds: "持续回合",
+  power: "强化",
+};
+const switchCost = { dice: Array(8).fill(0), any: 1, counters: [] };
 const dieSides = [
   [1, 7, 6],
   [4, 0, 2],
@@ -31,9 +42,13 @@ let gameId;
 let state;
 let rules;
 let definitions;
+let setup;
+let teams;
 let selected = new Set();
 let pending = null;
 
+const lobby = document.querySelector("#lobby");
+const game = document.querySelector("#game");
 const board = document.querySelector("#board");
 const status = document.querySelector("#status");
 const round = document.querySelector("#round");
@@ -41,12 +56,70 @@ const notice = document.querySelector("#notice");
 const decision = document.querySelector("#decision");
 const dialog = document.querySelector("#dialog");
 
+document.querySelector("#start").addEventListener("click", start);
 document.querySelector("#restart").addEventListener("click", start);
 
 async function start() {
   selected = new Set();
   pending = null;
-  await request("/api/games", { method: "POST", body: JSON.stringify({}) }, true);
+  await request(
+    "/api/games",
+    {
+      method: "POST",
+      body: JSON.stringify({ player_one: teams[0], player_two: teams[1] }),
+    },
+    true,
+  );
+}
+
+async function loadSetup() {
+  notice.classList.add("hidden");
+  try {
+    const response = await fetch("/api/setup");
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || "阵容载入失败");
+    setup = payload;
+    teams = payload.players.map((characters) => [...characters]);
+    renderLobby();
+  } catch (error) {
+    notice.textContent = error.message;
+    notice.classList.remove("hidden");
+  }
+}
+
+function renderLobby() {
+  const selectors = document.querySelector("#team-selectors");
+  selectors.replaceChildren(...teams.map(teamSelector));
+  const ready = teams.every((team) => team.length === setup.team_size);
+  const startButton = document.querySelector("#start");
+  startButton.disabled = !ready;
+  startButton.textContent = ready ? "开始对局" : `每队选择 ${setup.team_size} 名角色`;
+}
+
+function teamSelector(team, player) {
+  const section = node("section", "team-selector");
+  section.append(
+    nodeText("h3", "", `玩家 ${player + 1}`),
+    nodeText("p", "team-count", `${team.length} / ${setup.team_size}`),
+  );
+  const characters = node("div", "character-options");
+  for (const character of setup.characters) {
+    const active = team.includes(character.id);
+    const button = node("button", `character-option${active ? " selected" : ""}`);
+    button.innerHTML = `<span>${elementNames[character.element]}</span><strong>${character.name}</strong>`;
+    button.addEventListener("click", () => toggleCharacter(player, character.id));
+    characters.append(button);
+  }
+  section.append(characters);
+  return section;
+}
+
+function toggleCharacter(player, character) {
+  const team = teams[player];
+  const index = team.indexOf(character);
+  if (index >= 0) team.splice(index, 1);
+  else if (team.length < setup.team_size) team.push(character);
+  renderLobby();
 }
 
 async function request(path, options = {}, creating = false) {
@@ -65,6 +138,10 @@ async function request(path, options = {}, creating = false) {
         [...rules.characters, ...rules.modifiers, ...rules.cards].map((value) => [value.id, value]),
       );
       state = hydrate(payload.state);
+      lobby.classList.add("hidden");
+      game.classList.remove("hidden");
+      round.classList.remove("hidden");
+      document.querySelector("#restart").classList.remove("hidden");
     } else {
       state = hydrate(payload);
     }
@@ -172,22 +249,13 @@ function playerView(player) {
   const current = state.phase !== "finished" && state.turn === player.id;
   const section = node("section", `player${current ? " current" : ""}`);
   const character = player.characters[player.active];
-  const hp = counter(character, "hp");
-  const energy = counter(character, "energy");
-  const characterBox = node("div", "character");
-  characterBox.innerHTML = `
-    <div><div class="element">${elementNames[character.element]}</div><div class="character-name">${character.name}</div></div>
-    <div class="meters">
-      ${meter("生命", hp)}
-      ${meter("充能", energy, "energy")}
-      ${player.combat.map((modifier) => `<div class="modifier">${modifier.name} · ${modifier.counters.map((value) => `${value.name} ${value.value}`).join(" / ")}</div>`).join("")}
-    </div>`;
+  const characterBox = teamView(player, current);
 
   const center = node("div");
   const heading = node("div", "player-head");
   heading.innerHTML = `<div class="player-name">玩家 ${player.id + 1}</div>${current ? '<div class="turn-mark">操作中</div>' : player.ended ? '<div class="turn-mark">已结束</div>' : ""}`;
   const actions = node("div", "actions");
-  actions.append(nodeText("p", "section-title", "角色行动"));
+  actions.append(nodeText("p", "section-title", `${character.name} · 角色行动`));
   for (const action of character.actions) {
     const button = node("button", "action");
     button.innerHTML = `<strong>${action.name}</strong><span class="detail">${costText(action.cost)} · ${action.tempo === "fast" ? "快速行动" : "战斗行动"}</span>`;
@@ -209,6 +277,11 @@ function playerView(player) {
   const piles = node("div", "piles");
   piles.innerHTML = `<span>牌库 ${player.deck_count}</span><span>弃牌 ${player.discard_count}</span>`;
   resources.append(piles);
+  resources.append(
+    modifierZone("出战状态", player.combat),
+    modifierZone("召唤物", player.summons),
+    modifierZone("支援", player.supports),
+  );
   if (state.phase === "action") {
     const end = node("button", "end");
     end.textContent = "结束回合";
@@ -217,6 +290,62 @@ function playerView(player) {
     resources.append(end);
   }
   section.append(characterBox, center, resources);
+  return section;
+}
+
+function teamView(player, current) {
+  const team = node("div", "team");
+  player.characters.forEach((character) => {
+    const hp = counter(character, "hp");
+    const active = character.slot === player.active;
+    const button = node(
+      "button",
+      `team-character${active ? " active" : ""}${hp.value === 0 ? " defeated" : ""}`,
+    );
+    button.innerHTML = `
+      <span class="element">${elementNames[character.element]}</span>
+      <strong>${character.name}</strong>
+      <span class="counter-list">${character.counters.map(counterText).join("")}</span>
+      ${character.modifiers.map(modifierText).join("")}`;
+    const canSwitch =
+      current && state.phase === "action" && !state.decision && !active && hp.value > 0;
+    button.disabled = !canSwitch;
+    if (canSwitch) {
+      button.addEventListener("click", () =>
+        openPayment(
+          { kind: "switch", slot: character.slot },
+          `切换至${character.name}`,
+          switchCost,
+          player,
+        ),
+      );
+    }
+    team.append(button);
+  });
+  return team;
+}
+
+function counterText(value) {
+  const label = counterNames[value.name] || value.name;
+  return `<span>${label} ${value.value}/${value.max}</span>`;
+}
+
+function modifierText(modifier) {
+  const counters = modifier.counters.map(
+    (value) => `${counterNames[value.name] || value.name} ${value.value}`,
+  );
+  return `<span class="modifier">${modifier.name}${counters.length ? ` · ${counters.join(" / ")}` : ""}</span>`;
+}
+
+function modifierZone(label, modifiers) {
+  const section = node("div", `modifier-zone${modifiers.length ? "" : " empty"}`);
+  section.append(nodeText("p", "section-title", label));
+  for (const modifier of modifiers) {
+    const item = node("div");
+    item.innerHTML = modifierText(modifier);
+    section.append(item);
+  }
+  if (!modifiers.length) section.append(nodeText("span", "detail", "无"));
   return section;
 }
 
@@ -236,7 +365,8 @@ function handView(player, current) {
       `card${state.phase === "redraw" && selected.has(card.hand) ? " selected" : ""}`,
     );
     const title = node("button", "card-main");
-    title.innerHTML = `<strong>${card.name}</strong><span class="detail">${card.description}<br>${costText(card.cost)} · 快速行动</span>`;
+    const tempo = card.tempo === "fast" ? "快速行动" : "战斗行动";
+    title.innerHTML = `<strong>${card.name}</strong><span class="detail">${card.description}<br>${costText(card.cost)} · ${tempo}</span>`;
     title.disabled = !current || !["redraw", "action"].includes(state.phase) || !!state.decision;
     title.addEventListener("click", () => {
       if (state.phase === "redraw") toggleSelected(card.hand);
@@ -276,7 +406,7 @@ function renderPhaseControl() {
     confirm.addEventListener("click", () => act({ kind: "reroll", payment: selectedCounts() }));
     control.append(confirm);
   }
-  document.querySelector("main").insertBefore(control, decision);
+  game.insertBefore(control, decision);
 }
 
 function openPayment(command, title, cost, player) {
@@ -462,13 +592,9 @@ function costText(cost) {
   });
   if (cost.any) parts.push(`任意 ${cost.any}`);
   cost.counters.forEach((value) => {
-    parts.push(`${value.name === "energy" ? "充能" : value.name} ${value.require}`);
+    parts.push(`${counterNames[value.name] || value.name} ${value.require}`);
   });
   return parts.length ? parts.join(" · ") : "无消耗";
-}
-
-function meter(label, value, className = "") {
-  return `<div><div class="meter-line"><span>${label}</span><span>${value.value} / ${value.max}</span></div><div class="meter ${className}"><i style="width:${(value.value / value.max) * 100}%"></i></div></div>`;
 }
 
 function node(tag, className = "") {
@@ -483,4 +609,4 @@ function nodeText(tag, className, text) {
   return value;
 }
 
-start();
+loadSetup();
