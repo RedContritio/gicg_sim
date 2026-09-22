@@ -4,7 +4,7 @@
 
 - `AGENTS.md` 必须始终保留在仓库根目录。
 - 开始工作前先检查 `git status --short --branch`，不得重置或覆盖其他会话的改动。
-- 所有命令从仓库根目录执行；Python 使用 `python -m <模块>`。
+- 所有命令从仓库根目录执行；Rust 使用 workspace 级 `cargo` 命令，Python 使用 `python -m <模块>`。
 - 非预期输入直接失败，不维护旧 API、旧配置、旧 checkpoint 或旧目录兼容层。
 - 代码应直接呈现最终结构，不保留迁移垫片、临时说明或改动痕迹。
 
@@ -12,7 +12,7 @@
 
 ```text
 data/          游戏规则与牌表
-gicg_engine/   Go 规则执行器
+gicg_engine/   Rust 规则执行器
 gicg_env/      Python 绑定与环境
 gicg_ai/       轻量训练框架、算法、模型与评测
 web/           PvE 决策辅助界面
@@ -40,7 +40,7 @@ configs/       train / eval / web 完整配置
 
 ## 验证与提交
 
-- 验证范围与风险匹配；优先运行最小行为测试和构建。
+- 验证范围与风险匹配；Rust 优先运行 `cargo test --workspace` 与 `cargo clippy --workspace --all-targets -- -D warnings`。
 - 提交信息准确描述交付结果，不描述中间过程。
 
 ## 用户可见内容
