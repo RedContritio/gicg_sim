@@ -648,6 +648,13 @@ fn parse_revive_modifier(
         )));
     }
     let consume = parse_modifier_consume(&revive, modifier_id, "revive")?;
+    validate_modifier_consumption(
+        &Some(counter.clone()),
+        counters,
+        consume,
+        modifier_id,
+        "revive",
+    )?;
     Ok(Some(crate::ReviveModifierDefinition {
         hp,
         counter,
@@ -675,6 +682,7 @@ fn parse_action_modifier_table(
     let (reduce_dice, tempo, forbid) = parse_action_changes(&table, modifier_id)?;
     let counter = parse_counter_name(&table, "counter", modifier_id, counters, "action")?;
     let consume = parse_modifier_consume(&table, modifier_id, "action")?;
+    validate_modifier_consumption(&counter, counters, consume, modifier_id, "action")?;
     Ok(ActionModifierDefinition {
         kinds,
         skills,
@@ -745,7 +753,15 @@ fn parse_damage_modifier(
     let Some(damage) = table.get::<Option<Table>>("damage")? else {
         return Ok(None);
     };
-    parse_damage_modifier_table(&damage, modifier_id, counters).map(Some)
+    let definition = parse_damage_modifier_table(&damage, modifier_id, counters)?;
+    validate_modifier_consumption(
+        &definition.counter,
+        counters,
+        definition.consume,
+        modifier_id,
+        "damage",
+    )?;
+    Ok(Some(definition))
 }
 
 fn parse_damage_modifier_table(
@@ -817,6 +833,29 @@ fn parse_modifier_consume(table: &Table, modifier_id: &str, rule: &str) -> mlua:
         )));
     }
     Ok(consume)
+}
+
+fn validate_modifier_consumption(
+    counter: &Option<String>,
+    counters: &CounterSchema,
+    consume: i32,
+    modifier_id: &str,
+    rule: &str,
+) -> mlua::Result<()> {
+    let Some(counter) = counter else {
+        return Ok(());
+    };
+    let field = counters.field(counter).expect("modifier counter exists");
+    let maximum = counters
+        .definition(field)
+        .expect("counter field exists")
+        .max;
+    if consume > maximum {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} {rule} consumes more than counter {counter:?} can hold"
+        )));
+    }
+    Ok(())
 }
 
 fn parse_optional_element(table: &Table, field: &str) -> mlua::Result<Option<Element>> {
@@ -1028,7 +1067,15 @@ fn parse_counter_costs(
         return Ok(());
     };
     for entry in entries.sequence_values::<Table>() {
-        cost.counters.push(parse_counter_cost(entry?, counters)?);
+        let parsed = parse_counter_cost(entry?, counters)?;
+        if cost
+            .counters
+            .iter()
+            .any(|existing| existing.field == parsed.field)
+        {
+            return Err(mlua::Error::runtime("action cost repeats a counter field"));
+        }
+        cost.counters.push(parsed);
     }
     Ok(())
 }
@@ -1038,11 +1085,41 @@ fn parse_counter_cost(entry: Table, counters: &CounterSchema) -> mlua::Result<Co
     let field = counters.field(&name).ok_or_else(|| {
         mlua::Error::runtime(format!("counter cost refers to unknown counter {name:?}"))
     })?;
+    let require = entry.get("require")?;
+    let consume = parse_counter_consume(entry.get("consume")?, &name)?;
+    let definition = counters.definition(field).expect("counter field exists");
+    validate_counter_cost(&name, definition, require, consume)?;
     Ok(CounterCost {
         field,
-        require: entry.get("require")?,
-        consume: parse_counter_consume(entry.get("consume")?, &name)?,
+        require,
+        consume,
     })
+}
+
+fn validate_counter_cost(
+    name: &str,
+    definition: &CounterDefinition,
+    require: i32,
+    consume: CounterConsume,
+) -> mlua::Result<()> {
+    if !(definition.min..=definition.max).contains(&require) {
+        return Err(mlua::Error::runtime(format!(
+            "counter {name:?} requirement is outside its range"
+        )));
+    }
+    let valid = match consume {
+        CounterConsume::None => true,
+        CounterConsume::Fixed(amount) => {
+            amount > 0 && require.saturating_sub(amount) >= definition.min
+        }
+        CounterConsume::All => definition.min <= 0 && definition.max >= 0,
+    };
+    if !valid {
+        return Err(mlua::Error::runtime(format!(
+            "counter {name:?} has an invalid consumption cost"
+        )));
+    }
+    Ok(())
 }
 
 fn parse_counter_consume(value: Value, name: &str) -> mlua::Result<CounterConsume> {

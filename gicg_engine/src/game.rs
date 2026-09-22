@@ -1352,7 +1352,7 @@ impl Game {
         Ok(self
             .state
             .counter(self.runtime.rules(), invocation.source, counter)?
-            > 0)
+            >= invocation.rule.consume)
     }
 
     fn action_invocations(&self, player: PlayerId) -> Vec<ActionInvocation> {
@@ -2210,7 +2210,7 @@ impl Game {
             return Ok(self
                 .state
                 .counter(self.runtime.rules(), invocation.source, counter)?
-                > 0);
+                >= invocation.rule.consume);
         }
         Ok(true)
     }
