@@ -14,6 +14,16 @@ modifier {
 }
 
 modifier {
+    id = "card.knights_of_favonius_library",
+    name = "骑士团图书馆",
+    zone = "support",
+    merge = "replace",
+    counters = {},
+    roll = { rerolls = 1 },
+    handlers = {},
+}
+
+modifier {
     id = "card.paimon",
     name = "派蒙",
     zone = "support",
@@ -40,6 +50,18 @@ card {
     target = { side = "own", state = "alive" },
     resolve = function(ctx)
         return { add_modifier("target", "card.travelers_handy_sword") }
+    end,
+}
+
+card {
+    id = "knights_of_favonius_library",
+    name = "骑士团图书馆",
+    description = "每个投掷阶段额外获得1次重掷机会。",
+    kind = "support",
+    tempo = "fast",
+    cost = { dice = { same = 1 } },
+    resolve = function(ctx)
+        return { add_modifier("own_active", "card.knights_of_favonius_library") }
     end,
 }
 

@@ -55,6 +55,7 @@ pub struct PlayerState {
     pub characters: Vec<CharacterState>,
     pub active: usize,
     pub dice: DiceSet,
+    pub rerolls: u8,
     pub deck: Vec<String>,
     pub hand: Vec<String>,
     pub discard: Vec<String>,

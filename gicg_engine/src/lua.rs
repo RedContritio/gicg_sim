@@ -10,10 +10,10 @@ use sha2::{Digest, Sha256};
 use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ActionTraits,
     CardDefinition, CardKind, CardTargetDefinition, Cost, CounterConsume, CounterCost,
-    CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition, Effect, Element,
-    EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy, ModifierDefinition,
-    Result, RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef, TargetSide, TargetState,
-    Zone,
+    CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition, DiceSet, Effect,
+    Element, EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy,
+    ModifierDefinition, Result, RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef,
+    TargetSide, TargetState, Zone,
 };
 
 struct LoadState {
@@ -22,6 +22,13 @@ struct LoadState {
     cards: Vec<CardDefinition>,
     handlers: HashMap<HandlerId, RegistryKey>,
     next_handler: HandlerId,
+}
+
+struct ParsedModifierRules {
+    remove_at_zero: Option<usize>,
+    damage: Option<DamageModifierDefinition>,
+    action: Option<ActionModifierDefinition>,
+    roll: Option<crate::RollModifierDefinition>,
 }
 
 impl LoadState {
@@ -486,7 +493,7 @@ fn parse_modifier(
     let slot = parse_modifier_slot(&table, zone, &id)?;
     let merge = parse_merge(&table)?;
     let counters = parse_counters(table.get("counters")?)?;
-    let (remove_at_zero, damage, action) = parse_modifier_rules(&table, &id, &counters)?;
+    let rules = parse_modifier_rules(&table, &id, &counters)?;
     let handlers = parse_handlers(lua, state, &table, &id)?;
     Ok(ModifierDefinition {
         id,
@@ -495,11 +502,46 @@ fn parse_modifier(
         slot,
         counters,
         merge,
-        remove_at_zero,
-        damage,
-        action,
+        remove_at_zero: rules.remove_at_zero,
+        damage: rules.damage,
+        action: rules.action,
+        roll: rules.roll,
         handlers,
     })
+}
+
+fn parse_roll_modifier(
+    table: &Table,
+    modifier_id: &str,
+) -> mlua::Result<Option<crate::RollModifierDefinition>> {
+    let Some(roll) = table.get::<Option<Table>>("roll")? else {
+        return Ok(None);
+    };
+    let rerolls = roll.get::<Option<u8>>("rerolls")?.unwrap_or(0);
+    let fixed = parse_dice_set(&roll, "fixed")?;
+    if rerolls == 0 && fixed.total() == 0 {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} roll rule has no effect"
+        )));
+    }
+    if fixed.total() > 8 {
+        return Err(mlua::Error::runtime(format!(
+            "modifier {modifier_id:?} fixes more than 8 dice"
+        )));
+    }
+    Ok(Some(crate::RollModifierDefinition { rerolls, fixed }))
+}
+
+fn parse_dice_set(table: &Table, field: &str) -> mlua::Result<DiceSet> {
+    let mut dice = DiceSet::default();
+    let Some(values) = table.get::<Option<Table>>(field)? else {
+        return Ok(dice);
+    };
+    for entry in values.pairs::<String, u8>() {
+        let (name, count) = entry?;
+        dice.set(crate::Die::parse(&name).map_err(lua_error)?, count);
+    }
+    Ok(dice)
 }
 
 fn parse_modifier_slot(
@@ -525,16 +567,13 @@ fn parse_modifier_rules(
     table: &Table,
     modifier_id: &str,
     counters: &CounterSchema,
-) -> mlua::Result<(
-    Option<usize>,
-    Option<DamageModifierDefinition>,
-    Option<ActionModifierDefinition>,
-)> {
-    Ok((
-        parse_remove_at_zero(table, modifier_id, counters)?,
-        parse_damage_modifier(table, modifier_id, counters)?,
-        parse_action_modifier(table, modifier_id, counters)?,
-    ))
+) -> mlua::Result<ParsedModifierRules> {
+    Ok(ParsedModifierRules {
+        remove_at_zero: parse_remove_at_zero(table, modifier_id, counters)?,
+        damage: parse_damage_modifier(table, modifier_id, counters)?,
+        action: parse_action_modifier(table, modifier_id, counters)?,
+        roll: parse_roll_modifier(table, modifier_id)?,
+    })
 }
 
 fn parse_action_modifier(

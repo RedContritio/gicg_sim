@@ -480,6 +480,11 @@ impl Game {
     }
 
     fn submit_reroll(&mut self, player: PlayerId, selected: DiceSet) -> Result<()> {
+        if self.state.players[player].rerolls == 0 {
+            return Err(EngineError::InvalidCommand(
+                "player has no rerolls remaining".to_owned(),
+            ));
+        }
         let inventory = self.state.players[player].dice;
         if Die::ALL
             .iter()
@@ -493,6 +498,11 @@ impl Game {
             self.state.players[player].dice.0[die.index()] -= selected.get(die);
         }
         self.roll(player, usize::from(selected.total()));
+        self.state.players[player].rerolls -= 1;
+        if selected.total() > 0 && self.state.players[player].rerolls > 0 {
+            return Ok(());
+        }
+        self.state.players[player].rerolls = 0;
         self.finish_shared_phase(player, Phase::Action)
     }
 
@@ -507,11 +517,7 @@ impl Game {
         self.state.phase = next;
         self.state.turn = self.round_first;
         if next == Phase::Roll {
-            for player in 0..2 {
-                if self.state.players[player].dice.total() == 0 {
-                    self.roll(player, 8);
-                }
-            }
+            self.begin_roll_phase()?;
         }
         Ok(())
     }
@@ -1100,8 +1106,8 @@ impl Game {
                 character.satiated = false;
             }
             self.draw(player, 2)?;
-            self.roll(player, 8);
         }
+        self.begin_roll_phase()?;
         self.emit(Event {
             kind: EventKind::RoundStart,
             actor: None,
@@ -1141,6 +1147,60 @@ impl Game {
         for _ in 0..count {
             dice.0[self.rng.random_range(0..Die::COUNT)] += 1;
         }
+    }
+
+    fn begin_roll_phase(&mut self) -> Result<()> {
+        for player in 0..2 {
+            let rules = self.roll_modifiers(player);
+            let rerolls = rules.iter().try_fold(1u8, |total, rule| {
+                total
+                    .checked_add(rule.rerolls)
+                    .ok_or_else(|| EngineError::Rule("roll modifier rerolls overflowed".to_owned()))
+            })?;
+            self.state.players[player].rerolls = rerolls;
+            if self.state.players[player].dice.total() == 0 {
+                self.initial_roll(player, 8, &rules);
+            }
+        }
+        Ok(())
+    }
+
+    fn initial_roll(
+        &mut self,
+        player: PlayerId,
+        count: usize,
+        rules: &[crate::RollModifierDefinition],
+    ) {
+        let mut remaining = count;
+        for rule in rules {
+            for die in Die::ALL {
+                let fixed = usize::from(rule.fixed.get(die)).min(remaining);
+                self.state.players[player].dice.0[die.index()] += fixed as u8;
+                remaining -= fixed;
+            }
+        }
+        self.roll(player, remaining);
+    }
+
+    fn roll_modifiers(&self, player: PlayerId) -> Vec<crate::RollModifierDefinition> {
+        let state = &self.state.players[player];
+        let mut modifiers = state
+            .characters
+            .iter()
+            .flat_map(|character| &character.modifiers)
+            .chain(&state.combat)
+            .chain(&state.summons)
+            .chain(&state.supports)
+            .filter_map(|modifier| {
+                self.runtime
+                    .rules()
+                    .modifier(&modifier.definition)
+                    .and_then(|definition| definition.roll.clone())
+                    .map(|rule| (modifier.instance, rule))
+            })
+            .collect::<Vec<_>>();
+        modifiers.sort_by_key(|(instance, _)| *instance);
+        modifiers.into_iter().map(|(_, rule)| rule).collect()
     }
 
     fn pay(&mut self, actor: EntityRef, action: &ActionDefinition, payment: DiceSet) -> Result<()> {

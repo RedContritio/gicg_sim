@@ -267,8 +267,15 @@ pub struct ModifierDefinition {
     pub remove_at_zero: Option<FieldId>,
     pub damage: Option<DamageModifierDefinition>,
     pub action: Option<ActionModifierDefinition>,
+    pub roll: Option<RollModifierDefinition>,
     #[serde(skip)]
     pub handlers: HashMap<EventKind, HandlerId>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct RollModifierDefinition {
+    pub rerolls: u8,
+    pub fixed: DiceSet,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]

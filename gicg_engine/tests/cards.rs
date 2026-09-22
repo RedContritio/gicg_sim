@@ -259,6 +259,30 @@ fn equipment_and_supports_persist_in_their_zones() {
 }
 
 #[test]
+fn supports_extend_the_roll_phase() {
+    let mut game = ready("knights_of_favonius_library");
+    game.submit(Command::Card {
+        hand: 0,
+        payment: omni(1),
+    })
+    .unwrap();
+    game.submit(Command::End).unwrap();
+    game.submit(Command::End).unwrap();
+    assert_eq!(game.state.players[0].rerolls, 2);
+    assert_eq!(game.state.players[1].rerolls, 1);
+
+    let payment = take(game.state.players[0].dice, 1);
+    game.submit(Command::Reroll { payment }).unwrap();
+    assert_eq!(game.state.turn, 0);
+    assert_eq!(game.state.players[0].rerolls, 1);
+    game.submit(Command::Reroll {
+        payment: DiceSet::default(),
+    })
+    .unwrap();
+    assert_eq!(game.state.turn, 1);
+}
+
+#[test]
 fn food_modifies_only_the_matching_skill_kind() {
     let mut game = ready("minty_meat_rolls");
     game.submit(Command::Card {

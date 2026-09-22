@@ -469,6 +469,7 @@ function renderPhaseControl() {
     control.append(confirm);
   } else {
     const player = state.players[state.turn];
+    control.append(nodeText("strong", "", `剩余重掷次数 ${player.rerolls}`));
     control.append(selectableDice(player.dice, true));
     const confirm = nodeText(
       "button",
