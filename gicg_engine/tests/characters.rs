@@ -169,6 +169,37 @@ fn chiori_all_puppet_choices_enter_and_tick() {
 }
 
 #[test]
+fn full_summon_zone_replaces_the_selected_summon() {
+    let (_, mut game) = ready(&["chiori"]);
+    skill(&mut game, "fluttering_hasode", 3);
+    let decision = game.state.decision.as_ref().unwrap().id;
+    game.choose(decision, 0).unwrap();
+    game.submit(Command::End).unwrap();
+
+    for option in 1..5 {
+        skill(&mut game, "fluttering_hasode", 3);
+        let decision = game.state.decision.as_ref().unwrap().id;
+        game.choose(decision, option).unwrap();
+    }
+    assert_eq!(game.state.players[0].summons.len(), 4);
+    let replacement = game.state.decision.as_ref().unwrap().id;
+    game.choose(replacement, 0).unwrap();
+    assert_eq!(
+        game.state.players[0]
+            .summons
+            .iter()
+            .map(|summon| summon.definition.as_str())
+            .collect::<Vec<_>>(),
+        [
+            "chiori.easy",
+            "chiori.closed",
+            "chiori.nothing",
+            "chiori.side_eye",
+        ]
+    );
+}
+
+#[test]
 fn mualani_nightsoul_action_and_missile_complete_the_cycle() {
     let (runtime, mut game) = ready(&["mualani"]);
     skill(&mut game, "surfshark_wavebreaker", 2);

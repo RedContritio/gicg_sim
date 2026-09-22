@@ -69,9 +69,15 @@ struct QueuedEffect {
     context: RuleContext,
 }
 
-struct PendingDecision {
-    handler: HandlerId,
-    context: RuleContext,
+enum PendingDecision {
+    Continuation {
+        handler: HandlerId,
+        context: RuleContext,
+    },
+    ModifierReplacement {
+        target: EntityRef,
+        definition: String,
+    },
 }
 
 struct DamageResolution {
@@ -236,10 +242,14 @@ impl Game {
 
     pub fn choose(&mut self, decision_id: crate::DecisionId, option: usize) -> Result<()> {
         let (decision, selected) = self.take_decision(decision_id, option)?;
-        if self.pending.is_some() {
-            self.continue_choice(decision_id, selected)?;
-        } else {
-            self.force_switch(decision.player, selected)?;
+        match self.pending.take() {
+            Some(PendingDecision::Continuation { handler, context }) => {
+                self.continue_choice(handler, context, selected)?;
+            }
+            Some(PendingDecision::ModifierReplacement { target, definition }) => {
+                self.replace_modifier(decision.player, selected, target, &definition)?;
+            }
+            None => self.force_switch(decision.player, selected)?,
         }
         self.drain()
     }
@@ -268,15 +278,12 @@ impl Game {
 
     fn continue_choice(
         &mut self,
-        decision_id: crate::DecisionId,
+        handler: HandlerId,
+        mut context: RuleContext,
         selected: ChoiceOption,
     ) -> Result<()> {
-        let pending = self.pending.take().ok_or_else(|| {
-            EngineError::Rule(format!("decision {decision_id} has no continuation"))
-        })?;
-        let mut context = pending.context;
         context.option = Some(selected.id);
-        self.enqueue_handler(pending.handler, context)
+        self.enqueue_handler(handler, context)
     }
 
     fn force_switch(&mut self, player: PlayerId, selected: ChoiceOption) -> Result<()> {
@@ -1216,7 +1223,7 @@ impl Game {
             options,
         });
         self.state.next_decision += 1;
-        self.pending = Some(PendingDecision { handler, context });
+        self.pending = Some(PendingDecision::Continuation { handler, context });
         Ok(())
     }
 
@@ -1265,6 +1272,9 @@ impl Game {
             merge_modifier(existing, &definition);
             return Ok(());
         }
+        if modifier_zone_full(&self.state, player, definition.zone) {
+            return self.create_modifier_replacement(target, &definition);
+        }
         let instance = self.state.next_instance;
         self.state.next_instance += 1;
         self.state
@@ -1286,6 +1296,53 @@ impl Game {
             reaction: None,
             amount: 0,
         })
+    }
+
+    fn create_modifier_replacement(
+        &mut self,
+        target: EntityRef,
+        definition: &crate::ModifierDefinition,
+    ) -> Result<()> {
+        let player = target.player();
+        let modifiers = self.state.modifier_list_mut(player, definition.zone, 0)?;
+        let options = modifiers
+            .iter()
+            .map(|modifier| ChoiceOption {
+                id: modifier.instance.to_string(),
+                label: self
+                    .runtime
+                    .rules()
+                    .modifier(&modifier.definition)
+                    .expect("state references a loaded modifier")
+                    .name
+                    .clone(),
+            })
+            .collect();
+        self.state.decision = Some(Decision {
+            id: self.state.next_decision,
+            player,
+            options,
+        });
+        self.state.next_decision += 1;
+        self.pending = Some(PendingDecision::ModifierReplacement {
+            target,
+            definition: definition.id.clone(),
+        });
+        Ok(())
+    }
+
+    fn replace_modifier(
+        &mut self,
+        player: PlayerId,
+        selected: ChoiceOption,
+        target: EntityRef,
+        definition: &str,
+    ) -> Result<()> {
+        let instance = selected.id.parse::<u32>().map_err(|error| {
+            EngineError::Rule(format!("invalid modifier replacement option: {error}"))
+        })?;
+        self.remove_modifier(EntityRef::Modifier { player, instance })?;
+        self.add_modifier(target, definition)
     }
 
     fn remove_modifier(&mut self, target: EntityRef) -> Result<()> {
@@ -1444,6 +1501,14 @@ fn modifier_host(definition: &crate::ModifierDefinition, target: EntityRef) -> R
             definition.id
         ))),
         _ => Ok(0),
+    }
+}
+
+fn modifier_zone_full(state: &GameState, player: PlayerId, zone: Zone) -> bool {
+    match zone {
+        Zone::Summon => state.players[player].summons.len() >= 4,
+        Zone::Support => state.players[player].supports.len() >= 4,
+        Zone::Character | Zone::Combat => false,
     }
 }
 
