@@ -9,11 +9,11 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ActionTraits,
-    CardDefinition, CardKind, CardTargetDefinition, CardTargetKind, Cost, CounterConsume,
-    CounterCost, CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition,
-    Effect, Element, EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy,
-    ModifierDefinition, Result, RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef,
-    TargetSide, TargetState, Zone,
+    CardDefinition, CardKind, CardTargetDefinition, Cost, CounterConsume, CounterCost,
+    CounterDefinition, CounterSchema, DamageDirection, DamageModifierDefinition, Effect, Element,
+    EngineError, EntityRef, EventKind, GameState, HandlerId, MergePolicy, ModifierDefinition,
+    Result, RuleContext, Ruleset, SkillKind, TalentDefinition, TargetRef, TargetSide, TargetState,
+    Zone,
 };
 
 struct LoadState {
@@ -421,7 +421,7 @@ fn parse_card_target(table: &Table) -> mlua::Result<Option<CardTargetDefinition>
     let state = target.get::<Option<String>>("state")?;
     let kind = target.get::<Option<String>>("kind")?;
     Ok(Some(CardTargetDefinition {
-        kind: CardTargetKind::parse(kind.as_deref().unwrap_or("character")).map_err(lua_error)?,
+        zone: Zone::parse(kind.as_deref().unwrap_or("character")).map_err(lua_error)?,
         side: TargetSide::parse(side.as_deref().unwrap_or("own")).map_err(lua_error)?,
         state: TargetState::parse(state.as_deref().unwrap_or("alive")).map_err(lua_error)?,
         damaged: target.get::<Option<bool>>("damaged")?.unwrap_or(false),

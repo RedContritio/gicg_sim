@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     ActionDefinition, ActionKind, ActionModifierDefinition, ActionTempo, ActionTraits, CardKind,
-    CardTargetDefinition, CardTargetKind, ChoiceOption,
+    CardTargetDefinition, ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
     Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
@@ -823,14 +823,11 @@ impl Game {
             TargetSide::Own => player,
             TargetSide::Enemy => 1 - player,
         };
-        match target.kind {
-            CardTargetKind::Character => self.character_card_targets(owner, target, food),
-            CardTargetKind::Summon => {
-                modifier_card_targets(owner, &self.state.players[owner].summons)
-            }
-            CardTargetKind::Support => {
-                modifier_card_targets(owner, &self.state.players[owner].supports)
-            }
+        match target.zone {
+            Zone::Character => self.character_card_targets(owner, target, food),
+            Zone::Combat => modifier_card_targets(owner, &self.state.players[owner].combat),
+            Zone::Summon => modifier_card_targets(owner, &self.state.players[owner].summons),
+            Zone::Support => modifier_card_targets(owner, &self.state.players[owner].supports),
         }
     }
 

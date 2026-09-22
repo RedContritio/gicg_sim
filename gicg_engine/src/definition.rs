@@ -3,9 +3,8 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    ActionKind, ActionTempo, ActionTraits, CardKind, CardTargetKind, Counter, DiceSet, Die,
-    EngineError, EventKind, FieldId, HandlerId, MergePolicy, Result, SkillKind, TargetSide,
-    TargetState, Zone,
+    ActionKind, ActionTempo, ActionTraits, CardKind, Counter, DiceSet, Die, EngineError, EventKind,
+    FieldId, HandlerId, MergePolicy, Result, SkillKind, TargetSide, TargetState, Zone,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -216,7 +215,7 @@ pub struct TalentDefinition {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct CardTargetDefinition {
-    pub kind: CardTargetKind,
+    pub zone: Zone,
     pub side: TargetSide,
     pub state: TargetState,
     pub damaged: bool,
@@ -361,15 +360,13 @@ fn validate_card_target(card: &CardDefinition) -> Result<()> {
     let Some(target) = &card.target else {
         return Ok(());
     };
-    if matches!(card.kind, CardKind::Food | CardKind::Equipment)
-        && target.kind != CardTargetKind::Character
-    {
+    if matches!(card.kind, CardKind::Food | CardKind::Equipment) && target.zone != Zone::Character {
         return Err(EngineError::InvalidRuleset(format!(
             "card {:?} requires a character target",
             card.id
         )));
     }
-    if target.kind != CardTargetKind::Character
+    if target.zone != Zone::Character
         && (target.state != TargetState::Alive || target.damaged || target.active_only)
     {
         return Err(EngineError::InvalidRuleset(format!(

@@ -201,21 +201,6 @@ pub enum TargetState {
     Any,
 }
 
-#[derive(Clone, Copy, Debug, EnumString, Eq, PartialEq, Serialize)]
-#[serde(rename_all = "snake_case")]
-#[strum(serialize_all = "snake_case")]
-pub enum CardTargetKind {
-    Character,
-    Summon,
-    Support,
-}
-
-impl CardTargetKind {
-    pub fn parse(value: &str) -> Result<Self> {
-        parse_name(value, "card target kind")
-    }
-}
-
 impl TargetState {
     pub fn parse(value: &str) -> Result<Self> {
         parse_name(value, "target state")
