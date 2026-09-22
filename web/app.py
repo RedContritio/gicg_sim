@@ -47,6 +47,11 @@ def new_session(game_config: dict, players: list[list[str]], seed: int = 1) -> G
         players[0],
         players[1],
         [game_config["deck_card"]] * game_config["deck_size"],
+        (
+            game_config["team_size"],
+            game_config["deck_size"],
+            game_config["max_card_copies"],
+        ),
         seed,
     )
 

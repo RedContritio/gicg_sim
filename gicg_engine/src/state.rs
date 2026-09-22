@@ -3,6 +3,7 @@ use crate::{
     Reaction, Result, Ruleset, Zone,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -99,6 +100,73 @@ pub struct GameConfig {
     pub players: [PlayerConfig; 2],
     pub first: PlayerId,
     pub seed: u64,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct MatchFormat {
+    pub characters: usize,
+    pub cards: usize,
+    pub max_card_copies: usize,
+}
+
+impl MatchFormat {
+    pub fn validate(self, rules: &Ruleset, config: &GameConfig) -> Result<()> {
+        if self.characters == 0 || self.cards == 0 || self.max_card_copies == 0 {
+            return Err(EngineError::InvalidGame(
+                "match format limits must be positive".to_owned(),
+            ));
+        }
+        for (player, player_config) in config.players.iter().enumerate() {
+            self.validate_player(rules, player, player_config)?;
+        }
+        Ok(())
+    }
+
+    fn validate_player(
+        self,
+        rules: &Ruleset,
+        player: PlayerId,
+        config: &PlayerConfig,
+    ) -> Result<()> {
+        if config.characters.len() != self.characters {
+            return Err(EngineError::InvalidGame(format!(
+                "player {player} must select {} characters",
+                self.characters
+            )));
+        }
+        if config.deck.len() != self.cards {
+            return Err(EngineError::InvalidGame(format!(
+                "player {player} deck must contain {} cards",
+                self.cards
+            )));
+        }
+        let mut characters = config.characters.clone();
+        characters.sort_unstable();
+        if characters.windows(2).any(|pair| pair[0] == pair[1]) {
+            return Err(EngineError::InvalidGame(format!(
+                "player {player} cannot select the same character twice"
+            )));
+        }
+        let mut copies = HashMap::new();
+        for card in &config.deck {
+            let count = copies.entry(card).or_insert(0usize);
+            *count += 1;
+            if *count > self.max_card_copies {
+                return Err(EngineError::InvalidGame(format!(
+                    "player {player} has too many copies of card {card:?}"
+                )));
+            }
+            if let Some(talent) = rules.card(card).and_then(|card| card.talent.as_ref())
+                && !config.characters.contains(&talent.character)
+            {
+                return Err(EngineError::InvalidGame(format!(
+                    "player {player} talent card {card:?} requires character {:?}",
+                    talent.character
+                )));
+            }
+        }
+        Ok(())
+    }
 }
 
 #[derive(Clone, Copy, Debug)]

@@ -1,7 +1,8 @@
 use std::{path::PathBuf, rc::Rc};
 
 use gicg_engine::{
-    Command, DiceSet, Game, GameConfig, GameState, LuaRuntime, PlayerActionPreviews, PlayerConfig,
+    Command, DiceSet, Game, GameConfig, GameState, LuaRuntime, MatchFormat, PlayerActionPreviews,
+    PlayerConfig,
 };
 use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
@@ -24,12 +25,21 @@ struct GameSession {
 #[pymethods]
 impl GameSession {
     #[new]
-    #[pyo3(signature = (ruleset, player_one, player_two, deck, seed=1, first=0))]
+    #[pyo3(signature = (
+        ruleset,
+        player_one,
+        player_two,
+        deck,
+        format,
+        seed=1,
+        first=0
+    ))]
     fn new(
         ruleset: PathBuf,
         player_one: Vec<String>,
         player_two: Vec<String>,
         deck: Vec<String>,
+        format: (usize, usize, usize),
         seed: u64,
         first: usize,
     ) -> PyResult<Self> {
@@ -40,12 +50,17 @@ impl GameSession {
             active: None,
             dice: DiceSet::default(),
         };
-        let game = Game::new(
+        let game = Game::new_match(
             runtime,
             GameConfig {
                 players: [player(player_one), player(player_two)],
                 first,
                 seed,
+            },
+            MatchFormat {
+                characters: format.0,
+                cards: format.1,
+                max_card_copies: format.2,
             },
         )
         .map_err(runtime_error)?;

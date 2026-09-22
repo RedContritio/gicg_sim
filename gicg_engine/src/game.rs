@@ -10,8 +10,8 @@ use crate::{
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
     Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
-    LuaRuntime, MergePolicy, ModifierState, Phase, PlayerId, Reaction, ReactionRecord, Result,
-    RuleContext, TargetSide, TargetState, Zone,
+    LuaRuntime, MatchFormat, MergePolicy, ModifierState, Phase, PlayerId, Reaction, ReactionRecord,
+    Result, RuleContext, TargetSide, TargetState, Zone,
     lua::resolve_target,
     reaction::{self, FROZEN},
 };
@@ -150,6 +150,15 @@ pub struct Game {
 }
 
 impl Game {
+    pub fn new_match(
+        runtime: Rc<LuaRuntime>,
+        config: GameConfig,
+        format: MatchFormat,
+    ) -> Result<Self> {
+        format.validate(runtime.rules(), &config)?;
+        Self::new(runtime, config)
+    }
+
     pub fn new(runtime: Rc<LuaRuntime>, config: GameConfig) -> Result<Self> {
         let seed = config.seed;
         let first = config.first;

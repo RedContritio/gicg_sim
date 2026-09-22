@@ -9,3 +9,4 @@ player_one = ["kaeya", "yae_miko", "alhaitham"]
 player_two = ["chiori", "mualani", "mavuika"]
 deck_card = "splash"
 deck_size = 15
+max_card_copies = 15
