@@ -222,6 +222,7 @@ CS6.1 已 merge by `cfg-toml-restructure-paradigm-scoped`),细化 detail
 seed = 42
 device = "cpu"
 paradigm = "dmc"
+experiment_tag = "dmc_v_phase2_stage3"
 run_label = "r013_dmc_v_phase2_stage3"
 
 [pipeline]

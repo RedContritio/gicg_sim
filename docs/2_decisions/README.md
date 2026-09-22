@@ -27,4 +27,4 @@ Early D1–D4 DSL API decisions remain in
 [`docs/5_history/decisions_legacy/`](../5_history/decisions_legacy/).
 
 For a new decision, start from [`_template.md`](_template.md), then follow the
-current OpenSpec workflow in [CLAUDE.md](../../CLAUDE.md).
+current OpenSpec workflow in [AGENTS.md](../../AGENTS.md).

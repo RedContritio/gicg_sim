@@ -73,7 +73,7 @@ def _run_train_placeholder(state: SetupState) -> None:
     invalidate those tests.
 
     The actual dispatch lives in :mod:`tools.runs._train.dispatch`
-    (split per CLAUDE.md 300-line pre-commit budget — Phase C close
+    (split per AGENTS.md pre-commit budget — Phase C close
     logic + paradigm dispatch don't fit in one file). The wrapper here
     is intentionally one line so a future maintainer cannot accidentally
     add behaviour that test monkeypatches would silently bypass.
@@ -243,6 +243,8 @@ def _close_metadata_atomic(artifacts_dir: Path, new_status: str, wall_seconds: f
             wall_seconds=float(wall_seconds),
             exit_code=int(exit_code),
             notes=current.notes,
+            experiment_tag=current.experiment_tag,
+            run_label=current.run_label,
         )
 
         payload = schema.dumps(updated)

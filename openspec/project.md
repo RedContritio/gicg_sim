@@ -6,8 +6,8 @@ schema_version: 0
 
 # GICG — Project Spec
 
-> OpenSpec project-level spec。**新 session 从这里看 spec 视角**;dev workflow
-> 视角看 `CLAUDE.md`;当前 phase 状态看 `docs/0_status/README.md`。
+> OpenSpec project-level spec。**新 session 从这里看 spec 视角**；开发协作
+> 规则看 `AGENTS.md`；当前阶段状态看 `docs/0_status/README.md`。
 >
 > 本文件只描述 **稳定的项目立约**(architecture / invariants / paradigm
 > landscape current state),不替代 ADR / runs registry / curriculum plan。
@@ -73,7 +73,7 @@ tools/               ← runs (paradigm dispatch) / _meta/send_matchup / eval_se
 - `docs/` — 当前状态、决策、计划、运行说明与历史证据；现行能力规约统一在 `openspec/specs/`
 - `openspec/` — 本 spec 系统:`specs/`(shipped contracts)+ `changes/`
   (in-flight proposals)+ `changes/archive/`(historical changes)
-- `artifacts/` — runs 输出:`YYYYMMDDHHMM_<NNNNNN>_<slug>/`,gitignored
+- `artifacts/` — 按实验系列 tag 分组的运行产物，gitignored
 
 **Dependency direction**(单向,无环):
 `training/` → `gicg_env/` → `gicg_engine`(via dylib);
@@ -129,11 +129,12 @@ tools/               ← runs (paradigm dispatch) / _meta/send_matchup / eval_se
 
 - 所有命令从 repo root 跑。
 - Python 用 `python -m <module>` 调用,不要 `python path/to/file.py`。
-- 脚本内路径 root-relative(如 `artifacts/checkpoints/...`)。
+- 脚本内路径使用仓库根目录相对路径。
 
 ### I8. Artifacts Naming
 
-- `artifacts/` 每个新式 run 子目录:`YYYYMMDDHHMM_<NNNNNN>_<slug>/`；时间戳为 UTC，编号为六位十进制序号。
+- `artifacts/` 顶层目录是 `experiment_tag`；同一系列的 seed、重试和评估共享同一个 tag。
+- 每个新式 run 目录为 `artifacts/<experiment_tag>/<YYYYMMDDHHMM>_<NNNNNN>/`；时间戳为 UTC，编号为六位十进制序号。
 - `python -m tools.runs.train <cfg>` 原子完成编号分配、目录创建、配置快照、训练和 metadata 收尾。
 - 每个目录自带 `metadata.toml`、`cfg_leaf.toml`、`cfg_resolved.toml`、`ckpts/`、`metrics.jsonl` 与可选 `tb/`；不存在并行的 live registry 文件。
 - 查看用 `tools.runs.list/show`，外部死亡用 `tools.runs.mark`，metadata 丢失用 `tools.runs.recover`，跨机元数据同步用 `tools.runs.sync`。Pre-redesign r001-r012 与 s001-s068 见 `docs/5_history/runs_pre_redesign_2026_05_17.md`。
@@ -167,7 +168,7 @@ tools/               ← runs (paradigm dispatch) / _meta/send_matchup / eval_se
 
 | 关注点 | 文档 | 备注 |
 |---|---|---|
-| Dev workflow / 工具调用 / pre-commit hook | [`/CLAUDE.md`](../CLAUDE.md) | 项目特定;LLM 每 session 注入 |
+| 开发流程 / 工具调用 / 提交检查 | [`/AGENTS.md`](../AGENTS.md) | 项目特定；每个 agent 会话注入 |
 | 跨项目协作风格 / 提交纪律 / 测试纪律 | 当前客户端注入的用户级指引 | 不属于仓库内容；不得作为项目事实引用 |
 | OpenSpec 文件约定 / 行数限制 / 命名 | `openspec/specs/openspec-policy/`(P0-T3) | 本 migration P0-T3 落盘 |
 | DSL 完整 API / counter 语义 / damage pipeline | [`openspec/specs/engine-dsl/`](specs/engine-dsl/spec.md) | DSL author 必读 |
@@ -175,7 +176,7 @@ tools/               ← runs (paradigm dispatch) / _meta/send_matchup / eval_se
 | Env 接口 / obs schema | `openspec/specs/env-config/` | RL 集成必读 |
 | 决策日志 ADR | `docs/2_decisions/adr-NNNN-*.md` | 历史决策可追溯 |
 | 当前 phase / 下一步 | `docs/0_status/README.md` | LIVE,事件发生同 commit 更新 |
-| Run lifecycle (live) | `tools.runs.{train,list,show,mark,recover,sync}` CLI | 每个 `artifacts/<ts>_<NNNNNN>_<label>/metadata.toml` 自包含；`train` 原子创建并收尾 |
+| Run lifecycle (live) | `tools.runs.{train,list,show,mark,recover,sync}` CLI | 每个 `artifacts/<experiment_tag>/<ts>_<NNNNNN>/metadata.toml` 自包含；`train` 原子创建并收尾 |
 | Run registry (pre-redesign archive) | `docs/5_history/runs_pre_redesign_2026_05_17.md` | r001-r012 + s001-s068 frozen snapshot |
 
 历史 changes / ADR-to-OpenSpec 迁移:见 `openspec/changes/archive/`。
@@ -194,7 +195,7 @@ tools/               ← runs (paradigm dispatch) / _meta/send_matchup / eval_se
 - 当前 phase / WIP 状态 → `docs/0_status/`
 - ADR(历史决策叙述)→ `docs/2_decisions/`(P1 选择性迁移到 archive)
 - Run 注册表 / 实验数据 → `docs/4_runs/`、`artifacts/`
-- Dev workflow / 提交 / hook → `CLAUDE.md`
+- 开发流程 / 提交 / hook → `AGENTS.md`
 - LLM 私有上下文可以辅助工作，但不是项目事实来源。任何影响接手、实现、
   运行或验收的事实必须写入本仓库的 spec、状态页、历史报告或代码注释。
 

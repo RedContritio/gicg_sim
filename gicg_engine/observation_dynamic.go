@@ -127,8 +127,8 @@ func (g *Game) BuildDynamicObs(perspective int) []int32 {
 // -1 = real "no actor" (DSL summon / 反射 path) preserved; 0/1 swapped
 // to 0=self / 1=enemy when perspective=1.
 //
-// Round-6 S-4: panic on absPlayer ∉ {-1, 0, 1} per CLAUDE.md "意外输入
-// 必须抛异常";原 silent-fall-through-to-1 是 dead defensive。
+// Round-6 S-4: absPlayer ∉ {-1, 0, 1} 时必须 panic；原先静默落到 1
+// 的分支属于无效防御代码。
 func relativePlayer(absPlayer, perspective int) int32 {
 	if absPlayer == -1 {
 		return -1

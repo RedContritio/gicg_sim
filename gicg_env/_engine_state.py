@@ -74,6 +74,13 @@ class _EngineStateMixin:
         if self._lib.GameSetSimulationSeed(self._handle, seed) < 0:
             raise RuntimeError('Failed to set simulation seed')
 
+    def advance_simulation_dice_draws(self, count: int):
+        self._check()
+        if count < 0:
+            raise ValueError('simulation dice draw count must be non-negative')
+        if self._lib.GameAdvanceSimulationDiceDraws(self._handle, count) < 0:
+            raise RuntimeError('Failed to advance simulation dice draws')
+
     def log_suspend(self):
         """Detach the event log so subsequent engine events aren't
         recorded. Use around MCTS rollouts (or any speculative forward

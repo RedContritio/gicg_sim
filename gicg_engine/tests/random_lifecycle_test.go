@@ -58,6 +58,21 @@ func TestRandom_CloneIsolationAndExplicitSimulationSeed(t *testing.T) {
 	}
 }
 
+func TestRandom_AdvanceSimulationDiceDrawsAlignsBranches(t *testing.T) {
+	env := NewGameWithDeck(t, []string{"赤蝶"}, []string{"刻师傅"})
+	a, b := env.RT.Clone(), env.RT.Clone()
+	a.Game.SetSimulationSeed(700)
+	b.Game.SetSimulationSeed(700)
+	for range 3 {
+		a.Game.Rng.Intn(engine.DiceColorCount)
+	}
+	a.Game.AdvanceSimulationDiceDraws(5)
+	b.Game.AdvanceSimulationDiceDraws(8)
+	if a.Game.Rng.Uint64() != b.Game.Rng.Uint64() {
+		t.Fatal("simulation dice top-up did not align future randomness")
+	}
+}
+
 func TestLifecycle_RepeatedBranchExecution(t *testing.T) {
 	env := NewGameWithDeck(t, []string{"赤蝶", "墨客"}, []string{"刻师傅", "猫咪"})
 	g := env.G

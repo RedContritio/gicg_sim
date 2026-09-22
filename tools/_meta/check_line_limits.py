@@ -9,7 +9,7 @@ Code files:
   - Other Python / Go files:                              300 lines, no byte cap
 
 Repo-root docs:
-  - ``CLAUDE.md`` (injected into every LLM context):      200 lines / 30 KB
+  - ``AGENTS.md`` (injected into every agent context):     200 lines / 30 KB
 
 OpenSpec artifacts (REJECT / hard fail thresholds, see
 ``openspec/specs/openspec-policy/thresholds.md`` for the WARNING /
@@ -54,7 +54,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 # (line_limit, byte_limit) — None means no cap on that axis.
 RULES: List[Tuple[str, Tuple[int, Optional[int]]]] = [
     # Order matters: first matching rule wins. Most-specific first.
-    ('CLAUDE.md_exact', (200, 30 * 1024)),
+    ('AGENTS.md_exact', (200, 30 * 1024)),
     ('py_test', (500, None)),
     ('py_prod', (300, None)),
     ('go_test', (500, None)),
@@ -70,7 +70,7 @@ RULES: List[Tuple[str, Tuple[int, Optional[int]]]] = [
     ('openspec_change_tasks_top', (600, 50 * 1024)),
     ('openspec_change_tasks_sub', (500, 50 * 1024)),
     ('openspec_change_spec_delta', (350, 50 * 1024)),
-    # docs/now.md — LIVE 状态快照,与 CLAUDE.md 同字节档(30 KB)。
+    # docs/now.md — LIVE 状态快照,与 AGENTS.md 同字节档(30 KB)。
     ('docs_now', (350, 30 * 1024)),
     ('docs_md', (500, 50 * 1024)),
 ]
@@ -132,8 +132,8 @@ def _rule_for(path: Path) -> Optional[Tuple[int, Optional[int]]]:
     name = rel.name
     parts = rel.parts
     rules_dict = dict(RULES)
-    if name == 'CLAUDE.md' and '/' not in str(rel):
-        return rules_dict['CLAUDE.md_exact']
+    if name == 'AGENTS.md' and '/' not in str(rel):
+        return rules_dict['AGENTS.md_exact']
     if rel.suffix == '.py':
         is_test = 'tests' in parts or name.startswith('test_') or name.endswith('_test.py')
         return rules_dict['py_test' if is_test else 'py_prod']

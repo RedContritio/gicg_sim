@@ -17,6 +17,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from tools.runs._helpers.paths import iter_run_dirs
+
 _DIGITS_RE = re.compile(r'^[0-9]{1,6}$')
 
 
@@ -60,7 +62,6 @@ def resolve_nnn_to_dir(repo_root: Path, nnn: str) -> Path:
         raise ValueError(f'NNN {nnn!r} must be 1-6 digit string')
 
     nnn_padded = nnn.zfill(6)
-    artifacts_dir = repo_root / 'artifacts'
     # Anchored regex ``^\d{12}_<padded>_`` per spec dir convention
     # `<ts>_<NNNNNN>_<label>` — the ``\d{12}`` prefix guard ensures
     # legacy pre-redesign dirs (e.g. ``r001_old/``,
@@ -68,18 +69,15 @@ def resolve_nnn_to_dir(repo_root: Path, nnn: str) -> Path:
     # skip. Built via concat (not ``.format``) since the regex itself
     # contains ``{12}`` quantifier braces that would clash with
     # ``str.format`` placeholder syntax.
-    pattern = re.compile(r'^\d{12}_' + nnn_padded + r'_')
+    pattern = re.compile(r'^\d{12}_' + nnn_padded + r'(?:_|$)')
 
     candidates: list[Path] = []
-    if artifacts_dir.exists():
-        for entry in artifacts_dir.iterdir():
-            if not entry.is_dir():
-                continue
-            if pattern.match(entry.name):
-                candidates.append(entry)
+    for entry in iter_run_dirs(repo_root):
+        if pattern.match(entry.name):
+            candidates.append(entry)
 
     if not candidates:
-        raise LookupError(f'NNN not found: {nnn_padded} (scanned {artifacts_dir})')
+        raise LookupError(f'NNN not found: {nnn_padded} (scanned {repo_root / "artifacts"})')
 
     if len(candidates) >= 2:
         sorted_names = sorted(c.name for c in candidates)

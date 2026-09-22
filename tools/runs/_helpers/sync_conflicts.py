@@ -28,9 +28,14 @@ RSYNC_FLAGS: tuple[str, ...] = (
     '--include=artifacts/*/metadata.toml',
     '--include=artifacts/*/cfg_resolved*.toml',
     '--include=artifacts/*/cfg_leaf*.toml',
+    '--include=artifacts/*/*/',
+    '--include=artifacts/*/*/metadata.toml',
+    '--include=artifacts/*/*/cfg_resolved*.toml',
+    '--include=artifacts/*/*/cfg_leaf*.toml',
     '--exclude=artifacts/.authoritative_host',
     '--exclude=artifacts/.run_id_lock',
     '--exclude=artifacts/*/.metadata_lock',
+    '--exclude=artifacts/*/*/.metadata_lock',
     '--exclude=*',
 )
 
@@ -99,10 +104,14 @@ def _excludes_for_conflicts(rows: list[ConflictRow], *, direction: str) -> list[
     push → exclude ``remote_newer`` rows (don't overwrite remote-fresher).
     pull → exclude ``local_newer`` rows (symmetric). ``equal`` raises
     upstream; ``only_*`` and the winning side need no exclude. ``direction``
-    is pre-validated by callers (no defensive recheck per CLAUDE.md §2).
+    is pre-validated by callers。
     """
     bad = 'remote_newer' if direction == 'push' else 'local_newer'
-    return [f'--exclude=artifacts/*_{row.nnn}_*/' for row in rows if row.resolution == bad]
+    excludes: list[str] = []
+    for row in rows:
+        if row.resolution == bad:
+            excludes.extend((f'--exclude=artifacts/*_{row.nnn}_*/', f'--exclude=artifacts/*/*_{row.nnn}/'))
+    return excludes
 
 
 def build_rsync_cmd(

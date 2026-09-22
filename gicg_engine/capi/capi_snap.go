@@ -59,6 +59,17 @@ func GameSetSimulationSeed(id C.int, seed C.longlong) C.int {
 	return 0
 }
 
+//export GameAdvanceSimulationDiceDraws
+func GameAdvanceSimulationDiceDraws(id C.int, count C.int) C.int {
+	defer recoverRuleError(id)
+	h := getHandle(int(id))
+	if h == nil || !h.Game.IsQuiescent() || count < 0 {
+		return -1
+	}
+	h.Game.AdvanceSimulationDiceDraws(int(count))
+	return 0
+}
+
 //export GameSnapshotFree
 func GameSnapshotFree(snapID C.int) {
 	snapMu.Lock()
@@ -82,11 +93,12 @@ func GameLogSuspend(id C.int) C.int {
 	if h == nil {
 		return -1
 	}
-	if h.SuspendedLog != nil {
+	if h.LogSuspended {
 		return -2
 	}
 	h.SuspendedLog = h.Game.Log
 	h.Game.Log = nil
+	h.LogSuspended = true
 	return 0
 }
 
@@ -102,10 +114,11 @@ func GameLogResume(id C.int) C.int {
 	if h == nil {
 		return -1
 	}
-	if h.SuspendedLog == nil {
+	if !h.LogSuspended {
 		return -2
 	}
 	h.Game.Log = h.SuspendedLog
 	h.SuspendedLog = nil
+	h.LogSuspended = false
 	return 0
 }

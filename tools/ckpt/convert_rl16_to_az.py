@@ -1,4 +1,8 @@
-"""Convert RL16 (semantic_rl run 000055 iteration_16) → AZ warm-start ckpt.
+"""Extract compatible RL16 tensors into an AZ warm-start checkpoint.
+
+This is a lossy parameter transplant, not a behavior-preserving conversion.
+SemanticQNet's relation layers and semantic forward path are not represented by
+the generic AZ network. Use the output only for controlled historical studies.
 
 Mapping (verified shape-exact 09-19):
 - 'base.X' -> 'X'                      : 149 shared trunk/encoder keys
@@ -9,7 +13,7 @@ Mapping (verified shape-exact 09-19):
                                          ExIt retrains value from z anyway)
 - 'heads.delta.head.*'                 : fresh init (delta aux head)
 
-Usage: .venv/bin/python tools/ckpt/convert_rl16_to_az.py <rl16.pt> <out.pt>
+Usage: .venv/bin/python -m tools.ckpt.convert_rl16_to_az <rl16.pt> <out.pt>
 """
 
 import sys
@@ -65,6 +69,7 @@ def convert(src_path: str, out_path: str) -> None:
             out[k] = az_sd[k].clone()
             n_fresh += 1
     print(f'shared={n_shared} policy_from_q={n_policy} kept_fresh_init={n_fresh}')
+    print('warning: semantic RL and AZ forward paths are not behaviorally equivalent')
 
     blob = {
         'net_state_dict': out,
@@ -79,6 +84,8 @@ def convert(src_path: str, out_path: str) -> None:
             'n_cross_layers': cfg.n_cross_layers,
         },
         'cfg_run_label': 'rl16_warmstart',
+        'behaviorally_equivalent_to_source': False,
+        'conversion_kind': 'lossy_parameter_transplant',
     }
     save_checkpoint(blob, out_path)
     print(f'-> {out_path}')

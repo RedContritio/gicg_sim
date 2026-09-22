@@ -128,6 +128,7 @@ def evaluate(
     opponent_depth=1,
     variants=None,
     player_spec=None,
+    allow_unverified_checkpoint=False,
 ):
     if opponent_depth not in (1, 2):
         raise ValueError('opponent depth must be 1 or 2')
@@ -137,6 +138,8 @@ def evaluate(
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     cfg = load_cfg(config)
+    if player_spec is None and allow_unverified_checkpoint:
+        player_spec = {'type': 'semantic_rl', 'ckpt': str(checkpoint), 'allow_unverified_checkpoint': True}
     cases = eval_cases(cfg, seed, scenarios)
     jobs = [
         (i, side, layout, case, seed, variants)
@@ -222,6 +225,7 @@ if __name__ == '__main__':
     p.add_argument('--workers', type=int, default=8)
     p.add_argument('--seed', type=int, default=124000)
     p.add_argument('--opponent-depth', type=int, choices=(1, 2), default=1)
+    p.add_argument('--allow-unverified-checkpoint', action='store_true')
     p.add_argument(
         '--player-spec',
         type=str,
@@ -247,4 +251,5 @@ if __name__ == '__main__':
         a.opponent_depth,
         player_spec=spec,
         variants=a.variants,
+        allow_unverified_checkpoint=a.allow_unverified_checkpoint,
     )

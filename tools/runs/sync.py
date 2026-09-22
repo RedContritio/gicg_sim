@@ -7,9 +7,10 @@ Clean-slate rewrite per
 CRIT-5-A (T-19) / §Authoritative HIGH-2-D (T-19) /
 §Include-exclude / §IPv6 HIGH-6-B (T-19).
 
-Transferred: ``artifacts/*/{metadata.toml,cfg_resolved*.toml,cfg_leaf*.toml}``.
+Transferred: tagged ``artifacts/*/*/{metadata.toml,cfg_resolved*.toml,cfg_leaf*.toml}``
+and legacy direct run metadata/config snapshots.
 Never transferred (excluded): ``artifacts/{.authoritative_host,.run_id_lock}``,
-``artifacts/*/.metadata_lock``, plus all of ``ckpts/`` / ``metrics.jsonl`` /
+``artifacts/*/.metadata_lock`` and tagged run locks, plus all of ``ckpts/`` / ``metrics.jsonl`` /
 ``tb/`` (catch-all ``--exclude=*``).
 
 Conflict resolution: per-NNN ``metadata.timestamp`` compare (not mtime —

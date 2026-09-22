@@ -118,7 +118,7 @@ status: ACTIVE
 
 ## 验证与运行注意
 
-执行命令遵循 `CLAUDE.md`，Python 从根目录以模块运行；远程使用既有 wrappers。
+执行命令遵循 `AGENTS.md`，Python 从根目录以模块运行；远程使用既有 wrappers。
 网络架构变化需要五范式完整 smoke，期间保持生产源不变，以免来源指纹缓存与续训不一致。
 测试若被本机端口/共享内存权限阻止，应区分环境问题与代码失败。
 v8/v9 广泛回归显式排除未修改的 `test_budget_uncapped_equals_old_const` 无上限 minimax 用例；

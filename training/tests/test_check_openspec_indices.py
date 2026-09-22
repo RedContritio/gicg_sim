@@ -3,7 +3,7 @@
 Covers R1 (主 spec Subtopics 索引完整) + R2 (索引链有效)
 + R3 (change 三件套) + R5 (subtopic 文件不被当主 spec 扫描).
 
-Tests use ``tmp_path`` fixtures to be xdist-safe per CLAUDE.md n=4.
+Tests use ``tmp_path`` fixtures to be xdist-safe with four workers.
 The final test runs against the real repo ``openspec/`` tree as a
 smoke test that the policy spec itself is index-clean.
 """

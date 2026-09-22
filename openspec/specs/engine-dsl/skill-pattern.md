@@ -36,8 +36,7 @@ SHALL NOT silently create。
 
 ### 1.2 Skill identity
 
-Skill index SHALL be globally unique auto-increment(详
-`CLAUDE.md "Core Model"` 段)。`ctx.skill_index` SHALL be sufficient
+Skill index SHALL be globally unique auto-increment。`ctx.skill_index` SHALL be sufficient
 to identify any skill。
 
 Skill identity 比较 SHALL be by ref equality(pointer identity):

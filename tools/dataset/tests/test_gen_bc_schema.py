@@ -226,7 +226,7 @@ def test_legacy_paradigm_field_in_cfg_is_ignored_or_unused(legacy_field: str) ->
 
 
 def test_unknown_cfg_key_raises(tmp_path) -> None:
-    """Per CLAUDE.md "意外输入必须抛异常":a stale or typo cfg key(e.g.
+    """A stale or typo cfg key (e.g.
     ``teacher_paradigm`` from pre-dedupe era,or ``paradigm`` from variant
     dispatcher era)SHALL raise loudly at main() entry,not silently produce
     AZ-shape data while user thinks PPO-shape is being honoured。

@@ -96,6 +96,10 @@ def _format_metadata(meta: schema.RunMetadata) -> str:
     for field in _FIELD_ORDER:
         value = getattr(meta, field)
         lines.append(f'{field}: {value}')
+    for field in ('experiment_tag', 'run_label'):
+        value = getattr(meta, field, '')
+        if value:
+            lines.append(f'{field}: {value}')
     return '\n'.join(lines)
 
 

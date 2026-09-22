@@ -27,6 +27,9 @@ def main():
     p.add_argument('--rule-stride', type=int, default=4)
     p.add_argument('--learning-rate', type=float, default=1e-5)
     p.add_argument('--anchor-beta', type=float, default=0.02)
+    p.add_argument('--reroll-fraction', type=float, default=1 / 3)
+    p.add_argument('--allow-unverified-checkpoint', action='store_true')
+    p.add_argument('--no-dev-eval', action='store_true')
     a = p.parse_args()
     run(
         a.config,
@@ -50,6 +53,9 @@ def main():
         rule_stride=a.rule_stride,
         learning_rate=a.learning_rate,
         anchor_beta=a.anchor_beta,
+        reroll_fraction=a.reroll_fraction,
+        allow_unverified_checkpoint=a.allow_unverified_checkpoint,
+        evaluate_dev=not a.no_dev_eval,
     )
 
 

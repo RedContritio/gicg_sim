@@ -33,13 +33,10 @@ multiset — the union of hand+deck refs, which is public knowledge in
 this game; the sampler then re-partitions it randomly).
 
 Value-head semantics (confirmed against value_baseline.py + rl_rollout.py):
-the head is trained on observations captured at the acting player's own
-decision points (``env._get_obs()`` is acting-player-relative) with the
-terminal outcome from that same player's perspective
-(``terminal_outcome(winner, side)``), i.e. the output is approximately
-P(win) of the **acting player at observation time** (1 = win, 0 = loss,
-0.5 = draw). At leaves where the acting player is not ``me`` we therefore
-return ``1 - value``.
+the persisted RL head uses signed terminal outcome (1 = win, -1 = loss,
+0 = draw) for the acting player. ``_value_me`` converts it to expected
+score for search and flips it when the leaf acting player is not
+``me``.
 """
 
 from __future__ import annotations
@@ -48,7 +45,7 @@ import random
 import time
 
 from gicg_env import GicgEnv
-from tools.experiments.semantic_training.value_baseline import predict
+from tools.experiments.semantic_training.value_baseline import predict, signed_to_expected_score
 from training.core.matchup.greedy_dice import filter_logical_actions
 from training.core.matchup.greedy_player import GreedyPlayer
 from training.core.matchup.greedy_reroll import reroll_choice
@@ -238,17 +235,18 @@ class SearchPlayer:
         return self._value_me(env, me)
 
     def _value_me(self, env: GicgEnv, me: int) -> float:
-        """Value-head read converted to ``me``'s win probability.
+        """Value-head read converted to ``me``'s expected score.
 
-        The head predicts the acting player's win probability at the
-        observation; negate when the leaf acting player is the opponent
-        (draw 0.5 is invariant under 1 - v)."""
+        The head predicts the acting player's signed outcome at the
+        observation; convert it and flip when the leaf acting player is the
+        opponent."""
         obs = self.agent.observation(env)
         if not obs:
             # Non-terminal state with zero legal actions: engine deadlock
             # guard; treat as a neutral leaf rather than crashing search.
             return 0.5
         _, value = predict(self.agent, obs)
+        value = signed_to_expected_score(value)
         return value if env.acting_player == me else 1.0 - value
 
     @staticmethod

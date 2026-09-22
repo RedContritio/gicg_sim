@@ -50,6 +50,8 @@ def run(
     rule_stride=4,
     learning_rate=1e-5,
     anchor_beta=0.02,
+    reroll_fraction=1 / 3,
+    allow_unverified_checkpoint=False,
     evaluate_dev=True,
 ):
     if not math.isfinite(learning_rate) or learning_rate <= 0:
@@ -58,11 +60,11 @@ def run(
         raise ValueError('invalid rule auxiliary settings')
     if episodes < 2 or episodes % 2 or iterations < 1:
         raise ValueError('positive iterations and an even episode count >=2 required')
-    if not math.isfinite(temperature) or temperature <= 0:
-        raise ValueError('temperature must be finite and positive')
+    if not math.isfinite(temperature) or temperature <= 0 or not 0 < reroll_fraction < 1:
+        raise ValueError('invalid temperature or reroll_fraction')
     if variants and episodes % 4:
         raise ValueError('variant mixture requires episodes divisible by four')
-    initial = load_semantic_payload(checkpoint)
+    initial = load_semantic_payload(checkpoint, verify_provenance=not allow_unverified_checkpoint)
     consequence_policy = initial['format'] == CONSEQUENCE_FORMAT
     if consequence_policy and rule_beta:
         raise ValueError('frozen consequence policy cannot train a separate auxiliary head')
@@ -81,17 +83,17 @@ def run(
     torch.set_num_threads(1)
     torch.manual_seed(seed + 1)
     shape = AgentConfig(**initial['shape'])
-    agent = load_semantic_agent(checkpoint, device=device)
-    anchor = load_semantic_agent(checkpoint, device=device)
+    agent = load_semantic_agent(checkpoint, device=device, verify_provenance=not allow_unverified_checkpoint)
+    anchor = load_semantic_agent(checkpoint, device=device, verify_provenance=not allow_unverified_checkpoint)
     anchor.net.requires_grad_(False)
     optimizer = torch.optim.AdamW(
         [p for p in agent.net.parameters() if p.requires_grad], lr=learning_rate, weight_decay=0
     )
     value_optimizer = None
     if value_baseline:
-        from tools.experiments.semantic_training.value_baseline import attach
+        from tools.experiments.semantic_training.value_baseline import make_optimizer, signed_value_head_state
 
-        value_optimizer = torch.optim.AdamW(attach(agent).parameters(), lr=0.0003, weight_decay=0)
+        value_optimizer = make_optimizer(agent, signed_value_head_state(initial))
     rule_optimizer = None
     if rule_beta:
         from tools.experiments.semantic_training.rule_auxiliary import attach as attach_rule
@@ -120,6 +122,7 @@ def run(
         opponent_depth=opponent_depth,
         value_baseline=value_baseline,
         temperature=temperature,
+        reroll_fraction=reroll_fraction,
     )
     scenario = asdict(load_cfg(config).scenario)
     if consequence_policy:
@@ -155,7 +158,9 @@ def run(
             agent.rule_head.load_state_dict(previous['rule_head'])
             rule_optimizer.load_state_dict(previous['rule_optimizer'])
         if value_baseline:
-            agent.value_head.load_state_dict(previous['value_head'])
+            from tools.experiments.semantic_training.value_baseline import signed_value_head_state
+
+            agent.value_head.load_state_dict(signed_value_head_state(previous))
             value_optimizer.load_state_dict(previous['value_optimizer'])
         rng.setstate(previous['rng'])
         torch.set_rng_state(previous['torch_rng'])
@@ -194,6 +199,9 @@ def run(
             'algorithm': status['algorithm'],
             'anchor_sha256': anchor_sha,
             'settings': settings,
+            'value_encoding': 'signed_outcome',
+            'value_perspective': 'acting_player',
+            'return_definition': 'terminal_signed_outcome',
         }
         if consequence_policy:
             payload['use_consequences'] = initial['use_consequences']
@@ -237,6 +245,7 @@ def run(
                 rule_optimizer=rule_optimizer,
                 rule_beta=rule_beta,
                 anchor_beta=anchor_beta,
+                reroll_fraction=reroll_fraction,
             )
             for side in (0, 1):
                 rewards = [r['reward'] for r in records if r['side'] == side]

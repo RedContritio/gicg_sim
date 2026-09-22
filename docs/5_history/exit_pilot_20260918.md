@@ -357,9 +357,9 @@ argmax 与 MCTS16 两层均 0 胜 [0,0]，双边全负、平均第 6 回合被�
 
 ## Web 端能力更新（09-19 20:05）：可对战的当前冠军模型
 
-- 此前 `artifacts/live_models/semantic_rl/` 槽位为空 → web 只有随机
+- 此前 `artifacts/exit_az/release/semantic_rl/` 槽位为空 → web 只有随机
   练习模式。本次部署 **RL16 热启动 AZ ckpt**（当前最强模型）到新槽位
-  `artifacts/live_models/az_exit/`（model.pt + evaluation.json，36.8% vs
+  `artifacts/exit_az/release/az_exit/`（model.pt + evaluation.json，36.8% vs
   F1-D2，220 局，seed 96600）。
 - `web/backend/semantic_live.py`：live 服务类型从硬编码 semantic_rl
   扩展到 `semantic_rl | az`（报告 sha/指纹/场景校验链不变；az 跳过
@@ -413,7 +413,7 @@ argmax 与 MCTS16 两层均 0 胜 [0,0]，双边全负、平均第 6 回合被�
   ExIt v2**：① AZLoss 新增锚定蒸馏（train.anchor_beta/anchor_ckpt，对冻结
   参考策略 CE，惰性构建缓存；0×-inf nan 坑已修，数学收敛已单测）；
   ② configs/az/exit_ws_anchor.toml（lr 3e-4、anchor_beta 0.3、anchor 指向
-  已部署的 artifacts/warmstart_rl16.pt）。41 项相关测试过。
+  已部署的 artifacts/exit_az/inputs/warmstart_rl16.pt）。41 项相关测试过。
 - 待用户拍板：ep256 终局曲线确认劣化后启动 v2。
 
 ## run 000080 终局裁决（09-20 05:50）：无锚 ExIt 热启动判负，v2 申请提交
@@ -437,7 +437,7 @@ argmax 与 MCTS16 两层均 0 胜 [0,0]，双边全负、平均第 6 回合被�
   锚到 RL16 + z 目标），全部就绪（loss 改动单测过、cfg 已建、anchor ckpt
   已在 56），56 空闲即可一键发。
 - 09-20 06:00 预备动作：warmstart ckpt 已按当前源码指纹重建并重新部署
-  56（artifacts/warmstart_rl16.pt）——v2 resume 不会因指纹再卡。等用户
+  56（artifacts/exit_az/inputs/warmstart_rl16.pt）——v2 resume 不会因指纹再卡。等用户
   拍板即一键发锚定臂。
 
 ## 锚定 ExIt v2 启动（09-20 11:50，用户已授权）

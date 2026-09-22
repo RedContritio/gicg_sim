@@ -22,7 +22,15 @@ from tools.experiments.semantic_training.train_value import (
     _to_target,
     run,
 )
-from tools.experiments.semantic_training.value_baseline import attach, predict
+from tools.experiments.semantic_training.value_baseline import (
+    EXPECTED_SCORE,
+    SIGNED_OUTCOME as VALUE_SIGNED,
+    WIN_PROBABILITY,
+    attach,
+    convert_value_head_state,
+    make_optimizer,
+    predict,
+)
 from training.core.artifact_io import save_checkpoint
 from training.core.config.loader import load_cfg
 from training.core.env_factory import make_env_factory
@@ -135,15 +143,15 @@ def test_signal_rewards_learn_and_artifacts_load(tmp_path):
     rows_per_env = 4
     obs_list = _collect_obs(agent, 30, rows_per_env, seed=74000)
     n_episodes = len(obs_list) // rows_per_env
-    # Terminal outcome correlates with the episode's total legal-action dice cost.
-    ep_feature = [float(obs_list[ep * rows_per_env]['action_payments'].sum()) for ep in range(n_episodes)]
-    threshold = sorted(ep_feature)[int(n_episodes * 0.3)]
+    low = min(obs_list, key=lambda obs: float(obs['meta'].sum()))
+    high = max(obs_list, key=lambda obs: float(obs['meta'].sum()))
+    obs_list = [high if ep % 2 else low for ep in range(n_episodes) for _ in range(rows_per_env)]
     rollouts = tmp_path / 'rollouts'
     _write_episodes(
         rollouts,
         obs_list,
         rows_per_env,
-        lambda ep, _o: 1.0 if ep_feature[ep] > threshold else 0.0,
+        lambda ep, _o: float(ep % 2),
     )
     output = tmp_path / 'out'
     report = run(
@@ -169,6 +177,9 @@ def test_signal_rewards_learn_and_artifacts_load(tmp_path):
 
     # agent_with_value.pt preserves the original envelope and swaps only value_head.
     payload = load_semantic_payload(output / 'agent_with_value.pt')
+    assert payload['value_encoding'] == EXPECTED_SCORE
+    assert payload['value_perspective'] == 'acting_player'
+    assert payload['return_definition'] == 'terminal_expected_score'
     original = load_semantic_payload(ckpt)
     assert payload['format'] == original['format']
     assert payload['shape'] == original['shape']
@@ -180,6 +191,38 @@ def test_signal_rewards_learn_and_artifacts_load(tmp_path):
     reloaded = load_semantic_agent(str(output / 'agent_with_value.pt'))
     _logits, value = predict(reloaded, obs_list[0])
     assert math.isfinite(value)
+
+
+def test_value_optimizer_restores_checkpoint_head(tmp_path):
+    ckpt = _make_agent(tmp_path)
+    payload = load_semantic_payload(ckpt)
+    expected = {key: value.clone() for key, value in payload['value_head'].items()}
+    agent = load_semantic_agent(ckpt)
+    make_optimizer(agent, expected)
+    for key, value in agent.value_head.state_dict().items():
+        assert torch.equal(value, expected[key])
+
+
+def test_value_encoding_conversion_and_probability_checkpoint_loader(tmp_path):
+    ckpt = _make_agent(tmp_path)
+    payload = load_semantic_payload(ckpt, verify_provenance=False)
+    probability = {key: value.clone() for key, value in payload['value_head'].items()}
+    probability['layers.2.bias'].fill_(0.25)
+    signed = convert_value_head_state(probability, WIN_PROBABILITY, VALUE_SIGNED)
+    assert torch.equal(signed['layers.2.bias'], torch.tensor([-0.5]))
+    restored = convert_value_head_state(signed, VALUE_SIGNED, WIN_PROBABILITY)
+    torch.testing.assert_close(restored['layers.2.bias'], probability['layers.2.bias'])
+    canonical = convert_value_head_state(probability, WIN_PROBABILITY, EXPECTED_SCORE)
+    torch.testing.assert_close(canonical['layers.2.bias'], probability['layers.2.bias'])
+    canonical_signed = convert_value_head_state(canonical, EXPECTED_SCORE, VALUE_SIGNED)
+    torch.testing.assert_close(canonical_signed['layers.2.bias'], signed['layers.2.bias'])
+    payload['value_head'] = probability
+    payload['value_encoding'] = WIN_PROBABILITY
+    path = tmp_path / 'probability.pt'
+    save_checkpoint(payload, path)
+    loaded = load_semantic_agent(path)
+    assert loaded.value_encoding == VALUE_SIGNED
+    torch.testing.assert_close(loaded.value_head.layers[-1].bias, torch.tensor([-0.5]))
 
 
 def test_invalid_reward_rejected(tmp_path):
@@ -197,3 +240,25 @@ def test_unmarked_zero_reward_requires_explicit_encoding(tmp_path):
     torch.save([{'obs': {}, 'reward': 0.0}], path)
     with pytest.raises(ValueError, match='ambiguous'):
         _resolve_reward_encoding([path], 'auto')
+
+
+def test_allow_unverified_checkpoint_is_forwarded_to_value_training(monkeypatch):
+    calls = []
+
+    def load_agent(path, *, device, verify_provenance):
+        calls.append(('agent', verify_provenance))
+        raise RuntimeError('stop after flag forwarding')
+
+    monkeypatch.setattr('tools.experiments.semantic_training.train_value.load_semantic_agent', load_agent)
+    monkeypatch.setattr('tools.experiments.semantic_training.train_value.plan_episodes', lambda *_args: [])
+    with pytest.raises(RuntimeError, match='stop after flag forwarding'):
+        run(
+            'configs/dmc/native_starter.toml',
+            'missing.pt',
+            [],
+            str(monkeypatch),
+            episodes=1,
+            device='cpu',
+            allow_unverified_checkpoint=True,
+        )
+    assert calls == [('agent', False)]

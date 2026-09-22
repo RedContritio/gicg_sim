@@ -1,7 +1,7 @@
 """Shared fixtures + helpers for the T-12 resume test suite.
 
 Split out of ``test_train_resume.py`` because the resume scope crossed
-the 500-line pytest file budget (CLAUDE.md pre-commit hook). The
+the 500-line pytest file budget (AGENTS.md pre-commit 约定). The
 ``_resume_fixtures`` module hosts the cwd-isolation autouse fixture, the
 train-step stub fixture, and the three test helpers (``_write_cfg`` /
 ``_make_args`` / ``_fresh_train`` / ``_make_dummy_ckpt``) that both

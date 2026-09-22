@@ -42,7 +42,7 @@ from training.core.step_encoding import pad_action_payments, pad_action_refs
 
 
 # Whitelist of legitimate top-level cfg keys (meta = opaque metadata namespace).
-# Stale keys (e.g. teacher_paradigm) SHALL raise per CLAUDE.md "意外输入必须抛异常".
+# Stale keys (e.g. teacher_paradigm) SHALL raise.
 _KNOWN_CFG_KEYS = frozenset(
     'run_label seed teacher teacher_dice_greedy opponent_mix target_decisions max_games max_actions'
     ' fix_dice teams card_pool max_rounds data_dir obs_mask deck_padding pool deck_0 deck_1 meta'.split()

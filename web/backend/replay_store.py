@@ -1,16 +1,13 @@
 """Index of replay files under artifacts/. Walked once at startup (or
 refreshed on demand) to populate the /api/replays list endpoint.
 
-Replay YAMLs live under:
-    artifacts/<session_id>/<curriculum_parts>/<stage>/replays/<scenario>.yaml
-    artifacts/<timestamp>_replays/go_tests/*.yaml   (Go test fixtures)
+Replay YAMLs live under a top-level experiment tag:
+    artifacts/web_live/sessions/<session_id>/web/replays/<scenario>.yaml
+    artifacts/<tag>/runs/<run_id>/<curriculum_parts>/<stage>/replays/<scenario>.yaml
 
-The <session_id> and <timestamp>_replays top dirs follow the
-``feedback_artifacts_naming`` convention: every direct child of
-artifacts/ is prefixed with a YYYYMMDDHHMM timestamp. The store
-records only metadata (path, session, stage, scenario) — the actual
-YAML is parsed lazily when the frontend requests a specific replay's
-state.
+The store records only metadata (path, session, stage, scenario) — the
+actual YAML is parsed lazily when the frontend requests a specific
+replay's state.
 """
 
 from __future__ import annotations
@@ -36,18 +33,15 @@ class ReplayEntry:
 def _classify(rel: Path) -> tuple[str, List[str], Optional[str], str]:
     """Parse artifacts/<...>/replays/<scenario>.yaml into (session, curriculum, stage, scenario).
 
-    Two shapes are recognized:
-    - artifacts/<session_id>/<curriculum...>/<stage>/replays/<scenario>.yaml
-    - artifacts/<timestamp>_replays/go_tests/<scenario>.yaml
+    Tagged Web sessions and training runs are normalized before the
+    session/curriculum/stage fields are derived.
     """
     parts = rel.parts
     scenario = rel.stem
-    # Go-test fixture dir: a timestamped child of artifacts/ whose name
-    # ends in "_replays" (e.g. 202604131620_replays) containing go_tests/.
-    if len(parts) >= 3 and parts[0].endswith('_replays') and parts[1] == 'go_tests':
-        return 'go_tests', [], None, scenario
-    # session-rooted: parts[0] = session_id, last parent before replays/ is
-    # the stage, anything between is curriculum nesting.
+    if len(parts) >= 3 and parts[:2] == ('web_live', 'sessions'):
+        parts = parts[2:]
+    elif len(parts) >= 3 and parts[1] == 'runs':
+        parts = parts[2:]
     if len(parts) < 4 or parts[-2] != 'replays':
         return 'unknown', [], None, scenario
     session_id = parts[0]

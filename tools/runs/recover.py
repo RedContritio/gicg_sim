@@ -58,14 +58,14 @@ from pathlib import Path
 
 from tools.runs import schema
 from tools.runs._helpers.metadata_io import write_metadata_atomic
-from tools.runs._helpers.paths import normalize_repo_relative
+from tools.runs._helpers.paths import RUN_DIR_RE, extract_meta_field, normalize_repo_relative
 
 
 # Dir-name shape per spec §Per-run 完全 self-contained ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
 # Same regex as ``list._RUN_DIR_RE`` — duplicated here (not imported) because
 # the modules sit at the same package layer and a cross-import would create
 # an accidental dependency from a rescue-path module to the display module.
-_DIR_NAME_RE = re.compile(r'^(\d{12})_(\d{6})_(.+)$')
+_DIR_NAME_RE = RUN_DIR_RE
 
 # Resume-versioned cfg files (spec §Resume 语义). v1 has no suffix;
 # v>=2 carries ``_v<N>`` suffix. Same regex as ``list._CFG_RESOLVED_V_RE``
@@ -133,7 +133,7 @@ def _ts_dir_to_iso(ts_compact: str) -> str:
 
 
 def _parse_dir_name(name: str) -> tuple[str, str, str]:
-    """Split ``<ts>_<NNN>_<label>`` into ``(nnn, label, ts_compact)``.
+    """Split either run-dir layout into ``(nnn, tag, ts_compact)``.
 
     Raises ``ValueError`` on shape mismatch — recover refuses to operate
     on dirs that do not match the per-run-dir convention (spec §Per-run 完全 self-contained); we
@@ -142,10 +142,10 @@ def _parse_dir_name(name: str) -> tuple[str, str, str]:
     m = _DIR_NAME_RE.match(name)
     if m is None:
         raise ValueError(
-            f'dir name {name!r} does not match <YYYYMMDDHHMM>_<NNNNNN>_<label>; '
+            f'dir name {name!r} does not match <YYYYMMDDHHMM>_<NNNNNN>[_<label>]; '
             f'cannot derive run_id / timestamp for recover'
         )
-    ts_compact, nnn, label = m.group(1), m.group(2), m.group(3)
+    ts_compact, nnn, label = name[:12], m.group(1), m.group(2) or ''
     return nnn, label, ts_compact
 
 
@@ -204,6 +204,11 @@ def recover_metadata(repo_root: Path, artifacts_dir: Path) -> schema.RunMetadata
     """
     if not artifacts_dir.is_dir():
         raise ValueError(f'not a directory: {artifacts_dir}')
+    artifacts_root = (repo_root / 'artifacts').resolve()
+    try:
+        artifacts_dir.resolve().relative_to(artifacts_root)
+    except ValueError as e:
+        raise ValueError(f'artifacts dir is outside repo root {repo_root}: {artifacts_dir}') from e
 
     metadata_path = artifacts_dir / 'metadata.toml'
     if metadata_path.exists():
@@ -220,15 +225,25 @@ def recover_metadata(repo_root: Path, artifacts_dir: Path) -> schema.RunMetadata
             f'(cfg snapshot is the only anchor for cfg_resolved_version)'
         )
 
-    nnn, _label, ts_compact = _parse_dir_name(artifacts_dir.name)
+    nnn, tag_from_name, ts_compact = _parse_dir_name(artifacts_dir.name)
+    if artifacts_dir.parent.name == 'artifacts':
+        experiment_tag = tag_from_name
+    else:
+        experiment_tag = artifacts_dir.parent.name
     timestamp_utc = _ts_dir_to_iso(ts_compact)
-
     # ``normalize_repo_relative`` enforces that ``artifacts_dir`` resolves
     # under ``repo_root`` — guards against recovering a dir that lives on
     # a different volume / outside the tree, which would write a metadata
     # whose ``artifacts_dir`` field cross-host sync cannot resolve.
     artifacts_dir_rel = normalize_repo_relative(artifacts_dir, repo_root, 'artifacts_dir')
-
+    run_label = tag_from_name
+    cfg_snapshot = artifacts_dir / (
+        'cfg_resolved.toml' if highest_version == 1 else f'cfg_resolved_v{highest_version}.toml'
+    )
+    try:
+        run_label = extract_meta_field(cfg_snapshot, 'run_label') or run_label
+    except (OSError, ValueError, TypeError):
+        pass
     metadata = schema.RunMetadata(
         run_id=nnn,
         timestamp=timestamp_utc,
@@ -241,6 +256,8 @@ def recover_metadata(repo_root: Path, artifacts_dir: Path) -> schema.RunMetadata
         wall_seconds=0.0,
         exit_code=0,
         notes=_RECOVER_NOTES,
+        experiment_tag=experiment_tag,
+        run_label=run_label,
     )
 
     # First-time write — no read-compare-write outer lock needed; helper

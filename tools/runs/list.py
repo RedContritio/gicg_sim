@@ -1,4 +1,4 @@
-"""``tools.runs.list`` — table view scanning ``artifacts/*/metadata.toml``.
+"""``tools.runs.list`` — table view scanning tagged run metadata.
 
 Clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``
@@ -6,8 +6,8 @@ Clean-slate redesign per
 
 Behavior:
 
-- Scan ``<repo>/artifacts/`` direct children; for each dir matching
-  ``^\\d{12}_(\\d{6})_<label>`` read ``<dir>/metadata.toml``.
+- Scan ``<repo>/artifacts/<experiment_tag>/`` run children and retain legacy
+  direct run directories; read each ``metadata.toml``.
 - ``--status`` / ``--paradigm`` filter (post-load).
 - ``paradigm`` derived live from the **highest-version**
   ``cfg_resolved*.toml`` ``meta.paradigm`` (spec §CLI list 细则 HIGH-1-B + §Resume 语义).
@@ -31,7 +31,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from tools.runs import schema
-from tools.runs._helpers.paths import RUN_DIR_RE, extract_meta_field
+from tools.runs._helpers.paths import RUN_DIR_RE, extract_meta_field, iter_run_dirs
 
 # Resume-versioned cfg files (spec §Resume 语义): v1 has no suffix,
 # v>=2 carries ``_v<N>`` suffix; latest version is current truth.
@@ -107,7 +107,7 @@ def _scan_one(run_dir: Path) -> _Row | None:
     metadata_path = run_dir / 'metadata.toml'
     m = RUN_DIR_RE.match(run_dir.name)
     nnn_from_dir = m.group(1) if m else '?'
-    label_from_dir = m.group(2) if m else run_dir.name
+    label_from_dir = m.group(2) if m and m.group(2) else run_dir.parent.name
 
     if not metadata_path.is_file():
         return None
@@ -126,7 +126,7 @@ def _scan_one(run_dir: Path) -> _Row | None:
         paradigm=_derive_paradigm(run_dir),
         timestamp=meta.timestamp,
         wall_seconds=meta.wall_seconds,
-        run_label=label_from_dir,
+        run_label=meta.run_label or label_from_dir,
         notes=meta.notes,
     )
 
@@ -153,11 +153,7 @@ def list_runs(
         return []
 
     rows: list[_Row] = []
-    for entry in artifacts_dir.iterdir():
-        if not entry.is_dir():
-            continue
-        if RUN_DIR_RE.match(entry.name) is None:
-            continue
+    for entry in iter_run_dirs(repo_root):
         row = _scan_one(entry)
         if row is None:
             continue

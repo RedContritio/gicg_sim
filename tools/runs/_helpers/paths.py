@@ -8,8 +8,8 @@ Covers spec §Public API helper 表:
 - R1 normalize_repo_relative: repo-rooted POSIX forward-slash form
 - R2 cfg_checksum: content-only SHA-256 ``sha256:<64-hex>``
 - R3 extract_meta_field: leaf-only TOML ``[meta]`` field reader
-- R8 RUN_DIR_RE: shared regex for ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``
-  run-dir name shape (single source of truth — list.py + sync_scan.py
+- R8 RUN_DIR_RE: shared regex for tagged ``<YYYYMMDDHHMM>_<NNNNNN>`` and
+  legacy ``<YYYYMMDDHHMM>_<NNNNNN>_<label>`` run-dir shapes (single source of truth — list.py + sync_scan.py
   both import this)
 
 Stdlib only. tomllib (Python ≥ 3.11) handles the TOML parse.
@@ -27,11 +27,52 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib  # type: ignore
 
-# Per spec §Per-run 完全 self-contained: ``<YYYYMMDDHHMM>_<NNNNNN>_<label>``.
-# Group 1 = NNN (6 digits); group 2 = label (free-form, ≥ 1 char).
-# Public — re-exported via tools.runs.helpers; replaces inline copies
-# previously in list.py + sync_scan.py (M-4 dedup, T-18 review).
-RUN_DIR_RE = re.compile(r'^\d{12}_(\d{6})_(.+)$')
+# New runs live at ``artifacts/<experiment_tag>/<timestamp>_<NNNNNN>/``.
+# The optional suffix keeps readers compatible with the pre-tag layout while
+# callers migrate existing repositories without moving their data.
+RUN_DIR_RE = re.compile(r'^\d{12}_(\d{6})(?:_(.+))?$')
+NEW_RUN_DIR_RE = re.compile(r'^\d{12}_(\d{6})$')
+
+
+def iter_run_dirs(repo_root: Path) -> list[Path]:
+    """Return new and legacy per-run directories under ``artifacts``.
+
+    Only the two supported layouts are considered; arbitrary artifact
+    directories are never treated as runs.
+    """
+    artifacts = repo_root / 'artifacts'
+    if not artifacts.is_dir():
+        return []
+    found: list[Path] = []
+    for entry in artifacts.iterdir():
+        if not entry.is_dir() or entry.name.startswith('.'):
+            continue
+        if RUN_DIR_RE.match(entry.name):
+            found.append(entry)
+            continue
+        for child in entry.iterdir():
+            if child.is_dir() and NEW_RUN_DIR_RE.match(child.name):
+                found.append(child)
+    return sorted(found)
+
+
+def run_dir_parts(run_dir: Path) -> tuple[str, str, str]:
+    """Return ``(nnn, timestamp, experiment_tag)`` for a run directory."""
+    match = RUN_DIR_RE.match(run_dir.name)
+    if match is None:
+        raise ValueError(f'not a run directory: {run_dir}')
+    timestamp, nnn, legacy_label = match.group(0)[:12], match.group(1), match.group(2)
+    tag = legacy_label or (run_dir.parent.name if run_dir.parent.name != 'artifacts' else '')
+    return nnn, timestamp, tag
+
+
+def experiment_tag_from_cfg(cfg: dict) -> str:
+    """Read explicit ``meta.experiment_tag``, falling back to run_label."""
+    meta = cfg.get('meta')
+    if not isinstance(meta, dict):
+        return ''
+    tag = meta.get('experiment_tag', meta.get('run_label'))
+    return tag if isinstance(tag, str) else ''
 
 
 def normalize_repo_relative(path: Path, repo_root: Path, label: str) -> str:

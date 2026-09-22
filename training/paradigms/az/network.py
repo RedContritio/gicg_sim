@@ -128,9 +128,8 @@ class Agent(AgentBase):
         # NB: eval_state does NOT need a legal_mask — the truncate to
         # ``logits[0, :n_legal]`` below is the mask. The legacy file
         # had a dead ``mask = build_legal_mask(...)`` assignment here
-        # (ruff F841); dropped during T2.6 inline per "Dead defensive
-        # code 必须删" rule (CLAUDE.md §2). Legacy file remains as-is
-        # since it's slated for git-rm in Phase 5.
+        # (ruff F841); it was removed during the T2.6 inline change.
+        # The legacy file remains unchanged until Phase 5 removes it.
 
         with torch.no_grad():
             (

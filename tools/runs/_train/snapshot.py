@@ -23,7 +23,7 @@ Failure handling (spec §单命令 atomic lifecycle):
   would otherwise have to skip.
 - If the rmtree itself fails, an informational warning goes to stderr
   but the original IO exception still drives the SystemExit (cleanup
-  diagnostics never mask the root cause; CLAUDE.md §2 + spec §train 失败时
+  diagnostics never mask the root cause；AGENTS.md + spec §train 失败时
   finally-block discipline).
 
 Spec cross-refs (``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``):
@@ -182,6 +182,8 @@ def _build_initial_metadata(state: SetupState, cfg_path: Path) -> schema.RunMeta
         wall_seconds=0.0,
         exit_code=0,
         notes='',
+        experiment_tag=state.experiment_tag,
+        run_label=state.label,
     )
 
 

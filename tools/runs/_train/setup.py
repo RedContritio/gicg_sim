@@ -72,6 +72,7 @@ class SetupState:
     nnn: int
     label: str
     timestamp_utc: datetime
+    experiment_tag: str = ''
     cfg_resolved_version: int = 1
     resume_ckpt_path: Path | None = None
 
@@ -84,7 +85,7 @@ def _validate_run_label(label: Any, *, source: str) -> str:
     so a regex failure caused by ``--override meta.run_label=...`` is
     diagnosable without re-running. Non-str / missing values are
     rendered as ``'<missing>'`` / ``'<int 42>'`` etc — silent
-    string-coercion would mask a cfg bug (CLAUDE.md §3 "意外输入必须抛异常").
+    string-coercion would mask a cfg bug。
     """
     if isinstance(label, str) and _RUN_LABEL_RE.match(label):
         return label
@@ -100,7 +101,7 @@ def _validate_run_label(label: Any, *, source: str) -> str:
     raise SystemExit(2)
 
 
-def _extract_leaf_label(leaf_bytes: bytes, cfg_path: Path) -> Any:
+def _extract_leaf_label(leaf_bytes: bytes, cfg_path: Path, field: str = 'run_label') -> Any:
     """Read leaf-only ``cfg.meta.run_label`` from already-captured bytes.
 
     Bytes come from step 1 capture (not a fresh re-read) so the
@@ -120,7 +121,13 @@ def _extract_leaf_label(leaf_bytes: bytes, cfg_path: Path) -> Any:
     meta = data.get('meta')
     if not isinstance(meta, dict):
         return None
-    return meta.get('run_label')
+    return meta.get(field)
+
+
+def _extract_leaf_experiment_tag(leaf_bytes: bytes, cfg_path: Path) -> Any:
+    """Read optional leaf ``meta.experiment_tag`` (run_label fallback)."""
+    value = _extract_leaf_label(leaf_bytes, cfg_path, 'experiment_tag')
+    return value if value is not None else _extract_leaf_label(leaf_bytes, cfg_path)
 
 
 def _verify_repo_root(cwd: Path) -> None:
@@ -168,14 +175,8 @@ def _verify_authoritative_host(repo_root: Path) -> None:
 def phase_a_setup(args: argparse.Namespace) -> SetupState:
     """Steps 0-3: validate → capture → resolve → mkdir per-run dir.
 
-    Validation strategy: regex-check the leaf cfg's ``meta.run_label``
-    first (cheap, fails fast on obvious garbage), then re-check the
-    **resolved** value after ``--override`` apply. Spec §单命令 atomic lifecycle specifies
-    the dir name comes from the resolved value, so an override like
-    ``--override meta.run_label=../etc`` must be rejected even when the
-    leaf cfg passes — the second check covers that. The first check
-    short-circuits before we do any cfg load / extends resolution work
-    when the leaf is already broken.
+    Leaf and resolved metadata are both validated before allocation; the
+    resolved values determine the tagged directory and single-run label.
     """
     _verify_repo_root(Path.cwd())
     cfg_path = Path(args.cfg)
@@ -201,7 +202,8 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     # authoritative guard; this just trims feedback latency.
     leaf_label = _extract_leaf_label(leaf_bytes, cfg_path)
     _validate_run_label(leaf_label, source='leaf cfg.meta.run_label')
-
+    leaf_tag = _extract_leaf_experiment_tag(leaf_bytes, cfg_path)
+    _validate_run_label(leaf_tag, source='leaf cfg.meta.experiment_tag/run_label')
     # Step 2: resolve extends chain + apply --override list.
     # Using ``load_with_extends`` (public-by-comment per loader.py line 95
     # docstring) for extends + ``_apply_overrides`` (internal but
@@ -226,7 +228,8 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     resolved_meta = cfg_resolved.get('meta')
     resolved_label = resolved_meta.get('run_label') if isinstance(resolved_meta, dict) else None
     label = _validate_run_label(resolved_label, source='resolved cfg.meta.run_label')
-
+    resolved_tag = resolved_meta.get('experiment_tag', label) if isinstance(resolved_meta, dict) else None
+    experiment_tag = _validate_run_label(resolved_tag, source='resolved cfg.meta.experiment_tag/run_label')
     # Step 2.5: ensure artifacts/ exists. Fresh repo first-train would
     # otherwise see allocator's mkdir(parents=False) succeed (it
     # creates artifacts/ via flock open path) — but caller-side mkdir
@@ -236,14 +239,12 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     repo_root = Path.cwd()
     artifacts_root = repo_root / 'artifacts'
     artifacts_root.mkdir(parents=True, exist_ok=True)
-
     # Step 3: allocate NNN under flock + mkdir per-run dir O_EXCL.
     # UTC ts truncated to minute (dir name precision); single-sourced
     # so T-09 metadata.timestamp ↔ dir-name ts align by construction
     # (spec §单命令 atomic lifecycle — no parallel ``datetime.now()`` calls).
     timestamp_utc = datetime.now(timezone.utc).replace(second=0, microsecond=0)
     ts_str = timestamp_utc.strftime('%Y%m%d%H%M')
-
     artifacts_dir: Path | None = None
     nnn_final: int | None = None
     # EEXIST retry outer loop per spec §Atomic allocator / allocator.py docstring
@@ -253,7 +254,9 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
     max_eexist_retries = 10
     for attempt in range(max_eexist_retries):
         with allocate_nnn(repo_root) as nnn:
-            candidate = artifacts_root / f'{ts_str}_{nnn:06d}_{label}'
+            tag_dir = artifacts_root / experiment_tag
+            tag_dir.mkdir(parents=False, exist_ok=True)
+            candidate = tag_dir / f'{ts_str}_{nnn:06d}'
             try:
                 candidate.mkdir(parents=False, exist_ok=False)
             except FileExistsError:
@@ -270,7 +273,6 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
             f'EEXIST retries (label={label!r}, ts={ts_str}); inspect artifacts/ for '
             'rogue dirs colliding on every allocated NNN'
         )
-
     # State assembly is dataclass __init__ — if it raises (it shouldn't,
     # all fields are pre-validated) we still own the orphan dir and
     # must rmtree before propagating. Spec §单命令 atomic lifecycle.
@@ -282,6 +284,7 @@ def phase_a_setup(args: argparse.Namespace) -> SetupState:
             nnn=nnn_final,
             label=label,
             timestamp_utc=timestamp_utc,
+            experiment_tag=experiment_tag,
         )
     except BaseException:
         # Surface the original error, not the cleanup error.

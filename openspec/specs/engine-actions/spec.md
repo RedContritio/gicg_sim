@@ -27,7 +27,7 @@ capability: engine-actions
 GICG 引擎动作系统需被规约化,否则会出现:
 
 - 引擎在 `GetLegalActions` 中**条件判断**(AP/能量/冻结)代替 DSL hook 过滤,
-  破坏 "engine ignorant of game mechanics" 契约(`CLAUDE.md "Engine Ignorance"`)
+  破坏 "engine ignorant of game mechanics" 契约
 - `HookActionCheck` 默认值 / `ctx.playable` 语义被静默偏离(默认 true /
   hook 可置 false)
 - 动作执行管道的 hook 顺序(`HookActionPrepare` → 扣费 → `HookSkillUse` /
@@ -209,8 +209,8 @@ change 提案修订,而非在代码中静默偏离。
 
 **Repository references**:
 
-- Engine Ignorance and the core model are summarized in
-  [`CLAUDE.md`](../../../CLAUDE.md#engine-ignorance).
+- Engine Ignorance 和核心模型见 [`project.md`](../../project.md) 与
+  [`engine-dsl`](../engine-dsl/spec.md)。
 - The current actor safety bound is implemented in
   `training/core/actor/episode_runner.py`; historical episode-length
   measurements are not a live runtime constant.

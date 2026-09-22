@@ -35,6 +35,11 @@ class _StateMixin:
         return self._engine.has_pending
 
     @property
+    def pending_dice_remaining(self):
+        """Number of pending rerolls, or -1 when no dice input is pending."""
+        return self._engine.pending_dice_remaining()
+
+    @property
     def done(self):
         return self._engine.done
 

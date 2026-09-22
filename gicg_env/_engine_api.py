@@ -41,13 +41,12 @@ class _ApiMixin:
 
         lib.GameSetSimulationSeed.argtypes = [ctypes.c_int, ctypes.c_longlong]
         lib.GameSetSimulationSeed.restype = ctypes.c_int
-
+        lib.GameAdvanceSimulationDiceDraws.argtypes = [ctypes.c_int, ctypes.c_int]
+        lib.GameAdvanceSimulationDiceDraws.restype = ctypes.c_int
         lib.GameSnapshotFree.argtypes = [ctypes.c_int]
         lib.GameSnapshotFree.restype = None
-
         lib.GameLogSuspend.argtypes = [ctypes.c_int]
         lib.GameLogSuspend.restype = ctypes.c_int
-
         lib.GameLogResume.argtypes = [ctypes.c_int]
         lib.GameLogResume.restype = ctypes.c_int
 
@@ -58,6 +57,8 @@ class _ApiMixin:
 
         lib.GameHasPending.argtypes = [ctypes.c_int]
         lib.GameHasPending.restype = ctypes.c_int
+        lib.GameGetPendingDiceRemaining.argtypes = [ctypes.c_int]
+        lib.GameGetPendingDiceRemaining.restype = ctypes.c_int
 
         lib.GameSetPlayerHand.argtypes = [
             ctypes.c_int,  # game id

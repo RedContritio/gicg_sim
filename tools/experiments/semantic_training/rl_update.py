@@ -2,6 +2,7 @@
 
 import torch
 from tools.experiments.semantic_training.agent import batch_observations
+from tools.experiments.semantic_training.rl_sampling import stratified_indices
 
 
 def policy_loss(logits, mask, actions, old_logp, advantages, anchor_logits, clip=0.2, beta=0.02):
@@ -33,15 +34,23 @@ def update(
     rule_beta=0.0,
     auxiliary_loss=None,
     anchor_beta=0.02,
+    reroll_fraction=None,
 ):
     stats = []
     stopped = False
+    sampled_types = {'reroll': 0, 'ordinary': 0}
     # Baseline is estimated only from previous collection rounds, independent of current actions.
     for _ in range(epochs):
-        order = list(range(len(rows)))
-        rng.shuffle(order)
+        order = (
+            stratified_indices(rows, rng, reroll_fraction) if reroll_fraction is not None else list(range(len(rows)))
+        )
+        if reroll_fraction is None:
+            rng.shuffle(order)
         for offset in range(0, len(order), batch_size):
             picked = [rows[i] for i in order[offset : offset + batch_size]]
+            for row in picked:
+                key = 'reroll' if row.get('decision_type') == 'reroll' else 'ordinary'
+                sampled_types[key] += 1
             batch = batch_observations([r['obs'] for r in picked], agent.cfg, agent.device)
             actions = torch.tensor([r['action'] for r in picked], device=agent.device)
             old = torch.tensor([r['old_logp'] for r in picked], device=agent.device)
@@ -108,5 +117,7 @@ def update(
     return {
         'updates': len(stats),
         'early_stop_kl': stopped,
+        'sampled_reroll_rows': sampled_types['reroll'],
+        'sampled_ordinary_rows': sampled_types['ordinary'],
         **({key: sum(s[key] for s in stats) / len(stats) for key in stats[0]} if stats else {}),
     }

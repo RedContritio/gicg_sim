@@ -19,6 +19,7 @@ type GameHandle struct {
 	// from the live game (nil when logging is active). See the
 	// suspend/resume API for the MCTS-rollout use case.
 	SuspendedLog *engine.EventLog
+	LogSuspended bool
 }
 
 // NewGame constructs a fully-initialized GameHandle from a GameConfig.

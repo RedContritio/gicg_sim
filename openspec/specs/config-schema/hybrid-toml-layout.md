@@ -143,7 +143,7 @@ Future 若有 paradigm-specific hybrid quirk,可在 paradigm
 
 ```python
 ALLOWED_TOP_LEVEL = {
-    'meta',         # paradigm / seed / device / run_label
+    'meta',         # paradigm / seed / device / experiment_tag / run_label
     'pipeline',     # mode / num_actors / learner / inference
     'eval',         # n_workers / inference / schedule
     'scenario',     # team / pool / max_rounds
@@ -165,6 +165,7 @@ CS4.1。
 [meta]
 seed = 42
 paradigm = "ppo"                 # dispatch selector (N6.2)
+experiment_tag = "ppo_default"
 run_label = "ppo_default"
 device = "cpu"
 

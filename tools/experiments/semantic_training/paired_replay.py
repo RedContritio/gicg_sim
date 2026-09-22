@@ -106,6 +106,7 @@ def export_initial(source, destination):
         net=payload['net'],
         rule_head=payload['rule_head'],
         value_head=attach_value(agent).state_dict(),
+        value_encoding='signed_outcome',
         settings={'temperature': 0.5},
         algorithm='explicit paired diagnostic policy export',
         diagnostic_parent=str(source),

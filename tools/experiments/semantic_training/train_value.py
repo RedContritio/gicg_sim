@@ -19,14 +19,14 @@ import torch
 
 from tools.experiments.semantic_training.agent import batch_observations
 from tools.experiments.semantic_training.player_loader import load_semantic_agent, load_semantic_payload
-from tools.experiments.semantic_training.value_baseline import attach
+from tools.experiments.semantic_training.value_baseline import EXPECTED_SCORE, attach
 from tools.experiments.semantic_training.value_diagnostics import diagnose
 from training.core.artifact_io import save_checkpoint
 
 REWARD_SET = (0.0, 0.5, 1.0, -1.0)
 SIGNED_OUTCOME = 'signed_outcome'
 WIN_PROBABILITY = 'win_probability'
-REWARD_ENCODINGS = (SIGNED_OUTCOME, WIN_PROBABILITY)
+REWARD_ENCODINGS = (SIGNED_OUTCOME, EXPECTED_SCORE, WIN_PROBABILITY)
 
 
 def _to_target(reward: float, encoding: str) -> float:
@@ -34,9 +34,9 @@ def _to_target(reward: float, encoding: str) -> float:
         if reward not in (-1.0, 0.0, 1.0):
             raise ValueError(f'signed outcome must be -1/0/1, got {reward}')
         return (reward + 1.0) / 2.0
-    if encoding == WIN_PROBABILITY:
+    if encoding in (EXPECTED_SCORE, WIN_PROBABILITY):
         if reward not in (0.0, 0.5, 1.0):
-            raise ValueError(f'win probability must be 0/0.5/1, got {reward}')
+            raise ValueError(f'expected score must be 0/0.5/1, got {reward}')
         return reward
     raise ValueError(f'unknown reward encoding {encoding!r}')
 
@@ -95,12 +95,12 @@ def _resolve_reward_encoding(paths, requested):
     if -1.0 in unmarked_rewards:
         return SIGNED_OUTCOME
     if 0.5 in unmarked_rewards:
-        return WIN_PROBABILITY
+        return EXPECTED_SCORE
     if 0.0 in unmarked_rewards:
         raise ValueError(
-            'reward 0 is ambiguous without encoding metadata; pass --reward-encoding signed_outcome or win_probability'
+            'reward 0 is ambiguous without encoding metadata; pass --reward-encoding signed_outcome or expected_score'
         )
-    return WIN_PROBABILITY
+    return EXPECTED_SCORE
 
 
 def plan_episodes(rollout_dirs, episodes, seed):
@@ -178,13 +178,15 @@ def run(
     device='cuda',
     threads=8,
     reward_encoding='auto',
+    allow_unverified_checkpoint=False,
 ):
     # train_value is a single process (unlike the 16-worker RL collectors), so
     # multi-threaded CPU forwards are safe and ~threads× faster on big embeds.
     torch.set_num_threads(max(1, threads))
     plan = plan_episodes(rollout_dirs, episodes, seed)
     resolved_reward_encoding = _resolve_reward_encoding([path for path, _heldout in plan], reward_encoding)
-    agent = load_semantic_agent(checkpoint, device=device)
+    verify = not allow_unverified_checkpoint
+    agent = load_semantic_agent(checkpoint, device=device, verify_provenance=verify)
     agent.net.requires_grad_(False)
     attach(agent)  # fresh value head; optimizer only sees head parameters.
     # Stream one episode at a time: obs are released after each embed, so peak
@@ -212,8 +214,11 @@ def run(
     heldout_old = [old for part in heldout_parts for old in part[2]]
     heldout = diagnose(agent, heldout_states, heldout_targets, heldout_old, device)
     head_state = {key: value.cpu() for key, value in agent.value_head.state_dict().items()}
-    payload = dict(load_semantic_payload(checkpoint))
+    payload = dict(load_semantic_payload(checkpoint, verify_provenance=verify))
     payload['value_head'] = head_state
+    payload['value_encoding'] = EXPECTED_SCORE
+    payload['value_perspective'] = 'acting_player'
+    payload['return_definition'] = 'terminal_expected_score'
 
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
@@ -221,6 +226,9 @@ def run(
         'scope': 'frozen-backbone value-head fit on RL rollout terminal outcomes; heldout by episode hash',
         'config': config,
         'checkpoint': checkpoint,
+        'value_encoding': EXPECTED_SCORE,
+        'value_perspective': 'acting_player',
+        'return_definition': 'terminal_expected_score',
         'checkpoint_sha256': hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest(),
         'rollout_dirs': [str(directory) for directory in rollout_dirs],
         'episodes_requested': episodes,
@@ -261,6 +269,7 @@ def main():
     p.add_argument('--device', default='cuda', choices=['cuda', 'cpu'])
     p.add_argument('--threads', type=int, default=8)
     p.add_argument('--reward-encoding', choices=('auto', *REWARD_ENCODINGS), default='auto')
+    p.add_argument('--allow-unverified-checkpoint', action='store_true')
     a = p.parse_args()
     run(
         a.config,
@@ -275,6 +284,7 @@ def main():
         device=a.device,
         threads=a.threads,
         reward_encoding=a.reward_encoding,
+        allow_unverified_checkpoint=a.allow_unverified_checkpoint,
     )
 
 

@@ -335,8 +335,7 @@ in-place rewrite,无并行栈。
 ### 7.3 SHALL NOT 添加 migration shim / adapter
 
 新 paradigm 如果需要 "bridge old API to new API" wrapper → 是 design
-problem,SHALL 直接改 caller。本 user CLAUDE.md `feedback_no_compat_fallback`
-"不刻意保留兼容"约束直接适用。
+problem，SHALL 直接改 caller，不保留并行兼容层。
 
 ### 7.4 SHALL NOT silent 偏离 protocol
 

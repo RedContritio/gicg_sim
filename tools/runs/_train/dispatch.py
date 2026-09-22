@@ -2,7 +2,7 @@
 
 Internal module — callers must use :mod:`tools.runs.train` (the public
 entry shell). Split out of :mod:`tools.runs._train.run` per the 300-
-line file budget (CLAUDE.md pre-commit hook) once T-11's full paradigm
+line file budget (AGENTS.md pre-commit 约定) once T-11's full paradigm
 dispatch body landed alongside Phase C's lifecycle + close logic.
 
 This module owns the cfg → paradigm → ``run_pipeline`` wiring

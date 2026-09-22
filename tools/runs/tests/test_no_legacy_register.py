@@ -9,9 +9,8 @@ Scope: production code only (``tools/`` + ``training/``). Excluded:
 - ``.claude/`` — worktree-spawned copies of this file would trigger a
   false positive.
 - ``__pycache__/`` — bytecode caches.
-- ``docs/``, ``openspec/``, ``CLAUDE.md`` — historical / spec docs are
-  out of scope for this guard (T-24 handles ``CLAUDE.md``; openspec
-  spec evolution is a separate workflow).
+- ``docs/``、``openspec/``、``AGENTS.md`` — 历史、规范和协作说明不在
+  此 guard 的范围内；OpenSpec 演进使用独立流程。
 - This file itself — must reference the retired path in prose.
 """
 

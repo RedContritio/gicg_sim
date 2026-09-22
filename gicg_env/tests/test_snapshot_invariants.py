@@ -18,7 +18,6 @@ from gicg_env.engine import (
     ACTION_END_TURN,
     ACTION_SKILL,
     PHASE_ACTION,
-    PHASE_GAME_OVER,
 )
 from gicg_env.tests._helpers import keep_all_rerolls
 
@@ -414,6 +413,18 @@ class TestFullRolloutUnderSnapshot:
 
 
 class TestSnapshotLifecycle:
+    def test_log_suspend_resume_is_balanced_on_logless_clone(self):
+        eng = _fresh_game()
+        clone = eng.clone()
+        try:
+            clone.log_suspend()
+            clone.log_resume()
+            with pytest.raises(RuntimeError, match='was log_suspend'):
+                clone.log_resume()
+        finally:
+            clone.close()
+            eng.close()
+
     def test_snapshot_free_is_idempotent_noop(self):
         """snapshot_free of a valid snap must not error; double-free is tolerated."""
         eng = _fresh_game()

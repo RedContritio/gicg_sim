@@ -40,7 +40,7 @@ parent: ./spec.md
 | `docs/paradigms/**/*.md`                       | 400  | 500  | 500       |
 | `docs/{runs,history,research}/**/*.md`         | 400  | 500  | 500       |
 | `docs/now.md`(LIVE 状态快照,P1 后)           | 250  | 300  | 350       |
-| `CLAUDE.md`(repo 根)                          | 150  | 200  | 200       |
+| `AGENTS.md`(repo 根)                         | 150  | 200  | 200       |
 
 ### 2.1 阈值选择理由
 
@@ -60,14 +60,14 @@ checkbox 列表,500。
 **`docs/paradigms/**` 500**:实验记录可以长,但 500 是可读性上限;超
 过应拆 sub-page(如 `runs/r001.md` + `runs/r002.md`)。
 
-**CLAUDE.md 200**:repo 根级 dev workflow,必须保持极简,>200 是
+**AGENTS.md 200**:repo 根级开发流程必须保持极简，>200 是
 红线。30 KB 字节硬上限。
 
 ## 3. 表 2 — 字节阈值
 
 | 文件类型              | Hard fail bytes |
 |-----------------------|-----------------|
-| `CLAUDE.md`           | 30 KB           |
+| `AGENTS.md`           | 30 KB           |
 | 其他 markdown         | 50 KB           |
 
 字节阈值与行数阈值 OR 关系:任一命中即 REJECT。多用于:

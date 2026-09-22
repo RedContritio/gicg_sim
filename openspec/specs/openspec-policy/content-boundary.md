@@ -42,7 +42,7 @@ parent: ./spec.md
 | Inheritance registry 当前字段 | `openspec/specs/cfg-schema/inheritance.md` | 当前 registry 状态(IS) |
 | 某 ablation 表 + 结论 | `docs/paradigms/<name>/ablations/<sweep>.md` | 实验记录 |
 | 训练完跑 gauntlet 的纪律 | `openspec/specs/training-workflow/spec.md`(假定后续 capability)| SHALL 句 |
-| "tools/dc.sh 怎么用" | `CLAUDE.md`(repo 根)| dev workflow(操作指南),不是 spec |
+| “开发工具怎么用” | `AGENTS.md`(repo 根)| 开发流程，不是 spec |
 
 ## 3. 关键区分线
 

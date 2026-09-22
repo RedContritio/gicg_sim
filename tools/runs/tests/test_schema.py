@@ -130,7 +130,7 @@ class TestFieldValidation:
     def test_rejects_nan_inf_wall_seconds(self, bad):
         """NaN/Inf are semantically garbage for an elapsed-time field; the
         `< 0` guard does not catch them (NaN comparisons are False; +Inf > 0
-        passes). Per CLAUDE.md §2 意外输入必须抛异常."""
+        passes). 意外输入必须抛异常。"""
         with pytest.raises(ValueError, match='wall_seconds'):
             schema.validate(_minimal_meta(wall_seconds=bad))
 

@@ -1,8 +1,11 @@
 package tests
 
 import (
+	"reflect"
 	"sort"
 	"testing"
+
+	engine "gicg_mono/gicg_engine"
 )
 
 // TestSetPlayerHand_ReplacesContent verifies that SetPlayerHand
@@ -163,5 +166,37 @@ func TestSetPlayerHand_InvalidPlayer(t *testing.T) {
 			}()
 			g.SetPlayerHand(p, []int{1, 2, 3})
 		}(pi)
+	}
+}
+
+func TestHiddenStateInjectionSurvivesPendingDiceContinuation(t *testing.T) {
+	env := NewGameWithDeck(t, []string{"赤蝶"}, []string{"墨客"})
+	g := env.G
+	filler := env.RT.Cards.ByName["碌碌无为"]
+	if filler == nil {
+		t.Fatal("filler card not found")
+	}
+	deck := []int{filler.Ref, filler.Ref}
+	hand := []int{filler.Ref}
+	dice := [8]int{2, 1, 0, 0, 0, 0, 0, 0}
+	if got := g.ExecuteEffect(engine.EventFrame{Player: 0}, func(g *engine.Game) {
+		g.ChooseReroll(0, 1)
+	}); got != engine.StepNeedTarget || g.PendingDice == nil {
+		t.Fatal("reroll did not suspend")
+	}
+	g.SetPlayerDeck(0, deck)
+	g.SetPlayerHand(1, hand)
+	env.RT.SetPlayerDice(1, dice)
+	for g.PendingDice != nil {
+		g.Step(0)
+	}
+	if !reflect.DeepEqual(g.Players[0].Deck, []engine.CardInst{{Ref: filler.Ref}, {Ref: filler.Ref}}) {
+		t.Fatal("injected deck was lost while resuming pending reroll")
+	}
+	if !reflect.DeepEqual(g.Players[1].Hand, []engine.CardInst{{Ref: filler.Ref, DrawnAtRound: g.Round}}) {
+		t.Fatal("injected hand was lost while resuming pending reroll")
+	}
+	if got := env.RT.DicePool(1); got != dice {
+		t.Fatalf("injected dice were lost while resuming pending reroll: got %v want %v", got, dice)
 	}
 }

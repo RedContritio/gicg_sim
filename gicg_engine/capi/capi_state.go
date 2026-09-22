@@ -125,6 +125,18 @@ func GameGetDiceTotal(id C.int, player C.int) C.int {
 	return C.int(total)
 }
 
+// GameGetPendingDiceRemaining returns pending rerolls, or -1 without input.
+//
+//export GameGetPendingDiceRemaining
+func GameGetPendingDiceRemaining(id C.int) C.int {
+	defer recoverRuleError(id)
+	h := getHandle(int(id))
+	if h == nil || h.Game.PendingDice == nil {
+		return -1
+	}
+	return C.int(h.Game.PendingDice.Remaining)
+}
+
 // GameGetDiceCounts writes the current per-color dice count for a
 // player into `out` (length 8). Unlike GameGetDicePaid (cumulative
 // payment history) this is the LIVE pool — what the player could pay

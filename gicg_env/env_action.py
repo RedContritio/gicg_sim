@@ -31,6 +31,9 @@ class _ActionMixin:
         """Set future chance events for a speculative branch after snapshot."""
         self._engine.set_simulation_seed(seed)
 
+    def advance_simulation_dice_draws(self, count: int):
+        self._engine.advance_simulation_dice_draws(count)
+
     def log_suspend(self):
         """Stop recording engine events into the replay log. Use around
         MCTS forward-simulation so rollout events don't end up in the

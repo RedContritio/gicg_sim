@@ -1,7 +1,7 @@
 """Run metadata.toml schema (clean-slate redesign per
 ``docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md``).
 
-11-field dataclass + strict status enum (含 ``unknown`` for recover) +
+11-field dataclass + optional experiment identity fields + strict status enum (含 ``unknown`` for recover) +
 strict transition table (含 resume 例外 CRIT-2-A).
 
 metadata.toml lives at ``<artifacts_dir>/metadata.toml`` — there is no
@@ -70,6 +70,8 @@ class RunMetadata:
     wall_seconds: float
     exit_code: int
     notes: str
+    experiment_tag: str = ''
+    run_label: str = ''
 
 
 def validate(meta: RunMetadata) -> None:
@@ -105,6 +107,12 @@ def validate(meta: RunMetadata) -> None:
         raise ValueError(f'exit_code must be int, got {type(meta.exit_code).__name__}')
     if not isinstance(meta.notes, str):
         raise ValueError(f'notes must be str (use empty string when absent), got {type(meta.notes).__name__}')
+    for field in ('experiment_tag', 'run_label'):
+        value = getattr(meta, field)
+        if not isinstance(value, str):
+            raise ValueError(f'{field} must be str, got {type(value).__name__}')
+        if value and not re.match(r'^[a-zA-Z0-9_-]{1,64}$', value):
+            raise ValueError(f'{field} must match ^[a-zA-Z0-9_-]{{1,64}}$')
 
 
 # Status transition table (spec §Status 状态机 + §Resume 例外规则).
@@ -187,7 +195,7 @@ _FIELD_ORDER: tuple[str, ...] = (
 
 def _to_plain_dict(meta: RunMetadata) -> dict[str, Any]:
     """Convert to dict suitable for TOML dump (all 11 fields, fixed order)."""
-    return {
+    data = {
         'run_id': meta.run_id,
         'timestamp': meta.timestamp,
         'cfg_file': meta.cfg_file,
@@ -200,6 +208,11 @@ def _to_plain_dict(meta: RunMetadata) -> dict[str, Any]:
         'exit_code': meta.exit_code,
         'notes': meta.notes,
     }
+    if meta.experiment_tag:
+        data['experiment_tag'] = meta.experiment_tag
+    if meta.run_label:
+        data['run_label'] = meta.run_label
+    return data
 
 
 def from_dict(d: dict[str, Any]) -> RunMetadata:
@@ -211,7 +224,8 @@ def from_dict(d: dict[str, Any]) -> RunMetadata:
     missing = sorted(required - present)
     if missing:
         raise ValueError(f'missing required keys: {missing}')
-    extra = sorted(present - required)
+    optional = {'experiment_tag', 'run_label'}
+    extra = sorted(present - required - optional)
     if extra:
         raise ValueError(f'unknown keys (stale / corrupt schema?): {extra}')
 
@@ -233,13 +247,16 @@ def from_dict(d: dict[str, Any]) -> RunMetadata:
         wall_seconds=float(raw_wall),
         exit_code=d['exit_code'],
         notes=d['notes'],
+        experiment_tag=d.get('experiment_tag', ''),
+        run_label=d.get('run_label', ''),
     )
     validate(meta)
     return meta
 
 
-# Hand-rolled TOML emitter — only supports the flat 11-field shape produced
-# by `_to_plain_dict`. No nested tables, no arrays.
+# Hand-rolled TOML emitter — supports the flat base shape and optional
+# experiment identity fields produced by `_to_plain_dict`. No nested tables,
+# no arrays.
 
 
 def _format_scalar(v: Any) -> str:
@@ -266,7 +283,9 @@ def dumps(meta: RunMetadata) -> str:
     """Serialize RunMetadata to a TOML string (fixed field order)."""
     validate(meta)
     d = _to_plain_dict(meta)
-    return '\n'.join(f'{k} = {_format_scalar(d[k])}' for k in _FIELD_ORDER) + '\n'
+    keys = list(_FIELD_ORDER)
+    keys.extend(k for k in ('experiment_tag', 'run_label') if k in d)
+    return '\n'.join(f'{k} = {_format_scalar(d[k])}' for k in keys) + '\n'
 
 
 def loads(text: str) -> RunMetadata:

@@ -30,7 +30,7 @@ SHALL 满足以下契约 — paradigm 接入 merge gate。
    `[-1, +1]` 流通
 4. **paradigm-specific invariant**(详 §3)
 5. **Wall time ≤ 2min**:CI / pre-commit 友好(默认 smoke tier;`smoke_full`
-   tier 5-15min,opt-in via `-m smoke_full`,见 `CLAUDE.md`)
+   tier 5-15min,opt-in via `-m smoke_full`,见 `AGENTS.md`)
 
 ## 3. 5 paradigm-specific probe
 
@@ -110,8 +110,7 @@ between paradigm production driver and the smoke_full tier。
   e2e),通过 pyproject `addopts -m "not smoke_full"` 默认 exclude;由 §4
   7 子约束 A1.6.1-A1.6.7 治理
 
-详 `CLAUDE.md` "Smoke test tiers (post `paradigm-smoke-full-tier`
-2026-05-17)" 段。
+开发时的运行要求见 `AGENTS.md`。
 
 ## 6. Cross-references
 

@@ -39,7 +39,7 @@ OpenSpec 在本 repo 内的使用方式必须自身被规约化,否则会出现:
 
 **Out of scope**:
 - 代码侧文件(Go / Python / Lua)的行数阈值 — 继续由
-  `tools/_meta/check_line_limits.py` + `CLAUDE.md` 管
+  `tools/_meta/check_line_limits.py` + `AGENTS.md` 管
 - `docs/` 内部 markdown 的具体写法 — 仅约束阈值与归属,内容自由
 - OpenSpec CLI 本身的实现(上游工具)— 仅规约 repo 内**使用约定**
 
@@ -133,10 +133,9 @@ OpenSpec change 提案修订,而非在文件中静默偏离。
 - `openspec/specs/paradigm-*/` — paradigm dossier 落地(AZ / CFR / BC / DMC / PPO)
 
 **Repo conventions**:
-- `CLAUDE.md`(repo 根)— dev workflow / build & test / pre-commit
-  hooks 概览。本 spec 与 CLAUDE.md 不重叠:CLAUDE.md 写 "how to use";
-  本 spec 写 "what must hold"。
-- `~/.claude/CLAUDE.md` — 跨项目通用工作风格,不属本 spec 治理范围。
+- `AGENTS.md`(repo 根)— 开发流程、构建测试和提交检查概览。本 spec 与
+  `AGENTS.md` 不重叠：`AGENTS.md` 写如何操作，本 spec 写必须满足什么。
+- 客户端注入的跨项目协作规则不属本 spec 治理范围。
 
 **Tool 落地路线**(本 spec 落地但工具实施在后续 task):
 - P0-T4:扩展 `tools/check_line_limits.py` → `tools/_meta/check_line_limits.py`

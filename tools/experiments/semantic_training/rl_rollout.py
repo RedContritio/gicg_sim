@@ -4,6 +4,7 @@ from pathlib import Path
 import random
 import torch
 
+from gicg_env import ACTION_REROLL
 from tools.experiments.semantic_training import evaluate as ev
 from training.core.matchup.greedy_player import GreedyPlayer
 from training.core.env_factory import make_env_factory
@@ -30,6 +31,9 @@ def _episode(args, cfg, manifest):
     seed = derive_seed(master_seed, 'rl-game', iteration * 100000 + index)
     torch.manual_seed(derive_seed(seed, 'sample'))
     rule_stride = args[5] if len(args) > 5 else 0
+    behavior_policy = args[6] if len(args) > 6 else 'sample'
+    if behavior_policy not in ('sample', 'argmax'):
+        raise ValueError(f'unknown rollout behavior policy {behavior_policy!r}')
     rule_rng = random.Random(derive_seed(seed, 'rule-outcomes'))
     game_cfg = sample_config(cfg, seed)
     env = make_env_factory(game_cfg, None, seed)(0, layout_seed=derive_seed(seed, 'layout'))
@@ -54,6 +58,8 @@ def _episode(args, cfg, manifest):
         budget = DecisionBudget(cfg.paradigm['max_game_steps'])
         for _ in budget.iterate(env):
             if env.acting_player == side:
+                kinds, _ = env.get_legal_actions()
+                decision_type = 'reroll' if len(kinds) and all(kind == ACTION_REROLL for kind in kinds) else 'ordinary'
                 obs = agent.observation(env)
                 old_value = None
                 if hasattr(agent, 'value_head'):
@@ -63,12 +69,24 @@ def _episode(args, cfg, manifest):
                 else:
                     logits = agent.logits(env)
                 logp = (logits / getattr(agent, 'sampling_temperature', 1.0)).log_softmax(-1)
-                action = int(torch.multinomial(logp.exp(), 1))
+                action = (
+                    int(agent.select_action(env))
+                    if behavior_policy == 'argmax'
+                    else int(torch.multinomial(logp.exp(), 1))
+                )
                 if static is None:
                     static = {key: obs[key] for key in keys}
                 obs.update(static)
                 if len(logits) > 1:
-                    rows.append({'obs': obs, 'action': action, 'old_logp': float(logp[action])})
+                    rows.append(
+                        {
+                            'obs': obs,
+                            'action': action,
+                            'old_logp': float(logp[action]),
+                            'decision_type': decision_type,
+                            'behavior_policy': behavior_policy,
+                        }
+                    )
                     if old_value is not None:
                         rows[-1]['old_value'] = old_value
                     if rule_stride and (len(rows) - 1) % rule_stride == 0:

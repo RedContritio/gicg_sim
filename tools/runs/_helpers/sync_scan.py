@@ -19,7 +19,7 @@ import tomllib
 from pathlib import Path
 
 from tools.runs._host import RemoteCfg, ps_quote, ssh_run, ssh_run_bash
-from tools.runs._helpers.paths import RUN_DIR_RE
+from tools.runs._helpers.paths import RUN_DIR_RE, iter_run_dirs
 
 
 def scan_local_timestamps(local_root: Path) -> dict[str, str]:
@@ -33,9 +33,7 @@ def scan_local_timestamps(local_root: Path) -> dict[str, str]:
     artifacts = local_root / 'artifacts'
     if not artifacts.is_dir():
         return out
-    for entry in artifacts.iterdir():
-        if not entry.is_dir():
-            continue
+    for entry in iter_run_dirs(local_root):
         m = RUN_DIR_RE.match(entry.name)
         if m is None:
             continue
@@ -60,16 +58,17 @@ def _remote_scan_script(remote: RemoteCfg) -> str:
         return (
             f"$artifacts = Join-Path {root} 'artifacts'; "
             'if (Test-Path -LiteralPath $artifacts) { '
-            'Get-ChildItem -LiteralPath $artifacts -Directory | ForEach-Object { '
-            "$file = Join-Path $_.FullName 'metadata.toml'; "
+            "Get-ChildItem -LiteralPath $artifacts -Directory -Recurse | Where-Object { $_.Name -eq 'metadata.toml' } | ForEach-Object { "
+            '$file = $_.FullName; '
             'if (Test-Path -LiteralPath $file -PathType Leaf) { '
-            "Write-Output ('===FILE artifacts/' + $_.Name + '/metadata.toml'); "
+            "$rel = $_.FullName.Substring($artifacts.FullName.Length).TrimStart('\\','/').Replace('\\','/'); "
+            "Write-Output ('===FILE artifacts/' + $rel); "
             "Get-Content -Raw -LiteralPath $file; Write-Output ''; Write-Output '===END' } } }"
         )
     root = shlex.quote(remote.root.rstrip('/'))
     return (
         f'cd {root} && if [ -d artifacts ]; then '
-        'find artifacts -maxdepth 2 -name metadata.toml -type f '
+        'find artifacts -maxdepth 3 -name metadata.toml -type f '
         '-exec sh -c \'printf "===FILE %s\\n" "$1"; cat "$1"; printf "\\n===END\\n"\' _ {} \\;; fi'
     )
 
@@ -151,9 +150,7 @@ def scan_local_dir_names(local_root: Path) -> list[str]:
     if not artifacts.is_dir():
         return []
     names: list[str] = []
-    for entry in artifacts.iterdir():
-        if not entry.is_dir():
-            continue
+    for entry in iter_run_dirs(local_root):
         if RUN_DIR_RE.match(entry.name) is None:
             continue
         names.append(entry.name)

@@ -25,7 +25,7 @@ from web.backend.live_session import (
 )
 
 router = APIRouter()
-LIVE_LOG_ROOT = Path(__file__).resolve().parents[2] / 'artifacts'
+LIVE_LOG_ROOT = Path(__file__).resolve().parents[2] / 'artifacts' / 'web_live' / 'sessions'
 
 # F4 pinned default decks. The pre-F4 engine silently truncated the
 # implicit eligible set to deck_padding.target_size (byte-order head);

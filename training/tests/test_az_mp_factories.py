@@ -1,8 +1,8 @@
 """Unit tests for training/paradigms/az/mp_factories.py (I31 #88 AZ T1, B').
 
 Mock-light: a fake InferenceClient (records its evaluator calls) + real
-AZParadigmConfig reconstruction (per CLAUDE.md: correctness tests use real
-interfaces where cheap). The full selfplay game itself is monkeypatched in
+AZParadigmConfig reconstruction using real interfaces where cheap. The full
+selfplay game itself is monkeypatched in
 the runner test — a real game needs GicgEnv + DSL + an InferenceServer; that
 lives in the T7 smoke_full e2e, not this fast unit suite.
 

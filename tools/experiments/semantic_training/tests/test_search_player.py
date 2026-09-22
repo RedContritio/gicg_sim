@@ -96,6 +96,24 @@ def test_seed_resets_search_rng(tmp_path):
     assert player.rng.getrandbits(63) == first
 
 
+def test_search_converts_signed_value_to_probability(monkeypatch):
+    class Agent:
+        def observation(self, _env):
+            return {'n_legal': 1}
+
+    class Env:
+        acting_player = 0
+
+    monkeypatch.setattr(
+        'tools.experiments.semantic_training.search_player.predict',
+        lambda _agent, _obs: (None, -1.0),
+    )
+    player = SearchPlayer(Agent(), n_beliefs=1)
+    assert player._value_me(Env(), 0) == 0.0
+    Env.acting_player = 1
+    assert player._value_me(Env(), 0) == 1.0
+
+
 def test_player_spec_checkpoint_is_the_reported_checkpoint():
     assert _evaluated_checkpoint('positional.pt', {'type': 'az', 'ckpt': 'actual.pt'}) == 'actual.pt'
     assert _evaluated_checkpoint('positional.pt', {'type': 'random'}) is None

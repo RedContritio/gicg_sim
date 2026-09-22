@@ -15,11 +15,12 @@ from typing import Generator
 
 from tools.runs._helpers.locks import _retry_acquire_flock
 
-# NNN dir naming per spec dir convention `<ts>_<NNNNNN>_<label>`. Anchored
+# NNN dir naming per spec dir convention `<ts>_<NNNNNN>` (legacy runs may
+# retain a `<label>` suffix). Anchored
 # to ^ + \d{12} (12-digit timestamp prefix) so we don't accidentally
 # match pre-redesign legacy dirs like `pre_redesign_xxx/` or
 # `r001_yyy/` — those silently skip the max computation.
-_NNN_DIR_RE = re.compile(r'^\d{12}_(\d{6})_')
+_NNN_DIR_RE = re.compile(r'^\d{12}_(\d{6})(?:_|$)')
 
 
 def _glob_max_nnn(artifacts_dir: Path) -> int:
@@ -36,12 +37,16 @@ def _glob_max_nnn(artifacts_dir: Path) -> int:
     for entry in artifacts_dir.iterdir():
         if not entry.is_dir():
             continue
-        m = _NNN_DIR_RE.match(entry.name)
-        if m is None:
-            continue
-        nnn = int(m.group(1))
-        if nnn > max_nnn:
-            max_nnn = nnn
+        candidates = [entry]
+        if not _NNN_DIR_RE.match(entry.name):
+            candidates = [child for child in entry.iterdir() if child.is_dir()]
+        for candidate in candidates:
+            m = _NNN_DIR_RE.match(candidate.name)
+            if m is None:
+                continue
+            nnn = int(m.group(1))
+            if nnn > max_nnn:
+                max_nnn = nnn
     return max_nnn
 
 
@@ -67,7 +72,7 @@ def allocate_nnn(repo_root: Path) -> Generator[int, None, None]:
 
     Caller 责任 (within ``with`` body):
 
-    - 立即 mkdir ``<repo>/artifacts/<ts>_<NNN:06d>_<label>/`` (O_EXCL,
+    - 立即 mkdir ``<repo>/artifacts/<experiment_tag>/<ts>_<NNN:06d>/`` (O_EXCL,
       ``exist_ok=False``) before exiting the ``with`` block — under
       lock — so the next allocator's ``_glob_max_nnn`` observes the
       new entry.

@@ -39,8 +39,10 @@ pre-redesign `tools.run`, `tools.runs.register`, `tools.runs.complete`, and
    <ckpt>` SHALL reuse the original run number and append versioned
    `cfg_leaf_v<N>.toml` and `cfg_resolved_v<N>.toml` snapshots.
 9. A fresh run directory SHALL match
-   `artifacts/<YYYYMMDDHHMM>_<NNNNNN>_<run_label>/`, where the timestamp is
-   UTC and the number is zero-padded to six digits.
+   `artifacts/<experiment_tag>/<YYYYMMDDHHMM>_<NNNNNN>/`, where the timestamp
+   is UTC and the number is zero-padded to six digits. Runs from the same
+   experiment series SHALL share one explicit `meta.experiment_tag`;
+   `run_label` describes only the individual run.
 10. Each run directory SHALL be self-contained:
 
     ```text
@@ -117,7 +119,7 @@ pre-redesign `tools.run`, `tools.runs.register`, `tools.runs.complete`, and
 25. A remote device SHALL have exactly one project root, and it SHALL be the
     `root` value of that device's registry profile. Isolation between
     experiments SHALL be provided by cfg parameters and per-run
-    `artifacts/<ts>_<NNN>_<label>/` directories, never by opening an additional
+    `artifacts/<experiment_tag>/<ts>_<NNN>/` directories, never by opening an additional
     project root on the device.
 
 ## Historical boundary
@@ -132,4 +134,4 @@ pre-redesign `tools.run`, `tools.runs.register`, `tools.runs.complete`, and
 - Training architecture: [`../training-architecture/spec.md`](../training-architecture/spec.md)
 - Config schema: [`../config-schema/spec.md`](../config-schema/spec.md)
 - Redesign record: [`../../../docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md`](../../../docs/superpowers/specs/2026-05-18-tools-runs-redesign-design.md)
-- Development workflow: [`../../../CLAUDE.md`](../../../CLAUDE.md)
+- 开发流程：[`../../../AGENTS.md`](../../../AGENTS.md)

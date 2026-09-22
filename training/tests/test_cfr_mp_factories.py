@@ -1,8 +1,8 @@
 """Unit tests for training/paradigms/cfr/mp_factories.py (I31 #88 CFR T3).
 
 Mock-light: real tiny AdvantageNet pair + real owner-side WeightsSHM + real
-CFRParadigmConfig reconstruction (per CLAUDE.md: correctness tests use real
-interfaces). The traverser tree-walk itself is monkeypatched in the runner
+CFRParadigmConfig reconstruction using real interfaces. The traverser
+tree-walk itself is monkeypatched in the runner
 test (a real traversal needs GicgEnv + DSL — that lives in the smoke_full
 e2e test, not this fast unit suite).
 

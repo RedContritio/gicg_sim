@@ -1,4 +1,4 @@
-# ExIt warm-start arm on 56: RL16 (semantic_rl run 000055 iteration_16)
+# Historical ExIt warm-start arm. Paused: the RL16→AZ transplant is not behaviorally equivalent.
 # encoder+policy 迁移进 AZ（149 共享键 shape 精确 + Q头→policy头，
 # value/delta 头重新初始化；转换器 tools/ckpt/convert_rl16_to_az.py）。
 # 配方 = z 目标 + Go MCTS backend + 本地推理 + n_rollouts=8，

@@ -123,3 +123,5 @@ def test_rl16_conversion_creates_child_provenance(monkeypatch, tmp_path):
     meta = converted[KEY]
     assert meta['parents'] != source_meta['parents']
     assert hashlib.sha256(source.read_bytes()).hexdigest() in meta['parents']
+    assert converted['behaviorally_equivalent_to_source'] is False
+    assert converted['conversion_kind'] == 'lossy_parameter_transplant'

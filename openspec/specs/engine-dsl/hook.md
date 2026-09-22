@@ -14,7 +14,7 @@ parent: ./spec.md
 
 ## 1. Core 数据模型
 
-Hook 在 engine 内是 flat 数组(`CLAUDE.md "Core Model"` 段):
+Hook 在 engine 内是 flat 数组：
 
 - **Counter**:flat `[]Counter` array,Value / Init / Min / Max + auto-clamp。
 - **Hook**:flat hook array。Dispatched by HookType,ordered by

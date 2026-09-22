@@ -31,7 +31,7 @@ Safety guards
 - Refuses when ``changes/<id>/specs/`` exists without ``--specs-merged``.
 - Refuses when ``changes/archive/<id>/`` already exists.
 
-Per :mod:`CLAUDE.md`: 不接受静默回退;契约违反 SHALL raise/exit-non-zero.
+不接受静默回退；契约违反 SHALL raise/exit-non-zero。
 """
 
 from __future__ import annotations

@@ -12,8 +12,7 @@ supersedes: 2026-04-28 PM 版(基于 sqrt(N)=52 张样本,4 个 ★★★ 已被
 > 以 `openspec/specs/engine-dsl/` 和 `openspec/specs/engine-runtime/`
 > 为准；文中的 ACTIVE/CLOSED 是当时状态。
 
-对照当时的 DSL API 文档（现已迁入 `openspec/specs/engine-dsl/`）和
-`CLAUDE.md` API 块,
+对照当时的 DSL API 文档（现已迁入 `openspec/specs/engine-dsl/`），
 basis 已从 sqrt(N) 升级为全 706 张 cleansed + 全 builtin grep 实证。
 
 按优先级 ★ 排序。

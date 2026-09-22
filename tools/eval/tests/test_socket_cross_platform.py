@@ -32,7 +32,7 @@ def _alloc_port() -> int:
     Uses the bind-to-0 trick: bind to port 0, read the kernel-assigned
     port, close. Has a TOCTOU window between close and the server's
     bind, but that race is acceptable for tests (per pytest -n 4
-    convention in CLAUDE.md).
+    convention in AGENTS.md).
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('localhost', 0))

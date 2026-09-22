@@ -18,7 +18,7 @@ capability: engine-dsl
 ## 1. Purpose
 
 DSL 是 engine 与 game data 之间唯一的契约层。Engine ignorant of HP / energy
-/ elements / shields(详 `CLAUDE.md "Engine Ignorance"`),所有 game term
+/ elements / shields，所有 game term
 通过 counter + hook 在 DSL 中表达。本 spec 提供 6 大类约束:
 
 - **Counter 系统**(详 [`./counter.md`](./counter.md))
@@ -151,7 +151,7 @@ change 提案修订,而非在 DSL 文件中静默偏离。
 [`file-structure.md`](./file-structure.md)。
 
 **Data model**:
-- Counter + Hook 数据模型概述见 `CLAUDE.md "Core Model"` 段。
+- Counter + Hook 数据模型见 [`counter.md`](./counter.md) 与 [`hook.md`](./hook.md)。
 - DSL ref 类型(`SkillRef` / `CardRef`)定义在
   `gicg_engine/interp/registry.go`(L131 / L172)。
 - HookType 枚举定义在 `gicg_engine/types.go`(L100+,strict ADR-0019 §B.5

@@ -188,7 +188,9 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
     timestamp_utc = datetime.fromisoformat(fresh_metadata.timestamp)
     nnn = int(fresh_metadata.run_id)
     label = resolved_label  # type: ignore[assignment]  # validated above to be str
-
+    experiment_tag = fresh_metadata.experiment_tag or (
+        artifacts_dir.parent.name if artifacts_dir.parent.name != 'artifacts' else label
+    )
     return SetupState(
         artifacts_dir=artifacts_dir,
         cfg_resolved=cfg_resolved,
@@ -196,6 +198,7 @@ def phase_a_resume(args: argparse.Namespace) -> SetupState:
         nnn=nnn,
         label=label,
         timestamp_utc=timestamp_utc,
+        experiment_tag=experiment_tag,
         cfg_resolved_version=version,
         resume_ckpt_path=ckpt_path,
     )
@@ -280,7 +283,6 @@ def _bump_metadata_for_resume(
 
     # Step 3: metadata bump.
     cfg_file_rel = normalize_repo_relative(cfg_path, repo_root, label='cfg')
-
     updated = schema.RunMetadata(
         run_id=current.run_id,
         timestamp=current.timestamp,  # spec §Resume 语义 preserved
@@ -293,5 +295,7 @@ def _bump_metadata_for_resume(
         wall_seconds=0.0,  # spec §metadata.toml 字段: overwritten at close
         exit_code=current.exit_code,  # spec §Resume 语义 preserved
         notes=current.notes,
+        experiment_tag=current.experiment_tag,
+        run_label=current.run_label,
     )
     write_metadata_atomic(artifacts_dir, updated)

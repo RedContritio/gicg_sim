@@ -64,3 +64,12 @@ func (g *Game) SetSimulationSeed(seed int64) {
 		g.DeckRngs[pi] = NewRandom(g.DeckSeeds[pi])
 	}
 }
+
+func (g *Game) AdvanceSimulationDiceDraws(count int) {
+	if count < 0 {
+		panic("negative simulation dice draw count")
+	}
+	for range count {
+		g.Rng.Intn(DiceColorCount)
+	}
+}

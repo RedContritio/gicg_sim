@@ -70,10 +70,19 @@ def _agent_from_payload(payload: Mapping, seed: int, device: str = 'cpu') -> Sem
     agent.rng.seed(seed)
     settings = payload.get('settings', {})
     agent.sampling_temperature = settings.get('temperature', 1.0) if isinstance(settings, Mapping) else 1.0
-    if 'value_head' in payload:
-        from tools.experiments.semantic_training.value_baseline import attach
+    from tools.experiments.semantic_training.value_baseline import (
+        SIGNED_OUTCOME,
+        attach,
+        convert_value_head_state,
+        validate_value_encoding,
+    )
 
-        attach(agent, payload['value_head']).eval()
+    value_encoding = validate_value_encoding(payload.get('value_encoding', SIGNED_OUTCOME))
+    agent.value_encoding = SIGNED_OUTCOME
+    if 'value_head' in payload:
+        weights = convert_value_head_state(payload['value_head'], value_encoding, SIGNED_OUTCOME)
+
+        attach(agent, weights).eval()
     if 'rule_adapter' in payload:
         from tools.experiments.semantic_training.rule_auxiliary import attach_adapter
 

@@ -73,6 +73,11 @@ class _QueriesMixin:
         self._check()
         return int(self._lib.GameGetCurrentRound(self._handle))
 
+    def pending_dice_remaining(self):
+        """Return pending rerolls, or -1 when no dice input is pending."""
+        self._check()
+        return int(self._lib.GameGetPendingDiceRemaining(self._handle))
+
     def get_card_names(self):
         """Return dict {ref: name} for every declared card. Used by env
         wrappers to translate human-readable card names to refs once at
