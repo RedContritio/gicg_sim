@@ -147,7 +147,7 @@ def gpu(host: Host) -> None:
         "$process = Get-Process -Id $trainPid; "
         "$cpuStart = $process.TotalProcessorTime.TotalSeconds; "
         "$timer = [Diagnostics.Stopwatch]::StartNew(); "
-        "1..8 | ForEach-Object { "
+        "1..16 | ForEach-Object { "
         f"& nvidia-smi --query-gpu={query} --format=csv,noheader,nounits; "
         "Start-Sleep -Milliseconds 500 }; "
         "$timer.Stop(); $process.Refresh(); "
@@ -156,6 +156,18 @@ def gpu(host: Host) -> None:
         "Write-Output ('train_cpu_percent=' + [math]::Round($cpu, 1)); "
         "Write-Output ('train_memory_gib=' + [math]::Round($process.WorkingSet64 / 1GB, 2)); "
         "Write-Output ('logical_processors=' + [Environment]::ProcessorCount)"
+    )
+    ssh(host, script)
+
+
+def stop(host: Host) -> None:
+    pid_file = f"{host.root}/artifacts/train.pid"
+    script = (
+        f"$trainPid = [int](Get-Content '{pid_file}'); "
+        "$process = Get-Process -Id $trainPid -ErrorAction SilentlyContinue; "
+        "if (!$process) { Write-Output ('stopped pid=' + $trainPid); exit 0 }; "
+        "Stop-Process -Id $trainPid -Force; "
+        "Write-Output ('stopped pid=' + $trainPid)"
     )
     ssh(host, script)
 
@@ -187,7 +199,17 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "action",
-        choices=("wake", "sync", "prepare", "train", "status", "gpu", "pull", "evaluate"),
+        choices=(
+            "wake",
+            "sync",
+            "prepare",
+            "train",
+            "stop",
+            "status",
+            "gpu",
+            "pull",
+            "evaluate",
+        ),
     )
     parser.add_argument("host")
     parser.add_argument("config", nargs="?", default="configs/train/dmc.toml")
@@ -202,6 +224,7 @@ def main() -> None:
         "sync": sync,
         "prepare": prepare,
         "train": lambda selected: train(selected, arguments.config, arguments.resume),
+        "stop": stop,
         "status": status,
         "gpu": gpu,
         "pull": lambda selected: pull(selected, arguments.run),
