@@ -183,14 +183,21 @@ def pull(host: Host, run: str | None) -> None:
     )
 
 
-def evaluate(host: Host, config: str, checkpoint: str | None, output: str | None) -> None:
+def evaluate(
+    host: Host,
+    config: str,
+    checkpoint: str | None,
+    output: str | None,
+    overrides: tuple[str, ...],
+) -> None:
     if checkpoint is None or output is None:
         raise RuntimeError("evaluate requires --checkpoint and --output")
+    override_args = " ".join(f"--set '{override}'" for override in overrides)
     ssh(
         host,
         f"Set-Location '{host.root}'; "
         f"& '{host.python}' -m gicg_ai.evaluate '{config}' "
-        f"--candidate-checkpoint '{checkpoint}' --output '{output}'; "
+        f"--candidate-checkpoint '{checkpoint}' --output '{output}' {override_args}; "
         "if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
     )
 
@@ -217,6 +224,7 @@ def main() -> None:
     parser.add_argument("--run")
     parser.add_argument("--checkpoint")
     parser.add_argument("--output")
+    parser.add_argument("--set", action="append", default=[])
     arguments = parser.parse_args()
     host = load_host(arguments.host)
     actions = {
@@ -233,6 +241,7 @@ def main() -> None:
             arguments.config,
             arguments.checkpoint,
             arguments.output,
+            tuple(arguments.set),
         ),
     }
     actions[arguments.action](host)

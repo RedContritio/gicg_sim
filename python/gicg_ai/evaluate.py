@@ -1,6 +1,5 @@
 import argparse
 import json
-import re
 from pathlib import Path
 from typing import Protocol
 
@@ -10,6 +9,7 @@ import torch
 from .algorithm import DmcQNetwork, load_policy
 from .config import EvaluationConfig, load_environment_config, load_evaluation_config
 from .env import GicgEnv, env
+from .policy import greedy_spec
 
 
 class Policy(Protocol):
@@ -120,10 +120,8 @@ def create_policy(
         return CheckpointPolicy(model, device)
     if name == "random":
         return RandomPolicy(random)
-    match = re.fullmatch(r"F([1-5])D([1-9][0-9]*)", name)
-    if match:
-        return GreedyPolicy(int(match[1]), int(match[2]), node_budget, random)
-    raise RuntimeError(f"unknown policy {name!r}")
+    features, depth = greedy_spec(name)
+    return GreedyPolicy(features, depth, node_budget, random)
 
 
 def play_game(game: GicgEnv, policies: list[Policy], seed: int, candidate_seat: int) -> dict:

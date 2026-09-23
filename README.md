@@ -12,7 +12,7 @@
 | 对局引擎 | Rust 完整对局流程、元素反应、角色、卡牌、状态与选择结算 |
 | 当前规则集 | 凯亚、八重神子、艾尔海森、千织、玛拉妮、玛薇卡及当前 15 张牌组所需卡牌 |
 | Python 环境 | PettingZoo AEC 环境、状态编码、动作编码和 Rust 绑定 |
-| 基线 | 可配置的 FxDy 贪心搜索，当前正式对手为 F1D2 |
+| 基线 | 可配置的 FxDy 贪心搜索与训练对手池，当前正式对手为 F1D2 |
 | 主线算法 | 原生 DMC，学习执行动作的 `Q(s, a)`，支持 replay 与 checkpoint 恢复 |
 | Web | 双方三角色、正常手牌和完整对局流程 |
 | 远端运行 | Wake-on-LAN、同步、构建、训练、续训、评测、拉取和状态查询 |
@@ -105,7 +105,8 @@ git config core.hooksPath .githooks
 
 - DMC 直接回归本局执行动作的终局回报：胜 `+1`、平 `0`、负 `-1`。
 - 学习方按 episode 轮换座位。
-- `configs/train/dmc.toml` 按 50% Random、50% F1D2 采样对手。
+- `configs/train/dmc.toml` 通过 `[[training.opponents]]` 配置 Random 和任意 FxDy
+  对手及其采样权重。
 - 合法对局达到 `max_steps` 时单独记为截断，以中性回报 `0` 结算，不中止整次训练。
 - checkpoint 保存模型、优化器、replay、随机数状态、规则哈希和训练签名。
 - checkpoint 与规则、网络形状、设备类型或训练签名不一致时直接失败。
@@ -140,7 +141,8 @@ cp configs/hosts.example.toml configs/hosts.toml
 ```bash
 .venv/bin/python -m gicg_ai.remote evaluate gpu56 configs/eval/dmc_vs_f1d2.toml \
   --checkpoint artifacts/dmc/<run>/checkpoint.pt \
-  --output artifacts/dmc/<run>/eval_vs_f1d2.json
+  --output artifacts/dmc/<run>/eval_vs_f1d2.json \
+  --set evaluation.opponent=F1D3
 ```
 
 从远端 checkpoint 续训：

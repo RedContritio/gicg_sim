@@ -265,8 +265,9 @@ def training_signature(config: TrainingConfig) -> dict:
         "learning_rate": config.learning_rate,
         "weight_decay": config.weight_decay,
         "max_grad_norm": config.max_grad_norm,
-        "random_opponent_weight": config.random_opponent_weight,
-        "f1d2_opponent_weight": config.f1d2_opponent_weight,
+        "opponents": [
+            {"policy": opponent.policy, "weight": opponent.weight} for opponent in config.opponents
+        ],
         "opponent_node_budget": config.opponent_node_budget,
     }
 

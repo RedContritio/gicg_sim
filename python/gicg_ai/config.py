@@ -22,6 +22,12 @@ class EnvironmentConfig:
 
 
 @dataclass(frozen=True)
+class OpponentConfig:
+    policy: str
+    weight: float
+
+
+@dataclass(frozen=True)
 class TrainingConfig:
     experiment_tag: str
     episodes: int
@@ -37,8 +43,7 @@ class TrainingConfig:
     epsilon_end: float
     epsilon_decay_episodes: int
     max_grad_norm: float
-    random_opponent_weight: float
-    f1d2_opponent_weight: float
+    opponents: tuple[OpponentConfig, ...]
     opponent_node_budget: int
     checkpoint_every: int
     keep_checkpoints: int
@@ -91,8 +96,7 @@ def load_training_config(path: Path, overrides: tuple[str, ...] = ()) -> Trainin
         epsilon_end=raw["epsilon_end"],
         epsilon_decay_episodes=raw["epsilon_decay_episodes"],
         max_grad_norm=raw["max_grad_norm"],
-        random_opponent_weight=raw["random_opponent_weight"],
-        f1d2_opponent_weight=raw["f1d2_opponent_weight"],
+        opponents=tuple(OpponentConfig(**opponent) for opponent in raw["opponents"]),
         opponent_node_budget=raw["opponent_node_budget"],
         checkpoint_every=raw["checkpoint_every"],
         keep_checkpoints=raw["keep_checkpoints"],

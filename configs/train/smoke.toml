@@ -18,12 +18,18 @@ epsilon_start = 0.20
 epsilon_end = 0.05
 epsilon_decay_episodes = 100
 max_grad_norm = 5.0
-random_opponent_weight = 0.5
-f1d2_opponent_weight = 0.5
 opponent_node_budget = 10000
 checkpoint_every = 1
 keep_checkpoints = 2
 device = "cpu"
+
+[[training.opponents]]
+policy = "random"
+weight = 0.5
+
+[[training.opponents]]
+policy = "F1D2"
+weight = 0.5
 
 [game]
 ruleset = "data/native_latest"

@@ -18,6 +18,7 @@ from .config import (
     load_training_config,
 )
 from .env import GicgEnv, env
+from .policy import greedy_spec, validate_opponent
 
 _actor_game: GicgEnv | None = None
 _actor_model: DmcQNetwork | None = None
@@ -263,14 +264,15 @@ def opponent_action(
 ) -> int:
     if opponent == "random":
         return int(random.integers(len(game.legal_actions)))
+    features, depth = greedy_spec(opponent)
     seed = int(random.integers(0, np.iinfo(np.uint64).max, dtype=np.uint64))
-    return game.select_greedy_action(1, 2, config.opponent_node_budget, seed)
+    return game.select_greedy_action(features, depth, config.opponent_node_budget, seed)
 
 
 def select_opponent(config: TrainingConfig, random: np.random.Generator) -> str:
-    if random.random() < config.random_opponent_weight:
-        return "random"
-    return "F1D2"
+    policies = [opponent.policy for opponent in config.opponents]
+    weights = [opponent.weight for opponent in config.opponents]
+    return str(random.choice(policies, p=weights))
 
 
 def validate_training_config(config: TrainingConfig) -> None:
@@ -296,16 +298,24 @@ def validate_training_config(config: TrainingConfig) -> None:
         raise RuntimeError("epsilon must satisfy 0 <= end <= start <= 1")
     if config.max_grad_norm <= 0:
         raise RuntimeError("max_grad_norm must be positive")
-    weights = config.random_opponent_weight + config.f1d2_opponent_weight
-    if config.random_opponent_weight < 0 or config.f1d2_opponent_weight < 0:
-        raise RuntimeError("opponent weights cannot be negative")
-    if not np.isclose(weights, 1.0):
-        raise RuntimeError(f"opponent weights must sum to 1, got {weights}")
+    validate_opponents(config)
 
 
 def validate_parallel_config(config: TrainingConfig) -> None:
     if config.rollout_batch_size < config.actors:
         raise RuntimeError("rollout_batch_size cannot be smaller than actors")
+
+
+def validate_opponents(config: TrainingConfig) -> None:
+    if not config.opponents:
+        raise RuntimeError("at least one opponent is required")
+    for opponent in config.opponents:
+        validate_opponent(opponent.policy)
+    if any(opponent.weight <= 0 for opponent in config.opponents):
+        raise RuntimeError("opponent weights must be positive")
+    weights = sum(opponent.weight for opponent in config.opponents)
+    if not np.isclose(weights, 1.0):
+        raise RuntimeError(f"opponent weights must sum to 1, got {weights}")
 
 
 def write_metadata(
