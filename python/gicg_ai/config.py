@@ -32,7 +32,6 @@ class TrainingConfig:
     experiment_tag: str
     episodes: int
     actors: int
-    rollout_batch_size: int
     hidden_size: int
     learning_rate: float
     weight_decay: float
@@ -85,7 +84,6 @@ def load_training_config(path: Path, overrides: tuple[str, ...] = ()) -> Trainin
         experiment_tag=raw["experiment_tag"],
         episodes=raw["episodes"],
         actors=raw["actors"],
-        rollout_batch_size=raw["rollout_batch_size"],
         hidden_size=raw["hidden_size"],
         learning_rate=raw["learning_rate"],
         weight_decay=raw["weight_decay"],

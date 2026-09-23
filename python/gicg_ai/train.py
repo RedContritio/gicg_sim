@@ -2,15 +2,15 @@ import argparse
 import json
 import multiprocessing
 import shutil
-from concurrent.futures import Future, ProcessPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
+from multiprocessing.connection import Connection
 from pathlib import Path
 
 import numpy as np
 import torch
 
-from .algorithm import DmcAlgorithm, DmcQNetwork, Transition, exploration, select_action
+from .algorithm import DmcAlgorithm, Transition, exploration
 from .config import (
     EnvironmentConfig,
     TrainingConfig,
@@ -19,10 +19,6 @@ from .config import (
 )
 from .env import GicgEnv, env
 from .policy import greedy_spec, validate_opponent
-
-_actor_game: GicgEnv | None = None
-_actor_model: DmcQNetwork | None = None
-_actor_config: TrainingConfig | None = None
 
 
 @dataclass(frozen=True)
@@ -43,6 +39,75 @@ class EpisodeRollout:
         if self.winner is None:
             return 0.0
         return 1.0 if self.winner == self.learner else -1.0
+
+
+@dataclass(frozen=True)
+class InferenceRequest:
+    state: np.ndarray
+    actions: np.ndarray
+
+
+class CentralActors:
+    def __init__(self, environment: EnvironmentConfig, config: TrainingConfig):
+        context = multiprocessing.get_context("spawn")
+        self.connections: list[Connection] = []
+        self.processes: list[multiprocessing.Process] = []
+        for _ in range(config.actors):
+            parent, child = context.Pipe()
+            process = context.Process(target=actor_loop, args=(child, environment, config))
+            process.start()
+            child.close()
+            self.connections.append(parent)
+            self.processes.append(process)
+
+    def collect(
+        self, algorithm: DmcAlgorithm, episodes: range
+    ) -> list[tuple[EpisodeRollout, dict]]:
+        active = self.connections[: len(episodes)]
+        for connection, episode in zip(active, episodes, strict=True):
+            connection.send(episode)
+        completed = []
+        while active:
+            messages = [(connection, connection.recv()) for connection in active]
+            requests = []
+            active = []
+            for connection, message in messages:
+                if isinstance(message, EpisodeRollout):
+                    completed.append((message, learn_rollout(algorithm, message)))
+                elif isinstance(message, InferenceRequest):
+                    requests.append((connection, message))
+                    active.append(connection)
+                else:
+                    raise RuntimeError(f"unknown actor message {type(message)!r}")
+            self._respond(algorithm, requests)
+        return sorted(completed, key=lambda item: item[0].episode)
+
+    @staticmethod
+    def _respond(
+        algorithm: DmcAlgorithm, requests: list[tuple[Connection, InferenceRequest]]
+    ) -> None:
+        if not requests:
+            return
+        observations = [(request.state, request.actions) for _, request in requests]
+        selections = algorithm.select_batch(observations)
+        for (connection, _), selected in zip(requests, selections, strict=True):
+            connection.send(selected)
+
+    def close(self) -> None:
+        for connection in self.connections:
+            connection.send(None)
+        for process in self.processes:
+            process.join()
+            if process.exitcode != 0:
+                raise RuntimeError(f"actor process exited with code {process.exitcode}")
+        for connection in self.connections:
+            connection.close()
+
+    def __enter__(self) -> "CentralActors":
+        return self
+
+    def __exit__(self, error_type, error, traceback) -> None:
+        self.close()
 
 
 def train(
@@ -72,90 +137,48 @@ def train(
     checkpoints.mkdir()
     shutil.copy2(config_path, run / "config.toml")
     write_metadata(run, game, environment_config.seed, start_episode, resume, overrides)
-    context = multiprocessing.get_context("spawn")
     with (
-        ProcessPoolExecutor(
-            max_workers=training_config.actors,
-            mp_context=context,
-            initializer=initialize_actor,
-            initargs=(
-                environment_config,
-                training_config,
-                game.state_encoder.size,
-                game.action_encoder.size,
-            ),
-        ) as actors,
+        CentralActors(environment_config, training_config) as actors,
         (run / "metrics.jsonl").open("w") as metrics_file,
     ):
         episode = start_episode
-        end = rollout_batch_end(episode, training_config)
-        pending = submit_rollouts(
-            actors,
-            training_config.actors,
-            algorithm.actor_state(),
-            range(episode, end),
-        )
         while episode < training_config.episodes:
-            rollouts = resolve_rollouts(pending)
-            next_end = rollout_batch_end(end, training_config)
-            pending = []
-            if end % training_config.checkpoint_every != 0:
-                pending = submit_next_rollouts(actors, algorithm, training_config, end, next_end)
-            for rollout in rollouts:
-                metrics = learn_rollout(algorithm, rollout)
+            end = wave_end(episode, training_config)
+            for _, metrics in actors.collect(algorithm, range(episode, end)):
                 metrics_file.write(json.dumps(metrics) + "\n")
                 metrics_file.flush()
-                checkpoint_if_needed(
-                    algorithm,
-                    checkpoints,
-                    rollout.episode + 1,
-                    game.rules["hash"],
-                    training_config,
-                )
-            if not pending:
-                pending = submit_next_rollouts(actors, algorithm, training_config, end, next_end)
             episode = end
-            end = next_end
+            checkpoint_if_needed(
+                algorithm,
+                checkpoints,
+                episode,
+                game.rules["hash"],
+                training_config,
+            )
     algorithm.checkpoint(run / "checkpoint.pt", training_config.episodes, game.rules["hash"])
     game.close()
     return run
 
 
-def initialize_actor(
-    environment: EnvironmentConfig,
-    config: TrainingConfig,
-    state_size: int,
-    action_size: int,
+def actor_loop(
+    connection: Connection, environment: EnvironmentConfig, config: TrainingConfig
 ) -> None:
-    global _actor_game, _actor_model, _actor_config
     torch.set_num_threads(1)
-    _actor_game = env(environment)
-    _actor_model = DmcQNetwork(state_size, action_size, config.hidden_size)
-    _actor_model.eval()
-    _actor_config = config
-
-
-def collect_actor_rollouts(
-    model_state: dict[str, np.ndarray], episodes: list[int]
-) -> list[EpisodeRollout]:
-    if _actor_game is None or _actor_model is None or _actor_config is None:
-        raise RuntimeError("actor process is not initialized")
-    _actor_model.load_state_dict(
-        {name: torch.from_numpy(value) for name, value in model_state.items()}, strict=True
-    )
-    seed = _actor_game.config.seed
-    return [
-        collect_episode(_actor_game, _actor_model, _actor_config, seed + episode, episode)
-        for episode in episodes
-    ]
+    game = env(environment)
+    while (episode := connection.recv()) is not None:
+        connection.send(
+            collect_episode(game, config, environment.seed + episode, episode, connection)
+        )
+    game.close()
+    connection.close()
 
 
 def collect_episode(
     game: GicgEnv,
-    model: DmcQNetwork,
     config: TrainingConfig,
     seed: int,
     episode: int,
+    connection: Connection,
 ) -> EpisodeRollout:
     random = np.random.default_rng(seed)
     learner = episode % 2
@@ -169,9 +192,7 @@ def collect_episode(
             break
         player = game.agent_name_mapping[game.agent_selection]
         if player == learner:
-            action, transition = select_action(
-                model, torch.device("cpu"), observation, epsilon, random
-            )
+            action, transition = learner_action(observation, epsilon, random, connection)
             transitions.append(transition)
         else:
             action = opponent_action(game, config, opponent, random)
@@ -188,6 +209,28 @@ def collect_episode(
         rounds=game.state["round"],
         winner=winner,
         truncated=any(game.truncations.values()),
+    )
+
+
+def learner_action(
+    observation: dict[str, np.ndarray],
+    epsilon: float,
+    random: np.random.Generator,
+    connection: Connection,
+) -> tuple[int, Transition]:
+    count = int(observation["action_mask"].sum())
+    if count == 0:
+        raise RuntimeError("policy received no legal actions")
+    if random.random() < epsilon:
+        selected = int(random.integers(count))
+    else:
+        connection.send(
+            InferenceRequest(observation["state"].copy(), observation["actions"][:count].copy())
+        )
+        selected = connection.recv()
+    return selected, Transition(
+        state=observation["state"].copy(),
+        action=observation["actions"][selected].copy(),
     )
 
 
@@ -210,38 +253,9 @@ def learn_rollout(algorithm: DmcAlgorithm, rollout: EpisodeRollout) -> dict:
     return metrics
 
 
-def rollout_batch_end(episode: int, config: TrainingConfig) -> int:
+def wave_end(episode: int, config: TrainingConfig) -> int:
     checkpoint = ((episode // config.checkpoint_every) + 1) * config.checkpoint_every
-    return min(config.episodes, episode + config.rollout_batch_size, checkpoint)
-
-
-def submit_rollouts(
-    actors: ProcessPoolExecutor,
-    actor_count: int,
-    model_state: dict[str, np.ndarray],
-    episodes: range,
-) -> list[Future[list[EpisodeRollout]]]:
-    episode_list = list(episodes)
-    count = min(actor_count, len(episode_list))
-    chunks = [episode_list[index::count] for index in range(count)]
-    return [actors.submit(collect_actor_rollouts, model_state, chunk) for chunk in chunks]
-
-
-def resolve_rollouts(futures: list[Future[list[EpisodeRollout]]]) -> list[EpisodeRollout]:
-    rollouts = [rollout for future in futures for rollout in future.result()]
-    return sorted(rollouts, key=lambda rollout: rollout.episode)
-
-
-def submit_next_rollouts(
-    actors: ProcessPoolExecutor,
-    algorithm: DmcAlgorithm,
-    config: TrainingConfig,
-    episode: int,
-    end: int,
-) -> list[Future[list[EpisodeRollout]]]:
-    if episode >= config.episodes:
-        return []
-    return submit_rollouts(actors, config.actors, algorithm.actor_state(), range(episode, end))
+    return min(config.episodes, episode + config.actors, checkpoint)
 
 
 def checkpoint_if_needed(
@@ -280,7 +294,6 @@ def validate_training_config(config: TrainingConfig) -> None:
     positive = {
         "episodes": config.episodes,
         "actors": config.actors,
-        "rollout_batch_size": config.rollout_batch_size,
         "batch_size": config.batch_size,
         "replay_capacity": config.replay_capacity,
         "updates_per_episode": config.updates_per_episode,
@@ -292,7 +305,6 @@ def validate_training_config(config: TrainingConfig) -> None:
     invalid = [name for name, value in positive.items() if value < 1]
     if invalid:
         raise RuntimeError(f"training values must be positive: {', '.join(invalid)}")
-    validate_parallel_config(config)
     if config.batch_size > config.replay_capacity:
         raise RuntimeError("batch_size cannot exceed replay_capacity")
     if not 0 <= config.epsilon_end <= config.epsilon_start <= 1:
@@ -300,11 +312,6 @@ def validate_training_config(config: TrainingConfig) -> None:
     if config.max_grad_norm <= 0:
         raise RuntimeError("max_grad_norm must be positive")
     validate_opponents(config)
-
-
-def validate_parallel_config(config: TrainingConfig) -> None:
-    if config.rollout_batch_size < config.actors:
-        raise RuntimeError("rollout_batch_size cannot be smaller than actors")
 
 
 def validate_opponents(config: TrainingConfig) -> None:

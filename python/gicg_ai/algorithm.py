@@ -7,7 +7,7 @@ from torch import Tensor, nn
 
 from .config import TrainingConfig
 
-CHECKPOINT_VERSION = 5
+CHECKPOINT_VERSION = 6
 
 
 class DmcQNetwork(nn.Module):
@@ -36,6 +36,11 @@ class DmcQNetwork(nn.Module):
         action_features = self.action_encoder(actions)
         if state_features.ndim == 1 and action_features.ndim == 2:
             state_features = state_features.expand(action_features.shape[0], -1)
+        return self.q(torch.cat((state_features, action_features), dim=-1)).squeeze(-1)
+
+    def score_actions(self, states: Tensor, actions: Tensor, owners: Tensor) -> Tensor:
+        state_features = self.state_encoder(states).index_select(0, owners)
+        action_features = self.action_encoder(actions)
         return self.q(torch.cat((state_features, action_features), dim=-1)).squeeze(-1)
 
 
@@ -131,19 +136,24 @@ class DmcAlgorithm:
         )
         self.updates = 0
 
-    def select(
-        self,
-        observation: dict[str, np.ndarray],
-        epsilon: float,
-        random: np.random.Generator,
-    ) -> tuple[int, Transition]:
-        return select_action(self.model, self.device, observation, epsilon, random)
-
-    def actor_state(self) -> dict[str, np.ndarray]:
-        return {
-            name: value.detach().cpu().numpy().copy()
-            for name, value in self.model.state_dict().items()
-        }
+    def select_batch(self, observations: list[tuple[np.ndarray, np.ndarray]]) -> list[int]:
+        counts = [actions.shape[0] for _, actions in observations]
+        states = torch.from_numpy(np.stack([state for state, _ in observations])).to(self.device)
+        actions = torch.from_numpy(np.concatenate([actions for _, actions in observations])).to(
+            self.device
+        )
+        owners = torch.repeat_interleave(
+            torch.arange(len(observations), device=self.device),
+            torch.tensor(counts, device=self.device),
+        )
+        with torch.no_grad():
+            scores = self.model.score_actions(states, actions, owners)
+        selections = []
+        offset = 0
+        for count in counts:
+            selections.append(int(scores[offset : offset + count].argmax().item()))
+            offset += count
+        return selections
 
     def learn_episode(self, transitions: list[Transition], outcome: float) -> dict[str, float]:
         self.replay.push_episode(transitions, outcome)
@@ -229,33 +239,9 @@ def exploration(config: TrainingConfig, episode: int) -> float:
     return config.epsilon_start + progress * (config.epsilon_end - config.epsilon_start)
 
 
-def select_action(
-    model: DmcQNetwork,
-    device: torch.device,
-    observation: dict[str, np.ndarray],
-    epsilon: float,
-    random: np.random.Generator,
-) -> tuple[int, Transition]:
-    count = int(observation["action_mask"].sum())
-    if count == 0:
-        raise RuntimeError("policy received no legal actions")
-    if random.random() < epsilon:
-        selected = int(random.integers(count))
-    else:
-        state = torch.as_tensor(observation["state"], device=device)
-        actions = torch.as_tensor(observation["actions"][:count], device=device)
-        with torch.no_grad():
-            selected = int(model(state, actions).argmax().item())
-    return selected, Transition(
-        state=observation["state"].copy(),
-        action=observation["actions"][selected].copy(),
-    )
-
-
 def training_signature(config: TrainingConfig) -> dict:
     return {
         "actors": config.actors,
-        "rollout_batch_size": config.rollout_batch_size,
         "batch_size": config.batch_size,
         "replay_capacity": config.replay_capacity,
         "updates_per_episode": config.updates_per_episode,
