@@ -135,7 +135,7 @@ def play_game(game: GicgEnv, policies: list[Policy], seed: int, candidate_seat: 
         player = game.agent_name_mapping[game.agent_selection]
         game.step(policies[player].select(observation, game))
     truncated = any(game.truncations.values())
-    return {
+    result = {
         "seed": seed,
         "candidate_seat": candidate_seat,
         "winner": game.state["winner"],
@@ -144,6 +144,33 @@ def play_game(game: GicgEnv, policies: list[Policy], seed: int, candidate_seat: 
         "truncated": truncated,
         "steps": game.steps,
         "rounds": game.state["round"],
+    }
+    result.update(terminal_metrics(game))
+    return result
+
+
+def terminal_metrics(game: GicgEnv) -> dict:
+    hp_fields = {
+        definition["id"]: next(
+            index
+            for index, field in enumerate(definition["counters"]["fields"])
+            if field["name"] == "hp"
+        )
+        for definition in game.rules["characters"]
+    }
+    remaining_hp = []
+    survivors = []
+    for player in game.state["players"]:
+        health = [
+            character["counters"][hp_fields[character["definition"]]]
+            for character in player["characters"]
+        ]
+        remaining_hp.append(sum(health))
+        survivors.append(sum(value > 0 for value in health))
+    return {
+        "remaining_hp": remaining_hp,
+        "survivors": survivors,
+        "m1": abs(remaining_hp[0] - remaining_hp[1]) + abs(survivors[0] - survivors[1]),
     }
 
 
@@ -157,6 +184,8 @@ def summarize(
     return {
         "candidate": str(candidate_checkpoint) if candidate_checkpoint else config.candidate,
         "opponent": str(opponent_checkpoint) if opponent_checkpoint else config.opponent,
+        "candidate_name": policy_name(config.candidate, candidate_checkpoint),
+        "opponent_name": policy_name(config.opponent, opponent_checkpoint),
         "games": len(games),
         "wins": wins,
         "losses": losses,
@@ -167,8 +196,17 @@ def summarize(
         "seat_1_wins": sum(game["candidate_won"] for game in games if game["candidate_seat"] == 1),
         "average_steps": sum(game["steps"] for game in games) / len(games),
         "average_rounds": sum(game["rounds"] for game in games) / len(games),
+        "average_m1": sum(game["m1"] for game in games) / len(games),
         "results": games,
     }
+
+
+def policy_name(name: str, checkpoint: Path | None) -> str:
+    if checkpoint is not None:
+        return "DMC"
+    if name == "random":
+        return "Random"
+    return name
 
 
 def outcome_counts(games: list[dict]) -> tuple[int, int, int, int]:

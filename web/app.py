@@ -2,6 +2,7 @@ import json
 import secrets
 import tomllib
 from collections.abc import Callable
+from functools import lru_cache
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -13,6 +14,7 @@ from gicg_env import GameSession
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "web" / "static"
+VENDOR = ROOT / "node_modules"
 
 
 class CreateGame(BaseModel):
@@ -108,8 +110,130 @@ def runtime_json(operation: Callable[[], str]) -> dict:
         raise HTTPException(409, str(error)) from error
 
 
+@lru_cache(maxsize=4096)
+def evaluation_summary(path: Path, modified: int) -> dict:
+    del modified
+    data = json.loads(path.read_text())
+    keys = (
+        "candidate",
+        "opponent",
+        "games",
+        "wins",
+        "losses",
+        "draws",
+        "truncations",
+        "win_rate",
+        "seat_0_wins",
+        "seat_1_wins",
+        "average_m1",
+    )
+    summary = {key: data.get(key) for key in keys}
+    summary.update(evaluation_names(data, path))
+    return summary
+
+
+def evaluation_names(data: dict, path: Path) -> dict[str, str]:
+    opponent = data.get("opponent_name") or policy_name(data["opponent"])
+    if "pruned" in path.stem:
+        opponent = f"{opponent}P8"
+    return {
+        "candidate_name": data.get("candidate_name") or policy_name(data["candidate"]),
+        "opponent_name": opponent,
+    }
+
+
+def policy_name(value: str) -> str:
+    if value == "random":
+        return "Random"
+    source = Path(value.replace("\\", "/"))
+    if source.suffix != ".pt":
+        return value
+    checkpoint = (ROOT / source).resolve()
+    if ROOT not in checkpoint.parents:
+        return "DMC"
+    metadata = checkpoint.parent / "metadata.json"
+    if not metadata.is_file():
+        return "DMC"
+    return str(json.loads(metadata.read_text())["algorithm"]).upper()
+
+
+def evaluation_record(root: Path, path: Path) -> dict:
+    relative = path.relative_to(root)
+    record = evaluation_summary(path, path.stat().st_mtime_ns).copy()
+    record.update({"id": relative.as_posix(), "record": path.stem})
+    return record
+
+
+def evaluation_runs(root: Path) -> list[dict]:
+    grouped: dict[Path, list[Path]] = {}
+    for path in root.glob("*/*/eval*.json"):
+        grouped.setdefault(path.parent, []).append(path)
+    reports = [run_summary(root, directory, paths) for directory, paths in grouped.items()]
+    return sorted(reports, key=lambda report: (report["run"], report["id"]), reverse=True)
+
+
+def run_summary(root: Path, directory: Path, paths: list[Path]) -> dict:
+    relative = directory.relative_to(root)
+    records = [evaluation_record(root, path) for path in paths]
+    return {
+        "id": relative.as_posix(),
+        "experiment": relative.parts[0],
+        "run": relative.parts[1],
+        "candidates": sorted({record["candidate_name"] for record in records}),
+        "opponents": sorted({record["opponent_name"] for record in records}),
+        "evaluations": len(records),
+        "games": sum(record["games"] for record in records),
+        "m1_evaluations": sum(record["average_m1"] is not None for record in records),
+    }
+
+
+def run_directory(root: Path, report_id: str) -> Path:
+    directory = (root / report_id).resolve()
+    if root not in directory.parents or not directory.is_dir():
+        raise HTTPException(404, "评测报告不存在")
+    relative = directory.relative_to(root)
+    if len(relative.parts) != 2 or not any(directory.glob("eval*.json")):
+        raise HTTPException(404, "评测报告不存在")
+    return directory
+
+
+def run_report(root: Path, report_id: str) -> dict:
+    directory = run_directory(root, report_id)
+    paths = sorted(directory.glob("eval*.json"))
+    report = run_summary(root, directory, paths)
+    report["results"] = [evaluation_result(root, path) for path in paths]
+    return report
+
+
+def evaluation_result(root: Path, path: Path) -> dict:
+    data = json.loads(path.read_text())
+    data.update(evaluation_names(data, path))
+    data.update({"id": path.relative_to(root).as_posix(), "record": path.stem})
+    return data
+
+
+def register_report_routes(app: FastAPI, artifact_root: Path) -> None:
+    @app.get("/api/reports")
+    async def report_index() -> list[dict]:
+        return evaluation_runs(artifact_root)
+
+    @app.get("/api/reports/{report_id:path}")
+    async def report_result(report_id: str) -> dict:
+        return run_report(artifact_root, report_id)
+
+    @app.get("/reports")
+    async def reports() -> FileResponse:
+        return FileResponse(STATIC / "reports.html")
+
+    @app.get("/reports/view/{report_id:path}")
+    async def report(report_id: str) -> FileResponse:
+        run_directory(artifact_root, report_id)
+        return FileResponse(STATIC / "report.html")
+
+
 def create_app(config_path: Path | None = None) -> FastAPI:
     config = load_config(config_path or ROOT / "configs" / "web" / "local.toml")
+    artifact_root = (ROOT / config["server"]["artifacts"]).resolve()
     game_config = config["game"]
     defaults = [game_config["player_one"], game_config["player_two"]]
     default_decks = [game_config["player_one_deck"], game_config["player_two_deck"]]
@@ -164,6 +288,17 @@ def create_app(config_path: Path | None = None) -> FastAPI:
     async def index() -> FileResponse:
         return FileResponse(STATIC / "index.html")
 
+    register_report_routes(app, artifact_root)
+    app.mount(
+        "/vendor/echarts",
+        StaticFiles(directory=VENDOR / "echarts" / "dist"),
+        name="echarts",
+    )
+    app.mount(
+        "/vendor/simple-statistics",
+        StaticFiles(directory=VENDOR / "simple-statistics" / "dist"),
+        name="simple-statistics",
+    )
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
     return app
 

@@ -5,8 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>七圣召唤</title>
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/nav.css">
 </head>
 <body>
+  <nav class="global-nav" aria-label="主导航">
+    <div class="global-nav-inner">
+      <a class="global-brand" href="/">GICG</a>
+      <div class="global-links">
+        <a href="/" aria-current="page">对局</a>
+        <a href="/reports">训练评估</a>
+      </div>
+    </div>
+  </nav>
   <main>
     <header class="topbar">
       <div>
@@ -14,7 +24,9 @@
         <h1>七圣召唤</h1>
       </div>
       <div class="round hidden" id="round">第 1 回合</div>
-      <button class="ghost hidden" id="restart" type="button">重新开局</button>
+      <div class="topbar-actions">
+        <button class="ghost hidden" id="restart" type="button">重新开局</button>
+      </div>
     </header>
     <section class="lobby" id="lobby">
       <div class="lobby-head">

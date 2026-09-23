@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>评测报告</title>
+  <link rel="stylesheet" href="/static/reports.css">
+  <link rel="stylesheet" href="/static/nav.css">
+</head>
+<body>
+  <nav class="global-nav" aria-label="主导航">
+    <div class="global-nav-inner">
+      <a class="global-brand" href="/">GICG</a>
+      <div class="global-links">
+        <a href="/">对局</a>
+        <a href="/reports" aria-current="page">训练评估</a>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">GICG EVALUATION</p>
+        <h1 id="run-heading">评测报告</h1>
+        <p class="subtitle" id="experiment-heading"></p>
+      </div>
+      <a class="back-link" href="/reports">返回评测列表</a>
+    </header>
+    <p class="loading" id="loading">正在载入评测结果</p>
+    <p class="error hidden" id="error"></p>
+    <div class="hidden" id="content">
+      <section class="report-panel summary-panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">SUMMARY</p><h2>总评</h2></div>
+        </div>
+        <div class="table-wrap result-table-wrap">
+          <table class="run-summary">
+            <colgroup id="summary-columns"></colgroup>
+            <thead id="summary-heading"></thead>
+            <tbody id="summary"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="report-panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">M1 DISTRIBUTION</p><h2>M1 分布</h2></div>
+        </div>
+        <div id="distributions"></div>
+        <p class="empty hidden" id="m1-empty">本次运行没有记录 M1</p>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/static/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>训练评估</title>
+  <link rel="stylesheet" href="/static/reports.css">
+  <link rel="stylesheet" href="/static/nav.css">
+</head>
+<body>
+  <nav class="global-nav" aria-label="主导航">
+    <div class="global-nav-inner">
+      <a class="global-brand" href="/">GICG</a>
+      <div class="global-links">
+        <a href="/">对局</a>
+        <a href="/reports" aria-current="page">训练评估</a>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">GICG EVALUATIONS</p>
+        <h1>训练评估</h1>
+        <p class="subtitle">按运行归档的独立评估结果</p>
+      </div>
+    </header>
+    <section class="toolbar">
+      <label>
+        <span>筛选</span>
+        <input id="search" type="search" placeholder="实验、运行或参评方">
+      </label>
+      <p id="count"></p>
+    </section>
+    <section class="table-panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>实验</th><th>运行</th><th>参评方</th><th>对阵</th><th>评测</th>
+              <th>总对局</th><th>M1</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="evaluations"></tbody>
+        </table>
+      </div>
+      <p class="empty hidden" id="empty">没有评估结果</p>
+    </section>
+    <p class="error hidden" id="error"></p>
+  </main>
+  <script type="module" src="/static/reports.js"></script>
+</body>
+</html>

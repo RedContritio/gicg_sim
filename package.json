@@ -1,11 +1,15 @@
 {
   "name": "gicg-web",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "scripts": {
     "check": "biome check web/static"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14"
+  },
+  "dependencies": {
+    "echarts": "^6.1.0",
+    "simple-statistics": "^7.12.0"
   }
 }

@@ -53,13 +53,18 @@ main {
   background: rgba(7, 13, 19, 0.45);
 }
 .ghost {
-  justify-self: end;
   color: #dce9ee;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: transparent;
   padding: 10px 16px;
   cursor: pointer;
+  text-decoration: none;
+}
+.topbar-actions {
+  display: flex;
+  justify-self: end;
+  gap: 10px;
 }
 .status {
   margin: 24px 0 14px;

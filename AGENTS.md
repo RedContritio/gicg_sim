@@ -3,7 +3,8 @@
 ## 基本约束
 
 - `AGENTS.md` 必须始终保留在仓库根目录。
-- 开始工作前先检查 `git status --short --branch`，不得重置或覆盖其他会话的改动。
+- 开始工作前阅读 `docs/0_status/README.md` 和 `docs/HANDOFF.md`，再检查
+  `git status --short --branch`；不得重置或覆盖其他会话的改动。
 - 所有命令从仓库根目录执行；Rust 使用 workspace 级 `cargo` 命令，Python 使用 `python -m <模块>`。
 - 非预期输入直接失败，不维护旧 API、旧配置、旧 checkpoint 或旧目录兼容层。
 - 随机数、序列化、协议、配置解析、网络服务等通用能力使用成熟依赖，不在项目内重复实现。
@@ -36,6 +37,13 @@ configs/       train / eval / web 完整配置
 - 配置位于 `configs/{train,eval,web}/`，每个 TOML 必须完整且可独立运行，不使用继承。
 - 机器信息只写入 gitignored 的 `configs/hosts.toml`。
 - 运行产物位于 `artifacts/<experiment_tag>/<时间戳>_<六位序号>/`，包含配置、metadata、checkpoint 和指标。
+
+## 文档归属
+
+- `README.md` 只保留稳定能力、安装方法和常用入口。
+- `docs/0_status/README.md` 记录当前可用能力、已验证结果和项目边界。
+- `docs/HANDOFF.md` 记录当前工作区、运行进程、会话约束和下一接手动作。
+- 不维护 OpenSpec；架构不变量直接保留在本文件，避免重复事实来源。
 
 ## 验证与提交
 
