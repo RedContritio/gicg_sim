@@ -1,0 +1,7 @@
+[gpu]
+ssh = "user@192.0.2.10"
+hostname = "GPU-PC"
+root = "D:/gicg_mono"
+python = "D:/existing_env/Scripts/python.exe"
+mac = "00:00:00:00:00:00"
+broadcast = "192.0.2.255"
