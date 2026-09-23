@@ -111,7 +111,8 @@ def train(host: Host, config: str) -> None:
         f"-ArgumentList @('-m','gicg_ai.train','{config}','--artifacts','artifacts') "
         f"-RedirectStandardOutput '{artifacts}/train.out' "
         f"-RedirectStandardError '{artifacts}/train.err'; "
-        f"Set-Content '{artifacts}/train.pid' $process.Id; $process.Id",
+        f"Set-Content '{artifacts}/train.pid' $process.Id; $process.Id; "
+        "$process.WaitForExit(); exit $process.ExitCode",
     )
 
 
@@ -123,6 +124,7 @@ def status(host: Host) -> None:
         "$process = Get-Process -Id $trainPid -ErrorAction SilentlyContinue; "
         "if ($process) { Write-Output ('running pid=' + $trainPid) } "
         "else { Write-Output ('stopped pid=' + $trainPid) }; "
+        f"Get-Content '{host.root}/artifacts/train.out' -Tail 5 -ErrorAction SilentlyContinue; "
         f"Get-Content '{host.root}/artifacts/train.err' -Tail 20 -ErrorAction SilentlyContinue"
     )
     ssh(host, script)
