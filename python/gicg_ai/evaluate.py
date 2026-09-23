@@ -135,12 +135,14 @@ def play_game(game: GicgEnv, policies: list[Policy], seed: int, candidate_seat: 
             break
         player = game.agent_name_mapping[game.agent_selection]
         game.step(policies[player].select(observation, game))
+    truncated = any(game.truncations.values())
     return {
         "seed": seed,
         "candidate_seat": candidate_seat,
         "winner": game.state["winner"],
         "candidate_won": game.state["winner"] == candidate_seat,
-        "draw": game.state["winner"] is None,
+        "draw": game.state["phase"] == "finished" and game.state["winner"] is None,
+        "truncated": truncated,
         "steps": game.steps,
         "rounds": game.state["round"],
     }
@@ -152,7 +154,7 @@ def summarize(
     candidate_checkpoint: Path | None,
     opponent_checkpoint: Path | None,
 ) -> dict:
-    wins, draws, losses = outcome_counts(games)
+    wins, draws, losses, truncations = outcome_counts(games)
     return {
         "candidate": str(candidate_checkpoint) if candidate_checkpoint else config.candidate,
         "opponent": str(opponent_checkpoint) if opponent_checkpoint else config.opponent,
@@ -160,6 +162,7 @@ def summarize(
         "wins": wins,
         "losses": losses,
         "draws": draws,
+        "truncations": truncations,
         "win_rate": wins / len(games),
         "seat_0_wins": sum(game["candidate_won"] for game in games if game["candidate_seat"] == 0),
         "seat_1_wins": sum(game["candidate_won"] for game in games if game["candidate_seat"] == 1),
@@ -169,10 +172,11 @@ def summarize(
     }
 
 
-def outcome_counts(games: list[dict]) -> tuple[int, int, int]:
+def outcome_counts(games: list[dict]) -> tuple[int, int, int, int]:
     wins = sum(game["candidate_won"] for game in games)
     draws = sum(game["draw"] for game in games)
-    return wins, draws, len(games) - wins - draws
+    truncations = sum(game["truncated"] for game in games)
+    return wins, draws, len(games) - wins - draws - truncations, truncations
 
 
 def main() -> None:

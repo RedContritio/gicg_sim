@@ -149,6 +149,34 @@ fn direct_reactions_apply_bonus_collateral_and_forced_switch() {
 }
 
 #[test]
+fn reaction_collateral_is_resolved_before_defeat_switch() {
+    let (runtime, mut game) = ready(&["kaeya", "yae_miko", "alhaitham"]);
+    set_counter(&mut game, &runtime, 1, 0, "hp", 2);
+    set_counter(&mut game, &runtime, 1, 1, "hp", 1);
+    game.state.players[1].characters[0]
+        .auras
+        .push(Element::Electro);
+
+    use_action(&mut game, "frostgnaw", 3);
+
+    assert_eq!(hp(&game, &runtime, 1, 0), 0);
+    assert_eq!(hp(&game, &runtime, 1, 1), 0);
+    assert_eq!(hp(&game, &runtime, 1, 2), 9);
+    let decision = game.state.decision.as_ref().unwrap();
+    assert_eq!(decision.player, 1);
+    assert_eq!(
+        decision
+            .options
+            .iter()
+            .map(|option| option.id.as_str())
+            .collect::<Vec<_>>(),
+        vec!["2"]
+    );
+    game.choose(decision.id, 0).unwrap();
+    assert_eq!(game.state.players[1].active, 2);
+}
+
+#[test]
 fn reaction_products_affect_later_damage_and_round_end() {
     let (runtime, mut game) = ready(&["alhaitham", "mavuika", "kaeya"]);
     game.state.players[1].characters[0]

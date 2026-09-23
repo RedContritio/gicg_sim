@@ -255,6 +255,9 @@ impl Game {
         if self.state.decision.is_some() || self.state.phase == Phase::Finished {
             return Ok(Vec::new());
         }
+        if self.state.phase == Phase::Action {
+            self.require_living_active_characters()?;
+        }
         match self.state.phase {
             Phase::SelectActive | Phase::Finished => Ok(Vec::new()),
             Phase::Redraw => Ok(redraw_commands(
@@ -817,10 +820,20 @@ impl Game {
                 selected.id
             ))
         })?;
+        let target = EntityRef::Character { player, slot };
+        if self.state.players[player].active == slot {
+            return Err(EngineError::Rule(format!(
+                "forced switch target {player}:{slot} is already active"
+            )));
+        }
+        if !self.is_alive(target)? {
+            return Err(EngineError::Rule(format!(
+                "forced switch target {player}:{slot} is defeated"
+            )));
+        }
         let actor = self.state.active_character(player);
         self.state.players[player].active = slot;
         self.plunging_ready[player] = true;
-        let target = self.state.active_character(player);
         self.emit(Event {
             kind: EventKind::Switch,
             actor: Some(actor),
@@ -2200,23 +2213,57 @@ impl Game {
         resolved: DamageResolution,
         applied: i32,
     ) -> Result<()> {
+        let defeated = self.defeated_after_damage(context.clone(), target, applied)?;
+        let switch_player = self.begin_damage_defeat(&context, target, defeated)?;
+        self.finish_damage_resolution(context, target, player, resolved, defeated, switch_player)
+    }
+
+    fn defeated_after_damage(
+        &mut self,
+        context: RuleContext,
+        target: EntityRef,
+        applied: i32,
+    ) -> Result<bool> {
         let hp = self.state.counter(self.runtime.rules(), target, "hp")?;
-        let mut defeated = hp <= 0 && applied > 0;
-        let reaction_kind = resolved.reaction.map(|value| value.kind);
-        if defeated && self.prevent_defeat(context.clone(), target)? {
-            defeated = false;
+        if hp > 0 || applied <= 0 {
+            return Ok(false);
         }
-        if defeated {
-            self.handle_defeat(
-                &context,
-                target,
-                reaction_kind.is_some_and(Reaction::force_switch),
-            )?;
+        Ok(!self.prevent_defeat(context, target)?)
+    }
+
+    fn begin_damage_defeat(
+        &mut self,
+        context: &RuleContext,
+        target: EntityRef,
+        defeated: bool,
+    ) -> Result<Option<PlayerId>> {
+        if !defeated {
+            return Ok(None);
         }
+        self.handle_defeat(context, target)
+    }
+
+    fn finish_damage_resolution(
+        &mut self,
+        context: RuleContext,
+        target: EntityRef,
+        player: PlayerId,
+        resolved: DamageResolution,
+        defeated: bool,
+        switch_player: Option<PlayerId>,
+    ) -> Result<()> {
         if self.state.phase == Phase::Finished {
             return Ok(());
         }
-        self.finish_reaction(&context, target, player, resolved.reaction, defeated)
+        let reaction_kind = resolved.reaction.map(|value| value.kind);
+        self.finish_reaction(&context, target, player, resolved.reaction, defeated)?;
+        if self.state.phase == Phase::Finished {
+            return Ok(());
+        }
+        if let Some(player) = switch_player {
+            self.finish_defeat_switch(player, reaction_kind.is_some_and(Reaction::force_switch))?;
+        }
+        Ok(())
     }
 
     fn prevent_defeat(&mut self, context: RuleContext, target: EntityRef) -> Result<bool> {
@@ -2470,8 +2517,7 @@ impl Game {
         &mut self,
         context: &RuleContext,
         target: EntityRef,
-        force_switch: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<PlayerId>> {
         let EntityRef::Character { player, slot } = target else {
             unreachable!()
         };
@@ -2481,12 +2527,19 @@ impl Game {
         let alive = self.alive_slots(player)?;
         if alive.is_empty() {
             self.finish_match(1 - player, crate::FinishReason::Defeat);
-        } else if self.state.players[player].active == slot {
-            if force_switch {
-                self.switch_next(player)?;
-            } else {
-                self.create_switch_decision(player, alive);
-            }
+            return Ok(None);
+        }
+        Ok((self.state.players[player].active == slot).then_some(player))
+    }
+
+    fn finish_defeat_switch(&mut self, player: PlayerId, force_switch: bool) -> Result<()> {
+        let alive = self.alive_slots(player)?;
+        if alive.is_empty() {
+            self.finish_match(1 - player, crate::FinishReason::Defeat);
+        } else if force_switch {
+            self.switch_next(player)?;
+        } else {
+            self.create_switch_decision(player, alive);
         }
         Ok(())
     }
@@ -2889,6 +2942,18 @@ impl Game {
             }
         }
         Ok(alive)
+    }
+
+    fn require_living_active_characters(&self) -> Result<()> {
+        for player in 0..2 {
+            let active = self.state.active_character(player);
+            if !self.is_alive(active)? && !self.alive_slots(player)?.is_empty() {
+                return Err(EngineError::Rule(format!(
+                    "player {player} has a defeated active character"
+                )));
+            }
+        }
+        Ok(())
     }
 }
 

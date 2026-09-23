@@ -39,4 +39,15 @@ def test_training_resume_and_evaluation(tmp_path: Path) -> None:
         candidate_checkpoint=resumed_a / "checkpoint.pt",
     )
     assert result["games"] == 4
-    assert result["wins"] + result["losses"] + result["draws"] == 4
+    assert (
+        result["wins"] + result["losses"] + result["draws"] + result["truncations"] == 4
+    )
+
+    evaluation_source = (ROOT / "configs" / "eval" / "smoke.toml").read_text()
+    evaluation_config = tmp_path / "eval.toml"
+    evaluation_config.write_text(evaluation_source.replace("max_steps = 4096", "max_steps = 1"))
+    truncated_result = evaluate(evaluation_config)
+    assert truncated_result["wins"] == 0
+    assert truncated_result["losses"] == 0
+    assert truncated_result["draws"] == 0
+    assert truncated_result["truncations"] == 4

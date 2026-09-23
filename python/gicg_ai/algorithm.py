@@ -7,7 +7,7 @@ from torch import Tensor, nn
 
 from .config import TrainingConfig
 
-CHECKPOINT_VERSION = 2
+CHECKPOINT_VERSION = 3
 
 
 class DmcQNetwork(nn.Module):
