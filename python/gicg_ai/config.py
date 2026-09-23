@@ -1,6 +1,7 @@
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -54,9 +55,8 @@ class EvaluationConfig:
     device: str
 
 
-def load_environment_config(path: Path) -> EnvironmentConfig:
-    with path.open("rb") as file:
-        raw = tomllib.load(file)
+def load_environment_config(path: Path, overrides: tuple[str, ...] = ()) -> EnvironmentConfig:
+    raw = load_config(path, overrides)
     game = raw["game"]
     environment = raw["environment"]
     match = MatchConfig(
@@ -74,9 +74,8 @@ def load_environment_config(path: Path) -> EnvironmentConfig:
     )
 
 
-def load_training_config(path: Path) -> TrainingConfig:
-    with path.open("rb") as file:
-        raw = tomllib.load(file)["training"]
+def load_training_config(path: Path, overrides: tuple[str, ...] = ()) -> TrainingConfig:
+    raw = load_config(path, overrides)["training"]
     return TrainingConfig(
         experiment_tag=raw["experiment_tag"],
         episodes=raw["episodes"],
@@ -101,9 +100,8 @@ def load_training_config(path: Path) -> TrainingConfig:
     )
 
 
-def load_evaluation_config(path: Path) -> EvaluationConfig:
-    with path.open("rb") as file:
-        raw = tomllib.load(file)["evaluation"]
+def load_evaluation_config(path: Path, overrides: tuple[str, ...] = ()) -> EvaluationConfig:
+    raw = load_config(path, overrides)["evaluation"]
     return EvaluationConfig(
         episodes=raw["episodes"],
         seed=raw["seed"],
@@ -112,3 +110,35 @@ def load_evaluation_config(path: Path) -> EvaluationConfig:
         node_budget=raw["node_budget"],
         device=raw["device"],
     )
+
+
+def load_config(path: Path, overrides: tuple[str, ...] = ()) -> dict[str, Any]:
+    with path.open("rb") as file:
+        config = tomllib.load(file)
+    for override in overrides:
+        apply_override(config, override)
+    return config
+
+
+def apply_override(config: dict[str, Any], override: str) -> None:
+    path, separator, raw_value = override.partition("=")
+    if not separator or not path or not raw_value:
+        raise RuntimeError(f"invalid config override {override!r}")
+    keys = path.split(".")
+    target = config
+    for key in keys[:-1]:
+        value = target.get(key)
+        if not isinstance(value, dict):
+            raise RuntimeError(f"unknown config path {path!r}")
+        target = value
+    key = keys[-1]
+    if key not in target:
+        raise RuntimeError(f"unknown config path {path!r}")
+    target[key] = parse_override_value(raw_value)
+
+
+def parse_override_value(value: str) -> Any:
+    try:
+        return tomllib.loads(f"value = {value}")["value"]
+    except tomllib.TOMLDecodeError:
+        return value

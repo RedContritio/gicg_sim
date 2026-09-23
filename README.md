@@ -94,6 +94,15 @@ git config core.hooksPath .githooks
 正式评测配置为 `configs/eval/dmc_vs_random.toml` 和
 `configs/eval/dmc_vs_f1d2.toml`。
 
+运行时可用点路径覆盖已有配置项，不修改配置文件：
+
+```bash
+.venv/bin/python -m gicg_ai.evaluate configs/eval/dmc_vs_f1d2.toml \
+  --set evaluation.device=mps
+```
+
+`--set` 可以重复使用；不存在的配置路径会直接失败。
+
 ## 训练语义
 
 - DMC 直接回归本局执行动作的终局回报：胜 `+1`、平 `0`、负 `-1`。

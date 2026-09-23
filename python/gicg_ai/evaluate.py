@@ -68,9 +68,10 @@ def evaluate(
     config_path: Path,
     candidate_checkpoint: Path | None = None,
     opponent_checkpoint: Path | None = None,
+    overrides: tuple[str, ...] = (),
 ) -> dict:
-    environment_config = load_environment_config(config_path)
-    evaluation_config = load_evaluation_config(config_path)
+    environment_config = load_environment_config(config_path, overrides)
+    evaluation_config = load_evaluation_config(config_path, overrides)
     if evaluation_config.episodes < 1:
         raise RuntimeError("evaluation episodes must be positive")
     game = env(environment_config)
@@ -185,11 +186,13 @@ def main() -> None:
     parser.add_argument("--candidate-checkpoint", type=Path)
     parser.add_argument("--opponent-checkpoint", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--set", action="append", default=[])
     arguments = parser.parse_args()
     result = evaluate(
         arguments.config,
         arguments.candidate_checkpoint,
         arguments.opponent_checkpoint,
+        tuple(arguments.set),
     )
     serialized = json.dumps(result, indent=2)
     if arguments.output is not None:
