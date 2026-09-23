@@ -106,6 +106,18 @@ impl GameSession {
         serde_json::to_string(&actions).map_err(runtime_error)
     }
 
+    fn select_greedy_action(
+        &self,
+        features: u8,
+        depth: usize,
+        node_budget: usize,
+        seed: u64,
+    ) -> PyResult<usize> {
+        self.game
+            .select_greedy_action(features, depth, node_budget, seed)
+            .map_err(runtime_error)
+    }
+
     fn submit(&mut self, command: &str) -> PyResult<String> {
         let command = serde_json::from_str::<Command>(command)
             .map_err(|error| PyValueError::new_err(error.to_string()))?;

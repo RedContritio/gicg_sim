@@ -9,9 +9,9 @@ use crate::{
     CardTargetDefinition, ChoiceOption,
     Command::*,
     CounterConsume, DamageDirection, DamageModifierDefinition, Decision, DiceSet, Die, Effect,
-    Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameState, HandlerId,
-    LuaRuntime, MatchFormat, MergePolicy, ModifierState, Phase, PlayerId, Reaction, ReactionRecord,
-    Result, RuleContext, TargetSide, TargetState, Zone,
+    Element, EngineError, EntityRef, Event, EventKind, GameConfig, GameSignals, GameState,
+    HandlerId, LuaRuntime, MatchFormat, MergePolicy, ModifierState, Phase, PlayerId, Reaction,
+    ReactionRecord, Result, RuleContext, TargetSide, TargetState, Zone,
     lua::resolve_target,
     reaction::{self, FROZEN},
 };
@@ -69,11 +69,13 @@ struct ActiveAction {
     traits: ActionTraits,
 }
 
+#[derive(Clone)]
 struct QueuedEffect {
     effect: Effect,
     context: RuleContext,
 }
 
+#[derive(Clone)]
 enum PendingDecision {
     InitialActive,
     ForcedSwitch,
@@ -147,6 +149,7 @@ pub struct PlayerActionPreviews {
     pub cards: Vec<ActionPreview>,
 }
 
+#[derive(Clone)]
 pub struct Game {
     runtime: Rc<LuaRuntime>,
     pub state: GameState,
@@ -159,6 +162,7 @@ pub struct Game {
     phase_done: [bool; 2],
     plunging_ready: [bool; 2],
     round_transition: RoundTransition,
+    signals: GameSignals,
 }
 
 impl Game {
@@ -186,6 +190,7 @@ impl Game {
             phase_done: [false; 2],
             plunging_ready: [false; 2],
             round_transition: RoundTransition::None,
+            signals: GameSignals::default(),
         };
         game.initialize_passives();
         for player in 0..2 {
@@ -233,6 +238,10 @@ impl Game {
 
     pub fn rules(&self) -> &crate::Ruleset {
         self.runtime.rules()
+    }
+
+    pub(crate) fn signals(&self) -> GameSignals {
+        self.signals
     }
 
     pub fn action_previews(&self) -> Result<[PlayerActionPreviews; 2]> {
@@ -1174,6 +1183,7 @@ impl Game {
                 "player {player} has already ended the round"
             )));
         }
+        self.signals.dice_wasted[player] += i32::from(self.state.players[player].dice.total());
         self.state.players[player].ended = true;
         self.first_ended.get_or_insert(player);
         let actor = self.state.active_character(player);
@@ -1686,6 +1696,10 @@ impl Game {
             .state
             .counter_range(self.runtime.rules(), target, name)?;
         let value = current.saturating_add(delta).clamp(min, max);
+        if name == "energy" && delta > 0 {
+            self.signals.energy_overflow[target.player()] +=
+                current.saturating_add(delta).saturating_sub(max).max(0);
+        }
         self.state
             .set_counter(self.runtime.rules(), target, name, value)?;
         self.remove_exhausted(target)
@@ -1747,6 +1761,7 @@ impl Game {
         let amount = i32::try_from(amount)
             .map_err(|_| EngineError::Rule(format!("healing amount {amount} overflows i32")))?;
         let healed = amount.min(maximum - hp);
+        self.signals.healing[player] += healed;
         self.state
             .set_counter(self.runtime.rules(), target, "hp", hp + healed)?;
         self.emit(Event {
@@ -2116,6 +2131,11 @@ impl Game {
             amount,
         )?;
         let reaction = self.resolve_reaction(target, element)?;
+        if reaction.is_some()
+            && let Some(source) = context.source
+        {
+            self.signals.reactions[source.player()] += 1;
+        }
         let reaction_bonus = reaction.map_or(0, |value| value.kind.bonus());
         let boosted = amount.saturating_add(reaction_bonus);
         let (element, amount) = self.apply_damage_modifiers(
@@ -2306,6 +2326,7 @@ impl Game {
                         .counter(self.runtime.rules(), invocation.source, counter)?;
                 let absorbed = points.min(amount);
                 amount -= absorbed;
+                self.signals.shields[target.player()] += absorbed;
                 self.add_entity_counter(invocation.source, counter, -absorbed)?;
                 continue;
             }
@@ -2448,6 +2469,7 @@ impl Game {
         let EntityRef::Character { player, slot } = target else {
             unreachable!()
         };
+        self.signals.kills[1 - player] += 1;
         self.emit_character_defeated(context, target, player)?;
         self.clear_defeated_character(player, slot)?;
         let alive = self.alive_slots(player)?;

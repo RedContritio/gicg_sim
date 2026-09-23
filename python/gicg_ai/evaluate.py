@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Protocol
 
@@ -24,20 +25,27 @@ class RandomPolicy:
         return int(self.random.integers(len(game.legal_actions)))
 
 
-class HeuristicPolicy:
-    priority = {
-        "skill": 5,
-        "card": 4,
-        "tune": 3,
-        "switch": 2,
-        "end": 1,
-    }
+class GreedyPolicy:
+    def __init__(
+        self,
+        features: int,
+        depth: int,
+        node_budget: int,
+        random: np.random.Generator,
+    ):
+        self.features = features
+        self.depth = depth
+        self.node_budget = node_budget
+        self.random = random
 
     def select(self, observation: dict[str, np.ndarray], game: GicgEnv) -> int:
         del observation
-        return max(
-            range(len(game.legal_actions)),
-            key=lambda index: self.priority.get(game.legal_actions[index]["kind"], 0),
+        seed = int(self.random.integers(0, np.iinfo(np.uint64).max, dtype=np.uint64))
+        return game.select_greedy_action(
+            self.features,
+            self.depth,
+            self.node_budget,
+            seed,
         )
 
 
@@ -73,6 +81,7 @@ def evaluate(
         game,
         evaluation_config.device,
         random,
+        evaluation_config.node_budget,
     )
     opponent = create_policy(
         evaluation_config.opponent,
@@ -80,6 +89,7 @@ def evaluate(
         game,
         evaluation_config.device,
         random,
+        evaluation_config.node_budget,
     )
     games = []
     for episode in range(evaluation_config.episodes):
@@ -96,6 +106,7 @@ def create_policy(
     game: GicgEnv,
     device: str,
     random: np.random.Generator,
+    node_budget: int,
 ) -> Policy:
     if checkpoint is not None:
         model = load_policy(
@@ -108,8 +119,9 @@ def create_policy(
         return CheckpointPolicy(model, device)
     if name == "random":
         return RandomPolicy(random)
-    if name == "heuristic":
-        return HeuristicPolicy()
+    match = re.fullmatch(r"F([1-5])D([1-9][0-9]*)", name)
+    if match:
+        return GreedyPolicy(int(match[1]), int(match[2]), node_budget, random)
     raise RuntimeError(f"unknown policy {name!r}")
 
 

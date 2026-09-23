@@ -38,6 +38,7 @@ class EvaluationConfig:
     seed: int
     candidate: str
     opponent: str
+    node_budget: int
     device: str
 
 
@@ -84,5 +85,6 @@ def load_evaluation_config(path: Path) -> EvaluationConfig:
         seed=raw["seed"],
         candidate=raw["candidate"],
         opponent=raw["opponent"],
+        node_budget=raw["node_budget"],
         device=raw["device"],
     )

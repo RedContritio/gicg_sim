@@ -113,6 +113,9 @@ class GicgEnv(AECEnv):
     def close(self) -> None:
         self.session = None
 
+    def select_greedy_action(self, features: int, depth: int, node_budget: int, seed: int) -> int:
+        return self._active_session().select_greedy_action(features, depth, node_budget, seed)
+
     def _new_session(self, seed: int) -> GameSession:
         match = self.config.match
         return GameSession(

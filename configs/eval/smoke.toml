@@ -6,8 +6,9 @@ max_steps = 4096
 [evaluation]
 episodes = 2
 seed = 1000
-candidate = "heuristic"
+candidate = "F1D2"
 opponent = "random"
+node_budget = 10000
 device = "cpu"
 
 [game]

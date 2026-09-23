@@ -2,6 +2,7 @@ mod definition;
 mod effect;
 mod error;
 mod game;
+mod greedy;
 mod lua;
 mod reaction;
 mod state;

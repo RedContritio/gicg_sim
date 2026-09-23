@@ -110,6 +110,16 @@ pub struct MatchFormat {
     pub max_card_copies: usize,
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct GameSignals {
+    pub healing: [i32; 2],
+    pub shields: [i32; 2],
+    pub reactions: [i32; 2],
+    pub kills: [i32; 2],
+    pub energy_overflow: [i32; 2],
+    pub dice_wasted: [i32; 2],
+}
+
 impl MatchFormat {
     pub fn validate(self, rules: &Ruleset, config: &GameConfig) -> Result<()> {
         if self.characters == 0 || self.cards == 0 || self.max_card_copies == 0 {
