@@ -1686,8 +1686,14 @@ impl Game {
         name: &str,
         delta: i32,
     ) -> Result<()> {
-        let target = resolve_target(&self.state, context, target)?;
-        self.add_entity_counter(target, name, delta)
+        let entity = resolve_target(&self.state, context, target)?;
+        if target == crate::TargetRef::Source
+            && let EntityRef::Modifier { instance, .. } = entity
+            && self.state.find_modifier(instance).is_none()
+        {
+            return Ok(());
+        }
+        self.add_entity_counter(entity, name, delta)
     }
 
     fn add_entity_counter(&mut self, target: EntityRef, name: &str, delta: i32) -> Result<()> {
