@@ -17,6 +17,7 @@ class Host:
     python: str
     mac: str
     broadcast: str
+    cargo_registry: str
 
 
 def load_host(name: str, path: Path = Path("configs/hosts.toml")) -> Host:
@@ -85,8 +86,14 @@ def sync(host: Host) -> None:
 
 def prepare(host: Host) -> None:
     cargo = "$env:USERPROFILE + '/.cargo/bin'"
+    cargo_config = (
+        '[source.crates-io]\nreplace-with = "mirror"\n\n'
+        f'[source.mirror]\nregistry = "{host.cargo_registry}"\n'
+    )
     ssh(
         host,
+        f"New-Item -ItemType Directory -Force '{host.root}/.cargo' | Out-Null; "
+        f"Set-Content -Encoding utf8 '{host.root}/.cargo/config.toml' '{cargo_config}'; "
         f"$env:PATH = ({cargo}) + ';' + $env:PATH; "
         f"Set-Location '{host.root}'; "
         f"& '{host.python}' -m pip install -e '.[train]'; "
