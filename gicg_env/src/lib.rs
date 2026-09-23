@@ -80,6 +80,32 @@ impl GameSession {
         serde_json::to_string(self.game.rules()).map_err(runtime_error)
     }
 
+    fn legal_actions_json(&self) -> PyResult<String> {
+        let actions = if let Some(decision) = &self.game.state.decision {
+            decision
+                .options
+                .iter()
+                .enumerate()
+                .map(|(option, _)| {
+                    serde_json::json!({
+                        "kind": "choose",
+                        "decision": decision.id,
+                        "option": option,
+                    })
+                })
+                .collect()
+        } else {
+            self.game
+                .legal_commands()
+                .map_err(runtime_error)?
+                .into_iter()
+                .map(serde_json::to_value)
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(runtime_error)?
+        };
+        serde_json::to_string(&actions).map_err(runtime_error)
+    }
+
     fn submit(&mut self, command: &str) -> PyResult<String> {
         let command = serde_json::from_str::<Command>(command)
             .map_err(|error| PyValueError::new_err(error.to_string()))?;
@@ -89,6 +115,28 @@ impl GameSession {
 
     fn choose(&mut self, decision: u64, option: usize) -> PyResult<String> {
         self.game.choose(decision, option).map_err(runtime_error)?;
+        self.snapshot_json()
+    }
+
+    fn act(&mut self, action: &str) -> PyResult<String> {
+        let value = serde_json::from_str::<serde_json::Value>(action)
+            .map_err(|error| PyValueError::new_err(error.to_string()))?;
+        if value.get("kind").and_then(serde_json::Value::as_str) == Some("choose") {
+            let decision = value
+                .get("decision")
+                .and_then(serde_json::Value::as_u64)
+                .ok_or_else(|| PyValueError::new_err("choice is missing decision"))?;
+            let option = value
+                .get("option")
+                .and_then(serde_json::Value::as_u64)
+                .and_then(|value| usize::try_from(value).ok())
+                .ok_or_else(|| PyValueError::new_err("choice is missing option"))?;
+            self.game.choose(decision, option).map_err(runtime_error)?;
+        } else {
+            let command = serde_json::from_value::<Command>(value)
+                .map_err(|error| PyValueError::new_err(error.to_string()))?;
+            self.game.submit(command).map_err(runtime_error)?;
+        }
         self.snapshot_json()
     }
 }

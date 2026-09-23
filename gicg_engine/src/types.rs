@@ -55,7 +55,7 @@ impl Element {
     }
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, EnumString, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Deserialize, EnumString, Eq, PartialEq, Hash, Serialize)]
 #[repr(u8)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]

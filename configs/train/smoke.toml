@@ -1,0 +1,56 @@
+[environment]
+seed = 1
+max_actions = 2048
+max_steps = 4096
+
+[training]
+experiment_tag = "smoke"
+episodes = 2
+hidden_size = 128
+learning_rate = 0.0003
+entropy_weight = 0.01
+value_weight = 0.5
+device = "cpu"
+
+[game]
+ruleset = "data/native_latest"
+team_size = 3
+first = 0
+player_one = ["kaeya", "yae_miko", "alhaitham"]
+player_two = ["chiori", "mualani", "mavuika"]
+player_one_deck = [
+  "splash",
+  "strategize",
+  "sweet_madame",
+  "minty_meat_rolls",
+  "teyvat_fried_egg",
+  "miscalculation",
+  "send_off",
+  "leave_it_to_me",
+  "changing_shifts",
+  "when_the_crane_returned",
+  "travelers_handy_sword",
+  "knights_of_favonius_library",
+  "paimon",
+  "where_is_the_unseen_razor",
+  "yesterdays_memory",
+]
+player_two_deck = [
+  "splash",
+  "splash",
+  "strategize",
+  "sweet_madame",
+  "minty_meat_rolls",
+  "teyvat_fried_egg",
+  "miscalculation",
+  "send_off",
+  "leave_it_to_me",
+  "changing_shifts",
+  "when_the_crane_returned",
+  "travelers_handy_sword",
+  "knights_of_favonius_library",
+  "paimon",
+  "where_is_the_unseen_razor",
+]
+deck_size = 15
+max_card_copies = 2

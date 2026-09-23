@@ -12,10 +12,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+train = [
+    "gymnasium>=1.0,<2",
+    "numpy>=2,<3",
+    "pettingzoo>=1.24.3,<2",
+    "torch>=2.8,<3",
+]
 dev = [
     "lizard==1.24.0",
     "maturin>=1.9,<2",
     "pre-commit-hooks==6.0.0",
+    "pytest>=8,<10",
     "ruff==0.16.8",
 ]
 
@@ -27,7 +34,7 @@ module-name = "gicg_env._native"
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["python", "web"]
+src = ["python", "tests", "web"]
 
 [tool.ruff.lint]
 select = ["B", "C90", "E", "F", "I", "SIM", "UP"]

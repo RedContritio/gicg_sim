@@ -40,18 +40,20 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --upgrade pip
-          .venv/bin/python -m pip install -e '.[dev]'
+          .venv/bin/python -m pip install -e '.[dev,train]'
           npm ci
 
       - name: Static checks
         run: .githooks/pre-commit
 
       - name: Full tests
-        run: cargo test --workspace
+        run: |
+          cargo test --workspace
+          .venv/bin/maturin develop --quiet
+          .venv/bin/python -m pytest
 
       - name: Cross-language smoke check
         run: |
-          .venv/bin/maturin develop --quiet
           .venv/bin/python -m compileall -q python web
           node --check web/static/app.js
           .venv/bin/python -c "from gicg_env import GameSession; from web.app import create_app; assert GameSession and create_app().title"

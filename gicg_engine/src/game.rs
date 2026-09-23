@@ -16,7 +16,7 @@ use crate::{
     reaction::{self, FROZEN},
 };
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Command {
     Redraw {
@@ -240,6 +240,127 @@ impl Game {
             self.player_action_previews(0)?,
             self.player_action_previews(1)?,
         ])
+    }
+
+    pub fn legal_commands(&self) -> Result<Vec<Command>> {
+        if self.state.decision.is_some() || self.state.phase == Phase::Finished {
+            return Ok(Vec::new());
+        }
+        match self.state.phase {
+            Phase::SelectActive | Phase::Finished => Ok(Vec::new()),
+            Phase::Redraw => Ok(redraw_commands(
+                self.state.players[self.state.turn].hand.len(),
+            )),
+            Phase::Roll => Ok(reroll_commands(self.state.players[self.state.turn].dice)),
+            Phase::Action => self.legal_action_commands(),
+        }
+    }
+
+    fn legal_action_commands(&self) -> Result<Vec<Command>> {
+        let player = self.state.turn;
+        let inventory = self.state.players[player].dice;
+        let previews = self.player_action_previews(player)?;
+        let mut commands = self.legal_skill_commands(player, inventory, &previews.skills);
+        commands.extend(self.legal_switch_commands(player, inventory, &previews.switch)?);
+        commands.extend(self.legal_card_commands(player, inventory, &previews.cards));
+        commands.extend(self.legal_tune_commands(player)?);
+        commands.push(End);
+        Ok(commands)
+    }
+
+    fn legal_skill_commands(
+        &self,
+        player: PlayerId,
+        inventory: DiceSet,
+        previews: &[ActionPreview],
+    ) -> Vec<Command> {
+        let state = &self.state.players[player];
+        let character = &state.characters[state.active];
+        let definition = self
+            .runtime
+            .rules()
+            .character(&character.definition)
+            .expect("state references a loaded character");
+        definition
+            .actions
+            .iter()
+            .zip(previews)
+            .filter(|(_, preview)| preview.playable)
+            .flat_map(|(action, preview)| {
+                legal_payments(inventory, preview)
+                    .into_iter()
+                    .map(|payment| Skill {
+                        action: action.id.clone(),
+                        payment,
+                    })
+            })
+            .collect()
+    }
+
+    fn legal_switch_commands(
+        &self,
+        player: PlayerId,
+        inventory: DiceSet,
+        preview: &ActionPreview,
+    ) -> Result<Vec<Command>> {
+        if !preview.playable {
+            return Ok(Vec::new());
+        }
+        let active = self.state.players[player].active;
+        let slots = self
+            .alive_slots(player)?
+            .into_iter()
+            .filter(|slot| *slot != active);
+        let payments = legal_payments(inventory, preview);
+        Ok(slots
+            .flat_map(|slot| {
+                payments
+                    .iter()
+                    .copied()
+                    .map(move |payment| Switch { slot, payment })
+            })
+            .collect())
+    }
+
+    fn legal_card_commands(
+        &self,
+        player: PlayerId,
+        inventory: DiceSet,
+        previews: &[ActionPreview],
+    ) -> Vec<Command> {
+        self.state.players[player]
+            .hand
+            .iter()
+            .enumerate()
+            .zip(previews)
+            .filter(|(_, preview)| preview.playable)
+            .flat_map(|((hand, _), preview)| {
+                legal_payments(inventory, preview)
+                    .into_iter()
+                    .map(move |payment| Card { hand, payment })
+            })
+            .collect()
+    }
+
+    fn legal_tune_commands(&self, player: PlayerId) -> Result<Vec<Command>> {
+        let state = &self.state.players[player];
+        let character = &state.characters[state.active];
+        let target = self
+            .runtime
+            .rules()
+            .character(&character.definition)
+            .expect("state references a loaded character")
+            .element
+            .die();
+        let mut commands = Vec::new();
+        for hand in 0..state.hand.len() {
+            for die in Die::ALL {
+                if state.dice.get(die) > 0 && Some(die) != target && die != Die::Omni {
+                    commands.push(Tune { hand, die });
+                }
+            }
+        }
+        Ok(commands)
     }
 
     fn player_action_previews(&self, player: PlayerId) -> Result<PlayerActionPreviews> {
@@ -2764,6 +2885,87 @@ fn switch_action() -> ActionDefinition {
         resolve: 0,
         continuations: Default::default(),
     }
+}
+
+fn redraw_commands(hand_size: usize) -> Vec<Command> {
+    let mut selections = vec![Vec::new()];
+    for hand in 0..hand_size {
+        let additional = selections
+            .iter()
+            .cloned()
+            .map(|mut selected| {
+                selected.push(hand);
+                selected
+            })
+            .collect::<Vec<_>>();
+        selections.extend(additional);
+    }
+    selections
+        .into_iter()
+        .map(|selected| Redraw { selected })
+        .collect()
+}
+
+fn reroll_commands(inventory: DiceSet) -> Vec<Command> {
+    let mut selected = DiceSet::default();
+    let mut commands = Vec::new();
+    enumerate_dice_sets(inventory, 0, None, &mut selected, &mut |payment| {
+        commands.push(Reroll { payment });
+    });
+    commands
+}
+
+fn legal_payments(inventory: DiceSet, preview: &ActionPreview) -> Vec<DiceSet> {
+    let cost = crate::Cost {
+        dice: preview.dice,
+        any: preview.any,
+        same: preview.same,
+        counters: Vec::new(),
+    };
+    let required = usize::from(cost.dice_total());
+    let mut selected = DiceSet::default();
+    let mut payments = Vec::new();
+    enumerate_dice_sets(
+        inventory,
+        0,
+        Some(required),
+        &mut selected,
+        &mut |payment| {
+            if cost.valid_payment(inventory, payment) {
+                payments.push(payment);
+            }
+        },
+    );
+    payments
+}
+
+fn enumerate_dice_sets(
+    inventory: DiceSet,
+    index: usize,
+    remaining: Option<usize>,
+    selected: &mut DiceSet,
+    output: &mut impl FnMut(DiceSet),
+) {
+    if index == Die::COUNT {
+        if remaining.is_none_or(|value| value == 0) {
+            output(*selected);
+        }
+        return;
+    }
+    let maximum = remaining.map_or(usize::from(inventory.0[index]), |value| {
+        value.min(usize::from(inventory.0[index]))
+    });
+    for count in 0..=maximum {
+        selected.0[index] = count as u8;
+        enumerate_dice_sets(
+            inventory,
+            index + 1,
+            remaining.map(|value| value - count),
+            selected,
+            output,
+        );
+    }
+    selected.0[index] = 0;
 }
 
 fn validate_counter_costs(
