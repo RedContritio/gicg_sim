@@ -5,6 +5,8 @@ use rand_chacha::ChaCha8Rng;
 
 use crate::{Command, DiceSet, Die, EngineError, EntityRef, Game, GameSignals, Phase, Result};
 
+const HEURISTIC_BRANCH_LIMIT: usize = 8;
+
 #[derive(Clone)]
 enum SearchInput {
     Choose {
@@ -79,6 +81,25 @@ impl SearchBudget {
     }
 }
 
+struct SearchNode {
+    input: SearchInput,
+    game: Game,
+    heuristic: f64,
+}
+
+#[derive(Clone, Copy)]
+struct SearchContext {
+    root: ScoreRoot,
+    me: usize,
+    features: u8,
+}
+
+#[derive(Clone, Copy)]
+struct Bounds {
+    alpha: f64,
+    beta: f64,
+}
+
 impl Game {
     pub fn select_greedy_action(
         &self,
@@ -90,25 +111,41 @@ impl Game {
         validate_config(features, depth)?;
         let root = ScoreRoot::new(self)?;
         let me = controller(self);
-        let inputs = candidate_inputs(self)?;
-        if inputs.is_empty() {
+        if candidate_inputs(self)?.is_empty() {
             return Err(EngineError::InvalidCommand(
                 "greedy search requires at least one legal action".to_owned(),
             ));
         }
         let mut budget = SearchBudget((node_budget > 0).then_some(node_budget));
-        let mut scored = Vec::new();
-        for input in inputs {
-            if !budget.take() {
-                break;
-            }
-            let mut next = self.clone();
-            input.clone().apply(&mut next)?;
-            let score = minimax(&next, root, me, features, depth - 1, &mut budget)?;
-            scored.push((input.index(), score));
-        }
+        let context = SearchContext { root, me, features };
+        let nodes = ordered_children(self, context, true, None, &mut budget)?;
+        let scored = score_root_nodes(nodes, context, depth, &mut budget)?;
         choose_best(scored, seed)
     }
+}
+
+fn score_root_nodes(
+    nodes: Vec<SearchNode>,
+    context: SearchContext,
+    depth: usize,
+    budget: &mut SearchBudget,
+) -> Result<Vec<(usize, f64)>> {
+    nodes
+        .into_iter()
+        .map(|node| {
+            let value = minimax(
+                &node.game,
+                context,
+                depth - 1,
+                budget,
+                Bounds {
+                    alpha: f64::NEG_INFINITY,
+                    beta: f64::INFINITY,
+                },
+            )?;
+            Ok((node.input.index(), value))
+        })
+        .collect()
 }
 
 fn validate_config(features: u8, depth: usize) -> Result<()> {
@@ -127,31 +164,85 @@ fn validate_config(features: u8, depth: usize) -> Result<()> {
 
 fn minimax(
     game: &Game,
-    root: ScoreRoot,
-    me: usize,
-    features: u8,
+    context: SearchContext,
     depth: usize,
     budget: &mut SearchBudget,
+    bounds: Bounds,
 ) -> Result<f64> {
     if search_finished(game, depth, budget) {
-        return score(game, root, me, features);
+        return score(game, context.root, context.me, context.features);
     }
-    let inputs = candidate_inputs(game)?;
-    if inputs.is_empty() {
-        return score(game, root, me, features);
+    let maximize = controller(game) == context.me;
+    let limit = (depth >= 2).then_some(HEURISTIC_BRANCH_LIMIT);
+    let nodes = ordered_children(game, context, maximize, limit, budget)?;
+    if nodes.is_empty() {
+        return score(game, context.root, context.me, context.features);
     }
-    let maximize = controller(game) == me;
+    score_children(nodes, context, depth, budget, bounds, maximize)
+}
+
+fn score_children(
+    nodes: Vec<SearchNode>,
+    context: SearchContext,
+    depth: usize,
+    budget: &mut SearchBudget,
+    mut bounds: Bounds,
+    maximize: bool,
+) -> Result<f64> {
     let mut best: Option<f64> = None;
-    for input in inputs {
+    for node in nodes {
+        let value = minimax(&node.game, context, depth - 1, budget, bounds)?;
+        best = Some(select_score(best, value, maximize));
+        if update_bounds(value, maximize, &mut bounds) {
+            break;
+        }
+    }
+    Ok(best.expect("search nodes are not empty"))
+}
+
+fn update_bounds(value: f64, maximize: bool, bounds: &mut Bounds) -> bool {
+    if maximize {
+        bounds.alpha = bounds.alpha.max(value);
+    } else {
+        bounds.beta = bounds.beta.min(value);
+    }
+    bounds.alpha >= bounds.beta
+}
+
+fn ordered_children(
+    game: &Game,
+    context: SearchContext,
+    maximize: bool,
+    limit: Option<usize>,
+    budget: &mut SearchBudget,
+) -> Result<Vec<SearchNode>> {
+    let mut nodes = Vec::new();
+    for input in candidate_inputs(game)? {
         if !budget.take() {
             break;
         }
         let mut next = game.clone();
-        input.apply(&mut next)?;
-        let value = minimax(&next, root, me, features, depth - 1, budget)?;
-        best = Some(select_score(best, value, maximize));
+        input.clone().apply(&mut next)?;
+        let heuristic = score(&next, context.root, context.me, context.features)?;
+        nodes.push(SearchNode {
+            input,
+            game: next,
+            heuristic,
+        });
     }
-    best.map_or_else(|| score(game, root, me, features), Ok)
+    nodes.sort_by(|left, right| ordered_score(left, right, maximize));
+    if let Some(limit) = limit {
+        nodes.truncate(limit);
+    }
+    Ok(nodes)
+}
+
+fn ordered_score(left: &SearchNode, right: &SearchNode, maximize: bool) -> std::cmp::Ordering {
+    if maximize {
+        right.heuristic.total_cmp(&left.heuristic)
+    } else {
+        left.heuristic.total_cmp(&right.heuristic)
+    }
 }
 
 fn search_finished(game: &Game, depth: usize, budget: &SearchBudget) -> bool {

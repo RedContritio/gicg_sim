@@ -17,6 +17,10 @@
 | Web | 双方三角色、正常手牌和完整对局流程 |
 | 远端运行 | Wake-on-LAN、同步、构建、训练、续训、评测、拉取和状态查询 |
 
+FxDy 在所有深度使用启发式排序和 alpha-beta；D3 及以上只在内部节点展开评分最高的
+8 个分支，根动作始终全部比较。常态评估使用 Random、F1D1 和 F1D2，F1D3 仅用于
+搜索性能或强度专项检查。
+
 修复击倒切人结算后的串行 DMC 已在 RTX 5070 Ti 上完成 10,000 局：
 
 ```text
@@ -34,6 +38,19 @@ D:/gicg_mono/artifacts/dmc/20260923_161230_000001/
 Random 使用种子 20000–20499，F1D2 使用种子 30000–30499；每个种子各测试一个
 先手和后手对局。原始逐局结果位于对应 run 的 `eval_vs_random.json` 和
 `eval_vs_f1d2.json`。目前的规则内容是主线闭环，不是完整七圣召唤卡池。
+
+并行吞吐实验 `20260923_165604_000001` 完成了 10,000 局且无截断，但将 batch
+从 256 提高到 16,384、每局更新从 1 提高到 8 后，独立评估未通过质量门槛：
+
+| 对手 | 对局 | 胜 | 负 | 截断 | 胜率 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Random | 1,000 | 908 | 92 | 0 | 90.8% |
+| F1D1 | 1,000 | 39 | 961 | 0 | 3.9% |
+| F1D2 | 1,000 | 10 | 990 | 0 | 1.0% |
+| F1D3 | 1,000 | 19 | 981 | 0 | 1.9% |
+
+该 checkpoint 只保留为性能实验，不作为候选模型。并行采样和 GPU replay 保留，正式
+训练恢复 batch 256、每局更新 1 次，并将策略快照批次收紧到 16 局。
 
 ## 结构
 
@@ -142,7 +159,7 @@ cp configs/hosts.example.toml configs/hosts.toml
 .venv/bin/python -m gicg_ai.remote evaluate gpu56 configs/eval/dmc_vs_f1d2.toml \
   --checkpoint artifacts/dmc/<run>/checkpoint.pt \
   --output artifacts/dmc/<run>/eval_vs_f1d2.json \
-  --set evaluation.opponent=F1D3
+  --set evaluation.opponent=F1D1
 ```
 
 从远端 checkpoint 续训：
