@@ -10,21 +10,19 @@ ROOT = Path(__file__).resolve().parent.parent
 def test_training_resume_and_evaluation(tmp_path: Path) -> None:
     source = (ROOT / "configs" / "train" / "smoke.toml").read_text()
     config = tmp_path / "train.toml"
-    config.write_text(source.replace("episodes = 2", "episodes = 1", 1))
-    first = train(config, tmp_path)
+    config.write_text(source)
+    overrides = ("training.episodes=1",)
+    first = train(config, tmp_path, overrides=overrides)
     checkpoint = first / "checkpoint.pt"
+    assert json.loads((first / "metadata.json").read_text())["overrides"] == list(overrides)
     first_metrics = json.loads((first / "metrics.jsonl").read_text().splitlines()[0])
     assert first_metrics["transitions"] > 0
     assert first_metrics["replay_size"] >= first_metrics["transitions"]
     assert first_metrics["updates"] > 0
     assert first_metrics["outcome"] in {-1.0, 0.0, 1.0}
 
-    config.write_text(
-        source.replace("episodes = 2", "episodes = 1", 1).replace(
-            "max_steps = 4096", "max_steps = 1"
-        )
-    )
-    truncated = train(config, tmp_path)
+    config.write_text(source.replace("max_steps = 4096", "max_steps = 1"))
+    truncated = train(config, tmp_path, overrides=overrides)
     truncated_metrics = json.loads((truncated / "metrics.jsonl").read_text())
     assert truncated_metrics["outcome"] == 0.0
     assert truncated_metrics["truncated"] is True

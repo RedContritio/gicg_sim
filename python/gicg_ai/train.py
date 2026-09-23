@@ -49,9 +49,10 @@ def train(
     config_path: Path,
     artifact_root: Path = Path("artifacts"),
     resume: Path | None = None,
+    overrides: tuple[str, ...] = (),
 ) -> Path:
-    environment_config = load_environment_config(config_path)
-    training_config = load_training_config(config_path)
+    environment_config = load_environment_config(config_path, overrides)
+    training_config = load_training_config(config_path, overrides)
     validate_training_config(training_config)
     torch.manual_seed(environment_config.seed)
     game = env(environment_config)
@@ -70,7 +71,7 @@ def train(
     checkpoints = run / "checkpoints"
     checkpoints.mkdir()
     shutil.copy2(config_path, run / "config.toml")
-    write_metadata(run, game, environment_config.seed, start_episode, resume)
+    write_metadata(run, game, environment_config.seed, start_episode, resume, overrides)
     context = multiprocessing.get_context("spawn")
     with (
         ProcessPoolExecutor(
@@ -324,6 +325,7 @@ def write_metadata(
     seed: int,
     start_episode: int,
     resume: Path | None,
+    overrides: tuple[str, ...],
 ) -> None:
     write_json(
         run / "metadata.json",
@@ -335,6 +337,7 @@ def write_metadata(
             "action_features": game.action_encoder.size,
             "start_episode": start_episode,
             "resume": str(resume.resolve()) if resume is not None else None,
+            "overrides": list(overrides),
         },
     )
 
@@ -368,8 +371,16 @@ def main() -> None:
     parser.add_argument("config", type=Path)
     parser.add_argument("--artifacts", type=Path, default=Path("artifacts"))
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--set", action="append", default=[])
     arguments = parser.parse_args()
-    print(train(arguments.config, arguments.artifacts, arguments.resume))
+    print(
+        train(
+            arguments.config,
+            arguments.artifacts,
+            arguments.resume,
+            tuple(arguments.set),
+        )
+    )
 
 
 if __name__ == "__main__":

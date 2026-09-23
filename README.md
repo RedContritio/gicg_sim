@@ -153,6 +153,15 @@ cp configs/hosts.example.toml configs/hosts.toml
 .venv/bin/python -m gicg_ai.remote pull gpu56 --run artifacts/dmc/<run>
 ```
 
+训练配置同样支持运行时覆盖，并记录在 run 的 metadata 中：
+
+```bash
+.venv/bin/python -m gicg_ai.remote train gpu56 configs/train/dmc.toml \
+  --set training.batch_size=16384 \
+  --set training.updates_per_episode=8 \
+  --set training.learning_rate=0.0000125
+```
+
 在远端执行 checkpoint 评测：
 
 ```bash

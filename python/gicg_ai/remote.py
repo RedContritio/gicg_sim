@@ -101,11 +101,13 @@ def prepare(host: Host) -> None:
     )
 
 
-def train(host: Host, config: str, resume: str | None) -> None:
+def train(host: Host, config: str, resume: str | None, overrides: tuple[str, ...]) -> None:
     artifacts = f"{host.root}/artifacts"
     arguments = ["-m", "gicg_ai.train", config, "--artifacts", "artifacts"]
     if resume is not None:
         arguments.extend(("--resume", resume))
+    for override in overrides:
+        arguments.extend(("--set", override))
     argument_list = ",".join(f"'{argument}'" for argument in arguments)
     ssh(
         host,
@@ -231,7 +233,9 @@ def main() -> None:
         "wake": wake,
         "sync": sync,
         "prepare": prepare,
-        "train": lambda selected: train(selected, arguments.config, arguments.resume),
+        "train": lambda selected: train(
+            selected, arguments.config, arguments.resume, tuple(arguments.set)
+        ),
         "stop": stop,
         "status": status,
         "gpu": gpu,
