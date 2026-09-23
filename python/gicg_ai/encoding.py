@@ -92,7 +92,7 @@ class ObservationEncoder:
                 float(player["ended"]),
             ]
         )
-        values.extend(self._cards(player["deck"]))
+        values.extend(self._cards(player["deck"] if visible_hand else []))
         values.extend(self._cards(player["hand"] if visible_hand else []))
         values.extend(self._cards(player["discard"]))
         for character in player["characters"]:

@@ -1,127 +1,199 @@
 from dataclasses import dataclass
-from math import sqrt
 from pathlib import Path
 
 import numpy as np
 import torch
 from torch import Tensor, nn
-from torch.distributions import Categorical
 
 from .config import TrainingConfig
 
-CHECKPOINT_VERSION = 1
+CHECKPOINT_VERSION = 2
 
 
-class CandidateActorCritic(nn.Module):
+class DmcQNetwork(nn.Module):
     def __init__(self, state_size: int, action_size: int, hidden_size: int):
         super().__init__()
         self.state_encoder = nn.Sequential(
             nn.Linear(state_size, hidden_size),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
-            nn.Tanh(),
+            nn.ReLU(),
         )
         self.action_encoder = nn.Sequential(
             nn.Linear(action_size, hidden_size),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
-            nn.Tanh(),
+            nn.ReLU(),
         )
-        self.value = nn.Linear(hidden_size, 1)
-        self.scale = sqrt(hidden_size)
+        self.q = nn.Sequential(
+            nn.Linear(2 * hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, 1),
+        )
 
-    def forward(self, state: Tensor, actions: Tensor) -> tuple[Tensor, Tensor]:
-        context = self.state_encoder(state)
-        candidates = self.action_encoder(actions)
-        logits = candidates @ context / self.scale
-        return logits, self.value(context).squeeze(-1)
-
-
-@dataclass
-class Decision:
-    log_probability: Tensor
-    entropy: Tensor
-    value: Tensor
+    def forward(self, states: Tensor, actions: Tensor) -> Tensor:
+        state_features = self.state_encoder(states)
+        action_features = self.action_encoder(actions)
+        if state_features.ndim == 1 and action_features.ndim == 2:
+            state_features = state_features.expand(action_features.shape[0], -1)
+        return self.q(torch.cat((state_features, action_features), dim=-1)).squeeze(-1)
 
 
-class EpisodicActorCritic:
-    def __init__(
-        self,
-        state_size: int,
-        action_size: int,
-        config: TrainingConfig,
-    ):
+@dataclass(frozen=True)
+class Transition:
+    state: np.ndarray
+    action: np.ndarray
+
+
+class ReplayBuffer:
+    def __init__(self, capacity: int, state_size: int, action_size: int, seed: int):
+        self.capacity = capacity
+        self.states = torch.empty((capacity, state_size), dtype=torch.float32)
+        self.actions = torch.empty((capacity, action_size), dtype=torch.float32)
+        self.returns = torch.empty(capacity, dtype=torch.float32)
+        self.size = 0
+        self.next = 0
+        self.total_seen = 0
+        self.random = torch.Generator().manual_seed(seed)
+
+    def __len__(self) -> int:
+        return self.size
+
+    def push_episode(self, transitions: list[Transition], outcome: float) -> None:
+        for transition in transitions:
+            self.states[self.next].copy_(torch.from_numpy(transition.state))
+            self.actions[self.next].copy_(torch.from_numpy(transition.action))
+            self.returns[self.next] = outcome
+            self.next = (self.next + 1) % self.capacity
+            self.size = min(self.size + 1, self.capacity)
+            self.total_seen += 1
+
+    def sample(self, count: int, device: torch.device) -> tuple[Tensor, Tensor, Tensor]:
+        indices = torch.randint(self.size, (count,), generator=self.random)
+        return (
+            self.states[indices].to(device),
+            self.actions[indices].to(device),
+            self.returns[indices].to(device),
+        )
+
+    def state_dict(self) -> dict:
+        return {
+            "states": self.states[: self.size].clone(),
+            "actions": self.actions[: self.size].clone(),
+            "returns": self.returns[: self.size].clone(),
+            "random": self.random.get_state(),
+            "total_seen": self.total_seen,
+        }
+
+    def load_state_dict(self, state: dict) -> None:
+        size = int(state["returns"].shape[0])
+        if size > self.capacity:
+            raise RuntimeError("checkpoint replay exceeds configured capacity")
+        if state["states"].shape[1:] != self.states.shape[1:]:
+            raise RuntimeError("checkpoint replay state shape does not match the environment")
+        if state["actions"].shape[1:] != self.actions.shape[1:]:
+            raise RuntimeError("checkpoint replay action shape does not match the environment")
+        self.states[:size].copy_(state["states"])
+        self.actions[:size].copy_(state["actions"])
+        self.returns[:size].copy_(state["returns"])
+        self.size = size
+        self.next = size % self.capacity
+        self.total_seen = int(state["total_seen"])
+        self.random.set_state(state["random"])
+
+
+class DmcAlgorithm:
+    def __init__(self, state_size: int, action_size: int, config: TrainingConfig, seed: int):
         self.config = config
         self.device = torch.device(config.device)
         self.state_size = state_size
         self.action_size = action_size
-        self.model = CandidateActorCritic(state_size, action_size, config.hidden_size).to(
-            self.device
+        self.model = DmcQNetwork(state_size, action_size, config.hidden_size).to(self.device)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(),
+            lr=config.learning_rate,
+            weight_decay=config.weight_decay,
         )
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.learning_rate)
+        self.replay = ReplayBuffer(config.replay_capacity, state_size, action_size, seed)
+        self.updates = 0
 
-    def select(self, observation: dict[str, np.ndarray]) -> tuple[int, Decision]:
+    def select(
+        self,
+        observation: dict[str, np.ndarray],
+        epsilon: float,
+        random: np.random.Generator,
+    ) -> tuple[int, Transition]:
         count = int(observation["action_mask"].sum())
         if count == 0:
             raise RuntimeError("policy received no legal actions")
-        state = torch.as_tensor(observation["state"], device=self.device)
-        actions = torch.as_tensor(observation["actions"][:count], device=self.device)
-        logits, value = self.model(state, actions)
-        distribution = Categorical(logits=logits)
-        action = distribution.sample()
-        decision = Decision(distribution.log_prob(action), distribution.entropy(), value)
-        return int(action.item()), decision
-
-    def update(self, trajectories: list[list[Decision]], winner: int) -> dict[str, float]:
-        policy_losses = []
-        value_losses = []
-        entropies = []
-        for player, decisions in enumerate(trajectories):
-            outcome = torch.tensor(1.0 if player == winner else -1.0, device=self.device)
-            for decision in decisions:
-                advantage = outcome - decision.value.detach()
-                policy_losses.append(-decision.log_probability * advantage)
-                value_losses.append((decision.value - outcome).square())
-                entropies.append(decision.entropy)
-        policy_loss = torch.stack(policy_losses).mean()
-        value_loss = torch.stack(value_losses).mean()
-        entropy = torch.stack(entropies).mean()
-        loss = (
-            policy_loss
-            + self.config.value_weight * value_loss
-            - self.config.entropy_weight * entropy
+        if random.random() < epsilon:
+            selected = int(random.integers(count))
+        else:
+            state = torch.as_tensor(observation["state"], device=self.device)
+            actions = torch.as_tensor(observation["actions"][:count], device=self.device)
+            with torch.no_grad():
+                selected = int(self.model(state, actions).argmax().item())
+        return selected, Transition(
+            state=observation["state"].copy(),
+            action=observation["actions"][selected].copy(),
         )
+
+    def learn_episode(self, transitions: list[Transition], outcome: float) -> dict[str, float]:
+        self.replay.push_episode(transitions, outcome)
+        losses = []
+        q_means = []
+        target_means = []
+        for _ in range(self.config.updates_per_episode):
+            if len(self.replay) < self.config.batch_size:
+                break
+            loss, q_mean, target_mean = self._update()
+            losses.append(loss)
+            q_means.append(q_mean)
+            target_means.append(target_mean)
+        return {
+            "loss": float(np.mean(losses)) if losses else 0.0,
+            "q_mean": float(np.mean(q_means)) if q_means else 0.0,
+            "target_mean": float(np.mean(target_means)) if target_means else 0.0,
+            "updates": len(losses),
+            "replay_size": len(self.replay),
+            "transitions": len(transitions),
+        }
+
+    def _update(self) -> tuple[float, float, float]:
+        states, actions, returns = self.replay.sample(self.config.batch_size, self.device)
+        predicted = self.model(states, actions)
+        loss = nn.functional.mse_loss(predicted, returns)
         self.optimizer.zero_grad()
         loss.backward()
-        nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+        nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
         self.optimizer.step()
-        return {
-            "loss": loss.item(),
-            "policy_loss": policy_loss.item(),
-            "value_loss": value_loss.item(),
-            "entropy": entropy.item(),
-        }
+        self.updates += 1
+        return loss.item(), predicted.detach().mean().item(), returns.mean().item()
 
     def checkpoint(self, path: Path, episode: int, ruleset: str) -> None:
         torch.save(
             {
                 "format": CHECKPOINT_VERSION,
+                "algorithm": "dmc",
                 "episode": episode,
+                "updates": self.updates,
                 "ruleset": ruleset,
                 "state_size": self.state_size,
                 "action_size": self.action_size,
                 "hidden_size": self.config.hidden_size,
-                "device_type": self.device.type,
+                "training": training_signature(self.config),
                 "model": self.model.state_dict(),
                 "optimizer": self.optimizer.state_dict(),
+                "replay": self.replay.state_dict(),
                 "torch_rng": torch.get_rng_state(),
+                "device_type": self.device.type,
                 "device_rng": get_device_rng(self.device),
             },
             path,
         )
 
     def restore(self, path: Path, ruleset: str) -> int:
-        checkpoint = load_checkpoint(path, self.device)
+        checkpoint = load_checkpoint(path)
         validate_checkpoint(
             checkpoint,
             ruleset,
@@ -129,16 +201,42 @@ class EpisodicActorCritic:
             self.action_size,
             self.config.hidden_size,
         )
-        self.model.load_state_dict(checkpoint["model"], strict=True)
-        self.optimizer.load_state_dict(checkpoint["optimizer"])
+        if checkpoint["training"] != training_signature(self.config):
+            raise RuntimeError("checkpoint training configuration does not match")
         if checkpoint["device_type"] != self.device.type:
             raise RuntimeError(
                 f"training resume requires device {checkpoint['device_type']!r}, "
                 f"got {self.device.type!r}"
             )
+        self.model.load_state_dict(checkpoint["model"], strict=True)
+        self.optimizer.load_state_dict(checkpoint["optimizer"])
+        self.replay.load_state_dict(checkpoint["replay"])
+        self.updates = int(checkpoint["updates"])
         torch.set_rng_state(checkpoint["torch_rng"].cpu())
         set_device_rng(self.device, checkpoint["device_rng"])
         return int(checkpoint["episode"])
+
+
+def exploration(config: TrainingConfig, episode: int) -> float:
+    progress = min(episode / config.epsilon_decay_episodes, 1.0)
+    return config.epsilon_start + progress * (config.epsilon_end - config.epsilon_start)
+
+
+def training_signature(config: TrainingConfig) -> dict:
+    return {
+        "batch_size": config.batch_size,
+        "replay_capacity": config.replay_capacity,
+        "updates_per_episode": config.updates_per_episode,
+        "epsilon_start": config.epsilon_start,
+        "epsilon_end": config.epsilon_end,
+        "epsilon_decay_episodes": config.epsilon_decay_episodes,
+        "learning_rate": config.learning_rate,
+        "weight_decay": config.weight_decay,
+        "max_grad_norm": config.max_grad_norm,
+        "random_opponent_weight": config.random_opponent_weight,
+        "f1d2_opponent_weight": config.f1d2_opponent_weight,
+        "opponent_node_budget": config.opponent_node_budget,
+    }
 
 
 def load_policy(
@@ -147,19 +245,19 @@ def load_policy(
     state_size: int,
     action_size: int,
     device: str,
-) -> CandidateActorCritic:
+) -> DmcQNetwork:
     target = torch.device(device)
-    checkpoint = load_checkpoint(path, target)
+    checkpoint = load_checkpoint(path)
     hidden_size = int(checkpoint["hidden_size"])
     validate_checkpoint(checkpoint, ruleset, state_size, action_size, hidden_size)
-    model = CandidateActorCritic(state_size, action_size, hidden_size).to(target)
+    model = DmcQNetwork(state_size, action_size, hidden_size).to(target)
     model.load_state_dict(checkpoint["model"], strict=True)
     model.eval()
     return model
 
 
-def load_checkpoint(path: Path, device: torch.device) -> dict:
-    return torch.load(path, map_location=device, weights_only=True)
+def load_checkpoint(path: Path) -> dict:
+    return torch.load(path, map_location="cpu", weights_only=True)
 
 
 def validate_checkpoint(
@@ -171,6 +269,7 @@ def validate_checkpoint(
 ) -> None:
     expected = {
         "format": CHECKPOINT_VERSION,
+        "algorithm": "dmc",
         "ruleset": ruleset,
         "state_size": state_size,
         "action_size": action_size,

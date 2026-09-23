@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from gicg_ai.evaluate import evaluate
@@ -12,6 +13,11 @@ def test_training_resume_and_evaluation(tmp_path: Path) -> None:
     config.write_text(source.replace("episodes = 2", "episodes = 1", 1))
     first = train(config, tmp_path)
     checkpoint = first / "checkpoint.pt"
+    first_metrics = json.loads((first / "metrics.jsonl").read_text().splitlines()[0])
+    assert first_metrics["transitions"] > 0
+    assert first_metrics["replay_size"] >= first_metrics["transitions"]
+    assert first_metrics["updates"] > 0
+    assert first_metrics["outcome"] in {-1.0, 1.0}
 
     config.write_text(source)
     resumed_a = train(config, tmp_path, checkpoint)

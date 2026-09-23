@@ -26,9 +26,19 @@ class TrainingConfig:
     episodes: int
     hidden_size: int
     learning_rate: float
-    entropy_weight: float
-    value_weight: float
+    weight_decay: float
+    batch_size: int
+    replay_capacity: int
+    updates_per_episode: int
+    epsilon_start: float
+    epsilon_end: float
+    epsilon_decay_episodes: int
+    max_grad_norm: float
+    random_opponent_weight: float
+    f1d2_opponent_weight: float
+    opponent_node_budget: int
     checkpoint_every: int
+    keep_checkpoints: int
     device: str
 
 
@@ -70,9 +80,19 @@ def load_training_config(path: Path) -> TrainingConfig:
         episodes=raw["episodes"],
         hidden_size=raw["hidden_size"],
         learning_rate=raw["learning_rate"],
-        entropy_weight=raw["entropy_weight"],
-        value_weight=raw["value_weight"],
+        weight_decay=raw["weight_decay"],
+        batch_size=raw["batch_size"],
+        replay_capacity=raw["replay_capacity"],
+        updates_per_episode=raw["updates_per_episode"],
+        epsilon_start=raw["epsilon_start"],
+        epsilon_end=raw["epsilon_end"],
+        epsilon_decay_episodes=raw["epsilon_decay_episodes"],
+        max_grad_norm=raw["max_grad_norm"],
+        random_opponent_weight=raw["random_opponent_weight"],
+        f1d2_opponent_weight=raw["f1d2_opponent_weight"],
+        opponent_node_budget=raw["opponent_node_budget"],
         checkpoint_every=raw["checkpoint_every"],
+        keep_checkpoints=raw["keep_checkpoints"],
         device=raw["device"],
     )
 

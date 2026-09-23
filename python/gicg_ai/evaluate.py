@@ -7,7 +7,7 @@ from typing import Protocol
 import numpy as np
 import torch
 
-from .algorithm import CandidateActorCritic, load_policy
+from .algorithm import DmcQNetwork, load_policy
 from .config import EvaluationConfig, load_environment_config, load_evaluation_config
 from .env import GicgEnv, env
 
@@ -50,7 +50,7 @@ class GreedyPolicy:
 
 
 class CheckpointPolicy:
-    def __init__(self, model: CandidateActorCritic, device: str):
+    def __init__(self, model: DmcQNetwork, device: str):
         self.model = model
         self.device = torch.device(device)
 
@@ -60,8 +60,8 @@ class CheckpointPolicy:
         state = torch.as_tensor(observation["state"], device=self.device)
         actions = torch.as_tensor(observation["actions"][:count], device=self.device)
         with torch.no_grad():
-            logits, _ = self.model(state, actions)
-        return int(logits.argmax().item())
+            q_values = self.model(state, actions)
+        return int(q_values.argmax().item())
 
 
 def evaluate(
