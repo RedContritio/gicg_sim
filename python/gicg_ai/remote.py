@@ -137,6 +137,29 @@ def status(host: Host) -> None:
     ssh(host, script)
 
 
+def gpu(host: Host) -> None:
+    query = (
+        "index,name,utilization.gpu,utilization.memory,memory.used,memory.total,"
+        "power.draw,power.limit,temperature.gpu,clocks.sm,clocks.mem"
+    )
+    script = (
+        f"$trainPid = [int](Get-Content '{host.root}/artifacts/train.pid'); "
+        "$process = Get-Process -Id $trainPid; "
+        "$cpuStart = $process.TotalProcessorTime.TotalSeconds; "
+        "$timer = [Diagnostics.Stopwatch]::StartNew(); "
+        "1..8 | ForEach-Object { "
+        f"& nvidia-smi --query-gpu={query} --format=csv,noheader,nounits; "
+        "Start-Sleep -Milliseconds 500 }; "
+        "$timer.Stop(); $process.Refresh(); "
+        "$cpu = ($process.TotalProcessorTime.TotalSeconds - $cpuStart) "
+        "/ $timer.Elapsed.TotalSeconds / [Environment]::ProcessorCount * 100; "
+        "Write-Output ('train_cpu_percent=' + [math]::Round($cpu, 1)); "
+        "Write-Output ('train_memory_gib=' + [math]::Round($process.WorkingSet64 / 1GB, 2)); "
+        "Write-Output ('logical_processors=' + [Environment]::ProcessorCount)"
+    )
+    ssh(host, script)
+
+
 def pull(host: Host, run: str | None) -> None:
     if run is None:
         raise RuntimeError("pull requires --run")
@@ -164,7 +187,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "action",
-        choices=("wake", "sync", "prepare", "train", "status", "pull", "evaluate"),
+        choices=("wake", "sync", "prepare", "train", "status", "gpu", "pull", "evaluate"),
     )
     parser.add_argument("host")
     parser.add_argument("config", nargs="?", default="configs/train/dmc.toml")
@@ -180,6 +203,7 @@ def main() -> None:
         "prepare": prepare,
         "train": lambda selected: train(selected, arguments.config, arguments.resume),
         "status": status,
+        "gpu": gpu,
         "pull": lambda selected: pull(selected, arguments.run),
         "evaluate": lambda selected: evaluate(
             selected,

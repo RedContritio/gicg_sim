@@ -7,7 +7,7 @@ from torch import Tensor, nn
 
 from .config import TrainingConfig
 
-CHECKPOINT_VERSION = 3
+CHECKPOINT_VERSION = 4
 
 
 class DmcQNetwork(nn.Module):
@@ -123,20 +123,13 @@ class DmcAlgorithm:
         epsilon: float,
         random: np.random.Generator,
     ) -> tuple[int, Transition]:
-        count = int(observation["action_mask"].sum())
-        if count == 0:
-            raise RuntimeError("policy received no legal actions")
-        if random.random() < epsilon:
-            selected = int(random.integers(count))
-        else:
-            state = torch.as_tensor(observation["state"], device=self.device)
-            actions = torch.as_tensor(observation["actions"][:count], device=self.device)
-            with torch.no_grad():
-                selected = int(self.model(state, actions).argmax().item())
-        return selected, Transition(
-            state=observation["state"].copy(),
-            action=observation["actions"][selected].copy(),
-        )
+        return select_action(self.model, self.device, observation, epsilon, random)
+
+    def actor_state(self) -> dict[str, np.ndarray]:
+        return {
+            name: value.detach().cpu().numpy().copy()
+            for name, value in self.model.state_dict().items()
+        }
 
     def learn_episode(self, transitions: list[Transition], outcome: float) -> dict[str, float]:
         self.replay.push_episode(transitions, outcome)
@@ -222,8 +215,33 @@ def exploration(config: TrainingConfig, episode: int) -> float:
     return config.epsilon_start + progress * (config.epsilon_end - config.epsilon_start)
 
 
+def select_action(
+    model: DmcQNetwork,
+    device: torch.device,
+    observation: dict[str, np.ndarray],
+    epsilon: float,
+    random: np.random.Generator,
+) -> tuple[int, Transition]:
+    count = int(observation["action_mask"].sum())
+    if count == 0:
+        raise RuntimeError("policy received no legal actions")
+    if random.random() < epsilon:
+        selected = int(random.integers(count))
+    else:
+        state = torch.as_tensor(observation["state"], device=device)
+        actions = torch.as_tensor(observation["actions"][:count], device=device)
+        with torch.no_grad():
+            selected = int(model(state, actions).argmax().item())
+    return selected, Transition(
+        state=observation["state"].copy(),
+        action=observation["actions"][selected].copy(),
+    )
+
+
 def training_signature(config: TrainingConfig) -> dict:
     return {
+        "actors": config.actors,
+        "rollout_batch_size": config.rollout_batch_size,
         "batch_size": config.batch_size,
         "replay_capacity": config.replay_capacity,
         "updates_per_episode": config.updates_per_episode,
