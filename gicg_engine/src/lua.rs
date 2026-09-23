@@ -211,7 +211,7 @@ fn execute_file(lua: &Lua, root: &Path, path: &Path, digest: &mut Sha256) -> Res
         .strip_prefix(root)
         .map_err(|error| EngineError::InvalidRuleset(format!("resolve ruleset path: {error}")))?;
     let source = fs::read(path)?;
-    digest.update(relative.to_string_lossy().as_bytes());
+    digest.update(rule_path(root, path).as_bytes());
     digest.update([0]);
     digest.update(&source);
     digest.update([0]);
@@ -288,8 +288,17 @@ fn lua_files(root: &Path) -> Result<Vec<PathBuf>> {
     }
     let mut files = Vec::new();
     visit(root, &mut files)?;
-    files.sort_unstable();
+    files.sort_unstable_by_key(|path| rule_path(root, path));
     Ok(files)
+}
+
+fn rule_path(root: &Path, path: &Path) -> String {
+    path.strip_prefix(root)
+        .expect("rule file belongs to its root")
+        .components()
+        .map(|component| component.as_os_str().to_string_lossy())
+        .collect::<Vec<_>>()
+        .join("\\")
 }
 
 fn install_effect_constructors(lua: &Lua) -> mlua::Result<()> {

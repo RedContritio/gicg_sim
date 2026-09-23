@@ -190,7 +190,9 @@ def main() -> None:
     serialized = json.dumps(result, indent=2)
     if arguments.output is not None:
         arguments.output.write_text(serialized + "\n")
-    print(serialized)
+        print(arguments.output)
+    else:
+        print(serialized)
 
 
 if __name__ == "__main__":

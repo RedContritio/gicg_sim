@@ -137,12 +137,41 @@ def status(host: Host) -> None:
     ssh(host, script)
 
 
+def pull(host: Host, run: str | None) -> None:
+    if run is None:
+        raise RuntimeError("pull requires --run")
+    destination = Path(run)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["scp", "-q", "-r", f"{host.ssh}:{host.root}/{run}", destination.parent],
+        check=True,
+    )
+
+
+def evaluate(host: Host, config: str, checkpoint: str | None, output: str | None) -> None:
+    if checkpoint is None or output is None:
+        raise RuntimeError("evaluate requires --checkpoint and --output")
+    ssh(
+        host,
+        f"Set-Location '{host.root}'; "
+        f"& '{host.python}' -m gicg_ai.evaluate '{config}' "
+        f"--candidate-checkpoint '{checkpoint}' --output '{output}'; "
+        "if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("wake", "sync", "prepare", "train", "status"))
+    parser.add_argument(
+        "action",
+        choices=("wake", "sync", "prepare", "train", "status", "pull", "evaluate"),
+    )
     parser.add_argument("host")
     parser.add_argument("config", nargs="?", default="configs/train/dmc.toml")
     parser.add_argument("--resume")
+    parser.add_argument("--run")
+    parser.add_argument("--checkpoint")
+    parser.add_argument("--output")
     arguments = parser.parse_args()
     host = load_host(arguments.host)
     actions = {
@@ -151,6 +180,13 @@ def main() -> None:
         "prepare": prepare,
         "train": lambda selected: train(selected, arguments.config, arguments.resume),
         "status": status,
+        "pull": lambda selected: pull(selected, arguments.run),
+        "evaluate": lambda selected: evaluate(
+            selected,
+            arguments.config,
+            arguments.checkpoint,
+            arguments.output,
+        ),
     }
     actions[arguments.action](host)
 
