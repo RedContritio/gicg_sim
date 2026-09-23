@@ -1,16 +1,13 @@
 [environment]
-seed = 1
+seed = 1000
 max_actions = 2048
 max_steps = 4096
 
-[training]
-experiment_tag = "smoke"
+[evaluation]
 episodes = 2
-hidden_size = 128
-learning_rate = 0.0003
-entropy_weight = 0.01
-value_weight = 0.5
-checkpoint_every = 1
+seed = 1000
+candidate = "heuristic"
+opponent = "random"
 device = "cpu"
 
 [game]

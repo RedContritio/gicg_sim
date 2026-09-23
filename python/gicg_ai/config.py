@@ -28,6 +28,16 @@ class TrainingConfig:
     learning_rate: float
     entropy_weight: float
     value_weight: float
+    checkpoint_every: int
+    device: str
+
+
+@dataclass(frozen=True)
+class EvaluationConfig:
+    episodes: int
+    seed: int
+    candidate: str
+    opponent: str
     device: str
 
 
@@ -61,5 +71,18 @@ def load_training_config(path: Path) -> TrainingConfig:
         learning_rate=raw["learning_rate"],
         entropy_weight=raw["entropy_weight"],
         value_weight=raw["value_weight"],
+        checkpoint_every=raw["checkpoint_every"],
+        device=raw["device"],
+    )
+
+
+def load_evaluation_config(path: Path) -> EvaluationConfig:
+    with path.open("rb") as file:
+        raw = tomllib.load(file)["evaluation"]
+    return EvaluationConfig(
+        episodes=raw["episodes"],
+        seed=raw["seed"],
+        candidate=raw["candidate"],
+        opponent=raw["opponent"],
         device=raw["device"],
     )

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from math import sqrt
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -7,6 +8,8 @@ from torch import Tensor, nn
 from torch.distributions import Categorical
 
 from .config import TrainingConfig
+
+CHECKPOINT_VERSION = 1
 
 
 class CandidateActorCritic(nn.Module):
@@ -50,6 +53,8 @@ class EpisodicActorCritic:
     ):
         self.config = config
         self.device = torch.device(config.device)
+        self.state_size = state_size
+        self.action_size = action_size
         self.model = CandidateActorCritic(state_size, action_size, config.hidden_size).to(
             self.device
         )
@@ -97,12 +102,95 @@ class EpisodicActorCritic:
             "entropy": entropy.item(),
         }
 
-    def checkpoint(self, path, episode: int) -> None:
+    def checkpoint(self, path: Path, episode: int, ruleset: str) -> None:
         torch.save(
             {
+                "format": CHECKPOINT_VERSION,
                 "episode": episode,
+                "ruleset": ruleset,
+                "state_size": self.state_size,
+                "action_size": self.action_size,
+                "hidden_size": self.config.hidden_size,
+                "device_type": self.device.type,
                 "model": self.model.state_dict(),
                 "optimizer": self.optimizer.state_dict(),
+                "torch_rng": torch.get_rng_state(),
+                "device_rng": get_device_rng(self.device),
             },
             path,
         )
+
+    def restore(self, path: Path, ruleset: str) -> int:
+        checkpoint = load_checkpoint(path, self.device)
+        validate_checkpoint(
+            checkpoint,
+            ruleset,
+            self.state_size,
+            self.action_size,
+            self.config.hidden_size,
+        )
+        self.model.load_state_dict(checkpoint["model"], strict=True)
+        self.optimizer.load_state_dict(checkpoint["optimizer"])
+        if checkpoint["device_type"] != self.device.type:
+            raise RuntimeError(
+                f"training resume requires device {checkpoint['device_type']!r}, "
+                f"got {self.device.type!r}"
+            )
+        torch.set_rng_state(checkpoint["torch_rng"].cpu())
+        set_device_rng(self.device, checkpoint["device_rng"])
+        return int(checkpoint["episode"])
+
+
+def load_policy(
+    path: Path,
+    ruleset: str,
+    state_size: int,
+    action_size: int,
+    device: str,
+) -> CandidateActorCritic:
+    target = torch.device(device)
+    checkpoint = load_checkpoint(path, target)
+    hidden_size = int(checkpoint["hidden_size"])
+    validate_checkpoint(checkpoint, ruleset, state_size, action_size, hidden_size)
+    model = CandidateActorCritic(state_size, action_size, hidden_size).to(target)
+    model.load_state_dict(checkpoint["model"], strict=True)
+    model.eval()
+    return model
+
+
+def load_checkpoint(path: Path, device: torch.device) -> dict:
+    return torch.load(path, map_location=device, weights_only=True)
+
+
+def validate_checkpoint(
+    checkpoint: dict,
+    ruleset: str,
+    state_size: int,
+    action_size: int,
+    hidden_size: int,
+) -> None:
+    expected = {
+        "format": CHECKPOINT_VERSION,
+        "ruleset": ruleset,
+        "state_size": state_size,
+        "action_size": action_size,
+        "hidden_size": hidden_size,
+    }
+    actual = {key: checkpoint.get(key) for key in expected}
+    if actual != expected:
+        raise RuntimeError(f"checkpoint protocol mismatch: expected {expected}, got {actual}")
+
+
+def get_device_rng(device: torch.device) -> Tensor | None:
+    if device.type == "cuda":
+        return torch.cuda.get_rng_state(device)
+    if device.type == "mps":
+        return torch.mps.get_rng_state()
+    return None
+
+
+def set_device_rng(device: torch.device, state: Tensor | None) -> None:
+    if device.type == "cuda":
+        torch.cuda.set_rng_state(state, device)
+    elif device.type == "mps":
+        torch.mps.set_rng_state(state)

@@ -11,7 +11,11 @@ from .config import load_environment_config, load_training_config
 from .env import env
 
 
-def train(config_path: Path, artifact_root: Path = Path("artifacts")) -> Path:
+def train(
+    config_path: Path,
+    artifact_root: Path = Path("artifacts"),
+    resume: Path | None = None,
+) -> Path:
     environment_config = load_environment_config(config_path)
     training_config = load_training_config(config_path)
     torch.manual_seed(environment_config.seed)
@@ -21,7 +25,16 @@ def train(config_path: Path, artifact_root: Path = Path("artifacts")) -> Path:
         game.action_encoder.size,
         training_config,
     )
+    start_episode = algorithm.restore(resume, game.rules["hash"]) if resume is not None else 0
+    if start_episode >= training_config.episodes:
+        raise RuntimeError(
+            f"checkpoint is at episode {start_episode}, target is {training_config.episodes}"
+        )
+    if training_config.checkpoint_every < 1:
+        raise RuntimeError("checkpoint_every must be positive")
     run = create_run_directory(artifact_root, training_config.experiment_tag)
+    checkpoints = run / "checkpoints"
+    checkpoints.mkdir()
     shutil.copy2(config_path, run / "config.toml")
     write_json(
         run / "metadata.json",
@@ -30,15 +43,23 @@ def train(config_path: Path, artifact_root: Path = Path("artifacts")) -> Path:
             "seed": environment_config.seed,
             "state_features": game.state_encoder.size,
             "action_features": game.action_encoder.size,
+            "start_episode": start_episode,
+            "resume": str(resume.resolve()) if resume is not None else None,
         },
     )
     with (run / "metrics.jsonl").open("w") as metrics_file:
-        for episode in range(training_config.episodes):
+        for episode in range(start_episode, training_config.episodes):
             metrics = train_episode(game, algorithm, environment_config.seed + episode)
             metrics["episode"] = episode + 1
             metrics_file.write(json.dumps(metrics) + "\n")
             metrics_file.flush()
-    algorithm.checkpoint(run / "checkpoint.pt", training_config.episodes)
+            if (episode + 1) % training_config.checkpoint_every == 0:
+                algorithm.checkpoint(
+                    checkpoints / f"{episode + 1:06d}.pt",
+                    episode + 1,
+                    game.rules["hash"],
+                )
+    algorithm.checkpoint(run / "checkpoint.pt", training_config.episodes, game.rules["hash"])
     game.close()
     return run
 
@@ -91,8 +112,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("config", type=Path)
     parser.add_argument("--artifacts", type=Path, default=Path("artifacts"))
+    parser.add_argument("--resume", type=Path)
     arguments = parser.parse_args()
-    print(train(arguments.config, arguments.artifacts))
+    print(train(arguments.config, arguments.artifacts, arguments.resume))
 
 
 if __name__ == "__main__":
