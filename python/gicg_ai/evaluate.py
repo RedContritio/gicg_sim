@@ -132,7 +132,7 @@ def play_game(game: GicgEnv, policies: list[Policy], seed: int, candidate_seat: 
         if terminated:
             break
         if truncated:
-            raise RuntimeError(f"evaluation exceeded {game.config.max_steps} steps")
+            break
         player = game.agent_name_mapping[game.agent_selection]
         game.step(policies[player].select(observation, game))
     return {
@@ -140,6 +140,7 @@ def play_game(game: GicgEnv, policies: list[Policy], seed: int, candidate_seat: 
         "candidate_seat": candidate_seat,
         "winner": game.state["winner"],
         "candidate_won": game.state["winner"] == candidate_seat,
+        "draw": game.state["winner"] is None,
         "steps": game.steps,
         "rounds": game.state["round"],
     }
@@ -151,13 +152,14 @@ def summarize(
     candidate_checkpoint: Path | None,
     opponent_checkpoint: Path | None,
 ) -> dict:
-    wins = sum(game["candidate_won"] for game in games)
+    wins, draws, losses = outcome_counts(games)
     return {
         "candidate": str(candidate_checkpoint) if candidate_checkpoint else config.candidate,
         "opponent": str(opponent_checkpoint) if opponent_checkpoint else config.opponent,
         "games": len(games),
         "wins": wins,
-        "losses": len(games) - wins,
+        "losses": losses,
+        "draws": draws,
         "win_rate": wins / len(games),
         "seat_0_wins": sum(game["candidate_won"] for game in games if game["candidate_seat"] == 0),
         "seat_1_wins": sum(game["candidate_won"] for game in games if game["candidate_seat"] == 1),
@@ -165,6 +167,12 @@ def summarize(
         "average_rounds": sum(game["rounds"] for game in games) / len(games),
         "results": games,
     }
+
+
+def outcome_counts(games: list[dict]) -> tuple[int, int, int]:
+    wins = sum(game["candidate_won"] for game in games)
+    draws = sum(game["draw"] for game in games)
+    return wins, draws, len(games) - wins - draws
 
 
 def main() -> None:

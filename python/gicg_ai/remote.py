@@ -101,14 +101,18 @@ def prepare(host: Host) -> None:
     )
 
 
-def train(host: Host, config: str) -> None:
+def train(host: Host, config: str, resume: str | None) -> None:
     artifacts = f"{host.root}/artifacts"
+    arguments = ["-m", "gicg_ai.train", config, "--artifacts", "artifacts"]
+    if resume is not None:
+        arguments.extend(("--resume", resume))
+    argument_list = ",".join(f"'{argument}'" for argument in arguments)
     ssh(
         host,
         f"New-Item -ItemType Directory -Force '{artifacts}' | Out-Null; "
         f"$process = Start-Process -PassThru -WorkingDirectory '{host.root}' "
         f"-FilePath '{host.python}' "
-        f"-ArgumentList @('-m','gicg_ai.train','{config}','--artifacts','artifacts') "
+        f"-ArgumentList @({argument_list}) "
         f"-RedirectStandardOutput '{artifacts}/train.out' "
         f"-RedirectStandardError '{artifacts}/train.err'; "
         f"Set-Content '{artifacts}/train.pid' $process.Id; $process.Id; "
@@ -125,7 +129,10 @@ def status(host: Host) -> None:
         "if ($process) { Write-Output ('running pid=' + $trainPid) } "
         "else { Write-Output ('stopped pid=' + $trainPid) }; "
         f"Get-Content '{host.root}/artifacts/train.out' -Tail 5 -ErrorAction SilentlyContinue; "
-        f"Get-Content '{host.root}/artifacts/train.err' -Tail 20 -ErrorAction SilentlyContinue"
+        f"Get-Content '{host.root}/artifacts/train.err' -Tail 20 -ErrorAction SilentlyContinue; "
+        f"$metrics = Get-ChildItem '{host.root}/artifacts' -Filter metrics.jsonl -Recurse "
+        "| Sort-Object LastWriteTime -Descending | Select-Object -First 1; "
+        "if ($metrics) { Write-Output $metrics.FullName; Get-Content $metrics.FullName -Tail 1 }"
     )
     ssh(host, script)
 
@@ -135,13 +142,14 @@ def main() -> None:
     parser.add_argument("action", choices=("wake", "sync", "prepare", "train", "status"))
     parser.add_argument("host")
     parser.add_argument("config", nargs="?", default="configs/train/dmc.toml")
+    parser.add_argument("--resume")
     arguments = parser.parse_args()
     host = load_host(arguments.host)
     actions = {
         "wake": wake,
         "sync": sync,
         "prepare": prepare,
-        "train": lambda selected: train(selected, arguments.config),
+        "train": lambda selected: train(selected, arguments.config, arguments.resume),
         "status": status,
     }
     actions[arguments.action](host)

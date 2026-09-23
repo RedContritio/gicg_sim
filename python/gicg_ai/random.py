@@ -19,8 +19,6 @@ def play(config: Path, episodes: int, seed: int) -> list[dict]:
                 game.step(None)
                 continue
             game.step(int(random.integers(len(game.legal_actions))))
-        if game.state["phase"] != "finished":
-            raise RuntimeError(f"episode {episode} exceeded {game.config.max_steps} steps")
         results.append(
             {
                 "episode": episode,
@@ -28,6 +26,7 @@ def play(config: Path, episodes: int, seed: int) -> list[dict]:
                 "steps": game.steps,
                 "rounds": game.state["round"],
                 "winner": game.state["winner"],
+                "truncated": game.state["winner"] is None,
             }
         )
     game.close()

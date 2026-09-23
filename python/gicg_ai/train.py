@@ -78,7 +78,7 @@ def train_episode(
     while game.state["phase"] != "finished":
         observation, _, terminated, truncated, _ = game.last()
         if terminated or truncated:
-            raise RuntimeError(f"episode exceeded {game.config.max_steps} steps")
+            break
         player = game.agent_name_mapping[game.agent_selection]
         if player == learner:
             action, transition = algorithm.select(observation, epsilon, random)
@@ -86,14 +86,16 @@ def train_episode(
         else:
             action = opponent_action(game, config, opponent, random)
         game.step(action)
-    outcome = 1.0 if game.state["winner"] == learner else -1.0
+    winner = game.state.get("winner")
+    outcome = 0.0 if winner is None else (1.0 if winner == learner else -1.0)
     metrics = algorithm.learn_episode(transitions, outcome)
     metrics.update(
         {
             "seed": seed,
             "steps": game.steps,
             "rounds": game.state["round"],
-            "winner": game.state["winner"],
+            "winner": winner,
+            "truncated": winner is None,
             "learner": learner,
             "opponent": opponent,
             "outcome": outcome,
