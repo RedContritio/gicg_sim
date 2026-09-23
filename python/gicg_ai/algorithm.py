@@ -7,7 +7,7 @@ from torch import Tensor, nn
 
 from .config import TrainingConfig
 
-CHECKPOINT_VERSION = 4
+CHECKPOINT_VERSION = 5
 
 
 class DmcQNetwork(nn.Module):
@@ -46,43 +46,55 @@ class Transition:
 
 
 class ReplayBuffer:
-    def __init__(self, capacity: int, state_size: int, action_size: int, seed: int):
+    def __init__(
+        self,
+        capacity: int,
+        state_size: int,
+        action_size: int,
+        seed: int,
+        device: torch.device,
+    ):
         self.capacity = capacity
-        self.states = torch.empty((capacity, state_size), dtype=torch.float32)
-        self.actions = torch.empty((capacity, action_size), dtype=torch.float32)
-        self.returns = torch.empty(capacity, dtype=torch.float32)
+        self.device = device
+        self.states = torch.empty((capacity, state_size), dtype=torch.float32, device=device)
+        self.actions = torch.empty((capacity, action_size), dtype=torch.float32, device=device)
+        self.returns = torch.empty(capacity, dtype=torch.float32, device=device)
         self.size = 0
         self.next = 0
         self.total_seen = 0
-        self.random = torch.Generator().manual_seed(seed)
+        self.random = torch.Generator(device=device).manual_seed(seed)
 
     def __len__(self) -> int:
         return self.size
 
     def push_episode(self, transitions: list[Transition], outcome: float) -> None:
-        for transition in transitions:
-            self.states[self.next].copy_(torch.from_numpy(transition.state))
-            self.actions[self.next].copy_(torch.from_numpy(transition.action))
-            self.returns[self.next] = outcome
-            self.next = (self.next + 1) % self.capacity
-            self.size = min(self.size + 1, self.capacity)
-            self.total_seen += 1
+        count = len(transitions)
+        if count == 0:
+            return
+        if count > self.capacity:
+            raise RuntimeError("episode exceeds replay capacity")
+        indices = (torch.arange(count, device=self.device) + self.next) % self.capacity
+        states = torch.from_numpy(np.stack([item.state for item in transitions])).to(self.device)
+        actions = torch.from_numpy(np.stack([item.action for item in transitions])).to(self.device)
+        self.states.index_copy_(0, indices, states)
+        self.actions.index_copy_(0, indices, actions)
+        self.returns.index_fill_(0, indices, outcome)
+        self.next = (self.next + count) % self.capacity
+        self.size = min(self.size + count, self.capacity)
+        self.total_seen += count
 
-    def sample(self, count: int, device: torch.device) -> tuple[Tensor, Tensor, Tensor]:
-        indices = torch.randint(self.size, (count,), generator=self.random)
-        return (
-            self.states[indices].to(device),
-            self.actions[indices].to(device),
-            self.returns[indices].to(device),
-        )
+    def sample(self, count: int) -> tuple[Tensor, Tensor, Tensor]:
+        indices = torch.randint(self.size, (count,), generator=self.random, device=self.device)
+        return self.states[indices], self.actions[indices], self.returns[indices]
 
     def state_dict(self) -> dict:
         return {
-            "states": self.states[: self.size].clone(),
-            "actions": self.actions[: self.size].clone(),
-            "returns": self.returns[: self.size].clone(),
+            "states": self.states[: self.size].cpu(),
+            "actions": self.actions[: self.size].cpu(),
+            "returns": self.returns[: self.size].cpu(),
             "random": self.random.get_state(),
             "total_seen": self.total_seen,
+            "next": self.next,
         }
 
     def load_state_dict(self, state: dict) -> None:
@@ -93,11 +105,11 @@ class ReplayBuffer:
             raise RuntimeError("checkpoint replay state shape does not match the environment")
         if state["actions"].shape[1:] != self.actions.shape[1:]:
             raise RuntimeError("checkpoint replay action shape does not match the environment")
-        self.states[:size].copy_(state["states"])
-        self.actions[:size].copy_(state["actions"])
-        self.returns[:size].copy_(state["returns"])
+        self.states[:size].copy_(state["states"].to(self.device))
+        self.actions[:size].copy_(state["actions"].to(self.device))
+        self.returns[:size].copy_(state["returns"].to(self.device))
         self.size = size
-        self.next = size % self.capacity
+        self.next = int(state["next"])
         self.total_seen = int(state["total_seen"])
         self.random.set_state(state["random"])
 
@@ -114,7 +126,9 @@ class DmcAlgorithm:
             lr=config.learning_rate,
             weight_decay=config.weight_decay,
         )
-        self.replay = ReplayBuffer(config.replay_capacity, state_size, action_size, seed)
+        self.replay = ReplayBuffer(
+            config.replay_capacity, state_size, action_size, seed, self.device
+        )
         self.updates = 0
 
     def select(
@@ -153,7 +167,7 @@ class DmcAlgorithm:
         }
 
     def _update(self) -> tuple[float, float, float]:
-        states, actions, returns = self.replay.sample(self.config.batch_size, self.device)
+        states, actions, returns = self.replay.sample(self.config.batch_size)
         predicted = self.model(states, actions)
         loss = nn.functional.mse_loss(predicted, returns)
         self.optimizer.zero_grad()
