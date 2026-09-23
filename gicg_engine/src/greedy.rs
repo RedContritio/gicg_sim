@@ -81,6 +81,14 @@ impl SearchBudget {
     }
 }
 
+#[derive(Clone, Copy)]
+struct SearchSpec {
+    root: ScoreRoot,
+    me: usize,
+    features: u8,
+    prune: bool,
+}
+
 impl Game {
     pub fn select_greedy_action(
         &self,
@@ -99,6 +107,12 @@ impl Game {
             ));
         }
         let mut budget = SearchBudget((node_budget > 0).then_some(node_budget));
+        let spec = SearchSpec {
+            root,
+            me,
+            features,
+            prune: depth >= 3,
+        };
         let mut scored = Vec::new();
         for input in inputs {
             if !budget.take() {
@@ -106,7 +120,7 @@ impl Game {
             }
             let mut next = self.clone();
             input.clone().apply(&mut next)?;
-            let score = minimax(&next, root, me, features, depth - 1, &mut budget)?;
+            let score = minimax(&next, spec, depth - 1, &mut budget)?;
             scored.push((input.index(), score));
         }
         choose_best(scored, seed)
@@ -127,35 +141,61 @@ fn validate_config(features: u8, depth: usize) -> Result<()> {
     Ok(())
 }
 
-fn minimax(
+fn minimax(game: &Game, spec: SearchSpec, depth: usize, budget: &mut SearchBudget) -> Result<f64> {
+    if search_finished(game, depth, budget) {
+        return score(game, spec.root, spec.me, spec.features);
+    }
+    let maximize = controller(game) == spec.me;
+    if spec.prune && depth >= 2 {
+        return pruned_minimax(game, spec, depth, budget, maximize);
+    }
+    full_minimax(game, spec, depth, budget, maximize)
+}
+
+fn full_minimax(
     game: &Game,
-    root: ScoreRoot,
-    me: usize,
-    features: u8,
+    spec: SearchSpec,
     depth: usize,
     budget: &mut SearchBudget,
+    maximize: bool,
 ) -> Result<f64> {
-    if search_finished(game, depth, budget) {
-        return score(game, root, me, features);
-    }
-    let maximize = controller(game) == me;
-    let mut children = ordered_children(game, root, me, features, maximize, budget)?;
-    if depth >= 2 {
-        children.truncate(HEURISTIC_BRANCH_LIMIT);
+    let inputs = candidate_inputs(game)?;
+    if inputs.is_empty() {
+        return score(game, spec.root, spec.me, spec.features);
     }
     let mut best: Option<f64> = None;
-    for (next, _) in children {
-        let value = minimax(&next, root, me, features, depth - 1, budget)?;
+    for input in inputs {
+        if !budget.take() {
+            break;
+        }
+        let mut next = game.clone();
+        input.apply(&mut next)?;
+        let value = minimax(&next, spec, depth - 1, budget)?;
         best = Some(select_score(best, value, maximize));
     }
-    best.map_or_else(|| score(game, root, me, features), Ok)
+    best.map_or_else(|| score(game, spec.root, spec.me, spec.features), Ok)
+}
+
+fn pruned_minimax(
+    game: &Game,
+    spec: SearchSpec,
+    depth: usize,
+    budget: &mut SearchBudget,
+    maximize: bool,
+) -> Result<f64> {
+    let mut children = ordered_children(game, spec, maximize, budget)?;
+    children.truncate(HEURISTIC_BRANCH_LIMIT);
+    let mut best: Option<f64> = None;
+    for (next, _) in children {
+        let value = minimax(&next, spec, depth - 1, budget)?;
+        best = Some(select_score(best, value, maximize));
+    }
+    best.map_or_else(|| score(game, spec.root, spec.me, spec.features), Ok)
 }
 
 fn ordered_children(
     game: &Game,
-    root: ScoreRoot,
-    me: usize,
-    features: u8,
+    spec: SearchSpec,
     maximize: bool,
     budget: &mut SearchBudget,
 ) -> Result<Vec<(Game, f64)>> {
@@ -166,7 +206,7 @@ fn ordered_children(
         }
         let mut next = game.clone();
         input.apply(&mut next)?;
-        let heuristic = score(&next, root, me, features)?;
+        let heuristic = score(&next, spec.root, spec.me, spec.features)?;
         children.push((next, heuristic));
     }
     children.sort_by(|left, right| {
