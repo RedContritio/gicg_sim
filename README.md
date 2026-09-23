@@ -15,7 +15,7 @@
 | 基线 | 可配置的 FxDy 贪心搜索，当前正式对手为 F1D2 |
 | 主线算法 | 原生 DMC，学习执行动作的 `Q(s, a)`，支持 replay 与 checkpoint 恢复 |
 | Web | 双方三角色、正常手牌和完整对局流程 |
-| 远端运行 | Wake-on-LAN、同步、构建、训练、续训和状态查询 |
+| 远端运行 | Wake-on-LAN、同步、构建、训练、续训、评测、拉取和状态查询 |
 
 首轮正式 DMC 已在 RTX 5070 Ti 上完成 10,000 局：
 
@@ -24,8 +24,16 @@ D:/gicg_mono/artifacts/dmc/20260923_135140_000001/
 ```
 
 该 run 包含完整配置、metadata、metrics、滚动 checkpoint 和最终
-`checkpoint.pt`。下一步是拉取最终 checkpoint，按固定种子分别对 Random 与 F1D2
-完成双座位评测。目前的规则内容是主线闭环，不是完整七圣召唤卡池。
+`checkpoint.pt`。最终 checkpoint 已拉回本地，并完成固定种子双座位评测：
+
+| 对手 | 对局 | 胜 | 负 | 平 | 胜率 | 先手胜率 | 后手胜率 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Random | 1,000 | 994 | 5 | 1 | 99.4% | 99.0% | 99.8% |
+| F1D2 | 1,000 | 713 | 286 | 1 | 71.3% | 68.2% | 74.4% |
+
+Random 使用种子 20000–20499，F1D2 使用种子 30000–30499；每个种子各测试一个
+先手和后手对局。原始逐局结果位于对应 run 的 `eval_vs_random.json` 和
+`eval_vs_f1d2.json`。目前的规则内容是主线闭环，不是完整七圣召唤卡池。
 
 ## 结构
 
@@ -81,6 +89,9 @@ git config core.hooksPath .githooks
   --candidate-checkpoint artifacts/dmc/<run>/checkpoint.pt
 ```
 
+正式评测配置为 `configs/eval/dmc_vs_random.toml` 和
+`configs/eval/dmc_vs_f1d2.toml`。
+
 ## 训练语义
 
 - DMC 直接回归本局执行动作的终局回报：胜 `+1`、平 `0`、负 `-1`。
@@ -112,6 +123,15 @@ cp configs/hosts.example.toml configs/hosts.toml
 .venv/bin/python -m gicg_ai.remote prepare gpu56
 .venv/bin/python -m gicg_ai.remote train gpu56 configs/train/dmc.toml
 .venv/bin/python -m gicg_ai.remote status gpu56
+.venv/bin/python -m gicg_ai.remote pull gpu56 --run artifacts/dmc/<run>
+```
+
+在远端执行 checkpoint 评测：
+
+```bash
+.venv/bin/python -m gicg_ai.remote evaluate gpu56 configs/eval/dmc_vs_f1d2.toml \
+  --checkpoint artifacts/dmc/<run>/checkpoint.pt \
+  --output artifacts/dmc/<run>/eval_vs_f1d2.json
 ```
 
 从远端 checkpoint 续训：
