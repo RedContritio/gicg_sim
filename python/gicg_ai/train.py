@@ -2,7 +2,7 @@ import argparse
 import json
 import multiprocessing
 import shutil
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import Future, ProcessPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -86,14 +86,19 @@ def train(
         (run / "metrics.jsonl").open("w") as metrics_file,
     ):
         episode = start_episode
+        end = rollout_batch_end(episode, training_config)
+        pending = submit_rollouts(
+            actors,
+            training_config.actors,
+            algorithm.actor_state(),
+            range(episode, end),
+        )
         while episode < training_config.episodes:
-            end = rollout_batch_end(episode, training_config)
-            rollouts = collect_rollouts(
-                actors,
-                training_config.actors,
-                algorithm.actor_state(),
-                range(episode, end),
-            )
+            rollouts = resolve_rollouts(pending)
+            next_end = rollout_batch_end(end, training_config)
+            pending = []
+            if end % training_config.checkpoint_every != 0:
+                pending = submit_next_rollouts(actors, algorithm, training_config, end, next_end)
             for rollout in rollouts:
                 metrics = learn_rollout(algorithm, rollout)
                 metrics_file.write(json.dumps(metrics) + "\n")
@@ -105,7 +110,10 @@ def train(
                     game.rules["hash"],
                     training_config,
                 )
+            if not pending:
+                pending = submit_next_rollouts(actors, algorithm, training_config, end, next_end)
             episode = end
+            end = next_end
     algorithm.checkpoint(run / "checkpoint.pt", training_config.episodes, game.rules["hash"])
     game.close()
     return run
@@ -205,18 +213,33 @@ def rollout_batch_end(episode: int, config: TrainingConfig) -> int:
     return min(config.episodes, episode + config.rollout_batch_size, checkpoint)
 
 
-def collect_rollouts(
+def submit_rollouts(
     actors: ProcessPoolExecutor,
     actor_count: int,
     model_state: dict[str, np.ndarray],
     episodes: range,
-) -> list[EpisodeRollout]:
+) -> list[Future[list[EpisodeRollout]]]:
     episode_list = list(episodes)
     count = min(actor_count, len(episode_list))
     chunks = [episode_list[index::count] for index in range(count)]
-    futures = [actors.submit(collect_actor_rollouts, model_state, chunk) for chunk in chunks]
+    return [actors.submit(collect_actor_rollouts, model_state, chunk) for chunk in chunks]
+
+
+def resolve_rollouts(futures: list[Future[list[EpisodeRollout]]]) -> list[EpisodeRollout]:
     rollouts = [rollout for future in futures for rollout in future.result()]
     return sorted(rollouts, key=lambda rollout: rollout.episode)
+
+
+def submit_next_rollouts(
+    actors: ProcessPoolExecutor,
+    algorithm: DmcAlgorithm,
+    config: TrainingConfig,
+    episode: int,
+    end: int,
+) -> list[Future[list[EpisodeRollout]]]:
+    if episode >= config.episodes:
+        return []
+    return submit_rollouts(actors, config.actors, algorithm.actor_state(), range(episode, end))
 
 
 def checkpoint_if_needed(
